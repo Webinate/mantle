@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{27F67056-EF58-4BED-AC8A-9681B878A3BC}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <TypeScriptToolsVersion>1.5</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="lib\controllers\EmailsController.ts" />
+    <TypeScriptCompile Include="lib\controllers\PostsController.ts" />
+    <TypeScriptCompile Include="lib\definitions\bcrypt-nodejs.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\entities.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\form-data.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\mongodb-write-result.ts" />
+    <TypeScriptCompile Include="lib\definitions\nodemailer.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\prompt.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\body-parser.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\es6-promise.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\express.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\method-override.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\morgan.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\node.d.ts" />
+    <TypeScriptCompile Include="lib\Config.ts" />
+    <TypeScriptCompile Include="lib\controllers\Controller.ts" />
+    <TypeScriptCompile Include="lib\definitions\recaptcha-async.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\request.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\validator.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\webinate-colors.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\webinate-users.d.ts" />
+    <TypeScriptCompile Include="lib\models\Model.ts" />
+    <TypeScriptCompile Include="lib\models\CategoriesModel.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaItemFactory.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaDate.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaTextArray.ts" />
+    <TypeScriptCompile Include="lib\models\Schema.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaText.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaNumber.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaItem.ts" />
+    <TypeScriptCompile Include="lib\models\PostsModel.ts" />
+    <TypeScriptCompile Include="lib\UsersService.ts" />
+    <TypeScriptCompile Include="main.ts" />
+    <TypeScriptCompile Include="lib\definitions\mongodb.d.ts" />
+    <TypeScriptCompile Include="lib\MongoWrapper.ts" />
+    <TypeScriptCompile Include="modepress.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\bin\server\views\index.jade">
+      <Link>views\index.jade</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\bin\server\package.json">
+      <Link>package.json</Link>
+    </Content>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>server</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>7303</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:7303/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <UserProperties __JSONSchema="http://json.schemastore.org/package" />
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>False</TypeScriptSourceMap>
+    <TypeScriptModuleKind>commonjs</TypeScriptModuleKind>
+    <TypeScriptOutDir>$(ProjectDir)..\bin\server</TypeScriptOutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+</Project>

@@ -1,0 +1,19 @@
+﻿<div class="log-in">
+	<form name="loginForm" ng-submit="loginForm.$valid && controller.logIn()" novalidate>
+		<p>
+			<label>Username <input type="text" name="loginUsername" ng-model="controller.loginToken.username" ng-minlength="3" required /></label>
+		</p>
+		<p>
+			<label>Password <input type="password" name="loginPassword" ng-model="controller.loginToken.password" ng-minlength="3" required /></label>
+		</p>
+		<p class="error" ng-show="controller.error">{{controller.errorMsg}}</p>
+        <img ng-show="controller.loading" src="/media/images/loader.gif" />
+        <input ng-show="!controller.loading" type="submit" id="submit" class="button blue" value="Log in" />
+		<div class="nav-button"><a target="_self" href=".">← Back to Site</a></div>
+		<div class="nav-button"><a ui-sref="register" ui-sref-active="active">or Register New Account</a></div>
+		<div ng-show="loginForm.$submitted">
+			<p class="error" ng-show="loginForm.loginUsername.$error.minlength">Username too short!</p>
+			<p class="error" ng-show="loginForm.loginPassword.$error.minlength">Password too short!</p>
+		</div>
+	</form>
+</div>

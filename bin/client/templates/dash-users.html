@@ -1,0 +1,119 @@
+<div class="dialog-modal" ng-show="controller.error">
+    <div class="dialog-box">
+        <p>{{controller.errorMsg}}</p>
+        <div class="button red" ng-click="controller.error=false">Ok</div>
+    </div>
+</div>
+
+<div class="sub-menu">
+    <h>User Management <img ng-show="controller.loading" src="/media/images/loader.gif" /></h> 
+    <div class="console" ng-show="!controller.showUserForm">
+        <div class="button blue" ng-click="controller.newUserMode()"><div class="cross"></div> New User</div>
+        <div class="search"><input type="text" ng-model="controller.searchTerm" /><div class="search-button" ng-click="controller.getUsers()"></div></div>
+    </div>
+    <div class="console-buttons" ng-show="controller.showUserForm">
+        <div ng-class="{'hidden': controller.loading}" ng-click="controller.createNewUser()" class="button green"><div class="cross"></div>Create New User</div>
+        <div ng-class="{'hidden': controller.loading}" class="button red" ng-click="controller.showUserForm = false"><div class="cross"></div>Close</div>
+        <div class="success">{{controller.successMessage}}</div>
+    </div>
+</div>
+
+<div class="content-view">
+    <div class="content-view-item new-user-form" ng-show="controller.showUserForm">
+        <div class="content-view-details animate-show">
+            <form name="newUserForm" ng-submit="newUserForm.$valid && controller.createNewUser()" novalidate>
+                <div class="content-view-detail">
+                    <div class="label">Username:</div>
+                    <input type="text" name="nUsername" ng-model="controller.newUser.username" ng-minlength="3" required />
+                    <div class="error animate-show" ng-show="newUserForm.nUsername.$error.required && (newUserForm.$submitted || newUserForm.nUsername.$touched)">Please enter a valid username</div>
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">Email:</div>
+                    <input type="email" name="nEmail" ng-model="controller.newUser.email" required />
+                    <div class="error animate-show" ng-show="newUserForm.nEmail.$error.required && (newUserForm.$submitted || newUserForm.nEmail.$touched)">Please enter an email</div>
+                    <div class="error animate-show" ng-show="newUserForm.nEmail.$error.email && (newUserForm.$submitted || newUserForm.nEmail.$touched)">Please enter a valid email</div>
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">Password: </div>
+                    <input type="password" name="nPassword" ng-model="controller.newUser.password" ng-minlength="3" required />
+                    <div class="error animate-show" ng-show="newUserForm.nPassword.$error.required && (newUserForm.$submitted || newUserForm.nPassword.$touched)">Please enter a valid password</div>
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">User Type: </div>
+                    <div class="dropdown">
+                        <select name="nType" ng-model="controller.newUser.type" required>
+                            <option value="2">Admin</option>
+                            <option value="3">Regular User</option>
+                        </select>
+                    </div>
+                    <div class="fix"></div>       
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="content-view-item-list" ng-show="!controller.showUserForm">
+        <div class="content-view-item" ng-repeat="user in controller.users">
+            <div class="arrow animate-fast" ng-click="user.more = (user.more === undefined ? true : !user.more )" ng-class="{ active : user.more }"></div>
+            <div class="view-item-label">{{user.username}}</div>
+            <div class="content-view-details animated-panel animate-show" ng-show="user.more">
+                <div class="content-view-detail">
+                    <div class="label">ID: </div>
+                    <div class="textbox">{{user._id}}</div>
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">Email</div>
+                    <input value="{{user.email}}" />
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">Password: </div>
+                    <input value="{{user.password}}" />
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">Password Tag: </div>
+                    <input value="{{user.passwordTag}}" />
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">Register Key: </div>
+                    <input value="{{user.registerKey}}" />
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">Last Logged In: </div>
+                    <div class="textbox">{{user.lastLoggedIn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="buttons">
+                        <div class="nav-button red-highlight" ng-click="user.confirmDelete=true"><a href="">Remove User</a></div>
+                    </div>
+                </div>
+            </div>
+            <div class="user-confirmation animated-panel animate-show" ng-show="user.confirmDelete">
+                <div> you sure you want to delete this user? </div>
+                <div class="button red" ng-click="controller.removeUser(user)">Yes</div>
+                <div class="button red" ng-click="user.confirmDelete=false">No</div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <div class="back column">
+                <div ng-show="controller.index" class="nav-button red-highlight" ng-click="controller.goFirst()"><a href="">First</a></div>
+                <div ng-show="controller.index" class="nav-button red-highlight" ng-click="controller.goPrev()"><a href="">Prev</a></div>
+            </div>
+            <div class="column center">{{controller.getPageNum()}} of {{controller.getTotalPages()}}</div>
+            <div class="forward column">
+                <div ng-show="controller.index + controller.limit < controller.last" class="nav-button red-highlight" ng-click="controller.goNext()"><a href="">Next</a></div>
+                <div ng-show="controller.index < controller.last - controller.limit" class="nav-button red-highlight" ng-click="controller.goLast()"><a href="">Last</a></div>
+            </div>
+            <div class="fix"></div>
+        </div>
+    </div>
+</div>
