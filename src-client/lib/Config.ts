@@ -47,20 +47,20 @@
                 {
                     views: {
                         "main-view": {
-                            templateUrl: "templates/dashboard.html"
+                            templateUrl: "admin/templates/dashboard.html"
                         }
                     },
                     url: "/admin",
                     authenticate: true
                 })
                 .state('default.users', {
-                    templateUrl: 'templates/dash-users.html',
+                    templateUrl: 'admin/templates/dash-users.html',
                     authenticate: true,
                     controller: "usersCtrl",
                     controllerAs: "controller"
                 })
                 .state('default.posts', {
-                    templateUrl: 'templates/dash-posts.html',
+                    templateUrl: 'admin/templates/dash-posts.html',
                     authenticate: true,
                     controller: "postsCtrl",
                     controllerAs: "controller",
@@ -82,7 +82,7 @@
 				{
 					views: {
 						"main-view": {
-							templateUrl: "templates/log-in.html",
+                            templateUrl: "admin/templates/log-in.html",
 							controller: "loginCtrl",
 							controllerAs: "controller"
 						}
@@ -94,7 +94,7 @@
 				{
 					views: {
 						"main-view": {
-							templateUrl: "templates/register.html",
+                            templateUrl: "admin/templates/register.html",
                             controller: "registerCtrl",
 							controllerAs: "controller"
 						}
@@ -110,7 +110,7 @@
 				{
 					views: {
 						"main-view": {
-                            templateUrl: "templates/message.html",
+                            templateUrl: "admin/templates/message.html",
                             controller: ["$scope", "$stateParams", function ($scope, $stateParams )
 							{
 								// Decodes the html
