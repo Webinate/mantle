@@ -40,8 +40,10 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
     // Database loaded
     console.log("Successfully connected to '" + config.databaseName + "' at " + config.host + ":" + config.portDatabase);
     console.log("Starting up HTTP" + (config.ssl ? "S" : "") + " server at " + config.host + ":" + config.portHTTP + "...");
-    // set the static files location /public/img will be /img for users
-    app.use(express.static("" + config.path, {}));
+    // Add the static folder locations
+    console.log("Adding resource folder " + __dirname + "/resources");
+    app.use(express.static(__dirname + "/resources", {}));
+    // User defined static folders
     for (var i = 0, l = config.staticFilesFolder.length; i < l; i++)
         app.use(express.static(config.staticFilesFolder[i], {}));
     // Setup the jade template engine
@@ -61,10 +63,13 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
         new EmailsController_1.EmailsController(app, config.emailAdmin, config.emailFrom, config.emailService, config.emailServiceUser, config.emailServicePassword),
         new PostsController_1.PostsController(app)
     ];
+    // Get the base URL's
+    var url = (config.ssl ? "https" : "http") + "://" + config.host + ":" + (config.ssl ? config.portHTTPS : config.portHTTP);
+    var usersURL = "" + config.usersURL;
     // Get the default page
     app.get("(" + config.adminURL + "|" + config.adminURL + "/*)", function (req, res) {
-        console.log("Sending admin: " + (config.path + "/index.html"));
-        res.render('index', { path: (config.ssl ? "https" : "http") + "://" + config.host + ":" + (config.ssl ? config.portHTTPS : config.portHTTP) });
+        console.log("Got request " + req.originalUrl + " - sending admin: ./views/index.jade");
+        res.render('index', { usersURL: usersURL, path: url });
     });
     // Get the default page
     app.get("*", function (req, res) {

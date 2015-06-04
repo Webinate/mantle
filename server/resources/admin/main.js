@@ -832,7 +832,7 @@ var clientAdmin;
 (function (clientAdmin) {
     'use strict';
     angular.module('admin', ["ui.router", "ngAnimate", "ngSanitize"])
-        .constant("usersURL", "http://localhost:8000/api/users")
+        .constant("usersURL", _users)
         .constant("apiURL", "./api")
         .filter("htmlToPlaintext", function () {
         return function (text) {
