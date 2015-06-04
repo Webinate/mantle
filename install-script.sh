@@ -48,8 +48,11 @@ fi
 # Remove the zip file
 rm master.zip
 
-# Copy the example config to a config.json
-cp "example-config.json" "config.json"
+if [ !-d "config.json" ]; then
+	# Copy the example config to a config.json
+	cp "example-config.json" "config.json"
+fi
+
 
 # All done
 echo "Modepress successfully installed"
