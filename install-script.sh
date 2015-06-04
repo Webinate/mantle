@@ -13,7 +13,7 @@ echo "cleaning up folder..."
 
 # Remove node modules
 if [ -d "node_modules" ]; then
-	rm node_models -R
+	rm node_modules -R
 fi
 
 # Remove views
