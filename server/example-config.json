@@ -1,0 +1,22 @@
+[
+    {
+        "name": "local",
+        "host": "localhost",
+        "portHTTP": 80,
+        "portDatabase": 27017,
+		"path": "X:/projects/modepress/bin/client",
+        "ssl": false,
+		"databaseName": "test",
+		"html": "",
+		"staticFilesFolder": [],
+		"emailAdmin": "",
+		"emailFrom": "",
+		"usersURL":"",
+		"emailService": "",
+		"emailServiceUser": "",
+		"emailServicePassword": "",
+		"captchaPrivateKey": "",
+		"captchaPublicKey": "",
+		"adminURL": "/admin"
+    }
+]

@@ -39,28 +39,28 @@
     <TypeScriptCompile Include="_references.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\bin\client\admin\style.css">
+    <Content Include="..\server\resources\admin\style.css">
       <Link>html\style.css</Link>
     </Content>
-    <Content Include="..\bin\client\admin\templates\dash-posts.html">
+    <Content Include="..\server\resources\admin\templates\dash-posts.html">
       <Link>html\templates\dash-posts.html</Link>
     </Content>
-    <Content Include="..\bin\client\admin\templates\dash-users.html">
+    <Content Include="..\server\resources\admin\templates\dash-users.html">
       <Link>html\templates\dash-users.html</Link>
     </Content>
-    <Content Include="..\bin\client\admin\templates\dashboard.html">
+    <Content Include="..\server\resources\admin\templates\dashboard.html">
       <Link>html\templates\dashboard.html</Link>
     </Content>
-    <Content Include="..\bin\client\admin\templates\log-in.html">
+    <Content Include="..\server\resources\admin\templates\log-in.html">
       <Link>html\templates\log-in.html</Link>
     </Content>
-    <Content Include="..\bin\client\admin\templates\message.html">
+    <Content Include="..\server\resources\admin\templates\message.html">
       <Link>html\templates\message.html</Link>
     </Content>
-    <Content Include="..\bin\client\admin\templates\nav.html">
+    <Content Include="..\server\resources\admin\templates\nav.html">
       <Link>html\templates\nav.html</Link>
     </Content>
-    <Content Include="..\bin\client\admin\templates\register.html">
+    <Content Include="..\server\resources\admin\templates\register.html">
       <Link>html\templates\register.html</Link>
     </Content>
   </ItemGroup>
@@ -93,7 +93,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>False</TypeScriptSourceMap>
-    <TypeScriptOutFile>$(ProjectDir)..\bin\client\admin\main.js</TypeScriptOutFile>
+    <TypeScriptOutFile>$(ProjectDir)..\server\resources\admin\main.js</TypeScriptOutFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

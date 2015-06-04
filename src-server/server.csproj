@@ -60,13 +60,23 @@
     <TypeScriptCompile Include="modepress.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\bin\server\views\index.jade">
+    <Content Include="..\bin\server\package.json">
+      <Link>package.json</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\server\views\index.jade">
       <Link>views\index.jade</Link>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\bin\server\package.json">
-      <Link>package.json</Link>
+    <Content Include="..\server\example-config.json">
+      <Link>example-config.json</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\README.md">
+      <Link>README.md</Link>
     </Content>
   </ItemGroup>
   <PropertyGroup>
@@ -100,7 +110,7 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>False</TypeScriptSourceMap>
     <TypeScriptModuleKind>commonjs</TypeScriptModuleKind>
-    <TypeScriptOutDir>$(ProjectDir)..\bin\server</TypeScriptOutDir>
+    <TypeScriptOutDir>$(ProjectDir)..\server</TypeScriptOutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
