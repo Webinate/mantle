@@ -6,7 +6,7 @@ set -e
 
 # Functiom that prints the latest stable version
 version() {
-  echo "0.0.5"
+  echo "0.0.6"
 }
 
 echo "cleaning up folder..."
@@ -35,10 +35,10 @@ echo "Downloading latest version from github $(version)"
 
 #download latest
 wget https://github.com/MKHenson/modepress/archive/v$(version).zip
-unzip -o "$(version).zip" "modepress-$(version)/*"
+unzip -o "v$(version).zip" "modepress-$(version)/*"
 
 # Moves the server folder to the current directory
-mv modepress-master/server/* .
+mv modepress-$(version)/server/* .
 
 # Remove modepress-master
 if [ -d "modepress-master" ]; then
