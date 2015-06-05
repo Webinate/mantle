@@ -1,6 +1,6 @@
 {
 	"name": "webinate-server",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "Simple todo application.",
 	"main": "server/main.js",
 	"author": "Scotch",
