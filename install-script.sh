@@ -5,8 +5,8 @@
 set -e
 
 # Functiom that prints the latest stable version
-nvm_latest_version() {
-  echo "v0.0.1"
+version() {
+  echo "0.0.2"
 }
 
 echo "cleaning up folder..."
@@ -31,11 +31,11 @@ if [ -d "lib" ]; then
 	rm lib -R
 fi
 
-echo "Downloading latest version from github $(nvm_latest_version)"
+echo "Downloading latest version from github $(version)"
 
 #download latest
 wget https://github.com/MKHenson/modepress/archive/master.zip
-unzip -o "master.zip" "modepress-master/*"
+unzip -o "v$(version).zip" "modepress-$(version)/*"
 
 # Moves the server folder to the current directory
 mv modepress-master/server/* .
@@ -46,7 +46,7 @@ if [ -d "modepress-master" ]; then
 fi
 
 # Remove the zip file
-rm master.zip
+rm "v$(version).zip"
 
 if [ !-d "config.json" ]; then
 	# Copy the example config to a config.json

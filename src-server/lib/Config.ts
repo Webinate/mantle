@@ -14,8 +14,9 @@ export class ServerConfig
 	public ssl: boolean;
     public usersURL: string;
     public sslKey: string;
-	public sslCA: string;
-	public sslCert: string;
+    public sslCert: string;
+    public sslRoot: string;
+    public sslIntermediate: string;
 	public sslPassPhrase: string;
 	public databaseName: string;
 	public html: string;
@@ -100,16 +101,17 @@ export class ServerConfig
 		this.captchaPublicKey = data.captchaPublicKey;
         this.activationURL = data.activationURL;
         this.usersURL = data.usersURL;
-        this.adminURL = data.adminURL;        
-
+        this.adminURL = data.adminURL;
+        
 		this.databaseName = data.databaseName;
 		if (data.ssl)
 		{
 			this.ssl = true;
 			this.sslKey = data.sslKey;
-			this.sslCA = data.sslCA;
 			this.sslCert = data.sslCert;
-			this.sslPassPhrase = data.sslPassPhrase;
+            this.sslPassPhrase = data.sslPassPhrase;
+            this.sslRoot = data.sslRoot;
+            this.sslIntermediate = data.sslIntermediate;
 		}
 		else
 		{

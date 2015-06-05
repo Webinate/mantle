@@ -60,11 +60,6 @@
     <TypeScriptCompile Include="modepress.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\bin\server\package.json">
-      <Link>package.json</Link>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="..\server\views\index.jade">
       <Link>views\index.jade</Link>
     </Content>
@@ -77,6 +72,16 @@
   <ItemGroup>
     <Content Include="..\README.md">
       <Link>README.md</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\server\package.json">
+      <Link>package.json</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\install-script.sh">
+      <Link>install-script.sh</Link>
     </Content>
   </ItemGroup>
   <PropertyGroup>

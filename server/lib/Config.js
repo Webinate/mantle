@@ -43,9 +43,10 @@ var ServerConfig = (function () {
         if (data.ssl) {
             this.ssl = true;
             this.sslKey = data.sslKey;
-            this.sslCA = data.sslCA;
             this.sslCert = data.sslCert;
             this.sslPassPhrase = data.sslPassPhrase;
+            this.sslRoot = data.sslRoot;
+            this.sslIntermediate = data.sslIntermediate;
         }
         else {
             this.ssl = false;
