@@ -141,8 +141,8 @@ loadConfig(process.argv[3], process.argv[2] )
         }
 
         var caChain = [fs.readFileSync(config.sslIntermediate), fs.readFileSync(config.sslRoot)];
-        var privkey = config.sslKey ? config.sslKey : null;
-        var theCert = config.sslCert ? config.sslCert : null;
+        var privkey = config.sslKey ? fs.readFileSync(config.sslKey) : null;
+        var theCert = config.sslCert ? fs.readFileSync(config.sslCert) : null;
         var port = config.portHTTPS ? config.portHTTPS : 443;
 
         console.log(`Attempting to start SSL server...`);
