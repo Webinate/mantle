@@ -87,14 +87,17 @@ loadConfig(process.argv[3], process.argv[2] )
             config.emailService, config.emailServiceUser, config.emailServicePassword),
         new PostsController(app)
     ];
-
-    // Get the base URL's
-    var url = `${config.ssl ? "https" : "http" }://${config.host}:${config.ssl ? config.portHTTPS : config.portHTTP }`;
-    var usersURL = `${config.usersURL}`;
+    
 
     // Get the default page
     app.get(`(${config.adminURL}|${config.adminURL}/*)`, function (req, res)
     {
+        var requestIsSecure = (<any>req.connection).encrypted;
+        
+        // Get the base URL's
+        var url = `${(requestIsSecure ? "https" : "http") }://${config.host}:${requestIsSecure ? config.portHTTPS : config.portHTTP }`;
+        var usersURL = `${config.usersURL}`;
+
         console.log(`Got request ${req.originalUrl} - sending admin: ./views/index.jade`);
         res.render('index', { usersURL: usersURL, path: url  });
 	});
