@@ -1,10 +1,30 @@
 ﻿import * as fs from "fs";
 
+/**
+* Defines routes and the paths they take
+*/
 export interface IPath
 {
+    /**
+    * The name of this path
+    */
     name: string;
+
+    /**
+    * The express route to use. E.g. "*" or "/some-route"
+    */
     path: string;
+
+    /**
+    * The path of where to find jade templates for this route. E.g. "/templates"
+    */
     templatePath: string;
+
+    /**
+    * The path or name of the template file to use. If a template path is set then the route resolves to 
+    * templatePath + index if the file exists. If it does then the express render function is used to send that jade file. 
+    * If not then the index is considered a static file and sent with the sendFile function.
+    */
     index: string;
 }
 
@@ -13,23 +33,84 @@ export interface IPath
 */
 export class ServerConfig
 {
-	public name: string;
-	public host: string = "127.0.0.1";
-	public portHTTP: number = 8080;
-	public portHTTPS: number = 443;
+    /**
+	* The name of the configuration. This is chosen via the command line on startup
+	*/
+    public name: string;
+
+    /**
+	* The host we listening for
+	*/
+    public host: string = "127.0.0.1";
+
+    /**
+	* The port number of the host
+	*/
+    public portHTTP: number = 8080;
+    
+    /**
+    * The name of the mongo database to use
+    */
+    public databaseName: string;
+
+    /**
+	* The port number the mongo database is listening on
+	*/
     public portDatabase: number = 27017;
-    public portUsers: number = 8000;
-    public ssl: boolean;
+    
+    /**
+	* An array of folder paths that can be used to fetch static content
+	*/
     public staticFilesFolder: Array<string>;
+
+    /**
+    * The URL of the webinate-users api
+    */
     public usersURL: string;
+
+    /**
+	* Set to true if you want SSL turned on
+	*/
+    public ssl: boolean;
+
+    /**
+    * The port number to use for SSL. Only applicable if ssl is true.
+    */
+    public portHTTPS: number = 443;
+
+    /**
+	* The path of the SSL private key. Only applicable if ssl is true.
+	*/
     public sslKey: string;
+
+    /**
+	* The path of the SSL certificate file (usually provided by a third vendor). Only applicable if ssl is true.
+	*/
     public sslCert: string;
+
+    /**
+	* The path of the SSL root file (usually provided by a third vendor). Only applicable if ssl is true.
+	*/
     public sslRoot: string;
+
+    /**
+	* The path of the SSL intermediate/link file (usually provided by a third vendor). Only applicable if ssl is true.
+	*/
     public sslIntermediate: string;
-	public sslPassPhrase: string;
-	public databaseName: string;
+
+    /**
+	* The password to use for the SSL (optional). Only applicable if ssl is true.
+	*/
+    public sslPassPhrase: string;
+
+    /**
+    * The path to use for accessing the admin panel
+    */
     public adminURL: string;
-    public path: string;
+    
+    /**
+    * An array of IPath objects that define routes and where they go to
+    */
     public paths: Array<IPath>
 
 	/**
@@ -96,8 +177,6 @@ export class ServerConfig
 		this.host = data.host;
 		this.portHTTP = data.portHTTP;
         this.portDatabase = data.portDatabase;
-        this.portUsers = data.portUsers;
-        this.path = data.path;
         this.staticFilesFolder = data.staticFilesFolder;
         this.paths = data.paths;
 		this.emailAdmin = data.emailAdmin;

@@ -8,11 +8,22 @@ var ServerConfig = (function () {
     * @param {any} data [Optional] JSON object from file
     */
     function ServerConfig(data) {
+        /**
+        * The host we listening for
+        */
         this.host = "127.0.0.1";
+        /**
+        * The port number of the host
+        */
         this.portHTTP = 8080;
-        this.portHTTPS = 443;
+        /**
+        * The port number the mongo database is listening on
+        */
         this.portDatabase = 27017;
-        this.portUsers = 8000;
+        /**
+        * The port number to use for SSL. Only applicable if ssl is true.
+        */
+        this.portHTTPS = 443;
         if (data)
             this.fromDataObject(data);
     }
@@ -25,8 +36,6 @@ var ServerConfig = (function () {
         this.host = data.host;
         this.portHTTP = data.portHTTP;
         this.portDatabase = data.portDatabase;
-        this.portUsers = data.portUsers;
-        this.path = data.path;
         this.staticFilesFolder = data.staticFilesFolder;
         this.paths = data.paths;
         this.emailAdmin = data.emailAdmin;
