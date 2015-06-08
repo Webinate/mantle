@@ -14,6 +14,7 @@ var Config_1 = require("./lib/Config");
 var PostsController_1 = require("./lib/controllers/PostsController");
 var EmailsController_1 = require("./lib/controllers/EmailsController");
 var UsersService_1 = require("./lib/UsersService");
+var PathHandler_1 = require("./lib/PathHandler");
 var config = null;
 // Make sure the config path argument is there
 if (process.argv.length < 3) {
@@ -47,8 +48,18 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
     for (var i = 0, l = config.staticFilesFolder.length; i < l; i++)
         app.use(express.static(config.staticFilesFolder[i], {}));
     // Setup the jade template engine
-    app.set('views', './views');
     app.set('view engine', 'jade');
+    // Set any jade paths
+    var allViewPaths = ['./views']; //admin path
+    for (var i = 0, l = config.paths.length; i < l; i++) {
+        if (config.paths[i].templatePath != "") {
+            if (!fs.existsSync(config.paths[i].templatePath))
+                colors.log(colors.yellow("The template path '" + config.paths[i].templatePath + "' does not exist"));
+            else
+                allViewPaths.push(config.paths[i].templatePath);
+        }
+    }
+    app.set('views', allViewPaths);
     // log every request to the console
     app.use(morgan('dev'));
     // Set the appropriate middlewares
@@ -63,20 +74,20 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
         new EmailsController_1.EmailsController(app, config.emailAdmin, config.emailFrom, config.emailService, config.emailServiceUser, config.emailServicePassword),
         new PostsController_1.PostsController(app)
     ];
-    // Get the default page
+    // Send the jade index file
     app.get("(" + config.adminURL + "|" + config.adminURL + "/*)", function (req, res) {
         var requestIsSecure = req.connection.encrypted;
         // Get the base URL's
         var url = (requestIsSecure ? "https" : "http") + "://" + config.host + ":" + (requestIsSecure ? config.portHTTPS : config.portHTTP);
         var usersURL = "" + config.usersURL;
         console.log("Got request " + req.originalUrl + " - sending admin: ./views/index.jade");
-        res.render('index', { usersURL: usersURL, path: url });
+        res.render('index', { usersURL: usersURL, url: url });
     });
     // Get the default page
-    app.get("*", function (req, res) {
-        // Load the single view file (angular will handle the page changes on the front-end)
-        res.sendfile(config.html);
-    });
+    for (var i = 0, l = config.paths.length; i < l; i++) {
+        var handler = new PathHandler_1.PathHandler(config.paths[i], config);
+        app.get(config.paths[i].path, handler.handle.bind(handler));
+    }
     console.log("Attempting to start HTTP server...");
     // Start app with node server.js 
     var httpServer = http.createServer(app);

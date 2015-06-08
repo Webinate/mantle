@@ -1,25 +1,34 @@
 [
-    {
-      "name": "local",
-      "host": "localhost",
-      "portHTTP": 80,
-      "portDatabase": 27017,
-      "databaseName": "modepress",
-      "html": "",
-      "staticFilesFolder": [],
-      "emailAdmin": "",
-      "emailFrom": "",
-      "usersURL":"",
-      "emailService": "",
-      "emailServiceUser": "",
-      "emailServicePassword": "",
-      "captchaPrivateKey": "",
-      "captchaPublicKey": "",
-      "adminURL": "/admin",
-      "ssl": false,
-      "sslKey": "",
-      "sslCert": "",
-      "sslRoot": "",
-      "sslIntermediate": ""
-    }
+  {
+    "name": "local",
+    "host": "localhost",
+    "portHTTP": 80,
+    "portDatabase": 27017,
+    "databaseName": "modepress",
+    "staticFilesFolder": [ ],
+    "html": "",
+    "emailAdmin": "",
+    "emailFrom": "",
+    "usersURL": "",
+    "emailService": "",
+    "emailServiceUser": "",
+    "emailServicePassword": "",
+    "captchaPrivateKey": "",
+    "captchaPublicKey": "",
+    "adminURL": "/admin",
+    "ssl": false,
+    "sslKey": "",
+    "sslCert": "",
+    "sslRoot": "",
+    "sslIntermediate": "",
+    "paths": [
+      {
+        "name": "default",
+        "path": "*",
+        "templatePath": "",
+        "index": "",
+        "template": ""
+      }
+    ]
+  }
 ]

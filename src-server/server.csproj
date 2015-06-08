@@ -53,6 +53,7 @@
     <TypeScriptCompile Include="lib\models\schema-items\SchemaNumber.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaItem.ts" />
     <TypeScriptCompile Include="lib\models\PostsModel.ts" />
+    <TypeScriptCompile Include="lib\PathHandler.ts" />
     <TypeScriptCompile Include="lib\UsersService.ts" />
     <TypeScriptCompile Include="main.ts" />
     <TypeScriptCompile Include="lib\definitions\mongodb.d.ts" />

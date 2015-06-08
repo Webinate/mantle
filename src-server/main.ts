@@ -12,11 +12,12 @@ import * as colors from "webinate-colors";
 
 // Custom imports
 import {MongoWrapper} from "./lib/MongoWrapper";
-import {loadConfig, ServerConfig} from "./lib/Config";
+import {loadConfig, ServerConfig, IPath} from "./lib/Config";
 import {Controller} from "./lib/controllers/Controller"
 import {PostsController} from "./lib/controllers/PostsController";
 import {EmailsController} from "./lib/controllers/EmailsController";
 import {UsersService} from "./lib/UsersService";
+import {PathHandler} from "./lib/PathHandler";
 
 var config: ServerConfig = null;
 
@@ -66,8 +67,22 @@ loadConfig(process.argv[3], process.argv[2] )
         app.use(express.static(config.staticFilesFolder[i], {}));
     
     // Setup the jade template engine
-    app.set('views', './views');
     app.set('view engine', 'jade');
+
+    // Set any jade paths
+    var allViewPaths = ['./views']; //admin path
+    for (var i = 0, l = config.paths.length; i < l; i++)
+    {
+        if (config.paths[i].templatePath != "")
+        {
+            if (!fs.existsSync(config.paths[i].templatePath))
+                colors.log(colors.yellow(`The template path '${config.paths[i].templatePath}' does not exist`));
+            else
+                allViewPaths.push(config.paths[i].templatePath);
+        }
+    }
+
+    app.set('views', allViewPaths );
     
 	// log every request to the console
     app.use(morgan('dev'));
@@ -89,7 +104,7 @@ loadConfig(process.argv[3], process.argv[2] )
     ];
     
 
-    // Get the default page
+    // Send the jade index file
     app.get(`(${config.adminURL}|${config.adminURL}/*)`, function (req, res)
     {
         var requestIsSecure = (<any>req.connection).encrypted;
@@ -99,15 +114,16 @@ loadConfig(process.argv[3], process.argv[2] )
         var usersURL = `${config.usersURL}`;
 
         console.log(`Got request ${req.originalUrl} - sending admin: ./views/index.jade`);
-        res.render('index', { usersURL: usersURL, path: url  });
+        res.render('index', { usersURL: usersURL, url: url  });
 	});
 	
 	// Get the default page
-	app.get("*", function(req, res)
-	{
-		// Load the single view file (angular will handle the page changes on the front-end)
-		res.sendfile(config.html);
-	});
+    for (var i = 0, l = config.paths.length; i < l; i++)
+    {
+        var handler = new PathHandler(config.paths[i], config);
+        app.get(config.paths[i].path, handler.handle.bind(handler));
+    }
+    
 
 	console.log(`Attempting to start HTTP server...`);
 

@@ -1,5 +1,13 @@
 ﻿import * as fs from "fs";
 
+export interface IPath
+{
+    name: string;
+    path: string;
+    templatePath: string;
+    index: string;
+}
+
 /** 
 * A server configuration
 */
@@ -11,7 +19,8 @@ export class ServerConfig
 	public portHTTPS: number = 443;
     public portDatabase: number = 27017;
     public portUsers: number = 8000;
-	public ssl: boolean;
+    public ssl: boolean;
+    public staticFilesFolder: Array<string>;
     public usersURL: string;
     public sslKey: string;
     public sslCert: string;
@@ -19,10 +28,9 @@ export class ServerConfig
     public sslIntermediate: string;
 	public sslPassPhrase: string;
 	public databaseName: string;
-	public html: string;
-    public staticFilesFolder: Array<string>;
     public adminURL: string;
     public path: string;
+    public paths: Array<IPath>
 
 	/**
 	* The email of the admin account
@@ -90,8 +98,8 @@ export class ServerConfig
         this.portDatabase = data.portDatabase;
         this.portUsers = data.portUsers;
         this.path = data.path;
-        this.html = data.html;        
-		this.staticFilesFolder = data.staticFilesFolder;
+        this.staticFilesFolder = data.staticFilesFolder;
+        this.paths = data.paths;
 		this.emailAdmin = data.emailAdmin;
 		this.emailFrom = data.emailFrom;
 		this.emailService = data.emailService;
