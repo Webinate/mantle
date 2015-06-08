@@ -189,8 +189,8 @@ export class ServerConfig
         this.activationURL = data.activationURL;
         this.usersURL = data.usersURL;
         this.adminURL = data.adminURL;
-        
-		this.databaseName = data.databaseName;
+        this.databaseName = data.databaseName;
+
 		if (data.ssl)
 		{
 			this.ssl = true;

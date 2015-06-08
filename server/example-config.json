@@ -6,7 +6,6 @@
     "portDatabase": 27017,
     "databaseName": "modepress",
     "staticFilesFolder": [ ],
-    "html": "",
     "emailAdmin": "",
     "emailFrom": "",
     "usersURL": "",
