@@ -156,6 +156,22 @@
                 </div>
             </div>
 
+            <div class="tags">
+                <div class="tag-header">Visibility:</div>
+                <div class="checkbox">
+                    <div class="tick-box" ng-click="controller.postToken.public = true">
+                        <div class="tick" ng-show="controller.postToken.public"></div>
+                    </div>
+                    Public
+                </div>
+                <div class="checkbox">
+                    <div class="tick-box" ng-click="controller.postToken.public = false">
+                        <div class="tick" ng-show="!controller.postToken.public"></div>
+                    </div>
+                    Private
+                </div>
+            </div>
+
             <div class="fix"></div>
            
 
@@ -166,6 +182,8 @@
         <div class="content-view-item" ng-repeat="post in controller.posts">
             <div class="arrow animate-fast" ng-click="post.more = (post.more === undefined ? true : !post.more )" ng-class="{ active : post.more }"></div>
             <div class="view-item-label date">Created: {{post.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+            <div class="view-item-label date nav-button red-highlight"><a href="" ng-click="controller.editPostMode(post)">Edit</a></div>
+            <div class="view-item-label date nav-button red-highlight"><a href="" ng-click="post.confirmDelete=true">Remove</a></div>
             <div class="view-item-label"><b>{{post.title}}</b> : <span class="slug">{{post.slug}}</span></div>
             <div class="content-view-details animated-panel animate-show" ng-show="post.more">
                  <div class="content-view-detail">

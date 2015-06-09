@@ -239,13 +239,7 @@ th {
   padding: 0;
 }
 
-.button {
-	cursor:pointer;
-	text-align: center;
-	padding:10px;
-	border-radius:5px;
-    display:inline-block;
-}
+
 input {
 	outline:none;
 }
@@ -261,6 +255,9 @@ button[disabled], html input[disabled] {
 .contact-blocks {
   width: 80%;
   margin: 120px auto;
+}
+.new-post-form .label {
+    margin: 0 0 10px 0;
 }
 .block {
   float: left;
@@ -281,9 +278,12 @@ button[disabled], html input[disabled] {
 	color:red;
 }
 .button {
-	border-radius: 5px;
+	cursor:pointer;
 	text-align: center;
-	cursor: pointer;
+	padding:10px;
+	border-radius:5px;
+    display:inline-block;
+    border-radius: 5px;
     border:none;
 }
 .animate-fast {
@@ -476,6 +476,17 @@ max-height: 0;
     width: 80%;
     box-sizing: border-box;
     overflow: hidden;
+    max-height: 400px;
+}
+.content-view-detail .mce-tinymce {
+    margin:10px 0 0 0;
+}
+.content-view-item .nav-button a {
+    margin: 0 8px 0 0;
+}
+.tag-header, .category-header, .new-post-form .label {
+    color: #74A2E0;
+    font-weight: bold;
 }
 .content-view-detail .buttons {
     margin:40px 0 0 0;
@@ -599,7 +610,7 @@ max-height: 0;
     display: inline-block;
 }
 .new-category {
-    max-height:350px;
+    max-height:375px;
     padding: 10px;
     border-radius: 5px;
 }
@@ -641,6 +652,9 @@ form .category-buttons .nav-button {
 }
 .filter-group .label {
     margin: 0 0 10px 0;
+}
+.console-buttons .success {
+    display:inline-block;
 }
 /**
 ======================================================
@@ -803,6 +817,12 @@ form label {
 .content-view-detail .textbox {
     color: #999;
 }
+.content-view-item .nav-button a {
+    font-size: 20px;
+}
+.content-view-detail .label {
+    font-weight:bold;
+}
 .view-item-label.date, .slug {
     font-size: 20px;
     color: #aaa;
@@ -820,7 +840,7 @@ form label {
 }
 
 .post-categories, .new-category {
-    border: 2px dashed #eee;
+    border: 2px dashed #ccc;
 }
 .filter-group .label {
     font-weight:bold;

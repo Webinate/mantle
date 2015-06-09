@@ -43,7 +43,7 @@
             this.sortOrder = "desc";
             this.sortType = "created";
 
-            this.postToken = { title: "", content: "", slug: "", tags: [], categories: [] };
+            this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true };
             this.getPosts();
             tinymce.init({
                 height: 350,
@@ -89,23 +89,44 @@
         {
             this.scope.newPostForm.$setUntouched();
             this.scope.newPostForm.$setPristine();
-            this.postToken = { title: "", content: "", slug: "", tags: [], categories: [] };
+            this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public : true };
             this.editMode = false;
             this.successMessage = "";
             tinymce.editors[0].setContent("");
             this.showNewPostForm = !this.showNewPostForm
         }
 
+        ///**
+        //* Sets the page into edit mode
+        //*/
+        //editPostMode(post: modepress.IPost)
+        //{
+        //    this.newPostMode();
+
+        //    this.postToken = post;
+        //    this.successMessage = "";
+        //    tinymce.editors[0].setContent(post.content);
+        //    this.editMode = true;
+        //    this.showNewPostForm = !this.showNewPostForm
+        //}
+
         /**
         * Sets the page into edit mode
         */
         editPostMode(post: modepress.IPost)
         {
-            this.postToken = post;
-            this.successMessage = "";
-            tinymce.editors[0].setContent(post.content);
+            this.newPostMode();
             this.editMode = true;
-            this.showNewPostForm = !this.showNewPostForm
+            this.loading = true;
+            this.showNewPostForm = true;
+
+            var that = this;
+            that.http.get<modepress.IGetPost>(`${that.apiURL}/posts/get-post/${post.slug}`).then(function (post)
+            {
+                that.postToken = post.data.data;
+                that.loading = false;
+                tinymce.editors[0].setContent(that.postToken.content);
+            });
         }
 
         /**
