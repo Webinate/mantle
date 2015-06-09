@@ -96,20 +96,6 @@
             this.showNewPostForm = !this.showNewPostForm
         }
 
-        ///**
-        //* Sets the page into edit mode
-        //*/
-        //editPostMode(post: modepress.IPost)
-        //{
-        //    this.newPostMode();
-
-        //    this.postToken = post;
-        //    this.successMessage = "";
-        //    tinymce.editors[0].setContent(post.content);
-        //    this.editMode = true;
-        //    this.showNewPostForm = !this.showNewPostForm
-        //}
-
         /**
         * Sets the page into edit mode
         */
@@ -181,7 +167,7 @@
             var order = this.sortOrder;
             var sortType = this.sortType;
 
-            that.http.get<modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
+            that.http.get<modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
             {
                 if (token.data.error) {
                     that.error = true;

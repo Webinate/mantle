@@ -50,6 +50,7 @@ export class PostsController extends Controller
         var posts = this.getModel("posts");
         var that = this;
         var count = 0;
+        var visibility = "public";
 
         var findToken = { $or : [] };
         if (req.query.author)
@@ -59,7 +60,25 @@ export class PostsController extends Controller
         if (req.query.keyword)
         {
             findToken.$or.push(<modepress.IPost>{ title: <any>new RegExp(req.query.keyword, "i") });
-            findToken.$or.push(<modepress.IPost>{ content: <any > new RegExp(req.query.keyword, "i") });
+            findToken.$or.push(<modepress.IPost>{ content: <any> new RegExp(req.query.keyword, "i") });
+        }
+
+        // Check for visibility
+        if (req.query.visibility)
+        {
+            if ((<string>req.query.visibility).toLowerCase() == "all")
+                visibility = "all";
+            else if ((<string>req.query.visibility).toLowerCase() == "private")
+                visibility = "private";
+        }
+
+        // Add the or conditions for visibility
+        if (visibility != "all")
+        {
+            if (visibility == "public")
+                findToken.$or.push(<modepress.IPost>{ public: true });
+            else
+                findToken.$or.push(<modepress.IPost>{ public: false });
         }
 
         // Check for tags

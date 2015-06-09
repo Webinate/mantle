@@ -48,6 +48,7 @@ var PostsController = (function (_super) {
         var posts = this.getModel("posts");
         var that = this;
         var count = 0;
+        var visibility = "public";
         var findToken = { $or: [] };
         if (req.query.author)
             findToken.$or.push({ author: new RegExp(req.query.author, "i") });
@@ -55,6 +56,20 @@ var PostsController = (function (_super) {
         if (req.query.keyword) {
             findToken.$or.push({ title: new RegExp(req.query.keyword, "i") });
             findToken.$or.push({ content: new RegExp(req.query.keyword, "i") });
+        }
+        // Check for visibility
+        if (req.query.visibility) {
+            if (req.query.visibility.toLowerCase() == "all")
+                visibility = "all";
+            else if (req.query.visibility.toLowerCase() == "private")
+                visibility = "private";
+        }
+        // Add the or conditions for visibility
+        if (visibility != "all") {
+            if (visibility == "public")
+                findToken.$or.push({ public: true });
+            else
+                findToken.$or.push({ public: false });
         }
         // Check for tags
         if (req.query.tags) {
