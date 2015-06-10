@@ -6,7 +6,7 @@ set -e
 
 # Functiom that prints the latest stable version
 version() {
-  echo "0.0.9"
+  echo "0.0.10"
 }
 
 echo "cleaning up folder..."
@@ -41,8 +41,8 @@ unzip -o "v$(version).zip" "modepress-$(version)/*"
 mv modepress-$(version)/server/* .
 
 # Remove modepress-master
-if [ -d "modepress-master" ]; then
-	rm modepress-master -R
+if [ -d "modepress-$(version)" ]; then
+	rm modepress-$(version) -R
 fi
 
 # Remove the zip file

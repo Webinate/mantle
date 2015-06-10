@@ -76,7 +76,7 @@ export class PostsController extends Controller
         var users = UsersService.getSingleton();
 
         // Only admins are allowed to see private posts
-        if ( ( visibility == "all" || visibility == "private" ) && users.hasPermission(user, 2) == false )
+        if ( !user || ( ( visibility == "all" || visibility == "private" ) && users.hasPermission(user, 2) == false ) )
             visibility = "public";
 
         // Add the or conditions for visibility
@@ -182,7 +182,7 @@ export class PostsController extends Controller
             var users = UsersService.getSingleton();
 
             // Only admins are allowed to see private posts
-            if (!instances[0].schema.getByName("public").getValue() && users.hasPermission(user, 2) == false)
+            if (!instances[0].schema.getByName("public").getValue() && ( !user || users.hasPermission(user, 2) == false ) )
             {
                 res.end(JSON.stringify(<modepress.IResponse>{
                     error: true,
@@ -299,7 +299,6 @@ export class PostsController extends Controller
         {
             if (!auth.authenticated)
                 req.params.user = null;
-            
             else
                 req.params.user = auth.user;
 
