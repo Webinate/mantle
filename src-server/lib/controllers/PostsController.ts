@@ -25,8 +25,8 @@ export class PostsController extends Controller
 		router.use(bodyParser.json());
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         
-        router.get("/get-posts", this.getPosts.bind(this));
-        router.get("/get-post/:slug", this.getPost.bind(this));
+        router.get("/get-posts", <any>[this.authenticateUser.bind(this), this.getPosts.bind(this)]);
+        router.get("/get-post/:slug", <any>[this.authenticateUser.bind(this), this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
         router.delete("/remove-post/:id", <any>[this.authenticateAdmin.bind(this), this.removePost.bind(this)]);
         router.delete("/remove-category/:id", <any>[this.authenticateAdmin.bind(this), this.removeCategory.bind(this)]);
@@ -51,6 +51,7 @@ export class PostsController extends Controller
         var that = this;
         var count = 0;
         var visibility = "public";
+        var user: UsersInterface.IUserEntry = req.params.user;
 
         var findToken = { $or : [] };
         if (req.query.author)
@@ -69,8 +70,14 @@ export class PostsController extends Controller
             if ((<string>req.query.visibility).toLowerCase() == "all")
                 visibility = "all";
             else if ((<string>req.query.visibility).toLowerCase() == "private")
-                visibility = "private";
-        }
+                 visibility = "private";
+        } 
+
+        var users = UsersService.getSingleton();
+
+        // Only admins are allowed to see private posts
+        if ( ( visibility == "all" || visibility == "private" ) && users.hasPermission(user, 2) == false )
+            visibility = "public";
 
         // Add the or conditions for visibility
         if (visibility != "all")
@@ -165,11 +172,25 @@ export class PostsController extends Controller
         var that = this;
         var count = 0;
         var findToken: modepress.IPost = { slug: req.params.slug };
+        var user: UsersInterface.IUserEntry = req.params.user;
         
         posts.findInstances(findToken, [], 0, 1).then(function (instances)
         {
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find post"));
+
+            var users = UsersService.getSingleton();
+
+            // Only admins are allowed to see private posts
+            if (!instances[0].schema.getByName("public").getValue() && users.hasPermission(user, 2) == false)
+            {
+                res.end(JSON.stringify(<modepress.IResponse>{
+                    error: true,
+                    message: "That post is marked private"
+                }));
+
+                return;
+            }
 
             var sanitizedData: Array<modepress.IPost> = that.getSanitizedData(instances, Boolean(req.query.verbose));
 
@@ -261,6 +282,33 @@ export class PostsController extends Controller
                 error: true,
                 message: "You do not have permission"
             }));
+        });
+    }
+
+    /**
+    * This funciton checks if user is logged in
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private authenticateUser(req: express.Request, res: express.Response, next: Function)
+    {
+        var users = UsersService.getSingleton();
+
+        users.authenticated(req, res).then(function (auth)
+        {
+            if (!auth.authenticated)
+                req.params.user = null;
+            
+            else
+                req.params.user = auth.user;
+
+            next();
+
+        }).catch(function (error: Error)
+        {
+            req.params.user = null;
+            next();
         });
     }
 

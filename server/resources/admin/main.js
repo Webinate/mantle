@@ -56,9 +56,10 @@ var clientAdmin;
     * Controller for the registration HTML
     */
     var RegisterCtrl = (function () {
-        function RegisterCtrl(http, q, capthaPublicKey) {
+        function RegisterCtrl(http, q, capthaPublicKey, usersURL) {
             this.http = http;
             this.q = q;
+            this.usersURL = usersURL;
             // Create the register token
             this.registerToken = {
                 username: "",
@@ -96,7 +97,7 @@ var clientAdmin;
                 this.errorMsg = "Please enter a valid email or username";
                 return;
             }
-            this.http.post("/api/users/resend-activation", { username: user }).then(function (response) {
+            this.http.get(that.usersURL + "/resend-activation/" + user).then(function (response) {
                 var responseToken = response.data;
                 if (responseToken.error) {
                     that.error = true;
@@ -126,7 +127,7 @@ var clientAdmin;
             this.successMessage = "";
             token.challenge = Recaptcha.get_challenge();
             token.captcha = Recaptcha.get_response();
-            this.http.post("/api/users/register", token).then(function (response) {
+            this.http.post(that.usersURL + "/register", token).then(function (response) {
                 var responseToken = response.data;
                 if (responseToken.error) {
                     that.error = true;
@@ -144,7 +145,7 @@ var clientAdmin;
             });
         };
         // $inject annotation.
-        RegisterCtrl.$inject = ["$http", "$q", "capthaPublicKey"];
+        RegisterCtrl.$inject = ["$http", "$q", "capthaPublicKey", "usersURL"];
         return RegisterCtrl;
     })();
     clientAdmin.RegisterCtrl = RegisterCtrl;

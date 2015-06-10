@@ -12,14 +12,16 @@
 		private errorMsg: string;
 		private showSuccessMessage: boolean;
 		private successMessage: string;
-		private loading: boolean;
+        private loading: boolean;
+        private usersURL: string;
 
 		// $inject annotation.
-        public static $inject = ["$http", "$q", "capthaPublicKey"];
-        constructor(http: ng.IHttpService, q: ng.IQService, capthaPublicKey: string)
+        public static $inject = ["$http", "$q", "capthaPublicKey", "usersURL"];
+        constructor(http: ng.IHttpService, q: ng.IQService, capthaPublicKey: string, usersURL: string)
 		{
 			this.http = http;
-			this.q = q;
+            this.q = q;
+            this.usersURL = usersURL;
 			
 			// Create the register token
 			this.registerToken = {
@@ -66,7 +68,7 @@
 				return;
 			}
 
-            this.http.post<UsersInterface.IResponse>("/api/users/resend-activation", { username: user }).then(function (response)
+            this.http.get<UsersInterface.IResponse>(`${that.usersURL}/resend-activation/${user}`).then(function (response)
 			{
 				var responseToken = response.data;
 				if (responseToken.error)
@@ -106,7 +108,7 @@
 			token.challenge = Recaptcha.get_challenge();
 			token.captcha = Recaptcha.get_response();
 
-            this.http.post<UsersInterface.IAuthenticationResponse>("/api/users/register", token).then(function (response)
+            this.http.post<UsersInterface.IAuthenticationResponse>(`${that.usersURL}/register`, token).then(function (response)
 			{
 				var responseToken = response.data;
 				if (responseToken.error)
