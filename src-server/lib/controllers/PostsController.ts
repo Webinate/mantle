@@ -55,7 +55,7 @@ export class PostsController extends Controller
 
         var findToken = { $or : [] };
         if (req.query.author)
-            findToken.$or.push(<modepress.IPost>{ author: <any>new RegExp(req.query.author, "i") });
+            (<any>findToken).author = new RegExp(req.query.author, "i");
 
         // Check for keywords
         if (req.query.keyword)

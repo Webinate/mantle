@@ -52,7 +52,7 @@ var PostsController = (function (_super) {
         var user = req.params.user;
         var findToken = { $or: [] };
         if (req.query.author)
-            findToken.$or.push({ author: new RegExp(req.query.author, "i") });
+            findToken.author = new RegExp(req.query.author, "i");
         // Check for keywords
         if (req.query.keyword) {
             findToken.$or.push({ title: new RegExp(req.query.keyword, "i") });

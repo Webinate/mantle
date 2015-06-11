@@ -24,6 +24,7 @@ export interface IPath
     * The path or name of the template file to use. If a template path is set then the route resolves to 
     * templatePath + index if the file exists. If it does then the express render function is used to send that jade file. 
     * If not then the index is considered a static file and sent with the sendFile function.
+    * e.g. "index"
     */
     index: string;
 }
