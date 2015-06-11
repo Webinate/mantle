@@ -1,9 +1,9 @@
 {
 	"name": "modepress",
-	"version": "0.0.11",
-	"description": "Simple todo application.",
-	"main": "server/main.js",
-	"author": "Scotch",
+	"version": "0.0.12",
+	"description": "A simple Mongo-Node CMS server. The server can be accessed via an admin panel and content can be requested via its RESTful API",
+	"main": "main.js",
+	"author": "Mathew Henson",
 	"dependencies": {
 		"webinate-colors": "~0.1.34",
 		"entities": "~1.1.1",
