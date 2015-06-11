@@ -11,11 +11,6 @@ version() {
 
 echo "cleaning up folder..."
 
-# Remove node modules
-if [ -d "node_modules" ]; then
-	rm node_modules -R
-fi
-
 # Remove views
 if [ -d "views" ]; then
 	rm views -R
