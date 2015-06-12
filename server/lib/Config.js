@@ -23,7 +23,7 @@ var ServerConfig = (function () {
         /**
         * The port number the mongo database is listening on
         */
-        this.portDatabase = 27017;
+        this.databasePort = 27017;
         /**
         * The port number to use for SSL. Only applicable if ssl is true.
         */
@@ -39,7 +39,8 @@ var ServerConfig = (function () {
         this.name = data.name;
         this.host = data.host;
         this.portHTTP = data.portHTTP;
-        this.portDatabase = data.portDatabase;
+        this.databasePort = data.databasePort;
+        this.databaseHost = data.databaseHost;
         this.staticFilesFolder = data.staticFilesFolder;
         this.paths = data.paths;
         this.emailAdmin = data.emailAdmin;
