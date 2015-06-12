@@ -49,13 +49,13 @@ loadConfig(process.argv[3], process.argv[2] )
 .then(function (cfg)
 {
 	config = cfg;
-	console.log(`Attempting to connect to mongodb...`);
-	return MongoWrapper.connect(config.host, config.portDatabase, config.databaseName);
+    console.log(`Attempting to connect to mongodb...`);
+    return MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName);
 
 }).then(function (db)
 {
 	// Database loaded
-	console.log(`Successfully connected to '${config.databaseName}' at ${config.host}:${config.portDatabase}`);
+    console.log(`Successfully connected to '${config.databaseName}' at ${config.databaseHost}:${config.databasePort}`);
 	console.log(`Starting up HTTP${config.ssl ? "S" : ""} server at ${config.host}:${config.portHTTP}...`);
     
     // Add the static folder locations

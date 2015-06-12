@@ -55,9 +55,14 @@ export class ServerConfig
     public databaseName: string;
 
     /**
+	* The database host we are listening on
+	*/
+    public databaseHost: string = "127.0.0.1";
+
+    /**
 	* The port number the mongo database is listening on
 	*/
-    public portDatabase: number = 27017;
+    public databasePort: number = 27017;
     
     /**
 	* An array of folder paths that can be used to fetch static content
@@ -176,8 +181,9 @@ export class ServerConfig
 	{
 		this.name = data.name;
 		this.host = data.host;
-		this.portHTTP = data.portHTTP;
-        this.portDatabase = data.portDatabase;
+        this.portHTTP = data.portHTTP;
+        this.databasePort = data.databasePort;
+        this.databaseHost = data.databaseHost;
         this.staticFilesFolder = data.staticFilesFolder;
         this.paths = data.paths;
 		this.emailAdmin = data.emailAdmin;

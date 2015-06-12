@@ -17,6 +17,10 @@ var ServerConfig = (function () {
         */
         this.portHTTP = 8080;
         /**
+        * The database host we are listening on
+        */
+        this.databaseHost = "127.0.0.1";
+        /**
         * The port number the mongo database is listening on
         */
         this.portDatabase = 27017;
