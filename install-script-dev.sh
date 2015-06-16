@@ -28,7 +28,7 @@ fi
 
 
 # All done
-echo "Modepress successfully installed"
+echo "Modepress DEV successfully installed"
 echo "Please run an NPM update and edit the config.json"
 exit
 } # this ensures the entire script is downloaded #

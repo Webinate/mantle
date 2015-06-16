@@ -64,7 +64,7 @@ loadConfig(process.argv[3], process.argv[2] )
 
     // User defined static folders
     for (var i = 0, l = config.staticFilesFolder.length; i < l; i++ )
-        app.use(express.static(config.staticFilesFolder[i], {}));
+        app.use(express.static(config.staticFilesFolder[i], { maxAge: config.cacheLifetime }));
     
     // Setup the jade template engine
     app.set('view engine', 'jade');

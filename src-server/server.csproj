@@ -62,6 +62,9 @@
     <TypeScriptCompile Include="modepress.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\.gitignore">
+      <Link>.gitignore</Link>
+    </Content>
     <Content Include="..\server\views\index.jade">
       <Link>views\index.jade</Link>
     </Content>
@@ -84,6 +87,11 @@
   <ItemGroup>
     <Content Include="..\install-script.sh">
       <Link>install-script.sh</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\install-script-dev.sh">
+      <Link>install-script-dev.sh</Link>
     </Content>
   </ItemGroup>
   <PropertyGroup>
