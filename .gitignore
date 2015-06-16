@@ -64,6 +64,8 @@ dlldata.c
 *.svclog
 *.scc
 *.bat
+config-webinate.json
+config-mkhenson.json
 
 # Chutzpah Test files
 _Chutzpah*
