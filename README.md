@@ -1,5 +1,5 @@
 # modepress
-A simple Mongo-Node CMS server. The server can be accessed via an admin 
+A simple Mongo-Node CMS server. The server content can be accessed via an admin 
 panel and content can be requested via its RESTful API.
 Modepress is written in Typescript using (at the least) mongodb v3 and nodejs 0.0.12. 
 Both mongo and node must be setup and running before you can run modepress.
