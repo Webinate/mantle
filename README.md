@@ -11,7 +11,7 @@ Modepress also requires an instance of webinate-users to be running.
 ## Requirements
 * MongoDB v3
 * Node 0.0.12
-* Webinate-Users
+* [Webinate-Users](https://github.com/MKHenson/webinate-users) 
 * **Tested Ubuntu v14**
 
 ## Installation
