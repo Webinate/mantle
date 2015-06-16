@@ -18,7 +18,7 @@ unzip -o "v$(version).zip" "modepress-$(version)/*"
 # Moves the server folder to the current directory
 cp -r modepress-$(version)/server/* .
 
-# Remove modepress-master
+# Remove modepress folder
 if [ -d "modepress-$(version)" ]; then
 	rm modepress-$(version) -R
 fi
@@ -26,6 +26,7 @@ fi
 # Remove the zip file
 rm "v$(version).zip"
 
+# Copy the example config into config.json as long as it doesnt already exist
 if [ ! -f "config.json" ]; then
 	# Copy the example config to a config.json
 	cp "example-config.json" "config.json"
