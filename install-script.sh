@@ -9,23 +9,6 @@ version() {
   echo "0.0.13"
 }
 
-echo "cleaning up folder..."
-
-# Remove views
-if [ -d "views" ]; then
-	rm views -R
-fi
-
-# Remove resources
-if [ -d "resources" ]; then
-	rm resources -R
-fi
-
-# Remove lib
-if [ -d "lib" ]; then
-	rm lib -R
-fi
-
 echo "Downloading latest version from github $(version)"
 
 #download latest
@@ -33,7 +16,7 @@ wget https://github.com/MKHenson/modepress/archive/v$(version).zip
 unzip -o "v$(version).zip" "modepress-$(version)/*"
 
 # Moves the server folder to the current directory
-mv modepress-$(version)/server/* .
+cp -r modepress-$(version)/server/* .
 
 # Remove modepress-master
 if [ -d "modepress-$(version)" ]; then
