@@ -6,7 +6,7 @@ Both mongo and node must be setup and running before you can run modepress.
 Modepress also requires an instance of webinate-users to be running.
 
 ## Current stable version
-* v0.0.15
+* v0.0.14
 
 ## Requirements
 * MongoDB v3
@@ -33,7 +33,7 @@ sudo su
 If you want the latest stable version:
 
 ```
-curl -o- https://raw.githubusercontent.com/MKHenson/modepress/dev/install-script.sh | bash
+curl -o- https://raw.githubusercontent.com/MKHenson/modepress/master/install-script.sh | bash
 ```
 
 OR if you want the dev build
