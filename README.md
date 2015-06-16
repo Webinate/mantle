@@ -49,6 +49,7 @@ npm update
 ```
 
 6) Edit the config.json with your setup
+
 7) Run modepress
 
 ```
