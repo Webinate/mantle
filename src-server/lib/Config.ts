@@ -45,6 +45,11 @@ export class ServerConfig
     public host: string = "127.0.0.1";
 
     /**
+	* The length of time the assets should be cached on a user's browser. The default is 30 days.
+	*/
+    public cacheLifetime: number = 2592000000;
+
+    /**
 	* The port number of the host
 	*/
     public portHTTP: number = 8080;
@@ -180,7 +185,8 @@ export class ServerConfig
 	fromDataObject(data: any)
 	{
 		this.name = data.name;
-		this.host = data.host;
+        this.host = data.host;
+        this.cacheLifetime = data.cacheLifetime;
         this.portHTTP = data.portHTTP;
         this.databasePort = data.databasePort;
         this.databaseHost = data.databaseHost;

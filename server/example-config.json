@@ -3,6 +3,7 @@
     "name": "local",
     "host": "localhost",
     "portHTTP": 80,
+    "cacheLifetime": 2592000000,
     "databaseHost": "127.0.0.1",
     "databasePort": 27017,
     "databaseName": "modepress",

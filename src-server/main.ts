@@ -60,7 +60,7 @@ loadConfig(process.argv[3], process.argv[2] )
     
     // Add the static folder locations
     console.log(`Adding resource folder ${__dirname}/resources`);
-    app.use(express.static(`${__dirname}/resources`, {}));
+    app.use(express.static(`${__dirname}/resources`, { maxAge: config.cacheLifetime }));
 
     // User defined static folders
     for (var i = 0, l = config.staticFilesFolder.length; i < l; i++ )

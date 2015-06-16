@@ -13,6 +13,10 @@ var ServerConfig = (function () {
         */
         this.host = "127.0.0.1";
         /**
+        * The length of time the assets should be cached on a user's browser. The default is 30 days.
+        */
+        this.cacheLifetime = 2592000000;
+        /**
         * The port number of the host
         */
         this.portHTTP = 8080;
@@ -38,6 +42,7 @@ var ServerConfig = (function () {
     ServerConfig.prototype.fromDataObject = function (data) {
         this.name = data.name;
         this.host = data.host;
+        this.cacheLifetime = data.cacheLifetime;
         this.portHTTP = data.portHTTP;
         this.databasePort = data.databasePort;
         this.databaseHost = data.databaseHost;
