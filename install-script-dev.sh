@@ -8,7 +8,7 @@ echo "Downloading dev version from github"
 
 #download latest
 wget https://github.com/MKHenson/modepress/archive/dev.zip
-unzip -o "modepress-dev.zip" "modepress-dev/*"
+unzip -o "dev.zip" "modepress-dev/*"
 
 # Moves the server folder to the current directory
 cp -r modepress-dev/server/* .
@@ -19,7 +19,7 @@ if [ -d "modepress-dev" ]; then
 fi
 
 # Remove the zip file
-rm "modepress-dev.zip"
+rm "dev.zip"
 
 if [ ! -f "config.json" ]; then
 	# Copy the example config to a config.json
