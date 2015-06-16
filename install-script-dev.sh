@@ -13,7 +13,7 @@ unzip -o "dev.zip" "modepress-dev/*"
 # Moves the server folder to the current directory
 cp -r modepress-dev/server/* .
 
-# Remove modepress-master
+# Remove modepress folder
 if [ -d "modepress-dev" ]; then
 	rm modepress-dev -R
 fi
@@ -21,6 +21,7 @@ fi
 # Remove the zip file
 rm "dev.zip"
 
+# Copy the example config into config.json as long as it doesnt already exist
 if [ ! -f "config.json" ]; then
 	# Copy the example config to a config.json
 	cp "example-config.json" "config.json"
