@@ -131,6 +131,7 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
     });
 }).catch(function (error) {
     // Error occurred
-    winston.error("An error has occurred: " + error.message + " @" + error.stack, { process: process.pid });
-    process.exit();
+    winston.error("An error has occurred: " + error.message + " @" + error.stack, { process: process.pid }, function () {
+        process.exit();
+    });
 });

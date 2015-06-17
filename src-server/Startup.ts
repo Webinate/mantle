@@ -189,6 +189,8 @@ loadConfig(process.argv[3], process.argv[2])
 }).catch(function (error: Error)
 {
     // Error occurred
-    winston.error(`An error has occurred: ${error.message} @${(<any>error).stack}`, { process: process.pid });
-    process.exit();
+    winston.error(`An error has occurred: ${error.message} @${(<any>error).stack}`, { process: process.pid }, function ()
+    {
+        process.exit()
+    });
 });
