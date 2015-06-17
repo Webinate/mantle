@@ -61,6 +61,7 @@ var ServerConfig = (function () {
         this.databaseName = data.databaseName;
         if (data.ssl) {
             this.ssl = true;
+            this.portHTTPS = data.portHTTPS;
             this.sslKey = data.sslKey;
             this.sslCert = data.sslCert;
             this.sslPassPhrase = data.sslPassPhrase;

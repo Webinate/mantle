@@ -206,7 +206,8 @@ export class ServerConfig
 
 		if (data.ssl)
 		{
-			this.ssl = true;
+            this.ssl = true;
+            this.portHTTPS = data.portHTTPS;
 			this.sslKey = data.sslKey;
 			this.sslCert = data.sslCert;
             this.sslPassPhrase = data.sslPassPhrase;
