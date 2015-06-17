@@ -14,6 +14,7 @@ var EmailsController_1 = require("./lib/controllers/EmailsController");
 var UsersService_1 = require("./lib/UsersService");
 var PathHandler_1 = require("./lib/PathHandler");
 var config = null;
+// Saves logs to file
 winston.add(winston.transports.File, { filename: "logs.log", maxsize: 50000000, maxFiles: 1, tailable: true });
 // Make sure the config path argument is there
 if (process.argv.length < 3) {

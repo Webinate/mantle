@@ -18,6 +18,7 @@ import {PathHandler} from "./lib/PathHandler";
 
 var config: ServerConfig = null;
 
+// Saves logs to file
 winston.add(winston.transports.File, { filename: "logs.log", maxsize: 50000000, maxFiles: 1, tailable: true });
 
 // Make sure the config path argument is there
