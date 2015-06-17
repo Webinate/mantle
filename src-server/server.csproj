@@ -41,7 +41,7 @@
     <TypeScriptCompile Include="lib\definitions\recaptcha-async.d.ts" />
     <TypeScriptCompile Include="lib\definitions\request.d.ts" />
     <TypeScriptCompile Include="lib\definitions\validator.d.ts" />
-    <TypeScriptCompile Include="lib\definitions\webinate-colors.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\winston.ts" />
     <TypeScriptCompile Include="lib\definitions\webinate-users.d.ts" />
     <TypeScriptCompile Include="lib\models\Model.ts" />
     <TypeScriptCompile Include="lib\models\CategoriesModel.ts" />
@@ -60,6 +60,7 @@
     <TypeScriptCompile Include="lib\definitions\mongodb.d.ts" />
     <TypeScriptCompile Include="lib\MongoWrapper.ts" />
     <TypeScriptCompile Include="modepress.d.ts" />
+    <TypeScriptCompile Include="Startup.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\.gitignore">

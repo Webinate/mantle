@@ -1,4 +1,3 @@
-// set up ========================
 var express = require("express");
 var app = express(); // create our app with express
 var morgan = require("morgan"); // log requests to the console
@@ -7,8 +6,7 @@ var methodOverride = require("method-override"); // Lets you use HTTP verbs such
 var http = require("http");
 var https = require("https");
 var fs = require("fs");
-var colors = require("webinate-colors");
-// Custom imports
+var winston = require("winston");
 var MongoWrapper_1 = require("./lib/MongoWrapper");
 var Config_1 = require("./lib/Config");
 var PostsController_1 = require("./lib/controllers/PostsController");
@@ -16,33 +14,34 @@ var EmailsController_1 = require("./lib/controllers/EmailsController");
 var UsersService_1 = require("./lib/UsersService");
 var PathHandler_1 = require("./lib/PathHandler");
 var config = null;
+winston.add(winston.transports.File, { filename: "logs.log", maxsize: 50000000, maxFiles: 1, tailable: true });
 // Make sure the config path argument is there
 if (process.argv.length < 3) {
-    colors.log(colors.red("No config file specified. Please start modepress with the config path in the argument list. Eg: node main.js ./config.js debug"));
+    winston.error("No config file specified. Please start modepress with the config path in the argument list. Eg: node main.js ./config.js debug", { process: process.pid });
     process.exit();
 }
 // Make sure the config name argument is there
 if (process.argv.length < 4) {
-    colors.log(colors.red("No config name specified in the argument list. Eg: node main.js ./config.js debug"));
+    winston.error("No config name specified in the argument list. Eg: node main.js ./config.js debug", { process: process.pid });
     process.exit();
 }
 // Make sure the file exists
 if (!fs.existsSync(process.argv[2])) {
-    colors.log(colors.red("Could not locate the config file at '" + process.argv[2] + "'"));
+    winston.error("Could not locate the config file at '" + process.argv[2] + "'", { process: process.pid });
     process.exit();
 }
 // Load a config file
 Config_1.loadConfig(process.argv[3], process.argv[2])
     .then(function (cfg) {
     config = cfg;
-    console.log("Attempting to connect to mongodb...");
+    winston.info("Attempting to connect to mongodb...", { process: process.pid });
     return MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName);
 }).then(function (db) {
     // Database loaded
-    console.log("Successfully connected to '" + config.databaseName + "' at " + config.databaseHost + ":" + config.databasePort);
-    console.log("Starting up HTTP" + (config.ssl ? "S" : "") + " server at " + config.host + ":" + config.portHTTP + "...");
+    winston.info("Successfully connected to '" + config.databaseName + "' at " + config.databaseHost + ":" + config.databasePort);
+    winston.info("Starting up HTTP" + (config.ssl ? "S" : "") + " server at " + config.host + ":" + config.portHTTP + "...");
     // Add the static folder locations
-    console.log("Adding resource folder " + __dirname + "/resources");
+    winston.info("Adding resource folder " + __dirname + "/resources");
     app.use(express.static(__dirname + "/resources", { maxAge: config.cacheLifetime }));
     // User defined static folders
     for (var i = 0, l = config.staticFilesFolder.length; i < l; i++)
@@ -54,7 +53,7 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
     for (var i = 0, l = config.paths.length; i < l; i++) {
         if (config.paths[i].templatePath != "") {
             if (!fs.existsSync(config.paths[i].templatePath))
-                colors.log(colors.yellow("The template path '" + config.paths[i].templatePath + "' does not exist"));
+                winston.info("The template path '" + config.paths[i].templatePath + "' does not exist", { process: process.pid });
             else
                 allViewPaths.push(config.paths[i].templatePath);
         }
@@ -96,41 +95,41 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
     // If we use SSL then start listening for that as well
     if (config.ssl) {
         if (config.sslIntermediate != "" && !fs.existsSync(config.sslIntermediate)) {
-            colors.log(colors.red("Could not find sslIntermediate: '" + config.sslIntermediate + "'"));
+            winston.error("Could not find sslIntermediate: '" + config.sslIntermediate + "'", { process: process.pid });
             process.exit();
         }
         if (config.sslCert != "" && !fs.existsSync(config.sslCert)) {
-            colors.log(colors.red("Could not find sslIntermediate: '" + config.sslCert + "'"));
+            winston.error("Could not find sslIntermediate: '" + config.sslCert + "'", { process: process.pid });
             process.exit();
         }
         if (config.sslRoot != "" && !fs.existsSync(config.sslRoot)) {
-            colors.log(colors.red("Could not find sslIntermediate: '" + config.sslRoot + "'"));
+            winston.error("Could not find sslIntermediate: '" + config.sslRoot + "'", { process: process.pid });
             process.exit();
         }
         if (config.sslKey != "" && !fs.existsSync(config.sslKey)) {
-            colors.log(colors.red("Could not find sslIntermediate: '" + config.sslKey + "'"));
+            winston.error("Could not find sslIntermediate: '" + config.sslKey + "'", { process: process.pid });
             process.exit();
         }
         var caChain = [fs.readFileSync(config.sslIntermediate), fs.readFileSync(config.sslRoot)];
         var privkey = config.sslKey ? fs.readFileSync(config.sslKey) : null;
         var theCert = config.sslCert ? fs.readFileSync(config.sslCert) : null;
         var port = config.portHTTPS ? config.portHTTPS : 443;
-        console.log("Attempting to start SSL server...");
+        winston.info("Attempting to start SSL server...", { process: process.pid });
         var httpsServer = https.createServer({ key: privkey, cert: theCert, passphrase: config.sslPassPhrase, ca: caChain }, app);
         httpsServer.listen(port);
-        console.log("Listening on HTTPS port " + port);
+        winston.info("Listening on HTTPS port " + port, { process: process.pid });
     }
     // Initialize all the controllers
     for (var i = 0, l = controllers.length; i < l; i++)
         controllerPromises.push(controllers[i].initialize(db));
     // Return a promise once all the controllers are complete
     Promise.all(controllerPromises).then(function (e) {
-        colors.log(colors.green("All controllers are now setup successfully!"));
+        winston.info("All controllers are now setup successfully!", { process: process.pid });
     }).catch(function (e) {
-        colors.log(colors.red("ERROR: An error has occurred while setting up the controllers \"" + e.message + "\""));
+        winston.error("ERROR: An error has occurred while setting up the controllers \"" + e.message + "\"", { process: process.pid });
     });
 }).catch(function (error) {
     // Error occurred
-    colors.log(colors.red("An error has occurred: " + error.message + " @" + error.stack));
+    winston.error("An error has occurred: " + error.message + " @" + error.stack, { process: process.pid });
     process.exit();
 });
