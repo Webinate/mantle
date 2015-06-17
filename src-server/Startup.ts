@@ -54,11 +54,11 @@ loadConfig(process.argv[3], process.argv[2])
 }).then(function (db)
 {
     // Database loaded
-    winston.info(`Successfully connected to '${config.databaseName}' at ${config.databaseHost}:${config.databasePort}`);
-    winston.info(`Starting up HTTP${config.ssl ? "S" : ""} server at ${config.host}:${config.portHTTP}...`);
+    winston.info(`Successfully connected to '${config.databaseName}' at ${config.databaseHost}:${config.databasePort}`, { process: process.pid });
+    winston.info(`Starting up HTTP${config.ssl ? "S" : ""} server at ${config.host}:${config.portHTTP}...`, { process: process.pid });
     
     // Add the static folder locations
-    winston.info(`Adding resource folder ${__dirname}/resources`);
+    winston.info(`Adding resource folder ${__dirname}/resources`, { process: process.pid });
     app.use(express.static(`${__dirname}/resources`, { maxAge: config.cacheLifetime }));
 
     // User defined static folders
