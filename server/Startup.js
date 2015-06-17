@@ -79,7 +79,7 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
         // Get the base URL's
         var url = (requestIsSecure ? "https" : "http") + "://" + config.host + ":" + (requestIsSecure ? config.portHTTPS : config.portHTTP);
         var usersURL = "" + config.usersURL;
-        console.log("Got request " + req.originalUrl + " - sending admin: ./views/index.jade");
+        winston.info("Got request " + req.originalUrl + " - sending admin: ./views/index.jade", { process: process.pid });
         res.render('index', { usersURL: usersURL, url: url });
     });
     // Get the default page
@@ -87,11 +87,11 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
         var handler = new PathHandler_1.PathHandler(config.paths[i], config);
         app.get(config.paths[i].path, handler.handle.bind(handler));
     }
-    console.log("Attempting to start HTTP server...");
+    winston.info("Attempting to start HTTP server...", { process: process.pid });
     // Start app with node server.js 
     var httpServer = http.createServer(app);
     httpServer.listen(config.portHTTP);
-    console.log("Listening on HTTP port " + config.portHTTP);
+    winston.info("Listening on HTTP port " + config.portHTTP, { process: process.pid });
     // If we use SSL then start listening for that as well
     if (config.ssl) {
         if (config.sslIntermediate != "" && !fs.existsSync(config.sslIntermediate)) {
