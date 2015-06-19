@@ -4,7 +4,6 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var winston = require("winston");
 var express = require("express");
 var bodyParser = require("body-parser");
 var Controller_1 = require("./Controller");
@@ -18,9 +17,9 @@ var PageRenderer = (function (_super) {
     __extends(PageRenderer, _super);
     function PageRenderer(config, e) {
         _super.call(this, [new RendersModel_1.RendersModel()]);
-        this.createServer(config.rendererPort);
-        // Sets up the prerenderer middleware
-        e.use(require('prerender-node').set('prerenderServiceUrl', (config.ssl ? "https" : "http") + "://" + config.host + ":" + config.rendererPort + "/"));
+        // Sets up the prerenderer middleware 
+        if (config.modepressRenderURL && config.modepressRenderURL.trim() != "")
+            e.use(require('prerender-node').set('prerenderServiceUrl', config.modepressRenderURL));
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
@@ -113,61 +112,6 @@ var PageRenderer = (function (_super) {
                 message: error.message
             }));
         });
-    };
-    PageRenderer.prototype.beforePhantomRequest = function (req, res, next) {
-        winston.info("Processing prerender GET requset: '" + req.url + "'", { process: process.pid });
-        if (req.method !== 'GET')
-            return next();
-        var renders = this.getModel("renders");
-        renders.findInstances({ url: req.url }).then(function (instances) {
-            if (instances.length > 0)
-                res.send(200, instances[0].schema.getByName("html").getValue(false));
-            else
-                next();
-        }).catch(function (error) {
-            next();
-        });
-    };
-    PageRenderer.prototype.afterPhantomRequest = function (req, res, next) {
-        winston.info("Processing prerender render", { process: process.pid });
-        var renders = this.getModel("renders");
-        var token = { url: req.url, html: req.prerender.documentHTML };
-        renders.createInstance(token).then(function (instance) {
-            next();
-        }).catch(function (error) {
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
-        });
-    };
-    PageRenderer.prototype.createServer = function (port) {
-        if (port === void 0) { port = 3000; }
-        winston.info("Setting up renderer...", { process: process.pid });
-        var prerender = require('../../node_modules/prerender/lib');
-        this._server = prerender({
-            workers: process.env.PHANTOM_CLUSTER_NUM_WORKERS,
-            iterations: process.env.PHANTOM_WORKER_ITERATIONS || 10,
-            phantomBasePort: process.env.PHANTOM_CLUSTER_BASE_PORT || 12300,
-            messageTimeout: process.env.PHANTOM_CLUSTER_MESSAGE_TIMEOUT,
-            port: port
-        });
-        this._server.use(prerender.blacklist());
-        this._server.use(prerender.removeScriptTags());
-        this._server.use(prerender.httpHeaders());
-        this._server.use(prerender.httpHeaders());
-        this._server.use(this);
-        winston.info("Rerender set to port: " + port, { process: process.pid });
-        // By default prerender uses bcrypt & weak - but we dont need this as its a bitch to setup
-        // Below is a way of configuring it so that prerender forces phantom to not use weak       
-        this._server.options.phantomArguments = [];
-        this._server.options.phantomArguments.push = function () {
-            if (arguments[0] && arguments[0].port !== undefined)
-                arguments[0].dnodeOpts = { weak: false };
-            //Do what you want here...
-            return Array.prototype.push.apply(this, arguments);
-        };
-        this._server.start();
     };
     return PageRenderer;
 })(Controller_1.Controller);

@@ -56,10 +56,10 @@ export interface IServerConfig
     portHTTP: number;
 
     /**
-	* The port number to use for the page renderer server. The renderer server runs alongside modepress
-    * and is used to store pre-rendered versions of your pages for web crawlers like Google, facebook and twitter.
+	* [Optional] If set, modepress will communicate with this URL to serve SEO/social friendly renders of your site
+    * e.g. "127.0.0.1:3000"
 	*/
-    rendererPort: number;
+    modepressRenderURL: string;
     
     /**
     * The name of the mongo database to use
