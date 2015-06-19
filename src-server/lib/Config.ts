@@ -205,8 +205,8 @@ export function loadConfig(configName: string, configPath : string): Promise<ISe
 					var serverCongfigs: Array<IServerConfig> = [];
 					for (var i = 0; i < json.length; i++)
 					{
-						serverCongfigs.push( <IServerConfig>(json[i]));
-						console.log(`Reading config ${serverCongfigs[i].name}...`);
+                        serverCongfigs.push(<IServerConfig>(json[i]));
+                        winston.info(`Reading config ${serverCongfigs[i].name}...`, { process: process.pid });
 					}
 
                     winston.info(`You have (${serverCongfigs.length}) configurations.`, { process: process.pid });

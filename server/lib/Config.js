@@ -21,7 +21,7 @@ function loadConfig(configName, configPath) {
                     var serverCongfigs = [];
                     for (var i = 0; i < json.length; i++) {
                         serverCongfigs.push((json[i]));
-                        console.log("Reading config " + serverCongfigs[i].name + "...");
+                        winston.info("Reading config " + serverCongfigs[i].name + "...", { process: process.pid });
                     }
                     winston.info("You have (" + serverCongfigs.length + ") configurations.", { process: process.pid });
                     for (var i = 0; i < serverCongfigs.length; i++) {
