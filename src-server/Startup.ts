@@ -9,7 +9,7 @@ import * as https from "https";
 import * as fs from "fs";
 import * as winston from "winston";
 import {MongoWrapper} from "./lib/MongoWrapper";
-import {loadConfig, ServerConfig, IPath} from "./lib/Config";
+import {loadConfig, IServerConfig, IPath} from "./lib/Config";
 import {Controller} from "./lib/controllers/Controller"
 import {PostsController} from "./lib/controllers/PostsController";
 import {EmailsController} from "./lib/controllers/EmailsController";
@@ -17,7 +17,7 @@ import {UsersService} from "./lib/UsersService";
 import {PathHandler} from "./lib/PathHandler";
 import {PageRenderer} from "./lib/PageRenderer";
 
-var config: ServerConfig = null;
+var config: IServerConfig = null;
 
 // Saves logs to file
 winston.add(winston.transports.File, { filename: "logs.log", maxsize: 50000000, maxFiles: 1, tailable: true });

@@ -32,193 +32,147 @@ export interface IPath
 /** 
 * A server configuration
 */
-export class ServerConfig
+export interface IServerConfig
 {
     /**
 	* The name of the configuration. This is chosen via the command line on startup
 	*/
-    public name: string;
+    name: string;
 
     /**
 	* The host we listening for
 	*/
-    public host: string = "127.0.0.1";
+    host: string;
 
     /**
 	* The length of time the assets should be cached on a user's browser. The default is 30 days.
 	*/
-    public cacheLifetime: number = 2592000000;
+    cacheLifetime: number;
 
     /**
 	* The port number of the host
 	*/
-    public portHTTP: number = 8080;
+    portHTTP: number;
+
+    /**
+	* The port number to use for the page renderer server. The renderer server runs alongside modepress
+    * and is used to store pre-rendered versions of your pages for web crawlers like Google, facebook and twitter.
+	*/
+    rendererPort: number;
     
     /**
     * The name of the mongo database to use
     */
-    public databaseName: string;
+    databaseName: string;
 
     /**
 	* The database host we are listening on
 	*/
-    public databaseHost: string = "127.0.0.1";
+    databaseHost: string;
 
     /**
 	* The port number the mongo database is listening on
 	*/
-    public databasePort: number = 27017;
+    databasePort: number;
     
     /**
 	* An array of folder paths that can be used to fetch static content
 	*/
-    public staticFilesFolder: Array<string>;
+    staticFilesFolder: Array<string>;
 
     /**
     * The URL of the webinate-users api
     */
-    public usersURL: string;
+    usersURL: string;
 
     /**
 	* Set to true if you want SSL turned on
 	*/
-    public ssl: boolean;
+    ssl: boolean;
 
     /**
     * The port number to use for SSL. Only applicable if ssl is true.
     */
-    public portHTTPS: number = 443;
+    portHTTPS: number;
 
     /**
 	* The path of the SSL private key. Only applicable if ssl is true.
 	*/
-    public sslKey: string;
+    sslKey: string;
 
     /**
 	* The path of the SSL certificate file (usually provided by a third vendor). Only applicable if ssl is true.
 	*/
-    public sslCert: string;
+    sslCert: string;
 
     /**
 	* The path of the SSL root file (usually provided by a third vendor). Only applicable if ssl is true.
 	*/
-    public sslRoot: string;
+    sslRoot: string;
 
     /**
 	* The path of the SSL intermediate/link file (usually provided by a third vendor). Only applicable if ssl is true.
 	*/
-    public sslIntermediate: string;
+    sslIntermediate: string;
 
     /**
 	* The password to use for the SSL (optional). Only applicable if ssl is true.
 	*/
-    public sslPassPhrase: string;
+    sslPassPhrase: string;
 
     /**
     * The path to use for accessing the admin panel
     */
-    public adminURL: string;
+    adminURL: string;
     
     /**
     * An array of IPath objects that define routes and where they go to
     */
-    public paths: Array<IPath>
+    paths: Array<IPath>
 
 	/**
 	* The email of the admin account
 	*/
-	public emailAdmin: string;
+	emailAdmin: string;
 
 	/**
 	* The 'from' email when notifying users
 	*/
-	public emailFrom: string;
+	emailFrom: string;
 
 	/**
 	* Email service we are using to send mail. For example 'Gmail'
 	*/
-	public emailService: string;
+	emailService: string;
 
 	/**
 	* The email address / username of the service
 	*/
-	public emailServiceUser: string;
+	emailServiceUser: string;
 
 	/**
 	* The password of the email service
 	*/
-	public emailServicePassword: string;
+	emailServicePassword: string;
 
 	/**
 	* The private key to use for Google captcha 
 	* Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
 	*/
-	public captchaPrivateKey: string;
+	captchaPrivateKey: string;
 
 	/**
 	* The public key to use for Google captcha 
 	* Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
 	*/
-	public captchaPublicKey: string;
+	captchaPublicKey: string;
 
 	/**
 	* This is the relative URL that the registration link sends to the user when clicking to activate their account.
 	* An example might be 'api/activate-account'
 	* This will be sent out as http(s)://HOST:PORT/activationURL?[Additional details]
 	*/
-	public activationURL: string;
-
-	/** 
-	* Creates a new config instance
-	* @param {any} data [Optional] JSON object from file
-	*/
-	constructor(data?: any)
-	{
-		if (data)
-			this.fromDataObject(data);
-	}
-
-	/** 
-	* Loads the data from a json object
-	* @param {any} data JSON object from file
-	*/
-	fromDataObject(data: any)
-	{
-		this.name = data.name;
-        this.host = data.host;
-        this.cacheLifetime = data.cacheLifetime;
-        this.portHTTP = data.portHTTP;
-        this.databasePort = data.databasePort;
-        this.databaseHost = data.databaseHost;
-        this.staticFilesFolder = data.staticFilesFolder;
-        this.paths = data.paths;
-		this.emailAdmin = data.emailAdmin;
-		this.emailFrom = data.emailFrom;
-		this.emailService = data.emailService;
-		this.emailServiceUser = data.emailServiceUser;
-		this.emailServicePassword = data.emailServicePassword;
-		this.captchaPrivateKey = data.captchaPrivateKey;
-		this.captchaPublicKey = data.captchaPublicKey;
-        this.activationURL = data.activationURL;
-        this.usersURL = data.usersURL;
-        this.adminURL = data.adminURL;
-        this.databaseName = data.databaseName;
-
-		if (data.ssl)
-		{
-            this.ssl = true;
-            this.portHTTPS = data.portHTTPS;
-			this.sslKey = data.sslKey;
-			this.sslCert = data.sslCert;
-            this.sslPassPhrase = data.sslPassPhrase;
-            this.sslRoot = data.sslRoot;
-            this.sslIntermediate = data.sslIntermediate;
-		}
-		else
-		{
-			this.ssl = false;
-		}
-	}
+	activationURL: string;
 }
 
 /**
@@ -227,9 +181,9 @@ export class ServerConfig
 * @param {string} configPath The path to where the config file is located
 * @returns {Promise<ServerConfig>}
 */
-export function loadConfig(configName: string, configPath : string): Promise<ServerConfig>
+export function loadConfig(configName: string, configPath : string): Promise<IServerConfig>
 {
-	return new Promise<ServerConfig>(function (resolve, reject)
+	return new Promise<IServerConfig>(function (resolve, reject)
 	{
 		console.log(`Reading file config.json...`);
 
@@ -247,10 +201,10 @@ export function loadConfig(configName: string, configPath : string): Promise<Ser
 					console.log(`Parsing file config.json...`);
 
 					var json: Array<any> = JSON.parse(data);
-					var serverCongfigs: Array<ServerConfig> = [];
+					var serverCongfigs: Array<IServerConfig> = [];
 					for (var i = 0; i < json.length; i++)
 					{
-						serverCongfigs.push(new ServerConfig(json[i]));
+						serverCongfigs.push( <IServerConfig>(json[i]));
 						console.log(`Reading config ${serverCongfigs[i].name}...`);
 					}
 

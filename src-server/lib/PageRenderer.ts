@@ -1,6 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import * as http from "http";
-import {ServerConfig} from "./Config";
+import {IServerConfig} from "./Config";
 import * as winston from "winston";
 
 interface IPrerenderServer
@@ -27,9 +27,9 @@ export class PageRenderer
     private _server: IPrerenderServer;
     private _collection: mongodb.Collection;
 
-    constructor(config: ServerConfig)
+    constructor(config: IServerConfig)
     {
-        this.createServer();
+        this.createServer(config.rendererPort);
     }
 
     beforePhantomRequest(req: IPrerenderRequest, res: IPrerenderResponse, next: Function)

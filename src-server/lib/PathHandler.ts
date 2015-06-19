@@ -1,4 +1,4 @@
-﻿import {loadConfig, ServerConfig, IPath} from "./Config";
+﻿import {loadConfig, IServerConfig, IPath} from "./Config";
 import * as express from "express";
 import * as fs from "fs";
 
@@ -10,14 +10,14 @@ import * as fs from "fs";
 export class PathHandler
 {
     private _path: IPath;
-    private _config: ServerConfig;
+    private _config: IServerConfig;
 
     /**
     * Creates a new path handler
     * @param {IPath}
     * @param {ServerConfig}
     */
-    constructor(path: IPath, cfg: ServerConfig)
+    constructor(path: IPath, cfg: IServerConfig)
     {
         this._path = path;
         this._config = cfg;

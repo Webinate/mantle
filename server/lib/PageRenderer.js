@@ -5,7 +5,7 @@ var winston = require("winston");
 */
 var PageRenderer = (function () {
     function PageRenderer(config) {
-        this.createServer();
+        this.createServer(config.rendererPort);
     }
     PageRenderer.prototype.beforePhantomRequest = function (req, res, next) {
         winston.info("Processing prerender GET requset", { process: process.pid });
