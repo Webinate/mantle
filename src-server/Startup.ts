@@ -15,6 +15,7 @@ import {PostsController} from "./lib/controllers/PostsController";
 import {EmailsController} from "./lib/controllers/EmailsController";
 import {UsersService} from "./lib/UsersService";
 import {PathHandler} from "./lib/PathHandler";
+import {PageRenderer} from "./lib/PageRenderer";
 
 var config: ServerConfig = null;
 
@@ -68,7 +69,7 @@ loadConfig(process.argv[3], process.argv[2])
     
     // Setup the jade template engine
     app.set('view engine', 'jade');
-
+    
     // Set any jade paths
     var allViewPaths = ['./views']; //admin path
     for (var i = 0, l = config.paths.length; i < l; i++)
@@ -171,6 +172,10 @@ loadConfig(process.argv[3], process.argv[2])
 
         winston.info(`Listening on HTTPS port ${port}`, { process: process.pid });
     }
+
+
+    // Start cache server
+    var cacheServer = new PageRenderer(config);
 
     // Initialize all the controllers
     for (var i = 0, l = controllers.length; i < l; i++)
