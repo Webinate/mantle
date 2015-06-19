@@ -53,33 +53,6 @@ export class PageRenderer extends Controller
     }
 
     /**
-    * Checks to see if a port is in use
-    * @returns {Promise<boolean>}
-    */
-    isPortTaken(port): Promise<boolean>
-    {
-        return new Promise<boolean>(function (resolve, reject)
-        {
-            var tester = net.createServer();
-            
-            tester.once('error', function (err)
-            {
-                resolve(true);
-            });
-            tester.once('listening', function ()
-            {
-                tester.once('close', function()
-                {
-                    resolve(false);
-                    tester.close()
-                })
-            })
-
-            tester.listen(port);
-        });
-    }
-
-    /**
     * This funciton checks the logged in user is an admin. If not an admin it returns an error, 
     * if true it passes the scope onto the next function in the queue
     * @param {express.Request} req 
@@ -207,16 +180,6 @@ export class PageRenderer extends Controller
         {
             next();
         });
-
-        //this._collection.findOne({ key: req.url }, function (err, item)
-        //{
-        //    var value = item ? item.value : null;
-
-        //    if (!err && item)
-        //        res.send(200, item);
-        //    else
-        //        next();
-        //});
     }
 
     afterPhantomRequest(req: IPrerenderRequest, res: IPrerenderResponse, next: Function)
@@ -241,45 +204,37 @@ export class PageRenderer extends Controller
 
     createServer(port: number = 3000)
     {
-        this.isPortTaken(port).then(function (portTaken)
-        {
-            if (portTaken)
-            {
-                winston.warn(`Renderer port '${port}' already in use - presuming that the render server is already setup...`, { process: process.pid });
-                return;
-            }
+        winston.info(`Setting up renderer...`, { process: process.pid });
+        var prerender = require('../../node_modules/prerender/lib');
 
-            var prerender = require('../../node_modules/prerender/lib');
-
-            this._server = prerender({
-                workers: process.env.PHANTOM_CLUSTER_NUM_WORKERS,
-                iterations: process.env.PHANTOM_WORKER_ITERATIONS || 10,
-                phantomBasePort: process.env.PHANTOM_CLUSTER_BASE_PORT || 12300,
-                messageTimeout: process.env.PHANTOM_CLUSTER_MESSAGE_TIMEOUT,
-                port: port
-            });
-
-            this._server.use(prerender.blacklist());
-            this._server.use(prerender.removeScriptTags());
-            this._server.use(prerender.httpHeaders());
-            this._server.use(prerender.httpHeaders());
-            this._server.use(this);
-
-            winston.info(`Prerender set to port: ${port}`, { process: process.pid });
-
-            // By default prerender uses bcrypt & weak - but we dont need this as its a bitch to setup
-            // Below is a way of configuring it so that prerender forces phantom to not use weak       
-            this._server.options.phantomArguments = [];
-            this._server.options.phantomArguments.push = function ()
-            {
-                if (arguments[0] && arguments[0].port !== undefined)
-                    arguments[0].dnodeOpts = { weak: false };
-
-                //Do what you want here...
-                return Array.prototype.push.apply(this, arguments);
-            }
-
-            this._server.start();
+        this._server = prerender({
+            workers: process.env.PHANTOM_CLUSTER_NUM_WORKERS,
+            iterations: process.env.PHANTOM_WORKER_ITERATIONS || 10,
+            phantomBasePort: process.env.PHANTOM_CLUSTER_BASE_PORT || 12300,
+            messageTimeout: process.env.PHANTOM_CLUSTER_MESSAGE_TIMEOUT,
+            port: port
         });
+
+        this._server.use(prerender.blacklist());
+        this._server.use(prerender.removeScriptTags());
+        this._server.use(prerender.httpHeaders());
+        this._server.use(prerender.httpHeaders());
+        this._server.use(this);
+
+        winston.info(`Rerender set to port: ${port}`, { process: process.pid });
+
+        // By default prerender uses bcrypt & weak - but we dont need this as its a bitch to setup
+        // Below is a way of configuring it so that prerender forces phantom to not use weak       
+        this._server.options.phantomArguments = [];
+        this._server.options.phantomArguments.push = function ()
+        {
+            if (arguments[0] && arguments[0].port !== undefined)
+                arguments[0].dnodeOpts = { weak: false };
+
+            //Do what you want here...
+            return Array.prototype.push.apply(this, arguments);
+        }
+
+        this._server.start();
     }
 }
