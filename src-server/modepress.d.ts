@@ -15,6 +15,14 @@
         lastUpdated?: number;
     }
 
+    export interface IRender
+    {
+        _id?: any;
+        url?: string;
+        html?: string;
+        createdOn?: number;
+    }
+
     export interface ICategory
     {
         _id?: any;
@@ -56,6 +64,7 @@
         website?: string;
     }
 
+    export interface IGetRenders extends IGetArrayResponse<IRender> { }
     export interface IGetPosts extends IGetArrayResponse<IPost> { }
     export interface IGetPost extends IGetResponse<IPost> { }
     export interface IGetCategory extends IGetResponse<ICategory> { }

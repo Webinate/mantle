@@ -1,4 +1,5 @@
 ﻿import * as fs from "fs";
+import * as winston from "winston";
 
 /**
 * Defines routes and the paths they take
@@ -184,8 +185,8 @@ export interface IServerConfig
 export function loadConfig(configName: string, configPath : string): Promise<IServerConfig>
 {
 	return new Promise<IServerConfig>(function (resolve, reject)
-	{
-		console.log(`Reading file config.json...`);
+    {
+        winston.info(`Reading file config.json...`, { process: process.pid });
 
         fs.readFile(configPath, "utf8", function (err, data)
 		{
@@ -197,8 +198,8 @@ export function loadConfig(configName: string, configPath : string): Promise<ISe
 			else
 			{
 				try
-				{
-					console.log(`Parsing file config.json...`);
+                {
+                    winston.info(`Parsing file config.json...`, { process: process.pid });
 
 					var json: Array<any> = JSON.parse(data);
 					var serverCongfigs: Array<IServerConfig> = [];
@@ -208,7 +209,7 @@ export function loadConfig(configName: string, configPath : string): Promise<ISe
 						console.log(`Reading config ${serverCongfigs[i].name}...`);
 					}
 
-					console.log(`You have (${serverCongfigs.length}) configurations.`);
+                    winston.info(`You have (${serverCongfigs.length}) configurations.`, { process: process.pid });
 
 					for (var i = 0; i < serverCongfigs.length; i++)
 					{

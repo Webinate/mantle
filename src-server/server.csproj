@@ -45,6 +45,7 @@
     <TypeScriptCompile Include="lib\definitions\webinate-users.d.ts" />
     <TypeScriptCompile Include="lib\models\Model.ts" />
     <TypeScriptCompile Include="lib\models\CategoriesModel.ts" />
+    <TypeScriptCompile Include="lib\models\RendersModel.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaItemFactory.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaDate.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaBool.ts" />
@@ -54,7 +55,7 @@
     <TypeScriptCompile Include="lib\models\schema-items\SchemaNumber.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaItem.ts" />
     <TypeScriptCompile Include="lib\models\PostsModel.ts" />
-    <TypeScriptCompile Include="lib\PageRenderer.ts" />
+    <TypeScriptCompile Include="lib\controllers\PageRenderer.ts" />
     <TypeScriptCompile Include="lib\PathHandler.ts" />
     <TypeScriptCompile Include="lib\UsersService.ts" />
     <TypeScriptCompile Include="main.ts" />
@@ -94,6 +95,14 @@
   <ItemGroup>
     <Content Include="..\install-script-dev.sh">
       <Link>install-script-dev.sh</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\server\config-mkhenson.json">
+      <Link>config-mkhenson.json</Link>
+    </Content>
+    <Content Include="..\server\config-webinate.json">
+      <Link>config-webinate.json</Link>
     </Content>
   </ItemGroup>
   <PropertyGroup>

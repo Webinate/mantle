@@ -15,7 +15,8 @@ import {PostsController} from "./lib/controllers/PostsController";
 import {EmailsController} from "./lib/controllers/EmailsController";
 import {UsersService} from "./lib/UsersService";
 import {PathHandler} from "./lib/PathHandler";
-import {PageRenderer} from "./lib/PageRenderer";
+import {PageRenderer} from "./lib/controllers/PageRenderer";
+
 
 var config: IServerConfig = null;
 
@@ -101,7 +102,8 @@ loadConfig(process.argv[3], process.argv[2])
     var controllers: Array<Controller> = [
         new EmailsController(app, config.emailAdmin, config.emailFrom,
             config.emailService, config.emailServiceUser, config.emailServicePassword),
-        new PostsController(app)
+        new PostsController(app),
+        new PageRenderer( config, app)
     ];
     
 
@@ -172,11 +174,7 @@ loadConfig(process.argv[3], process.argv[2])
 
         winston.info(`Listening on HTTPS port ${port}`, { process: process.pid });
     }
-
-
-    // Start cache server
-    var cacheServer = new PageRenderer(config);
-
+    
     // Initialize all the controllers
     for (var i = 0, l = controllers.length; i < l; i++)
         controllerPromises.push(controllers[i].initialize(db));

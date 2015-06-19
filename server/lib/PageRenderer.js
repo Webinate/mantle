@@ -36,21 +36,21 @@ var PageRenderer = (function () {
             workers: process.env.PHANTOM_CLUSTER_NUM_WORKERS,
             iterations: process.env.PHANTOM_WORKER_ITERATIONS || 10,
             phantomBasePort: process.env.PHANTOM_CLUSTER_BASE_PORT || 12300,
-            messageTimeout: process.env.PHANTOM_CLUSTER_MESSAGE_TIMEOUT
+            messageTimeout: process.env.PHANTOM_CLUSTER_MESSAGE_TIMEOUT,
+            port: port
         });
         this._server.use(prerender.blacklist());
         this._server.use(prerender.removeScriptTags());
         this._server.use(prerender.httpHeaders());
         this._server.use(prerender.httpHeaders());
         this._server.use(this);
+        winston.info("Prerender set to port: " + port, { process: process.pid });
         // By default prerender uses bcrypt & weak - but we dont need this as its a bitch to setup
-        // Below is a way of configuring it so that prerender forces phantom to not use weak
+        // Below is a way of configuring it so that prerender forces phantom to not use weak       
         this._server.options.phantomArguments = [];
         this._server.options.phantomArguments.push = function () {
-            if (arguments[0] && arguments[0].port !== undefined) {
+            if (arguments[0] && arguments[0].port !== undefined)
                 arguments[0].dnodeOpts = { weak: false };
-                arguments[0].port = port;
-            }
             //Do what you want here...
             return Array.prototype.push.apply(this, arguments);
         };

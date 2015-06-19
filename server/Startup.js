@@ -13,7 +13,7 @@ var PostsController_1 = require("./lib/controllers/PostsController");
 var EmailsController_1 = require("./lib/controllers/EmailsController");
 var UsersService_1 = require("./lib/UsersService");
 var PathHandler_1 = require("./lib/PathHandler");
-var PageRenderer_1 = require("./lib/PageRenderer");
+var PageRenderer_1 = require("./lib/controllers/PageRenderer");
 var config = null;
 // Saves logs to file
 winston.add(winston.transports.File, { filename: "logs.log", maxsize: 50000000, maxFiles: 1, tailable: true });
@@ -73,7 +73,8 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
     var controllerPromises = [];
     var controllers = [
         new EmailsController_1.EmailsController(app, config.emailAdmin, config.emailFrom, config.emailService, config.emailServiceUser, config.emailServicePassword),
-        new PostsController_1.PostsController(app)
+        new PostsController_1.PostsController(app),
+        new PageRenderer_1.PageRenderer(config, app)
     ];
     // Send the jade index file
     app.get("(" + config.adminURL + "|" + config.adminURL + "/*)", function (req, res) {
@@ -121,8 +122,6 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
         httpsServer.listen(port);
         winston.info("Listening on HTTPS port " + port, { process: process.pid });
     }
-    // Start cache server
-    var cacheServer = new PageRenderer_1.PageRenderer(config);
     // Initialize all the controllers
     for (var i = 0, l = controllers.length; i < l; i++)
         controllerPromises.push(controllers[i].initialize(db));
