@@ -29,6 +29,7 @@ export class PageRenderer extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         router.get("/get-renders", <any>[this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
+        router.delete("/clear-cache", <any>[this.authenticateAdmin.bind(this), this.clearCache.bind(this)]);
 
         // Register the path
         e.use("/api/renders", router);
@@ -132,6 +133,34 @@ export class PageRenderer extends Controller
                 count: count,
                 message: `Found ${count} renders`,
                 data: sanitizedData
+            }));
+
+        }).catch(function (error: Error)
+        {
+            res.end(JSON.stringify(<modepress.IResponse>{
+                error: true,
+                message: error.message
+            }));
+        });
+    }
+
+    /**
+    * Removes all cache items from the db
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private clearCache(req: express.Request, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var renders = this.getModel("renders");
+       
+        // First get the count
+        renders.deleteInstances({}).then(function(num)
+        {
+            res.end(JSON.stringify(<modepress.IResponse>{
+                error: false,
+                message: `${num} Instances have been removed`
             }));
 
         }).catch(function (error: Error)
