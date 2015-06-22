@@ -83,7 +83,7 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
         var url = (requestIsSecure ? "https" : "http") + "://" + config.host + ":" + (requestIsSecure ? config.portHTTPS : config.portHTTP);
         var usersURL = "" + config.usersURL;
         winston.info("Got request " + req.originalUrl + " - sending admin: ./views/index.jade", { process: process.pid });
-        res.render('index', { usersURL: usersURL, url: url });
+        res.render('index', { usersURL: usersURL, url: url, cacheURL: config.modepressRenderURL });
     });
     // Get the default page
     for (var i = 0, l = config.paths.length; i < l; i++) {

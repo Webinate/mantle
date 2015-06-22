@@ -76,9 +76,7 @@ var PageRenderer = (function (_super) {
         var renders = this.getModel("renders");
         var that = this;
         var count = 0;
-        var findToken = { $or: [] };
-        if (req.query.author)
-            findToken.author = new RegExp(req.query.author, "i");
+        var findToken = {};
         // Set the default sort order to ascending
         var sortOrder = -1;
         if (req.query.sortOrder) {
@@ -92,9 +90,9 @@ var PageRenderer = (function (_super) {
         var getContent = true;
         if (req.query.minimal)
             getContent = false;
-        // Remove the or token if its empty
-        if (findToken.$or.length == 0)
-            delete findToken.$or;
+        // Check for keywords
+        if (req.query.search)
+            findToken.url = new RegExp(req.query.search, "i");
         // First get the count
         renders.count(findToken).then(function (num) {
             count = num;

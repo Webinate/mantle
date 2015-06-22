@@ -93,10 +93,7 @@ export class PageRenderer extends Controller
         var that = this;
         var count = 0;
 
-        var findToken = { $or: [] };
-        if (req.query.author)
-            (<any>findToken).author = new RegExp(req.query.author, "i");
-       
+        var findToken = {};       
 
         // Set the default sort order to ascending
         var sortOrder = -1;
@@ -107,17 +104,19 @@ export class PageRenderer extends Controller
             else
                 sortOrder = -1;
         }
-
+        
         // Sort by the date created
-        var sort: modepress.IPost = { createdOn: sortOrder };
+        var sort: modepress.ICacheItem = { createdOn: sortOrder };
         
         var getContent: boolean = true;
         if (req.query.minimal)
             getContent = false;
+
+        // Check for keywords
+        if (req.query.search)
+            (<modepress.ICacheItem>findToken).url = <any>new RegExp(req.query.search, "i");
+
         
-        // Remove the or token if its empty
-        if (findToken.$or.length == 0)
-            delete findToken.$or;
         
         // First get the count
         renders.count(findToken).then(function(num)
@@ -127,7 +126,7 @@ export class PageRenderer extends Controller
 
         }).then(function (instances)
         {
-            var sanitizedData: Array<modepress.IRender> = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData: Array<modepress.ICacheItem> = that.getSanitizedData<modepress.ICacheItem>(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<modepress.IGetRenders>{
                 error: false,
                 count: count,

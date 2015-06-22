@@ -427,6 +427,10 @@ form .nav-button {
     height: 15%;
     height: 130px;
 }
+.sub-menu.only-header {
+    height: 10%;
+    height: 75px;
+}
 .console-buttons {
   margin: 10px 0;
 }
@@ -435,6 +439,10 @@ form .nav-button {
     overflow: auto;
     height: 85%;
     height: calc(100% - 130px);
+}
+.content-view.only-header {
+    height: 90%;
+    height: calc(100% - 75px);
 }
 .content-view-item{
     margin: 10px;
@@ -477,6 +485,27 @@ max-height: 0;
     box-sizing: border-box;
     overflow: hidden;
     max-height: 400px;
+}
+.content-view-detail .search {
+    float: left;
+}
+.div-list .left {
+    float: left;
+}
+.div-list .right {
+    float: right;
+    margin: 0 10px 0 0;
+}
+.seo .div-list, .seo .div-list a {
+    margin:20px 0;
+    font-size:20px;
+    text-decoration: none;
+}
+.div-list div {
+    font-size: inherit;
+}
+ .seo .div-list a {
+    text-decoration: none;
 }
 .content-view-detail .mce-tinymce {
     margin:10px 0 0 0;

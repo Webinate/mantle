@@ -1,4 +1,5 @@
 ﻿declare var _users: string;
+declare var _cache: string;
 
 /**
 * The admin code for the website
@@ -10,6 +11,7 @@ module clientAdmin
     angular.module('admin', ["ui.router", "ngAnimate", "ngSanitize"])
         .constant("usersURL", _users)
         .constant("apiURL", "./api")
+        .constant("cacheURL", _cache)
         .filter("htmlToPlaintext", function()
         {
             return function (text)
@@ -21,7 +23,8 @@ module clientAdmin
         .controller("loginCtrl", LoginCtrl)
         .controller("registerCtrl", RegisterCtrl)
         .controller("usersCtrl", UsersCtrl)
-        .controller("postsCtrl", PostsCtrl )
+        .controller("postsCtrl", PostsCtrl)
+        .controller("seoCtrl", SEOCtrl)
         .service("Authenticator", Authenticator)
         .config(Config)
         .run(["$rootScope", "$location", "$state", "Authenticator", function ($rootScope, $location, $state: ng.ui.IStateService, auth: Authenticator)
@@ -37,14 +40,12 @@ module clientAdmin
                         if (toState.authenticate && !val) {
                             $rootScope.returnToState = toState.url;
                             $rootScope.returnToStateParams = toParams.Id;
-                            //$location.path('/login');
                             toState.forceTransition = false;
                             $state.go("login");
                         }
                         else if (!toState.authenticate && val) {
                             $rootScope.returnToState = toState.url;
                             $rootScope.returnToStateParams = toParams.Id;
-                            //$location.path('/login');
                             toState.forceTransition = false;
                             $state.go("default");
                         }

@@ -15,14 +15,6 @@
         lastUpdated?: number;
     }
 
-    export interface IRender
-    {
-        _id?: any;
-        url?: string;
-        html?: string;
-        createdOn?: number;
-    }
-
     export interface ICategory
     {
         _id?: any;
@@ -36,6 +28,18 @@
     {
         message: string;
         error: boolean;
+    }
+
+    /*
+    * A cache item for SEO rendering
+    */
+    export interface ICacheItem
+    {
+        _id?: any;
+        url?: string;
+        createdOn?: number;
+        updateDate?: number;
+        html?: string;
     }
 
     /*
@@ -64,7 +68,7 @@
         website?: string;
     }
 
-    export interface IGetRenders extends IGetArrayResponse<IRender> { }
+    export interface IGetRenders extends IGetArrayResponse<ICacheItem> { }
     export interface IGetPosts extends IGetArrayResponse<IPost> { }
     export interface IGetPost extends IGetResponse<IPost> { }
     export interface IGetCategory extends IGetResponse<ICategory> { }

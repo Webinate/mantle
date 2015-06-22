@@ -53,6 +53,12 @@
                     url: "/admin",
                     authenticate: true
                 })
+                .state('default.seo', {
+                    templateUrl: 'admin/templates/dash-seo.html',
+                    authenticate: true,
+                    controller: "seoCtrl",
+                    controllerAs: "controller"
+                })
                 .state('default.users', {
                     templateUrl: 'admin/templates/dash-users.html',
                     authenticate: true,
@@ -123,58 +129,6 @@
 					},					
                     url: "/admin/message/:message/:status"
                 })
-
-
-                
-               
-				//.state('myProtectedContent', {
-				//	url: '/myProtectedContent',
-				//	templateUrl: 'sections/myProtectedContent.html',
-				//	controller: 'myProtectedContentCtrl',
-				//	controllerAs: "controller",
-				//	resolve: { authenticate: authenticate }
-				//})
-				//.state('alsoProtectedContent', {
-				//	url: '/alsoProtectedContent',
-				//	templateUrl: 'sections/alsoProtectedContent.html',
-				//	controller: 'alsoProtectedContentCtrl',
-				//	controllerAs: "controller",
-				//	resolve: {
-				//		authenticated: ["AdminService", function (adminService: AdminService)
-				//		{
-				//			return adminService.authenticated();
-				//		}]
-				//	}
-				//})
-
-			//function authenticate($q: angular.IQService, user, $state, $timeout)
-			//{
-			//	if (user.isAuthenticated())
-			//	{
-			//		// Resolve the promise successfully
-			//		return $q.when()
-
-			//	} else
-			//	{
-			//		// The next bit of code is asynchronously tricky.
-
-			//		$timeout(function ()
-			//		{
-			//			// This code runs after the authentication promise has been rejected.
-			//			// Go to the log-in page
-			//			$state.go('logInPage')
-			//		})
-
-			//		// Reject the authentication promise to prevent the state from loading
-			//		return $q.reject()
-			//	}
-			//}
-
-			//stateProvider.state("home", { url: "/", templateUrl: "templates/home.html", controller: "homeCtrl", controllerAs: "controller" });
-			//stateProvider.state("about", { url: "/about", templateUrl: "templates/about.html", controller: "aboutCtrl", controllerAs: "controller" });
-			//stateProvider.state("contact", { url: "/contact", templateUrl: "templates/contact.html", controller: "contactCtrl", controllerAs: "controller" });
-			//stateProvider.state("projects", { url: "/projects", templateUrl: "templates/projects.html" });
-			//stateProvider.state("about", { url: "/about", templateUrl: "templates/about.html" });
 		}
 	}
 }

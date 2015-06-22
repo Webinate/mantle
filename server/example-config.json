@@ -2,6 +2,7 @@
   {
     "name": "local",
     "host": "localhost",
+    "modepressRenderURL": "",
     "portHTTP": 80,
     "rendererPort": 3000,
     "cacheLifetime": 2592000000,

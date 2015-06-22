@@ -27,6 +27,7 @@
     <TypeScriptCompile Include="lib\Config.ts" />
     <TypeScriptCompile Include="lib\controllers\PagedContentCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\PostsCtrl.ts" />
+    <TypeScriptCompile Include="lib\controllers\SEOCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\UsersCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\RegisterCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\LoginCtrl.ts" />
@@ -44,6 +45,9 @@
     </Content>
     <Content Include="..\server\resources\admin\templates\dash-posts.html">
       <Link>html\templates\dash-posts.html</Link>
+    </Content>
+    <Content Include="..\server\resources\admin\templates\dash-seo.html">
+      <Link>html\templates\dash-seo.html</Link>
     </Content>
     <Content Include="..\server\resources\admin\templates\dash-users.html">
       <Link>html\templates\dash-users.html</Link>

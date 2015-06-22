@@ -1,0 +1,37 @@
+<div class="dialog-modal" ng-show="controller.error">
+    <div class="dialog-box">
+        <p>{{controller.errorMsg}}</p>
+        <div class="button red" ng-click="controller.error=false">Ok</div>
+    </div>
+</div>
+
+<div class="sub-menu only-header">
+    <h>SEO<img ng-show="controller.loading" src="/admin/media/images/loader.gif" /></h> 
+</div>
+
+<div class="seo content-view only-header">
+	<div class="content-view-item">
+		<div class="arrow animate-fast" ng-click="controller.showCache = (controller.showCache === undefined ? true : !controller.showCache )" ng-class="{ active : controller.showCache }"></div>
+		<div class="view-item-label">Crawler Cache</div>
+		<div class="content-view-details animated-panel animate-show" ng-show="controller.showCache">
+			<div class="content-view-detail">
+				<div class="label">URLs</div>
+				<div class="search"><input type="text" ng-model="controller.searchTerm" /><div class="search-button" ng-click="controller.getCache()"></div></div>
+				<div class="fix"></div>
+				<div class="div-list" ng-repeat="cache in controller.cacheItems">
+					<div class="name left">
+						<a target="_blank" ng-href="{{controller.cacheURL}}{{cache.url}}">{{cache.url}}</a>
+					</div>					
+					<div class="right">
+						<div class="nav-button red-highlight" ng-click="controller.clearCache()">
+							<a href="">Remove</a>
+						</div>
+					</div>
+					<div class="right">{{cache.createdOn | date:"MM/dd/yyyy"}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="nav-button red-highlight" ng-click="controller.clearCache()"><a href="">Clear Cache</a></div>
+			</div>
+		</div>
+	</div>
+</div>
