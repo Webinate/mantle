@@ -406,6 +406,16 @@ form .nav-button {
 .admin-nav {
     width:20%;
 }
+.admin-section .icon {
+    background-repeat:no-repeat;
+    width:32px;
+    height:32px;
+    display:inline-block;
+    vertical-align:middle;
+}
+.admin-section.active .icon {
+    background-position-y:-32px;
+}
 .admin-view {
     width:80%;
 }
