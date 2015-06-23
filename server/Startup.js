@@ -73,9 +73,13 @@ Config_1.loadConfig(process.argv[3], process.argv[2])
     var controllerPromises = [];
     var controllers = [
         new EmailsController_1.EmailsController(app, config.emailAdmin, config.emailFrom, config.emailService, config.emailServiceUser, config.emailServicePassword),
-        new PostsController_1.PostsController(app),
-        new PageRenderer_1.PageRenderer(config, app)
+        new PostsController_1.PostsController(app)
     ];
+    // If we have a modepress url, then use that 
+    if (config.modepressRenderURL && config.modepressRenderURL.trim() != "") {
+        winston.info("Modepress render attempting to listen on '" + config.modepressRenderURL + "'", { process: process.pid });
+        controllers.push(new PageRenderer_1.PageRenderer(config, app));
+    }
     // Send the jade index file
     app.get("(" + config.adminURL + "|" + config.adminURL + "/*)", function (req, res) {
         var requestIsSecure = req.connection.encrypted;

@@ -102,10 +102,15 @@ loadConfig(process.argv[3], process.argv[2])
     var controllers: Array<Controller> = [
         new EmailsController(app, config.emailAdmin, config.emailFrom,
             config.emailService, config.emailServiceUser, config.emailServicePassword),
-        new PostsController(app),
-        new PageRenderer( config, app)
+        new PostsController(app)
     ];
-    
+
+    // If we have a modepress url, then use that 
+    if (config.modepressRenderURL && config.modepressRenderURL.trim() != "")
+    {
+        winston.info(`Modepress render attempting to listen on '${config.modepressRenderURL}'`, { process: process.pid });
+        controllers.push(new PageRenderer(config, app));
+    }
 
     // Send the jade index file
     app.get(`(${config.adminURL}|${config.adminURL}/*)`, function (req, res)
@@ -188,7 +193,7 @@ loadConfig(process.argv[3], process.argv[2])
     {
         winston.error(`ERROR: An error has occurred while setting up the controllers "${e.message}"`, { process: process.pid });
     });
-
+    
 }).catch(function (error: Error)
 {
     // Error occurred
