@@ -493,7 +493,7 @@ max-height: 0;
     float: left;
     width: 80%;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: auto;
     max-height: 400px;
 }
 .content-view-detail .search {
