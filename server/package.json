@@ -1,6 +1,6 @@
 {
   "name": "modepress",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "A simple Mongo-Node CMS server. The server can be accessed via an admin panel and content can be requested via its RESTful API",
   "main": "main.js",
   "author": "Mathew Henson",
