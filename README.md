@@ -53,5 +53,5 @@ npm update
 7) Run modepress
 
 ```
-node main.js --config="config.json"
+node main.js --config="config.json" --logFile="logs.log"
 ```

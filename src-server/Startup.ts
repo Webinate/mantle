@@ -23,7 +23,16 @@ var config: IServerConfig = null;
 var arguments = yargs.argv;
 
 // Saves logs to file
-winston.add(winston.transports.File, { filename: "logs.log", maxsize: 50000000, maxFiles: 1, tailable: true });
+if (arguments.logFile && arguments.logFile.trim() != "")
+    winston.add(winston.transports.File, { filename: arguments.logFile, maxsize: 50000000, maxFiles: 1, tailable: true });
+
+
+// If no logging - remove all transports
+if (arguments.logging && arguments.logging.toLowerCase().trim() == "false")
+{
+    winston.remove(winston.transports.File);
+    winston.remove(winston.transports.Console);
+}
 
 // Make sure the config path argument is there
 if (!arguments.config || arguments.config.trim() == "")
