@@ -1,4 +1,4 @@
-﻿import {loadConfig, IServerConfig, IPath} from "./Config";
+﻿import {IServerConfig, IPath} from "./Config";
 import * as express from "express";
 import * as fs from "fs";
 

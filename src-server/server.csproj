@@ -43,6 +43,7 @@
     <TypeScriptCompile Include="lib\definitions\validator.d.ts" />
     <TypeScriptCompile Include="lib\definitions\winston.ts" />
     <TypeScriptCompile Include="lib\definitions\webinate-users.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\yargs.d.ts" />
     <TypeScriptCompile Include="lib\models\Model.ts" />
     <TypeScriptCompile Include="lib\models\CategoriesModel.ts" />
     <TypeScriptCompile Include="lib\models\RendersModel.ts" />

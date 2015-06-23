@@ -9,52 +9,50 @@ import * as https from "https";
 import * as fs from "fs";
 import * as winston from "winston";
 import {MongoWrapper} from "./lib/MongoWrapper";
-import {loadConfig, IServerConfig, IPath} from "./lib/Config";
+import {IServerConfig, IPath} from "./lib/Config";
 import {Controller} from "./lib/controllers/Controller"
 import {PostsController} from "./lib/controllers/PostsController";
 import {EmailsController} from "./lib/controllers/EmailsController";
 import {UsersService} from "./lib/UsersService";
 import {PathHandler} from "./lib/PathHandler";
 import {PageRenderer} from "./lib/controllers/PageRenderer";
+import * as yargs from "yargs";
 
 
 var config: IServerConfig = null;
+var arguments = yargs.argv;
 
 // Saves logs to file
 winston.add(winston.transports.File, { filename: "logs.log", maxsize: 50000000, maxFiles: 1, tailable: true });
 
 // Make sure the config path argument is there
-if (process.argv.length < 3)
+if (!arguments.config || arguments.config.trim() == "")
 {
-    winston.error("No config file specified. Please start modepress with the config path in the argument list. Eg: node main.js ./config.js debug", { process: process.pid });
-    process.exit();
-}
-
-// Make sure the config name argument is there
-if (process.argv.length < 4)
-{
-    winston.error("No config name specified in the argument list. Eg: node main.js ./config.js debug", { process: process.pid });
+    winston.error("No config file specified. Please start modepress with the config path in the argument list. Eg: node main.js --config='./config.js'", { process: process.pid });
     process.exit();
 }
 
 // Make sure the file exists
-if (!fs.existsSync(process.argv[2]))
+if (!fs.existsSync(arguments.config))
 {
-    winston.error(`Could not locate the config file at '${process.argv[2]}'`, { process: process.pid });
+    winston.error(`Could not locate the config file at '${arguments.config}'`, { process: process.pid });
     process.exit();
 }
 
-// Load a config file
-loadConfig(process.argv[3], process.argv[2])
-
-// Config file is loaded
-.then(function (cfg)
+try
 {
-    config = cfg;
-    winston.info(`Attempting to connect to mongodb...`, { process: process.pid });
-    return MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName);
+    // Try load and parse the config
+    config = JSON.parse(fs.readFileSync(arguments.config, "utf8"));
+}
+catch(err)
+{
+    winston.error(`Could not parge the config file - make sure its valid JSON`, { process: process.pid });
+    process.exit();
+}
 
-}).then(function (db)
+
+winston.info(`Attempting to connect to mongodb...`, { process: process.pid });
+MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName).then(function (db)
 {
     // Database loaded
     winston.info(`Successfully connected to '${config.databaseName}' at ${config.databaseHost}:${config.databasePort}`, { process: process.pid });

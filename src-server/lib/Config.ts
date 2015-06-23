@@ -36,11 +36,6 @@ export interface IPath
 export interface IServerConfig
 {
     /**
-	* The name of the configuration. This is chosen via the command line on startup
-	*/
-    name: string;
-
-    /**
 	* The host we listening for
 	*/
     host: string;
@@ -174,62 +169,4 @@ export interface IServerConfig
 	* This will be sent out as http(s)://HOST:PORT/activationURL?[Additional details]
 	*/
 	activationURL: string;
-}
-
-/**
-* Loads a configuration file which is needed to setup the server
-* @param {string} configName Specify the name of a config to use
-* @param {string} configPath The path to where the config file is located
-* @returns {Promise<ServerConfig>}
-*/
-export function loadConfig(configName: string, configPath : string): Promise<IServerConfig>
-{
-	return new Promise<IServerConfig>(function (resolve, reject)
-    {
-        winston.info(`Reading file config.json...`, { process: process.pid });
-
-        fs.readFile(configPath, "utf8", function (err, data)
-		{
-			if (err)
-			{
-				reject(new Error(`Cannot read config file: ${err.message}`));
-				return;
-			}
-			else
-			{
-				try
-                {
-                    winston.info(`Parsing file config.json...`, { process: process.pid });
-
-					var json: Array<any> = JSON.parse(data);
-					var serverCongfigs: Array<IServerConfig> = [];
-					for (var i = 0; i < json.length; i++)
-					{
-                        serverCongfigs.push(<IServerConfig>(json[i]));
-                        winston.info(`Reading config ${serverCongfigs[i].name}...`, { process: process.pid });
-					}
-
-                    winston.info(`You have (${serverCongfigs.length}) configurations.`, { process: process.pid });
-
-					for (var i = 0; i < serverCongfigs.length; i++)
-					{
-						if (serverCongfigs[i].name == configName)
-						{
-							// Success!
-							resolve(serverCongfigs[i]);
-							return;
-						}
-					}
-
-					reject(new Error(`Could not find a config with the name ${configName}`));
-					return;
-				}
-				catch (exp)
-				{
-					reject(new Error(`Could not parse JSON file: ${exp.message}`));
-					return;
-				}
-			}
-		});
-	});
 }

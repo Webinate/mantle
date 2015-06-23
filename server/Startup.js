@@ -8,37 +8,36 @@ var https = require("https");
 var fs = require("fs");
 var winston = require("winston");
 var MongoWrapper_1 = require("./lib/MongoWrapper");
-var Config_1 = require("./lib/Config");
 var PostsController_1 = require("./lib/controllers/PostsController");
 var EmailsController_1 = require("./lib/controllers/EmailsController");
 var UsersService_1 = require("./lib/UsersService");
 var PathHandler_1 = require("./lib/PathHandler");
 var PageRenderer_1 = require("./lib/controllers/PageRenderer");
+var yargs = require("yargs");
 var config = null;
+var arguments = yargs.argv;
 // Saves logs to file
 winston.add(winston.transports.File, { filename: "logs.log", maxsize: 50000000, maxFiles: 1, tailable: true });
 // Make sure the config path argument is there
-if (process.argv.length < 3) {
-    winston.error("No config file specified. Please start modepress with the config path in the argument list. Eg: node main.js ./config.js debug", { process: process.pid });
-    process.exit();
-}
-// Make sure the config name argument is there
-if (process.argv.length < 4) {
-    winston.error("No config name specified in the argument list. Eg: node main.js ./config.js debug", { process: process.pid });
+if (!arguments.config || arguments.config.trim() == "") {
+    winston.error("No config file specified. Please start modepress with the config path in the argument list. Eg: node main.js --config='./config.js'", { process: process.pid });
     process.exit();
 }
 // Make sure the file exists
-if (!fs.existsSync(process.argv[2])) {
-    winston.error("Could not locate the config file at '" + process.argv[2] + "'", { process: process.pid });
+if (!fs.existsSync(arguments.config)) {
+    winston.error("Could not locate the config file at '" + arguments.config + "'", { process: process.pid });
     process.exit();
 }
-// Load a config file
-Config_1.loadConfig(process.argv[3], process.argv[2])
-    .then(function (cfg) {
-    config = cfg;
-    winston.info("Attempting to connect to mongodb...", { process: process.pid });
-    return MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName);
-}).then(function (db) {
+try {
+    // Try load and parse the config
+    config = JSON.parse(fs.readFileSync(arguments.config, "utf8"));
+}
+catch (err) {
+    winston.error("Could not parge the config file - make sure its valid JSON", { process: process.pid });
+    process.exit();
+}
+winston.info("Attempting to connect to mongodb...", { process: process.pid });
+MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName).then(function (db) {
     // Database loaded
     winston.info("Successfully connected to '" + config.databaseName + "' at " + config.databaseHost + ":" + config.databasePort, { process: process.pid });
     winston.info("Starting up HTTP" + (config.ssl ? "S" : "") + " server at " + config.host + ":" + config.portHTTP + "...", { process: process.pid });
