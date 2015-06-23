@@ -3,52 +3,36 @@
 	/**
 	* Controller for the dashboard users section
 	*/
-    export class SEOCtrl
+    export class SEOCtrl extends PagedContentCtrl
 	{
-        protected http: ng.IHttpService;
-        protected error: boolean;
-        protected errorMsg: string;
         protected apiURL: string;
         protected cacheURL: string;
-        protected searchTerm: string;        
-        protected loading: boolean;
-        protected showCache: boolean;
-        protected limit: number;
-        protected index: number;
-        protected last: number;
-        protected cacheItems: Array<modepress.ICacheItem>;
+        protected showRenders: boolean;
+        protected renders: Array<modepress.IRender>;
 
 		// $inject annotation.
         public static $inject = ["$scope", "$http", "apiURL", "cacheURL"];
         constructor(scope: any, http: ng.IHttpService, apiURL: string, cacheURL: string)
         {
-            this.http = http;
-            this.loading = false;
-            this.error = false;
-            this.errorMsg = "";
-            this.showCache = true;
-            this.limit = 30;
-            this.last = Infinity;
-            this.index = 0;
+            super(http);
+            this.showRenders = true;
             this.apiURL = apiURL;
             this.cacheURL = cacheURL;
-            this.searchTerm = "";
-            this.cacheItems = [];
-
-            this.getCache();
+            this.renders = [];
+            this.updatePageContent();
         }
 
         /**
-        * Clears all cache items
+        * Clears all render items
         */
-        clearCache()
+        clearRenders()
         {
             var that = this;
             this.error = false;
             this.errorMsg = "";
             this.loading = true;
 
-            that.http.delete<modepress.IResponse>(`${that.apiURL}/renders/clear-cache`).then(function (token)
+            that.http.delete<modepress.IResponse>(`${that.apiURL}/renders/clear-renders`).then(function (token)
             {
                 if (token.data.error)
                 {
@@ -57,8 +41,8 @@
                 }
                 else
                 {
-                    that.cacheItems = [];
-                    that.last = Infinity;
+                    that.renders = [];
+                    that.last = 1;
                 }
 
                 that.loading = false;
@@ -66,9 +50,34 @@
         }
 
         /**
+        * Removes a render from the database
+        */
+        removeRender(render: modepress.IRender)
+        {
+            var that = this;
+            this.error = false;
+            this.errorMsg = "";
+            this.loading = true;
+
+            that.http.delete<modepress.IResponse>(`${that.apiURL}/renders/remove-render/${render._id}`).then(function (token)
+            {
+                if (token.data.error)
+                {
+                    that.error = true;
+                    that.errorMsg = token.data.message;
+                }
+                else
+                    that.renders.splice(that.renders.indexOf(render), 1);
+
+                that.loading = false;
+                (<any>render).confirmDelete = false;
+            });
+        }    
+
+        /**
         * Fetches the users from the database
         */
-        getCache()
+        updatePageContent()
         {
             var that = this;
             this.error = false;
@@ -83,12 +92,12 @@
                 {
                     that.error = true;
                     that.errorMsg = token.data.message;
-                    that.cacheItems = [];
-                    that.last = Infinity;
+                    that.renders = [];
+                    that.last = 1;
                 }
                 else
                 {
-                    that.cacheItems = token.data.data;
+                    that.renders = token.data.data;
                     that.last = token.data.count;
                 }
 

@@ -4,6 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var mongodb = require("mongodb");
 var express = require("express");
 var bodyParser = require("body-parser");
 var Controller_1 = require("./Controller");
@@ -25,10 +26,34 @@ var PageRenderer = (function (_super) {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/get-renders", [this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
-        router.delete("/clear-cache", [this.authenticateAdmin.bind(this), this.clearCache.bind(this)]);
+        router.delete("/remove-render/:id", [this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
+        router.delete("/clear-renders", [this.authenticateAdmin.bind(this), this.clearRenders.bind(this)]);
         // Register the path
         e.use("/api/renders", router);
     }
+    /**
+   * Attempts to remove a render by ID
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {Function} next
+   */
+    PageRenderer.prototype.removeRender = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var renders = this.getModel("renders");
+        renders.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
+            if (numRemoved == 0)
+                return Promise.reject(new Error("Could not find a cache with that ID"));
+            res.end(JSON.stringify({
+                error: false,
+                message: "Cache has been successfully removed"
+            }));
+        }).catch(function (error) {
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
+        });
+    };
     /**
     * This funciton checks the logged in user is an admin. If not an admin it returns an error,
     * if true it passes the scope onto the next function in the queue
@@ -118,7 +143,7 @@ var PageRenderer = (function (_super) {
     * @param {express.Response} res
     * @param {Function} next
     */
-    PageRenderer.prototype.clearCache = function (req, res, next) {
+    PageRenderer.prototype.clearRenders = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
         // First get the count

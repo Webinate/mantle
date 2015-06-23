@@ -21,7 +21,7 @@
             this.users = [];
             this.showUserForm = false;
             this.newUser = { email: "", password: "", username: "", type: "3", privileges: 3 };
-            this.getUsers();
+            this.updatePageContent();
         }
 
         /**
@@ -33,47 +33,11 @@
             this.scope.newUserForm.$setPristine();
             this.showUserForm = !this.showUserForm
         }
-
-        /**
-		* Sets the page search back to index = 0
-		*/
-        goFirst()
-        {
-            super.goFirst();
-            this.getUsers();
-        }
-
-        /**
-		* Gets the last set of users
-		*/
-        goLast()
-        {
-            super.goLast();
-            this.getUsers();
-        }
-
-        /**
-        * Sets the page search back to index = 0
-        */
-        goNext()
-        {
-            super.goNext();
-            this.getUsers();
-        }
-
-        /**
-        * Sets the page search back to index = 0
-        */
-        goPrev()
-        {
-            super.goPrev();
-            this.getUsers();
-        }
-
+        
         /**
 		* Fetches the users from the database
 		*/
-        getUsers()
+        updatePageContent()
         {
             var that = this;
             this.error = false;
@@ -88,7 +52,7 @@
                     that.error = true;
                     that.errorMsg = token.data.message;
                     that.users = [];
-                    that.last = Infinity;
+                    that.last = 1;
                 }
                 else {
                     that.users = token.data.data;

@@ -44,7 +44,7 @@
             this.sortType = "created";
 
             this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true };
-            this.getPosts();
+            this.updatePageContent();
             tinymce.init({
                 height: 350,
                 selector: "textarea", plugins: ["media", "image", "link", "code", "textcolor", "colorpicker", "table", "wordcount", "lists", "contextmenu", "charmap", "fullpage", "pagebreak", "print", "spellchecker", "fullscreen", "searchreplace"],
@@ -62,13 +62,13 @@
         swapOrder()
         {
             this.sortOrder = (this.sortOrder == 'asc' ? 'desc' : 'asc');
-            this.getPosts();
+            this.updatePageContent();
         }
 
         swapSortType()
         {
             this.sortType = (this.sortType == 'created' ? 'updated' : 'created');
-            this.getPosts();
+            this.updatePageContent();
         }
 
         /**
@@ -115,47 +115,11 @@
                 tinymce.editors[0].setContent(that.postToken.content);
             });
         }
-
-        /**
-		* Sets the page search back to index = 0
-		*/
-        goFirst()
-        {
-            super.goFirst();
-            this.getPosts();
-        }
-
-        /**
-		* Gets the last set of users
-		*/
-        goLast()
-        {
-            super.goLast();
-            this.getPosts();
-        }
-
-        /**
-        * Sets the page search back to index = 0
-        */
-        goNext()
-        {
-            super.goNext();
-            this.getPosts();
-        }
-
-        /**
-        * Sets the page search back to index = 0
-        */
-        goPrev()
-        {
-            super.goPrev();
-            this.getPosts();
-        }
-
+        
         /**
 		* Fetches the posts from the database
 		*/
-        getPosts()
+        updatePageContent()
         {
             var that = this;
             this.error = false;
@@ -174,7 +138,7 @@
                     that.error = true;
                     that.errorMsg = token.data.message;
                     that.posts = [];
-                    that.last = Infinity;
+                    that.last = 1;
                 }
                 else {
                     that.posts = token.data.data;

@@ -1,48 +1,142 @@
 var clientAdmin;
 (function (clientAdmin) {
     /**
-    * Controller for the dashboard users section
+    * Abstract class for controllers that page through content items.
     */
-    var SEOCtrl = (function () {
-        function SEOCtrl(scope, http, apiURL, cacheURL) {
+    var PagedContentCtrl = (function () {
+        function PagedContentCtrl(http) {
+            PagedContentCtrl.singleton = this;
             this.http = http;
             this.loading = false;
             this.error = false;
             this.errorMsg = "";
-            this.showCache = true;
-            this.limit = 30;
-            this.last = Infinity;
             this.index = 0;
-            this.apiURL = apiURL;
-            this.cacheURL = cacheURL;
+            this.limit = 10;
+            this.last = Infinity;
             this.searchTerm = "";
-            this.cacheItems = [];
-            this.getCache();
         }
         /**
-        * Clears all cache items
+        * Updates the content
         */
-        SEOCtrl.prototype.clearCache = function () {
+        PagedContentCtrl.prototype.updatePageContent = function () {
+        };
+        /**
+        * Gets the current page number
+        * @returns {number}
+        */
+        PagedContentCtrl.prototype.getPageNum = function () {
+            return (this.index / this.limit) + 1;
+        };
+        /**
+        * Gets the total number of pages
+        * @returns {number}
+        */
+        PagedContentCtrl.prototype.getTotalPages = function () {
+            return Math.ceil(this.last / this.limit);
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PagedContentCtrl.prototype.goFirst = function () {
+            this.index = 0;
+            this.updatePageContent();
+        };
+        /**
+        * Gets the last set of users
+        */
+        PagedContentCtrl.prototype.goLast = function () {
+            this.index = this.last - this.limit;
+            this.updatePageContent();
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PagedContentCtrl.prototype.goNext = function () {
+            this.index += this.limit;
+            this.updatePageContent();
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PagedContentCtrl.prototype.goPrev = function () {
+            this.index -= this.limit;
+            if (this.index < 0)
+                this.index = 0;
+            this.updatePageContent();
+        };
+        /**
+        * Called when the controller is being destroyed
+        */
+        PagedContentCtrl.prototype.onDispose = function () {
+        };
+        return PagedContentCtrl;
+    })();
+    clientAdmin.PagedContentCtrl = PagedContentCtrl;
+})(clientAdmin || (clientAdmin = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var clientAdmin;
+(function (clientAdmin) {
+    /**
+    * Controller for the dashboard users section
+    */
+    var SEOCtrl = (function (_super) {
+        __extends(SEOCtrl, _super);
+        function SEOCtrl(scope, http, apiURL, cacheURL) {
+            _super.call(this, http);
+            this.showRenders = true;
+            this.apiURL = apiURL;
+            this.cacheURL = cacheURL;
+            this.renders = [];
+            this.updatePageContent();
+        }
+        /**
+        * Clears all render items
+        */
+        SEOCtrl.prototype.clearRenders = function () {
             var that = this;
             this.error = false;
             this.errorMsg = "";
             this.loading = true;
-            that.http.delete(that.apiURL + "/renders/clear-cache").then(function (token) {
+            that.http.delete(that.apiURL + "/renders/clear-renders").then(function (token) {
                 if (token.data.error) {
                     that.error = true;
                     that.errorMsg = token.data.message;
                 }
                 else {
-                    that.cacheItems = [];
-                    that.last = Infinity;
+                    that.renders = [];
+                    that.last = 1;
                 }
                 that.loading = false;
             });
         };
         /**
+        * Removes a render from the database
+        */
+        SEOCtrl.prototype.removeRender = function (render) {
+            var that = this;
+            this.error = false;
+            this.errorMsg = "";
+            this.loading = true;
+            that.http.delete(that.apiURL + "/renders/remove-render/" + render._id).then(function (token) {
+                if (token.data.error) {
+                    that.error = true;
+                    that.errorMsg = token.data.message;
+                }
+                else
+                    that.renders.splice(that.renders.indexOf(render), 1);
+                that.loading = false;
+                render.confirmDelete = false;
+            });
+        };
+        /**
         * Fetches the users from the database
         */
-        SEOCtrl.prototype.getCache = function () {
+        SEOCtrl.prototype.updatePageContent = function () {
             var that = this;
             this.error = false;
             this.errorMsg = "";
@@ -53,11 +147,11 @@ var clientAdmin;
                 if (token.data.error) {
                     that.error = true;
                     that.errorMsg = token.data.message;
-                    that.cacheItems = [];
-                    that.last = Infinity;
+                    that.renders = [];
+                    that.last = 1;
                 }
                 else {
-                    that.cacheItems = token.data.data;
+                    that.renders = token.data.data;
                     that.last = token.data.count;
                 }
                 that.loading = false;
@@ -66,7 +160,7 @@ var clientAdmin;
         // $inject annotation.
         SEOCtrl.$inject = ["$scope", "$http", "apiURL", "cacheURL"];
         return SEOCtrl;
-    })();
+    })(clientAdmin.PagedContentCtrl);
     clientAdmin.SEOCtrl = SEOCtrl;
 })(clientAdmin || (clientAdmin = {}));
 var clientAdmin;
@@ -224,78 +318,6 @@ var clientAdmin;
 var clientAdmin;
 (function (clientAdmin) {
     /**
-    * Abstract class for controllers that page through content items.
-    */
-    var PagedContentCtrl = (function () {
-        function PagedContentCtrl(http) {
-            PagedContentCtrl.singleton = this;
-            this.http = http;
-            this.loading = false;
-            this.error = false;
-            this.errorMsg = "";
-            this.index = 0;
-            this.limit = 10;
-            this.last = Infinity;
-            this.searchTerm = "";
-        }
-        /**
-       * Gets the current page number
-       * @returns {number}
-       */
-        PagedContentCtrl.prototype.getPageNum = function () {
-            return (this.index / this.limit) + 1;
-        };
-        /**
-        * Gets the total number of pages
-        * @returns {number}
-        */
-        PagedContentCtrl.prototype.getTotalPages = function () {
-            return Math.ceil(this.last / this.limit);
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        PagedContentCtrl.prototype.goFirst = function () {
-            this.index = 0;
-        };
-        /**
-        * Gets the last set of users
-        */
-        PagedContentCtrl.prototype.goLast = function () {
-            this.index = this.last - this.limit;
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        PagedContentCtrl.prototype.goNext = function () {
-            this.index += this.limit;
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        PagedContentCtrl.prototype.goPrev = function () {
-            this.index -= this.limit;
-            if (this.index < 0)
-                this.index = 0;
-        };
-        /**
-        * Called when the controller is being destroyed
-        */
-        PagedContentCtrl.prototype.onDispose = function () {
-        };
-        return PagedContentCtrl;
-    })();
-    clientAdmin.PagedContentCtrl = PagedContentCtrl;
-})(clientAdmin || (clientAdmin = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var clientAdmin;
-(function (clientAdmin) {
-    /**
     * Controller for the dashboard users section
     */
     var UsersCtrl = (function (_super) {
@@ -307,7 +329,7 @@ var clientAdmin;
             this.users = [];
             this.showUserForm = false;
             this.newUser = { email: "", password: "", username: "", type: "3", privileges: 3 };
-            this.getUsers();
+            this.updatePageContent();
         }
         /**
         * Opens the new user form
@@ -318,37 +340,9 @@ var clientAdmin;
             this.showUserForm = !this.showUserForm;
         };
         /**
-        * Sets the page search back to index = 0
-        */
-        UsersCtrl.prototype.goFirst = function () {
-            _super.prototype.goFirst.call(this);
-            this.getUsers();
-        };
-        /**
-        * Gets the last set of users
-        */
-        UsersCtrl.prototype.goLast = function () {
-            _super.prototype.goLast.call(this);
-            this.getUsers();
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        UsersCtrl.prototype.goNext = function () {
-            _super.prototype.goNext.call(this);
-            this.getUsers();
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        UsersCtrl.prototype.goPrev = function () {
-            _super.prototype.goPrev.call(this);
-            this.getUsers();
-        };
-        /**
         * Fetches the users from the database
         */
-        UsersCtrl.prototype.getUsers = function () {
+        UsersCtrl.prototype.updatePageContent = function () {
             var that = this;
             this.error = false;
             this.errorMsg = "";
@@ -360,7 +354,7 @@ var clientAdmin;
                     that.error = true;
                     that.errorMsg = token.data.message;
                     that.users = [];
-                    that.last = Infinity;
+                    that.last = 1;
                 }
                 else {
                     that.users = token.data.data;
@@ -442,7 +436,7 @@ var clientAdmin;
             this.sortOrder = "desc";
             this.sortType = "created";
             this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true };
-            this.getPosts();
+            this.updatePageContent();
             tinymce.init({
                 height: 350,
                 selector: "textarea", plugins: ["media", "image", "link", "code", "textcolor", "colorpicker", "table", "wordcount", "lists", "contextmenu", "charmap", "fullpage", "pagebreak", "print", "spellchecker", "fullscreen", "searchreplace"],
@@ -456,11 +450,11 @@ var clientAdmin;
         }
         PostsCtrl.prototype.swapOrder = function () {
             this.sortOrder = (this.sortOrder == 'asc' ? 'desc' : 'asc');
-            this.getPosts();
+            this.updatePageContent();
         };
         PostsCtrl.prototype.swapSortType = function () {
             this.sortType = (this.sortType == 'created' ? 'updated' : 'created');
-            this.getPosts();
+            this.updatePageContent();
         };
         /**
         * Gets a list of categories
@@ -499,37 +493,9 @@ var clientAdmin;
             });
         };
         /**
-        * Sets the page search back to index = 0
-        */
-        PostsCtrl.prototype.goFirst = function () {
-            _super.prototype.goFirst.call(this);
-            this.getPosts();
-        };
-        /**
-        * Gets the last set of users
-        */
-        PostsCtrl.prototype.goLast = function () {
-            _super.prototype.goLast.call(this);
-            this.getPosts();
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        PostsCtrl.prototype.goNext = function () {
-            _super.prototype.goNext.call(this);
-            this.getPosts();
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        PostsCtrl.prototype.goPrev = function () {
-            _super.prototype.goPrev.call(this);
-            this.getPosts();
-        };
-        /**
         * Fetches the posts from the database
         */
-        PostsCtrl.prototype.getPosts = function () {
+        PostsCtrl.prototype.updatePageContent = function () {
             var that = this;
             this.error = false;
             this.errorMsg = "";
@@ -545,7 +511,7 @@ var clientAdmin;
                     that.error = true;
                     that.errorMsg = token.data.message;
                     that.posts = [];
-                    that.last = Infinity;
+                    that.last = 1;
                 }
                 else {
                     that.posts = token.data.data;
@@ -872,7 +838,7 @@ var clientAdmin;
 var clientAdmin;
 (function (clientAdmin) {
     'use strict';
-    angular.module('admin', ["ui.router", "ngAnimate", "ngSanitize"])
+    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize"])
         .constant("usersURL", _users)
         .constant("apiURL", "./api")
         .constant("cacheURL", _cache)
@@ -923,10 +889,10 @@ var clientAdmin;
 /// <reference path="lib/definitions/tinymce.d.ts" />
 /// <reference path="lib/definitions/recaptcha.d.ts" />
 /// <reference path="lib/definitions/webinate-users.d.ts" />
+/// <reference path="lib/controllers/PagedContentCtrl.ts" />
 /// <reference path="lib/controllers/SEOCtrl.ts" />
 /// <reference path="lib/controllers/LoginCtrl.ts" />
 /// <reference path="lib/controllers/RegisterCtrl.ts" />
-/// <reference path="lib/controllers/PagedContentCtrl.ts" />
 /// <reference path="lib/controllers/UsersCtrl.ts" />
 /// <reference path="lib/controllers/PostsCtrl.ts" />
 /// <reference path="lib/Authenticator.ts" />

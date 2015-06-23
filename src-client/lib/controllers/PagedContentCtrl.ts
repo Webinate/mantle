@@ -31,9 +31,16 @@
         }
 
         /**
-       * Gets the current page number
-       * @returns {number}
-       */
+        * Updates the content
+        */
+        updatePageContent()
+        {
+        }
+
+        /**
+        * Gets the current page number
+        * @returns {number}
+        */
         getPageNum(): number
         {
             return (this.index / this.limit) + 1;
@@ -54,6 +61,7 @@
         goFirst()
         {
             this.index = 0;
+            this.updatePageContent();
         }
 
         /**
@@ -62,6 +70,7 @@
         goLast()
         {
             this.index = this.last - this.limit;
+            this.updatePageContent();
         }
 
         /**
@@ -70,6 +79,7 @@
         goNext()
         {
             this.index += this.limit;
+            this.updatePageContent();
         }
 
         /**
@@ -80,6 +90,8 @@
             this.index -= this.limit;
             if (this.index < 0)
                 this.index = 0;
+
+            this.updatePageContent();
         }
 
         /**

@@ -29,10 +29,41 @@ export class PageRenderer extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         router.get("/get-renders", <any>[this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
-        router.delete("/clear-cache", <any>[this.authenticateAdmin.bind(this), this.clearCache.bind(this)]);
+        router.delete("/remove-render/:id", <any>[this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
+        router.delete("/clear-renders", <any>[this.authenticateAdmin.bind(this), this.clearRenders.bind(this)]);
 
         // Register the path
         e.use("/api/renders", router);
+    }
+
+    /**
+   * Attempts to remove a render by ID
+   * @param {express.Request} req 
+   * @param {express.Response} res
+   * @param {Function} next 
+   */
+    private removeRender(req: express.Request, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var renders = this.getModel("renders");
+
+        renders.deleteInstances(<modepress.IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        {
+            if (numRemoved == 0)
+                return Promise.reject(new Error("Could not find a cache with that ID"));
+
+            res.end(JSON.stringify(<modepress.IResponse>{
+                error: false,
+                message: "Cache has been successfully removed"
+            }));
+
+        }).catch(function (error: Error)
+        {
+            res.end(JSON.stringify(<modepress.IResponse>{
+                error: true,
+                message: error.message
+            }));
+        });
     }
 
     /**
@@ -106,7 +137,7 @@ export class PageRenderer extends Controller
         }
         
         // Sort by the date created
-        var sort: modepress.ICacheItem = { createdOn: sortOrder };
+        var sort: modepress.IRender = { createdOn: sortOrder };
         
         var getContent: boolean = true;
         if (req.query.minimal)
@@ -114,7 +145,7 @@ export class PageRenderer extends Controller
 
         // Check for keywords
         if (req.query.search)
-            (<modepress.ICacheItem>findToken).url = <any>new RegExp(req.query.search, "i");
+            (<modepress.IRender>findToken).url = <any>new RegExp(req.query.search, "i");
 
         
         
@@ -126,7 +157,7 @@ export class PageRenderer extends Controller
 
         }).then(function (instances)
         {
-            var sanitizedData: Array<modepress.ICacheItem> = that.getSanitizedData<modepress.ICacheItem>(instances, Boolean(req.query.verbose));
+            var sanitizedData: Array<modepress.IRender> = that.getSanitizedData<modepress.IRender>(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<modepress.IGetRenders>{
                 error: false,
                 count: count,
@@ -149,7 +180,7 @@ export class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private clearCache(req: express.Request, res: express.Response, next: Function)
+    private clearRenders(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");

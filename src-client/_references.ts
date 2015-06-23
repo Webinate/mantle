@@ -7,10 +7,10 @@
 /// <reference path="lib/definitions/recaptcha.d.ts" />
 /// <reference path="lib/definitions/webinate-users.d.ts" />
 
+/// <reference path="lib/controllers/PagedContentCtrl.ts" />
 /// <reference path="lib/controllers/SEOCtrl.ts" />
 /// <reference path="lib/controllers/LoginCtrl.ts" />
 /// <reference path="lib/controllers/RegisterCtrl.ts" />
-/// <reference path="lib/controllers/PagedContentCtrl.ts" />
 /// <reference path="lib/controllers/UsersCtrl.ts" />
 /// <reference path="lib/controllers/PostsCtrl.ts" />
 /// <reference path="lib/Authenticator.ts" />

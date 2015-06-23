@@ -33,7 +33,7 @@
     /*
     * A cache item for SEO rendering
     */
-    export interface ICacheItem
+    export interface IRender
     {
         _id?: any;
         url?: string;
@@ -68,7 +68,7 @@
         website?: string;
     }
 
-    export interface IGetRenders extends IGetArrayResponse<ICacheItem> { }
+    export interface IGetRenders extends IGetArrayResponse<IRender> { }
     export interface IGetPosts extends IGetArrayResponse<IPost> { }
     export interface IGetPost extends IGetResponse<IPost> { }
     export interface IGetCategory extends IGetResponse<ICategory> { }
