@@ -55,3 +55,11 @@ npm update
 ```
 node main.js --config="config.json" --logFile="logs.log" --logging="true"
 ```
+
+By default modepress will run using all threads available to your application. If however memory is in short supply you
+can set the number of threads in the command line
+
+```
+node main.js --config="config.json" --numThreads="max"
+node main.js --config="config.json" --numThreads="4"
+```
