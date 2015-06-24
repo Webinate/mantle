@@ -57,6 +57,7 @@ var PostsController = (function (_super) {
         if (req.query.keyword) {
             findToken.$or.push({ title: new RegExp(req.query.keyword, "i") });
             findToken.$or.push({ content: new RegExp(req.query.keyword, "i") });
+            findToken.$or.push({ brief: new RegExp(req.query.keyword, "i") });
         }
         // Check for visibility
         if (req.query.visibility) {

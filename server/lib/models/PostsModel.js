@@ -13,6 +13,7 @@ var PostsModel = (function (_super) {
         this.defaultSchema.add(new SchemaItemFactory_1.text("author", "", 1));
         this.defaultSchema.add(new SchemaItemFactory_1.text("title", "", 1));
         this.defaultSchema.add(new SchemaItemFactory_1.text("slug", "", 1, 20)).unique(true);
+        this.defaultSchema.add(new SchemaItemFactory_1.text("brief", ""));
         this.defaultSchema.add(new SchemaItemFactory_1.text("featuredImage", ""));
         this.defaultSchema.add(new SchemaItemFactory_1.text("content", ""));
         this.defaultSchema.add(new SchemaItemFactory_1.bool("public", true));

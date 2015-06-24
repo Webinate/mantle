@@ -83,13 +83,13 @@ MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, co
     // If we have a modepress url, then use that 
     if (config.modepressRenderURL && config.modepressRenderURL.trim() != "") {
         winston.info("Modepress render attempting to listen on '" + config.modepressRenderURL + "'", { process: process.pid });
-        controllers.push(new PageRenderer_1.PageRenderer(config, app));
+        controllers.splice(0, 0, new PageRenderer_1.PageRenderer(config, app));
     }
     // Send the jade index file
     app.get("(" + config.adminURL + "|" + config.adminURL + "/*)", function (req, res) {
         var requestIsSecure = req.connection.encrypted;
         // Get the base URL's
-        var url = (requestIsSecure ? "https" : "http") + "://" + config.host + ":" + (requestIsSecure ? config.portHTTPS : config.portHTTP);
+        var url = (requestIsSecure ? "https" : "http") + "://" + config.host;
         var usersURL = "" + config.usersURL;
         winston.info("Got request " + req.originalUrl + " - sending admin: ./views/index.jade", { process: process.pid });
         res.render('index', { usersURL: usersURL, url: url, cacheURL: config.modepressRenderURL });

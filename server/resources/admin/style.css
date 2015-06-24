@@ -458,9 +458,6 @@ form .nav-button {
     margin: 10px;
     padding: 5px;
 }
-.content-view-details {
-    max-height:1600px;
-}
 .user-confirmation {
     max-height: 100px;
     background: #FFDCDC;

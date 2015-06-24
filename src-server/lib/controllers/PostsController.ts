@@ -62,6 +62,7 @@ export class PostsController extends Controller
         {
             findToken.$or.push(<modepress.IPost>{ title: <any>new RegExp(req.query.keyword, "i") });
             findToken.$or.push(<modepress.IPost>{ content: <any> new RegExp(req.query.keyword, "i") });
+            findToken.$or.push(<modepress.IPost>{ brief: <any> new RegExp(req.query.keyword, "i") });
         }
 
         // Check for visibility

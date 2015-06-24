@@ -22,6 +22,7 @@
         public sortOrder: string;
         public sortType: string;
         public showFilters: boolean;
+        public defaultSlug: string;
 
 		// $inject annotation.
         public static $inject = ["$scope", "$http", "apiURL", "categories"];
@@ -42,8 +43,9 @@
             this.searchCategory = "";
             this.sortOrder = "desc";
             this.sortType = "created";
+            this.defaultSlug = "";
 
-            this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true };
+            this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true, brief: "" };
             this.updatePageContent();
             tinymce.init({
                 height: 350,
@@ -57,6 +59,24 @@
 
             // Fetches the categories
             this.categories = categories;
+        }
+
+        /**
+        * Makes sure the slug doesnt have any spaces
+        */
+        checkSlug()
+        {
+            if (this.postToken.slug)
+                this.postToken.slug = this.postToken.slug.replace(/\s+/g, '-');
+        }
+
+        /**
+        * Sets the slug to be the same as the title - except with spaces and in lower case (only if not touched first by user)
+        */
+        updateDefaultSlug(form)
+        {
+            if (!form.nSlug.$touched || !this.postToken.slug || this.postToken.slug == "")
+                this.postToken.slug = this.postToken.title.split(' ').join('-').toLowerCase();
         }
 
         swapOrder()
