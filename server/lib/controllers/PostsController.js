@@ -73,21 +73,31 @@ var PostsController = (function (_super) {
         // Add the or conditions for visibility
         if (visibility != "all") {
             if (visibility == "public")
-                findToken.$or.push({ public: true });
+                findToken.public = true;
             else
-                findToken.$or.push({ public: false });
+                findToken.public = false;
         }
-        // Check for tags
+        // Check for tags (an OR request with tags)
         if (req.query.tags) {
             var tags = req.query.tags.split(",");
             if (tags.length > 0)
                 findToken.tags = { $in: tags };
         }
+        // Check for 'r'equired tags (an AND request with tags)
+        if (req.query.rtags) {
+            var rtags = req.query.rtags.split(",");
+            if (rtags.length > 0) {
+                if (!findToken.tags)
+                    findToken.tags = { $all: rtags };
+                else
+                    findToken.tags.$all = rtags;
+            }
+        }
         // Check for categories
         if (req.query.categories) {
-            var tags = req.query.categories.split(",");
-            if (tags.length > 0)
-                findToken.categories = { $in: tags };
+            var categories = req.query.categories.split(",");
+            if (categories.length > 0)
+                findToken.categories = { $in: categories };
         }
         // Set the default sort order to ascending
         var sortOrder = -1;

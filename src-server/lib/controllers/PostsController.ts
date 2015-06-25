@@ -84,12 +84,12 @@ export class PostsController extends Controller
         if (visibility != "all")
         {
             if (visibility == "public")
-                findToken.$or.push(<modepress.IPost>{ public: true });
+                (<modepress.IPost>findToken).public = true;
             else
-                findToken.$or.push(<modepress.IPost>{ public: false });
+                (<modepress.IPost>findToken).public = false;
         }
 
-        // Check for tags
+        // Check for tags (an OR request with tags)
         if (req.query.tags)
         {
             var tags = req.query.tags.split(",");
@@ -97,12 +97,25 @@ export class PostsController extends Controller
                 (<any>findToken).tags = { $in: tags };
         }
 
+        // Check for 'r'equired tags (an AND request with tags)
+        if (req.query.rtags)
+        {
+            var rtags = req.query.rtags.split(",");
+            if (rtags.length > 0)
+            {
+                if (!(<any>findToken).tags)
+                    (<any>findToken).tags = { $all: rtags };
+                else
+                    (<any>findToken).tags.$all = rtags;
+            }
+        }
+
         // Check for categories
         if (req.query.categories)
         {
-            var tags = req.query.categories.split(",");
-            if (tags.length > 0)
-                (<any>findToken).categories = { $in: tags };
+            var categories = req.query.categories.split(",");
+            if (categories.length > 0)
+                (<any>findToken).categories = { $in: categories };
         }
 
         // Set the default sort order to ascending
