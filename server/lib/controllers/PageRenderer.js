@@ -26,11 +26,36 @@ var PageRenderer = (function (_super) {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/get-renders", [this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
+        router.get("/preview-render/:id", [this.previewRender.bind(this)]);
         router.delete("/remove-render/:id", [this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
         router.delete("/clear-renders", [this.authenticateAdmin.bind(this), this.clearRenders.bind(this)]);
         // Register the path
         e.use("/api/renders", router);
     }
+    /**
+    * Attempts to find a render by ID and then display it back to the user
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    PageRenderer.prototype.previewRender = function (req, res, next) {
+        res.setHeader('Content-Type', 'text/html');
+        var renders = this.getModel("renders");
+        renders.findInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances) {
+            if (instances.length == 0)
+                return Promise.reject(new Error("Could not find a render with that ID"));
+            var html = instances[0].schema.getByName("html").getValue(false);
+            var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
+            for (var i = 0; matches && i < matches.length; i++) {
+                if (matches[i].indexOf('application/ld+json') === -1) {
+                    html = html.replace(matches[i], '');
+                }
+            }
+            res.end(html);
+        }).catch(function (error) {
+            res.writeHead(404);
+        });
+    };
     /**
    * Attempts to remove a render by ID
    * @param {express.Request} req

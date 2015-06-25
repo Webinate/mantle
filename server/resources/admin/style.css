@@ -391,8 +391,7 @@ form .nav-button {
     margin: 0 10px 0 0;
 }
 .toolbar-item img {
-    margin:5px 0 0 10px;
-    height:25px;
+    margin: 5px 0 0 20px;
 }
 .main-view {
     height:100%;
@@ -480,6 +479,16 @@ max-height: 0;
 .content-view-detail {
     margin:20px 10px 0px 10px;
 }
+.new-post-form .content-view-detail .label{
+    width: auto;
+    float:none;
+    line-height: 36px;
+    margin:0;
+}
+.label span.info {
+  margin: 0 0 0 4px;
+  float: right;
+}
 .content-view-detail .label {
     width: 20%;
     float: left;
@@ -517,12 +526,22 @@ max-height: 0;
 .content-view-detail .mce-tinymce {
     margin:10px 0 0 0;
 }
+.content-view-detail .mce-tinymce.mce-fullscreen {
+    margin:0 0 0 0;
+}
 .content-view-item .nav-button a {
     margin: 0 8px 0 0;
 }
 .tag-header, .category-header, .new-post-form .label {
     color: #74A2E0;
     font-weight: bold;
+}
+.tag-content{
+    padding:10px;
+    box-sizing:border-box;
+}
+.new-category .label {
+    margin:0;
 }
 .content-view-detail .buttons {
     margin:40px 0 0 0;
@@ -617,10 +636,9 @@ max-height: 0;
     margin:5px 0 0 0;
 }
 .tags, .categories {
-    width: 50%;
     padding: 10px;
-    float: left;
     box-sizing: border-box;
+    margin: 15px 0;
 }
 .tag {
     float:left;
@@ -647,14 +665,15 @@ max-height: 0;
 }
 .new-category {
     max-height:375px;
-    padding: 10px;
+    margin: 10px 10px;
+    padding: 20px;
     border-radius: 5px;
 }
 .category-buttons {
     margin:10px 0 0 0;
 }
 form .category-buttons .nav-button {
-    margin: 0px 0 5px 0;
+    margin: 0px 0 5px 10px;
     padding-bottom: 0px;
 }
 .categories .button {
@@ -726,7 +745,6 @@ form input[type="text"].ng-valid.ng-dirty, form input[type="password"].ng-valid.
 .tick-box:active {
     background: #ccc;
 }
-
 .button.blue {
 	color: #fff;
 	background: #74A2E0;
@@ -799,6 +817,11 @@ form label {
 	background:#F5E5B2;
 	border:2px dashed red;
 	color:red;
+}
+.label span.info {
+  color: #ccc;
+  font-style: italic;
+  font-weight: normal;
 }
 .sub-menu h {
     font-size:30px;
@@ -875,7 +898,7 @@ form label {
     background:white;
 }
 
-.post-categories, .new-category {
+.new-category {
     border: 2px dashed #ccc;
 }
 .filter-group .label {

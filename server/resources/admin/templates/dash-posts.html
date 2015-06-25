@@ -74,30 +74,30 @@
         <div class="content-view-details animate-show">
             <form name="newPostForm" ng-submit="newPostForm.$valid && controller.createPost()" novalidate>
                 <div class="content-view-detail">
-                    <div class="label">Title:</div>
+                    <div class="label">Title: <span class="info">The title of this new post</span></div>
                     <input type="text" name="nTitle" ng-model="controller.postToken.title" ng-minlength="1" required ng-change="controller.updateDefaultSlug(newPostForm)" />
                     <div class="error animate-show" ng-show="newPostForm.nTitle.$error.required && (newPostForm.$submitted || newPostForm.nTitle.$touched)">Please enter a valid title</div>
                     <div class="fix"></div>
                 </div>
+				<div class="content-view-detail">
+					<div class="label">Content: <span class="info">The main content of the post</span></div>
+					<div class="fix"></div>
+					<textarea class="newPostText" name="nContent"></textarea>
+					<div class="fix"></div>
+				</div>
                 <div class="content-view-detail">
-                    <div class="label">Slug:</div>
+                    <div class="label">Slug: <span class="info">The url tag for this post</span></div>
                     <input type="text" name="nSlug" ng-model="controller.postToken.slug" ng-minlength="1" required ng-change="controller.checkSlug()" />
                     <div class="error animate-show" ng-show="newPostForm.nSlug.$error.required && (newPostForm.$submitted || newPostForm.nSlug.$touched)">Please enter a valid slug</div>
                     <div class="fix"></div>
                 </div>
 				<div class="content-view-detail">
-					<div class="label">Brief:</div>
+					<div class="label">Brief: <span class="info">Optional, a small bit of text to describe the post</span></div>
 					<input type="text" name="nBrief" ng-model="controller.postToken.brief" ng-minlength="1" required" />
 					<div class="fix"></div>
 				</div>
                 <div class="content-view-detail">
-                    <div class="label">Content:</div>
-                    <div class="fix"></div>
-                    <textarea class="newPostText" name="nContent"></textarea>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Featured Image:</div>
+                    <div class="label">Featured Image: <span class="info">The main image for this post</span></div>
                     <input type="text" name="nFeaturedImage" ng-model="controller.postToken.featuredImage" />
                     <div class="fix"></div>
                 </div>
@@ -149,16 +149,18 @@
 
             <div class="tags">
                 <div class="tag-header">Tags:</div>
-                <div class="tag" ng-repeat="tag in controller.postToken.tags">
-                    <div class="cross" ng-click="controller.removeTag(tag)"></div>{{tag}}
-                </div>
-                <div class="fix"></div>
-                <div class="new-tag">
-                    <form name="tagForm">
-                        <input ng-model="controller.tagString" type="text" name="nTags" ng-minlength="1" />
-                    </form>
-                    <div ng-click="controller.processTags()" class="button blue"><div class="cross"></div>Add Tags</div>
-                </div>
+				<div class="tag-content">
+					<div class="tag" ng-repeat="tag in controller.postToken.tags">
+						<div class="cross" ng-click="controller.removeTag(tag)"></div>{{tag}}
+					</div>
+					<div class="fix"></div>
+					<div class="new-tag">
+						<form name="tagForm">
+							<input ng-model="controller.tagString" type="text" name="nTags" ng-minlength="1" />
+						</form>
+						<div ng-click="controller.processTags()" class="button blue"><div class="cross"></div>Add Tags</div>
+					</div>
+				</div>
             </div>
 
             <div class="tags">

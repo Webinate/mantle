@@ -29,11 +29,48 @@ export class PageRenderer extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         router.get("/get-renders", <any>[this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
+        router.get("/preview-render/:id", <any>[this.previewRender.bind(this)]);
         router.delete("/remove-render/:id", <any>[this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
         router.delete("/clear-renders", <any>[this.authenticateAdmin.bind(this), this.clearRenders.bind(this)]);
 
         // Register the path
         e.use("/api/renders", router);
+    }
+
+    /**
+    * Attempts to find a render by ID and then display it back to the user
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private previewRender(req: express.Request, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'text/html');
+        var renders = this.getModel("renders");
+
+        renders.findInstances(<modepress.IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances)
+        {
+            if (instances.length == 0)
+                return Promise.reject(new Error("Could not find a render with that ID"));
+
+            var html : string = instances[0].schema.getByName("html").getValue(false);
+
+            var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
+            for (var i = 0; matches && i < matches.length; i++)
+            {
+                if (matches[i].indexOf('application/ld+json') === -1)
+                {
+                    html = html.replace(matches[i], '');
+                }
+            }
+
+            res.end(html);
+
+        }).catch(function (error: Error)
+        {
+            res.writeHead(404);
+            
+        });
     }
 
     /**
