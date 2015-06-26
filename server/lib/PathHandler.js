@@ -23,7 +23,7 @@ var PathHandler = (function () {
         var config = this._config;
         var path = this._path;
         var requestIsSecure = req.connection.encrypted;
-        var url = (requestIsSecure ? "https" : "http") + "://" + config.host + ":" + (requestIsSecure ? config.portHTTPS : config.portHTTP);
+        var url = (requestIsSecure ? "https" : "http") + "://" + config.host;
         var usersURL = "" + config.usersURL;
         // Give priority to template routes
         if (path.templatePath && path.templatePath != "" && fs.existsSync(path.templatePath + "/" + path.index + ".jade"))

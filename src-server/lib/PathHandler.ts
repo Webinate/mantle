@@ -34,7 +34,7 @@ export class PathHandler
         var path = this._path;
 
         var requestIsSecure = (<any>req.connection).encrypted;
-        var url = `${(requestIsSecure ? "https" : "http") }://${config.host}:${requestIsSecure ? config.portHTTPS : config.portHTTP }`;
+        var url = `${(requestIsSecure ? "https" : "http") }://${config.host}`;
         var usersURL = `${config.usersURL}`;
 
         // Give priority to template routes
