@@ -30,8 +30,7 @@ if (arguments.logFile && arguments.logFile.trim() != "")
 // If no logging - remove all transports
 if (arguments.logging && arguments.logging.toLowerCase().trim() == "false")
 {
-    winston.remove(winston.transports.File);
-    winston.remove(winston.transports.Console);
+    winston.clear();
 }
 
 // Make sure the config path argument is there
