@@ -17,6 +17,7 @@ import {UsersService} from "./lib/UsersService";
 import {PathHandler} from "./lib/PathHandler";
 import {PageRenderer} from "./lib/controllers/PageRenderer";
 import * as yargs from "yargs";
+import * as readline from "readline";
 
 
 var config: IServerConfig = null;
@@ -194,6 +195,64 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
     Promise.all(controllerPromises).then(function (e)
     {
         winston.info(`All controllers are now setup successfully!`, { process: process.pid });
+
+        // Create the readline interface
+        var rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        // Set the prompt to be a >
+        rl.setPrompt('> ', 2);
+        rl.prompt();
+        var heapdump = null;
+
+        // Now each time the user hits enter
+        rl.on("line", function (line : string)
+        {
+            switch (line.trim())
+            {
+                case 'debug':
+
+                    try
+                    {
+                        if (!heapdump)
+                            heapdump = require('heapdump');
+
+                        if (!fs.existsSync("./snapshots"))
+                        {
+                            fs.mkdirSync("snapshots");
+                            console.log(`Created folder snapshots`);
+                        }
+
+                        heapdump.writeSnapshot(`./snapshots/${Date.now()}.heapsnapshot`, function(err: Error, filename : string)
+                        {
+                            console.log(`Heapdump saved to ${filename}`);
+                        });
+                    }
+                    catch(err)
+                    {
+                        console.log(`An error has occurred: ${err.toString() }`);
+
+                        if (!heapdump)
+                        {
+                            console.log(`Heapdump is not installed.`);
+                            console.log(`Please run 'npm install heapdump' to download the module`);
+                            console.log(`Then run 'node-gyp configure build' to install it.`);
+                        }
+                    }
+
+                    break;
+                case "exit":
+                    console.log(`Bye!`);
+                    process.exit(0);
+                default:
+                    console.log(`Sorry, command not recognised: '${line.trim()}'`);
+                    break;
+            }
+
+            rl.prompt();
+        });
 
     }).catch(function (e: Error)
     {

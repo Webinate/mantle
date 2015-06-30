@@ -14,6 +14,7 @@ var UsersService_1 = require("./lib/UsersService");
 var PathHandler_1 = require("./lib/PathHandler");
 var PageRenderer_1 = require("./lib/controllers/PageRenderer");
 var yargs = require("yargs");
+var readline = require("readline");
 var config = null;
 var arguments = yargs.argv;
 // Saves logs to file
@@ -136,6 +137,48 @@ MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, co
     // Return a promise once all the controllers are complete
     Promise.all(controllerPromises).then(function (e) {
         winston.info("All controllers are now setup successfully!", { process: process.pid });
+        // Create the readline interface
+        var rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        // Set the prompt to be a >
+        rl.setPrompt('> ', 2);
+        rl.prompt();
+        var heapdump = null;
+        // Now each time the user hits enter
+        rl.on("line", function (line) {
+            switch (line.trim()) {
+                case 'debug':
+                    try {
+                        if (!heapdump)
+                            heapdump = require('heapdump');
+                        if (!fs.existsSync("./snapshots")) {
+                            fs.mkdirSync("snapshots");
+                            console.log("Created folder snapshots");
+                        }
+                        heapdump.writeSnapshot("./snapshots/" + Date.now() + ".heapsnapshot", function (err, filename) {
+                            console.log("Heapdump saved to " + filename);
+                        });
+                    }
+                    catch (err) {
+                        console.log("An error has occurred: " + err.toString());
+                        if (!heapdump) {
+                            console.log("Heapdump is not installed.");
+                            console.log("Please run 'npm install heapdump' to download the module");
+                            console.log("Then run 'node-gyp configure build' to install it.");
+                        }
+                    }
+                    break;
+                case "exit":
+                    console.log("Bye!");
+                    process.exit(0);
+                default:
+                    console.log("Sorry, command not recognised: '" + line.trim() + "'");
+                    break;
+            }
+            rl.prompt();
+        });
     }).catch(function (e) {
         winston.error("ERROR: An error has occurred while setting up the controllers \"" + e.message + "\"", { process: process.pid });
     });
