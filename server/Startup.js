@@ -173,6 +173,14 @@ MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, co
                 case "exit":
                     console.log("Bye!");
                     process.exit(0);
+                case "gc":
+                    if (global && global.gc) {
+                        global.gc();
+                        console.log("Forced a garbge collection");
+                    }
+                    else
+                        console.log("You cannot force garbage collection without adding the command line argument --expose-gc eg: 'node --expose-gc test.js'");
+                    break;
                 default:
                     console.log("Sorry, command not recognised: '" + line.trim() + "'");
                     break;
