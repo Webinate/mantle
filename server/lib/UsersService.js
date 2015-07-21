@@ -8,7 +8,7 @@ var UsersService = (function () {
     * @param {string} usersURL The URL of the user management service
     */
     function UsersService(usersURL) {
-        this._usersURL = usersURL;
+        this._usersURL = usersURL + "/users";
     }
     /**
     * Checks if a user is logged in and authenticated

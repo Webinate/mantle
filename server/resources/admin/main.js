@@ -12,7 +12,7 @@ var clientAdmin;
             this.errorMsg = "";
             this.index = 0;
             this.limit = 10;
-            this.last = Infinity;
+            this.last = 1;
             this.searchTerm = "";
         }
         /**
@@ -314,6 +314,123 @@ var clientAdmin;
         return RegisterCtrl;
     })();
     clientAdmin.RegisterCtrl = RegisterCtrl;
+})(clientAdmin || (clientAdmin = {}));
+var clientAdmin;
+(function (clientAdmin) {
+    /**
+    * Controller for the dashboard media section
+    */
+    var MediaCtrl = (function (_super) {
+        __extends(MediaCtrl, _super);
+        function MediaCtrl(scope, http, mediaURL) {
+            _super.call(this, http);
+            this.scope = scope;
+            this.mediaURL = mediaURL;
+            this.folderFormVisible = false;
+            this.selectedEntities = [];
+            this.view = "folders";
+            this.updatePageContent();
+        }
+        /**
+        * Creates a new bucket
+        */
+        MediaCtrl.prototype.newFolder = function () {
+            var that = this;
+            that.error = false;
+            that.errorMsg = "";
+            that.loading = true;
+            var folderName = $("#new-folder").val();
+            if (folderName.trim() == "") {
+                that.error = true;
+                that.errorMsg = "Please specify a valid folder name";
+                return;
+            }
+            this.http.post(that.mediaURL + "/create-bucket/" + clientAdmin.Authenticator.user.username + "/" + folderName, null).then(function (token) {
+                if (token.data.error) {
+                    that.error = true;
+                    that.errorMsg = token.data.message;
+                }
+                else {
+                    $("#new-folder").val("");
+                    that.updatePageContent();
+                }
+                that.loading = false;
+            });
+        };
+        MediaCtrl.prototype.openFolder = function (folder) {
+            var that = this;
+            var command = "files";
+            this.index = 0;
+            this.updatePageContent();
+        };
+        /**
+        * Removes the selected entities
+        */
+        MediaCtrl.prototype.removeEntities = function () {
+            var that = this;
+            that.error = false;
+            that.errorMsg = "";
+            that.loading = true;
+            var command = (this.view == "folders" ? "remove-buckets" : "remove-files");
+            var entities = "";
+            for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                entities += this.selectedEntities[i].name + ",";
+            entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
+            that.http.delete(that.mediaURL + "/" + command + "/" + entities).then(function (token) {
+                if (token.data.error) {
+                    that.error = true;
+                    that.errorMsg = token.data.message;
+                }
+                else
+                    that.updatePageContent();
+                that.loading = false;
+            });
+        };
+        /**
+        * Sets the selected status of a folder
+        */
+        MediaCtrl.prototype.selectFolder = function (folder) {
+            folder.selected = !folder.selected;
+            if (folder.selected)
+                this.selectedEntities.push(folder);
+            else
+                this.selectedEntities.splice(this.selectedEntities.indexOf(folder), 1);
+        };
+        /**
+        * Fetches the users from the database
+        */
+        MediaCtrl.prototype.updatePageContent = function () {
+            var that = this;
+            this.error = false;
+            this.errorMsg = "";
+            this.loading = true;
+            this.selectedEntities.splice(0, this.selectedEntities.length);
+            var index = this.index;
+            var limit = this.limit;
+            var command = "";
+            if (this.view == "folders")
+                command = that.mediaURL + "/get-buckets/" + clientAdmin.Authenticator.user.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm;
+            else
+                command = that.mediaURL + "/get-files/" + clientAdmin.Authenticator.user.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm;
+            that.http.get(that.mediaURL + "/get-buckets/" + clientAdmin.Authenticator.user.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm).then(function (token) {
+                if (token.data.error) {
+                    that.error = true;
+                    that.errorMsg = token.data.message;
+                    that.entries = [];
+                    that.last = 1;
+                }
+                else {
+                    that.entries = token.data.data;
+                    that.last = token.data.count;
+                }
+                that.loading = false;
+            });
+        };
+        // $inject annotation.
+        MediaCtrl.$inject = ["$scope", "$http", "mediaURL"];
+        return MediaCtrl;
+    })(clientAdmin.PagedContentCtrl);
+    clientAdmin.MediaCtrl = MediaCtrl;
 })(clientAdmin || (clientAdmin = {}));
 var clientAdmin;
 (function (clientAdmin) {
@@ -719,6 +836,7 @@ var clientAdmin;
                     var token = response.data;
                     if (token.error)
                         return resolve(false);
+                    Authenticator.user = token.user;
                     return resolve(token.authenticated);
                 }).catch(function (error) {
                     return resolve(false);
@@ -771,6 +889,12 @@ var clientAdmin;
                 templateUrl: 'admin/templates/dash-seo.html',
                 authenticate: true,
                 controller: "seoCtrl",
+                controllerAs: "controller"
+            })
+                .state('default.media', {
+                templateUrl: 'admin/templates/dash-media.html',
+                authenticate: true,
+                controller: "mediaCtrl",
                 controllerAs: "controller"
             })
                 .state('default.users', {
@@ -854,7 +978,8 @@ var clientAdmin;
 (function (clientAdmin) {
     'use strict';
     angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize"])
-        .constant("usersURL", _users)
+        .constant("usersURL", _users + "/users")
+        .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")
         .constant("cacheURL", _cache)
         .filter("htmlToPlaintext", function () {
@@ -868,6 +993,7 @@ var clientAdmin;
         .controller("usersCtrl", clientAdmin.UsersCtrl)
         .controller("postsCtrl", clientAdmin.PostsCtrl)
         .controller("seoCtrl", clientAdmin.SEOCtrl)
+        .controller("mediaCtrl", clientAdmin.MediaCtrl)
         .service("Authenticator", clientAdmin.Authenticator)
         .config(clientAdmin.Config)
         .run(["$rootScope", "$location", "$state", "Authenticator", function ($rootScope, $location, $state, auth) {
@@ -908,6 +1034,7 @@ var clientAdmin;
 /// <reference path="lib/controllers/SEOCtrl.ts" />
 /// <reference path="lib/controllers/LoginCtrl.ts" />
 /// <reference path="lib/controllers/RegisterCtrl.ts" />
+/// <reference path="lib/controllers/MediaCtrl.ts" />
 /// <reference path="lib/controllers/UsersCtrl.ts" />
 /// <reference path="lib/controllers/PostsCtrl.ts" />
 /// <reference path="lib/Authenticator.ts" />

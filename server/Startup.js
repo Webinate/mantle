@@ -158,7 +158,10 @@ MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, co
                             console.log("Created folder snapshots");
                         }
                         heapdump.writeSnapshot("./snapshots/" + Date.now() + ".heapsnapshot", function (err, filename) {
-                            console.log("Heapdump saved to " + filename);
+                            if (err)
+                                console.log("An error occurred while writing to heapdump " + err.toString());
+                            else
+                                console.log("Heapdump saved to " + filename);
                         });
                     }
                     catch (err) {

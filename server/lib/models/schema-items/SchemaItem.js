@@ -7,6 +7,7 @@ var SchemaItem = (function () {
         this.value = value;
         this.sensitive = sensitive;
         this._unique = false;
+        this._indexable = false;
     }
     /**
     * Creates a clone of this item
@@ -17,6 +18,16 @@ var SchemaItem = (function () {
         copy = copy === undefined ? new SchemaItem(this.name, this.value, this.sensitive) : copy;
         copy._unique = this._unique;
         return copy;
+    };
+    /**
+    * Gets or sets if this item is indexable by mongodb
+    * @returns {boolean}
+    */
+    SchemaItem.prototype.indexable = function (val) {
+        if (val === undefined)
+            return this._indexable;
+        this._indexable = val;
+        return val;
     };
     /**
     * Gets or sets if this item represents a unique value in the database. An example might be a username

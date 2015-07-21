@@ -26,7 +26,7 @@
             this.errorMsg = "";
             this.index = 0;
             this.limit = 10;
-            this.last = Infinity;
+            this.last = 1;
             this.searchTerm = "";
         }
 

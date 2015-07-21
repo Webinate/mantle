@@ -30,19 +30,16 @@ export class Model
 	public collection: mongodb.Collection;
 	public defaultSchema: Schema;
 	private _collectionName: string;
-	private _collectionIndex: string;
 	private _initialized: boolean;
 	
 	/**
 	* Creates an instance of a Model
 	* @param {string} collection The collection name associated with this model
-	* @param {string} index [Optional] You can optionally specify the index field of this model
 	*/
-	constructor(collection: string, index?: string)
+	constructor(collection: string)
 	{
 		this.collection = null;
 		this._collectionName = collection;
-		this._collectionIndex = index;
 		this._initialized = false;
 		this.defaultSchema = new Schema();
 	}
@@ -52,6 +49,20 @@ export class Model
 	* @returns {string}
 	*/
 	get collectionName():string { return this._collectionName; }
+
+    private createIndex(name: string, collection: mongodb.Collection): Promise<any>
+    {
+        return new Promise<any>(function (resolve, reject)
+        {
+            collection.ensureIndex(name, function (err, index: string)
+            {
+                if (err)
+                    reject(err);
+                else
+                    resolve();
+            });
+        });
+    }
 
 	/**
 	* Initializes the model by setting up the database collections
@@ -78,31 +89,38 @@ export class Model
 					return reject(new Error("Error creating collection: " + err.message));
 				else
 				{
-					model.collection = collection;
+                    model.collection = collection;
 
-					// If the collection has an index, then set it
-					if (model._collectionIndex)
-					{
-						var indexSpec: any = {};
-						indexSpec[model._collectionIndex] = 1;
+                    // First remove all existing indices
+                    collection.dropAllIndexes(function(err)
+                    {
+                        if (err)
+                            return reject(err);
 
-						// Attempt to index the collection
-						collection.createIndex(indexSpec, function (err: Error, indexName: string)
-						{
-							if (err)
-								reject(new Error("Error creating collection: " + err.message));
-							else
-							{
-								model._initialized = true;
-								resolve(model);
-							}
-						});
-					}
-					else
-					{
-						model._initialized = true;
-						resolve(model);
-					}
+                        // Now re-create the models who need index supports
+                        var promises: Array<Promise<any>> = [];
+                        var items = model.defaultSchema.items;
+                        for (var i = 0, l = items.length; i < l; i++)
+                            if (items[i].indexable())
+                                promises.push(model.createIndex(items[i].name, collection));
+
+                        if (promises.length == 0)
+                        {
+                            model._initialized = true;
+                            return resolve(model);
+                        }
+
+                        Promise.all(promises).then(function ()
+                        {
+                            model._initialized = true;
+                            return resolve(model);
+
+                        }).catch(function (err)
+                        {
+                            return reject(err);
+                        });
+
+                    });
 				}
 			});
 		});

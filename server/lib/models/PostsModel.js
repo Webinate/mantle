@@ -19,8 +19,8 @@ var PostsModel = (function (_super) {
         this.defaultSchema.add(new SchemaItemFactory_1.bool("public", true));
         this.defaultSchema.add(new SchemaItemFactory_1.textArray("categories", []));
         this.defaultSchema.add(new SchemaItemFactory_1.textArray("tags", []));
-        this.defaultSchema.add(new SchemaItemFactory_1.date("createdOn"));
-        this.defaultSchema.add(new SchemaItemFactory_1.date("lastUpdated", undefined, false, true));
+        this.defaultSchema.add(new SchemaItemFactory_1.date("createdOn")).indexable(true);
+        this.defaultSchema.add(new SchemaItemFactory_1.date("lastUpdated", undefined, false, true)).indexable(true);
     }
     return PostsModel;
 })(Model_1.Model);

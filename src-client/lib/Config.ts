@@ -59,6 +59,12 @@
                     controller: "seoCtrl",
                     controllerAs: "controller"
                 })
+                .state('default.media', {
+                    templateUrl: 'admin/templates/dash-media.html',
+                    authenticate: true,
+                    controller: "mediaCtrl",
+                    controllerAs: "controller"
+                })
                 .state('default.users', {
                     templateUrl: 'admin/templates/dash-users.html',
                     authenticate: true,

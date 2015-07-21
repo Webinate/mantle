@@ -15,7 +15,7 @@ export class UsersService
 	*/
     constructor( usersURL : string )
     {
-        this._usersURL = usersURL;
+        this._usersURL = usersURL + "/users";
     }
 
     /**

@@ -7,6 +7,7 @@ export class SchemaItem<T>
     public value: T;
     public sensitive: boolean;
     private _unique: boolean;
+    private _indexable: boolean;
 
     constructor(name: string, value: T, sensitive: boolean)
 	{
@@ -14,6 +15,7 @@ export class SchemaItem<T>
         this.value = value;
         this.sensitive = sensitive;
         this._unique = false;
+        this._indexable = false;
 	}
 
 	/**
@@ -26,6 +28,19 @@ export class SchemaItem<T>
         copy = copy === undefined ? new SchemaItem(this.name, this.value, this.sensitive) : copy;
         copy._unique = this._unique;
 		return copy;
+    }
+
+    /**
+    * Gets or sets if this item is indexable by mongodb
+    * @returns {boolean}
+    */
+    public indexable(val?: boolean): boolean
+    {
+        if (val === undefined)
+            return this._indexable;
+
+        this._indexable = val;
+        return val;
     }
 
     /**

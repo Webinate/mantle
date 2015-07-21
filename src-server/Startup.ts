@@ -19,7 +19,6 @@ import {PageRenderer} from "./lib/controllers/PageRenderer";
 import * as yargs from "yargs";
 import * as readline from "readline";
 
-
 var config: IServerConfig = null;
 var arguments = yargs.argv;
 
@@ -213,7 +212,6 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
             switch (line.trim())
             {
                 case 'debug':
-
                     try
                     {
                         if (!heapdump)
@@ -227,12 +225,15 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
 
                         heapdump.writeSnapshot(`./snapshots/${Date.now()}.heapsnapshot`, function(err: Error, filename : string)
                         {
-                            console.log(`Heapdump saved to ${filename}`);
+                            if (err)
+                                console.log(`An error occurred while writing to heapdump ${err.toString()}`);
+                            else
+                                console.log(`Heapdump saved to ${filename}`);
                         });
                     }
                     catch(err)
                     {
-                        console.log(`An error has occurred: ${err.toString() }`);
+                        console.log(`An error has occurred: ${err.toString()}`);
 
                         if (!heapdump)
                         {

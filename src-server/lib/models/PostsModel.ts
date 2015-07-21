@@ -16,7 +16,7 @@ export class PostsModel extends Model
         this.defaultSchema.add(new bool("public", true));
         this.defaultSchema.add(new textArray("categories", []));
         this.defaultSchema.add(new textArray("tags", []));
-        this.defaultSchema.add(new date("createdOn"));
-        this.defaultSchema.add(new date("lastUpdated", undefined, false, true ));
+        this.defaultSchema.add(new date("createdOn")).indexable(true);
+        this.defaultSchema.add(new date("lastUpdated", undefined, false, true)).indexable(true);
 	}
 }

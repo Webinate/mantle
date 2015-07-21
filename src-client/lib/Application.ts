@@ -9,7 +9,8 @@ module clientAdmin
     'use strict';
     
     angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize"])
-        .constant("usersURL", _users)
+        .constant("usersURL", _users + "/users")
+        .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")
         .constant("cacheURL", _cache)
         .filter("htmlToPlaintext", function()
@@ -25,6 +26,7 @@ module clientAdmin
         .controller("usersCtrl", UsersCtrl)
         .controller("postsCtrl", PostsCtrl)
         .controller("seoCtrl", SEOCtrl)
+        .controller("mediaCtrl", MediaCtrl)
         .service("Authenticator", Authenticator)
         .config(Config)
         .run(["$rootScope", "$location", "$state", "Authenticator", function ($rootScope, $location, $state: ng.ui.IStateService, auth: Authenticator)

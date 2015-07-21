@@ -27,6 +27,7 @@
     <TypeScriptCompile Include="lib\Config.ts" />
     <TypeScriptCompile Include="lib\controllers\PagedContentCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\PostsCtrl.ts" />
+    <TypeScriptCompile Include="lib\controllers\MediaCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\SEOCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\UsersCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\RegisterCtrl.ts" />
@@ -42,6 +43,9 @@
   <ItemGroup>
     <Content Include="..\server\resources\admin\style.css">
       <Link>html\style.css</Link>
+    </Content>
+    <Content Include="..\server\resources\admin\templates\dash-media.html">
+      <Link>html\templates\dash-media.html</Link>
     </Content>
     <Content Include="..\server\resources\admin\templates\dash-posts.html">
       <Link>html\templates\dash-posts.html</Link>

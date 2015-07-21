@@ -153,6 +153,7 @@ textarea {
   font: inherit; /* 2 */
   margin: 0; /* 3 */
   border: 1px solid #ddd;
+  background: #F2F2F2;
 }
 
 button {
@@ -283,7 +284,6 @@ button[disabled], html input[disabled] {
 	padding:10px;
 	border-radius:5px;
     display:inline-block;
-    border-radius: 5px;
     border:none;
 }
 .animate-fast {
@@ -626,7 +626,7 @@ max-height: 0;
 .search-button:hover {
     background-position-y:-30px;
 }
-.category .cross, .tag .cross, .console-buttons .red .cross {
+.category .cross, .tag .cross, .red .cross {
     -ms-transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
@@ -699,6 +699,10 @@ form .category-buttons .nav-button {
     padding:20px 20px 10px 20px;
     max-height:200px;
 }
+.folder-options {
+    padding: 10px;
+    max-height:200px;
+}
 .filter-group {
     float: left;
     margin: 0 20px 0 0;
@@ -711,6 +715,25 @@ form .category-buttons .nav-button {
 .console-buttons .success {
     display:inline-block;
 }
+.new-folder .button {
+    margin: 0 10px 10px 10px;
+}
+.new-folder input {
+    padding:8px;
+}
+.folders .folder {
+    float:left;
+    margin:10px;
+    padding:10px;
+    cursor:pointer;
+}
+.folder .icon {
+    width:32px;
+    height:32px;
+    float:left;
+    background-position:top left;
+    margin:0 5px 0 0;
+}
 /**
 ======================================================
 				CSS MODULE DEFINITIONS
@@ -719,6 +742,22 @@ Please only put css rules in here for generalized modules.
 
 	eg: classes for highlighting text on certain pages
 **/
+.unselectable {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+.folder {
+    background:#fff;
+    box-shadow: 0px 2px 2px rgba(0,0,0,0.1);
+}
+.folder.selected {
+    background:#74A2E0;
+    color:#fff;
+}
+.folder.selected .icon {
+    background-position-y:-32px;
+}
 
 form input[type="text"], form input[type="password"], form input[type="email"] {
     color: #555;
@@ -923,7 +962,7 @@ form label {
 .cross:before, .cross:after {
     content: "";
     position: absolute;
-    background: #d0d0f0;
+    background: #fff;
 }
 
 .cross:before {

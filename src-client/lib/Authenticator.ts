@@ -8,6 +8,7 @@
 		private _http: ng.IHttpService;
         private _q: ng.IQService;
         private _usersURL: string;
+        public static user: UsersInterface.IUserEntry;
         
 		// $inject annotation.
         public static $inject = ["$http", "$q", "usersURL"];
@@ -57,6 +58,7 @@
                     if (token.error)
                         return resolve(false);
 
+                    Authenticator.user = token.user;
                     return resolve(token.authenticated);
 
                 }).catch(function(error: Error)
