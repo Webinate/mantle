@@ -8,7 +8,8 @@
 <div class="sub-menu">
     <h>Media<img ng-show="controller.loading" src="/admin/media/images/loader.gif" /></h> 
 	<div class="console">
-		<div class="button blue" ng-click="controller.folderFormVisible = !controller.folderFormVisible">New Folder</div>
+		<div class="button blue" ng-click="controller.folderFormVisible = !controller.folderFormVisible" ng-show="!controller.selectedFolder">New Folder</div>
+		<div class="button blue" ng-click="" ng-show="controller.selectedFolder"><div class="cross"></div>Upload File</div>
 		<div class="button red" ng-click="controller.removeEntities()" ng-show="controller.selectedEntities.length != 0 && !controller.loading"><div class="cross"></div>Remove</div>
 		<div class="fix"></div>
 	</div>
@@ -26,9 +27,17 @@
 		<div class="fix"></div>
 	</div>
 	<div class="drive">
-		<div class="folders">
-			<div class="folder unselectable" ng-dblclick="controller.openFolder(folder)" ng-click="controller.selectFolder(folder)" ng-repeat="folder in controller.entries" ng-class="{ selected : folder.selected }">
+		<div class="folders" ng-if="!controller.selectedFolder">
+			<div class="folder unselectable" ng-dblclick="controller.openFolder(folder)" ng-click="controller.selectEntity(folder)" ng-repeat="folder in controller.entries" ng-class="{ selected : folder.selected }">
 				<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>{{folder.name}}
+			</div>
+		</div>
+		<div class="files" ng-if="controller.selectedFolder">
+			<div class="folder unselectable" ng-dblclick="controller.openFolder()">
+				<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>.. {{controller.selectedFolder.name}}
+			</div>
+			<div class="files unselectable" ng-click="controller.selectEntity(file)" ng-repeat="file in controller.entries" ng-class="{ selected : file.selected }">
+				<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>{{file.name}}
 			</div>
 		</div>
 	</div>

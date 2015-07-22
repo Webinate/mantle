@@ -9,8 +9,8 @@
         public folderFormVisible: boolean;
         public scope: any;
         public entries: Array<any>;
-        public view: string;
-        public selectedEntities: Array<any>;
+        public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
+        public selectedFolder: UsersInterface.IBucketEntry;
 
         // $inject annotation.
         public static $inject = ["$scope", "$http", "mediaURL"];
@@ -20,13 +20,13 @@
             this.scope = scope;
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
+            this.selectedFolder = null;
             this.selectedEntities = [];
-            this.view = "folders";
             this.updatePageContent();
         }
 
         /**
-        * Creates a new bucket 
+        * Creates a new folder 
         */
         newFolder()
         {
@@ -60,11 +60,15 @@
             });
         }
 
+        /**
+        * Attempts to open a folder
+        */
         openFolder(folder: UsersInterface.IBucketEntry)
         {
             var that = this;
             var command = "files";
             this.index = 0;
+            this.selectedFolder = folder;
             this.updatePageContent();
         }
 
@@ -77,11 +81,20 @@
             that.error = false;
             that.errorMsg = "";
             that.loading = true;
-            var command = (this.view == "folders" ? "remove-buckets" : "remove-files");
+            var command = (this.selectedFolder ? "remove-buckets" : "remove-files");
 
             var entities = "";
-            for (var i = 0, l = this.selectedEntities.length; i < l; i++)
-                entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
+
+            if (!this.selectedFolder)
+            {
+                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                    entities += (<UsersInterface.IFileEntry>this.selectedEntities[i]).identifier + ",";
+            }
+            else
+            {
+                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                    entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
+            }
 
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "" );
 
@@ -100,15 +113,16 @@
         }
 
         /**
-        * Sets the selected status of a folder
+        * Sets the selected status of a file or folder
         */
-        selectFolder(folder)
+        selectEntity(entity)
         {
-            folder.selected = !folder.selected;
-            if (folder.selected)
-                this.selectedEntities.push(folder);
+            entity.selected = !entity.selected;
+
+            if (entity.selected)
+                this.selectedEntities.push(entity);
             else
-                this.selectedEntities.splice(this.selectedEntities.indexOf(folder), 1);
+                this.selectedEntities.splice(this.selectedEntities.indexOf(entity), 1);
         }
 
         /**
@@ -125,10 +139,10 @@
             var limit = this.limit;
             var command = "";
 
-            if (this.view == "folders")
-                command = `${that.mediaURL}/get-buckets/${Authenticator.user.username}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
+            if (this.selectedFolder)
+                command = `${that.mediaURL}/get-files/${Authenticator.user.username}/${this.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
             else
-                command = `${that.mediaURL}/get-files/${Authenticator.user.username}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
+                command = `${that.mediaURL}/get-buckets/${Authenticator.user.username}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
 
             that.http.get<UsersInterface.IGetFiles>(command).then(function (token)
             {

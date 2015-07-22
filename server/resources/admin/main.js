@@ -327,12 +327,12 @@ var clientAdmin;
             this.scope = scope;
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
+            this.selectedFolder = null;
             this.selectedEntities = [];
-            this.view = "folders";
             this.updatePageContent();
         }
         /**
-        * Creates a new bucket
+        * Creates a new folder
         */
         MediaCtrl.prototype.newFolder = function () {
             var that = this;
@@ -357,10 +357,14 @@ var clientAdmin;
                 that.loading = false;
             });
         };
+        /**
+        * Attempts to open a folder
+        */
         MediaCtrl.prototype.openFolder = function (folder) {
             var that = this;
             var command = "files";
             this.index = 0;
+            this.selectedFolder = folder;
             this.updatePageContent();
         };
         /**
@@ -371,10 +375,16 @@ var clientAdmin;
             that.error = false;
             that.errorMsg = "";
             that.loading = true;
-            var command = (this.view == "folders" ? "remove-buckets" : "remove-files");
+            var command = (this.selectedFolder ? "remove-buckets" : "remove-files");
             var entities = "";
-            for (var i = 0, l = this.selectedEntities.length; i < l; i++)
-                entities += this.selectedEntities[i].name + ",";
+            if (!this.selectedFolder) {
+                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                    entities += this.selectedEntities[i].identifier + ",";
+            }
+            else {
+                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                    entities += this.selectedEntities[i].name + ",";
+            }
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
             that.http.delete(that.mediaURL + "/" + command + "/" + entities).then(function (token) {
                 if (token.data.error) {
@@ -387,14 +397,14 @@ var clientAdmin;
             });
         };
         /**
-        * Sets the selected status of a folder
+        * Sets the selected status of a file or folder
         */
-        MediaCtrl.prototype.selectFolder = function (folder) {
-            folder.selected = !folder.selected;
-            if (folder.selected)
-                this.selectedEntities.push(folder);
+        MediaCtrl.prototype.selectEntity = function (entity) {
+            entity.selected = !entity.selected;
+            if (entity.selected)
+                this.selectedEntities.push(entity);
             else
-                this.selectedEntities.splice(this.selectedEntities.indexOf(folder), 1);
+                this.selectedEntities.splice(this.selectedEntities.indexOf(entity), 1);
         };
         /**
         * Fetches the users from the database
@@ -408,11 +418,11 @@ var clientAdmin;
             var index = this.index;
             var limit = this.limit;
             var command = "";
-            if (this.view == "folders")
-                command = that.mediaURL + "/get-buckets/" + clientAdmin.Authenticator.user.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm;
+            if (this.selectedFolder)
+                command = that.mediaURL + "/get-files/" + clientAdmin.Authenticator.user.username + "/" + this.selectedFolder.name + "/?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm;
             else
-                command = that.mediaURL + "/get-files/" + clientAdmin.Authenticator.user.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm;
-            that.http.get(that.mediaURL + "/get-buckets/" + clientAdmin.Authenticator.user.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm).then(function (token) {
+                command = that.mediaURL + "/get-buckets/" + clientAdmin.Authenticator.user.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm;
+            that.http.get(command).then(function (token) {
                 if (token.data.error) {
                     that.error = true;
                     that.errorMsg = token.data.message;

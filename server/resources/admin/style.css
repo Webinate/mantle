@@ -721,7 +721,7 @@ form .category-buttons .nav-button {
 .new-folder input {
     padding:8px;
 }
-.folders .folder {
+.folder, .file {
     float:left;
     margin:10px;
     padding:10px;
@@ -747,11 +747,11 @@ Please only put css rules in here for generalized modules.
     -webkit-user-select: none;
     -ms-user-select: none;
 }
-.folder {
+.folder, .file {
     background:#fff;
     box-shadow: 0px 2px 2px rgba(0,0,0,0.1);
 }
-.folder.selected {
+.folder.selected, .file.selected {
     background:#74A2E0;
     color:#fff;
 }
