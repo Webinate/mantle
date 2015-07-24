@@ -357,6 +357,8 @@ var clientAdmin;
                 that.loading = false;
             });
         };
+        MediaCtrl.prototype.uploadFile = function () {
+        };
         /**
         * Attempts to open a folder
         */
@@ -365,6 +367,7 @@ var clientAdmin;
             var command = "files";
             this.index = 0;
             this.selectedFolder = folder;
+            this.folderFormVisible = false;
             this.updatePageContent();
         };
         /**
@@ -869,8 +872,10 @@ var clientAdmin;
         /**
         * Creates an instance of the configurator
         */
-        function Config(routeProvider, stateProvider, $locationProvider, $httpProvider) {
+        function Config(routeProvider, stateProvider, $locationProvider, $httpProvider, cfpLoadingBarProvider) {
             $locationProvider.html5Mode(true);
+            // Turn off the loading bar spinner
+            cfpLoadingBarProvider.includeSpinner = false;
             // Allows us to use CORS with angular
             $httpProvider.defaults.withCredentials = true;
             // When we go to logout - it redirects us back to the login screen after its task is complete
@@ -975,7 +980,8 @@ var clientAdmin;
             "$urlRouterProvider",
             "$stateProvider",
             "$locationProvider",
-            "$httpProvider"
+            "$httpProvider",
+            "cfpLoadingBarProvider"
         ];
         return Config;
     })();
@@ -987,7 +993,7 @@ var clientAdmin;
 var clientAdmin;
 (function (clientAdmin) {
     'use strict';
-    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize"])
+    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar'])
         .constant("usersURL", _users + "/users")
         .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")

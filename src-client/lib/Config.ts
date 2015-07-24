@@ -12,16 +12,20 @@
 			"$urlRouterProvider",
             "$stateProvider",
             "$locationProvider",
-            "$httpProvider"
+            "$httpProvider",
+            "cfpLoadingBarProvider"
 		];
 
 		/**
 		* Creates an instance of the configurator
 		*/
-        constructor(routeProvider: angular.ui.IUrlRouterProvider, stateProvider: angular.ui.IStateProvider, $locationProvider: angular.ILocationProvider, $httpProvider: angular.IHttpProvider)
+        constructor(routeProvider: angular.ui.IUrlRouterProvider, stateProvider: angular.ui.IStateProvider, $locationProvider: angular.ILocationProvider, $httpProvider: angular.IHttpProvider, cfpLoadingBarProvider)
 		{
             $locationProvider.html5Mode(true);
-
+            
+            // Turn off the loading bar spinner
+            cfpLoadingBarProvider.includeSpinner = false;
+        
             // Allows us to use CORS with angular
             $httpProvider.defaults.withCredentials = true;
             

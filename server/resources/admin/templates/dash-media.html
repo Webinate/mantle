@@ -6,14 +6,18 @@
 </div>
 
 <div class="sub-menu">
-    <h>Media<img ng-show="controller.loading" src="/admin/media/images/loader.gif" /></h> 
+    <h>Media<img ng-show="controller.loading" src="/admin/media/images/loader.gif" /></h>
 	<div class="console">
 		<div class="button blue" ng-click="controller.folderFormVisible = !controller.folderFormVisible" ng-show="!controller.selectedFolder">New Folder</div>
-		<div class="button blue" ng-click="" ng-show="controller.selectedFolder"><div class="cross"></div>Upload File</div>
+		
+			<div class="button blue" ng-click="" ng-show="controller.selectedFolder"><div class="cross"></div>Upload File</div>
+		
 		<div class="button red" ng-click="controller.removeEntities()" ng-show="controller.selectedEntities.length != 0 && !controller.loading"><div class="cross"></div>Remove</div>
 		<div class="fix"></div>
 	</div>
 </div>
+
+
 
 <div class="media content-view">
 	<div class="folder-options animated-panel" ng-show="controller.folderFormVisible">

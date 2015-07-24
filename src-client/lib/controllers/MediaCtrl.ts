@@ -60,6 +60,10 @@
             });
         }
 
+        uploadFile()
+        {
+        }
+
         /**
         * Attempts to open a folder
         */
@@ -69,6 +73,7 @@
             var command = "files";
             this.index = 0;
             this.selectedFolder = folder;
+            this.folderFormVisible = false;
             this.updatePageContent();
         }
 
