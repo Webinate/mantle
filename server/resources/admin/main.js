@@ -322,15 +322,38 @@ var clientAdmin;
     */
     var MediaCtrl = (function (_super) {
         __extends(MediaCtrl, _super);
-        function MediaCtrl(scope, http, mediaURL) {
+        function MediaCtrl(scope, http, mediaURL, upload) {
             _super.call(this, http);
             this.scope = scope;
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
             this.selectedFolder = null;
+            this.uploader = upload;
             this.selectedEntities = [];
             this.updatePageContent();
         }
+        MediaCtrl.prototype.upload = function (files) {
+            var that = this;
+            if (files && files.length) {
+                for (var i = 0; i < files.length; i++)
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+                        this.uploader.upload({
+                            url: that.mediaURL + "/upload/" + that.selectedFolder.name,
+                            file: file
+                        }).progress(function (evt) {
+                            var progressPercentage = parseInt((100.0 * evt.loaded / evt.total).toString());
+                            console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
+                        }).success(function (data, status, headers, config) {
+                            console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
+                            that.updatePageContent();
+                        }).error(function (data, status, headers, config) {
+                            console.log('error status: ' + status);
+                        });
+                    }
+            }
+        };
+        ;
         /**
         * Creates a new folder
         */
@@ -357,8 +380,6 @@ var clientAdmin;
                 that.loading = false;
             });
         };
-        MediaCtrl.prototype.uploadFile = function () {
-        };
         /**
         * Attempts to open a folder
         */
@@ -378,9 +399,9 @@ var clientAdmin;
             that.error = false;
             that.errorMsg = "";
             that.loading = true;
-            var command = (this.selectedFolder ? "remove-buckets" : "remove-files");
+            var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
             var entities = "";
-            if (!this.selectedFolder) {
+            if (this.selectedFolder) {
                 for (var i = 0, l = this.selectedEntities.length; i < l; i++)
                     entities += this.selectedEntities[i].identifier + ",";
             }
@@ -440,7 +461,7 @@ var clientAdmin;
             });
         };
         // $inject annotation.
-        MediaCtrl.$inject = ["$scope", "$http", "mediaURL"];
+        MediaCtrl.$inject = ["$scope", "$http", "mediaURL", "Upload"];
         return MediaCtrl;
     })(clientAdmin.PagedContentCtrl);
     clientAdmin.MediaCtrl = MediaCtrl;
@@ -993,7 +1014,7 @@ var clientAdmin;
 var clientAdmin;
 (function (clientAdmin) {
     'use strict';
-    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar'])
+    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
         .constant("usersURL", _users + "/users")
         .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")

@@ -8,7 +8,7 @@ module clientAdmin
 {
     'use strict';
     
-    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar'])
+    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
         .constant("usersURL", _users + "/users")
         .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")

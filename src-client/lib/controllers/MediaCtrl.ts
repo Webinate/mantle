@@ -11,19 +11,55 @@
         public entries: Array<any>;
         public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         public selectedFolder: UsersInterface.IBucketEntry;
+        public uploader: any;
 
         // $inject annotation.
-        public static $inject = ["$scope", "$http", "mediaURL"];
-        constructor(scope: any, http: ng.IHttpService, mediaURL: string)
+        public static $inject = ["$scope", "$http", "mediaURL", "Upload"];
+        constructor(scope: any, http: ng.IHttpService, mediaURL: string, upload: any)
         {
             super(http);
             this.scope = scope;
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
             this.selectedFolder = null;
+            this.uploader = upload;
             this.selectedEntities = [];
             this.updatePageContent();
         }
+
+        upload(files)
+        {
+            var that = this;
+
+            if (files && files.length)
+            {
+
+                for (var i = 0; i < files.length; i++)
+
+                for (var i = 0; i < files.length; i++)
+                {
+                    var file = files[i];
+                    this.uploader.upload({
+                        url: `${that.mediaURL}/upload/${that.selectedFolder.name}`,
+                        file: file
+
+                    }).progress(function (evt)
+                    {
+                        var progressPercentage = parseInt((100.0 * evt.loaded / evt.total).toString());
+                        console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
+
+                    }).success(function (data, status, headers, config)
+                    {
+                        console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
+                        that.updatePageContent();
+
+                    }).error(function (data, status, headers, config)
+                    {
+                        console.log('error status: ' + status);
+                    })
+                }
+            }
+        };
 
         /**
         * Creates a new folder 
@@ -59,11 +95,7 @@
                 that.loading = false;
             });
         }
-
-        uploadFile()
-        {
-        }
-
+        
         /**
         * Attempts to open a folder
         */
@@ -86,11 +118,11 @@
             that.error = false;
             that.errorMsg = "";
             that.loading = true;
-            var command = (this.selectedFolder ? "remove-buckets" : "remove-files");
+            var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
 
             var entities = "";
 
-            if (!this.selectedFolder)
+            if (this.selectedFolder)
             {
                 for (var i = 0, l = this.selectedEntities.length; i < l; i++)
                     entities += (<UsersInterface.IFileEntry>this.selectedEntities[i]).identifier + ",";
