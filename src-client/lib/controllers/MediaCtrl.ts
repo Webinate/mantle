@@ -32,6 +32,7 @@
         upload(files)
         {
             var that = this;
+            that.error = false;
 
             if (files && files.length)
             {
@@ -45,19 +46,14 @@
                         url: `${that.mediaURL}/upload/${that.selectedFolder.name}`,
                         file: file
 
-                    }).progress(function (evt)
-                    {
-                        var progressPercentage = parseInt((100.0 * evt.loaded / evt.total).toString());
-                        console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
-
                     }).success(function (data, status, headers, config)
-                    {
-                        console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
+                    {   
                         that.updatePageContent();
 
                     }).error(function (data, status, headers, config)
                     {
-                        console.log('error status: ' + status);
+                        that.error = true;
+                        that.errorMsg = status;
                     })
                 }
             }
