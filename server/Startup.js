@@ -15,6 +15,7 @@ var PathHandler_1 = require("./lib/PathHandler");
 var PageRenderer_1 = require("./lib/controllers/PageRenderer");
 var yargs = require("yargs");
 var readline = require("readline");
+var compression = require("compression");
 var config = null;
 var arguments = yargs.argv;
 // Saves logs to file
@@ -47,6 +48,8 @@ MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, co
     // Database loaded
     winston.info("Successfully connected to '" + config.databaseName + "' at " + config.databaseHost + ":" + config.databasePort, { process: process.pid });
     winston.info("Starting up HTTP" + (config.ssl ? "S" : "") + " server at " + config.host + ":" + config.portHTTP + "...", { process: process.pid });
+    // Enable GZIPPING
+    app.use(compression());
     // Add the static folder locations
     winston.info("Adding resource folder " + __dirname + "/resources", { process: process.pid });
     app.use(express.static(__dirname + "/resources", { maxAge: config.cacheLifetime }));

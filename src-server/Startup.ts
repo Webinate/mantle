@@ -18,6 +18,7 @@ import {PathHandler} from "./lib/PathHandler";
 import {PageRenderer} from "./lib/controllers/PageRenderer";
 import * as yargs from "yargs";
 import * as readline from "readline";
+import * as compression from "compression";
 
 var config: IServerConfig = null;
 var arguments = yargs.argv;
@@ -66,6 +67,9 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
     winston.info(`Successfully connected to '${config.databaseName}' at ${config.databaseHost}:${config.databasePort}`, { process: process.pid });
     winston.info(`Starting up HTTP${config.ssl ? "S" : ""} server at ${config.host}:${config.portHTTP}...`, { process: process.pid });
     
+    // Enable GZIPPING
+    app.use(compression());
+
     // Add the static folder locations
     winston.info(`Adding resource folder ${__dirname}/resources`, { process: process.pid });
     app.use(express.static(`${__dirname}/resources`, { maxAge: config.cacheLifetime }));
@@ -110,6 +114,8 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
             config.emailService, config.emailServiceUser, config.emailServicePassword),
         new PostsController(app)
     ];
+
+    
 
     // If we have a modepress url, then use that 
     if (config.modepressRenderURL && config.modepressRenderURL.trim() != "")

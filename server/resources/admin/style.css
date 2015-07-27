@@ -323,6 +323,12 @@ Please only put css rules in here for layout related requirements.
 
 	eg: How to format a list or table
 **/
+.right {
+    float:right;
+}
+.left{
+    float:left;
+}
 .fix {
 	clear: both;
 	height:0;
@@ -449,6 +455,10 @@ form .nav-button {
     height: 85%;
     height: calc(100% - 130px);
 }
+.content-page {
+    height: calc(100% - 50px);
+    overflow: auto;
+}
 .content-view.only-header {
     height: 90%;
     height: calc(100% - 75px);
@@ -536,6 +546,9 @@ max-height: 0;
     color: #74A2E0;
     font-weight: bold;
 }
+.nav-button {
+    display:inline-block;
+}
 .tag-content{
     padding:10px;
     box-sizing:border-box;
@@ -566,6 +579,14 @@ max-height: 0;
     width:40%;
     padding:20px;
     text-align:center;
+    z-index:2;
+}
+.big-dialog-box {
+    position:absolute;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
     z-index:2;
 }
 .sub-menu img {
@@ -724,8 +745,23 @@ form .category-buttons .nav-button {
 .folder, .file {
     float:left;
     margin:10px;
-    padding:10px;
     cursor:pointer;
+}
+.folder{
+    padding:10px;
+}
+.file {
+    width:150px;
+    height:150px;
+    overflow: hidden;
+}
+.file-name {
+    color:inherit;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding:10px;
+    font-size:16px;
+    box-sizing: border-box;
 }
 .folder .icon {
     width:32px;
@@ -733,6 +769,30 @@ form .category-buttons .nav-button {
     float:left;
     background-position:top left;
     margin:0 5px 0 0;
+}
+.file-preview {
+    padding-top: 75%;
+    position: relative;
+}
+.inner .div-center {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+.inner img {
+    display: inline-block;
+    max-height: 100%;
+    max-width: 100%;
+    vertical-align: middle;
+}
+.file-preview .inner {
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    text-align: center;
 }
 /**
 ======================================================
@@ -742,18 +802,31 @@ Please only put css rules in here for generalized modules.
 
 	eg: classes for highlighting text on certain pages
 **/
+.background-tiles {
+    background-color: white;
+    background-image: -webkit-linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef),-webkit-linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef);
+    background-image: linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef),linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef);
+    background-position: 0 0,10px 10px;
+    -webkit-background-size: 21px 21px;
+    background-size: 21px 21px;
+}
 .unselectable {
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
 }
-.folder, .file {
+.folder, .file-preview {
     background:#fff;
-    box-shadow: 0px 2px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
 }
+.file.selected .file-preview {
+    box-shadow: none;
+}
+ 
 .folder.selected, .file.selected {
     background:#74A2E0;
     color:#fff;
+    box-shadow: 0 3px 3px 0 rgba(0,0,0,.3);
 }
 .folder.selected .icon {
     background-position-y:-32px;
@@ -909,6 +982,9 @@ form label {
 .dialog-box {
     background:#fff;
 }
+.big-dialog-box {
+    background:#DDDDDD;
+}
 .navigation .center {
     color: #ccc;
 }
@@ -962,7 +1038,7 @@ form label {
 .cross:before, .cross:after {
     content: "";
     position: absolute;
-    background: #fff;
+    background: #eae9e9;
 }
 
 .cross:before {

@@ -2,6 +2,7 @@
 import * as mongodb from "mongodb";
 import * as entities from "entities";
 import * as express from "express";
+import * as compression from "compression";
 import {Controller} from "./Controller";
 import {PostsModel} from "../models/PostsModel";
 import {CategoriesModel} from "../models/CategoriesModel";
@@ -20,7 +21,9 @@ export class PostsController extends Controller
 	{
         super([new PostsModel(), new CategoriesModel()]);
         
-		var router = express.Router();
+        var router = express.Router();
+
+        router.use(compression());
 		router.use(bodyParser.urlencoded({ 'extended': true }));
 		router.use(bodyParser.json());
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));

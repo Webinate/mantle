@@ -1,9 +1,16 @@
-<div class="dialog-modal" ng-show="controller.error">
+<div class="dialog-modal" ng-if="controller.error">
     <div class="dialog-box">
         <p>{{controller.errorMsg}}</p>
         <div class="button red" ng-click="controller.error=false">Ok</div>
     </div>
 </div>
+<div class="dialog-modal" ng-if="controller.showMediaBrowser">
+	<div class="big-dialog-box">
+		<ng-include ng-controller="mediaCtrl as mediaController" src="'/admin/templates/dash-media.html'"></ng-include>
+	</div>
+</div>
+
+
 
 <div class="sub-menu">
     <h>Posts<img ng-show="controller.loading" src="/admin/media/images/loader.gif" /></h>
@@ -22,7 +29,6 @@
 </div>
 
 <div class="content-view">
-
     <div class="filter-options animated-panel" ng-show="controller.showFilters && !controller.showNewPostForm">
         <div class="filter-group">
             <div class="label">Sort Order</div>
@@ -96,8 +102,9 @@
 					<input type="text" name="nBrief" ng-model="controller.postToken.brief" ng-minlength="1" required" />
 					<div class="fix"></div>
 				</div>
-                <div class="content-view-detail">
-                    <div class="label">Featured Image: <span class="info">The main image for this post</span></div>
+				<div class="content-view-detail">
+					<div class="label">Featured Image: <span class="info">The main image for this post</span></div>
+					<div class="button blue feature-img-button" ng-click="controller.openMediaBrowser('featured-image')"><div class="cross"></div>Add Image</div>				
                     <input type="text" name="nFeaturedImage" ng-model="controller.postToken.featuredImage" />
                     <div class="fix"></div>
                 </div>

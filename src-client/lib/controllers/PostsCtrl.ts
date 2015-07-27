@@ -10,6 +10,7 @@
         public showNewPostForm: boolean;
         public editMode: boolean;
         public apiURL: string;
+        public mediaURL: string;
         public scope: any;
         public successMessage: string;
         public tagString: string;
@@ -22,16 +23,19 @@
         public sortOrder: string;
         public sortType: string;
         public showFilters: boolean;
+        public showMediaBrowser: boolean;
         public defaultSlug: string;
+        public targetImgReciever: string;
 
 		// $inject annotation.
-        public static $inject = ["$scope", "$http", "apiURL", "categories"];
-        constructor(scope, http: ng.IHttpService, apiURL: string, categories: Array<modepress.ICategory>)
+        public static $inject = ["$scope", "$http", "apiURL", "mediaURL", "categories"];
+        constructor(scope, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<modepress.ICategory>)
         {
             super(http);
             this.newCategoryMode = false;
             this.scope = scope;
             this.apiURL = apiURL;
+            this.mediaURL = mediaURL;
             this.posts = [];
             this.successMessage = "";
             this.tagString = "";
@@ -44,21 +48,67 @@
             this.sortOrder = "desc";
             this.sortType = "created";
             this.defaultSlug = "";
+            this.showMediaBrowser = false;
+            this.targetImgReciever = "";
 
             this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true, brief: "" };
             this.updatePageContent();
+            var that = this;
+
             tinymce.init({
                 height: 350,
+                setup: function (editor)
+                {
+                    editor.addButton('drive', {
+                        text: "",
+                        image: "/admin/media/images/image-icon.png",
+                        onclick: function ()
+                        {
+                            that.openMediaBrowser();
+                            scope.$apply();
+                        }
+                    });
+                },
                 selector: "textarea", plugins: ["media", "image", "link", "code", "textcolor", "colorpicker", "table", "wordcount", "lists", "contextmenu", "charmap", "fullpage", "pagebreak", "print", "spellchecker", "fullscreen", "searchreplace"],
-                toolbar1: "insertfile undo redo | styleselect | bold italic charmap | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor emoticons",
+                toolbar1: "insertfile undo redo | styleselect | bold italic charmap | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link drive | print preview media | forecolor backcolor emoticons",
                 toolbar2: "pagebreak | spellchecker searchreplace | fullpage fullscreen"
             });
-
+            
             // The category token
             this.categoryToken = { title: "", description: "", slug: "" };
 
             // Fetches the categories
             this.categories = categories;
+        }
+
+        /**
+        * Opens the media browser
+        */
+        openMediaBrowser(target: string = "content")
+        {
+            this.showMediaBrowser = true;
+            this.targetImgReciever = target;
+        }
+
+        /**
+        * Closes the media browser
+        */
+        closeMediaBrowser()
+        {
+            this.showMediaBrowser = false;
+        }
+
+        /**
+        * Selects a file from the media browser
+        */
+        selectFile(file: UsersInterface.IFileEntry)
+        {
+            this.showMediaBrowser = false;
+
+            if (this.targetImgReciever == "content")
+                tinymce.editors[0].insertContent(`<img src='${this.mediaURL}/download/${file.identifier}' />`);
+            else if (this.targetImgReciever == "featured-image")
+                this.postToken.featuredImage = `${this.mediaURL}/download/${file.identifier}`;
         }
 
         /**

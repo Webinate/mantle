@@ -69,7 +69,7 @@
 		*/
         goLast()
         {
-            this.index = this.last - this.limit;
+            this.index = this.last - (this.last % this.limit);
             this.updatePageContent();
         }
 

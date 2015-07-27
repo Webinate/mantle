@@ -45,7 +45,7 @@ var clientAdmin;
         * Gets the last set of users
         */
         PagedContentCtrl.prototype.goLast = function () {
-            this.index = this.last - this.limit;
+            this.index = this.last - (this.last % this.limit);
             this.updatePageContent();
         };
         /**
@@ -327,6 +327,7 @@ var clientAdmin;
             this.scope = scope;
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
+            this.confirmDelete = false;
             this.selectedFolder = null;
             this.uploader = upload;
             this.selectedEntities = [];
@@ -389,6 +390,7 @@ var clientAdmin;
             this.index = 0;
             this.selectedFolder = folder;
             this.folderFormVisible = false;
+            this.confirmDelete = false;
             this.updatePageContent();
         };
         /**
@@ -429,6 +431,8 @@ var clientAdmin;
                 this.selectedEntities.push(entity);
             else
                 this.selectedEntities.splice(this.selectedEntities.indexOf(entity), 1);
+            if (this.selectedEntities.length == 0)
+                this.confirmDelete = false;
         };
         /**
         * Fetches the users from the database
@@ -570,11 +574,12 @@ var clientAdmin;
     */
     var PostsCtrl = (function (_super) {
         __extends(PostsCtrl, _super);
-        function PostsCtrl(scope, http, apiURL, categories) {
+        function PostsCtrl(scope, http, apiURL, mediaURL, categories) {
             _super.call(this, http);
             this.newCategoryMode = false;
             this.scope = scope;
             this.apiURL = apiURL;
+            this.mediaURL = mediaURL;
             this.posts = [];
             this.successMessage = "";
             this.tagString = "";
@@ -587,12 +592,25 @@ var clientAdmin;
             this.sortOrder = "desc";
             this.sortType = "created";
             this.defaultSlug = "";
+            this.showMediaBrowser = false;
+            this.targetImgReciever = "";
             this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true, brief: "" };
             this.updatePageContent();
+            var that = this;
             tinymce.init({
                 height: 350,
+                setup: function (editor) {
+                    editor.addButton('drive', {
+                        text: "",
+                        image: "/admin/media/images/image-icon.png",
+                        onclick: function () {
+                            that.openMediaBrowser();
+                            scope.$apply();
+                        }
+                    });
+                },
                 selector: "textarea", plugins: ["media", "image", "link", "code", "textcolor", "colorpicker", "table", "wordcount", "lists", "contextmenu", "charmap", "fullpage", "pagebreak", "print", "spellchecker", "fullscreen", "searchreplace"],
-                toolbar1: "insertfile undo redo | styleselect | bold italic charmap | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor emoticons",
+                toolbar1: "insertfile undo redo | styleselect | bold italic charmap | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link drive | print preview media | forecolor backcolor emoticons",
                 toolbar2: "pagebreak | spellchecker searchreplace | fullpage fullscreen"
             });
             // The category token
@@ -600,6 +618,30 @@ var clientAdmin;
             // Fetches the categories
             this.categories = categories;
         }
+        /**
+        * Opens the media browser
+        */
+        PostsCtrl.prototype.openMediaBrowser = function (target) {
+            if (target === void 0) { target = "content"; }
+            this.showMediaBrowser = true;
+            this.targetImgReciever = target;
+        };
+        /**
+        * Closes the media browser
+        */
+        PostsCtrl.prototype.closeMediaBrowser = function () {
+            this.showMediaBrowser = false;
+        };
+        /**
+        * Selects a file from the media browser
+        */
+        PostsCtrl.prototype.selectFile = function (file) {
+            this.showMediaBrowser = false;
+            if (this.targetImgReciever == "content")
+                tinymce.editors[0].insertContent("<img src='" + this.mediaURL + "/download/" + file.identifier + "' />");
+            else if (this.targetImgReciever == "featured-image")
+                this.postToken.featuredImage = this.mediaURL + "/download/" + file.identifier;
+        };
         /**
         * Makes sure the slug doesnt have any spaces
         */
@@ -826,7 +868,7 @@ var clientAdmin;
                 this.postToken.categories.splice(this.postToken.categories.indexOf(category.slug), 1);
         };
         // $inject annotation.
-        PostsCtrl.$inject = ["$scope", "$http", "apiURL", "categories"];
+        PostsCtrl.$inject = ["$scope", "$http", "apiURL", "mediaURL", "categories"];
         return PostsCtrl;
     })(clientAdmin.PagedContentCtrl);
     clientAdmin.PostsCtrl = PostsCtrl;
@@ -931,7 +973,7 @@ var clientAdmin;
                 templateUrl: 'admin/templates/dash-media.html',
                 authenticate: true,
                 controller: "mediaCtrl",
-                controllerAs: "controller"
+                controllerAs: "mediaController"
             })
                 .state('default.users', {
                 templateUrl: 'admin/templates/dash-users.html',

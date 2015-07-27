@@ -25,6 +25,7 @@
     <TypeScriptCompile Include="lib\controllers\EmailsController.ts" />
     <TypeScriptCompile Include="lib\controllers\PostsController.ts" />
     <TypeScriptCompile Include="lib\definitions\bcrypt-nodejs.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\compression.d.ts" />
     <TypeScriptCompile Include="lib\definitions\entities.d.ts" />
     <TypeScriptCompile Include="lib\definitions\form-data.d.ts" />
     <TypeScriptCompile Include="lib\definitions\mongodb-write-result.ts" />

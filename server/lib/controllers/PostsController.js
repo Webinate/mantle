@@ -7,6 +7,7 @@ var __extends = this.__extends || function (d, b) {
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 var express = require("express");
+var compression = require("compression");
 var Controller_1 = require("./Controller");
 var PostsModel_1 = require("../models/PostsModel");
 var CategoriesModel_1 = require("../models/CategoriesModel");
@@ -23,6 +24,7 @@ var PostsController = (function (_super) {
     function PostsController(e) {
         _super.call(this, [new PostsModel_1.PostsModel(), new CategoriesModel_1.CategoriesModel()]);
         var router = express.Router();
+        router.use(compression());
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));

@@ -67,7 +67,7 @@
                     templateUrl: 'admin/templates/dash-media.html',
                     authenticate: true,
                     controller: "mediaCtrl",
-                    controllerAs: "controller"
+                    controllerAs: "mediaController"
                 })
                 .state('default.users', {
                     templateUrl: 'admin/templates/dash-users.html',

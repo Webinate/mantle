@@ -12,6 +12,7 @@
         public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         public selectedFolder: UsersInterface.IBucketEntry;
         public uploader: any;
+        public confirmDelete: boolean;
 
         // $inject annotation.
         public static $inject = ["$scope", "$http", "mediaURL", "Upload"];
@@ -21,6 +22,7 @@
             this.scope = scope;
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
+            this.confirmDelete = false;
             this.selectedFolder = null;
             this.uploader = upload;
             this.selectedEntities = [];
@@ -106,6 +108,7 @@
             this.index = 0;
             this.selectedFolder = folder;
             this.folderFormVisible = false;
+            this.confirmDelete = false;
             this.updatePageContent();
         }
 
@@ -160,6 +163,9 @@
                 this.selectedEntities.push(entity);
             else
                 this.selectedEntities.splice(this.selectedEntities.indexOf(entity), 1);
+
+            if (this.selectedEntities.length == 0)
+                this.confirmDelete = false;
         }
 
         /**
