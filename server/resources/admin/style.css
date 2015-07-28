@@ -371,6 +371,7 @@ form input[type="text"], form input[type="password"], form input[type="email"] {
 form .nav-button {
 	margin:15px 0 0 0;
     padding-bottom:10px;
+    display:block;
 }
 .admin-message {
 	width:40%;
