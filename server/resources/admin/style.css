@@ -800,6 +800,9 @@ form .category-buttons .nav-button {
     height:100%;
     overflow:auto;
 }
+.media .panel-view.left {
+    width:100%;
+}
 .media .panel-view.left.expanded{
     width:75%;
 }

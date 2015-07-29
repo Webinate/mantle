@@ -422,6 +422,7 @@ var clientAdmin;
                 else
                     that.updatePageContent();
                 that.loading = false;
+                that.confirmDelete = false;
             });
         };
         /**

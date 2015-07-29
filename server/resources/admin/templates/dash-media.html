@@ -21,8 +21,8 @@
 
 <div class="media content-view">
 	<div class="content-page">
-		<div class="right panel-view expanded" ng-if="mediaController.editMode && mediaController.selectedEntity && mediaController.selectedFolder">
-			<div class="file-info">
+		<div class="right panel-view expanded" ng-if="mediaController.editMode && mediaController.selectedFolder">
+			<div class="file-info" ng-show="mediaController.selectedEntity">
 				<h2 ng-if="!mediaController.editFileMode">{{mediaController.selectedEntity.name}}</h2>
 				<input ng-if="mediaController.editFileMode" type="text" id="file-name" value="{{mediaController.selectedEntity.name}}" />
 				<div title="ID"><img  src="/admin/media/images/file-info-id.jpg" />{{mediaController.selectedEntity.identifier}}</div>
@@ -34,7 +34,7 @@
 				<div class="nav-button file-edit"><a ng-click="mediaController.editFileMode = !mediaController.editFileMode">{{ (!mediaController.editFileMode ? "Edit" : "Cancel") }}</a></div>
 			</div>
 		</div>
-		<div class="left panel-view" ng-class="{ expanded : mediaController.editMode && mediaController.selectedEntity && mediaController.selectedFolder }">
+		<div class="left panel-view" ng-class="{ expanded : mediaController.editMode && mediaController.selectedFolder }">
 			<div class="user-confirmation animated-panel animate-show" ng-show="mediaController.confirmDelete">
 				<div>Are you sure you want to delete these {{mediaController.selectedFolder ? "file": "folder" }}s</div>
 				<div class="button red" ng-click="mediaController.removeEntities()">Yes</div>
