@@ -20,6 +20,17 @@ module clientAdmin
                 return String(text).replace(/<[^>]+>/gm, '');
             }
         })
+        .filter('bytes', function ()
+        {
+            return function (bytes, precision)
+            {
+                if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
+                if (typeof precision === 'undefined') precision = 1;
+                var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
+                    number = Math.floor(Math.log(bytes) / Math.log(1024));
+                return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
+            }
+        })
         .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
         .controller("loginCtrl", LoginCtrl)
         .controller("registerCtrl", RegisterCtrl)

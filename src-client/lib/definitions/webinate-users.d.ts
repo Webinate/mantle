@@ -48,6 +48,7 @@
     export interface IFileEntry
     {
         _id?: any;
+        name?: string;
         user?: string;
         identifier?: string;
         bucketId?: string;

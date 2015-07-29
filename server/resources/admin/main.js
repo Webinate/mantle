@@ -328,10 +328,13 @@ var clientAdmin;
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
             this.confirmDelete = false;
+            this.editMode = false;
             this.selectedFolder = null;
             this.uploader = upload;
             this.selectedEntities = [];
             this.updatePageContent();
+            this.selectedEntity = null;
+            this.multiSelect = true;
         }
         MediaCtrl.prototype.upload = function (files) {
             var that = this;
@@ -425,12 +428,23 @@ var clientAdmin;
         */
         MediaCtrl.prototype.selectEntity = function (entity) {
             entity.selected = !entity.selected;
-            if (entity.selected)
-                this.selectedEntities.push(entity);
+            var ents = this.selectedEntities;
+            if (entity.selected) {
+                if (this.multiSelect == false) {
+                    for (var i = 0, l = ents.length; i < l; i++)
+                        ents[i].selected = false;
+                    ents.splice(0, ents.length);
+                }
+                ents.push(entity);
+            }
             else
-                this.selectedEntities.splice(this.selectedEntities.indexOf(entity), 1);
-            if (this.selectedEntities.length == 0)
+                ents.splice(ents.indexOf(entity), 1);
+            if (ents.length == 0) {
                 this.confirmDelete = false;
+                this.selectedEntity = null;
+            }
+            else
+                this.selectedEntity = ents[ents.length - 1];
         };
         /**
         * Fetches the users from the database
@@ -441,6 +455,7 @@ var clientAdmin;
             this.errorMsg = "";
             this.loading = true;
             this.selectedEntities.splice(0, this.selectedEntities.length);
+            this.selectedEntity = null;
             var index = this.index;
             var limit = this.limit;
             var command = "";
@@ -635,8 +650,12 @@ var clientAdmin;
         */
         PostsCtrl.prototype.selectFile = function (file) {
             this.showMediaBrowser = false;
-            if (this.targetImgReciever == "content")
-                tinymce.editors[0].insertContent("<img src='" + this.mediaURL + "/download/" + file.identifier + "' />");
+            if (this.targetImgReciever == "content") {
+                if (file.mimeType.match(/image/))
+                    tinymce.editors[0].insertContent("<img src='" + this.mediaURL + "/download/" + file.identifier + "' />");
+                else
+                    tinymce.editors[0].insertContent("<a href href='" + this.mediaURL + "/download/" + file.identifier + "' target='_blank'>" + file.name + "</a>");
+            }
             else if (this.targetImgReciever == "featured-image")
                 this.postToken.featuredImage = this.mediaURL + "/download/" + file.identifier;
         };
@@ -1062,6 +1081,16 @@ var clientAdmin;
         .filter("htmlToPlaintext", function () {
         return function (text) {
             return String(text).replace(/<[^>]+>/gm, '');
+        };
+    })
+        .filter('bytes', function () {
+        return function (bytes, precision) {
+            if (isNaN(parseFloat(bytes)) || !isFinite(bytes))
+                return '-';
+            if (typeof precision === 'undefined')
+                precision = 1;
+            var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'], number = Math.floor(Math.log(bytes) / Math.log(1024));
+            return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
         };
     })
         .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")

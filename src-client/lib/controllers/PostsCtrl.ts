@@ -106,7 +106,12 @@
             this.showMediaBrowser = false;
 
             if (this.targetImgReciever == "content")
-                tinymce.editors[0].insertContent(`<img src='${this.mediaURL}/download/${file.identifier}' />`);
+            {
+                if (file.mimeType.match(/image/))
+                    tinymce.editors[0].insertContent(`<img src='${this.mediaURL}/download/${file.identifier}' />`);
+                else
+                    tinymce.editors[0].insertContent(`<a href href='${this.mediaURL}/download/${file.identifier}' target='_blank'>${file.name}</a>`);
+            }
             else if (this.targetImgReciever == "featured-image")
                 this.postToken.featuredImage = `${this.mediaURL}/download/${file.identifier}`;
         }

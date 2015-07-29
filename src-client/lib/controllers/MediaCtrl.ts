@@ -10,9 +10,12 @@
         public scope: any;
         public entries: Array<any>;
         public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
+        public selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
         public selectedFolder: UsersInterface.IBucketEntry;
         public uploader: any;
         public confirmDelete: boolean;
+        public editMode: boolean;
+        public multiSelect: boolean;
 
         // $inject annotation.
         public static $inject = ["$scope", "$http", "mediaURL", "Upload"];
@@ -23,10 +26,13 @@
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
             this.confirmDelete = false;
+            this.editMode = false;
             this.selectedFolder = null;
             this.uploader = upload;
             this.selectedEntities = [];
             this.updatePageContent();
+            this.selectedEntity = null;
+            this.multiSelect = true;
         }
 
         upload(files)
@@ -154,14 +160,30 @@
         selectEntity(entity)
         {
             entity.selected = !entity.selected;
+            var ents = this.selectedEntities;
 
             if (entity.selected)
-                this.selectedEntities.push(entity);
-            else
-                this.selectedEntities.splice(this.selectedEntities.indexOf(entity), 1);
+            {
+                if (this.multiSelect == false)
+                {
+                    for (var i = 0, l = ents.length; i < l; i++)
+                        (<any>ents[i]).selected = false;
 
-            if (this.selectedEntities.length == 0)
+                    ents.splice(0, ents.length);
+                }
+
+                ents.push(entity);
+            }
+            else
+                ents.splice(ents.indexOf(entity), 1);
+
+            if (ents.length == 0)
+            {
                 this.confirmDelete = false;
+                this.selectedEntity = null;
+            }
+            else
+                this.selectedEntity = ents[ents.length - 1];
         }
 
         /**
@@ -174,6 +196,7 @@
             this.errorMsg = "";
             this.loading = true;
             this.selectedEntities.splice(0, this.selectedEntities.length);
+            this.selectedEntity = null;
             var index = this.index;
             var limit = this.limit;
             var command = "";

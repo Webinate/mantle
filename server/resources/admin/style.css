@@ -795,6 +795,40 @@ form .category-buttons .nav-button {
     height: 100%;
     text-align: center;
 }
+.panel-view {
+    height:100%;
+    overflow:auto;
+}
+.media .panel-view.left.expanded{
+    width:75%;
+}
+.media .panel-view.right.expanded{
+    width:25%;
+}
+.file-info {
+    height:100%;
+    background: #fff;
+    box-sizing:border-box;
+    padding:20px;
+    overflow: auto;
+}
+.file-info h2 {
+    margin: 0 0 20px 0;
+}
+.file-info div {
+    font-size:20px;
+    margin: 10px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.file-info div img {
+    vertical-align:middle;
+    margin: 0 10px 0 0;
+}
+.view-details {
+    margin: 0 15px 0 0;
+}
 /**
 ======================================================
 				CSS MODULE DEFINITIONS
