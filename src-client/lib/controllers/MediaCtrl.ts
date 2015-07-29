@@ -16,6 +16,7 @@
         public confirmDelete: boolean;
         public editMode: boolean;
         public multiSelect: boolean;
+        public editFileMode: boolean;
 
         // $inject annotation.
         public static $inject = ["$scope", "$http", "mediaURL", "Upload"];
@@ -33,6 +34,7 @@
             this.updatePageContent();
             this.selectedEntity = null;
             this.multiSelect = true;
+            this.editFileMode = false;
         }
 
         upload(files)
@@ -151,6 +153,31 @@
                     that.updatePageContent();
 
                 that.loading = false;
+            });
+        }
+
+        /**
+        * Attempts to rename a file
+        */
+        renameFile(file: UsersInterface.IFileEntry)
+        {
+            var that = this;
+            that.error = false;
+            that.errorMsg = "";
+            that.loading = true;
+
+            that.http.put<UsersInterface.IResponse>(`${that.mediaURL}/rename-file/${file.identifier}`, { name: $("#file-name").val() }).then(function (token)
+            {
+                if (token.data.error)
+                {
+                    that.error = true;
+                    that.errorMsg = token.data.message;
+                    return
+                }
+
+                file.name = $("#file-name").val();
+                that.loading = false;
+                that.editFileMode = false;
             });
         }
 

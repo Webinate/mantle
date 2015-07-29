@@ -763,6 +763,7 @@ form .category-buttons .nav-button {
     padding:10px;
     font-size:16px;
     box-sizing: border-box;
+    overflow: hidden;
 }
 .folder .icon {
     width:32px;
@@ -828,6 +829,16 @@ form .category-buttons .nav-button {
 }
 .view-details {
     margin: 0 15px 0 0;
+}
+.file-info .file-edit {
+    overflow: initial;
+    margin: 10px 0;
+}
+.file-info input {
+    padding: 5px;
+}
+.file-info .button {
+    vertical-align:middle;
 }
 /**
 ======================================================
@@ -934,6 +945,9 @@ form input[type="text"].ng-valid.ng-dirty, form input[type="password"].ng-valid.
 }
 .nav-button {
 	text-decoration: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 .nav-button a {
 	color:#325D98;

@@ -335,6 +335,7 @@ var clientAdmin;
             this.updatePageContent();
             this.selectedEntity = null;
             this.multiSelect = true;
+            this.editFileMode = false;
         }
         MediaCtrl.prototype.upload = function (files) {
             var that = this;
@@ -421,6 +422,25 @@ var clientAdmin;
                 else
                     that.updatePageContent();
                 that.loading = false;
+            });
+        };
+        /**
+        * Attempts to rename a file
+        */
+        MediaCtrl.prototype.renameFile = function (file) {
+            var that = this;
+            that.error = false;
+            that.errorMsg = "";
+            that.loading = true;
+            that.http.put(that.mediaURL + "/rename-file/" + file.identifier, { name: $("#file-name").val() }).then(function (token) {
+                if (token.data.error) {
+                    that.error = true;
+                    that.errorMsg = token.data.message;
+                    return;
+                }
+                file.name = $("#file-name").val();
+                that.loading = false;
+                that.editFileMode = false;
             });
         };
         /**

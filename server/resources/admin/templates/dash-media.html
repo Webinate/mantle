@@ -12,7 +12,7 @@
 		
 		<div class="button blue" ng-click="mediaController.folderFormVisible = !mediaController.folderFormVisible" ng-show="!mediaController.selectedFolder">New Folder</div>
 		<div class="button blue" ngf-select ngf-multiple="true" ngf-change="mediaController.upload($files)" ng-show="mediaController.selectedFolder"><div class="cross"></div>Upload File</div>
-		<div ng-if="controller" ng-show="mediaController.selectedFolder && mediaController.selectedEntity" class="button green" ng-click="controller.selectFile(mediaController.selectedEntities[0])">Select File</div>
+		<div ng-if="controller" ng-show="mediaController.selectedFolder && mediaController.selectedEntity" class="button green" ng-click="controller.selectFile(mediaController.selectedEntity)">Select File</div>
 		<div class="nav-button right red-highlight" ng-show="mediaController.selectedEntity && !mediaController.loading"><a ng-click="mediaController.confirmDelete = !mediaController.confirmDelete">Remove</a></div>
 		<div class="nav-button right view-details" ng-show="mediaController.selectedEntity && !mediaController.loading && mediaController.selectedFolder"><a ng-click="mediaController.editMode = !mediaController.editMode">View Details</a></div>
 		<div class="fix"></div>
@@ -23,12 +23,15 @@
 	<div class="content-page">
 		<div class="right panel-view expanded" ng-if="mediaController.editMode && mediaController.selectedEntity && mediaController.selectedFolder">
 			<div class="file-info">
-				<h2>{{mediaController.selectedEntity.name}}</h2>
+				<h2 ng-if="!mediaController.editFileMode">{{mediaController.selectedEntity.name}}</h2>
+				<input ng-if="mediaController.editFileMode" type="text" id="file-name" value="{{mediaController.selectedEntity.name}}" />
 				<div title="ID"><img  src="/admin/media/images/file-info-id.jpg" />{{mediaController.selectedEntity.identifier}}</div>
 				<div title="Created On"><img  src="/admin/media/images/file-info-clock.jpg" />{{mediaController.selectedEntity.created | date:"MM/dd/yyyy 'at' h:mma"}}</div>
 				<div title="Size"><img  src="/admin/media/images/file-info-size.jpg" />{{mediaController.selectedEntity.size | bytes}}</div>
 				<div title="Mime Type"><img  src="/admin/media/images/file-info-mime.jpg" />{{mediaController.selectedEntity.mimeType}}</div>
 				<div title="Num Downloads"><img  src="/admin/media/images/file-info-downloads.jpg" />{{mediaController.selectedEntity.numDownloads}}</div>
+				<div ng-if="mediaController.editFileMode && !mediaController.loading" class="button green" ng-click="mediaController.renameFile(mediaController.selectedEntity)">Update</div>
+				<div class="nav-button file-edit"><a ng-click="mediaController.editFileMode = !mediaController.editFileMode">{{ (!mediaController.editFileMode ? "Edit" : "Cancel") }}</a></div>
 			</div>
 		</div>
 		<div class="left panel-view" ng-class="{ expanded : mediaController.editMode && mediaController.selectedEntity && mediaController.selectedFolder }">
