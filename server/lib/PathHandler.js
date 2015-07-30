@@ -22,7 +22,7 @@ var PathHandler = (function () {
     PathHandler.prototype.handle = function (req, res) {
         var config = this._config;
         var path = this._path;
-        var requestIsSecure = req.connection.encrypted;
+        var requestIsSecure = (req.connection.encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         var url = (requestIsSecure ? "https" : "http") + "://" + config.host;
         var usersURL = "" + config.usersURL;
         // Give priority to template routes

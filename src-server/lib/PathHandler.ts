@@ -33,7 +33,7 @@ export class PathHandler
         var config = this._config;
         var path = this._path;
 
-        var requestIsSecure = (<any>req.connection).encrypted;
+        var requestIsSecure = ((<any>req.connection).encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         var url = `${(requestIsSecure ? "https" : "http") }://${config.host}`;
         var usersURL = `${config.usersURL}`;
 
