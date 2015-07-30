@@ -90,7 +90,7 @@ MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, co
     }
     // Send the jade index file
     app.get("(" + config.adminURL + "|" + config.adminURL + "/*)", function (req, res) {
-        var requestIsSecure = req.connection.encrypted;
+        var requestIsSecure = (req.connection.encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         // Get the base URL's
         var url = (requestIsSecure ? "https" : "http") + "://" + config.host;
         var usersURL = "" + config.usersURL;
