@@ -53,9 +53,11 @@
         identifier?: string;
         bucketId?: string;
         bucketName?: string;
+        publicURL?: string;
         created?: number;
         size?: number;
         mimeType?: string;
+        isPublic?: boolean;
         numDownloads?: number;
     }
     

@@ -25,6 +25,7 @@
 			<div class="file-info" ng-show="mediaController.selectedEntity">
 				<h2 ng-if="!mediaController.editFileMode">{{mediaController.selectedEntity.name}}</h2>
 				<input ng-if="mediaController.editFileMode" type="text" id="file-name" value="{{mediaController.selectedEntity.name}}" />
+				<input ng-if="!mediaController.editFileMode" type="text" value="{{mediaController.selectedEntity.publicURL}}" />
 				<div title="ID"><img  src="/admin/media/images/file-info-id.jpg" />{{mediaController.selectedEntity.identifier}}</div>
 				<div title="Created On"><img  src="/admin/media/images/file-info-clock.jpg" />{{mediaController.selectedEntity.created | date:"MM/dd/yyyy 'at' h:mma"}}</div>
 				<div title="Size"><img  src="/admin/media/images/file-info-size.jpg" />{{mediaController.selectedEntity.size | bytes}}</div>
@@ -65,9 +66,9 @@
 					<div class="file unselectable" ng-click="mediaController.selectEntity(file)" ng-repeat="file in mediaController.entries" ng-class="{ selected : file.selected }">
 
 						<div class="file-preview" ng-switch on="file.mimeType">
-							<div class="background-tiles inner" ng-switch-when="image/jpeg"><div class="div-center"></div><img src="{{mediaController.mediaURL + '/download/' + file.identifier}}" /></div>
-							<div class="background-tiles inner" ng-switch-when="image/png"><div class="div-center"></div><img src="{{mediaController.mediaURL + '/download/' + file.identifier}}" /></div>
-							<div class="background-tiles inner" ng-switch-when="image/gif"><div class="div-center"></div><img src="{{mediaController.mediaURL + '/download/' + file.identifier}}" /></div>
+							<div class="background-tiles inner" ng-switch-when="image/jpeg"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
+							<div class="background-tiles inner" ng-switch-when="image/png"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
+							<div class="background-tiles inner" ng-switch-when="image/gif"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
 							<div class="background-tiles inner" ng-switch-default><div class="div-center"></div><img src="/admin/media/images/standard-file.png"></div>
 						</div>
 						<div class="file-name">{{file.name}}</div>
