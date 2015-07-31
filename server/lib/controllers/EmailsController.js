@@ -7,7 +7,7 @@ var __extends = this.__extends || function (d, b) {
 var express = require("express");
 var controllerModule = require("./Controller");
 var bodyParser = require('body-parser');
-var nodemailer = require('nodemailer');
+var request = require("request");
 var EmailsController = (function (_super) {
     __extends(EmailsController, _super);
     /**
@@ -19,12 +19,9 @@ var EmailsController = (function (_super) {
     * @param {string} serviceUser The email service user name eg "user@gmail.com"
     * @param {string} servicePassword The email service password
     */
-    function EmailsController(e, adminEmail, from, service, serviceUser, servicePassword) {
-        if (from === void 0) { from = ""; }
-        if (service === void 0) { service = "Gmail"; }
-        if (serviceUser === void 0) { serviceUser = ""; }
-        if (servicePassword === void 0) { servicePassword = ""; }
+    function EmailsController(e, usersURL) {
         _super.call(this, null);
+        this._usersURL = usersURL + "/users";
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
@@ -33,17 +30,6 @@ var EmailsController = (function (_super) {
         router.post("/", this.onPost.bind(this));
         // Register the path
         e.use("/api/message-admin", router);
-        this._from = from;
-        this._adminEmail = adminEmail;
-        // Create the transport object which will be sending the emails
-        if (service != "" && serviceUser != "" && servicePassword != "")
-            this._transport = nodemailer.createTransport({
-                service: service,
-                auth: {
-                    user: serviceUser,
-                    pass: servicePassword
-                }
-            });
     }
     /**
     * Called whenever a post request is caught by this controller
@@ -54,36 +40,11 @@ var EmailsController = (function (_super) {
     EmailsController.prototype.onPost = function (req, res, next) {
         // Set the content type
         res.setHeader('Content-Type', 'application/json');
-        if (!this._transport) {
-            return res.end(JSON.stringify({
-                message: "There is no email service set for this website",
-                error: true
-            }));
-        }
-        var message = "Hello admin,\n\t\t\tWe have received a message from " + req.body.name + ":\n\n\t\t\t" + req.body.message + "\n\t\t\t\n\t\t\tEmail: " + req.body.email + "\n\t\t\tPhone: " + req.body.phone + "\n\t\t\tWebsite: " + req.body.website + "\n\t\t";
-        var adminEmail = this._adminEmail;
-        // setup e-mail data with unicode symbols
-        var mailOptions = {
-            from: this._from,
-            to: adminEmail,
-            subject: "Webinate Message",
-            text: message,
-            html: message.replace(/(?:\r\n|\r|\n)/g, '<br />')
-        };
-        // send mail with defined transport object
-        this._transport.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                res.end(JSON.stringify({
-                    message: "We could not send an email to the admin at " + adminEmail + ". Error: " + error.message,
-                    error: true
-                }));
-            }
-            else {
-                res.end(JSON.stringify({
-                    message: "Thank you for email " + req.body.name + ", we'll get in touch as soon as we can",
-                    error: false
-                }));
-            }
+        var message = "Hello admin,\n\t\t\tWe have received a message from " + req.body.name + ":\n\n\t\t\t" + req.body.message + "\n\n\t\t\tEmail: " + req.body.email + "\n\t\t\tPhone: " + req.body.phone + "\n\t\t\tWebsite: " + req.body.website + "\n\t\t";
+        request.post(this._usersURL + "/message-webmaster", { form: { message: message } }, function (error, response, body) {
+            if (error)
+                return res.end(JSON.stringify({ message: error.toString(), error: true }));
+            res.end(body);
         });
     };
     return EmailsController;

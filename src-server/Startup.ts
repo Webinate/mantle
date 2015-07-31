@@ -110,8 +110,7 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
     // Create each of your controllers here
     var controllerPromises: Array<Promise<any>> = [];
     var controllers: Array<Controller> = [
-        new EmailsController(app, config.emailAdmin, config.emailFrom,
-            config.emailService, config.emailServiceUser, config.emailServicePassword),
+        new EmailsController(app, config.usersURL),
         new PostsController(app)
     ];
 

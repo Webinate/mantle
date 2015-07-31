@@ -125,48 +125,4 @@ export interface IServerConfig
     * An array of IPath objects that define routes and where they go to
     */
     paths: Array<IPath>
-
-	/**
-	* The email of the admin account
-	*/
-	emailAdmin: string;
-
-	/**
-	* The 'from' email when notifying users
-	*/
-	emailFrom: string;
-
-	/**
-	* Email service we are using to send mail. For example 'Gmail'
-	*/
-	emailService: string;
-
-	/**
-	* The email address / username of the service
-	*/
-	emailServiceUser: string;
-
-	/**
-	* The password of the email service
-	*/
-	emailServicePassword: string;
-
-	/**
-	* The private key to use for Google captcha 
-	* Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
-	*/
-	captchaPrivateKey: string;
-
-	/**
-	* The public key to use for Google captcha 
-	* Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
-	*/
-	captchaPublicKey: string;
-
-	/**
-	* This is the relative URL that the registration link sends to the user when clicking to activate their account.
-	* An example might be 'api/activate-account'
-	* This will be sent out as http(s)://HOST:PORT/activationURL?[Additional details]
-	*/
-	activationURL: string;
 }

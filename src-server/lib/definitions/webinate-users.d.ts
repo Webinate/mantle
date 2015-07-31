@@ -214,19 +214,7 @@
         * The default length of user sessions in seconds
         */
         sessionLifetime?: number;
-
-        /**
-        * The private key to use for Google captcha 
-        * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
-        */
-        captchaPrivateKey: string;
-
-        /**
-        * The public key to use for Google captcha 
-        * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
-        */
-        captchaPublicKey: string;
-	
+        	
         /**
         * The email of the admin account
         */

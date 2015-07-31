@@ -80,7 +80,7 @@ MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, co
     // Create each of your controllers here
     var controllerPromises = [];
     var controllers = [
-        new EmailsController_1.EmailsController(app, config.emailAdmin, config.emailFrom, config.emailService, config.emailServiceUser, config.emailServicePassword),
+        new EmailsController_1.EmailsController(app, config.usersURL),
         new PostsController_1.PostsController(app)
     ];
     // If we have a modepress url, then use that 

@@ -24,16 +24,7 @@ var UsersService = (function () {
                 console.log("User data returned");
                 if (error)
                     return reject(error);
-					
-				try
-				{
-					var token = JSON.parse(body);
-				}
-				catch(err)
-				{
-					return reject(new Error(err.toString()));
-				}
-				
+                var token = JSON.parse(body);
                 if (token.error)
                     return reject(new Error(token.message));
                 resolve(token);
