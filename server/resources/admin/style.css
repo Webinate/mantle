@@ -763,6 +763,7 @@ form .category-buttons .nav-button {
     padding:10px;
     font-size:16px;
     box-sizing: border-box;
+    overflow: hidden;
 }
 .folder .icon {
     width:32px;
@@ -794,6 +795,53 @@ form .category-buttons .nav-button {
     width: 100%;
     height: 100%;
     text-align: center;
+}
+.panel-view {
+    height:100%;
+    overflow:auto;
+}
+.media .panel-view.left {
+    width:100%;
+}
+.media .panel-view.left.expanded{
+    width:75%;
+}
+.media .panel-view.right.expanded{
+    width:25%;
+}
+.file-info {
+    height:100%;
+    background: #fff;
+    box-sizing:border-box;
+    padding:20px;
+    overflow: auto;
+}
+.file-info h2 {
+    margin: 0 0 20px 0;
+}
+.file-info div {
+    font-size:20px;
+    margin: 10px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.file-info div img {
+    vertical-align:middle;
+    margin: 0 10px 0 0;
+}
+.view-details {
+    margin: 0 15px 0 0;
+}
+.file-info .file-edit {
+    overflow: initial;
+    margin: 10px 0;
+}
+.file-info input {
+    padding: 5px;
+}
+.file-info .button {
+    vertical-align:middle;
 }
 /**
 ======================================================
@@ -900,6 +948,9 @@ form input[type="text"].ng-valid.ng-dirty, form input[type="password"].ng-valid.
 }
 .nav-button {
 	text-decoration: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 .nav-button a {
 	color:#325D98;

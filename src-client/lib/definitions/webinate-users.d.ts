@@ -48,13 +48,16 @@
     export interface IFileEntry
     {
         _id?: any;
+        name?: string;
         user?: string;
         identifier?: string;
         bucketId?: string;
         bucketName?: string;
+        publicURL?: string;
         created?: number;
         size?: number;
         mimeType?: string;
+        isPublic?: boolean;
         numDownloads?: number;
     }
     

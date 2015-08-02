@@ -150,31 +150,6 @@ export class PostsController extends Controller
         // Stephen is lovely
         if (findToken.$or.length == 0)
             delete findToken.$or;
-
-        //Promise.all<any>([
-        //    posts.count(findToken),
-        //    posts.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined))
-
-        //]).then(function(data)
-        //{
-        //    count = data[0];
-        //    var instances = data[1];
-
-        //    var sanitizedData: Array<modepress.IPost> = that.getSanitizedData(instances, Boolean(req.query.verbose));
-        //    res.end(JSON.stringify(<modepress.IGetPosts>{
-        //        error: false,
-        //        count: count,
-        //        message: `Found ${count} posts`,
-        //        data: sanitizedData
-        //    }));
-
-        //}).catch(function (error: Error)
-        //{
-        //    res.end(JSON.stringify(<modepress.IResponse>{
-        //        error: true,
-        //        message: error.message
-        //    }));
-        //});
         
         // First get the count
         posts.count(findToken).then(function (num)

@@ -9,7 +9,7 @@ export class PostsModel extends Model
 
         this.defaultSchema.add(new text("author", "", 1));
         this.defaultSchema.add(new text("title", "", 1));
-        this.defaultSchema.add(new text("slug", "", 1, 20)).unique(true);
+        this.defaultSchema.add(new text("slug", "", 1, 512)).unique(true);
         this.defaultSchema.add(new text("brief", ""));
         this.defaultSchema.add(new text("featuredImage", ""));
         this.defaultSchema.add(new text("content", ""));

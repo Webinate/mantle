@@ -9,57 +9,78 @@
     <h>Media<img ng-show="mediaController.loading" src="/admin/media/images/loader.gif" /></h>
 	<div class="nav-button right" ng-if="controller"><a ng-click="controller.closeMediaBrowser()">Close X</a></div>
 	<div class="console">
+		
 		<div class="button blue" ng-click="mediaController.folderFormVisible = !mediaController.folderFormVisible" ng-show="!mediaController.selectedFolder">New Folder</div>
 		<div class="button blue" ngf-select ngf-multiple="true" ngf-change="mediaController.upload($files)" ng-show="mediaController.selectedFolder"><div class="cross"></div>Upload File</div>
-		<div ng-if="controller" ng-show="mediaController.selectedFolder && mediaController.selectedEntities.length != 0" class="button green" ng-click="controller.selectFile(mediaController.selectedEntities[0])">Select File</div>
-		<div class="nav-button right red-highlight" ng-show="mediaController.selectedEntities.length != 0 && !mediaController.loading"><a ng-click="mediaController.confirmDelete = !mediaController.confirmDelete">Remove</a></div>
+		<div ng-if="controller" ng-show="mediaController.selectedFolder && mediaController.selectedEntity" class="button green" ng-click="controller.selectFile(mediaController.selectedEntity)">Select File</div>
+		<div class="nav-button right red-highlight" ng-show="mediaController.selectedEntity && !mediaController.loading"><a ng-click="mediaController.confirmDelete = !mediaController.confirmDelete">Remove</a></div>
+		<div class="nav-button right view-details" ng-show="mediaController.selectedEntity && !mediaController.loading && mediaController.selectedFolder"><a ng-click="mediaController.editMode = !mediaController.editMode">View Details</a></div>
 		<div class="fix"></div>
 	</div>
 </div>
 
 <div class="media content-view">
 	<div class="content-page">
-
-		<div class="user-confirmation animated-panel animate-show" ng-show="mediaController.confirmDelete">
-			<div>Are you sure you want to delete these {{mediaController.selectedFolder ? "file": "folder" }}s</div>
-			<div class="button red" ng-click="mediaController.removeEntities()">Yes</div>
-			<div class="button red" ng-click="mediaController.confirmDelete=false">No</div>
+		<div class="right panel-view expanded" ng-if="mediaController.editMode && mediaController.selectedFolder">
+			<div class="file-info" ng-show="mediaController.selectedEntity">
+				<h2 ng-if="!mediaController.editFileMode">{{mediaController.selectedEntity.name}}</h2>
+				<input ng-if="mediaController.editFileMode" type="text" id="file-name" value="{{mediaController.selectedEntity.name}}" />
+				<input ng-if="!mediaController.editFileMode" type="text" value="{{mediaController.selectedEntity.publicURL}}" />
+				<div title="ID"><img  src="/admin/media/images/file-info-id.jpg" />{{mediaController.selectedEntity.identifier}}</div>
+				<div title="Created On"><img  src="/admin/media/images/file-info-clock.jpg" />{{mediaController.selectedEntity.created | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+				<div title="Size"><img  src="/admin/media/images/file-info-size.jpg" />{{mediaController.selectedEntity.size | bytes}}</div>
+				<div title="Mime Type"><img  src="/admin/media/images/file-info-mime.jpg" />{{mediaController.selectedEntity.mimeType}}</div>
+				<div title="Num Downloads"><img  src="/admin/media/images/file-info-downloads.jpg" />{{mediaController.selectedEntity.numDownloads}}</div>
+				<div ng-if="mediaController.editFileMode && !mediaController.loading" class="button green" ng-click="mediaController.renameFile(mediaController.selectedEntity)">Update</div>
+				<div class="nav-button file-edit"><a ng-click="mediaController.editFileMode = !mediaController.editFileMode">{{ (!mediaController.editFileMode ? "Edit" : "Cancel") }}</a></div>
+			</div>
 		</div>
+		<div class="left panel-view" ng-class="{ expanded : mediaController.editMode && mediaController.selectedFolder }">
+			<div class="user-confirmation animated-panel animate-show" ng-show="mediaController.confirmDelete">
+				<div>Are you sure you want to delete these {{mediaController.selectedFolder ? "file": "folder" }}s</div>
+				<div class="button red" ng-click="mediaController.removeEntities()">Yes</div>
+				<div class="button red" ng-click="mediaController.confirmDelete=false">No</div>
+			</div>
 
-		<div class="folder-options animated-panel" ng-show="mediaController.folderFormVisible">
-			<div class="filter-group">
-				<div class="label">Folder Name:</div>
-				<div class="new-folder">
-					<input id="new-folder" type="text" />
-					<div class="button green" ng-click="mediaController.newFolder()" ng-show="!mediaController.loading"><div class="cross"></div>Add</div>
+			<div class="folder-options animated-panel" ng-show="mediaController.folderFormVisible">
+				<div class="filter-group">
+					<div class="label">Folder Name:</div>
+					<div class="new-folder">
+						<input id="new-folder" type="text" />
+						<div class="button green" ng-click="mediaController.newFolder()" ng-show="!mediaController.loading"><div class="cross"></div>Add</div>
+					</div>
+				</div>
+				<div class="fix"></div>
+			</div>
+			<div class="drive">
+				<div class="folders" ng-if="!mediaController.selectedFolder">
+					<div class="folder unselectable" ng-dblclick="mediaController.openFolder(folder)" ng-click="mediaController.selectEntity(folder)" ng-repeat="folder in mediaController.entries" ng-class="{ selected : folder.selected }">
+						<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>{{folder.name}}
+					</div>
+				</div>
+				<div class="files" ng-if="mediaController.selectedFolder">
+					<div class="folder unselectable" ng-dblclick="mediaController.openFolder()">
+						<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>.. {{mediaController.selectedFolder.name}}
+					</div>
+					<div class="fix"></div>
+					<div class="file unselectable" ng-click="mediaController.selectEntity(file)" ng-repeat="file in mediaController.entries" ng-class="{ selected : file.selected }">
+
+						<div class="file-preview" ng-switch on="file.mimeType">
+							<div class="background-tiles inner" ng-switch-when="image/jpeg"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
+							<div class="background-tiles inner" ng-switch-when="image/png"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
+							<div class="background-tiles inner" ng-switch-when="image/gif"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
+							<div class="background-tiles inner" ng-switch-default><div class="div-center"></div><img src="/admin/media/images/standard-file.png"></div>
+						</div>
+						<div class="file-name">{{file.name}}</div>
+					</div>
 				</div>
 			</div>
 			<div class="fix"></div>
 		</div>
-		<div class="drive">
-			<div class="folders" ng-if="!mediaController.selectedFolder">
-				<div class="folder unselectable" ng-dblclick="mediaController.openFolder(folder)" ng-click="mediaController.selectEntity(folder)" ng-repeat="folder in mediaController.entries" ng-class="{ selected : folder.selected }">
-					<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>{{folder.name}}
-				</div>
-			</div>
-			<div class="files" ng-if="mediaController.selectedFolder">
-				<div class="folder unselectable" ng-dblclick="mediaController.openFolder()">
-					<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>.. {{mediaController.selectedFolder.name}}
-				</div>
-				<div class="fix"></div>
-				<div class="file unselectable" ng-click="mediaController.selectEntity(file)" ng-repeat="file in mediaController.entries" ng-class="{ selected : file.selected }">
+		
+		
 
-					<div class="file-preview" ng-switch on="file.mimeType">
-						<div class="background-tiles inner" ng-switch-when="image/jpeg"><div class="div-center"></div><img src="{{mediaController.mediaURL + '/download/' + file.identifier}}" /></div>
-						<div class="background-tiles inner" ng-switch-when="image/png"><div class="div-center"></div><img src="{{mediaController.mediaURL + '/download/' + file.identifier}}" /></div>
-						<div class="background-tiles inner" ng-switch-when="image/gif"><div class="div-center"></div><img src="{{mediaController.mediaURL + '/download/' + file.identifier}}" /></div>
-						<div class="background-tiles inner" ng-switch-default><div class="div-center"></div><img src="/admin/media/images/standard-file.png"></div>
-					</div>
-					<div class="file-name">{{file.name}}</div>
-				</div>
-			</div>
-		</div>
-		<div class="fix"></div>
+		
 	</div>
 	<div class="navigation">
 		<div class="back column">
