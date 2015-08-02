@@ -1,6 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import * as http from "http";
-import {IServerConfig} from "../Config";
+import {IConfig} from "../Config";
 import * as winston from "winston";
 import * as express from "express";
 import * as bodyParser from "body-parser";
@@ -13,9 +13,14 @@ import * as net from "net";
 * Sets up a prerender server and saves the rendered html requests to mongodb.
 * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
 */
-export class PageRenderer extends Controller
+export default class PageRenderer extends Controller
 {
-    constructor(config: IServerConfig, e: express.Express )
+    /**
+	* Creates a new instance of the email controller
+	* @param {IConfig} config The configuration options
+    * @param {express.Express} e The express instance of this server	
+	*/
+    constructor(config: IConfig, e: express.Express)
     {
         super([new RendersModel()]);
         

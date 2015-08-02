@@ -7,7 +7,7 @@ import * as request from "request"
 export class UsersService
 {
     private static _singleton: UsersService;
-    private _usersURL: string;
+    public static usersURL: string;
 
     /**
 	* Creates an instance of the service
@@ -15,7 +15,27 @@ export class UsersService
 	*/
     constructor( usersURL : string )
     {
-        this._usersURL = usersURL + "/users";
+        UsersService.usersURL = usersURL + "/users";
+    }
+
+    /**
+	* Sends an email to the admin account
+	* @param {string} message The message to send
+	* @returns {Promise<any>}
+	*/
+    sendAdminEmail(message: string): Promise<any>
+    {
+        var that = this;
+        return new Promise(function(resolve, reject) 
+        {
+            request.post(`${UsersService.usersURL}/message-webmaster`, { form: { message: message } }, function (error, response, body)
+            {
+                if (error)
+                    return reject(error);
+
+                resolve(body);
+            });
+        });
     }
 
     /**
@@ -30,7 +50,7 @@ export class UsersService
         return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject)
         {
             console.log("Getting user data");
-            request.get(`${that._usersURL}/authenticated`, { headers: { cookie : (<any>req).headers.cookie } }, function (error, response, body)
+            request.get(`${UsersService.usersURL}/authenticated`, { headers: { cookie : (<any>req).headers.cookie } }, function (error, response, body)
             {
                 console.log("User data returned");
                 if (error)

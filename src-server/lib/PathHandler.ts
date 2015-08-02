@@ -1,6 +1,7 @@
-﻿import {IServerConfig, IPath} from "./Config";
+﻿import {IServer, IPath} from "./Config";
 import * as express from "express";
 import * as fs from "fs";
+import {UsersService} from "./UsersService";
 
 /**
 * A simple wrapper that holds information on each path the server can respond to.
@@ -10,14 +11,14 @@ import * as fs from "fs";
 export class PathHandler
 {
     private _path: IPath;
-    private _config: IServerConfig;
+    private _config: IServer;
 
     /**
     * Creates a new path handler
     * @param {IPath}
-    * @param {ServerConfig}
+    * @param {IServer}
     */
-    constructor(path: IPath, cfg: IServerConfig)
+    constructor(path: IPath, cfg: IServer)
     {
         this._path = path;
         this._config = cfg;
@@ -35,7 +36,7 @@ export class PathHandler
 
         var requestIsSecure = ((<any>req.connection).encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         var url = `${(requestIsSecure ? "https" : "http") }://${config.host}`;
-        var usersURL = `${config.usersURL}`;
+        var usersURL = `${UsersService.usersURL}`;
 
         // Give priority to template routes
         if (path.templatePath && path.templatePath != "" && fs.existsSync(`${path.templatePath}/${path.index}.jade`))

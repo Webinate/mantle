@@ -1,5 +1,83 @@
 ﻿import * as fs from "fs";
 import * as winston from "winston";
+import * as mongodb from "mongodb";
+import * as express from "express";
+
+export interface IController
+{
+    path: string;    
+}
+
+/**
+* Defines routes and the paths of a host / port
+*/
+export interface IServer
+{
+    /**
+   * The host we listening for
+   */
+    host: string;
+
+    /**
+	* The length of time the assets should be cached on a user's browser. The default is 30 days.
+	*/
+    cacheLifetime: number;
+
+    /**
+	* The port number of the host
+	*/
+    portHTTP: number;
+    
+    /**
+	* An array of folder paths that can be used to fetch static content
+	*/
+    staticFilesFolder: Array<string>;
+    
+    /**
+	* Set to true if you want SSL turned on
+	*/
+    ssl: boolean;
+
+    /**
+    * The port number to use for SSL. Only applicable if ssl is true.
+    */
+    portHTTPS: number;
+
+    /**
+	* The path of the SSL private key. Only applicable if ssl is true.
+	*/
+    sslKey: string;
+
+    /**
+	* The path of the SSL certificate file (usually provided by a third vendor). Only applicable if ssl is true.
+	*/
+    sslCert: string;
+
+    /**
+	* The path of the SSL root file (usually provided by a third vendor). Only applicable if ssl is true.
+	*/
+    sslRoot: string;
+
+    /**
+	* The path of the SSL intermediate/link file (usually provided by a third vendor). Only applicable if ssl is true.
+	*/
+    sslIntermediate: string;
+
+    /**
+	* The password to use for the SSL (optional). Only applicable if ssl is true.
+	*/
+    sslPassPhrase: string;
+        
+    /**
+    * An array of IPath objects that define routes and where they go to
+    */
+    paths: Array<IPath>
+
+    /**
+    * An array of controllers associated with this server
+    */
+    controllers: Array<IController>
+}
 
 /**
 * Defines routes and the paths they take
@@ -33,7 +111,7 @@ export interface IPath
 /** 
 * A server configuration
 */
-export interface IServerConfig
+export interface IConfig
 {
     /**
 	* The host we listening for
@@ -124,5 +202,15 @@ export interface IServerConfig
     /**
     * An array of IPath objects that define routes and where they go to
     */
-    paths: Array<IPath>
+    paths: Array<IPath>;
+
+    /**
+    * An array of servers for each host / route that modepress is supporting
+    */
+    servers: Array<IServer>;
+
+    /**
+    * An array of controllers associated with this server
+    */
+    controllers: Array<IController>
 }

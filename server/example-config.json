@@ -1,29 +1,33 @@
 [
   {
-    "name": "local",
-    "host": "localhost",
     "modepressRenderURL": "",
-    "portHTTP": 80,
     "rendererPort": 3000,
     "cacheLifetime": 2592000000,
     "databaseHost": "127.0.0.1",
     "databasePort": 27017,
     "databaseName": "modepress",
-    "staticFilesFolder": [ ],
     "usersURL": "",
     "adminURL": "/admin",
-    "ssl": false,
-    "sslKey": "",
-    "sslCert": "",
-    "sslRoot": "",
-    "sslIntermediate": "",
-    "paths": [
+    "servers": [
       {
-        "name": "default",
-        "path": "*",
-        "templatePath": "",
-        "index": "",
-        "template": ""
+        "host": "localhost",
+        "portHTTP": 80,
+        "staticFilesFolder": [ ],
+        "ssl": false,
+        "sslKey": "",
+        "sslCert": "",
+        "sslRoot": "",
+        "sslIntermediate": "",
+        "controllers": [ ],
+        "paths": [
+          {
+            "name": "default",
+            "path": "*",
+            "templatePath": "",
+            "index": "",
+            "template": ""
+          }
+        ]
       }
     ]
   }

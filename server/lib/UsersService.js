@@ -8,8 +8,23 @@ var UsersService = (function () {
     * @param {string} usersURL The URL of the user management service
     */
     function UsersService(usersURL) {
-        this._usersURL = usersURL + "/users";
+        UsersService.usersURL = usersURL + "/users";
     }
+    /**
+    * Sends an email to the admin account
+    * @param {string} message The message to send
+    * @returns {Promise<any>}
+    */
+    UsersService.prototype.sendAdminEmail = function (message) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            request.post(UsersService.usersURL + "/message-webmaster", { form: { message: message } }, function (error, response, body) {
+                if (error)
+                    return reject(error);
+                resolve(body);
+            });
+        });
+    };
     /**
     * Checks if a user is logged in and authenticated
     * @param {express.Request} req
@@ -20,7 +35,7 @@ var UsersService = (function () {
         var that = this;
         return new Promise(function (resolve, reject) {
             console.log("Getting user data");
-            request.get(that._usersURL + "/authenticated", { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+            request.get(UsersService.usersURL + "/authenticated", { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
                 console.log("User data returned");
                 if (error)
                     return reject(error);

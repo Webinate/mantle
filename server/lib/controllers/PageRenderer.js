@@ -16,6 +16,11 @@ var RendersModel_1 = require("../models/RendersModel");
 */
 var PageRenderer = (function (_super) {
     __extends(PageRenderer, _super);
+    /**
+    * Creates a new instance of the email controller
+    * @param {IConfig} config The configuration options
+    * @param {express.Express} e The express instance of this server
+    */
     function PageRenderer(config, e) {
         _super.call(this, [new RendersModel_1.RendersModel()]);
         // Sets up the prerenderer middleware 
@@ -186,4 +191,4 @@ var PageRenderer = (function (_super) {
     };
     return PageRenderer;
 })(Controller_1.Controller);
-exports.PageRenderer = PageRenderer;
+exports.default = PageRenderer;

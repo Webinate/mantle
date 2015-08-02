@@ -1,27 +1,20 @@
 ﻿import express = require("express");
 import controllerModule = require("./Controller");
 import bodyParser = require('body-parser');
-import * as request from "request"
+import {UsersService} from "../UsersService"
+import {IConfig} from "../Config"
 
-export class EmailsController extends controllerModule.Controller
+export default class EmailsController extends controllerModule.Controller
 {
-    private _usersURL: string;
-
 	/**
 	* Creates a new instance of the email controller
-	* @param {express.Express} e The express instance of this server
-	* @param {string} adminEmail The email for the admin of the site
-	* @param {string} from The email we are sending messages from
-	* @param {string} service The email service we are using. Eg: "Gmail"
-	* @param {string} serviceUser The email service user name eg "user@gmail.com"
-	* @param {string} servicePassword The email service password
+	* @param {IConfig} config The configuration options
+    * @param {express.Express} e The express instance of this server	
 	*/
-    constructor(e: express.Express, usersURL: string )
+    constructor(config: IConfig, e: express.Express)
 	{
         super(null);
-
-        this._usersURL = usersURL + "/users";
-
+        
 		var router = express.Router();
 		router.use(bodyParser.urlencoded({ 'extended': true }));
 		router.use(bodyParser.json());
@@ -52,15 +45,15 @@ export class EmailsController extends controllerModule.Controller
 
 			Email: ${(<modepress.IMessage>req.body).email}
 			Phone: ${(<modepress.IMessage>req.body).phone}
-			Website: ${(<modepress.IMessage>req.body).website}
-		`;
+			Website: ${(<modepress.IMessage>req.body).website}`;
 
-        request.post(`${this._usersURL}/message-webmaster`, { form: { message: message } }, function(error, response, body)
+        UsersService.getSingleton().sendAdminEmail(message).then(function(body)
         {
-            if (error)
-                return res.end(JSON.stringify(<UsersInterface.IResponse>{ message: error.toString(),  error: true }));
-            
             res.end(body);
+
+        }).catch(function (err)
+        {
+            return res.end(JSON.stringify(<UsersInterface.IResponse>{ message: err.toString(), error: true }));
         });
 	}
 }
