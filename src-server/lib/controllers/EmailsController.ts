@@ -2,7 +2,7 @@
 import controllerModule = require("./Controller");
 import bodyParser = require('body-parser');
 import {UsersService} from "../UsersService"
-import {IConfig, IServer} from "../Config"
+import {IConfig, IServer} from "../definitions/Config"
 
 export default class EmailsController extends controllerModule.Controller
 {

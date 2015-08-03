@@ -38,7 +38,7 @@
     <TypeScriptCompile Include="lib\definitions\method-override.d.ts" />
     <TypeScriptCompile Include="lib\definitions\morgan.d.ts" />
     <TypeScriptCompile Include="lib\definitions\node.d.ts" />
-    <TypeScriptCompile Include="lib\Config.ts" />
+    <TypeScriptCompile Include="lib\definitions\Config.d.ts" />
     <TypeScriptCompile Include="lib\controllers\Controller.ts" />
     <TypeScriptCompile Include="lib\definitions\recaptcha-async.d.ts" />
     <TypeScriptCompile Include="lib\definitions\request.d.ts" />
