@@ -6,7 +6,7 @@ Both mongo and node must be setup and running before you can run modepress.
 Modepress also requires an instance of webinate-users to be running.
 
 ## Current stable version
-* v0.0.21
+* v0.0.22
 
 ## Requirements
 * MongoDB v3
