@@ -19,10 +19,11 @@ var PostsController = (function (_super) {
     __extends(PostsController, _super);
     /**
     * Creates a new instance of the email controller
+    * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function PostsController(config, e) {
+    function PostsController(server, config, e) {
         _super.call(this, [new PostsModel_1.PostsModel(), new CategoriesModel_1.CategoriesModel()]);
         var router = express.Router();
         router.use(compression());

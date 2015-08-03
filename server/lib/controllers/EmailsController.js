@@ -12,10 +12,11 @@ var EmailsController = (function (_super) {
     __extends(EmailsController, _super);
     /**
     * Creates a new instance of the email controller
+    * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function EmailsController(config, e) {
+    function EmailsController(server, config, e) {
         _super.call(this, null);
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));

@@ -45,7 +45,7 @@ var Server = (function () {
             // Load the controllers
             for (var i = 0, l = server.controllers.length; i < l; i++) {
                 var func = require(server.controllers[i].path);
-                controllers.push(new func.default(config, app));
+                controllers.push(new func.default(server, config, app));
             }
             // Maps the path specified to an HTML or template
             for (var i = 0, l = server.paths.length; i < l; i++) {
@@ -72,7 +72,7 @@ var Server = (function () {
                     process.exit();
                 }
                 if (server.sslKey != "" && !fs.existsSync(server.sslKey)) {
-                    winston.error("Could not find sslIntermediate: '" + config.sslKey + "'", { process: process.pid });
+                    winston.error("Could not find sslIntermediate: '" + server.sslKey + "'", { process: process.pid });
                     process.exit();
                 }
                 var caChain = [fs.readFileSync(server.sslIntermediate), fs.readFileSync(server.sslRoot)];

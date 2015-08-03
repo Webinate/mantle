@@ -114,20 +114,10 @@ export interface IPath
 export interface IConfig
 {
     /**
-	* The host we listening for
-	*/
-    host: string;
-
-    /**
 	* The length of time the assets should be cached on a user's browser. The default is 30 days.
 	*/
     cacheLifetime: number;
-
-    /**
-	* The port number of the host
-	*/
-    portHTTP: number;
-
+    
     /**
 	* [Optional] If set, modepress will communicate with this URL to serve SEO/social friendly renders of your site
     * e.g. "127.0.0.1:3000"
@@ -150,49 +140,9 @@ export interface IConfig
     databasePort: number;
     
     /**
-	* An array of folder paths that can be used to fetch static content
-	*/
-    staticFilesFolder: Array<string>;
-
-    /**
     * The URL of the webinate-users api
     */
     usersURL: string;
-
-    /**
-	* Set to true if you want SSL turned on
-	*/
-    ssl: boolean;
-
-    /**
-    * The port number to use for SSL. Only applicable if ssl is true.
-    */
-    portHTTPS: number;
-
-    /**
-	* The path of the SSL private key. Only applicable if ssl is true.
-	*/
-    sslKey: string;
-
-    /**
-	* The path of the SSL certificate file (usually provided by a third vendor). Only applicable if ssl is true.
-	*/
-    sslCert: string;
-
-    /**
-	* The path of the SSL root file (usually provided by a third vendor). Only applicable if ssl is true.
-	*/
-    sslRoot: string;
-
-    /**
-	* The path of the SSL intermediate/link file (usually provided by a third vendor). Only applicable if ssl is true.
-	*/
-    sslIntermediate: string;
-
-    /**
-	* The password to use for the SSL (optional). Only applicable if ssl is true.
-	*/
-    sslPassPhrase: string;
 
     /**
     * The path to use for accessing the admin panel
@@ -200,17 +150,7 @@ export interface IConfig
     adminURL: string;
     
     /**
-    * An array of IPath objects that define routes and where they go to
-    */
-    paths: Array<IPath>;
-
-    /**
     * An array of servers for each host / route that modepress is supporting
     */
     servers: Array<IServer>;
-
-    /**
-    * An array of controllers associated with this server
-    */
-    controllers: Array<IController>
 }

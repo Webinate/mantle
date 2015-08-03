@@ -2,17 +2,18 @@
 import controllerModule = require("./Controller");
 import bodyParser = require('body-parser');
 import {UsersService} from "../UsersService"
-import {IConfig} from "../Config"
+import {IConfig, IServer} from "../Config"
 
 export default class EmailsController extends controllerModule.Controller
 {
 	/**
 	* Creates a new instance of the email controller
-	* @param {IConfig} config The configuration options
+	* @param {IServer} server The server configuration options
+    * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server	
 	*/
-    constructor(config: IConfig, e: express.Express)
-	{
+    constructor(server: IServer, config: IConfig, e: express.Express)
+    {
         super(null);
         
 		var router = express.Router();

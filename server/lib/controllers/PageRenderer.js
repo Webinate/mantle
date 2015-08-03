@@ -18,10 +18,11 @@ var PageRenderer = (function (_super) {
     __extends(PageRenderer, _super);
     /**
     * Creates a new instance of the email controller
+    * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function PageRenderer(config, e) {
+    function PageRenderer(server, config, e) {
         _super.call(this, [new RendersModel_1.RendersModel()]);
         // Sets up the prerenderer middleware 
         if (config.modepressRenderURL && config.modepressRenderURL.trim() != "")

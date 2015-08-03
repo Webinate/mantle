@@ -77,7 +77,7 @@ export class Server
             for (var i = 0, l: number = server.controllers.length; i < l; i++)
             {
                 var func: any = require(server.controllers[i].path);
-                controllers.push(new func.default(config, app));
+                controllers.push(new func.default(server, config, app));
             }
     
             // Maps the path specified to an HTML or template
@@ -117,7 +117,7 @@ export class Server
 
                 if (server.sslKey != "" && !fs.existsSync(server.sslKey))
                 {
-                    winston.error(`Could not find sslIntermediate: '${config.sslKey}'`, { process: process.pid });
+                    winston.error(`Could not find sslIntermediate: '${server.sslKey}'`, { process: process.pid });
                     process.exit();
                 }
 

@@ -7,7 +7,7 @@ import {Controller} from "./Controller";
 import {PostsModel} from "../models/PostsModel";
 import {CategoriesModel} from "../models/CategoriesModel";
 import {UsersService} from "../UsersService"
-import {IConfig} from "../Config"
+import {IConfig, IServer} from "../Config"
 
 /**
 * A controller that deals with the management of posts
@@ -16,11 +16,12 @@ export default class PostsController extends Controller
 {
 	/**
 	* Creates a new instance of the email controller
-	* @param {IConfig} config The configuration options
+	* @param {IServer} server The server configuration options
+    * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server	
 	*/
-    constructor(config: IConfig, e: express.Express)
-	{
+    constructor(server: IServer, config: IConfig, e: express.Express)
+    {
         super([new PostsModel(), new CategoriesModel()]);
         
         var router = express.Router();
