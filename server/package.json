@@ -18,6 +18,7 @@
     "jade": "~1.10.0",
     "prerender-node": "~1.2.1",
     "yargs": "~3.12.0",
-    "compression": "~1.5.1"
+    "compression": "~1.5.1",
+    "modepress-api": "./modepress-api"
   }
 }

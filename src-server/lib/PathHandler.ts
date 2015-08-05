@@ -1,4 +1,4 @@
-﻿import {IServer, IPath} from "./definitions/Config";
+﻿import {IServer, IPath} from "../custom-definitions/Config";
 import * as express from "express";
 import * as fs from "fs";
 import {UsersService} from "./UsersService";

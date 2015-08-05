@@ -1,6 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import * as http from "http";
-import {IConfig, IServer} from "../definitions/Config";
+import {IConfig, IServer} from "../../custom-definitions/Config";
 import * as winston from "winston";
 import * as express from "express";
 import * as bodyParser from "body-parser";

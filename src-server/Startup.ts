@@ -10,7 +10,7 @@ import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
 import {MongoWrapper} from "./lib/MongoWrapper";
-import {IConfig, IPath} from "./lib/definitions/Config";
+import {IConfig, IPath} from "./custom-definitions/Config";
 import {Controller} from "./lib/controllers/Controller"
 import PostsController from "./lib/controllers/PostsController";
 import EmailsController from "./lib/controllers/EmailsController";
@@ -82,7 +82,7 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
     Promise.all(promises).then(function (e)
     {
         winston.info(`Servers up and runnning`, { process: process.pid });
-
+        
         // Create the readline interface
         var rl = readline.createInterface({
             input: process.stdin,

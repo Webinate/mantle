@@ -1,6 +1,6 @@
 ﻿import {Model, ModelInstance} from "../models/Model";
 import * as mongodb from "mongodb";
-import {IController} from "../definitions/Config";
+import {IController} from "../../custom-definitions/Config";
 
 export class Controller
 {

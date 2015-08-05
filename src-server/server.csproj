@@ -29,6 +29,7 @@
     <TypeScriptCompile Include="lib\definitions\compression.d.ts" />
     <TypeScriptCompile Include="lib\definitions\entities.d.ts" />
     <TypeScriptCompile Include="lib\definitions\form-data.d.ts" />
+    <TypeScriptCompile Include="custom-definitions\modepress-api.d.ts" />
     <TypeScriptCompile Include="lib\definitions\mongodb-write-result.ts" />
     <TypeScriptCompile Include="lib\definitions\nodemailer.d.ts" />
     <TypeScriptCompile Include="lib\definitions\prompt.d.ts" />
@@ -38,7 +39,7 @@
     <TypeScriptCompile Include="lib\definitions\method-override.d.ts" />
     <TypeScriptCompile Include="lib\definitions\morgan.d.ts" />
     <TypeScriptCompile Include="lib\definitions\node.d.ts" />
-    <TypeScriptCompile Include="lib\definitions\Config.d.ts" />
+    <TypeScriptCompile Include="custom-definitions\config.d.ts" />
     <TypeScriptCompile Include="lib\controllers\Controller.ts" />
     <TypeScriptCompile Include="lib\definitions\recaptcha-async.d.ts" />
     <TypeScriptCompile Include="lib\definitions\request.d.ts" />
@@ -60,12 +61,14 @@
     <TypeScriptCompile Include="lib\models\PostsModel.ts" />
     <TypeScriptCompile Include="lib\controllers\PageRenderer.ts" />
     <TypeScriptCompile Include="lib\PathHandler.ts" />
+    <TypeScriptCompile Include="ModepressAPI.ts" />
+    <TypeScriptCompile Include="Plugin.d.ts" />
     <TypeScriptCompile Include="Server.ts" />
     <TypeScriptCompile Include="lib\UsersService.ts" />
-    <TypeScriptCompile Include="main.ts" />
+    <TypeScriptCompile Include="Main.ts" />
     <TypeScriptCompile Include="lib\definitions\mongodb.d.ts" />
     <TypeScriptCompile Include="lib\MongoWrapper.ts" />
-    <TypeScriptCompile Include="modepress.d.ts" />
+    <TypeScriptCompile Include="custom-definitions\modepress.d.ts" />
     <TypeScriptCompile Include="Startup.ts" />
   </ItemGroup>
   <ItemGroup>

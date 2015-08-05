@@ -10,7 +10,7 @@ import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
 import {MongoWrapper} from "./lib/MongoWrapper";
-import {IConfig, IPath, IServer} from "./lib/definitions/Config";
+import {IConfig, IPath, IServer} from "./custom-definitions/Config";
 import {Controller} from "./lib/controllers/Controller"
 import PostsController from "./lib/controllers/PostsController";
 import EmailsController from "./lib/controllers/EmailsController";

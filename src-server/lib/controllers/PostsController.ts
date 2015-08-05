@@ -7,7 +7,7 @@ import {Controller} from "./Controller";
 import {PostsModel} from "../models/PostsModel";
 import {CategoriesModel} from "../models/CategoriesModel";
 import {UsersService} from "../UsersService";
-import {IConfig, IServer} from "../definitions/Config";
+import {IConfig, IServer} from "../../custom-definitions/Config";
 
 /**
 * A controller that deals with the management of posts
