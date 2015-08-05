@@ -7,7 +7,7 @@ import {Controller} from "./Controller";
 import {PostsModel} from "../models/PostsModel";
 import {CategoriesModel} from "../models/CategoriesModel";
 import {UsersService} from "../UsersService";
-import {IConfig, IServer} from "../../custom-definitions/Config";
+import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts} from "modepress-api";
 
 /**
 * A controller that deals with the management of posts
@@ -66,9 +66,9 @@ export default class PostsController extends Controller
         // Check for keywords
         if (req.query.keyword)
         {
-            findToken.$or.push(<modepress.IPost>{ title: <any>new RegExp(req.query.keyword, "i") });
-            findToken.$or.push(<modepress.IPost>{ content: <any> new RegExp(req.query.keyword, "i") });
-            findToken.$or.push(<modepress.IPost>{ brief: <any> new RegExp(req.query.keyword, "i") });
+            findToken.$or.push(<IPost>{ title: <any>new RegExp(req.query.keyword, "i") });
+            findToken.$or.push(<IPost>{ content: <any> new RegExp(req.query.keyword, "i") });
+            findToken.$or.push(<IPost>{ brief: <any> new RegExp(req.query.keyword, "i") });
         }
 
         // Check for visibility
@@ -90,9 +90,9 @@ export default class PostsController extends Controller
         if (visibility != "all")
         {
             if (visibility == "public")
-                (<modepress.IPost>findToken).public = true;
+                (<IPost>findToken).public = true;
             else
-                (<modepress.IPost>findToken).public = false;
+                (<IPost>findToken).public = false;
         }
 
         // Check for tags (an OR request with tags)
@@ -136,7 +136,7 @@ export default class PostsController extends Controller
         }
 
         // Sort by the date created
-        var sort: modepress.IPost = { createdOn: sortOrder };
+        var sort: IPost = { createdOn: sortOrder };
 
         // Optionally sort by the last updated
         if (req.query.sort)
@@ -162,8 +162,8 @@ export default class PostsController extends Controller
 
         }).then(function (instances)
        {
-            var sanitizedData: Array<modepress.IPost> = that.getSanitizedData(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<modepress.IGetPosts>{
+            var sanitizedData: Array<IPost> = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            res.end(JSON.stringify(<IGetPosts>{
                 error: false,
                 count: count,
                 message: `Found ${count} posts`,
@@ -172,7 +172,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -191,7 +191,7 @@ export default class PostsController extends Controller
         var posts = this.getModel("posts");
         var that = this;
         var count = 0;
-        var findToken: modepress.IPost = { slug: req.params.slug };
+        var findToken: IPost = { slug: req.params.slug };
         var user: UsersInterface.IUserEntry = req.params.user;
         
         posts.findInstances(findToken, [], 0, 1).then(function (instances)
@@ -204,7 +204,7 @@ export default class PostsController extends Controller
             // Only admins are allowed to see private posts
             if (!instances[0].schema.getByName("public").getValue() && ( !user || users.hasPermission(user, 2) == false ) )
             {
-                res.end(JSON.stringify(<modepress.IResponse>{
+                res.end(JSON.stringify(<IResponse>{
                     error: true,
                     message: "That post is marked private"
                 }));
@@ -212,9 +212,9 @@ export default class PostsController extends Controller
                 return;
             }
 
-            var sanitizedData: Array<modepress.IPost> = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData: Array<IPost> = that.getSanitizedData(instances, Boolean(req.query.verbose));
 
-            res.end(JSON.stringify(<modepress.IGetPost>{
+            res.end(JSON.stringify(<IGetPost>{
                 error: false,
                 message: `Found ${count} posts`,
                 data: sanitizedData[0]
@@ -222,7 +222,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -243,8 +243,8 @@ export default class PostsController extends Controller
 
         categories.findInstances({}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
         {
-            var sanitizedData: Array<modepress.ICategory> = that.getSanitizedData(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<modepress.IGetCategories>{
+            var sanitizedData: Array<ICategory> = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            res.end(JSON.stringify(<IGetCategories>{
                 error: false,
                 count: sanitizedData.length,
                 message: `Found ${instances.length} categories`,
@@ -253,7 +253,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -276,7 +276,7 @@ export default class PostsController extends Controller
             if (!auth.authenticated)
             {
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(<modepress.IResponse>{
+                res.end(JSON.stringify(<IResponse>{
                     error: true,
                     message: "You must be logged in to make this request"
                 }));
@@ -284,7 +284,7 @@ export default class PostsController extends Controller
             else if (!users.hasPermission(auth.user, 2))
             {
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(<modepress.IResponse>{
+                res.end(JSON.stringify(<IResponse>{
                     error: true,
                     message: "You do not have permission"
                 }));
@@ -298,7 +298,7 @@ export default class PostsController extends Controller
         }).catch(function (error: Error)
         {
             res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: "You do not have permission"
             }));
@@ -342,19 +342,19 @@ export default class PostsController extends Controller
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         
-        posts.deleteInstances(<modepress.IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        posts.deleteInstances(<IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
         {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a post with that ID"));
 
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: false,
                 message: "Post has been successfully removed"
             }));
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -372,19 +372,19 @@ export default class PostsController extends Controller
         res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
 
-        categories.deleteInstances(<modepress.ICategory>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        categories.deleteInstances(<ICategory>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
         {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a category with that ID"));
 
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: false,
                 message: "Category has been successfully removed"
             }));
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -400,19 +400,19 @@ export default class PostsController extends Controller
     private updatePost(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var token: modepress.IPost = req.body;
+        var token: IPost = req.body;
         var posts = this.getModel("posts");
 
         posts.updateInstance(req.params.id, token).then(function (instance)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: false,
                 message: "Post Updated"
             }));
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -428,7 +428,7 @@ export default class PostsController extends Controller
     private createPost(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var token: modepress.IPost = req.body;
+        var token: IPost = req.body;
         var posts = this.getModel("posts");
 
         // User is passed from the authentication function
@@ -436,10 +436,10 @@ export default class PostsController extends Controller
     
         posts.createInstance(token).then(function (instance)
         {
-            var newPost: modepress.IPost = instance.schema.generateCleanData(true);
+            var newPost: IPost = instance.schema.generateCleanData(true);
             newPost._id = instance._id;
 
-            res.end(JSON.stringify(<modepress.IGetPost>{
+            res.end(JSON.stringify(<IGetPost>{
                 error: false,
                 message: "New post created",
                 data: newPost
@@ -447,7 +447,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -463,15 +463,15 @@ export default class PostsController extends Controller
     private createCategory(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var token: modepress.ICategory = req.body;
+        var token: ICategory = req.body;
         var categories = this.getModel("categories");
 
         categories.createInstance(token).then(function (instance)
         {
-            var newCategory: modepress.ICategory = instance.schema.generateCleanData(true);
+            var newCategory: ICategory = instance.schema.generateCleanData(true);
             newCategory._id = instance._id;
 
-            res.end(JSON.stringify(<modepress.IGetCategory>{
+            res.end(JSON.stringify(<IGetCategory>{
                 error: false,
                 message: "New category created",
                 data: newCategory
@@ -479,7 +479,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));

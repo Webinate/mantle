@@ -1,6 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import * as http from "http";
-import {IConfig, IServer} from "../../custom-definitions/Config";
+import {IConfig, IServer, IResponse, IRender, IGetRenders} from "modepress-api";
 import * as winston from "winston";
 import * as express from "express";
 import * as bodyParser from "body-parser";
@@ -54,7 +54,7 @@ export default class PageRenderer extends Controller
         res.setHeader('Content-Type', 'text/html');
         var renders = this.getModel("renders");
 
-        renders.findInstances(<modepress.IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances)
+        renders.findInstances(<IRender>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances)
         {
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find a render with that ID"));
@@ -90,19 +90,19 @@ export default class PageRenderer extends Controller
         res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
 
-        renders.deleteInstances(<modepress.IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        renders.deleteInstances(<IRender>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
         {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a cache with that ID"));
 
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: false,
                 message: "Cache has been successfully removed"
             }));
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -125,7 +125,7 @@ export default class PageRenderer extends Controller
             if (!auth.authenticated)
             {
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(<modepress.IResponse>{
+                res.end(JSON.stringify(<IResponse>{
                     error: true,
                     message: "You must be logged in to make this request"
                 }));
@@ -133,7 +133,7 @@ export default class PageRenderer extends Controller
             else if (!users.hasPermission(auth.user, 2))
             {
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(<modepress.IResponse>{
+                res.end(JSON.stringify(<IResponse>{
                     error: true,
                     message: "You do not have permission"
                 }));
@@ -147,7 +147,7 @@ export default class PageRenderer extends Controller
         }).catch(function (error: Error)
         {
             res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: "You do not have permission"
             }));
@@ -180,7 +180,7 @@ export default class PageRenderer extends Controller
         }
         
         // Sort by the date created
-        var sort: modepress.IRender = { createdOn: sortOrder };
+        var sort: IRender = { createdOn: sortOrder };
         
         var getContent: boolean = true;
         if (req.query.minimal)
@@ -188,7 +188,7 @@ export default class PageRenderer extends Controller
 
         // Check for keywords
         if (req.query.search)
-            (<modepress.IRender>findToken).url = <any>new RegExp(req.query.search, "i");
+            (<IRender>findToken).url = <any>new RegExp(req.query.search, "i");
 
         
         
@@ -200,8 +200,8 @@ export default class PageRenderer extends Controller
 
         }).then(function (instances)
         {
-            var sanitizedData: Array<modepress.IRender> = that.getSanitizedData<modepress.IRender>(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<modepress.IGetRenders>{
+            var sanitizedData: Array<IRender> = that.getSanitizedData<IRender>(instances, Boolean(req.query.verbose));
+            res.end(JSON.stringify(<IGetRenders>{
                 error: false,
                 count: count,
                 message: `Found ${count} renders`,
@@ -210,7 +210,7 @@ export default class PageRenderer extends Controller
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -231,58 +231,17 @@ export default class PageRenderer extends Controller
         // First get the count
         renders.deleteInstances({}).then(function(num)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: false,
                 message: `${num} Instances have been removed`
             }));
 
         }).catch(function (error: Error)
         {
-            res.end(JSON.stringify(<modepress.IResponse>{
+            res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));
         });
     }
-
-    //beforePhantomRequest(req: IPrerenderRequest, res: IPrerenderResponse, next: Function)
-    //{
-    //    winston.info(`Processing prerender GET requset: '${req.url}'`, { process: process.pid });
-
-    //    if (req.method !== 'GET')
-    //        return next();
-
-    //    var renders = this.getModel("renders");
-    //    renders.findInstances(<modepress.IRender>{ url: req.url }).then(function (instances)
-    //    {
-    //        if (instances.length > 0)
-    //            res.send(200, instances[0].schema.getByName("html").getValue(false));
-    //        else
-    //            next();
-
-    //    }).catch(function (error: Error)
-    //    {
-    //        next();
-    //    });
-    //}
-
-    //afterPhantomRequest(req: IPrerenderRequest, res: IPrerenderResponse, next: Function)
-    //{
-    //    winston.info("Processing prerender render", { process: process.pid });
-
-    //    var renders = this.getModel("renders");
-    //    var token: modepress.IRender = { url: req.url, html: req.prerender.documentHTML };
-
-    //    renders.createInstance(token).then(function (instance)
-    //    {
-    //        next();
-
-    //    }).catch(function (error: Error)
-    //    {
-    //        res.end(JSON.stringify(<modepress.IResponse>{
-    //            error: true,
-    //            message: error.message
-    //        }));
-    //    });
-    //}
 }

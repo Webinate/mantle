@@ -10,7 +10,7 @@ import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
 import {MongoWrapper} from "./lib/MongoWrapper";
-import {IConfig, IPath, IServer} from "./custom-definitions/Config";
+import {IConfig, IPath, IServer} from "modepress-api";
 import {Controller} from "./lib/controllers/Controller"
 import PostsController from "./lib/controllers/PostsController";
 import EmailsController from "./lib/controllers/EmailsController";
@@ -76,7 +76,7 @@ export class Server
             // Load the controllers
             for (var i = 0, l: number = server.controllers.length; i < l; i++)
             {
-                var func: any = require(server.controllers[i].path);
+                var func = require(server.controllers[i].path);
                 controllers.push(new func.default(server, config, app));
             }
     

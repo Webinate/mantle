@@ -2,7 +2,7 @@
 import controllerModule = require("./Controller");
 import bodyParser = require('body-parser');
 import {UsersService} from "../UsersService"
-import {IConfig, IServer} from "../../custom-definitions/Config"
+import {IConfig, IServer, IMessage} from "modepress-api"
 
 export default class EmailsController extends controllerModule.Controller
 {
@@ -40,13 +40,13 @@ export default class EmailsController extends controllerModule.Controller
         res.setHeader('Content-Type', 'application/json');
 
         var message: string = `Hello admin,
-			We have received a message from ${(<modepress.IMessage>req.body).name}:
+			We have received a message from ${(<IMessage>req.body).name}:
 
-			${(<modepress.IMessage>req.body).message}
+			${(<IMessage>req.body).message}
 
-			Email: ${(<modepress.IMessage>req.body).email}
-			Phone: ${(<modepress.IMessage>req.body).phone}
-			Website: ${(<modepress.IMessage>req.body).website}`;
+			Email: ${(<IMessage>req.body).email}
+			Phone: ${(<IMessage>req.body).phone}
+			Website: ${(<IMessage>req.body).website}`;
 
         UsersService.getSingleton().sendAdminEmail(message).then(function(body)
         {

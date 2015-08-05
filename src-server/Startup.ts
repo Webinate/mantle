@@ -10,7 +10,7 @@ import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
 import {MongoWrapper} from "./lib/MongoWrapper";
-import {IConfig, IPath} from "./custom-definitions/Config";
+import {IConfig, IPath} from "modepress-api";
 import {Controller} from "./lib/controllers/Controller"
 import PostsController from "./lib/controllers/PostsController";
 import EmailsController from "./lib/controllers/EmailsController";

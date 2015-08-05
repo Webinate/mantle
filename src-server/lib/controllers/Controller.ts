@@ -1,6 +1,6 @@
 ﻿import {Model, ModelInstance} from "../models/Model";
 import * as mongodb from "mongodb";
-import {IController} from "../../custom-definitions/Config";
+import {IControllerPlugin} from "modepress-api";
 
 export class Controller
 {
