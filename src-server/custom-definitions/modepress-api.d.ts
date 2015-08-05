@@ -627,6 +627,22 @@
         constructor(name: string, val?: number, sensitive?: boolean, useNow?: boolean);
     }
 
+    /**
+    * A mongodb ObjectID scheme item for use in Models
+    */
+    export class SchemaId extends SchemaItem<mongodb.ObjectID>
+    {
+        private _str: string;
+
+        /**
+        * Creates a new schema item
+        * @param {string} name The name of this item
+        * @param {string} val The string representation of the object ID
+        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
+        */
+        constructor(name: string, val: string, sensitive?: boolean );
+    }
+
     export module SchemaFactory
     {
         export var num: typeof SchemaNumber;
@@ -634,5 +650,6 @@
         export var textArray: typeof SchemaTextArray;
         export var date: typeof SchemaDate;
         export var bool: typeof SchemaBool;
+        export var id: typeof SchemaId;
     }
 }

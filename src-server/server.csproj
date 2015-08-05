@@ -39,7 +39,6 @@
     <TypeScriptCompile Include="lib\definitions\method-override.d.ts" />
     <TypeScriptCompile Include="lib\definitions\morgan.d.ts" />
     <TypeScriptCompile Include="lib\definitions\node.d.ts" />
-    <TypeScriptCompile Include="custom-definitions\config.d.ts" />
     <TypeScriptCompile Include="lib\controllers\Controller.ts" />
     <TypeScriptCompile Include="lib\definitions\recaptcha-async.d.ts" />
     <TypeScriptCompile Include="lib\definitions\request.d.ts" />
@@ -53,6 +52,7 @@
     <TypeScriptCompile Include="lib\models\schema-items\SchemaItemFactory.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaDate.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaBool.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaId.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaTextArray.ts" />
     <TypeScriptCompile Include="lib\models\Schema.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaText.ts" />
@@ -68,7 +68,6 @@
     <TypeScriptCompile Include="Main.ts" />
     <TypeScriptCompile Include="lib\definitions\mongodb.d.ts" />
     <TypeScriptCompile Include="lib\MongoWrapper.ts" />
-    <TypeScriptCompile Include="custom-definitions\modepress.d.ts" />
     <TypeScriptCompile Include="Startup.ts" />
   </ItemGroup>
   <ItemGroup>
