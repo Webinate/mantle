@@ -8,7 +8,7 @@
         protected apiURL: string;
         protected cacheURL: string;
         protected showRenders: boolean;
-        protected renders: Array<modepress.IRender>;
+        protected renders: Array<Modepress.IRender>;
 
 		// $inject annotation.
         public static $inject = ["$scope", "$http", "apiURL", "cacheURL"];
@@ -32,7 +32,7 @@
             this.errorMsg = "";
             this.loading = true;
 
-            that.http.delete<modepress.IResponse>(`${that.apiURL}/renders/clear-renders`).then(function (token)
+            that.http.delete<Modepress.IResponse>(`${that.apiURL}/renders/clear-renders`).then(function (token)
             {
                 if (token.data.error)
                 {
@@ -52,14 +52,14 @@
         /**
         * Removes a render from the database
         */
-        removeRender(render: modepress.IRender)
+        removeRender(render: Modepress.IRender)
         {
             var that = this;
             this.error = false;
             this.errorMsg = "";
             this.loading = true;
 
-            that.http.delete<modepress.IResponse>(`${that.apiURL}/renders/remove-render/${render._id}`).then(function (token)
+            that.http.delete<Modepress.IResponse>(`${that.apiURL}/renders/remove-render/${render._id}`).then(function (token)
             {
                 if (token.data.error)
                 {
@@ -86,7 +86,7 @@
             var index = this.index;
             var limit = this.limit;
 
-            that.http.get<modepress.IGetRenders>(`${that.apiURL}/renders/get-renders?index=${index}&limit=${limit}&search=${that.searchTerm}`).then(function (token)
+            that.http.get<Modepress.IGetRenders>(`${that.apiURL}/renders/get-renders?index=${index}&limit=${limit}&search=${that.searchTerm}`).then(function (token)
             {
                 if (token.data.error)
                 {

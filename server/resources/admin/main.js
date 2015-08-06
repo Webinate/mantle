@@ -1151,6 +1151,7 @@ var clientAdmin;
         }]);
 })(clientAdmin || (clientAdmin = {}));
 /// <reference path="../src-server/custom-definitions/modepress.d.ts" />
+/// <reference path="lib/definitions/es6-promise.d.ts" />
 /// <reference path="lib/definitions/jquery.d.ts" />
 /// <reference path="lib/definitions/angular.d.ts" />
 /// <reference path="lib/definitions/angular-ui-router.d.ts" />

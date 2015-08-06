@@ -1,4 +1,4 @@
-﻿import {IServer, IPath} from "modepress-api";
+﻿import {IServer, IPath} from "modepress";
 import * as express from "express";
 import * as fs from "fs";
 import {UsersService} from "./UsersService";

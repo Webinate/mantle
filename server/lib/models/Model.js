@@ -81,11 +81,12 @@ var Model = (function () {
                                 promises.push(model.createIndex(items[i].name, collection));
                         if (promises.length == 0) {
                             model._initialized = true;
-                            winston.info("Successfully created model '" + model.collectionName + "'", { process: process.pid });
+                            winston.info("Successfully created model '" + model._collectionName + "'", { process: process.pid });
                             return resolve(model);
                         }
                         Promise.all(promises).then(function () {
                             model._initialized = true;
+                            winston.info("Successfully created model '" + model._collectionName + "'", { process: process.pid });
                             return resolve(model);
                         }).catch(function (err) {
                             return reject(err);

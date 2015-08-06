@@ -4,7 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var modepress_api_1 = require("modepress-api");
+var modepress_1 = require("modepress");
 var PluginController_1 = require("./controllers/PluginController");
 /**
 * A plugin that loads the app engine controllers for use in Modepress
@@ -42,5 +42,5 @@ var AppEngine = (function (_super) {
         });
     };
     return AppEngine;
-})(modepress_api_1.Controller);
+})(modepress_1.Controller);
 exports.default = AppEngine;

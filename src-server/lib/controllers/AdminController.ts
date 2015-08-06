@@ -2,7 +2,7 @@
 import controllerModule = require("./Controller");
 import bodyParser = require('body-parser');
 import {UsersService} from "../UsersService";
-import {IConfig, IServer} from "modepress-api";
+import {IConfig, IServer} from "modepress";
 import * as winston from "winston";
 
 export default class AdminController extends controllerModule.Controller

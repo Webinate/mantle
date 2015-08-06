@@ -7,7 +7,7 @@ import {Controller} from "./Controller";
 import {PostsModel} from "../models/PostsModel";
 import {CategoriesModel} from "../models/CategoriesModel";
 import {UsersService} from "../UsersService";
-import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts} from "modepress-api";
+import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts} from "modepress";
 
 /**
 * A controller that deals with the management of posts

@@ -34,6 +34,7 @@
     <TypeScriptCompile Include="lib\controllers\LoginCtrl.ts" />
     <TypeScriptCompile Include="lib\definitions\angular-ui-router.d.ts" />
     <TypeScriptCompile Include="lib\definitions\angular.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\es6-promise.d.ts" />
     <TypeScriptCompile Include="lib\definitions\jquery.d.ts" />
     <TypeScriptCompile Include="lib\definitions\recaptcha.d.ts" />
     <TypeScriptCompile Include="lib\definitions\tinymce.d.ts" />

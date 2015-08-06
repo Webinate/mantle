@@ -19,7 +19,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var express = require("express");
 var bodyParser = require("body-parser");
-var modepress_api_1 = require("modepress-api");
+var modepress_1 = require("modepress");
 var PluginModel_1 = require("../models/PluginModel");
 /**
 * A controller that deals with plugin models
@@ -80,5 +80,5 @@ var PluginController = (function (_super) {
         });
     };
     return PluginController;
-})(modepress_api_1.Controller);
+})(modepress_1.Controller);
 exports.PluginController = PluginController;

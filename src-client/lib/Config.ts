@@ -87,7 +87,7 @@
                     resolve: {
                         categories: ["$http", "apiURL", function ($http: ng.IHttpService, apiURL: string)
                         {
-                            return $http.get<modepress.IGetCategories>(`${apiURL}/posts/get-categories`).then(function (categories)
+                            return $http.get<Modepress.IGetCategories>(`${apiURL}/posts/get-categories`).then(function (categories)
                             {
                                 return categories.data.data;
                             });

@@ -1,8 +1,5 @@
-﻿declare module "modepress-api"
+﻿declare module Modepress
 {
-    import express = require('express');
-    import mongodb = require('mongodb');
-
     /*
     * Describes the post model
     */
@@ -365,7 +362,7 @@
     {
         public model: Model;
         public schema: Schema;
-        public _id: mongodb.ObjectID;
+        public _id: any;
 	
         /**
         * Creates a model instance
@@ -378,7 +375,7 @@
     */
     export class Model
     {
-        public collection: mongodb.Collection;
+        public collection: any;
         public defaultSchema: Schema;
 	
         /**
@@ -398,7 +395,7 @@
         * @param {mongodb.Db} db The database used to create this model
         * @returns {Promise<mongodb.Db>}
         */
-        initialize(db: mongodb.Db): Promise<Model>;
+        initialize(db: any): Promise<Model>;
 
         /**
         * Updates the models collection based on the search criteria.
@@ -476,7 +473,7 @@
         * @param {mongodb.Db} db The mongo database to use
         * @returns {Promise<Controller>}
         */
-        initialize(db: mongodb.Db): Promise<Controller>;
+        initialize(db: any): Promise<Controller>;
 
         /**
         * Gets a model by its collection name
@@ -519,7 +516,7 @@
         * @param {express.Request} res
         * @returns {Promise<UsersInterface.IAuthenticationResponse>}
         */
-        authenticated(req: express.Request, res: express.Response): Promise<UsersInterface.IAuthenticationResponse>;
+        authenticated(req: any, res: any): Promise<UsersInterface.IAuthenticationResponse>;
 
         /**
         * Checks a user has the desired permission
@@ -630,7 +627,7 @@
     /**
     * A mongodb ObjectID scheme item for use in Models
     */
-    export class SchemaId extends SchemaItem<mongodb.ObjectID>
+    export class SchemaId extends SchemaItem<any>
     {
         private _str: string;
 
@@ -652,4 +649,9 @@
         export var bool: typeof SchemaBool;
         export var id: typeof SchemaId;
     }
+}
+
+declare module "modepress"
+{
+    export = Modepress;
 }

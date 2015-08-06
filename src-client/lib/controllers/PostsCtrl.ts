@@ -5,8 +5,8 @@
 	*/
     export class PostsCtrl extends PagedContentCtrl
     {
-        public postToken: modepress.IPost;
-        public posts: Array<modepress.IPost>;
+        public postToken: Modepress.IPost;
+        public posts: Array<Modepress.IPost>;
         public showNewPostForm: boolean;
         public editMode: boolean;
         public apiURL: string;
@@ -16,8 +16,8 @@
         public tagString: string;
         public newCategoryMode: boolean;
         public showCategoryDelete: boolean;
-        public categories: Array<modepress.ICategory>;
-        public categoryToken: modepress.ICategory;
+        public categories: Array<Modepress.ICategory>;
+        public categoryToken: Modepress.ICategory;
         public searchKeyword: string;
         public searchCategory: string;
         public sortOrder: string;
@@ -29,7 +29,7 @@
 
 		// $inject annotation.
         public static $inject = ["$scope", "$http", "apiURL", "mediaURL", "categories"];
-        constructor(scope, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<modepress.ICategory>)
+        constructor(scope, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>)
         {
             super(http);
             this.newCategoryMode = false;
@@ -152,7 +152,7 @@
         getCategories()
         {
             var that = this;
-            that.http.get<modepress.IGetCategories>(`${that.apiURL}/posts/get-categories`).then(function (categories)
+            that.http.get<Modepress.IGetCategories>(`${that.apiURL}/posts/get-categories`).then(function (categories)
             {
                 that.categories = categories.data.data;
             });
@@ -175,7 +175,7 @@
         /**
         * Sets the page into edit mode
         */
-        editPostMode(post: modepress.IPost)
+        editPostMode(post: Modepress.IPost)
         {
             this.newPostMode();
             this.editMode = true;
@@ -183,7 +183,7 @@
             this.showNewPostForm = true;
 
             var that = this;
-            that.http.get<modepress.IGetPost>(`${that.apiURL}/posts/get-post/${post.slug}`).then(function (post)
+            that.http.get<Modepress.IGetPost>(`${that.apiURL}/posts/get-post/${post.slug}`).then(function (post)
             {
                 that.postToken = post.data.data;
                 that.loading = false;
@@ -207,7 +207,7 @@
             var order = this.sortOrder;
             var sortType = this.sortType;
 
-            that.http.get<modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
+            that.http.get<Modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
             {
                 if (token.data.error) {
                     that.error = true;
@@ -256,14 +256,14 @@
         * Removes a user from the database
         * @param {UsersInterface.IUserEntry} user The user to remove
         */
-        removePost(post: modepress.IPost)
+        removePost(post: Modepress.IPost)
         {
             var that = this;
             this.error = false;
             this.errorMsg = "";
             this.loading = true;
 
-            that.http.delete<modepress.IResponse>(`${that.apiURL}/posts/remove-post/${post._id}`).then(function (token)
+            that.http.delete<Modepress.IResponse>(`${that.apiURL}/posts/remove-post/${post._id}`).then(function (token)
             {
                 if (token.data.error) {
                     that.error = true;
@@ -281,14 +281,14 @@
         * Removes a category from the database by ID
         * @param {modepress.ICategory} category The category to remove
         */
-        removeCategory(category: modepress.ICategory)
+        removeCategory(category: Modepress.ICategory)
         {
             var that = this;
             this.error = false;
             this.errorMsg = "";
             this.loading = true;
 
-            that.http.delete<modepress.IResponse>(`${that.apiURL}/posts/remove-category/${category._id}`).then(function (token)
+            that.http.delete<Modepress.IResponse>(`${that.apiURL}/posts/remove-category/${category._id}`).then(function (token)
             {
                 if (token.data.error)
                 {
@@ -326,7 +326,7 @@
 
             if (this.editMode)
             {
-                that.http.put<modepress.IGetPost>(`${that.apiURL}/posts/update-post/${postToken._id}`, postToken).then(function (token)
+                that.http.put<Modepress.IGetPost>(`${that.apiURL}/posts/update-post/${postToken._id}`, postToken).then(function (token)
                 {
                     if (token.data.error)
                     {
@@ -344,7 +344,7 @@
             }
             else
             {
-                that.http.post<modepress.IGetPost>(`${that.apiURL}/posts/create-post`, postToken).then(function (token)
+                that.http.post<Modepress.IGetPost>(`${that.apiURL}/posts/create-post`, postToken).then(function (token)
                 {
                     if (token.data.error)
                     {
@@ -377,7 +377,7 @@
             this.errorMsg = "";
             this.loading = true;
             var categoryToken = this.categoryToken;
-            that.http.post<modepress.IGetCategory>(`${that.apiURL}/posts/create-category`, categoryToken).then(function (token)
+            that.http.post<Modepress.IGetCategory>(`${that.apiURL}/posts/create-category`, categoryToken).then(function (token)
             {
                 if (token.data.error)
                 {
@@ -402,7 +402,7 @@
         /**
         * Adds this category to the post's selected categories
         */
-        selectCategory(category: modepress.ICategory)
+        selectCategory(category: Modepress.ICategory)
         {
             if (this.postToken.categories.indexOf(category.slug) == -1)
                 this.postToken.categories.push(category.slug);

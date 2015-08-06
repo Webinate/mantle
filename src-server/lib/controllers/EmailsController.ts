@@ -2,7 +2,7 @@
 import controllerModule = require("./Controller");
 import bodyParser = require('body-parser');
 import {UsersService} from "../UsersService"
-import {IConfig, IServer, IMessage} from "modepress-api"
+import {IConfig, IServer, IMessage} from "modepress"
 
 export default class EmailsController extends controllerModule.Controller
 {
