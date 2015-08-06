@@ -29,6 +29,7 @@
     <TypeScriptCompile Include="lib\definitions\compression.d.ts" />
     <TypeScriptCompile Include="lib\definitions\entities.d.ts" />
     <TypeScriptCompile Include="lib\definitions\form-data.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\modepress.d.ts" />
     <TypeScriptCompile Include="lib\definitions\mongodb-write-result.ts" />
     <TypeScriptCompile Include="lib\definitions\nodemailer.d.ts" />
     <TypeScriptCompile Include="lib\definitions\prompt.d.ts" />
