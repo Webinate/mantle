@@ -1,5 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import {Schema} from "./Schema";
+import * as winston from "winston";
 
 /**
 * An instance of a model with its own unique schema and ID. The initial schema is a clone
@@ -107,6 +108,7 @@ export class Model
                         if (promises.length == 0)
                         {
                             model._initialized = true;
+                            winston.info(`Successfully created model '${model.collectionName}'`, { process: process.pid });
                             return resolve(model);
                         }
 

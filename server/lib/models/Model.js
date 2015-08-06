@@ -1,5 +1,6 @@
 var mongodb = require("mongodb");
 var Schema_1 = require("./Schema");
+var winston = require("winston");
 /**
 * An instance of a model with its own unique schema and ID. The initial schema is a clone
 * the parent model's
@@ -80,6 +81,7 @@ var Model = (function () {
                                 promises.push(model.createIndex(items[i].name, collection));
                         if (promises.length == 0) {
                             model._initialized = true;
+                            winston.info("Successfully created model '" + model.collectionName + "'", { process: process.pid });
                             return resolve(model);
                         }
                         Promise.all(promises).then(function () {
