@@ -1,0 +1,12 @@
+var SchemaNumber_1 = require("./SchemaNumber");
+var SchemaText_1 = require("./SchemaText");
+var SchemaBool_1 = require("./SchemaBool");
+var SchemaDate_1 = require("./SchemaDate");
+var SchemaTextArray_1 = require("./SchemaTextArray");
+var SchemaId_1 = require("./SchemaId");
+exports.num = SchemaNumber_1.SchemaNumber;
+exports.text = SchemaText_1.SchemaText;
+exports.textArray = SchemaTextArray_1.SchemaTextArray;
+exports.date = SchemaDate_1.SchemaDate;
+exports.bool = SchemaBool_1.SchemaBool;
+exports.id = SchemaId_1.SchemaId;

@@ -10,7 +10,7 @@ import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
 import {MongoWrapper} from "./lib/MongoWrapper";
-import {IConfig, IPath, IServer} from "modepress";
+import {IConfig, IPath, IServer} from "modepress-api";
 import {Controller} from "./lib/controllers/Controller"
 import PostsController from "./lib/controllers/PostsController";
 import EmailsController from "./lib/controllers/EmailsController";
@@ -46,8 +46,11 @@ export class Server
     
             // User defined static folders
             for (var i = 0, l: number = server.staticFilesFolder.length; i < l; i++)
+            {
+                winston.info(`Adding static resource folder '${server.staticFilesFolder[i]}'`, { process: process.pid });
                 app.use(express.static(server.staticFilesFolder[i], { maxAge: server.cacheLifetime }));
-    
+            }
+
             // Setup the jade template engine
             app.set('view engine', 'jade');
     
@@ -60,7 +63,10 @@ export class Server
                     if (!fs.existsSync(server.paths[i].templatePath))
                         winston.info(`The template path '${server.paths[i].templatePath}' does not exist`, { process: process.pid });
                     else
+                    {
+                        winston.info(`Adding jade template folder '${server.paths[i].templatePath}'`, { process: process.pid });
                         allViewPaths.push(server.paths[i].templatePath);
+                    }
                 }
             }
 

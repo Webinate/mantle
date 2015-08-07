@@ -1,10 +1,10 @@
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var modepress_1 = require("modepress");
+var modepress_api_1 = require("modepress-api");
 var PluginController_1 = require("./controllers/PluginController");
 /**
 * A plugin that loads the app engine controllers for use in Modepress
@@ -42,5 +42,5 @@ var AppEngine = (function (_super) {
         });
     };
     return AppEngine;
-})(modepress_1.Controller);
+})(modepress_api_1.Controller);
 exports.default = AppEngine;

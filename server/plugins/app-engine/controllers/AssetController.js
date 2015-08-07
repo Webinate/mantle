@@ -1,4 +1,4 @@
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -6,7 +6,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var express = require("express");
 var bodyParser = require("body-parser");
-var modepress_1 = require("modepress");
+var modepress_api_1 = require("modepress-api");
 var AssetModel_1 = require("../models/AssetModel");
 /**
 * A controller that deals with asset models
@@ -77,5 +77,5 @@ var AssetController = (function (_super) {
         });
     };
     return AssetController;
-})(modepress_1.Controller);
+})(modepress_api_1.Controller);
 exports.default = AssetController;

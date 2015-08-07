@@ -651,7 +651,7 @@
     }
 }
 
-declare module "modepress"
+declare module "modepress-api"
 {
     export = Modepress;
 }

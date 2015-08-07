@@ -1,6 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import * as http from "http";
-import {IConfig, IServer, IResponse, IRender, IGetRenders} from "modepress";
+import {IConfig, IServer, IResponse, IRender, IGetRenders} from "modepress-api";
 import * as winston from "winston";
 import * as express from "express";
 import * as bodyParser from "body-parser";

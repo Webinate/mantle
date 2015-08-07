@@ -1,4 +1,4 @@
-﻿/// <reference path="../src-server/custom-definitions/modepress.d.ts" />
+﻿/// <reference path="../src-server/custom-definitions/modepress-api.d.ts" />
 
 /// <reference path="lib/definitions/es6-promise.d.ts" />
 /// <reference path="lib/definitions/jquery.d.ts" />
