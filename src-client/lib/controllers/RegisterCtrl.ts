@@ -30,7 +30,8 @@
 				email: "",
                 captcha: "",
                 challenge: "",
-                privileges: 3
+                privileges: 3,
+                meta: {}
 			};
 			
 			this.error = false;
