@@ -1,8 +1,8 @@
 ﻿declare module UsersInterface
 {
     /*
-* An interface to describe the data stored in the database for users
-*/
+    * An interface to describe the data stored in the database for users
+    */
     export interface IUserEntry
     {
         _id?: any;
@@ -14,7 +14,7 @@
         lastLoggedIn?: number;
         privileges?: UserPrivileges;
         passwordTag?: string;
-        data?: any;
+        meta?: any;
     }
 
     /**
@@ -183,6 +183,7 @@
         captcha?: string;
         challenge?: string;
         privileges: number;
+        meta: any;
     }
 
     /*
