@@ -227,6 +227,11 @@
         * The URL of the webinate-users api
         */
         usersURL: string;
+        
+        /**
+        * A secret token to identify this server to the Users service
+        */
+        usersSecret: string;
 
         /**
         * The path to use for accessing the admin panel

@@ -1069,11 +1069,13 @@ var clientAdmin;
                                 var txtbox = document.createElement("textarea");
                                 txtbox.innerHTML = $stateParams.message;
                                 $scope.message = txtbox.value;
+                                txtbox.innerHTML = $stateParams.origin;
+                                $scope.origin = txtbox.value;
                                 $scope.error = ($stateParams.status == "error" ? true : false);
                             }]
                     }
                 },
-                url: "/admin/message/:message/:status"
+                url: "/admin/message?message&status&origin"
             });
         }
         // $inject annotation.

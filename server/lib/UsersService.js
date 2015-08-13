@@ -5,10 +5,11 @@ var request = require("request");
 var UsersService = (function () {
     /**
     * Creates an instance of the service
-    * @param {string} usersURL The URL of the user management service
+    * @param {IConfig} config The config file of this server
     */
-    function UsersService(usersURL) {
-        UsersService.usersURL = usersURL + "/users";
+    function UsersService(config) {
+        UsersService.usersURL = config.usersURL + "/users";
+        this._secret = config.usersSecret;
     }
     /**
     * Sends an email to the admin account
@@ -26,6 +27,49 @@ var UsersService = (function () {
         });
     };
     /**
+    * Sets a meta value by name for the specified user
+    * @param {string} name The name of the meta value
+    * @param {any} val The value to set
+    * @param {string} user The username of the target user
+    * @param {Request} req
+    * @param {Response} res
+    * @returns {Promise<UsersInterface.IResponse>}
+    */
+    UsersService.prototype.setMetaValue = function (name, val, user, req, res) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            request.post(UsersService.usersURL + "/meta/" + user + "/" + name, { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+                if (error)
+                    return reject(error);
+                var token = JSON.parse(body);
+                if (token.error)
+                    return reject(new Error(token.message));
+                resolve(token);
+            });
+        });
+    };
+    /**
+    * Sets a users meta data
+    * @param {any} val The value to set
+    * @param {string} user The username of the target user
+    * @param {Request} req
+    * @param {Response} res
+    * @returns {Promise<UsersInterface.IResponse>}
+    */
+    UsersService.prototype.setMeta = function (val, user, req, res) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            request.post(UsersService.usersURL + "/meta/" + user, { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+                if (error)
+                    return reject(error);
+                var token = JSON.parse(body);
+                if (token.error)
+                    return reject(new Error(token.message));
+                resolve(token);
+            });
+        });
+    };
+    /**
     * Checks if a user is logged in and authenticated
     * @param {express.Request} req
     * @param {express.Request} res
@@ -34,9 +78,7 @@ var UsersService = (function () {
     UsersService.prototype.authenticated = function (req, res) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            console.log("Getting user data");
             request.get(UsersService.usersURL + "/authenticated", { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
-                console.log("User data returned");
                 if (error)
                     return reject(error);
                 var token = JSON.parse(body);
@@ -66,9 +108,9 @@ var UsersService = (function () {
     * Gets the user singleton
     * @returns {UsersService}
     */
-    UsersService.getSingleton = function (usersURL) {
+    UsersService.getSingleton = function (config) {
         if (!UsersService._singleton)
-            UsersService._singleton = new UsersService(usersURL);
+            UsersService._singleton = new UsersService(config);
         return UsersService._singleton;
     };
     return UsersService;

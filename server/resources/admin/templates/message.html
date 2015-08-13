@@ -1,6 +1,5 @@
 ﻿<div class="admin-message">
 	<div><a target="_self" href="."><img src="/media/images/logo-home-large.png" /></a></div>
 	<div class="message" ng-class="{success : !error, error: error}">{{message}}</div>
-	<div class="nav-button"><a ui-sref="default" ui-sref-active="active">Log In</a></div>
-	<div class="nav-button"><a target="_self" href=".">Back to Site</a></div>
+	<p><div class="nav-button"><a target="_self" ng-href="{{origin}}">Back to Site</a></div></p>
 </div>

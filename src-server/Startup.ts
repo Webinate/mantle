@@ -69,7 +69,7 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
     // Create each of your controllers here
     var promises: Array<Promise<any>> = [];
 
-    UsersService.getSingleton(config.usersURL);
+    UsersService.getSingleton(config);
   
     // Load the controllers
     for (var i = 0, l = config.servers.length; i < l; i++)

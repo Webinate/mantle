@@ -41,7 +41,7 @@ MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, co
     winston.info("Starting up HTTP servers...", { process: process.pid });
     // Create each of your controllers here
     var promises = [];
-    UsersService_1.UsersService.getSingleton(config.usersURL);
+    UsersService_1.UsersService.getSingleton(config);
     // Load the controllers
     for (var i = 0, l = config.servers.length; i < l; i++) {
         var server = new Server_1.Server(config.servers[i], config, db);

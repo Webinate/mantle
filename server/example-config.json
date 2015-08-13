@@ -7,6 +7,7 @@
     "databasePort": 27017,
     "databaseName": "test",
     "usersURL": "",
+    "usersSecret":  "",
     "adminURL": "/admin",
     "servers": [
       {

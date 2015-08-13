@@ -1,5 +1,6 @@
 ﻿import * as express from "express"
 import * as request from "request"
+import {IConfig} from "modepress-api";
 
 /**
 * Singleton service for communicating with a webinate-users server
@@ -7,15 +8,18 @@ import * as request from "request"
 export class UsersService
 {
     private static _singleton: UsersService;
+
     public static usersURL: string;
+    private _secret: string;
 
     /**
 	* Creates an instance of the service
-	* @param {string} usersURL The URL of the user management service
+	* @param {IConfig} config The config file of this server
 	*/
-    constructor( usersURL : string )
+    constructor(config: IConfig )
     {
-        UsersService.usersURL = usersURL + "/users";
+        UsersService.usersURL = config.usersURL + "/users";
+        this._secret = config.usersSecret;
     }
 
     /**
@@ -39,6 +43,63 @@ export class UsersService
     }
 
     /**
+	* Sets a meta value by name for the specified user
+	* @param {string} name The name of the meta value
+    * @param {any} val The value to set
+    * @param {string} user The username of the target user
+    * @param {Request} req
+    * @param {Response} res
+	* @returns {Promise<UsersInterface.IResponse>}
+	*/
+    setMetaValue(name: string, val: any, user: string, req: express.Request, res: express.Response): Promise<UsersInterface.IResponse>
+    {
+        var that = this;
+        return new Promise<UsersInterface.IResponse>(function (resolve, reject)
+        {
+            request.post(`${UsersService.usersURL}/meta/${user}/${name}`, { body: { secret: that._secret, value: val }, headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            {
+                if (error)
+                    return reject(error);
+
+                var token: UsersInterface.IResponse = JSON.parse(body);
+
+                if (token.error)
+                    return reject(new Error(token.message));
+
+                resolve(token);
+            });
+        });
+    }
+
+    /**
+	* Sets a users meta data
+    * @param {any} val The value to set
+    * @param {string} user The username of the target user
+    * @param {Request} req
+    * @param {Response} res
+	* @returns {Promise<UsersInterface.IResponse>}
+	*/
+    setMeta(val: any, user: string, req: express.Request, res: express.Response): Promise<UsersInterface.IResponse>
+    {
+        var that = this;
+        return new Promise<UsersInterface.IResponse>(function (resolve, reject)
+        {
+            request.post(`${UsersService.usersURL}/meta/${user}`, { body: { secret: that._secret, value: val }, headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            {
+                if (error)
+                    return reject(error);
+
+                var token: UsersInterface.IResponse = JSON.parse(body);
+
+                if (token.error)
+                    return reject(new Error(token.message));
+
+                resolve(token);
+            });
+        });
+    }
+
+    /**
 	* Checks if a user is logged in and authenticated
 	* @param {express.Request} req
     * @param {express.Request} res
@@ -49,10 +110,8 @@ export class UsersService
         var that = this;
         return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject)
         {
-            console.log("Getting user data");
             request.get(`${UsersService.usersURL}/authenticated`, { headers: { cookie : (<any>req).headers.cookie } }, function (error, response, body)
             {
-                console.log("User data returned");
                 if (error)
                     return reject(error);
 
@@ -90,10 +149,10 @@ export class UsersService
 	* Gets the user singleton
 	* @returns {UsersService}
 	*/
-    public static getSingleton(usersURL?: string)
+    public static getSingleton(config?: IConfig)
     {
         if (!UsersService._singleton)
-            UsersService._singleton = new UsersService(usersURL);
+            UsersService._singleton = new UsersService(config);
 
         return UsersService._singleton;
     }
