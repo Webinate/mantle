@@ -232,7 +232,8 @@ var clientAdmin;
                 email: "",
                 captcha: "",
                 challenge: "",
-                privileges: 3
+                privileges: 3,
+                meta: {}
             };
             this.error = false;
             this.showSuccessMessage = false;
@@ -314,6 +315,95 @@ var clientAdmin;
         return RegisterCtrl;
     })();
     clientAdmin.RegisterCtrl = RegisterCtrl;
+})(clientAdmin || (clientAdmin = {}));
+var clientAdmin;
+(function (clientAdmin) {
+    /**
+    * Controller for the password reset html
+    */
+    var PasswordCtrl = (function () {
+        function PasswordCtrl(http, q, usersURL, stateParams) {
+            this.http = http;
+            this.q = q;
+            this.usersURL = usersURL;
+            this.complete = false;
+            var txtbox = document.createElement("textarea");
+            txtbox.innerHTML = stateParams.user;
+            var userClean = txtbox.value;
+            txtbox.innerHTML = stateParams.origin;
+            this.origin = txtbox.value;
+            if (this.origin == "undefined")
+                this.origin = ".";
+            // Create the login token
+            this.loginToken = {
+                user: userClean,
+                key: stateParams.key,
+                password: ""
+            };
+            this.loading = false;
+            this.error = false;
+            this.errorMsg = "";
+        }
+        /**
+        * Sends another request to reset the password
+        */
+        PasswordCtrl.prototype.resendRequest = function () {
+            var that = this;
+            var token = this.loginToken;
+            var host = this.usersURL;
+            this.error = false;
+            this.errorMsg = "";
+            this.loading = true;
+            this.http.get(host + "/request-password-reset/" + that.loginToken.user).then(function (response) {
+                var responseToken = response.data;
+                if (responseToken.error) {
+                    that.error = true;
+                    that.errorMsg = responseToken.message;
+                }
+                else {
+                    that.error = false;
+                    that.errorMsg = responseToken.message;
+                }
+                that.loading = false;
+            }).catch(function (err) {
+                that.error = true;
+                that.loading = false;
+                that.errorMsg = "Could not communicate with server";
+            });
+        };
+        /**
+        * Attempts to reset the password based on the current credentials
+        */
+        PasswordCtrl.prototype.resetPassword = function () {
+            var that = this;
+            var token = this.loginToken;
+            var host = this.usersURL;
+            this.error = false;
+            this.errorMsg = "";
+            this.loading = true;
+            this.http.put(host + "/password-reset", token).then(function (response) {
+                var responseToken = response.data;
+                if (responseToken.error) {
+                    that.error = true;
+                    that.errorMsg = responseToken.message;
+                }
+                else {
+                    that.error = false;
+                    that.errorMsg = responseToken.message;
+                    that.complete = true;
+                }
+                that.loading = false;
+            }).catch(function (err) {
+                that.error = true;
+                that.loading = false;
+                that.errorMsg = "Could not communicate with server";
+            });
+        };
+        // $inject annotation.
+        PasswordCtrl.$inject = ["$http", "$q", "usersURL", "$stateParams"];
+        return PasswordCtrl;
+    })();
+    clientAdmin.PasswordCtrl = PasswordCtrl;
 })(clientAdmin || (clientAdmin = {}));
 var clientAdmin;
 (function (clientAdmin) {
@@ -1076,6 +1166,16 @@ var clientAdmin;
                     }
                 },
                 url: "/admin/message?message&status&origin"
+            })
+                .state("password-rest", {
+                views: {
+                    "main-view": {
+                        templateUrl: "admin/templates/password-reset.html",
+                        controllerAs: "controller",
+                        controller: "passwordCtrl"
+                    }
+                },
+                url: "/admin/password-reset-form?key&user&origin"
             });
         }
         // $inject annotation.
@@ -1119,6 +1219,7 @@ var clientAdmin;
         .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
         .controller("loginCtrl", clientAdmin.LoginCtrl)
         .controller("registerCtrl", clientAdmin.RegisterCtrl)
+        .controller("passwordCtrl", clientAdmin.PasswordCtrl)
         .controller("usersCtrl", clientAdmin.UsersCtrl)
         .controller("postsCtrl", clientAdmin.PostsCtrl)
         .controller("seoCtrl", clientAdmin.SEOCtrl)
@@ -1164,6 +1265,7 @@ var clientAdmin;
 /// <reference path="lib/controllers/SEOCtrl.ts" />
 /// <reference path="lib/controllers/LoginCtrl.ts" />
 /// <reference path="lib/controllers/RegisterCtrl.ts" />
+/// <reference path="lib/controllers/PasswordCtrl.ts" />
 /// <reference path="lib/controllers/MediaCtrl.ts" />
 /// <reference path="lib/controllers/UsersCtrl.ts" />
 /// <reference path="lib/controllers/PostsCtrl.ts" />

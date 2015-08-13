@@ -34,6 +34,7 @@ module clientAdmin
         .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
         .controller("loginCtrl", LoginCtrl)
         .controller("registerCtrl", RegisterCtrl)
+        .controller("passwordCtrl", PasswordCtrl)
         .controller("usersCtrl", UsersCtrl)
         .controller("postsCtrl", PostsCtrl)
         .controller("seoCtrl", SEOCtrl)

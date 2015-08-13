@@ -25,6 +25,7 @@
     <TypeScriptCompile Include="lib\Authenticator.ts" />
     <TypeScriptCompile Include="lib\Application.ts" />
     <TypeScriptCompile Include="lib\Config.ts" />
+    <TypeScriptCompile Include="lib\controllers\PasswordCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\PagedContentCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\PostsCtrl.ts" />
     <TypeScriptCompile Include="lib\controllers\MediaCtrl.ts" />
@@ -68,6 +69,9 @@
     </Content>
     <Content Include="..\server\resources\admin\templates\nav.html">
       <Link>html\templates\nav.html</Link>
+    </Content>
+    <Content Include="..\server\resources\admin\templates\password-reset.html">
+      <Link>html\templates\password-reset.html</Link>
     </Content>
     <Content Include="..\server\resources\admin\templates\register.html">
       <Link>html\templates\register.html</Link>

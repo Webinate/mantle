@@ -143,6 +143,25 @@
 					},					
                     url: "/admin/message?message&status&origin"
                 })
+                .state("password-rest",
+                    {
+                        views: {
+                            "main-view": {
+                                templateUrl: "admin/templates/password-reset.html",
+                                controllerAs: "controller",
+                                controller: "passwordCtrl"
+                                //controller: ["$scope", "$stateParams", function ($scope, $stateParams)
+                                //{
+                                //    // Decodes the html
+                                //    var txtbox = document.createElement("textarea");
+                                //    txtbox.innerHTML = $stateParams.user;
+                                //    $scope.user = txtbox.value;
+                                //    $scope.key = $stateParams.key;
+                                //}]                                
+                            }
+                        },
+                        url: "/admin/password-reset-form?key&user&origin"
+                    })
 		}
 	}
 }
