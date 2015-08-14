@@ -6,6 +6,7 @@ var https = require("https");
 var fs = require("fs");
 var winston = require("winston");
 var compression = require("compression");
+var CORSController_1 = require("./lib/controllers/CORSController");
 var PathHandler_1 = require("./lib/PathHandler");
 var Server = (function () {
     function Server(server, config, db) {
@@ -19,6 +20,8 @@ var Server = (function () {
             var config = that._config;
             var server = that._server;
             var app = express();
+            // Add the CORS controller
+            new CORSController_1.default(app, server);
             // Enable GZIPPING
             app.use(compression());
             // User defined static folders

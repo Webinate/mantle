@@ -111,6 +111,11 @@
         * The port number of the host
         */
         portHTTP: number;
+
+        /**
+        * An array of domains that are CORS approved
+        */
+        approvedDomains: Array<string>;
     
         /**
         * An array of folder paths that can be used to fetch static content

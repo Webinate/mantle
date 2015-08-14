@@ -6,3 +6,4 @@ exports.Controller = _Controller.Controller;
 exports.Model = _Models.Model;
 exports.UsersService = _UsersService.UsersService;
 exports.SchemaFactory = _SchemaFactory;
+exports.NumberType = _SchemaFactory.NumberType;

@@ -15,6 +15,7 @@ import {Controller} from "./lib/controllers/Controller"
 import PostsController from "./lib/controllers/PostsController";
 import EmailsController from "./lib/controllers/EmailsController";
 import PageRenderer from "./lib/controllers/PageRenderer";
+import CORSController from "./lib/controllers/CORSController";
 import {PathHandler} from "./lib/PathHandler";
 import * as UsersService from "./lib/UsersService";
 
@@ -41,6 +42,9 @@ export class Server
             var server = that._server;
             var app = express();
 
+            // Add the CORS controller
+            new CORSController(app, server);
+            
             // Enable GZIPPING
             app.use(compression());
     
@@ -139,6 +143,8 @@ export class Server
 
                 winston.info(`Listening on HTTPS port ${port}`, { process: process.pid });
             }
+
+            
     
             // Initialize all the controllers
             for (var i = 0, l: number = controllers.length; i < l; i++)

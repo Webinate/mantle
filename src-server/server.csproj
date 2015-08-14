@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="lib\controllers\AdminController.ts" />
+    <TypeScriptCompile Include="lib\controllers\CORSController.ts" />
     <TypeScriptCompile Include="lib\controllers\EmailsController.ts" />
     <TypeScriptCompile Include="lib\controllers\PostsController.ts" />
     <TypeScriptCompile Include="lib\definitions\bcrypt-nodejs.d.ts" />
