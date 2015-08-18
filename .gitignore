@@ -16,7 +16,7 @@
 [Rr]elease/
 [Rr]eleases/
 [Bb]in/
-server/plugins/
+plugins/
 x64/
 x86/
 build/
