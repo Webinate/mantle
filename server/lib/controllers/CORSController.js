@@ -24,17 +24,19 @@ var CORSController = (function (_super) {
         // Approves the valid domains for CORS requests
         e.use(function (req, res, next) {
             if (req.headers.origin) {
+                var matched = false;
                 for (var m = 0, l = matches.length; m < l; m++)
                     if (req.headers.origin.match(matches[m])) {
                         res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
                         res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
                         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-Mime-Type, X-File-Name, Cache-Control');
                         res.setHeader("Access-Control-Allow-Credentials", "true");
+                        matched = true;
                         break;
                     }
+                if (!matched)
+                    console.log(req.headers.origin + " Does not have permission. Add it to the allowed ");
             }
-            else if (!req.headers.origin)
-                console.log(req.headers.origin + " Does not have permission. Add it to the allowed ");
             if (req.method === 'OPTIONS') {
                 res.status(200);
                 res.end();

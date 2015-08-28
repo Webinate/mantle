@@ -7,6 +7,7 @@ import {Controller} from "./Controller";
 import {PostsModel} from "../models/PostsModel";
 import {CategoriesModel} from "../models/CategoriesModel";
 import {UsersService} from "../UsersService";
+import {authenticateUser, authenticateAdmin} from "../PermissionControllers";
 import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts} from "modepress-api";
 
 /**
@@ -31,14 +32,14 @@ export default class PostsController extends Controller
 		router.use(bodyParser.json());
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         
-        router.get("/get-posts", <any>[this.authenticateUser.bind(this), this.getPosts.bind(this)]);
-        router.get("/get-post/:slug", <any>[this.authenticateUser.bind(this), this.getPost.bind(this)]);
+        router.get("/get-posts", <any>[authenticateUser, this.getPosts.bind(this)]);
+        router.get("/get-post/:slug", <any>[authenticateUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", <any>[this.authenticateAdmin.bind(this), this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", <any>[this.authenticateAdmin.bind(this), this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", <any>[this.authenticateAdmin.bind(this), this.updatePost.bind(this)]);
-        router.post("/create-post", <any>[this.authenticateAdmin.bind(this), this.createPost.bind(this)]);
-        router.post("/create-category", <any>[this.authenticateAdmin.bind(this), this.createCategory.bind(this)]);
+        router.delete("/remove-post/:id", <any>[authenticateAdmin, this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", <any>[authenticateAdmin, this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", <any>[authenticateAdmin, this.updatePost.bind(this)]);
+        router.post("/create-post", <any>[authenticateAdmin, this.createPost.bind(this)]);
+        router.post("/create-category", <any>[authenticateAdmin, this.createCategory.bind(this)]);
 
 		// Register the path
 		e.use( "/api/posts", router );
@@ -257,77 +258,6 @@ export default class PostsController extends Controller
                 error: true,
                 message: error.message
             }));
-        });
-    }
-
-    /**
-    * This funciton checks the logged in user is an admin. If not an admin it returns an error, 
-    * if true it passes the scope onto the next function in the queue
-    * @param {express.Request} req 
-    * @param {express.Response} res
-    * @param {Function} next 
-    */
-    private authenticateAdmin(req: express.Request, res: express.Response, next: Function)
-    {
-        var users = UsersService.getSingleton();
-
-        users.authenticated(req, res).then(function(auth)
-        {
-            if (!auth.authenticated)
-            {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(<IResponse>{
-                    error: true,
-                    message: "You must be logged in to make this request"
-                }));
-            }
-            else if (!users.hasPermission(auth.user, 2))
-            {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(<IResponse>{
-                    error: true,
-                    message: "You do not have permission"
-                }));
-            }
-            else
-            {
-                req.params.user = auth.user;
-                next();
-            }
-
-        }).catch(function (error: Error)
-        {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: "You do not have permission"
-            }));
-        });
-    }
-
-    /**
-    * This funciton checks if user is logged in
-    * @param {express.Request} req 
-    * @param {express.Response} res
-    * @param {Function} next 
-    */
-    private authenticateUser(req: express.Request, res: express.Response, next: Function)
-    {
-        var users = UsersService.getSingleton();
-
-        users.authenticated(req, res).then(function (auth)
-        {
-            if (!auth.authenticated)
-                req.params.user = null;
-            else
-                req.params.user = auth.user;
-
-            next();
-
-        }).catch(function (error: Error)
-        {
-            req.params.user = null;
-            next();
         });
     }
 

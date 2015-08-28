@@ -9,15 +9,15 @@ import * as winston from "winston";
 import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
-import {MongoWrapper} from "./lib/MongoWrapper";
+import {MongoWrapper} from "./MongoWrapper";
 import {IConfig, IPath, IServer} from "modepress-api";
-import {Controller} from "./lib/controllers/Controller"
-import PostsController from "./lib/controllers/PostsController";
-import EmailsController from "./lib/controllers/EmailsController";
-import PageRenderer from "./lib/controllers/PageRenderer";
-import CORSController from "./lib/controllers/CORSController";
-import {PathHandler} from "./lib/PathHandler";
-import * as UsersService from "./lib/UsersService";
+import {Controller} from "./controllers/Controller"
+import PostsController from "./controllers/PostsController";
+import EmailsController from "./controllers/EmailsController";
+import PageRenderer from "./controllers/PageRenderer";
+import CORSController from "./controllers/CORSController";
+import {PathHandler} from "./PathHandler";
+import * as UsersService from "./UsersService";
 
 export class Server
 {

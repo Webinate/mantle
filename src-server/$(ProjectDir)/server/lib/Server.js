@@ -6,8 +6,8 @@ var https = require("https");
 var fs = require("fs");
 var winston = require("winston");
 var compression = require("compression");
-var CORSController_1 = require("./lib/controllers/CORSController");
-var PathHandler_1 = require("./lib/PathHandler");
+var CORSController_1 = require("./controllers/CORSController");
+var PathHandler_1 = require("./PathHandler");
 var Server = (function () {
     function Server(server, config, db) {
         this._config = config;

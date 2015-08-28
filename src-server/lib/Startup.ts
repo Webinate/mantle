@@ -9,14 +9,14 @@ import * as winston from "winston";
 import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
-import {MongoWrapper} from "./lib/MongoWrapper";
+import {MongoWrapper} from "./MongoWrapper";
 import {IConfig, IPath} from "modepress-api";
-import {Controller} from "./lib/controllers/Controller"
-import PostsController from "./lib/controllers/PostsController";
-import EmailsController from "./lib/controllers/EmailsController";
-import PageRenderer from "./lib/controllers/PageRenderer";
-import {UsersService} from "./lib/UsersService";
-import {PathHandler} from "./lib/PathHandler";
+import {Controller} from "./controllers/Controller"
+import PostsController from "./controllers/PostsController";
+import EmailsController from "./controllers/EmailsController";
+import PageRenderer from "./controllers/PageRenderer";
+import {UsersService} from "./UsersService";
+import {PathHandler} from "./PathHandler";
 import {Server} from "./Server";
 
 var config: IConfig = null;

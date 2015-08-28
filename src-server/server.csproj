@@ -62,14 +62,14 @@
     <TypeScriptCompile Include="lib\models\PostsModel.ts" />
     <TypeScriptCompile Include="lib\controllers\PageRenderer.ts" />
     <TypeScriptCompile Include="lib\PathHandler.ts" />
+    <TypeScriptCompile Include="lib\PermissionControllers.ts" />
     <TypeScriptCompile Include="ModepressAPI.ts" />
-    <TypeScriptCompile Include="Plugin.d.ts" />
-    <TypeScriptCompile Include="Server.ts" />
+    <TypeScriptCompile Include="lib\Server.ts" />
     <TypeScriptCompile Include="lib\UsersService.ts" />
     <TypeScriptCompile Include="Main.ts" />
     <TypeScriptCompile Include="lib\definitions\mongodb.d.ts" />
     <TypeScriptCompile Include="lib\MongoWrapper.ts" />
-    <TypeScriptCompile Include="Startup.ts" />
+    <TypeScriptCompile Include="lib\Startup.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\.gitignore">

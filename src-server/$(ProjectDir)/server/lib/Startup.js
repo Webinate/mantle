@@ -4,9 +4,9 @@ var fs = require("fs");
 var winston = require("winston");
 var yargs = require("yargs");
 var readline = require("readline");
-var MongoWrapper_1 = require("./lib/MongoWrapper");
-var UsersService_1 = require("./lib/UsersService");
-var Server_1 = require("./lib/Server");
+var MongoWrapper_1 = require("./MongoWrapper");
+var UsersService_1 = require("./UsersService");
+var Server_1 = require("./Server");
 var config = null;
 var arguments = yargs.argv;
 // Saves logs to file

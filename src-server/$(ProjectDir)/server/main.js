@@ -23,7 +23,7 @@ if (arguments.numThreads) {
 // Run as a single cluster
 if (numCPUs == 1) {
     console.log("Running as single cluster");
-    require("./Startup.js");
+    require("./lib/Startup.js");
 }
 else if (cluster.isMaster) {
     // Fork workers.
@@ -47,5 +47,5 @@ else if (cluster.isMaster) {
     });
 }
 else {
-    require("./Startup.js");
+    require("./lib/Startup.js");
 }

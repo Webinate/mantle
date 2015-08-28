@@ -12,6 +12,7 @@ var Controller_1 = require("./Controller");
 var PostsModel_1 = require("../models/PostsModel");
 var CategoriesModel_1 = require("../models/CategoriesModel");
 var UsersService_1 = require("../UsersService");
+var PermissionControllers_1 = require("../PermissionControllers");
 /**
 * A controller that deals with the management of posts
 */
@@ -30,14 +31,14 @@ var PostsController = (function (_super) {
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/get-posts", [this.authenticateUser.bind(this), this.getPosts.bind(this)]);
-        router.get("/get-post/:slug", [this.authenticateUser.bind(this), this.getPost.bind(this)]);
+        router.get("/get-posts", [PermissionControllers_1.authenticateUser, this.getPosts.bind(this)]);
+        router.get("/get-post/:slug", [PermissionControllers_1.authenticateUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", [this.authenticateAdmin.bind(this), this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", [this.authenticateAdmin.bind(this), this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", [this.authenticateAdmin.bind(this), this.updatePost.bind(this)]);
-        router.post("/create-post", [this.authenticateAdmin.bind(this), this.createPost.bind(this)]);
-        router.post("/create-category", [this.authenticateAdmin.bind(this), this.createCategory.bind(this)]);
+        router.delete("/remove-post/:id", [PermissionControllers_1.authenticateAdmin, this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", [PermissionControllers_1.authenticateAdmin, this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", [PermissionControllers_1.authenticateAdmin, this.updatePost.bind(this)]);
+        router.post("/create-post", [PermissionControllers_1.authenticateAdmin, this.createPost.bind(this)]);
+        router.post("/create-category", [PermissionControllers_1.authenticateAdmin, this.createCategory.bind(this)]);
         // Register the path
         e.use("/api/posts", router);
     }
@@ -204,61 +205,6 @@ var PostsController = (function (_super) {
                 error: true,
                 message: error.message
             }));
-        });
-    };
-    /**
-    * This funciton checks the logged in user is an admin. If not an admin it returns an error,
-    * if true it passes the scope onto the next function in the queue
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    PostsController.prototype.authenticateAdmin = function (req, res, next) {
-        var users = UsersService_1.UsersService.getSingleton();
-        users.authenticated(req, res).then(function (auth) {
-            if (!auth.authenticated) {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({
-                    error: true,
-                    message: "You must be logged in to make this request"
-                }));
-            }
-            else if (!users.hasPermission(auth.user, 2)) {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({
-                    error: true,
-                    message: "You do not have permission"
-                }));
-            }
-            else {
-                req.params.user = auth.user;
-                next();
-            }
-        }).catch(function (error) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({
-                error: true,
-                message: "You do not have permission"
-            }));
-        });
-    };
-    /**
-    * This funciton checks if user is logged in
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    PostsController.prototype.authenticateUser = function (req, res, next) {
-        var users = UsersService_1.UsersService.getSingleton();
-        users.authenticated(req, res).then(function (auth) {
-            if (!auth.authenticated)
-                req.params.user = null;
-            else
-                req.params.user = auth.user;
-            next();
-        }).catch(function (error) {
-            req.params.user = null;
-            next();
         });
     };
     /**

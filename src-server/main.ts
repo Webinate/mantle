@@ -32,7 +32,7 @@ if (arguments.numThreads)
 if (numCPUs == 1)
 {
     console.log(`Running as single cluster`);
-    require("./Startup.js");
+    require("./lib/Startup.js");
 }
 else if (cluster.isMaster)
 {
@@ -65,5 +65,5 @@ else if (cluster.isMaster)
 }
 else
 {
-    require("./Startup.js");
+    require("./lib/Startup.js");
 }
