@@ -1,5 +1,39 @@
-﻿declare module UsersInterface
+﻿///<reference path='./express.d.ts' />
+
+declare module UsersInterface
 {
+    export class User
+    {
+        dbEntry: IUserEntry;
+    }
+
+    export module SocketEvents
+    {
+        /*
+        * The base interface for all socket events
+        */
+        export interface IEvent
+        {
+            eventType: number;
+        }
+
+        /*
+        * The token used for logging in
+        */
+        export interface ILogin extends IEvent
+        {
+            username: string;
+        }
+
+        /*
+        * The token used for logging out
+        */
+        export interface ILogout extends IEvent
+        {
+            username: string;
+        }
+    }
+
     /*
     * An interface to describe the data stored in the database for users
     */
@@ -11,6 +45,7 @@
         password?: string;
         registerKey?: string;
         sessionId?: string;
+        createdOn?: number;
         lastLoggedIn?: number;
         privileges?: UserPrivileges;
         passwordTag?: string;
@@ -60,7 +95,18 @@
         isPublic?: boolean;
         numDownloads?: number;
     }
-    
+
+    /**
+    * Adds a logged in user to the request object
+    */
+    export interface AuthRequest extends Express.Request
+    {
+        _user: User;
+        _target: User;
+        params: any;
+        body: any;
+        query: any;
+    }
 
     /*
     * An interface to describe the data stored in the database from the sessions
@@ -71,6 +117,41 @@
         sessionId: string;
         data: any;
         expiration: number;
+    }
+
+
+    /*
+    * Describes the type of client listening communicating to the web sockets
+    */
+    export interface IWebsocketClient
+    {
+        /*Where is the client origin expected from*/
+        origin: string;
+    
+        /*Which events is it registered to listen for*/
+        eventListeners: Array<number>;
+    }
+
+    /*
+    * Users stores data on an external cloud bucket with Google
+    */
+    export interface IWebsocket
+    {
+        /**
+        * The port number to use for web socket communication. You can use this port to send and receive events or messages
+        * to the server.
+        * e.g. 8080
+        */
+        port: number;
+
+    
+        /**
+        * An array of expected clients
+        * [
+        *   { origin: "webinate.net", eventListeners: [1,4,5,6] }
+        * ]
+        */
+        clients: Array<IWebsocketClient>;
     }
 
     /*
@@ -105,6 +186,12 @@
         * eg: "storageAPI"
         */
         statsCollection: string;
+    
+        /**
+        * The length of time the assets should be cached on a user's browser. 
+        * eg:  2592000000 or 30 days
+        */
+        cacheLifetime: number;
     }
 
     /*
@@ -182,8 +269,8 @@
         email: string;
         captcha?: string;
         challenge?: string;
-        privileges: number;
-        meta: any;
+        meta?: any;
+        privileges?: number;
     }
 
     /*
@@ -228,6 +315,11 @@
         * eg: If "/media", then the API url would be 127.0.0.1:80/media (or rather host:port/restURL)
         */
         mediaURL: string;
+
+        /**
+        * A secret string to identify authenticated servers
+        */
+        secret: string;
     
         /**
         * The URL to redirect to after the user attempts to activate their account. 
@@ -246,17 +338,7 @@
         * eg: "http://localhost/reset-password"
         */
         passwordResetURL: string;
-    
-        /**
-        * The URL to redirect to after the user attempts to change their password.
-        * User's will reset their password via the "/password-reset" URL, and after its validation the server will redirect to this URL
-        * adding a query ?message=You%20have%20activated%20your%20account&status=success. 
-        * The status can be either 'success' or 'error'
-        *
-        * eg: "http://localhost/notify-user"
-        */
-        passwordRedirectURL: string;
-    
+        
         /**
         * An array of approved domains that can access this API. 
         * e.g. ["webinate\\.net", "127.0.0.1:80", "http:\/\/127.0.0.1"] etc...
@@ -274,6 +356,11 @@
         * e.g. 443
         */
         portHTTPS: number;
+
+        /**
+        * Information regarding the websocket communication. Used for events and IPC
+        */
+        websocket: IWebsocket;
 	
         /**
         * The name of the mongo database name
@@ -430,6 +517,12 @@
     export interface IGetUsers extends IGetArrayResponse<IUserEntry> { count: number; }
     export interface IGetSessions extends IGetArrayResponse<ISessionEntry> { }
     export interface IGetBuckets extends IGetArrayResponse<IBucketEntry> { }
+    export interface IGetFile extends IGetResponse<IFileEntry> { }
     export interface IGetFiles extends IGetArrayResponse<IFileEntry> { }
     export interface IRemoveFiles extends IGetArrayResponse<string> { }
+}
+
+declare module "webinate-users"
+{
+    export = UsersInterface;
 }
