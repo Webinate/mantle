@@ -7,7 +7,7 @@ var UsersService_1 = require("./UsersService");
 */
 function authenticateUser(req, res, next) {
     var users = UsersService_1.UsersService.getSingleton();
-    users.authenticated(req, res).then(function (auth) {
+    users.authenticated(req).then(function (auth) {
         if (!auth.authenticated)
             req.params.user = null;
         else
@@ -28,7 +28,7 @@ exports.authenticateUser = authenticateUser;
 */
 function authenticateAdmin(req, res, next) {
     var users = UsersService_1.UsersService.getSingleton();
-    users.authenticated(req, res).then(function (auth) {
+    users.authenticated(req).then(function (auth) {
         if (!auth.authenticated) {
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({

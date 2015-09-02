@@ -18,6 +18,7 @@ import PageRenderer from "./controllers/PageRenderer";
 import {UsersService} from "./UsersService";
 import {PathHandler} from "./PathHandler";
 import {Server} from "./Server";
+import {PluginManager} from "./PluginManager";
 
 var config: IConfig = null;
 var arguments = yargs.argv;
@@ -58,6 +59,17 @@ catch(err)
     process.exit();
 }
 
+
+// Attempt to connect to Users
+if (config.usersSocketURL != "")
+{
+    winston.info(`Attempting to connect to users socket at: '${config.usersSocketURL}'`, { process: process.pid });
+    new PluginManager(config).init().catch(function (err: Error)
+    {
+        winston.error(`Could not connect to user socket even though it was specified at: '${config.usersSocketURL}'`, { process: process.pid });
+        process.exit();
+    });
+}
 
 winston.info(`Attempting to connect to mongodb...`, { process: process.pid });
 MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName).then(function (db)

@@ -9,6 +9,7 @@ var UsersService = (function () {
     */
     function UsersService(config) {
         UsersService.usersURL = config.usersURL + "/users";
+        UsersService.mediaURL = config.usersURL + "/media";
         this._secret = config.usersSecret;
     }
     /**
@@ -32,10 +33,9 @@ var UsersService = (function () {
     * @param {any} val The value to set
     * @param {string} user The username of the target user
     * @param {Request} req
-    * @param {Response} res
     * @returns {Promise<UsersInterface.IResponse>}
     */
-    UsersService.prototype.setMetaValue = function (name, val, user, req, res) {
+    UsersService.prototype.setMetaValue = function (name, val, user, req) {
         var that = this;
         return new Promise(function (resolve, reject) {
             request.post(UsersService.usersURL + "/meta/" + user + "/" + name, { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
@@ -53,10 +53,9 @@ var UsersService = (function () {
     * @param {any} val The value to set
     * @param {string} user The username of the target user
     * @param {Request} req
-    * @param {Response} res
     * @returns {Promise<UsersInterface.IResponse>}
     */
-    UsersService.prototype.setMeta = function (val, user, req, res) {
+    UsersService.prototype.setMeta = function (val, user, req) {
         var that = this;
         return new Promise(function (resolve, reject) {
             request.post(UsersService.usersURL + "/meta/" + user, { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
@@ -70,12 +69,51 @@ var UsersService = (function () {
         });
     };
     /**
-    * Checks if a user is logged in and authenticated
+    * Gets a user's meta value
+    * @param {string} user The username of the user
+    * @param {string} name The meta value name we are looking for
     * @param {express.Request} req
-    * @param {express.Request} res
+    * @returns {any} The meta value
+    */
+    UsersService.prototype.getMetaVal = function (user, name, req) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            request.get(UsersService.usersURL + "/meta/" + user + "/" + name, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+                if (error)
+                    return reject(error);
+                var token = JSON.parse(body);
+                resolve(token);
+            });
+        });
+    };
+    /**
+    * Attempts to log a user in
+    * @param {string} user The email or username
+    * @param {string} password The users password
+    * @param {boolean} remember
     * @returns {Promise<UsersInterface.IAuthenticationResponse>}
     */
-    UsersService.prototype.authenticated = function (req, res) {
+    UsersService.prototype.login = function (user, password, remember) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            request.post(UsersService.usersURL + "/login", { body: { username: user, password: password, rememberMe: remember } }, function (error, response, body) {
+                if (error)
+                    return reject(error);
+                try {
+                    resolve(JSON.parse(body));
+                }
+                catch (err) {
+                    return reject(err);
+                }
+            });
+        });
+    };
+    /**
+    * Checks if a user is logged in and authenticated
+    * @param {express.Request} req
+    * @returns {Promise<UsersInterface.IAuthenticationResponse>}
+    */
+    UsersService.prototype.authenticated = function (req) {
         var that = this;
         return new Promise(function (resolve, reject) {
             request.get(UsersService.usersURL + "/authenticated", { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
@@ -103,6 +141,23 @@ var UsersService = (function () {
         else if (user.privileges > level)
             return false;
         return true;
+    };
+    /**
+    * Attempts to download a users usage stats
+    * @param {express.Request} req
+    */
+    UsersService.prototype.getStats = function (user, req) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            request.get(UsersService.mediaURL + "/get-stats/" + user, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+                if (error)
+                    return reject(error);
+                var token = JSON.parse(body);
+                if (token.error)
+                    return reject(new Error(token.message));
+                resolve(token);
+            });
+        });
     };
     /**
     * Gets the user singleton

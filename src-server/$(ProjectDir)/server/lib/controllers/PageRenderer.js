@@ -94,7 +94,7 @@ var PageRenderer = (function (_super) {
     */
     PageRenderer.prototype.authenticateAdmin = function (req, res, next) {
         var users = UsersService_1.UsersService.getSingleton();
-        users.authenticated(req, res).then(function (auth) {
+        users.authenticated(req).then(function (auth) {
             if (!auth.authenticated) {
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({

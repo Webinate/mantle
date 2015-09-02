@@ -19,6 +19,7 @@
     "prerender-node": "~1.2.1",
     "yargs": "~3.12.0",
     "compression": "~1.5.1",
-    "modepress-api": "./modepress-api"
+    "modepress-api": "./modepress-api",
+    "ws": "~0.8.0"
   }
 }

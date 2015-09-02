@@ -120,7 +120,7 @@ export default class PageRenderer extends Controller
     {
         var users = UsersService.getSingleton();
 
-        users.authenticated(req, res).then(function (auth)
+        users.authenticated(req).then(function (auth)
         {
             if (!auth.authenticated)
             {

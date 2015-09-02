@@ -1,36 +1,36 @@
-[
-  {
-    "modepressRenderURL": "",
-    "rendererPort": 3000,
-    "cacheLifetime": 2592000000,
-    "databaseHost": "127.0.0.1",
-    "databasePort": 27017,
-    "databaseName": "test",
-    "usersURL": "",
-    "usersSecret":  "",
-    "adminURL": "/admin",
-    "servers": [
-      {
-        "host": "localhost",
-        "portHTTP": 80,
-        "staticFilesFolder": [ ],
-        "ssl": false,
-        "sslKey": "",
-        "sslCert": "",
-        "sslRoot": "",
-        "sslIntermediate": "",
-        "controllers": [ ],
-        "approvedDomains": [ "webinate\\.net", "127.0.0.1:80", "http:\/\/127.0.0.1" ],
-        "paths": [
-          {
-            "name": "default",
-            "path": "*",
-            "templatePath": "",
-            "index": "",
-            "template": ""
-          }
-        ]
-      }
-    ]
-  }
-]
+{
+  "modepressRenderURL": "",
+  "rendererPort": 3000,
+  "cacheLifetime": 2592000000,
+  "databaseHost": "127.0.0.1",
+  "databasePort": 27017,
+  "databaseName": "test",
+  "usersURL": "",
+  "usersSecret":  "",
+  "adminURL": "/admin",
+  "servers": [
+    {
+      "host": "localhost",
+      "portHTTP": 80,
+      "staticFilesFolder": [ ],
+      "ssl": false,
+      "sslKey": "",
+      "sslCert": "",
+      "sslRoot": "",
+      "sslIntermediate": "",
+      "controllers": [ ],
+      "approvedDomains": [ "webinate\\.net", "127.0.0.1:80", "http:\/\/127.0.0.1" ],
+      "paths": [
+        {
+          "name": "default",
+          "path": "*",
+          "templatePath": "",
+          "index": "",
+          "template": ""
+        }
+      ]
+    }
+  ],
+  "usersSocketURL": "ws://www.webinate.net:123",
+  "usersSocketOrigin": "webinate.net"
+}

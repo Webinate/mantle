@@ -11,7 +11,7 @@ import {IResponse} from "modepress-api";
 export function authenticateUser(req: express.Request, res: express.Response, next: Function)
 {
     var users = UsersService.getSingleton();
-    users.authenticated(req, res).then(function(auth)
+    users.authenticated(req).then(function(auth)
     {
         if (!auth.authenticated)
             req.params.user = null;
@@ -38,7 +38,7 @@ export function authenticateAdmin(req: express.Request, res: express.Response, n
 {
     var users = UsersService.getSingleton();
 
-    users.authenticated(req, res).then(function (auth)
+    users.authenticated(req).then(function (auth)
     {
         if (!auth.authenticated)
         {

@@ -247,6 +247,18 @@
         * An array of servers for each host / route that modepress is supporting
         */
         servers: Array<IServer>;
+
+        /**
+        * The URL to listen for events from a webinate users socket
+        * eg: 'ws://www.webinate.net:123'
+        */
+        usersSocketURL: string;
+
+        /**
+        * Specifies the header 'origin' when connecting to the user socket. This origin must be whitelisted on the users API config file.
+        * eg: 'webinate.net'
+        */
+        usersSocketOrigin: string;
     }
 
     /**
