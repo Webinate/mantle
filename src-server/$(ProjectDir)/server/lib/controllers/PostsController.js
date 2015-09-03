@@ -31,14 +31,14 @@ var PostsController = (function (_super) {
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/get-posts", [PermissionControllers_1.authenticateUser, this.getPosts.bind(this)]);
-        router.get("/get-post/:slug", [PermissionControllers_1.authenticateUser, this.getPost.bind(this)]);
+        router.get("/get-posts", [PermissionControllers_1.getUser, this.getPosts.bind(this)]);
+        router.get("/get-post/:slug", [PermissionControllers_1.getUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", [PermissionControllers_1.authenticateAdmin, this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", [PermissionControllers_1.authenticateAdmin, this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", [PermissionControllers_1.authenticateAdmin, this.updatePost.bind(this)]);
-        router.post("/create-post", [PermissionControllers_1.authenticateAdmin, this.createPost.bind(this)]);
-        router.post("/create-category", [PermissionControllers_1.authenticateAdmin, this.createCategory.bind(this)]);
+        router.delete("/remove-post/:id", [PermissionControllers_1.isAdmin, this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", [PermissionControllers_1.isAdmin, this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", [PermissionControllers_1.isAdmin, this.updatePost.bind(this)]);
+        router.post("/create-post", [PermissionControllers_1.isAdmin, this.createPost.bind(this)]);
+        router.post("/create-category", [PermissionControllers_1.isAdmin, this.createCategory.bind(this)]);
         // Register the path
         e.use("/api/posts", router);
     }
@@ -54,7 +54,7 @@ var PostsController = (function (_super) {
         var that = this;
         var count = 0;
         var visibility = "public";
-        var user = req.params.user;
+        var user = req._user;
         var findToken = { $or: [] };
         if (req.query.author)
             findToken.author = new RegExp(req.query.author, "i");
@@ -156,7 +156,7 @@ var PostsController = (function (_super) {
         var that = this;
         var count = 0;
         var findToken = { slug: req.params.slug };
-        var user = req.params.user;
+        var user = req._user;
         posts.findInstances(findToken, [], 0, 1).then(function (instances) {
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find post"));
@@ -286,7 +286,7 @@ var PostsController = (function (_super) {
         var token = req.body;
         var posts = this.getModel("posts");
         // User is passed from the authentication function
-        token.author = req.params.user.username;
+        token.author = req._user.username;
         posts.createInstance(token).then(function (instance) {
             var newPost = instance.schema.generateCleanData(true);
             newPost._id = instance._id;

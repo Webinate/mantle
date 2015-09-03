@@ -77,7 +77,7 @@ var Model = (function () {
                         var promises = [];
                         var items = model.defaultSchema.items;
                         for (var i = 0, l = items.length; i < l; i++)
-                            if (items[i].indexable())
+                            if (items[i].getIndexable())
                                 promises.push(model.createIndex(items[i].name, collection));
                         if (promises.length == 0) {
                             model._initialized = true;
@@ -257,7 +257,7 @@ var Model = (function () {
             var hasUniqueField = false;
             var searchToken = { $or: [] };
             for (var i = 0, l = items.length; i < l; i++) {
-                if (items[i].unique()) {
+                if (items[i].getUnique()) {
                     hasUniqueField = true;
                     var searchField = {};
                     searchField[items[i].name] = items[i].getValue();
@@ -297,7 +297,7 @@ var Model = (function () {
                 if (!unique) {
                     var uniqueNames = "";
                     for (var i = 0, l = newInstance.schema.items.length; i < l; i++)
-                        if (newInstance.schema.items[i].unique())
+                        if (newInstance.schema.items[i].getUnique())
                             uniqueNames += newInstance.schema.items[i].name + ", ";
                     if (uniqueNames != "")
                         uniqueNames = uniqueNames.slice(0, uniqueNames.length - 2);

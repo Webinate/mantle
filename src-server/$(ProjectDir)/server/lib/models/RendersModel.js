@@ -12,7 +12,7 @@ var RendersModel = (function (_super) {
         _super.call(this, "renders");
         this.defaultSchema.add(new SchemaItemFactory_1.text("url", "", 1));
         this.defaultSchema.add(new SchemaItemFactory_1.text("html", "", 0, Infinity));
-        this.defaultSchema.add(new SchemaItemFactory_1.date("createdOn")).indexable(true);
+        this.defaultSchema.add(new SchemaItemFactory_1.date("createdOn")).setIndexable(true);
     }
     return RendersModel;
 })(Model_1.Model);

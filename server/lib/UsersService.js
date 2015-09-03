@@ -160,6 +160,20 @@ var UsersService = (function () {
         });
     };
     /**
+    * Attempts to get a user by username
+    * @param {express.Request} req
+    */
+    UsersService.prototype.getUser = function (user, req) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            request.get(UsersService.usersURL + "/users/" + user, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+                if (error)
+                    return reject(error);
+                resolve(JSON.parse(body));
+            });
+        });
+    };
+    /**
     * Gets the user singleton
     * @returns {UsersService}
     */

@@ -31,29 +31,35 @@ export class SchemaItem<T>
     }
 
     /**
-    * Gets or sets if this item is indexable by mongodb
+    * Gets if this item is indexable by mongodb
     * @returns {boolean}
     */
-    public indexable(val?: boolean): boolean
-    {
-        if (val === undefined)
-            return this._indexable;
+    public getIndexable(): boolean { return this._indexable; }
 
+    /**
+	* Gets if this item represents a unique value in the database. An example might be a username
+	* @returns {boolean}
+	*/
+    public getUnique(): boolean{  return this._unique; }
+
+    /**
+    * Sets if this item is indexable by mongodb
+    * @returns {SchemaItem}
+    */
+    public setIndexable(val?: boolean): SchemaItem<T>
+    {
         this._indexable = val;
-        return val;
+        return this;
     }
 
     /**
-	* Gets or sets if this item represents a unique value in the database. An example might be a username
-	* @returns {boolean}
+	* Sets if this item represents a unique value in the database. An example might be a username
+	* @returns {SchemaItem}
 	*/
-    public unique(val?: boolean): boolean
+    public setUnique(val?: boolean): SchemaItem<T>
     {
-        if (val === undefined)
-            return this._unique;
-
         this._unique = val;
-        return val;
+        return this;
     }
 
 	/**

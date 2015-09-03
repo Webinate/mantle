@@ -7,8 +7,8 @@ import {Controller} from "./Controller";
 import {PostsModel} from "../models/PostsModel";
 import {CategoriesModel} from "../models/CategoriesModel";
 import {UsersService} from "../UsersService";
-import {authenticateUser, authenticateAdmin} from "../PermissionControllers";
-import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts} from "modepress-api";
+import {getUser, isAdmin} from "../PermissionControllers";
+import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts, IAuthReq} from "modepress-api";
 
 /**
 * A controller that deals with the management of posts
@@ -32,14 +32,14 @@ export default class PostsController extends Controller
 		router.use(bodyParser.json());
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         
-        router.get("/get-posts", <any>[authenticateUser, this.getPosts.bind(this)]);
-        router.get("/get-post/:slug", <any>[authenticateUser, this.getPost.bind(this)]);
+        router.get("/get-posts", <any>[getUser, this.getPosts.bind(this)]);
+        router.get("/get-post/:slug", <any>[getUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", <any>[authenticateAdmin, this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", <any>[authenticateAdmin, this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", <any>[authenticateAdmin, this.updatePost.bind(this)]);
-        router.post("/create-post", <any>[authenticateAdmin, this.createPost.bind(this)]);
-        router.post("/create-category", <any>[authenticateAdmin, this.createCategory.bind(this)]);
+        router.delete("/remove-post/:id", <any>[isAdmin, this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", <any>[isAdmin, this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", <any>[isAdmin, this.updatePost.bind(this)]);
+        router.post("/create-post", <any>[isAdmin, this.createPost.bind(this)]);
+        router.post("/create-category", <any>[isAdmin, this.createCategory.bind(this)]);
 
 		// Register the path
 		e.use( "/api/posts", router );
@@ -58,7 +58,7 @@ export default class PostsController extends Controller
         var that = this;
         var count = 0;
         var visibility = "public";
-        var user: UsersInterface.IUserEntry = req.params.user;
+        var user: UsersInterface.IUserEntry = (<IAuthReq><Express.Request>req)._user;
 
         var findToken = { $or : [] };
         if (req.query.author)
@@ -193,7 +193,7 @@ export default class PostsController extends Controller
         var that = this;
         var count = 0;
         var findToken: IPost = { slug: req.params.slug };
-        var user: UsersInterface.IUserEntry = req.params.user;
+        var user: UsersInterface.IUserEntry = (<IAuthReq><Express.Request>req)._user;
         
         posts.findInstances(findToken, [], 0, 1).then(function (instances)
         {
@@ -362,7 +362,7 @@ export default class PostsController extends Controller
         var posts = this.getModel("posts");
 
         // User is passed from the authentication function
-        token.author = (<UsersInterface.IUserEntry>req.params.user).username;
+        token.author = (<IAuthReq><Express.Request>req)._user.username;
     
         posts.createInstance(token).then(function (instance)
         {

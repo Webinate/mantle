@@ -20,24 +20,30 @@ var SchemaItem = (function () {
         return copy;
     };
     /**
-    * Gets or sets if this item is indexable by mongodb
+    * Gets if this item is indexable by mongodb
     * @returns {boolean}
     */
-    SchemaItem.prototype.indexable = function (val) {
-        if (val === undefined)
-            return this._indexable;
+    SchemaItem.prototype.getIndexable = function () { return this._indexable; };
+    /**
+    * Gets if this item represents a unique value in the database. An example might be a username
+    * @returns {boolean}
+    */
+    SchemaItem.prototype.getUnique = function () { return this._unique; };
+    /**
+    * Sets if this item is indexable by mongodb
+    * @returns {SchemaItem}
+    */
+    SchemaItem.prototype.setIndexable = function (val) {
         this._indexable = val;
-        return val;
+        return this;
     };
     /**
-    * Gets or sets if this item represents a unique value in the database. An example might be a username
-    * @returns {boolean}
+    * Sets if this item represents a unique value in the database. An example might be a username
+    * @returns {SchemaItem}
     */
-    SchemaItem.prototype.unique = function (val) {
-        if (val === undefined)
-            return this._unique;
+    SchemaItem.prototype.setUnique = function (val) {
         this._unique = val;
-        return val;
+        return this;
     };
     /**
     * Checks the value stored to see if its correct in its current form

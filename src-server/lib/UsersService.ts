@@ -222,6 +222,25 @@ export class UsersService
         });
     }
 
+    /**
+    * Attempts to get a user by username
+    * @param {express.Request} req
+    */
+    getUser(user: string, req: express.Request): Promise<UsersInterface.IGetUser>
+    {
+        var that = this;
+        return new Promise<UsersInterface.IGetUser>(function (resolve, reject)
+        {
+            request.get(`${UsersService.usersURL}/users/${user}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            {
+                if (error)
+                    return reject(error);
+                
+                resolve(JSON.parse(body));
+            });
+        });
+    }
+
 
     /**
 	* Gets the user singleton

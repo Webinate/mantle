@@ -11,7 +11,7 @@ var CategoriesModel = (function (_super) {
     function CategoriesModel() {
         _super.call(this, "categories");
         this.defaultSchema.add(new SchemaItemFactory_1.text("title", "", 1));
-        this.defaultSchema.add(new SchemaItemFactory_1.text("slug", "", 1, 20)).unique(true);
+        this.defaultSchema.add(new SchemaItemFactory_1.text("slug", "", 1, 20)).setUnique(true);
         this.defaultSchema.add(new SchemaItemFactory_1.text("description", ""));
         this.defaultSchema.add(new SchemaItemFactory_1.text("parent", ""));
     }

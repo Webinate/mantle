@@ -1,6 +1,6 @@
 ﻿import express = require("express");
 import {UsersService} from "./UsersService";
-import {IResponse} from "modepress-api";
+import {IResponse, IAuthReq} from "modepress-api";
 
 /**
 * This funciton checks if user is logged in
@@ -8,15 +8,15 @@ import {IResponse} from "modepress-api";
 * @param {express.Response} res
 * @param {Function} next 
 */
-export function authenticateUser(req: express.Request, res: express.Response, next: Function)
+export function getUser(req: express.Request, res: express.Response, next: Function)
 {
     var users = UsersService.getSingleton();
     users.authenticated(req).then(function(auth)
     {
         if (!auth.authenticated)
-            req.params.user = null;
+            (<IAuthReq><Express.Request>req)._user = null;
         else
-            req.params.user = auth.user;
+            (<IAuthReq><Express.Request>req)._user = auth.user;
 
         next();
 
@@ -34,7 +34,7 @@ export function authenticateUser(req: express.Request, res: express.Response, ne
 * @param {express.Response} res
 * @param {Function} next 
 */
-export function authenticateAdmin(req: express.Request, res: express.Response, next: Function)
+export function isAdmin(req: express.Request, res: express.Response, next: Function)
 {
     var users = UsersService.getSingleton();
 
@@ -58,7 +58,7 @@ export function authenticateAdmin(req: express.Request, res: express.Response, n
         }
         else
         {
-            req.params.user = auth.user;
+            (<IAuthReq><Express.Request>req)._user = auth.user;
             next();
         }
 
@@ -68,6 +68,38 @@ export function authenticateAdmin(req: express.Request, res: express.Response, n
         res.end(JSON.stringify(<IResponse>{
             error: true,
             message: "You do not have permission"
+        }));
+    });
+}
+
+/**
+* This funciton checks if user is logged in and throws an error if not
+* @param {express.Request} req 
+* @param {express.Response} res
+* @param {Function} next 
+*/
+export function isAuthenticated(req: express.Request, res: express.Response, next: Function)
+{
+    var users = UsersService.getSingleton();
+    users.authenticated(req).then(function (auth)
+    {
+        if (!auth.authenticated)
+        {
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: auth.message
+            }));
+        }
+
+        next();
+
+    }).catch(function (error: Error)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(<IResponse>{
+            error: true,
+            message: `An error has occurred: ${error.message}`
         }));
     });
 }

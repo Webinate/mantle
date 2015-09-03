@@ -102,7 +102,7 @@ export class Model
                         var promises: Array<Promise<any>> = [];
                         var items = model.defaultSchema.items;
                         for (var i = 0, l = items.length; i < l; i++)
-                            if (items[i].indexable())
+                            if (items[i].getIndexable())
                                 promises.push(model.createIndex(items[i].name, collection));
 
                         if (promises.length == 0)
@@ -339,7 +339,7 @@ export class Model
             var searchToken = { $or : [] };
             for (var i = 0, l = items.length; i < l; i++)
             {
-                if (items[i].unique())
+                if (items[i].getUnique())
                 {
                     hasUniqueField = true;
                     var searchField = {};
@@ -393,7 +393,7 @@ export class Model
                 {
                     var uniqueNames = "";
                     for (var i = 0, l = newInstance.schema.items.length; i < l; i++)
-                        if (newInstance.schema.items[i].unique())
+                        if (newInstance.schema.items[i].getUnique())
                             uniqueNames += newInstance.schema.items[i].name + ", ";
 
                     if (uniqueNames != "")
