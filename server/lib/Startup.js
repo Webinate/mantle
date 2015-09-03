@@ -7,7 +7,7 @@ var readline = require("readline");
 var MongoWrapper_1 = require("./MongoWrapper");
 var UsersService_1 = require("./UsersService");
 var Server_1 = require("./Server");
-var PluginManager_1 = require("./PluginManager");
+var EventManager_1 = require("./EventManager");
 var config = null;
 var arguments = yargs.argv;
 // Saves logs to file
@@ -38,7 +38,7 @@ catch (err) {
 // Attempt to connect to Users
 if (config.usersSocketURL != "") {
     winston.info("Attempting to connect to users socket at: '" + config.usersSocketURL + "'", { process: process.pid });
-    new PluginManager_1.PluginManager(config).init().catch(function (err) {
+    new EventManager_1.EventManager(config).init().catch(function (err) {
         winston.error("Could not connect to user socket even though it was specified at: '" + config.usersSocketURL + "'", { process: process.pid });
         process.exit();
     });

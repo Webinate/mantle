@@ -689,6 +689,9 @@
         constructor(name: string, val: string, sensitive?: boolean );
     }
 
+    /**
+    * A list of helper functions for creating schema items
+    */
     export module SchemaFactory
     {
         export var num: typeof SchemaNumber;
@@ -697,6 +700,43 @@
         export var date: typeof SchemaDate;
         export var bool: typeof SchemaBool;
         export var id: typeof SchemaId;
+    }
+
+    /**
+    * The type of user event
+    */
+    export enum UserEventType
+    {
+        Login,
+        Logout,
+        Activated,
+        Removed
+    }
+
+    /**
+    * Describes the user event sent to plugins
+    */
+    export interface UserEvent
+    {
+        username: string;
+        eventType: UserEventType;
+    }
+
+    /**
+    * A class for handling events sent from a webinate user server
+    */
+    export class EventManager implements NodeJS.EventEmitter
+    {
+        static singleton: EventManager;
+
+        addListener(event: string, listener: Function): NodeJS.EventEmitter;
+        on(event: string, listener: Function): NodeJS.EventEmitter;
+        once(event: string, listener: Function): NodeJS.EventEmitter;
+        removeListener(event: string, listener: Function): NodeJS.EventEmitter;
+        removeAllListeners(event?: string): NodeJS.EventEmitter;
+        setMaxListeners(n: number): void;
+        listeners(event: string): Function[];
+        emit(event: string, ...args: any[]): boolean;
     }
 }
 

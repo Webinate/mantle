@@ -17,19 +17,20 @@ var UserEventType = exports.UserEventType;
 /**
 * A class for handling events sent from a webinate user server
 */
-var PluginManager = (function (_super) {
-    __extends(PluginManager, _super);
+var EventManager = (function (_super) {
+    __extends(EventManager, _super);
     /**
     * Creates an instance of the plugin manager
     */
-    function PluginManager(cfg) {
+    function EventManager(cfg) {
         _super.call(this);
+        EventManager.singleton = this;
         this._cfg = cfg;
     }
     /**
     * Intiailizes the manager
     */
-    PluginManager.prototype.init = function () {
+    EventManager.prototype.init = function () {
         var cfg = this._cfg;
         var that = this;
         return new Promise(function (resolve, reject) {
@@ -51,17 +52,17 @@ var PluginManager = (function (_super) {
     /**
     * Called whenever we get a message from the user socket events
     */
-    PluginManager.prototype.onMessage = function (data, flags) {
+    EventManager.prototype.onMessage = function (data, flags) {
         if (!flags.binary) {
             try {
-                for (var i in UserEventType)
-                    i;
+                var event = JSON.parse(data);
+                this.emit(UserEventType[event.eventType], event);
             }
             catch (err) {
                 winston.error("An error occurred while parsing socket string : '" + err.message + "'", { process: process.pid });
             }
         }
     };
-    return PluginManager;
+    return EventManager;
 })(events.EventEmitter);
-exports.PluginManager = PluginManager;
+exports.EventManager = EventManager;

@@ -64,7 +64,7 @@
     <TypeScriptCompile Include="lib\controllers\PageRenderer.ts" />
     <TypeScriptCompile Include="lib\PathHandler.ts" />
     <TypeScriptCompile Include="lib\PermissionControllers.ts" />
-    <TypeScriptCompile Include="lib\PluginManager.ts" />
+    <TypeScriptCompile Include="lib\EventManager.ts" />
     <TypeScriptCompile Include="ModepressAPI.ts" />
     <TypeScriptCompile Include="lib\Server.ts" />
     <TypeScriptCompile Include="lib\UsersService.ts" />

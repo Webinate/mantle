@@ -29,15 +29,13 @@ export class SchemaId extends SchemaItem<ObjectID>
 	* @param {string} str
     * @returns {boolean} True if the string is valid
 	*/
-    isValidObjectID(str: string): boolean
+    isValidObjectID(str: string = ""): boolean
     {
         // coerce to string so the function can be generically used to test both strings and native objectIds created by the driver
         str = str.trim() + '';
         var len = str.length, valid = false;
         if (len == 12 || len == 24)
-        {
             valid = /^[0-9a-fA-F]+$/.test(str);
-        }
 
         return valid;
     }
@@ -61,6 +59,9 @@ export class SchemaId extends SchemaItem<ObjectID>
 	public validate(): boolean | string
     {
         var transformedValue = <ObjectID>this.value;
+
+        if (transformedValue == null)
+            transformedValue = new ObjectID("000000000000000000000000");
 
         if (!transformedValue)
             return `Please use a valid ID for '${this.name}'`;

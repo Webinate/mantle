@@ -15,21 +15,6 @@ declare module UsersInterface
         export interface IEvent
         {
             eventType: number;
-        }
-
-        /*
-        * The token used for logging in
-        */
-        export interface ILogin extends IEvent
-        {
-            username: string;
-        }
-
-        /*
-        * The token used for logging out
-        */
-        export interface ILogout extends IEvent
-        {
             username: string;
         }
     }
