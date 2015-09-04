@@ -27,14 +27,31 @@ export class Schema
 			copy.items.push(items[i].clone());
 
 		return copy;
-	}
+    }
+
+    /**
+	* Sets a schema value by name
+	* @param {any} data The data object we are setting
+	*/
+    set(data: any)
+    {
+        var items = this.items,
+            l = items.length;
+
+        for (var i in data)
+        {
+            for (var ii = 0; ii < l; ii++)
+                if (items[ii].name == name)
+                    items[ii].value = data[i];
+        }
+    }
 
 	/**
 	* Sets a schema value by name
 	* @param {string} name The name of the schema item
 	* @param {any} val The new value of the item
 	*/
-	set(name: string, val: any)
+	setVal(name: string, val: any)
 	{
 		var items = this.items;
 		
@@ -50,7 +67,7 @@ export class Schema
 	public deserialize(data: any): any
 	{
 		for (var i in data)
-			this.set(i, data[i]);
+			this.setVal(i, data[i]);
 	}
 
 	/**
@@ -73,9 +90,9 @@ export class Schema
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
 	* @returns {any}
 	*/
-    public generateCleanData(sanitize: boolean): any
+    public generateCleanData<T>(sanitize: boolean): T
     {
-        var toReturn = {};
+        var toReturn : T = <any>{};
         var items = this.items;
 
         for (var i = 0, l = items.length; i < l; i++)

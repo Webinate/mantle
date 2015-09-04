@@ -1,11 +1,18 @@
 ﻿declare module Modepress
 {
     /*
-    * Describes the post model
+    * Base interface for all models
     */
-    export interface IPost
+    export interface IModelEntry
     {
         _id?: any;
+    }
+
+    /*
+    * Describes the post model
+    */
+    export interface IPost extends IModelEntry
+    {
         author?: string;
         title?: string;
         slug?: string;
@@ -22,9 +29,8 @@
     /*
     * Describes the category model
     */
-    export interface ICategory
+    export interface ICategory extends IModelEntry
     {
-        _id?: any;
         title?: string;
         slug?: string;
         parent?: string;
@@ -41,11 +47,15 @@
     }
 
     /*
+    * Describes a token returned from updating instances
+    */
+    export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
+
+    /*
     * Describes the cache renders model
     */
-    export interface IRender
+    export interface IRender extends IModelEntry
     {
-        _id?: any;
         url?: string;
         createdOn?: number;
         updateDate?: number;
@@ -390,16 +400,17 @@
     * An instance of a model with its own unique schema and ID. The initial schema is a clone
     * the parent model's
     */
-    class ModelInstance
+    class ModelInstance<T>
     {
         public model: Model;
         public schema: Schema;
+        public dbEntry: T;
         public _id: any;
 	
         /**
         * Creates a model instance
         */
-        constructor(model: Model);
+        constructor(model: Model, dbEntry: T);
     }
 
     /**
@@ -428,15 +439,7 @@
         * @returns {Promise<mongodb.Db>}
         */
         initialize(db: any): Promise<Model>;
-
-        /**
-        * Updates the models collection based on the search criteria.
-        * @param {any} selector The selector for defining which entries to update
-        * @param {any} document The object that defines what has to be updated
-        * @returns {Promise<number>} A promise with the number of entities affected
-        */
-        update(selector: any, document: any): Promise<number>;
-	
+        	
         /**
         * Gets the number of DB entries based on the selector
         * @param {any} selector The mongodb selector
@@ -454,7 +457,7 @@
         * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
         * @returns {Promise<Array<ModelInstance>>}
         */
-        findInstances(selector: any, sort?: any, startIndex?: number, limit?: number, projection?: any): Promise<Array<ModelInstance>>;
+        findInstances<T>(selector: any, sort?: any, startIndex?: number, limit?: number, projection?: any): Promise<Array<ModelInstance<T>>>;
 	
         /**
         * Deletes a number of instances based on the selector. The promise reports how many items were deleted
@@ -463,13 +466,15 @@
         deleteInstances(selector: any): Promise<number>;
 
         /**
-        * Updates an instance by its ID
-        * @param {string} id The id of the instance we are updating
+        * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
+        * unique fields are still being respected. An array is returned of each instance along with an error string if anything went wrong
+        * with updating the specific instance.
+        * @param {any} selector The selector for updating instances
         * @param {any} data The data object that will attempt to set the instance's schema variables
-        * by parsing the object and setting each schema item's value by the name/value in the data object. 
-        * @returns {Promise<ModelInstance>}
+        * @returns {Promise<Array<ModelInstance<T>>>} An array of objects that contains the field error and instance. Error is false if nothing
+        * went wrong when updating the specific instance, and a string message if something did in fact go wrong
         */
-        updateInstance(id: string, data: any): Promise<ModelInstance>;
+        update<T>(selector: any, data: T): Promise<Array<UpdateToken<T>>>
 
         /**
         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
@@ -477,7 +482,7 @@
         * by parsing the data object and setting each schema item's value by the name/value in the data object. 
         * @returns {Promise<boolean>}
         */
-        checkUniqueness(instance: ModelInstance): Promise<boolean>;
+        checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>;
 
         /**
         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
@@ -485,14 +490,14 @@
         * by parsing the data object and setting each schema item's value by the name/value in the data object. 
         * @returns {Promise<ModelInstance>}
         */
-        createInstance(data?: any): Promise<ModelInstance>;
+        createInstance<T>(data?: any): Promise<ModelInstance<T>>;
 
         /**
         * Attempts to insert an array of instances of this model into the database. 
         * @param {Promise<Array<ModelInstance>>} instances An array of instances to save
         * @returns {Promise<Array<ModelInstance>>}
         */
-        insert(instances: Array<ModelInstance>): Promise<Array<ModelInstance>>;
+        insert<T>(instances: Array<ModelInstance<T>>): Promise<Array<ModelInstance<T>>>;
 
     }
 
@@ -519,7 +524,7 @@
         * @param {boolean} instances If true, sensitive data will not be sanitized
         * @returns {Array<T>}
         */
-        getSanitizedData<T>(instances: Array<ModelInstance>, verbose?: boolean): Array<T>;
+        getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose?: boolean): Array<T>;
     }
 
     /**

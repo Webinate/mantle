@@ -20,10 +20,22 @@ var Schema = (function () {
     };
     /**
     * Sets a schema value by name
+    * @param {any} data The data object we are setting
+    */
+    Schema.prototype.set = function (data) {
+        var items = this.items, l = items.length;
+        for (var i in data) {
+            for (var ii = 0; ii < l; ii++)
+                if (items[ii].name == name)
+                    items[ii].value = data[i];
+        }
+    };
+    /**
+    * Sets a schema value by name
     * @param {string} name The name of the schema item
     * @param {any} val The new value of the item
     */
-    Schema.prototype.set = function (name, val) {
+    Schema.prototype.setVal = function (name, val) {
         var items = this.items;
         for (var i = 0, l = items.length; i < l; i++)
             if (items[i].name == name)
@@ -35,7 +47,7 @@ var Schema = (function () {
     */
     Schema.prototype.deserialize = function (data) {
         for (var i in data)
-            this.set(i, data[i]);
+            this.setVal(i, data[i]);
     };
     /**
     * Serializes the schema items into the JSON format for mongodb

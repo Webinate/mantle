@@ -60,12 +60,12 @@ export class Controller
     * @param {boolean} instances If true, sensitive data will not be sanitized
     * @returns {Array<T>}
     */
-    getSanitizedData<T>(instances: Array<ModelInstance>, verbose: boolean = false): Array<T>
+    getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose: boolean = false): Array<T>
     {
         var sanitizedData = [];
         for (var i = 0, l = instances.length; i < l; i++)
         {
-            sanitizedData.push(instances[i].schema.generateCleanData(verbose));
+            sanitizedData.push(instances[i].schema.generateCleanData<T>(verbose));
             sanitizedData[i]._id = instances[i]._id;
         }
 

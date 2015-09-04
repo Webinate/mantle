@@ -263,7 +263,7 @@ var PostsController = (function (_super) {
         res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var posts = this.getModel("posts");
-        posts.updateInstance(req.params.id, token).then(function (instance) {
+        posts.update({ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance) {
             res.end(JSON.stringify({
                 error: false,
                 message: "Post Updated"

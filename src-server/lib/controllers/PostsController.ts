@@ -159,11 +159,11 @@ export default class PostsController extends Controller
         posts.count(findToken).then(function (num)
         {
             count = num;
-            return posts.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
+            return posts.findInstances<IPost>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
 
         }).then(function (instances)
        {
-            var sanitizedData: Array<IPost> = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<IGetPosts>{
                 error: false,
                 count: count,
@@ -195,7 +195,7 @@ export default class PostsController extends Controller
         var findToken: IPost = { slug: req.params.slug };
         var user: UsersInterface.IUserEntry = (<IAuthReq><Express.Request>req)._user;
         
-        posts.findInstances(findToken, [], 0, 1).then(function (instances)
+        posts.findInstances<IPost>(findToken, [], 0, 1).then(function (instances)
         {
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find post"));
@@ -213,7 +213,7 @@ export default class PostsController extends Controller
                 return;
             }
 
-            var sanitizedData: Array<IPost> = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = that.getSanitizedData<IPost>(instances, Boolean(req.query.verbose));
 
             res.end(JSON.stringify(<IGetPost>{
                 error: false,
@@ -242,9 +242,9 @@ export default class PostsController extends Controller
         var categories = this.getModel("categories");
         var that = this;
 
-        categories.findInstances({}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
+        categories.findInstances<ICategory>({}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
         {
-            var sanitizedData: Array<ICategory> = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<IGetCategories>{
                 error: false,
                 count: sanitizedData.length,
@@ -333,7 +333,7 @@ export default class PostsController extends Controller
         var token: IPost = req.body;
         var posts = this.getModel("posts");
 
-        posts.updateInstance(req.params.id, token).then(function (instance)
+        posts.update(<IPost>{ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance)
         {
             res.end(JSON.stringify(<IResponse>{
                 error: false,

@@ -54,7 +54,7 @@ export default class PageRenderer extends Controller
         res.setHeader('Content-Type', 'text/html');
         var renders = this.getModel("renders");
 
-        renders.findInstances(<IRender>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances)
+        renders.findInstances<IRender>(<IRender>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances)
         {
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find a render with that ID"));
@@ -196,11 +196,11 @@ export default class PageRenderer extends Controller
         renders.count(findToken).then(function(num)
         {
             count = num;
-            return renders.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            return renders.findInstances<IRender>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
 
         }).then(function (instances)
         {
-            var sanitizedData: Array<IRender> = that.getSanitizedData<IRender>(instances, Boolean(req.query.verbose));
+            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<IGetRenders>{
                 error: false,
                 count: count,
