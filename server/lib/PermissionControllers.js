@@ -10,8 +10,10 @@ function getUser(req, res, next) {
     users.authenticated(req).then(function (auth) {
         if (!auth.authenticated)
             req._user = null;
-        else
+        else {
             req._user = auth.user;
+            req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+        }
         next();
     }).catch(function (error) {
         req.params.user = null;
@@ -45,6 +47,7 @@ function isAdmin(req, res, next) {
         }
         else {
             req._user = auth.user;
+            req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
             next();
         }
     }).catch(function (error) {
@@ -56,6 +59,44 @@ function isAdmin(req, res, next) {
     });
 }
 exports.isAdmin = isAdmin;
+/**
+* This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
+* @param {express.Request} req
+* @param {express.Response} res
+* @param {Function} next
+*/
+function canEdit(req, res, next) {
+    var users = UsersService_1.UsersService.getSingleton();
+    var targetUser = req.params.user;
+    users.authenticated(req).then(function (auth) {
+        if (!auth.authenticated) {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({
+                error: true,
+                message: "You must be logged in to make this request"
+            }));
+        }
+        else if (!users.hasPermission(auth.user, 2, targetUser)) {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({
+                error: true,
+                message: "You do not have permission"
+            }));
+        }
+        else {
+            req._user = auth.user;
+            req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+            next();
+        }
+    }).catch(function (error) {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({
+            error: true,
+            message: "You do not have permission"
+        }));
+    });
+}
+exports.canEdit = canEdit;
 /**
 * This funciton checks if user is logged in and throws an error if not
 * @param {express.Request} req

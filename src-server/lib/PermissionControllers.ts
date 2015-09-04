@@ -16,7 +16,10 @@ export function getUser(req: express.Request, res: express.Response, next: Funct
         if (!auth.authenticated)
             (<IAuthReq><Express.Request>req)._user = null;
         else
+        {
             (<IAuthReq><Express.Request>req)._user = auth.user;
+            (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+        }
 
         next();
 
@@ -59,6 +62,53 @@ export function isAdmin(req: express.Request, res: express.Response, next: Funct
         else
         {
             (<IAuthReq><Express.Request>req)._user = auth.user;
+            (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+            next();
+        }
+
+    }).catch(function (error: Error)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(<IResponse>{
+            error: true,
+            message: "You do not have permission"
+        }));
+    });
+}
+
+/**
+* This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
+* @param {express.Request} req 
+* @param {express.Response} res
+* @param {Function} next 
+*/
+export function canEdit(req: express.Request, res: express.Response, next: Function)
+{
+    var users = UsersService.getSingleton();
+    var targetUser : string = req.params.user;
+
+    users.authenticated(req).then(function (auth)
+    {
+        if (!auth.authenticated)
+        {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: "You must be logged in to make this request"
+            }));
+        }
+        else if (!users.hasPermission(auth.user, 2, targetUser))
+        {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: "You do not have permission"
+            }));
+        }
+        else
+        {
+            (<IAuthReq><Express.Request>req)._user = auth.user;
+            (<IAuthReq><Express.Request>req)._isAdmin = ( auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false );
             next();
         }
 

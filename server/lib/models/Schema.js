@@ -1,4 +1,5 @@
 var SchemaItem_1 = require("./schema-items/SchemaItem");
+var mongodb_1 = require("mongodb");
 /**
 * Gives an overall description of each property in a model
 */
@@ -26,7 +27,7 @@ var Schema = (function () {
         var items = this.items, l = items.length;
         for (var i in data) {
             for (var ii = 0; ii < l; ii++)
-                if (items[ii].name == name)
+                if (items[ii].name == i)
                     items[ii].value = data[i];
         }
     };
@@ -65,11 +66,15 @@ var Schema = (function () {
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {any}
     */
-    Schema.prototype.generateCleanData = function (sanitize) {
+    Schema.prototype.generateCleanData = function (sanitize, id) {
         var toReturn = {};
         var items = this.items;
         for (var i = 0, l = items.length; i < l; i++)
             toReturn[items[i].name] = items[i].getValue(sanitize);
+        if (sanitize)
+            toReturn._id = new mongodb_1.ObjectID("000000000000000000000000");
+        else
+            toReturn._id = id;
         return toReturn;
     };
     /**

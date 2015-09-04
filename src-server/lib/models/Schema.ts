@@ -1,4 +1,6 @@
 ﻿import {SchemaItem} from "./schema-items/SchemaItem";
+import {ObjectID} from "mongodb"
+import {IModelEntry} from "modepress-api";
 
 /**
 * Gives an overall description of each property in a model
@@ -41,7 +43,7 @@ export class Schema
         for (var i in data)
         {
             for (var ii = 0; ii < l; ii++)
-                if (items[ii].name == name)
+                if (items[ii].name == i)
                     items[ii].value = data[i];
         }
     }
@@ -90,13 +92,18 @@ export class Schema
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
 	* @returns {any}
 	*/
-    public generateCleanData<T>(sanitize: boolean): T
+    public generateCleanData<T>(sanitize: boolean, id: ObjectID): T
     {
         var toReturn : T = <any>{};
         var items = this.items;
 
         for (var i = 0, l = items.length; i < l; i++)
             toReturn[items[i].name] = items[i].getValue(sanitize);
+
+        if (sanitize)
+            (<IModelEntry>toReturn)._id = new ObjectID("000000000000000000000000");
+       else
+            (<IModelEntry>toReturn)._id = id;
 
         return toReturn;
     }

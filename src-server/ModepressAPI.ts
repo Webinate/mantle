@@ -17,3 +17,4 @@ export var UserEventType = _EventManager.UserEventType;
 export var isAdmin = _PermissionController.isAdmin;
 export var isAuthenticated = _PermissionController.isAuthenticated;
 export var getUser = _PermissionController.getUser;
+export var canEdit = _PermissionController.canEdit;

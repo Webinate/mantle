@@ -221,8 +221,10 @@ var Model = (function () {
                 // Attempt to save the data to mongo collection
                 collection.findOne(selector, projection || {}, function (err, result) {
                     // Check for errors
-                    if (err || !result)
+                    if (err)
                         reject(err);
+                    else if (!result)
+                        return resolve(null);
                     else {
                         // Create the instance array
                         var instance;

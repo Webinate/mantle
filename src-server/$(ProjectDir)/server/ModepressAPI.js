@@ -14,3 +14,4 @@ exports.UserEventType = _EventManager.UserEventType;
 exports.isAdmin = _PermissionController.isAdmin;
 exports.isAuthenticated = _PermissionController.isAuthenticated;
 exports.getUser = _PermissionController.getUser;
+exports.canEdit = _PermissionController.canEdit;

@@ -288,12 +288,10 @@ var PostsController = (function (_super) {
         // User is passed from the authentication function
         token.author = req._user.username;
         posts.createInstance(token).then(function (instance) {
-            var newPost = instance.schema.generateCleanData(true);
-            newPost._id = instance._id;
             res.end(JSON.stringify({
                 error: false,
                 message: "New post created",
-                data: newPost
+                data: instance.schema.generateCleanData(true, instance._id)
             }));
         }).catch(function (error) {
             res.end(JSON.stringify({
@@ -313,12 +311,10 @@ var PostsController = (function (_super) {
         var token = req.body;
         var categories = this.getModel("categories");
         categories.createInstance(token).then(function (instance) {
-            var newCategory = instance.schema.generateCleanData(true);
-            newCategory._id = instance._id;
             res.end(JSON.stringify({
                 error: false,
                 message: "New category created",
-                data: newCategory
+                data: instance.schema.generateCleanData(true, instance._id)
             }));
         }).catch(function (error) {
             res.end(JSON.stringify({

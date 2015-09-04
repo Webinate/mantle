@@ -61,7 +61,7 @@ export class SchemaId extends SchemaItem<ObjectID>
         var transformedValue = <ObjectID>this.value;
 
         if (transformedValue == null)
-            transformedValue = new ObjectID("000000000000000000000000");
+            return true;
 
         if (!transformedValue)
             return `Please use a valid ID for '${this.name}'`;
@@ -77,9 +77,9 @@ export class SchemaId extends SchemaItem<ObjectID>
     public getValue(sanitize: boolean = false): ObjectID
     {
         if (this.sensitive && sanitize)
-            return new ObjectID();
+            return new ObjectID("000000000000000000000000");
         else if (!this.value)
-            return new ObjectID();
+            return new ObjectID("000000000000000000000000");
         else
             return this.value;
     }

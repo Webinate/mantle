@@ -366,13 +366,10 @@ export default class PostsController extends Controller
     
         posts.createInstance(token).then(function (instance)
         {
-            var newPost: IPost = instance.schema.generateCleanData(true);
-            newPost._id = instance._id;
-
             res.end(JSON.stringify(<IGetPost>{
                 error: false,
                 message: "New post created",
-                data: newPost
+                data: instance.schema.generateCleanData(true, instance._id)
             }));
 
         }).catch(function (error: Error)
@@ -398,13 +395,10 @@ export default class PostsController extends Controller
 
         categories.createInstance(token).then(function (instance)
         {
-            var newCategory: ICategory = instance.schema.generateCleanData(true);
-            newCategory._id = instance._id;
-
             res.end(JSON.stringify(<IGetCategory>{
                 error: false,
                 message: "New category created",
-                data: newCategory
+                data: instance.schema.generateCleanData(true, instance._id)
             }));
 
         }).catch(function (error: Error)

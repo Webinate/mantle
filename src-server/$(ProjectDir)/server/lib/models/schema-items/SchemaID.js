@@ -56,7 +56,7 @@ var SchemaId = (function (_super) {
     SchemaId.prototype.validate = function () {
         var transformedValue = this.value;
         if (transformedValue == null)
-            transformedValue = new mongodb_1.ObjectID("000000000000000000000000");
+            return true;
         if (!transformedValue)
             return "Please use a valid ID for '" + this.name + "'";
         else
@@ -70,9 +70,9 @@ var SchemaId = (function (_super) {
     SchemaId.prototype.getValue = function (sanitize) {
         if (sanitize === void 0) { sanitize = false; }
         if (this.sensitive && sanitize)
-            return new mongodb_1.ObjectID();
+            return new mongodb_1.ObjectID("000000000000000000000000");
         else if (!this.value)
-            return new mongodb_1.ObjectID();
+            return new mongodb_1.ObjectID("000000000000000000000000");
         else
             return this.value;
     };

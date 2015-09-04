@@ -42,10 +42,8 @@ var Controller = (function () {
     Controller.prototype.getSanitizedData = function (instances, verbose) {
         if (verbose === void 0) { verbose = false; }
         var sanitizedData = [];
-        for (var i = 0, l = instances.length; i < l; i++) {
-            sanitizedData.push(instances[i].schema.generateCleanData(verbose));
-            sanitizedData[i]._id = instances[i]._id;
-        }
+        for (var i = 0, l = instances.length; i < l; i++)
+            sanitizedData.push(instances[i].schema.generateCleanData(verbose, instances[i]._id));
         return sanitizedData;
     };
     return Controller;

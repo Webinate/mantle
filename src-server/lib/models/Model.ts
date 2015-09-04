@@ -1,7 +1,12 @@
 ﻿import * as mongodb from "mongodb";
 import {Schema} from "./Schema";
 import * as winston from "winston";
-import {IModelEntry, UpdateToken} from "modepress-api";
+import {IModelEntry} from "modepress-api";
+
+/*
+   * Describes a token returned from updating instances
+   */
+export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
 
 /**
 * An instance of a model with its own unique schema and ID. The initial schema is a clone
@@ -289,8 +294,10 @@ export class Model
                 collection.findOne(selector, projection || {}, function (err: Error, result: T)
                 {
                     // Check for errors
-                    if (err || !result)
+                    if (err)
                         reject(err);
+                    else if (!result)
+                        return resolve(null);
                     else
                     {
                         // Create the instance array
@@ -351,13 +358,13 @@ export class Model
             {
                 if (!instances || instances.length == 0)
                     return resolve(toRet);
-                
-                instances.forEach(function (instance, index)
+
+                instances.forEach(function (instance: ModelInstance<T>, index)
                 {
                     // If we have data, then set the variables
                     if (data)
                         instance.schema.set(data);
-
+                    
                     // Make sure the new updates are valid
                     if (!instance.schema.validate())
                     {

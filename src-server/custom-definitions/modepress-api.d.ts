@@ -365,9 +365,10 @@
         /**
         * Serializes the schema items into the JSON format for mongodb
         * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
+        * @param {any} id The db ID of the instance to clean
         * @returns {any}
         */
-        public generateCleanData(sanitize: boolean): any;
+        public generateCleanData(sanitize: boolean, id: any): any;
 
         /**
         * Checks the value stored to see if its correct in its current form
@@ -459,6 +460,14 @@
         */
         findInstances<T>(selector: any, sort?: any, startIndex?: number, limit?: number, projection?: any): Promise<Array<ModelInstance<T>>>;
 	
+        /**
+        * Gets a model instance based on the selector criteria
+        * @param {any} selector The mongodb selector
+        * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
+        * @returns {Promise<ModelInstance<T>>}
+        */
+        findOne<T>(selector: any, projection?: any): Promise<ModelInstance<T>>;
+
         /**
         * Deletes a number of instances based on the selector. The promise reports how many items were deleted
         * @returns {Promise<number>}
@@ -763,9 +772,12 @@
 
     export interface IAuthReq extends Express.Request
     {
+        _isAdmin: boolean;
         _user: UsersInterface.IUserEntry;
         body: any;
         headers: any;
+        params: any;
+        query: any;
     }
     
     /**
@@ -775,6 +787,14 @@
     * @param {Function} next 
     */
     export function isAdmin(req: IAuthReq, res: Express.Response, next: Function);
+
+    /**
+    * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    export function canEdit(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
     * This funciton checks the logged in user is an admin. If not an admin it returns an error, 
