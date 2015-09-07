@@ -3,10 +3,14 @@ import {Schema} from "./Schema";
 import * as winston from "winston";
 import {IModelEntry} from "modepress-api";
 
-/*
-   * Describes a token returned from updating instances
-   */
+
 export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
+
+/*
+* Describes a token returned from updating instances
+*/
+export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>> }
+
 
 /**
 * An instance of a model with its own unique schema and ID. The initial schema is a clone
@@ -343,16 +347,19 @@ export class Model
     * with updating the specific instance.
 	* @param {any} selector The selector for updating instances
     * @param {any} data The data object that will attempt to set the instance's schema variables
-	* @returns {Promise<Array<ModelInstance<T>>>} An array of objects that contains the field error and instance. Error is false if nothing
+	* @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
     * went wrong when updating the specific instance, and a string message if something did in fact go wrong
 	*/
-    update<T>(selector: any, data: T): Promise<Array<UpdateToken<T>>>
+    update<T>(selector: any, data: T): Promise<UpdateRequest<T>>
     {
         var that = this;
 
-        return new Promise<Array<UpdateToken<T>>>(function (resolve, reject)
+        return new Promise<UpdateRequest<T>>(function (resolve, reject)
         {
-            var toRet: Array<UpdateToken<T>> = [];
+            var toRet: UpdateRequest<T> = {
+                error: false,
+                tokens: []
+           };
 
             that.findInstances<T>(selector).then(function (instances)
             {
@@ -368,7 +375,10 @@ export class Model
                     // Make sure the new updates are valid
                     if (!instance.schema.validate())
                     {
-                        toRet.push({ error: instance.schema.error, instance: instance });
+                        if (instance.schema.error)
+                            toRet.error = true;
+
+                        toRet.tokens.push({ error: instance.schema.error, instance: instance });
                         return;
                     }
 
@@ -377,7 +387,8 @@ export class Model
                     {
                         if (!unique)
                         {
-                            toRet.push({ error: `'${instance.uniqueFieldNames() }' must be unique`, instance: instance });
+                            toRet.error = true;
+                            toRet.tokens.push({ error: `'${instance.uniqueFieldNames() }' must be unique`, instance: instance });
                             return;
                         }
 
@@ -389,12 +400,13 @@ export class Model
                         {
                             if (err)
                             {
-                                toRet.push({ error: err.message, instance: instance });
+                                toRet.error = true;
+                                toRet.tokens.push({ error: err.message, instance: instance });
                                 return;
                             }
                             else
                             {
-                                toRet.push({ error: false, instance: instance });
+                                toRet.tokens.push({ error: false, instance: instance });
                                 if (index == instances.length - 1)
                                     return resolve(toRet);
                                 else

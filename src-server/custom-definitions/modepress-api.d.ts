@@ -46,10 +46,12 @@
         error: boolean;
     }
 
+    export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
+
     /*
     * Describes a token returned from updating instances
     */
-    export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
+    export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>> }
 
     /*
     * Describes the cache renders model
@@ -480,10 +482,10 @@
         * with updating the specific instance.
         * @param {any} selector The selector for updating instances
         * @param {any} data The data object that will attempt to set the instance's schema variables
-        * @returns {Promise<Array<ModelInstance<T>>>} An array of objects that contains the field error and instance. Error is false if nothing
+        * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
         * went wrong when updating the specific instance, and a string message if something did in fact go wrong
         */
-        update<T>(selector: any, data: T): Promise<Array<UpdateToken<T>>>
+        update<T>(selector: any, data: T): Promise<UpdateRequest<T>>
 
         /**
         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.

@@ -261,13 +261,16 @@ var Model = (function () {
     * with updating the specific instance.
     * @param {any} selector The selector for updating instances
     * @param {any} data The data object that will attempt to set the instance's schema variables
-    * @returns {Promise<Array<ModelInstance<T>>>} An array of objects that contains the field error and instance. Error is false if nothing
+    * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
     * went wrong when updating the specific instance, and a string message if something did in fact go wrong
     */
     Model.prototype.update = function (selector, data) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            var toRet = [];
+            var toRet = {
+                error: false,
+                tokens: []
+            };
             that.findInstances(selector).then(function (instances) {
                 if (!instances || instances.length == 0)
                     return resolve(toRet);
@@ -277,13 +280,16 @@ var Model = (function () {
                         instance.schema.set(data);
                     // Make sure the new updates are valid
                     if (!instance.schema.validate()) {
-                        toRet.push({ error: instance.schema.error, instance: instance });
+                        if (instance.schema.error)
+                            toRet.error = true;
+                        toRet.tokens.push({ error: instance.schema.error, instance: instance });
                         return;
                     }
                     // Make sure any unique fields are still being respected
                     that.checkUniqueness(instance).then(function (unique) {
                         if (!unique) {
-                            toRet.push({ error: "'" + instance.uniqueFieldNames() + "' must be unique", instance: instance });
+                            toRet.error = true;
+                            toRet.tokens.push({ error: "'" + instance.uniqueFieldNames() + "' must be unique", instance: instance });
                             return;
                         }
                         // Transform the schema into a JSON ready format
@@ -291,11 +297,12 @@ var Model = (function () {
                         var collection = that.collection;
                         collection.update({ _id: instance._id }, { $set: json }, function (err, result) {
                             if (err) {
-                                toRet.push({ error: err.message, instance: instance });
+                                toRet.error = true;
+                                toRet.tokens.push({ error: err.message, instance: instance });
                                 return;
                             }
                             else {
-                                toRet.push({ error: false, instance: instance });
+                                toRet.tokens.push({ error: false, instance: instance });
                                 if (index == instances.length - 1)
                                     return resolve(toRet);
                                 else

@@ -113,6 +113,8 @@ function isAuthenticated(req, res, next) {
                 message: auth.message
             }));
         }
+        req._user = auth.user;
+        req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
         next();
     }).catch(function (error) {
         res.setHeader('Content-Type', 'application/json');

@@ -142,6 +142,8 @@ export function isAuthenticated(req: express.Request, res: express.Response, nex
             }));
         }
 
+        (<IAuthReq><Express.Request>req)._user = auth.user;
+        (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
         next();
 
     }).catch(function (error: Error)
