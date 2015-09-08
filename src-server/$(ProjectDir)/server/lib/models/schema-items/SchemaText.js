@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = new __();
 };
 var SchemaItem_1 = require("./SchemaItem");
+var sanitizeHtml = require("sanitize-html");
 /**
 * A text scheme item for use in Models
 */
@@ -22,6 +23,7 @@ var SchemaText = (function (_super) {
         if (minCharacters === void 0) { minCharacters = 0; }
         if (maxCharacters === void 0) { maxCharacters = 10000; }
         if (sensitive === void 0) { sensitive = false; }
+        val = sanitizeHtml(val, { allowedTags: [] });
         _super.call(this, name, val, sensitive);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;

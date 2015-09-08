@@ -20,6 +20,7 @@
     "yargs": "~3.12.0",
     "compression": "~1.5.1",
     "modepress-api": "./modepress-api",
-    "ws": "~0.8.0"
+    "ws": "~0.8.0",
+    "sanitize-html": "~1.10.0"
   }
 }

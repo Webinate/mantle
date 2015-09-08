@@ -723,6 +723,37 @@
     }
 
     /**
+    * An html scheme item for use in Models
+    */
+    export class SchemaHtml extends SchemaItem<string>
+    {
+        /**
+        * The default tags allowed
+        */
+        public static defaultTags: Array<string>;
+
+        /**
+        * The default allowed attributes for each tag
+        */
+        public static defaultAllowedAttributes: { [name: string]: Array<string> };
+
+        /**
+        * Creates a new schema item
+        * @param {string} name The name of this item
+        * @param {string} val The text of this item
+        * @param {Array<string>} allowedTags The tags allowed by the html parser
+        * @param {[name: string] : Array<string>} allowedAttributes The attributes allowed by each attribute
+        * @param {boolean} errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
+        * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
+        * @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
+        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
+        */
+        constructor(name: string, val: string, allowedTags?: Array<string>,
+            allowedAttributes?: { [name: string]: Array<string> },
+            errorBadHTML?: boolean, minCharacters?: number, maxCharacters?: number, sensitive?: boolean);
+    }
+
+    /**
     * A list of helper functions for creating schema items
     */
     export module SchemaFactory
@@ -733,6 +764,7 @@
         export var date: typeof SchemaDate;
         export var bool: typeof SchemaBool;
         export var id: typeof SchemaId;
+        export var html: typeof SchemaHtml;
     }
 
     /**

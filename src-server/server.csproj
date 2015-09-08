@@ -43,6 +43,7 @@
     <TypeScriptCompile Include="lib\controllers\Controller.ts" />
     <TypeScriptCompile Include="lib\definitions\recaptcha-async.d.ts" />
     <TypeScriptCompile Include="lib\definitions\request.d.ts" />
+    <TypeScriptCompile Include="lib\definitions\sanitize-html.d.ts" />
     <TypeScriptCompile Include="lib\definitions\validator.d.ts" />
     <TypeScriptCompile Include="lib\definitions\winston.d.ts" />
     <TypeScriptCompile Include="lib\definitions\webinate-users.d.ts" />
@@ -55,6 +56,7 @@
     <TypeScriptCompile Include="lib\models\schema-items\SchemaDate.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaBool.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaId.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaHtml.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaTextArray.ts" />
     <TypeScriptCompile Include="lib\models\Schema.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaText.ts" />

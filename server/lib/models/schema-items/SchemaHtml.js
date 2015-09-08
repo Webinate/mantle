@@ -7,35 +7,46 @@ var __extends = (this && this.__extends) || function (d, b) {
 var SchemaItem_1 = require("./SchemaItem");
 var sanitizeHtml = require("sanitize-html");
 /**
-* A text scheme item for use in Models
+* An html scheme item for use in Models
 */
-var SchemaText = (function (_super) {
-    __extends(SchemaText, _super);
+var SchemaHtml = (function (_super) {
+    __extends(SchemaHtml, _super);
     /**
     * Creates a new schema item
     * @param {string} name The name of this item
     * @param {string} val The text of this item
+    * @param {Array<string>} allowedTags The tags allowed by the html parser
+    * @param {[name: string] : Array<string>} allowedAttributes The attributes allowed by each attribute
+    * @param {boolean} errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
     * @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
     * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     */
-    function SchemaText(name, val, minCharacters, maxCharacters, sensitive) {
+    function SchemaHtml(name, val, allowedTags, allowedAttributes, errorBadHTML, minCharacters, maxCharacters, sensitive) {
+        if (allowedTags === void 0) { allowedTags = SchemaHtml.defaultTags; }
+        if (allowedAttributes === void 0) { allowedAttributes = SchemaHtml.defaultAllowedAttributes; }
+        if (errorBadHTML === void 0) { errorBadHTML = true; }
         if (minCharacters === void 0) { minCharacters = 0; }
         if (maxCharacters === void 0) { maxCharacters = 10000; }
         if (sensitive === void 0) { sensitive = false; }
-        val = sanitizeHtml(val, { allowedTags: [] });
         _super.call(this, name, val, sensitive);
+        this.errorBadHTML = errorBadHTML;
+        this.allowedAttributes = allowedAttributes;
+        this.allowedTags = allowedTags;
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
     }
     /**
     * Creates a clone of this item
-    * @returns {SchemaText} copy A sub class of the copy
-    * @returns {SchemaText}
+    * @returns {SchemaHtml} copy A sub class of the copy
+    * @returns {SchemaHtml}
     */
-    SchemaText.prototype.clone = function (copy) {
-        copy = copy === undefined ? new SchemaText(this.name, this.value) : copy;
+    SchemaHtml.prototype.clone = function (copy) {
+        copy = copy === undefined ? new SchemaHtml(this.name, this.value) : copy;
         _super.prototype.clone.call(this, copy);
+        copy.allowedTags = this.allowedTags.slice(0, this.allowedTags.length);
+        copy.allowedAttributes = this.allowedAttributes;
+        copy.errorBadHTML = this.errorBadHTML;
         copy.maxCharacters = this.maxCharacters;
         copy.minCharacters = this.minCharacters;
         return copy;
@@ -44,7 +55,7 @@ var SchemaText = (function (_super) {
     * Checks the value stored to see if its correct in its current form
     * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
     */
-    SchemaText.prototype.validate = function () {
+    SchemaHtml.prototype.validate = function () {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
         var transformedValue = this.value;
@@ -52,21 +63,37 @@ var SchemaText = (function (_super) {
             return "The character length of " + this.name + " is too long, please keep it below " + maxCharacters;
         else if (transformedValue.length < minCharacters)
             return "The character length of " + this.name + " is too short, please keep it above " + minCharacters;
-        else
-            return true;
+        var sanitizedHTML = sanitizeHtml(this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
+        if (this.errorBadHTML && transformedValue != sanitizedHTML)
+            return "The value of " + this.name + " has html code that is not allowed";
+        this.value = sanitizedHTML;
+        return true;
     };
     /**
     * Gets the value of this item
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
     */
-    SchemaText.prototype.getValue = function (sanitize) {
+    SchemaHtml.prototype.getValue = function (sanitize) {
         if (sanitize === void 0) { sanitize = false; }
         if (this.sensitive && sanitize)
-            return new Array(this.value.length).join("*");
+            return "";
         else
             return this.value;
     };
-    return SchemaText;
+    /**
+    * The default tags allowed
+    */
+    SchemaHtml.defaultTags = ['h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
+        'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div',
+        'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre'];
+    /**
+    * The default allowed attributes for each tag
+    */
+    SchemaHtml.defaultAllowedAttributes = {
+        a: ['href', 'name', 'target'],
+        img: ['src']
+    };
+    return SchemaHtml;
 })(SchemaItem_1.SchemaItem);
-exports.SchemaText = SchemaText;
+exports.SchemaHtml = SchemaHtml;

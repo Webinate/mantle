@@ -12,9 +12,6 @@ import * as compression from "compression";
 import {MongoWrapper} from "./MongoWrapper";
 import {IConfig, IPath} from "modepress-api";
 import {Controller} from "./controllers/Controller"
-import PostsController from "./controllers/PostsController";
-import EmailsController from "./controllers/EmailsController";
-import PageRenderer from "./controllers/PageRenderer";
 import {UsersService} from "./UsersService";
 import {PathHandler} from "./PathHandler";
 import {Server} from "./Server";
