@@ -8,11 +8,21 @@ var UsersService_1 = require("./UsersService");
 function getUser(req, res, next) {
     var users = UsersService_1.UsersService.getSingleton();
     users.authenticated(req).then(function (auth) {
-        if (!auth.authenticated)
+        if (!auth.authenticated) {
             req._user = null;
+            req._isAdmin = false;
+            req._verbose = false;
+        }
         else {
             req._user = auth.user;
             req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+            // Check if this must be cleaned or not
+            var verbose = (req.query.verbose ? true : false);
+            if (verbose)
+                if (!req._isAdmin)
+                    if (req.params.user !== undefined && req.params.user != auth.user.username)
+                        verbose = false;
+            req._verbose = verbose;
         }
         next();
     }).catch(function (error) {
@@ -48,6 +58,7 @@ function isAdmin(req, res, next) {
         else {
             req._user = auth.user;
             req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+            req._verbose = true;
             next();
         }
     }).catch(function (error) {
@@ -86,6 +97,7 @@ function canEdit(req, res, next) {
         else {
             req._user = auth.user;
             req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+            req._verbose = (req.query.verbose ? true : false);
             next();
         }
     }).catch(function (error) {
@@ -115,6 +127,13 @@ function isAuthenticated(req, res, next) {
         }
         req._user = auth.user;
         req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+        // Check if this must be cleaned or not
+        var verbose = (req.query.verbose ? true : false);
+        if (verbose)
+            if (!req._isAdmin)
+                if (req.params.user !== undefined && req.params.user != auth.user.username)
+                    verbose = false;
+        req._verbose = verbose;
         next();
     }).catch(function (error) {
         res.setHeader('Content-Type', 'application/json');

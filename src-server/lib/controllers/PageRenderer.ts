@@ -74,8 +74,8 @@ export default class PageRenderer extends Controller
 
         }).catch(function (error: Error)
         {
-            res.writeHead(404);
-            
+            winston.error(error.message, { process: process.pid });
+            res.writeHead(404);            
         });
     }
 
@@ -102,6 +102,7 @@ export default class PageRenderer extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -146,6 +147,7 @@ export default class PageRenderer extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(<IResponse>{
                 error: true,
@@ -210,6 +212,7 @@ export default class PageRenderer extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -238,6 +241,7 @@ export default class PageRenderer extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message

@@ -58,14 +58,16 @@ var SchemaHtml = (function (_super) {
     SchemaHtml.prototype.validate = function () {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
-        var transformedValue = this.value;
-        if (transformedValue.length > maxCharacters)
+        var transformedValue = this.value.trim();
+        if (transformedValue.length < minCharacters && minCharacters == 1)
+            return this.name + " cannot be empty";
+        else if (transformedValue.length > maxCharacters)
             return "The character length of " + this.name + " is too long, please keep it below " + maxCharacters;
         else if (transformedValue.length < minCharacters)
             return "The character length of " + this.name + " is too short, please keep it above " + minCharacters;
         var sanitizedHTML = sanitizeHtml(this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
         if (this.errorBadHTML && transformedValue != sanitizedHTML)
-            return "The value of " + this.name + " has html code that is not allowed";
+            return this.name + " has html code that is not allowed";
         this.value = sanitizedHTML;
         return true;
     };

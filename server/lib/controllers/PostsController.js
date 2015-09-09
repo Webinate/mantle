@@ -13,6 +13,7 @@ var PostsModel_1 = require("../models/PostsModel");
 var CategoriesModel_1 = require("../models/CategoriesModel");
 var UsersService_1 = require("../UsersService");
 var PermissionControllers_1 = require("../PermissionControllers");
+var winston = require("winston");
 /**
 * A controller that deals with the management of posts
 */
@@ -138,6 +139,7 @@ var PostsController = (function (_super) {
                 data: sanitizedData
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -176,6 +178,7 @@ var PostsController = (function (_super) {
                 data: sanitizedData[0]
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -201,6 +204,7 @@ var PostsController = (function (_super) {
                 data: sanitizedData
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -224,6 +228,7 @@ var PostsController = (function (_super) {
                 message: "Post has been successfully removed"
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -247,6 +252,7 @@ var PostsController = (function (_super) {
                 message: "Category has been successfully removed"
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -269,6 +275,7 @@ var PostsController = (function (_super) {
                 message: "Post Updated"
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -294,6 +301,7 @@ var PostsController = (function (_super) {
                 data: instance.schema.generateCleanData(true, instance._id)
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -317,6 +325,7 @@ var PostsController = (function (_super) {
                 data: instance.schema.generateCleanData(true, instance._id)
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message

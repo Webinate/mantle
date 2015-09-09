@@ -72,7 +72,7 @@ export class Model
 		this.collection = null;
 		this._collectionName = collection;
 		this._initialized = false;
-		this.defaultSchema = new Schema();
+        this.defaultSchema = new Schema();        
 	}
 
 	/**
@@ -115,7 +115,7 @@ export class Model
 
 			// The collection does not exist - so create it
 			db.createCollection(model._collectionName, function (err: Error, collection: mongodb.Collection) 
-			{
+            {
 				if (err || !collection)
 					return reject(new Error("Error creating collection: " + err.message));
 				else

@@ -8,6 +8,7 @@ var express = require("express");
 var controllerModule = require("./Controller");
 var bodyParser = require('body-parser');
 var UsersService_1 = require("../UsersService");
+var winston = require("winston");
 var EmailsController = (function (_super) {
     __extends(EmailsController, _super);
     /**
@@ -40,6 +41,7 @@ var EmailsController = (function (_super) {
         UsersService_1.UsersService.getSingleton().sendAdminEmail(message).then(function (body) {
             res.end(body);
         }).catch(function (err) {
+            winston.error(err.message, { process: process.pid });
             return res.end(JSON.stringify({ message: err.toString(), error: true }));
         });
     };

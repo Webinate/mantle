@@ -23,7 +23,6 @@ var SchemaText = (function (_super) {
         if (minCharacters === void 0) { minCharacters = 0; }
         if (maxCharacters === void 0) { maxCharacters = 10000; }
         if (sensitive === void 0) { sensitive = false; }
-        val = sanitizeHtml(val, { allowedTags: [] });
         _super.call(this, name, val, sensitive);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
@@ -47,7 +46,10 @@ var SchemaText = (function (_super) {
     SchemaText.prototype.validate = function () {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
-        var transformedValue = this.value;
+        var transformedValue = sanitizeHtml(this.value.trim(), { allowedTags: [] });
+        this.value = transformedValue;
+        if (transformedValue.length < minCharacters && minCharacters == 1)
+            return this.name + " cannot be empty";
         if (transformedValue.length > maxCharacters)
             return "The character length of " + this.name + " is too long, please keep it below " + maxCharacters;
         else if (transformedValue.length < minCharacters)

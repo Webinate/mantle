@@ -1,10 +1,11 @@
 ﻿import {SchemaItem} from "./SchemaItem";
 import {ObjectID} from "mongodb";
+import {Utils} from "../../Utils"
 
 /**
 * A mongodb ObjectID scheme item for use in Models
 */
-export class SchemaId extends SchemaItem<ObjectID>
+export class SchemaId extends SchemaItem<ObjectID | string>
 {
     private _str: string;
 
@@ -18,26 +19,10 @@ export class SchemaId extends SchemaItem<ObjectID>
     {
         this._str = val;
 
-        if (this.isValidObjectID(val))
+        if (Utils.isValidObjectID(val))
             super(name, new ObjectID(val), sensitive);
         else
             super(name, null, sensitive);
-    }
-
-    /**
-	* Checks a string to see if its a valid mongo id
-	* @param {string} str
-    * @returns {boolean} True if the string is valid
-	*/
-    isValidObjectID(str: string = ""): boolean
-    {
-        // coerce to string so the function can be generically used to test both strings and native objectIds created by the driver
-        str = str.trim() + '';
-        var len = str.length, valid = false;
-        if (len == 12 || len == 24)
-            valid = /^[0-9a-fA-F]+$/.test(str);
-
-        return valid;
     }
 
 	/**
@@ -60,6 +45,17 @@ export class SchemaId extends SchemaItem<ObjectID>
     {
         var transformedValue = <ObjectID>this.value;
 
+        if (typeof this.value == "string")
+        {
+            if (Utils.isValidObjectID(<string>this.value))
+                transformedValue = new ObjectID(<string>this.value);
+           
+            if ((<string>this.value).trim() != "")
+                return `Please use a valid ID for '${this.name}'`;
+            else
+                transformedValue = null;
+        }
+
         if (transformedValue == null)
             return true;
 
@@ -81,6 +77,6 @@ export class SchemaId extends SchemaItem<ObjectID>
         else if (!this.value)
             return new ObjectID("000000000000000000000000");
         else
-            return this.value;
+            return <ObjectID>this.value;
     }
 }

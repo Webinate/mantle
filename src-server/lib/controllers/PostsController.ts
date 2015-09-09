@@ -9,6 +9,7 @@ import {CategoriesModel} from "../models/CategoriesModel";
 import {UsersService} from "../UsersService";
 import {getUser, isAdmin} from "../PermissionControllers";
 import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts, IAuthReq} from "modepress-api";
+import * as winston from "winston";
 
 /**
 * A controller that deals with the management of posts
@@ -173,6 +174,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -223,6 +225,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -254,6 +257,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -284,6 +288,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -314,6 +319,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -342,6 +348,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -374,6 +381,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
@@ -403,6 +411,7 @@ export default class PostsController extends Controller
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message

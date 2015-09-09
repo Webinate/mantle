@@ -19,7 +19,6 @@ export class SchemaText extends SchemaItem<string>
 	*/
     constructor(name: string, val: string, minCharacters: number = 0, maxCharacters: number = 10000, sensitive: boolean = false)
     {
-        val = sanitizeHtml(val, { allowedTags: [] });
         super(name, val, sensitive);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
@@ -48,8 +47,11 @@ export class SchemaText extends SchemaItem<string>
 	{
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
-        var transformedValue = <string>this.value;
-
+        var transformedValue = sanitizeHtml(this.value.trim(), { allowedTags: [] });
+        this.value = transformedValue;
+        
+        if (transformedValue.length < minCharacters && minCharacters == 1)
+            return `${this.name} cannot be empty`;
 		if (transformedValue.length > maxCharacters)
             return `The character length of ${this.name} is too long, please keep it below ${maxCharacters}`;
         else if (transformedValue.length < minCharacters)

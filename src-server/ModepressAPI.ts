@@ -5,6 +5,7 @@ import * as _UsersService from "./lib/UsersService";
 import * as _SchemaFactory from "./lib/models/schema-items/SchemaItemFactory";
 import * as _EventManager from "./lib/EventManager";
 import * as _PermissionController from "./lib/PermissionControllers";
+import {Utils} from "./lib/Utils";
 
 export var Controller = _Controller.Controller;
 export var Model = _Models.Model;
@@ -18,3 +19,5 @@ export var isAdmin = _PermissionController.isAdmin;
 export var isAuthenticated = _PermissionController.isAuthenticated;
 export var getUser = _PermissionController.getUser;
 export var canEdit = _PermissionController.canEdit;
+
+export var isValidID = Utils.isValidObjectID;

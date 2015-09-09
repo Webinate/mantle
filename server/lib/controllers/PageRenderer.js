@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = new __();
 };
 var mongodb = require("mongodb");
+var winston = require("winston");
 var express = require("express");
 var bodyParser = require("body-parser");
 var Controller_1 = require("./Controller");
@@ -59,6 +60,7 @@ var PageRenderer = (function (_super) {
             }
             res.end(html);
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.writeHead(404);
         });
     };
@@ -79,6 +81,7 @@ var PageRenderer = (function (_super) {
                 message: "Cache has been successfully removed"
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -114,6 +117,7 @@ var PageRenderer = (function (_super) {
                 next();
             }
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({
                 error: true,
@@ -162,6 +166,7 @@ var PageRenderer = (function (_super) {
                 data: sanitizedData
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message
@@ -184,6 +189,7 @@ var PageRenderer = (function (_super) {
                 message: num + " Instances have been removed"
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message

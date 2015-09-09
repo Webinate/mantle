@@ -14,11 +14,26 @@ export function getUser(req: express.Request, res: express.Response, next: Funct
     users.authenticated(req).then(function(auth)
     {
         if (!auth.authenticated)
+        {
             (<IAuthReq><Express.Request>req)._user = null;
+            (<IAuthReq><Express.Request>req)._isAdmin = false;
+            (<IAuthReq><Express.Request>req)._verbose = false;
+        }
         else
         {
             (<IAuthReq><Express.Request>req)._user = auth.user;
             (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+
+            
+            // Check if this must be cleaned or not
+            var verbose = (req.query.verbose ? true : false);
+            if (verbose)
+                if (!(<IAuthReq><Express.Request>req)._isAdmin)
+                    if (req.params.user !== undefined && req.params.user != auth.user.username)
+                        verbose = false;
+
+            (<IAuthReq><Express.Request>req)._verbose = verbose;
+
         }
 
         next();
@@ -63,6 +78,7 @@ export function isAdmin(req: express.Request, res: express.Response, next: Funct
         {
             (<IAuthReq><Express.Request>req)._user = auth.user;
             (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+            (<IAuthReq><Express.Request>req)._verbose = true;
             next();
         }
 
@@ -108,7 +124,9 @@ export function canEdit(req: express.Request, res: express.Response, next: Funct
         else
         {
             (<IAuthReq><Express.Request>req)._user = auth.user;
-            (<IAuthReq><Express.Request>req)._isAdmin = ( auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false );
+            (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+            (<IAuthReq><Express.Request>req)._verbose = (req.query.verbose ? true : false);
+
             next();
         }
 
@@ -144,6 +162,16 @@ export function isAuthenticated(req: express.Request, res: express.Response, nex
 
         (<IAuthReq><Express.Request>req)._user = auth.user;
         (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+
+        // Check if this must be cleaned or not
+        var verbose = (req.query.verbose ? true : false);
+        if (verbose)
+            if (!(<IAuthReq><Express.Request>req)._isAdmin)
+                if (req.params.user !== undefined && req.params.user != auth.user.username)
+                    verbose = false;
+
+        (<IAuthReq><Express.Request>req)._verbose = verbose;
+        
         next();
 
     }).catch(function (error: Error)

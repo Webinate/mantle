@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = new __();
 };
 var SchemaItem_1 = require("./SchemaItem");
+var sanitizeHtml = require("sanitize-html");
 /**
 * A text scheme item for use in Models
 */
@@ -14,17 +15,23 @@ var SchemaTextArray = (function (_super) {
     * Creates a new schema item that holds an array of text items
     * @param {string} name The name of this item
     * @param {Array<string>} val The text array of this schema item
+    * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
+    * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
     * @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
     * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     */
-    function SchemaTextArray(name, val, minCharacters, maxCharacters, sensitive) {
+    function SchemaTextArray(name, val, minItems, maxItems, minCharacters, maxCharacters, sensitive) {
+        if (minItems === void 0) { minItems = 0; }
+        if (maxItems === void 0) { maxItems = 10000; }
         if (minCharacters === void 0) { minCharacters = 0; }
         if (maxCharacters === void 0) { maxCharacters = 10000; }
         if (sensitive === void 0) { sensitive = false; }
         _super.call(this, name, val, sensitive);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
+        this.maxItems = maxItems;
+        this.minItems = minItems;
     }
     /**
     * Creates a clone of this item
@@ -36,6 +43,8 @@ var SchemaTextArray = (function (_super) {
         _super.prototype.clone.call(this, copy);
         copy.maxCharacters = this.maxCharacters;
         copy.minCharacters = this.minCharacters;
+        copy.maxItems = this.maxItems;
+        copy.minItems = this.minItems;
         return copy;
     };
     /**
@@ -43,10 +52,17 @@ var SchemaTextArray = (function (_super) {
     * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
     */
     SchemaTextArray.prototype.validate = function () {
+        var transformedValue = this.value;
+        for (var i = 0, l = transformedValue.length; i < l; i++)
+            transformedValue[i] = sanitizeHtml(transformedValue[i].trim(), { allowedTags: [] });
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
-        var transformedValue = this.value;
+        if (transformedValue.length < this.minItems)
+            return "You must select at least " + this.minItems + " item" + (this.minItems == 1 ? "" : "s") + " for " + this.name;
+        if (transformedValue.length > this.maxItems)
+            return "You have selected too many items for " + this.name + ", please only use up to " + this.maxItems;
         for (var i = 0, l = transformedValue.length; i < l; i++) {
+            transformedValue[i] = transformedValue[i].trim();
             if (transformedValue[i].length > maxCharacters)
                 return "The character length of '" + transformedValue[i] + "' in " + this.name + " is too long, please keep it below " + maxCharacters;
             else if (transformedValue[i].length < minCharacters)

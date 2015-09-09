@@ -46,6 +46,14 @@
         error: boolean;
     }
 
+    /*
+    * A response for when bulk items are deleted
+    */
+    export interface IRemoveResponse extends IResponse
+    {
+        itemsRemoved: Array<{ id: string; error: boolean; errorMsg: string; }>;
+    }
+
     export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
 
     /*
@@ -668,11 +676,13 @@
         * Creates a new schema item that holds an array of text items
         * @param {string} name The name of this item
         * @param {Array<string>} val The text array of this schema item
+        * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
+        * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
         * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
         * @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
         * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: Array<string>, minCharacters?: number, maxCharacters?: number, sensitive?: boolean);
+        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number, sensitive?: boolean);
     }
 
     /**
@@ -807,6 +817,7 @@
     export interface IAuthReq extends Express.Request
     {
         _isAdmin: boolean;
+        _verbose: boolean;
         _user: UsersInterface.IUserEntry;
         body: any;
         headers: any;
@@ -846,6 +857,13 @@
    * @param {Function} next 
    */
     export function isAuthenticated(req: IAuthReq, res: Express.Response, next: Function);
+
+    /**
+    * Checks a string to see if its a valid mongo id
+    * @param {string} str
+    * @returns {boolean} True if the string is valid
+    */
+    export function isValidID(str: string): boolean;
 }
 
 declare module "modepress-api"
