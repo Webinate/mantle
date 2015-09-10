@@ -1,5 +1,6 @@
 ﻿declare var _users: string;
 declare var _cache: string;
+declare var _plugins: Array<Modepress.IAdminPlugin>;
 
 /**
 * The admin code for the website
@@ -13,6 +14,7 @@ module clientAdmin
         .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")
         .constant("cacheURL", _cache)
+        .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
         .filter("htmlToPlaintext", function()
         {
             return function (text)
@@ -31,7 +33,6 @@ module clientAdmin
                 return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
             }
         })
-        .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
         .controller("loginCtrl", LoginCtrl)
         .controller("registerCtrl", RegisterCtrl)
         .controller("passwordCtrl", PasswordCtrl)

@@ -32,9 +32,15 @@ export default class AdminController extends controllerModule.Controller
             // Get the base URL's
             var url = `${(requestIsSecure ? "https" : "http") }://${server.host}`;
             var usersURL = `${config.usersURL}`;
+            var options: any = { usersURL: usersURL, url: url };
+
+            if (config.adminPlugins)
+                options.plugins = config.adminPlugins;
+            else
+                options.plugins = [];
 
             winston.info(`Got request ${req.originalUrl} - sending admin: ./views/index.jade`, { process: process.pid });
-            res.render('index', { usersURL: usersURL, url: url, cacheURL: config.modepressRenderURL });
+            res.render('index', options);
         });
     }
 }

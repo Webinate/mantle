@@ -51,7 +51,15 @@
                 {
                     views: {
                         "main-view": {
-                            templateUrl: "admin/templates/dashboard.html"
+                            templateUrl: "admin/templates/dashboard.html",
+                            "controller": ["$scope", function ($scope)
+                            {
+                                var dashLinks = [];
+                                for (var i = 0, l = _plugins.length; i < l; i++)
+                                    dashLinks = dashLinks.concat(_plugins[i].dashboardLinks);
+
+                                $scope.dashLinks = dashLinks;
+                            }]
                         }
                     },
                     url: "/admin",

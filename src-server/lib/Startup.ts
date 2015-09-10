@@ -10,7 +10,7 @@ import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
 import {MongoWrapper} from "./MongoWrapper";
-import {IConfig, IPath} from "modepress-api";
+import {IConfig} from "modepress-api";
 import {Controller} from "./controllers/Controller"
 import {UsersService} from "./UsersService";
 import {PathHandler} from "./PathHandler";

@@ -1085,7 +1085,13 @@ var clientAdmin;
                 .state("default", {
                 views: {
                     "main-view": {
-                        templateUrl: "admin/templates/dashboard.html"
+                        templateUrl: "admin/templates/dashboard.html",
+                        "controller": ["$scope", function ($scope) {
+                                var dashLinks = [];
+                                for (var i = 0, l = _plugins.length; i < l; i++)
+                                    dashLinks = dashLinks.concat(_plugins[i].dashboardLinks);
+                                $scope.dashLinks = dashLinks;
+                            }]
                     }
                 },
                 url: "/admin",
@@ -1201,6 +1207,7 @@ var clientAdmin;
         .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")
         .constant("cacheURL", _cache)
+        .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
         .filter("htmlToPlaintext", function () {
         return function (text) {
             return String(text).replace(/<[^>]+>/gm, '');
@@ -1216,7 +1223,6 @@ var clientAdmin;
             return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
         };
     })
-        .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
         .controller("loginCtrl", clientAdmin.LoginCtrl)
         .controller("registerCtrl", clientAdmin.RegisterCtrl)
         .controller("passwordCtrl", clientAdmin.PasswordCtrl)

@@ -20,11 +20,7 @@ var SchemaId = (function (_super) {
     */
     function SchemaId(name, val, sensitive) {
         if (sensitive === void 0) { sensitive = false; }
-        this._str = val;
-        if (Utils_1.Utils.isValidObjectID(val))
-            _super.call(this, name, new mongodb_1.ObjectID(val), sensitive);
-        else
-            _super.call(this, name, null, sensitive);
+        _super.call(this, name, val, sensitive);
     }
     /**
     * Creates a clone of this item
@@ -32,7 +28,7 @@ var SchemaId = (function (_super) {
     * @returns {SchemaId}
     */
     SchemaId.prototype.clone = function (copy) {
-        copy = copy === undefined ? new SchemaId(this.name, this._str) : copy;
+        copy = copy === undefined ? new SchemaId(this.name, this.value) : copy;
         _super.prototype.clone.call(this, copy);
         return copy;
     };
@@ -45,13 +41,15 @@ var SchemaId = (function (_super) {
         if (typeof this.value == "string") {
             if (Utils_1.Utils.isValidObjectID(this.value))
                 transformedValue = new mongodb_1.ObjectID(this.value);
-            if (this.value.trim() != "")
+            else if (this.value.trim() != "")
                 return "Please use a valid ID for '" + this.name + "'";
             else
                 transformedValue = null;
         }
-        if (transformedValue == null)
+        if (!transformedValue) {
+            this.value = null;
             return true;
+        }
         if (!transformedValue)
             return "Please use a valid ID for '" + this.name + "'";
         else
@@ -65,9 +63,9 @@ var SchemaId = (function (_super) {
     SchemaId.prototype.getValue = function (sanitize) {
         if (sanitize === void 0) { sanitize = false; }
         if (this.sensitive && sanitize)
-            return new mongodb_1.ObjectID("000000000000000000000000");
+            return null;
         else if (!this.value)
-            return new mongodb_1.ObjectID("000000000000000000000000");
+            return null;
         else
             return this.value;
     };

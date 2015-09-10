@@ -5,10 +5,22 @@
 </div>
 
 <div class="admin-nav">
-    <div ui-sref="default.posts" ui-sref-active="active" class="admin-section"><div class="inner"><div class="icon" style="background-image:url('/admin/media/images/posts.png');"></div>Posts</div></div>
-    <div ui-sref="default.users" ui-sref-active="active" class="admin-section"><div class="inner"><div class="icon" style="background-image:url('/admin/media/images/users.png');"></div>User Management</div></div>
-	<div ui-sref="default.media" ui-sref-active="active" class="admin-section"><div class="inner"><div class="icon" style="background-image:url('/admin/media/images/media.png');"></div>Media</div></div>
-	<div ui-sref="default.seo" ui-sref-active="active" class="admin-section"><div class="inner"><div class="icon" style="background-image:url('/admin/media/images/seo.png');"></div>SEO</div></div>
+	<div ui-sref="default.posts" ui-sref-active="active" class="admin-section">
+		<div class="inner"><div class="icon" style="background-image:url('/admin/media/images/posts.png');"></div>Posts</div>
+	</div>
+	<div ui-sref="default.users" ui-sref-active="active" class="admin-section">
+		<div class="inner"><div class="icon" style="background-image:url('/admin/media/images/users.png');"></div>User Management</div>
+	</div>
+	<div ui-sref="default.media" ui-sref-active="active" class="admin-section">
+		<div class="inner"><div class="icon" style="background-image:url('/admin/media/images/media.png');"></div>Media</div>
+	</div>
+	<div ui-sref="default.seo" ui-sref-active="active" class="admin-section">
+		<div class="inner"><div class="icon" style="background-image:url('/admin/media/images/seo.png');"></div>SEO</div>
+	</div>
+
+	<div ng-repeat="dashlink in dashLinks" class="admin-section">
+		<div class="inner"><div class="icon" style="background-image:url('/admin/media/images/seo.png');"></div>{{dashlink}}</div>
+	</div>
 </div>
 <div class="admin-view">
     <div ui-view class="admin-main-view"></div>

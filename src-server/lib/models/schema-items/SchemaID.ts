@@ -7,8 +7,6 @@ import {Utils} from "../../Utils"
 */
 export class SchemaId extends SchemaItem<ObjectID | string>
 {
-    private _str: string;
-
 	/**
 	* Creates a new schema item
 	* @param {string} name The name of this item
@@ -17,12 +15,7 @@ export class SchemaId extends SchemaItem<ObjectID | string>
 	*/
     constructor(name: string, val: string, sensitive: boolean = false)
     {
-        this._str = val;
-
-        if (Utils.isValidObjectID(val))
-            super(name, new ObjectID(val), sensitive);
-        else
-            super(name, null, sensitive);
+        super(name, val, sensitive);
     }
 
 	/**
@@ -32,7 +25,7 @@ export class SchemaId extends SchemaItem<ObjectID | string>
 	*/
     public clone(copy?: SchemaId): SchemaId
     {
-        copy = copy === undefined ? new SchemaId(this.name, this._str) : copy;
+        copy = copy === undefined ? new SchemaId(this.name, <string>this.value) : copy;
         super.clone(copy);
 		return copy;
 	}
@@ -43,21 +36,23 @@ export class SchemaId extends SchemaItem<ObjectID | string>
 	*/
 	public validate(): boolean | string
     {
-        var transformedValue = <ObjectID>this.value;
+        var transformedValue = this.value;
 
         if (typeof this.value == "string")
         {
             if (Utils.isValidObjectID(<string>this.value))
                 transformedValue = new ObjectID(<string>this.value);
-           
-            if ((<string>this.value).trim() != "")
+            else if ((<string>this.value).trim() != "")
                 return `Please use a valid ID for '${this.name}'`;
             else
                 transformedValue = null;
         }
-
-        if (transformedValue == null)
+        
+        if (!transformedValue)
+        {
+            this.value = null;
             return true;
+        }
 
         if (!transformedValue)
             return `Please use a valid ID for '${this.name}'`;
@@ -73,9 +68,9 @@ export class SchemaId extends SchemaItem<ObjectID | string>
     public getValue(sanitize: boolean = false): ObjectID
     {
         if (this.sensitive && sanitize)
-            return new ObjectID("000000000000000000000000");
+            return null;
         else if (!this.value)
-            return new ObjectID("000000000000000000000000");
+            return null;
         else
             return <ObjectID>this.value;
     }

@@ -6,8 +6,9 @@
   "databasePort": 27017,
   "databaseName": "test",
   "usersURL": "",
-  "usersSecret":  "",
+  "usersSecret": "",
   "adminURL": "/admin",
+  "adminPlugins": [ ],
   "servers": [
     {
       "host": "localhost",
@@ -26,7 +27,8 @@
           "path": "*",
           "templatePath": "",
           "index": "",
-          "template": ""
+          "template": "",
+          "plugins": [ ]
         }
       ]
     }

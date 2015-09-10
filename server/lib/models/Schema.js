@@ -1,5 +1,4 @@
 var SchemaItem_1 = require("./schema-items/SchemaItem");
-var mongodb_1 = require("mongodb");
 /**
 * Gives an overall description of each property in a model
 */
@@ -72,7 +71,7 @@ var Schema = (function () {
         for (var i = 0, l = items.length; i < l; i++)
             toReturn[items[i].name] = items[i].getValue(sanitize);
         if (sanitize)
-            toReturn._id = new mongodb_1.ObjectID("000000000000000000000000");
+            toReturn._id = null;
         else
             toReturn._id = id;
         return toReturn;

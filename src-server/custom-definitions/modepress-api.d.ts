@@ -1,6 +1,14 @@
 ﻿declare module Modepress
 {
     /*
+    * The interface to describe the modepress admin plugins
+    */
+    export interface IAdminPlugin
+    {
+        dashboardLinks: Array<{  }>;
+    }
+
+    /*
     * Base interface for all models
     */
     export interface IModelEntry
@@ -215,6 +223,12 @@
         * e.g. "index"
         */
         index: string;
+
+        /**
+        * An array of javascript file paths for modepress plugins
+        * e.g. ["./plugins/my-plugin/index.js"]
+        */
+        plugins: Array<string>;
     }
 
     /** 
@@ -262,6 +276,11 @@
         * The path to use for accessing the admin panel
         */
         adminURL: string;
+
+        /**
+        * An array of admin javascript plugin paths
+        */
+        adminPlugins: Array<string>;
     
         /**
         * An array of servers for each host / route that modepress is supporting

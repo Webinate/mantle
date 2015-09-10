@@ -37,10 +37,16 @@ export class PathHandler
         var requestIsSecure = ((<any>req.connection).encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         var url = `${(requestIsSecure ? "https" : "http") }://${config.host}`;
         var usersURL = `${UsersService.usersURL}`;
+        var options: any = { usersURL: usersURL, url: url };
+        
+        if (path.plugins)
+            options.plugins = ["/admin/plugins/app-engine/plugin.js"];//path.plugins;
+        else
+            options.plugins = [];
 
         // Give priority to template routes
         if (path.templatePath && path.templatePath != "" && fs.existsSync(`${path.templatePath}/${path.index}.jade`))
-            res.render(`${path.templatePath}/${path.index}`, { usersURL: usersURL, url: url });
+            res.render(`${path.templatePath}/${path.index}`, options);
         else
             res.sendfile(path.index);
     };

@@ -12,6 +12,7 @@ html(lang="en")
 		script(type="text/javascript").
 			var _users = "#{usersURL}"
 			var _cache = "#{cacheURL}"
+			var _plugins = [];
 		script(type="text/javascript", src=url + "/admin/js-libs/jquery-2.1.3.min.js")
 		script(type="text/javascript", src=url + "/admin/js-libs/angular.min.js")
 		script(type="text/javascript", src=url + "/admin/js-libs/angular-ui-router.min.js")
@@ -21,6 +22,8 @@ html(lang="en")
 		script(type="text/javascript", src=url + "/admin/js-libs/loading-bar.min.js")
 		script(type="text/javascript", src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js")
 		script(type="text/javascript", src=url + "/admin/js-libs/tinymce/tinymce.min.js")
+		each plugin, index in plugins
+			script(type="text/javascript", src=url + plugin)
 		script(type="text/javascript", src=url + "/admin/main.js")
 		base(href="/")
 

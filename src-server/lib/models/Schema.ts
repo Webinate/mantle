@@ -101,7 +101,7 @@ export class Schema
             toReturn[items[i].name] = items[i].getValue(sanitize);
 
         if (sanitize)
-            (<IModelEntry>toReturn)._id = new ObjectID("000000000000000000000000");
+            (<IModelEntry>toReturn)._id = null;
        else
             (<IModelEntry>toReturn)._id = id;
 
