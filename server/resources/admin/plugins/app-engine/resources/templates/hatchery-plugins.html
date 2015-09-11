@@ -1,0 +1,140 @@
+<div class="dialog-modal" ng-if="controller.error">
+	<div class="dialog-box">
+		<p>{{controller.errorMsg}}</p>
+		<div class="button red" ng-click="controller.error=false">Ok</div>
+	</div>
+</div>
+<div class="dialog-modal" ng-if="controller.showMediaBrowser">
+	<div class="big-dialog-box">
+		<ng-include ng-controller="mediaCtrl as mediaController" src="'/admin/templates/dash-media.html'" ng-init="mediaController.multiSelect= false"></ng-include>
+	</div>
+</div>
+
+<div class="sub-menu ng-scope">
+	<h>Hatchery Plugins<img ng-show="controller.loading" src="/admin/media/images/loader.gif" class="ng-hide"></h>
+	<div class="console" ng-show="!controller.showNewPluginForm">
+		<div class="button blue" ng-click="controller.newPluginMode()"><div class="cross"></div>New Plugin</div>
+		<div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button" ng-click="controller.updatePageContent()"></div></div>
+		<div class="fix"></div>
+	</div>
+
+	<div class="console-buttons" ng-show="controller.showNewPluginForm">
+		<div class="button green" ng-click="controller.createPlugin()" ng-class="{'hidden': controller.loading}"><div class="cross"></div>{{ !controller.editMode ? 'New Plugin' : 'Update' }}</div>
+		<div class="button red" ng-class="{'hidden': controller.loading}" ng-click="controller.showNewPluginForm = false"><div class="cross"></div>Close</div>
+		<div class="success">{{controller.successMessage}}</div>
+	</div>
+</div>
+
+<div class="content-view">
+	<div class="content-view-item new-post-form" ng-show="controller.showNewPluginForm">
+		<div class="content-view-details animate-show">
+			<form name="newPluginForm" ng-submit="newPluginForm.$valid && controller.createPlugin()" novalidate>
+				<div class="content-view-detail">
+					<div class="label">Name: <span class="info">The name of this new plugin</span></div>
+					<input type="text" name="nTitle" ng-model="controller.pluginToken.name" ng-minlength="1" required />
+					<div class="error animate-show" ng-show="newPluginForm.nTitle.$error.required && (newPluginForm.$submitted || newPluginForm.nTitle.$touched)">Please enter a valid name</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Version: <span class="info">The version of this plugin</span></div>
+					<input type="text" name="nVersion" ng-model="controller.pluginToken.version" ng-minlength="1" required />
+					<div class="error animate-show" ng-show="newPluginForm.nVersion.$error.required && (newPluginForm.$submitted || newPluginForm.nVersion.$touched)">Please enter a valid version</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Version: <span class="info">The version of this plugin</span></div>
+					<input type="text" ng-model="controller.pluginToken.description" />
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Image: <span class="info">The main image for this plugin</span></div>
+					<div class="button blue feature-img-button" ng-click="controller.openMediaBrowser()"><div class="cross"></div>Add Image</div>
+					<input type="text" name="nFeaturedImage" ng-model="controller.pluginToken.image" />
+					<div class="fix"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div class="content-view-item-list" ng-show="!controller.showNewPluginForm">
+		<div class="content-view-item" ng-repeat="plugin in controller.plugins">
+			<div class="arrow animate-fast" ng-click="plugin.more = (plugin.more === undefined ? true : !plugin.more )" ng-class="{ active : plugin.more }"></div>
+			<div class="view-item-label date">Created: {{plugin.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+			<div class="view-item-label date nav-button red-highlight"><a href="" ng-click="controller.editPluginMode(plugin)">Edit</a></div>
+			<div class="view-item-label date nav-button red-highlight"><a href="" ng-click="plugin.confirmDelete=true">Remove</a></div>
+			<div class="view-item-label"><b>{{plugin.title}}</b> : <span class="slug">{{plugin.slug}}</span></div>
+			<div class="content-view-details animated-panel animate-show" ng-show="plugin.more">
+				<div class="content-view-detail">
+					<div class="label">ID: </div>
+					<div class="textbox">{{plugin._id}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Brief: </div>
+					<div class="textbox">{{plugin.brief}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Created on: </div>
+					<div class="textbox">{{plugin.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Last Updated: </div>
+					<div class="textbox">{{plugin.lastUpdated | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Visibility: </div>
+					<div class="textbox">{{plugin.public ? "public" : "private"}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Tags: </div>
+					<div class="textbox">{{plugin.tags.join(", ")}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Categories: </div>
+					<div class="textbox">{{plugin.categories.join(", ")}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Content</div>
+					<div class="preview" ng-bind-html="plugin.content"></div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Featured Image</div>
+					<div ng-bind-html="plugin.featuredImage"></div>
+					<div class="fix"></div>
+				</div>
+
+				<div class="content-view-detail">
+					<div class="buttons">
+						<div class="nav-button red-highlight" ng-click="plugin.confirmDelete=true"><a href="">Remove Plugin</a></div>
+						<div class="button blue" ng-click="controller.editPluginMode(plugin)">Edit Plugin</div>
+					</div>
+				</div>
+			</div>
+			<div class="user-confirmation animated-panel animate-show" ng-show="plugin.confirmDelete">
+				<div> you sure you want to delete this plugin? </div>
+				<div class="button red" ng-click="controller.removePlugin(plugin)">Yes</div>
+				<div class="button red" ng-click="plugin.confirmDelete=false">No</div>
+			</div>
+		</div>
+
+		<div class="navigation">
+			<div class="back column">
+				<div ng-show="controller.pager.index" class="nav-button red-highlight" ng-click="controller.pager.goFirst()"><a href="">First</a></div>
+				<div ng-show="controller.pager.index" class="nav-button red-highlight" ng-click="controller.pager.goPrev()"><a href="">Prev</a></div>
+			</div>
+			<div class="column center">{{controller.pager.getPageNum()}} of {{controller.pager.getTotalPages()}}</div>
+			<div class="forward column">
+				<div ng-show="controller.pager.canNext()" class="nav-button red-highlight" ng-click="controller.pager.goNext()"><a href="">Next</a></div>
+				<div ng-show="controller.pager.canLast()" class="nav-button red-highlight" ng-click="controller.pager.goLast()"><a href="">Last</a></div>
+			</div>
+			<div class="fix"></div>
+		</div>
+	</div>
+</div>

@@ -436,6 +436,19 @@ form .nav-button {
 .admin-section {
     padding:10px 10px;
 }
+.admin-sub-section {
+    max-height:0;
+    overflow-y:hidden;
+    transition-property: all;
+	transition-duration: .5s;
+	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+.admin-sub-section.open {
+    max-height:500px;
+}
+.admin-sub-section .admin-section{
+    padding-left: 25px;
+}
 .sub-menu {
     padding:20px;
     box-sizing: border-box;
@@ -1018,6 +1031,10 @@ form label {
 .admin-section.active {
     background:#74a2e0;
 }
+.admin-sub-section {
+    background:#F9F9F9;
+}
+
 .admin-section .inner {
     color:#aaa;
 }

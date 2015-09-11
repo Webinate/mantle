@@ -1091,8 +1091,7 @@ var clientAdmin;
                                 for (var i = 0, l = _plugins.length; i < l; i++)
                                     dashLinks = dashLinks.concat(_plugins[i].dashboardLinks);
                                 $scope.dashLinks = dashLinks;
-                            }],
-                        "controllerAs": "controller"
+                            }]
                     }
                 },
                 url: "/admin",
@@ -1184,6 +1183,8 @@ var clientAdmin;
                 },
                 url: "/admin/password-reset-form?key&user&origin"
             });
+            for (var i = 0, l = _plugins.length; i < l; i++)
+                _plugins[i].onStatesInit(stateProvider);
         }
         // $inject annotation.
         Config.$inject = [
@@ -1203,7 +1204,7 @@ var clientAdmin;
 var clientAdmin;
 (function (clientAdmin) {
     'use strict';
-    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
+    var appModule = angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
         .constant("usersURL", _users + "/users")
         .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")
@@ -1259,6 +1260,8 @@ var clientAdmin;
                 }
             });
         }]);
+    for (var i = 0, l = _plugins.length; i < l; i++)
+        _plugins[i].onInit(appModule);
 })(clientAdmin || (clientAdmin = {}));
 /// <reference path="../src-server/custom-definitions/modepress-api.d.ts" />
 /// <reference path="lib/definitions/es6-promise.d.ts" />

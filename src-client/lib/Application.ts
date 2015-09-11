@@ -1,6 +1,6 @@
 ﻿declare var _users: string;
 declare var _cache: string;
-declare var _plugins: Array<Modepress.IAdminPlugin>;
+declare var _plugins: Array<ModepressAdmin.IAdminPlugin>;
 
 /**
 * The admin code for the website
@@ -9,7 +9,7 @@ module clientAdmin
 {
     'use strict';
     
-    angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
+    var appModule = angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
         .constant("usersURL", _users + "/users")
         .constant("mediaURL", _users + "/media")
         .constant("apiURL", "./api")
@@ -72,4 +72,7 @@ module clientAdmin
                 }
             });
         }]);
+
+    for (var i = 0, l = _plugins.length; i < l; i++)
+        _plugins[i].onInit(appModule);
 }

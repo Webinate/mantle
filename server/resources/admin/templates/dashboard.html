@@ -1,4 +1,4 @@
-<div class="admin-toolbar">
+﻿<div class="admin-toolbar">
     <div class="toolbar-item"><a target="_self" href="."><img src="/admin/media/images/logo-home-small.jpg" /></a></div>
     <div class="toolbar-item nav-button"><a target="_self" href="admin/logout">Logout</a></div>
     <div class="fix"></div>
@@ -17,10 +17,18 @@
 	<div ui-sref="default.seo" ui-sref-active="active" class="admin-section">
 		<div class="inner"><div class="icon" style="background-image:url('/admin/media/images/seo.png');"></div>SEO</div>
 	</div>
-
-	<div ng-repeat="dashlink in dashLinks" class="admin-section">
-		<div class="inner"><div class="icon" style="background-image:url('/admin/media/images/seo.png');"></div>{{dashlink}}</div>
+	
+	<div ng-repeat="link in dashLinks">
+		<div class="admin-section" ui-sref="{{link.state}}" ui-sref-active="active" ng-click="link.open = !link.open">
+			<div class="inner"><div class="icon" ng-style="{ 'background-image': 'url(' + link.icon + ')' }"></div>{{(link.open ? "↓&nbsp;&nbsp;" : "")}}{{link.label}}</div>
+		</div>
+		<div class="admin-sub-section" ng-class="{ open : link.open }">
+			<div ng-repeat="subLink in link.children" class="admin-section" ui-sref="{{subLink.state}}" ui-sref-active="active">
+				<div class="inner"><div class="icon" ng-style="{ 'background-image': 'url(' + subLink.icon + ')' }"></div>{{subLink.label}}</div>
+			</div>
+		</div>
 	</div>
+
 </div>
 <div class="admin-view">
     <div ui-view class="admin-main-view"></div>

@@ -9,6 +9,7 @@
   "usersSecret": "",
   "adminURL": "/admin",
   "adminPlugins": [ ],
+  "adminPluginVariables": { },
   "servers": [
     {
       "host": "localhost",
@@ -34,5 +35,5 @@
     }
   ],
   "usersSocketURL": "ws://www.webinate.net:123",
-  "usersSocketOrigin": "webinate.net"
+  "usersSocketOrigin": "webinate.net"  
 }

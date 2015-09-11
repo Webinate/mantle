@@ -39,6 +39,15 @@ export default class AdminController extends controllerModule.Controller
             else
                 options.plugins = [];
 
+            if (config.adminPluginVariables)
+            {
+                var scriptOptions = "";
+                for (var i in config.adminPluginVariables)
+                    scriptOptions += `${i} = '${config.adminPluginVariables[i]}';`;
+
+                options.scriptOptions = scriptOptions;
+            }
+
             winston.info(`Got request ${req.originalUrl} - sending admin: ./views/index.jade`, { process: process.pid });
             res.render('index', options);
         });

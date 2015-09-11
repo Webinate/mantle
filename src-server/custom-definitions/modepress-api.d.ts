@@ -1,13 +1,37 @@
-﻿declare module Modepress
+﻿declare module ModepressAdmin
 {
+    /*
+    * Describes a dashboard link
+    */
+    export interface IDashLik
+    {
+        label: string;
+        icon: string;
+        state: string;
+        children?: Array<IDashLik>;
+    }
+
     /*
     * The interface to describe the modepress admin plugins
     */
     export interface IAdminPlugin
     {
-        dashboardLinks: Array<{  }>;
-    }
+        dashboardLinks: Array<IDashLik>;
 
+        /**
+        * Called when the application module is being setup
+        */
+        onInit: (mod: angular.IModule) => void;
+
+        /**
+        * Called when the states are being setup in config
+        */
+        onStatesInit: (stateProvider: angular.ui.IStateProvider) => void;
+    }
+}
+
+declare module Modepress
+{
     /*
     * Base interface for all models
     */
@@ -281,6 +305,11 @@
         * An array of admin javascript plugin paths
         */
         adminPlugins: Array<string>;
+
+        /**
+        * An array of javascript variables that will be inserted on the page
+        */
+        adminPluginVariables: { [name: string]: string };
     
         /**
         * An array of servers for each host / route that modepress is supporting

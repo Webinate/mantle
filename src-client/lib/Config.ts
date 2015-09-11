@@ -169,7 +169,10 @@
                             }
                         },
                         url: "/admin/password-reset-form?key&user&origin"
-                    })
+                })
+
+            for (var i = 0, l = _plugins.length; i < l; i++)
+                _plugins[i].onStatesInit(stateProvider);
 		}
 	}
 }
