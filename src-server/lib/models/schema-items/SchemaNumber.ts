@@ -29,12 +29,17 @@ export class SchemaNumber extends SchemaItem<number>
 	* @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
     * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
-    constructor(name: string, val: number, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Float, decimalPlaces: number = Infinity, sensitive: boolean = false)
+    constructor(name: string, val: number, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2, sensitive: boolean = false)
 	{
         super(name, val, sensitive);
 		this.min = min;
 		this.max = max;
-		this.type = type;
+        this.type = type;
+
+        if (decimalPlaces > 20)
+            throw new Error(`Decimal palces for ${name} cannot be more than 20`);
+
+        this.decimalPlaces = decimalPlaces;
 	}
 
 	/**
@@ -64,10 +69,10 @@ export class SchemaNumber extends SchemaItem<number>
 		var decimalPlaces = this.decimalPlaces;
 		var transformedValue: number = <number>this.value;
 
-		if (type == NumberType.Integer)
-			transformedValue = parseInt(transformedValue.toFixed(decimalPlaces));
+        if (type == NumberType.Integer)
+            transformedValue = parseInt(transformedValue.toString());
 		else
-			transformedValue = parseFloat(transformedValue.toFixed(decimalPlaces));
+            transformedValue = parseFloat( (parseFloat(transformedValue.toString()).toFixed(decimalPlaces)));
 
 		this.value = transformedValue;
 

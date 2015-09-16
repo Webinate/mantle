@@ -183,7 +183,7 @@
             this.showNewPostForm = true;
 
             var that = this;
-            that.http.get<Modepress.IGetPost>(`${that.apiURL}/posts/get-post/${post.slug}`).then(function (post)
+            that.http.get<Modepress.IGetPost>(`${that.apiURL}/posts/get-post/${post.slug}?verbose=true`).then(function (post)
             {
                 that.postToken = post.data.data;
                 that.loading = false;
@@ -336,7 +336,12 @@
                     else
                     {
                         that.successMessage = token.data.message;
-                        postToken.lastUpdated = Date.now();
+                        for (var i = 0, l = that.posts.length; i < l; i++)
+                            if (that.posts[i]._id == that.postToken._id)
+                            {
+                                that.posts.splice(i, 1, that.postToken);
+                                break;
+                            }
                     }
 
                     that.loading = false;

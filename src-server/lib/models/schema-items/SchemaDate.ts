@@ -17,7 +17,6 @@ export class SchemaDate extends SchemaItem<number>
     constructor(name: string, val?: number, sensitive: boolean = false, useNow: boolean = false)
     {
         super(name, val, sensitive);
-
         this.useNow = useNow;
 	}
 

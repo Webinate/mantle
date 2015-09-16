@@ -43,7 +43,7 @@ var Controller = (function () {
         if (verbose === void 0) { verbose = false; }
         var sanitizedData = [];
         for (var i = 0, l = instances.length; i < l; i++)
-            sanitizedData.push(instances[i].schema.generateCleanData(verbose, instances[i]._id));
+            sanitizedData.push(instances[i].schema.generateCleanData(!verbose, instances[i]._id));
         return sanitizedData;
     };
     return Controller;

@@ -103,8 +103,11 @@
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">
-					<div class="label">Featured Image: <span class="info">The main image for this post</span></div>
-					<div class="button blue feature-img-button" ng-click="controller.openMediaBrowser('featured-image')"><div class="cross"></div>Add Image</div>				
+					<div class="label">
+						<div class="button blue feature-img-button img-selector" ng-click="controller.openMediaBrowser('featured-image')">...</div>
+						Featured Image: <span class="info">The main image for this post</span>
+					</div>
+					
                     <input type="text" name="nFeaturedImage" ng-model="controller.postToken.featuredImage" />
                     <div class="fix"></div>
                 </div>
@@ -113,7 +116,7 @@
             <div class="categories">
                 <form name="newCategoryForm" ng-submit="newCategoryForm.$valid && controller.createCategory()" novalidate>
                     <div class="category-header">Categories:</div>
-                    <div class="post-categories">
+                    <div class="post-categories" ng-show="controller.categories.length != 0">
                         <div class="category" ng-repeat="category in controller.categories">
                             <div class="tick-box" ng-show="!controller.showCategoryDelete" ng-click="controller.selectCategory(category)">
                                 <div class="tick" ng-show="controller.postToken.categories.indexOf(category.slug) != -1"></div>
