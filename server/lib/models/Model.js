@@ -283,14 +283,20 @@ var Model = (function () {
                         if (instance.schema.error)
                             toRet.error = true;
                         toRet.tokens.push({ error: instance.schema.error, instance: instance });
-                        return;
+                        if (index == instances.length - 1)
+                            return resolve(toRet);
+                        else
+                            return;
                     }
                     // Make sure any unique fields are still being respected
                     that.checkUniqueness(instance).then(function (unique) {
                         if (!unique) {
                             toRet.error = true;
                             toRet.tokens.push({ error: "'" + instance.uniqueFieldNames() + "' must be unique", instance: instance });
-                            return;
+                            if (index == instances.length - 1)
+                                return resolve(toRet);
+                            else
+                                return;
                         }
                         // Transform the schema into a JSON ready format
                         var json = instance.schema.serialize();
@@ -299,7 +305,10 @@ var Model = (function () {
                             if (err) {
                                 toRet.error = true;
                                 toRet.tokens.push({ error: err.message, instance: instance });
-                                return;
+                                if (index == instances.length - 1)
+                                    return resolve(toRet);
+                                else
+                                    return;
                             }
                             else {
                                 toRet.tokens.push({ error: false, instance: instance });
@@ -329,6 +338,8 @@ var Model = (function () {
             var items = instance.schema.items;
             var hasUniqueField = false;
             var searchToken = { $or: [] };
+            if (instance._id)
+                searchToken["_id"] = { $ne: instance._id };
             for (var i = 0, l = items.length; i < l; i++) {
                 if (items[i].getUnique()) {
                     hasUniqueField = true;

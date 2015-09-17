@@ -379,7 +379,10 @@ export class Model
                             toRet.error = true;
 
                         toRet.tokens.push({ error: instance.schema.error, instance: instance });
-                        return;
+                        if (index == instances.length - 1)
+                            return resolve(toRet);
+                        else
+                            return;
                     }
 
                     // Make sure any unique fields are still being respected
@@ -389,7 +392,10 @@ export class Model
                         {
                             toRet.error = true;
                             toRet.tokens.push({ error: `'${instance.uniqueFieldNames() }' must be unique`, instance: instance });
-                            return;
+                            if (index == instances.length - 1)
+                                return resolve(toRet);
+                            else
+                                return;
                         }
 
                         // Transform the schema into a JSON ready format
@@ -402,7 +408,10 @@ export class Model
                             {
                                 toRet.error = true;
                                 toRet.tokens.push({ error: err.message, instance: instance });
-                                return;
+                                if (index == instances.length - 1)
+                                    return resolve(toRet);
+                                else
+                                    return;
                             }
                             else
                             {
@@ -437,7 +446,11 @@ export class Model
         {
             var items = instance.schema.items;
             var hasUniqueField: boolean = false;
-            var searchToken = { $or : [] };
+            var searchToken = { $or: [] };
+
+            if (instance._id)
+                searchToken["_id"] = { $ne: instance._id };
+
             for (var i = 0, l = items.length; i < l; i++)
             {
                 if (items[i].getUnique())

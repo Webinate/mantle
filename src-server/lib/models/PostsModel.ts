@@ -1,5 +1,7 @@
 ﻿import {Model} from "./Model";
-import {num, text, bool, textArray, date} from "./schema-items/SchemaItemFactory";
+import {num, text, bool, textArray, date, html} from "./schema-items/SchemaItemFactory";
+import {SchemaHtml} from "./schema-items/SchemaHTML";
+
 
 export class PostsModel extends Model
 {
@@ -12,7 +14,7 @@ export class PostsModel extends Model
         this.defaultSchema.add(new text("slug", "", 1, 512)).setUnique(true);
         this.defaultSchema.add(new text("brief", ""));
         this.defaultSchema.add(new text("featuredImage", ""));
-        this.defaultSchema.add(new text("content", ""));
+        this.defaultSchema.add(new html("content", "", SchemaHtml.defaultTags.concat("img"), undefined, false));
         this.defaultSchema.add(new bool("public", true));
         this.defaultSchema.add(new textArray("categories", []));
         this.defaultSchema.add(new textArray("tags", []));

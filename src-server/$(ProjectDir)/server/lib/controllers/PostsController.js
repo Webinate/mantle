@@ -270,6 +270,13 @@ var PostsController = (function (_super) {
         var token = req.body;
         var posts = this.getModel("posts");
         posts.update({ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance) {
+            if (instance.error) {
+                winston.error(instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify({
+                    error: true,
+                    message: instance.tokens[0].error
+                }));
+            }
             res.end(JSON.stringify({
                 error: false,
                 message: "Post Updated"
