@@ -175,6 +175,45 @@ var HatcheryPlugin;
             return toRet;
         };
         /**
+        * Creates a new plugin
+        */
+        PluginCtrl.prototype.createPlugin = function () {
+            this.scope.newPluginForm.$setSubmitted();
+            if (this.scope.newPluginForm.$valid == false)
+                return;
+            var that = this;
+            this.error = false;
+            this.errorMsg = "";
+            this.loading = true;
+            var pluginToken = this.pluginToken;
+            if (this.editMode) {
+                that.http.put(appEngineURL + "/plugins/update/" + pluginToken._id, pluginToken).then(function (token) {
+                    if (token.data.error) {
+                        that.error = true;
+                        that.errorMsg = token.data.message;
+                    }
+                    else {
+                        that.successMessage = token.data.message;
+                        pluginToken.lastModified = Date.now();
+                    }
+                    that.loading = false;
+                });
+            }
+            else {
+                that.http.post(appEngineURL + "/plugins/create", pluginToken).then(function (response) {
+                    if (response.data.error) {
+                        that.error = true;
+                        that.errorMsg = response.data.message;
+                    }
+                    else {
+                        that.plugins.push(response.data.data);
+                        that.showNewPluginForm = false;
+                    }
+                    that.loading = false;
+                });
+            }
+        };
+        /**
         * Opens the media browser
         */
         PluginCtrl.prototype.openMediaBrowser = function () {
