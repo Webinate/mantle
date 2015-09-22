@@ -1,3 +1,18 @@
+var Animate;
+(function (Animate) {
+    /*
+    * The payment type of the user
+    */
+    (function (UserPlan) {
+        UserPlan[UserPlan["Free"] = 1] = "Free";
+        UserPlan[UserPlan["Bronze"] = 2] = "Bronze";
+        UserPlan[UserPlan["Silver"] = 3] = "Silver";
+        UserPlan[UserPlan["Gold"] = 4] = "Gold";
+        UserPlan[UserPlan["Platinum"] = 5] = "Platinum";
+        UserPlan[UserPlan["Custom"] = 6] = "Custom";
+    })(Animate.UserPlan || (Animate.UserPlan = {}));
+    var UserPlan = Animate.UserPlan;
+})(Animate || (Animate = {}));
 var HatcheryPlugin;
 (function (HatcheryPlugin) {
     var AppEnginePlugin = (function () {
@@ -51,6 +66,7 @@ _plugins.push(new HatcheryPlugin.AppEnginePlugin());
 /// <reference path="../source-server/definitions/webinate-users.d.ts" />
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
+/// <reference path="../source-client/lib/core/UserPlan.ts" />
 /// <reference path="lib/Plugin.ts" /> 
 var HatcheryPlugin;
 (function (HatcheryPlugin) {
@@ -140,21 +156,42 @@ var HatcheryPlugin;
 })(HatcheryPlugin || (HatcheryPlugin = {}));
 var HatcheryPlugin;
 (function (HatcheryPlugin) {
+    /**
+    * A Class for managing the plugins screen
+    */
     var PluginCtrl = (function () {
-        function PluginCtrl(scope, http, apiUrl) {
+        function PluginCtrl(scope, http) {
             this.plugins = [];
             this.error = false;
             this.errorMsg = "";
             this.loading = false;
             this.http = http;
             this.scope = scope;
-            this.apiURL = apiUrl;
             this.successMessage = "";
+            this.searchKeyword = "";
             this.editMode = false;
             this.pluginToken = {};
             this.pager = new HatcheryPlugin.Pager(this.fetchPlugins.bind(this));
             this.pager.goFirst();
+            scope.planEnum = Animate.UserPlan;
+            scope.plans = [];
+            for (var i in Animate.UserPlan)
+                if (!isNaN(parseInt(i)))
+                    scope.plans.push({ value: parseInt(i), name: Animate.UserPlan[i], selected: false });
+                else
+                    break;
         }
+        PluginCtrl.prototype.editPluginMode = function (plugin) {
+            this.newPluginMode();
+            this.editMode = true;
+            this.loading = true;
+            this.showNewPluginForm = true;
+            var that = this;
+            that.http.get(appEngineURL + "/app-engine/plugins/" + plugin._id).then(function (response) {
+                that.pluginToken = response.data.data[0];
+                that.loading = false;
+            });
+        };
         /**
         * Gets a list of plugins
         */
@@ -163,7 +200,7 @@ var HatcheryPlugin;
             that.loading = true;
             that.error = false;
             that.errorMsg = "";
-            var toRet = this.http.get(appEngineURL + "/app-engine/plugins?index=" + index + "&limit=" + limit);
+            var toRet = this.http.get(appEngineURL + "/app-engine/plugins?index=" + index + "&limit=" + limit + "&search=" + that.searchKeyword);
             toRet.then(function (response) {
                 that.plugins = response.data.data;
             }).catch(function (err) {
@@ -187,20 +224,25 @@ var HatcheryPlugin;
             this.loading = true;
             var pluginToken = this.pluginToken;
             if (this.editMode) {
-                that.http.put(appEngineURL + "/plugins/update/" + pluginToken._id, pluginToken).then(function (token) {
+                that.http.put(appEngineURL + "/app-engine/plugins/update/" + pluginToken._id, pluginToken).then(function (token) {
                     if (token.data.error) {
                         that.error = true;
                         that.errorMsg = token.data.message;
                     }
                     else {
                         that.successMessage = token.data.message;
+                        for (var i = 0, l = that.plugins.length; i < l; i++)
+                            if (that.plugins[i]._id == that.pluginToken._id) {
+                                that.plugins.splice(i, 1, that.pluginToken);
+                                break;
+                            }
                         pluginToken.lastModified = Date.now();
                     }
                     that.loading = false;
                 });
             }
             else {
-                that.http.post(appEngineURL + "/plugins/create", pluginToken).then(function (response) {
+                that.http.post(appEngineURL + "/app-engine/plugins/create", pluginToken).then(function (response) {
                     if (response.data.error) {
                         that.error = true;
                         that.errorMsg = response.data.message;
@@ -241,8 +283,7 @@ var HatcheryPlugin;
             this.pluginToken = {
                 name: "",
                 description: "",
-                plan: "Basic",
-                path: "",
+                plan: Animate.UserPlan.Free,
                 deployables: [],
                 image: "",
                 author: "Mathew Henson",
@@ -252,7 +293,7 @@ var HatcheryPlugin;
             this.successMessage = "";
             this.showNewPluginForm = !this.showNewPluginForm;
         };
-        PluginCtrl.$inject = ["$scope", "$http", "apiURL"];
+        PluginCtrl.$inject = ["$scope", "$http"];
         return PluginCtrl;
     })();
     HatcheryPlugin.PluginCtrl = PluginCtrl;

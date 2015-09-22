@@ -31,13 +31,16 @@ var SchemaNumber = (function (_super) {
     function SchemaNumber(name, val, min, max, type, decimalPlaces, sensitive) {
         if (min === void 0) { min = -Infinity; }
         if (max === void 0) { max = Infinity; }
-        if (type === void 0) { type = NumberType.Float; }
-        if (decimalPlaces === void 0) { decimalPlaces = Infinity; }
+        if (type === void 0) { type = NumberType.Integer; }
+        if (decimalPlaces === void 0) { decimalPlaces = 2; }
         if (sensitive === void 0) { sensitive = false; }
         _super.call(this, name, val, sensitive);
         this.min = min;
         this.max = max;
         this.type = type;
+        if (decimalPlaces > 20)
+            throw new Error("Decimal palces for " + name + " cannot be more than 20");
+        this.decimalPlaces = decimalPlaces;
     }
     /**
     * Creates a clone of this item
@@ -62,9 +65,9 @@ var SchemaNumber = (function (_super) {
         var decimalPlaces = this.decimalPlaces;
         var transformedValue = this.value;
         if (type == NumberType.Integer)
-            transformedValue = parseInt(transformedValue.toFixed(decimalPlaces));
+            transformedValue = parseInt(transformedValue.toString());
         else
-            transformedValue = parseFloat(transformedValue.toFixed(decimalPlaces));
+            transformedValue = parseFloat((parseFloat(transformedValue.toString()).toFixed(decimalPlaces)));
         this.value = transformedValue;
         if (transformedValue <= this.max && transformedValue >= this.min)
             return true;

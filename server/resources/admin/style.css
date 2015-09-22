@@ -286,6 +286,10 @@ button[disabled], html input[disabled] {
     display:inline-block;
     border:none;
 }
+.button.img-selector {
+    padding: 0 5px;
+    margin: 0 5px 0 0;
+}
 .animate-fast {
     -webkit-transition: all linear 0.25s;
     transition: all linear 0.25s;
@@ -523,8 +527,10 @@ max-height: 0;
     float: left;
     width: 80%;
     box-sizing: border-box;
-    overflow: auto;
     max-height: 400px;
+}
+.content-view-details .content-view-detail .textbox, .content-view-detail .preview {
+    overflow: auto;
 }
 .content-view-detail .search {
     float: left;

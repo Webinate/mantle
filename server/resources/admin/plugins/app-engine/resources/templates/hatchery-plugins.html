@@ -14,7 +14,7 @@
 	<h>Hatchery Plugins<img ng-show="controller.loading" src="/admin/media/images/loader.gif" class="ng-hide"></h>
 	<div class="console" ng-show="!controller.showNewPluginForm">
 		<div class="button blue" ng-click="controller.newPluginMode()"><div class="cross"></div>New Plugin</div>
-		<div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button" ng-click="controller.updatePageContent()"></div></div>
+		<div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button" ng-click="controller.fetchPlugins()"></div></div>
 		<div class="fix"></div>
 	</div>
 
@@ -42,14 +42,25 @@
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">
-					<div class="label">Version: <span class="info">The version of this plugin</span></div>
+					<div class="label">Description: <span class="info">A short description of what the plugin does</span></div>
 					<input type="text" ng-model="controller.pluginToken.description" />
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">
-					<div class="label">Image: <span class="info">The main image for this plugin</span></div>
-					<div class="button blue feature-img-button" ng-click="controller.openMediaBrowser()"><div class="cross"></div>Add Image</div>
+					<div class="label">
+						<div class="button blue feature-img-button img-selector" ng-click="controller.openMediaBrowser()">...</div>
+						Image: <span class="info">The main image for this plugin</span>
+					</div>					
 					<input type="text" name="nFeaturedImage" ng-model="controller.pluginToken.image" />
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Plan: <span class="info">Which plan does this plugin belong to</span></div>
+					<div class="dropdown">
+						<select name="nPlan" ng-model="controller.pluginToken.plan">
+							<option ng-repeat="plan in plans" value="{{plan.value}}" selected="{{ (plan.selected ? 'selected' : '') }}">{{plan.name}}</option>
+						</select>
+					</div>
 					<div class="fix"></div>
 				</div>
 			</form>
@@ -62,7 +73,7 @@
 			<div class="view-item-label date">Created: {{plugin.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
 			<div class="view-item-label date nav-button red-highlight"><a href="" ng-click="controller.editPluginMode(plugin)">Edit</a></div>
 			<div class="view-item-label date nav-button red-highlight"><a href="" ng-click="plugin.confirmDelete=true">Remove</a></div>
-			<div class="view-item-label"><b>{{plugin.title}}</b> : <span class="slug">{{plugin.slug}}</span></div>
+			<div class="view-item-label"><b>{{plugin.name}}</b> : <span class="slug">{{plugin.version}}</span></div>
 			<div class="content-view-details animated-panel animate-show" ng-show="plugin.more">
 				<div class="content-view-detail">
 					<div class="label">ID: </div>
@@ -70,8 +81,23 @@
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">
-					<div class="label">Brief: </div>
-					<div class="textbox">{{plugin.brief}}</div>
+					<div class="label">Name: </div>
+					<div class="textbox">{{plugin.name}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Version: </div>
+					<div class="textbox">{{plugin.version}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Description: </div>
+					<div class="textbox">{{plugin.description}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Plan: </div>
+					<div class="textbox">{{planEnum[plugin.plan]}}</div>
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">
@@ -80,36 +106,21 @@
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">
-					<div class="label">Last Updated: </div>
-					<div class="textbox">{{plugin.lastUpdated | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+					<div class="label">Last Modified: </div>
+					<div class="textbox">{{plugin.lastModified | date:"MM/dd/yyyy 'at' h:mma"}}</div>
 					<div class="fix"></div>
 				</div>
+				
 				<div class="content-view-detail">
-					<div class="label">Visibility: </div>
-					<div class="textbox">{{plugin.public ? "public" : "private"}}</div>
-					<div class="fix"></div>
-				</div>
-				<div class="content-view-detail">
-					<div class="label">Tags: </div>
+					<div class="label">Deployables: </div>
 					<div class="textbox">{{plugin.tags.join(", ")}}</div>
 					<div class="fix"></div>
-				</div>
+				</div>				
 				<div class="content-view-detail">
-					<div class="label">Categories: </div>
-					<div class="textbox">{{plugin.categories.join(", ")}}</div>
+					<div class="label">Image</div>
+					<div ng-bind-html="plugin.image"></div>
 					<div class="fix"></div>
 				</div>
-				<div class="content-view-detail">
-					<div class="label">Content</div>
-					<div class="preview" ng-bind-html="plugin.content"></div>
-					<div class="fix"></div>
-				</div>
-				<div class="content-view-detail">
-					<div class="label">Featured Image</div>
-					<div ng-bind-html="plugin.featuredImage"></div>
-					<div class="fix"></div>
-				</div>
-
 				<div class="content-view-detail">
 					<div class="buttons">
 						<div class="nav-button red-highlight" ng-click="plugin.confirmDelete=true"><a href="">Remove Plugin</a></div>

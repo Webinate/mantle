@@ -6,6 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Model_1 = require("./Model");
 var SchemaItemFactory_1 = require("./schema-items/SchemaItemFactory");
+var SchemaHTML_1 = require("./schema-items/SchemaHTML");
 var PostsModel = (function (_super) {
     __extends(PostsModel, _super);
     function PostsModel() {
@@ -15,7 +16,7 @@ var PostsModel = (function (_super) {
         this.defaultSchema.add(new SchemaItemFactory_1.text("slug", "", 1, 512)).setUnique(true);
         this.defaultSchema.add(new SchemaItemFactory_1.text("brief", ""));
         this.defaultSchema.add(new SchemaItemFactory_1.text("featuredImage", ""));
-        this.defaultSchema.add(new SchemaItemFactory_1.text("content", ""));
+        this.defaultSchema.add(new SchemaItemFactory_1.html("content", "", SchemaHTML_1.SchemaHtml.defaultTags.concat("img"), undefined, false));
         this.defaultSchema.add(new SchemaItemFactory_1.bool("public", true));
         this.defaultSchema.add(new SchemaItemFactory_1.textArray("categories", []));
         this.defaultSchema.add(new SchemaItemFactory_1.textArray("tags", []));

@@ -341,6 +341,15 @@ export default class PostsController extends Controller
 
         posts.update(<IPost>{ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance)
         {
+            if (instance.error)
+            {
+                winston.error(<string>instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify(<IResponse>{
+                    error: true,
+                    message: <string>instance.tokens[0].error
+                }));
+            }
+
             res.end(JSON.stringify(<IResponse>{
                 error: false,
                 message: "Post Updated"

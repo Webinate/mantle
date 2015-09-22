@@ -822,7 +822,7 @@ var clientAdmin;
             this.loading = true;
             this.showNewPostForm = true;
             var that = this;
-            that.http.get(that.apiURL + "/posts/get-post/" + post.slug).then(function (post) {
+            that.http.get(that.apiURL + "/posts/get-post/" + post.slug + "?verbose=true").then(function (post) {
                 that.postToken = post.data.data;
                 that.loading = false;
                 tinymce.editors[0].setContent(that.postToken.content);
@@ -939,7 +939,11 @@ var clientAdmin;
                     }
                     else {
                         that.successMessage = token.data.message;
-                        postToken.lastUpdated = Date.now();
+                        for (var i = 0, l = that.posts.length; i < l; i++)
+                            if (that.posts[i]._id == that.postToken._id) {
+                                that.posts.splice(i, 1, that.postToken);
+                                break;
+                            }
                     }
                     that.loading = false;
                 });
