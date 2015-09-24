@@ -47,6 +47,16 @@
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">
+					<div class="label">Visibility: <span class="info">If ticked then the plugin is available for users</span></div>
+					<div class="checkbox">
+						<div class="tick-box" ng-click="controller.pluginToken.isPublic = !controller.pluginToken.isPublic">
+							<div class="tick" ng-show="controller.pluginToken.isPublic"></div>
+						</div>
+						{{(controller.pluginToken.isPublic ? "Public" : "Private")}}
+					</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
 					<div class="label">
 						<div class="button blue feature-img-button img-selector" ng-click="controller.openMediaBrowser()">...</div>
 						Image: <span class="info">The main image for this plugin</span>
@@ -93,6 +103,11 @@
 				<div class="content-view-detail">
 					<div class="label">Description: </div>
 					<div class="textbox">{{plugin.description}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">Visibility: </div>
+					<div class="textbox">{{(plugin.isPublic ? "Public" : "Private")}}</div>
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">

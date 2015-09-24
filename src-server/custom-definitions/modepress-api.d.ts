@@ -348,6 +348,18 @@ declare module Modepress
         public clone(copy?: SchemaItem<T>): SchemaItem<T>;
 
         /**
+        * Gets if this item is sensitive
+        * @returns {boolean}
+        */
+        public getSensitive(): boolean;
+
+        /**
+        * Sets if this item is sensitive
+        * @returns {SchemaItem<T>}
+        */
+        public setSensitive(val: boolean);
+
+        /**
         * Gets if this item is indexable by mongodb
         * @returns {boolean}
         */
@@ -716,6 +728,22 @@ declare module Modepress
     }
 
     /**
+    * A n ID array scheme item for use in Models
+    */
+    export class SchemaIdArray extends SchemaItem<Array<any>>
+    {
+        /**
+        * Creates a new schema item that holds an array of id items
+        * @param {string} name The name of this item
+        * @param {Array<string|ObjectID>} val The array of ids for this schema item
+        * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
+        * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
+        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
+        */
+        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, sensitive?: boolean);
+    }
+
+    /**
     * A text scheme item for use in Models
     */
     class SchemaTextArray extends SchemaItem<Array<string>>
@@ -819,6 +847,7 @@ declare module Modepress
         export var num: typeof SchemaNumber;
         export var text: typeof SchemaText;
         export var textArray: typeof SchemaTextArray;
+        export var idArray: typeof SchemaIdArray;
         export var date: typeof SchemaDate;
         export var bool: typeof SchemaBool;
         export var id: typeof SchemaId;
@@ -890,8 +919,7 @@ declare module Modepress
     export function canEdit(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
-    * This funciton checks the logged in user is an admin. If not an admin it returns an error, 
-    * if true it passes the scope onto the next function in the queue
+    * This funciton checks if user is logged in
     * @param {express.Request} req 
     * @param {express.Response} res
     * @param {Function} next 

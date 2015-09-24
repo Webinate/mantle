@@ -193,6 +193,25 @@ var HatcheryPlugin;
             });
         };
         /**
+        * Removes a plugin
+        */
+        PluginCtrl.prototype.removePlugin = function (plugin) {
+            this.loading = true;
+            var that = this;
+            that.error = false;
+            that.errorMsg = "";
+            that.http.delete(appEngineURL + "/app-engine/plugins/" + plugin._id).then(function (response) {
+                that.loading = false;
+                plugin.confirmDelete = false;
+                if (that.pluginToken = response.data.error) {
+                    that.error = true;
+                    that.errorMsg = response.data.message;
+                    return;
+                }
+                that.plugins.splice(that.plugins.indexOf(plugin), 1);
+            });
+        };
+        /**
         * Gets a list of plugins
         */
         PluginCtrl.prototype.fetchPlugins = function (index, limit) {
@@ -224,7 +243,7 @@ var HatcheryPlugin;
             this.loading = true;
             var pluginToken = this.pluginToken;
             if (this.editMode) {
-                that.http.put(appEngineURL + "/app-engine/plugins/update/" + pluginToken._id, pluginToken).then(function (token) {
+                that.http.put(appEngineURL + "/app-engine/plugins/" + pluginToken._id, pluginToken).then(function (token) {
                     if (token.data.error) {
                         that.error = true;
                         that.errorMsg = token.data.message;

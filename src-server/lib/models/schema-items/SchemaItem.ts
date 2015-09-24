@@ -27,6 +27,7 @@ export class SchemaItem<T>
     {
         copy = copy === undefined ? new SchemaItem(this.name, this.value, this.sensitive) : copy;
         copy._unique = this._unique;
+        copy.sensitive = this.sensitive;
 		return copy;
     }
 
@@ -59,6 +60,25 @@ export class SchemaItem<T>
     public setUnique(val?: boolean): SchemaItem<T>
     {
         this._unique = val;
+        return this;
+    }
+
+    /**
+    * Gets if this item is sensitive
+    * @returns {boolean}
+    */
+    public getSensitive(): boolean
+    {
+        return this.sensitive;
+    }
+
+    /**
+    * Sets if this item is sensitive
+    * @returns {SchemaItem<T>}
+    */
+    public setSensitive(val: boolean): SchemaItem<T>
+    {
+        this.sensitive = val;
         return this;
     }
 

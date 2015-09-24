@@ -60,6 +60,7 @@
     <TypeScriptCompile Include="lib\models\schema-items\SchemaBool.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaId.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaHtml.ts" />
+    <TypeScriptCompile Include="lib\models\schema-items\SchemaIdArray.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaTextArray.ts" />
     <TypeScriptCompile Include="lib\models\Schema.ts" />
     <TypeScriptCompile Include="lib\models\schema-items\SchemaText.ts" />

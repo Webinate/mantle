@@ -82,12 +82,12 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
     /**
 	* Gets the value of this item
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
-    * @returns {SchemaValue}
+    * @returns {Array<string>}
 	*/
     public getValue(sanitize: boolean = false): Array<string>
     {
         if (this.sensitive && sanitize)
-            return [];
+            return null;
         else
             return this.value;
     }

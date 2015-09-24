@@ -17,6 +17,7 @@ var SchemaItem = (function () {
     SchemaItem.prototype.clone = function (copy) {
         copy = copy === undefined ? new SchemaItem(this.name, this.value, this.sensitive) : copy;
         copy._unique = this._unique;
+        copy.sensitive = this.sensitive;
         return copy;
     };
     /**
@@ -43,6 +44,21 @@ var SchemaItem = (function () {
     */
     SchemaItem.prototype.setUnique = function (val) {
         this._unique = val;
+        return this;
+    };
+    /**
+    * Gets if this item is sensitive
+    * @returns {boolean}
+    */
+    SchemaItem.prototype.getSensitive = function () {
+        return this.sensitive;
+    };
+    /**
+    * Sets if this item is sensitive
+    * @returns {SchemaItem<T>}
+    */
+    SchemaItem.prototype.setSensitive = function (val) {
+        this.sensitive = val;
         return this;
     };
     /**
