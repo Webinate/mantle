@@ -47,6 +47,11 @@
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">
+					<div class="label">URL: <span class="info">The URL of the JS plugin for the editor</span></div>
+					<input type="text" ng-model="controller.pluginToken.url" />
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
 					<div class="label">Visibility: <span class="info">If ticked then the plugin is available for users</span></div>
 					<div class="checkbox">
 						<div class="tick-box" ng-click="controller.pluginToken.isPublic = !controller.pluginToken.isPublic">
@@ -103,6 +108,11 @@
 				<div class="content-view-detail">
 					<div class="label">Description: </div>
 					<div class="textbox">{{plugin.description}}</div>
+					<div class="fix"></div>
+				</div>
+				<div class="content-view-detail">
+					<div class="label">URL: </div>
+					<div class="textbox">{{plugin.url}}</div>
 					<div class="fix"></div>
 				</div>
 				<div class="content-view-detail">

@@ -927,11 +927,11 @@ declare module Modepress
     export function getUser(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
-   * This funciton checks the logged in user is an admin. If not an error is thrown
-   * @param {express.Request} req 
-   * @param {express.Response} res
-   * @param {Function} next 
-   */
+    * This funciton checks the logged in user is an admin. If not an error is thrown
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
     export function isAuthenticated(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
