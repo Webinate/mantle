@@ -744,6 +744,26 @@ declare module Modepress
     }
 
     /**
+    * A number array scheme item for use in Models
+    */
+    export class SchemaNumArray extends SchemaItem<Array<number>>
+    {
+        /**
+        * Creates a new schema item that holds an array of number items
+        * @param {string} name The name of this item
+        * @param {Array<number>} val The number array of this schema item
+        * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
+        * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
+        * @param {number} min [Optional] Specify the minimum a number can be
+        * @param {number} max [Optional] Specify the maximum a number can be
+        * @param {NumberType} type [Optional] What type of numbers to expect
+        * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
+        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
+        */
+        constructor(name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?, sensitive?: boolean)
+    }
+
+    /**
     * A text scheme item for use in Models
     */
     class SchemaTextArray extends SchemaItem<Array<string>>
@@ -847,6 +867,7 @@ declare module Modepress
         export var num: typeof SchemaNumber;
         export var text: typeof SchemaText;
         export var textArray: typeof SchemaTextArray;
+        export var numArray: typeof SchemaNumArray;
         export var idArray: typeof SchemaIdArray;
         export var date: typeof SchemaDate;
         export var bool: typeof SchemaBool;

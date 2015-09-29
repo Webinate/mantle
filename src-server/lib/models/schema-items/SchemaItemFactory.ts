@@ -4,6 +4,7 @@ import {SchemaBool} from "./SchemaBool";
 import {SchemaDate} from "./SchemaDate";
 import {SchemaTextArray} from "./SchemaTextArray";
 import {SchemaIdArray} from "./SchemaIdArray";
+import {SchemaNumArray} from "./SchemaNumArray";
 import {SchemaId} from "./SchemaId";
 import {SchemaHtml} from "./SchemaHtml";
 
@@ -12,6 +13,7 @@ export var num = numbers.SchemaNumber;
 export var text = SchemaText;
 export var textArray = SchemaTextArray;
 export var idArray = SchemaIdArray;
+export var numArray = SchemaNumArray;
 export var date = SchemaDate;
 export var bool = SchemaBool;
 export var id = SchemaId;
