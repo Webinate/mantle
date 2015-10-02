@@ -54,13 +54,22 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
 	public validate(): boolean | string
     {
         var transformedValue = this.value;
-
+        var toRemove = [];
         for (var i = 0, l = transformedValue.length; i < l; i++)
+        {
             transformedValue[i] = sanitizeHtml(transformedValue[i].trim(), { allowedTags: [] });
+
+            if (transformedValue[i].trim() == "")
+                toRemove.push(i);
+        }
+        
+        // Remove any "" cells
+        for (var i = toRemove.length - 1; i >= 0; i--)
+            transformedValue.splice(toRemove[i], 1);
 
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
-        
+       
 
         if (transformedValue.length < this.minItems)
             return `You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`;
@@ -74,7 +83,12 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
                 return `The character length of '${transformedValue[i]}' in ${this.name} is too long, please keep it below ${maxCharacters}`;
             else if (transformedValue[i].length < minCharacters)
                 return `The character length of '${transformedValue[i]}' in ${this.name} is too short, please keep it above ${minCharacters}`;
+
+            
         }
+
+        
+
 
         return true;
     }

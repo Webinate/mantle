@@ -53,8 +53,15 @@ var SchemaTextArray = (function (_super) {
     */
     SchemaTextArray.prototype.validate = function () {
         var transformedValue = this.value;
-        for (var i = 0, l = transformedValue.length; i < l; i++)
+        var toRemove = [];
+        for (var i = 0, l = transformedValue.length; i < l; i++) {
             transformedValue[i] = sanitizeHtml(transformedValue[i].trim(), { allowedTags: [] });
+            if (transformedValue[i].trim() == "")
+                toRemove.push(i);
+        }
+        // Remove any "" cells
+        for (var i = toRemove.length - 1; i >= 0; i--)
+            transformedValue.splice(toRemove[i], 1);
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
         if (transformedValue.length < this.minItems)
