@@ -2,29 +2,29 @@
 import * as os from "os";
 import * as yargs from "yargs";
 
-var arguments = yargs.argv;
+var args = yargs.argv;
 var numCPUs = os.cpus().length;
 
 // Check for the threads argument
-if (arguments.numThreads)
+if (args.numThreads)
 {
-    if (arguments.numThreads == "max")
+    if (args.numThreads == "max")
     {
         console.log(`Setting the number of clusters to  ${numCPUs}`);
     }
-    else if (isNaN(parseInt(arguments.numThreads)))
+    else if (isNaN(parseInt(args.numThreads)))
     {
         console.log("attribute numThreads must be a number");
         process.exit();
     }
-    else if (arguments.numThreads > numCPUs)
+    else if (args.numThreads > numCPUs)
     {
         console.log(`You only have ${numCPUs} threads available - attribute numThreads will be set to ${numCPUs}`);
     }
-    else if (arguments.numThreads)
+    else if (args.numThreads)
     {
-        console.log(`Setting the number of clusters to  ${arguments.numThreads}`);
-        numCPUs = arguments.numThreads;
+        console.log(`Setting the number of clusters to  ${args.numThreads}`);
+        numCPUs = args.numThreads;
     }
 }
 
