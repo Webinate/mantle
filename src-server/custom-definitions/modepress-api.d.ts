@@ -582,6 +582,8 @@ declare module Modepress
 
     export class Controller
     {
+        protected _models: Array<Model>;
+
         constructor(models: Array<Model>);
 
         /**
