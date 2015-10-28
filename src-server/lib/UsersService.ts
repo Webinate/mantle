@@ -47,6 +47,32 @@ export class UsersService
     }
 
     /**
+	* Uploads a file to a logged in user's bucket
+    * @param {string} bucket The bucket to upload the file into
+    * @param {Request} req
+	* @returns {Promise<UsersInterface.IResponse>}
+	*/
+    uploadFile(bucket: string, req: express.Request): Promise<UsersInterface.IUploadResponse>
+    {
+        var that = this;
+        return new Promise<UsersInterface.IUploadResponse>(function (resolve, reject)
+        {
+            request.post(`${UsersService.usersURL}/upload/${bucket}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            {
+                if (error)
+                    return reject(error);
+
+                var token: UsersInterface.IUploadResponse = JSON.parse(body);
+
+                if (token.error)
+                    return reject(new Error(token.message));
+
+                resolve(token);
+            });
+        });
+    }
+
+    /**
 	* Sets a meta value by name for the specified user
 	* @param {string} name The name of the meta value
     * @param {any} val The value to set

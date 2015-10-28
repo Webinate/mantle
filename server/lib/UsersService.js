@@ -28,6 +28,25 @@ var UsersService = (function () {
         });
     };
     /**
+    * Uploads a file to a logged in user's bucket
+    * @param {string} bucket The bucket to upload the file into
+    * @param {Request} req
+    * @returns {Promise<UsersInterface.IResponse>}
+    */
+    UsersService.prototype.uploadFile = function (bucket, req) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            request.post(UsersService.usersURL + "/upload/" + bucket, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+                if (error)
+                    return reject(error);
+                var token = JSON.parse(body);
+                if (token.error)
+                    return reject(new Error(token.message));
+                resolve(token);
+            });
+        });
+    };
+    /**
     * Sets a meta value by name for the specified user
     * @param {string} name The name of the meta value
     * @param {any} val The value to set

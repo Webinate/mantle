@@ -629,11 +629,12 @@ declare module Modepress
         sendAdminEmail(message: string): Promise<any>;
 
         /**
-	    * Sends an email to the admin account
-	    * @param {string} message The message to send
-	    * @returns {Promise<any>}
-	    */
-        sendAdminEmail(message: string): Promise<any>;
+        * Uploads a file to a logged in user's bucket
+        * @param {string} bucket The bucket to upload the file into
+        * @param {Request} req
+        * @returns {Promise<UsersInterface.IResponse>}
+        */
+        uploadFile(bucket: string, req: any): Promise<UsersInterface.IUploadResponse>;
 
         /**
         * Sets a meta value by name for the specified user
