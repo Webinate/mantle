@@ -17,6 +17,14 @@ declare module UsersInterface
             eventType: number;
             username: string;
         }
+
+        /*
+        * Interface for file events
+        */
+        export interface IFileEvent extends IEvent
+        {
+            tokens: Array<IUploadToken>;
+        }
     }
 
     /*

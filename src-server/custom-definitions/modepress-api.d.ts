@@ -886,7 +886,9 @@ declare module Modepress
         Login,
         Logout,
         Activated,
-        Removed
+        Removed,
+        FilesUploaded,
+        FilesRemoved
     }
 
     /**

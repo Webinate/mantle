@@ -10,7 +10,9 @@ export enum UserEventType
     Login,
     Logout,
     Activated,
-    Removed
+    Removed,
+    FilesUploaded,
+    FilesRemoved
 }
 
 export interface UserEvent

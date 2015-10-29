@@ -12,7 +12,6 @@ export class UsersService
 
     public static usersURL: string;
     public static mediaURL: string;
-
     private _secret: string;
 
     /**
@@ -23,7 +22,7 @@ export class UsersService
     {
         UsersService.usersURL = config.usersURL + "/users";
         UsersService.mediaURL = config.usersURL + "/media";        
-        this._secret = config.usersSecret;
+        this._secret = config.usersSecret;        
     }
 
     /**
@@ -52,22 +51,43 @@ export class UsersService
     * @param {Request} req
 	* @returns {Promise<UsersInterface.IResponse>}
 	*/
-    uploadFile(bucket: string, req: express.Request): Promise<UsersInterface.IUploadResponse>
+    uploadFile(bucket: string, req: express.Request, res: express.Response): Promise<UsersInterface.IUploadResponse>
     {
         var that = this;
         return new Promise<UsersInterface.IUploadResponse>(function (resolve, reject)
         {
-            request.post(`${UsersService.usersURL}/upload/${bucket}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            var proxy = this._proxy;
+            var fullURI: string = `${((<any>req.connection).encrypted ? "https" : "http") }://${(<any>req.headers).host}${req.url}`;
+            proxy.web(req, res, <proxyServer.ProxyServerOptions>{
+                target: `${UsersService.mediaURL}/upload/${bucket}`,
+                secure: false
+            });
+
+            request.post(`${UsersService.mediaURL}/upload/${bucket}`, {
+                body: req.body,
+                headers: {
+                    cookie: (<any>req).headers.cookie,
+                    "content-type": (<any>req).headers["content-type"],
+                    "content-length": (<any>req).headers["content-length"]
+                }
+            }, function (error, response, body)
             {
                 if (error)
                     return reject(error);
 
-                var token: UsersInterface.IUploadResponse = JSON.parse(body);
+                try
+                {
+                    var token: UsersInterface.IUploadResponse = JSON.parse(body);
 
-                if (token.error)
-                    return reject(new Error(token.message));
+                    if (token.error)
+                        return reject(new Error(token.message));
 
-                resolve(token);
+                    resolve(token);
+                }
+                catch( err )
+                {
+                    return reject(new Error(body));
+                }
             });
         });
     }

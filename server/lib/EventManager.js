@@ -11,6 +11,8 @@ var events = require("events");
     UserEventType[UserEventType["Logout"] = 1] = "Logout";
     UserEventType[UserEventType["Activated"] = 2] = "Activated";
     UserEventType[UserEventType["Removed"] = 3] = "Removed";
+    UserEventType[UserEventType["FilesUploaded"] = 4] = "FilesUploaded";
+    UserEventType[UserEventType["FilesRemoved"] = 5] = "FilesRemoved";
 })(exports.UserEventType || (exports.UserEventType = {}));
 var UserEventType = exports.UserEventType;
 /**

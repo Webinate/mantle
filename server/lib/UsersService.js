@@ -33,16 +33,34 @@ var UsersService = (function () {
     * @param {Request} req
     * @returns {Promise<UsersInterface.IResponse>}
     */
-    UsersService.prototype.uploadFile = function (bucket, req) {
+    UsersService.prototype.uploadFile = function (bucket, req, res) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.post(UsersService.usersURL + "/upload/" + bucket, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+            var proxy = this._proxy;
+            var fullURI = (req.connection.encrypted ? "https" : "http") + "://" + req.headers.host + req.url;
+            proxy.web(req, res, {
+                target: UsersService.mediaURL + "/upload/" + bucket,
+                secure: false
+            });
+            request.post(UsersService.mediaURL + "/upload/" + bucket, {
+                body: req.body,
+                headers: {
+                    cookie: req.headers.cookie,
+                    "content-type": req.headers["content-type"],
+                    "content-length": req.headers["content-length"]
+                }
+            }, function (error, response, body) {
                 if (error)
                     return reject(error);
-                var token = JSON.parse(body);
-                if (token.error)
-                    return reject(new Error(token.message));
-                resolve(token);
+                try {
+                    var token = JSON.parse(body);
+                    if (token.error)
+                        return reject(new Error(token.message));
+                    resolve(token);
+                }
+                catch (err) {
+                    return reject(new Error(body));
+                }
             });
         });
     };
