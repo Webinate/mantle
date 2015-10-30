@@ -46,53 +46,6 @@ export class UsersService
     }
 
     /**
-	* Uploads a file to a logged in user's bucket
-    * @param {string} bucket The bucket to upload the file into
-    * @param {Request} req
-	* @returns {Promise<UsersInterface.IResponse>}
-	*/
-    uploadFile(bucket: string, req: express.Request, res: express.Response): Promise<UsersInterface.IUploadResponse>
-    {
-        var that = this;
-        return new Promise<UsersInterface.IUploadResponse>(function (resolve, reject)
-        {
-            var proxy = this._proxy;
-            var fullURI: string = `${((<any>req.connection).encrypted ? "https" : "http") }://${(<any>req.headers).host}${req.url}`;
-            proxy.web(req, res, <proxyServer.ProxyServerOptions>{
-                target: `${UsersService.mediaURL}/upload/${bucket}`,
-                secure: false
-            });
-
-            request.post(`${UsersService.mediaURL}/upload/${bucket}`, {
-                body: req.body,
-                headers: {
-                    cookie: (<any>req).headers.cookie,
-                    "content-type": (<any>req).headers["content-type"],
-                    "content-length": (<any>req).headers["content-length"]
-                }
-            }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
-
-                try
-                {
-                    var token: UsersInterface.IUploadResponse = JSON.parse(body);
-
-                    if (token.error)
-                        return reject(new Error(token.message));
-
-                    resolve(token);
-                }
-                catch( err )
-                {
-                    return reject(new Error(body));
-                }
-            });
-        });
-    }
-
-    /**
 	* Sets a meta value by name for the specified user
 	* @param {string} name The name of the meta value
     * @param {any} val The value to set

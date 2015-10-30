@@ -28,43 +28,6 @@ var UsersService = (function () {
         });
     };
     /**
-    * Uploads a file to a logged in user's bucket
-    * @param {string} bucket The bucket to upload the file into
-    * @param {Request} req
-    * @returns {Promise<UsersInterface.IResponse>}
-    */
-    UsersService.prototype.uploadFile = function (bucket, req, res) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
-            var proxy = this._proxy;
-            var fullURI = (req.connection.encrypted ? "https" : "http") + "://" + req.headers.host + req.url;
-            proxy.web(req, res, {
-                target: UsersService.mediaURL + "/upload/" + bucket,
-                secure: false
-            });
-            request.post(UsersService.mediaURL + "/upload/" + bucket, {
-                body: req.body,
-                headers: {
-                    cookie: req.headers.cookie,
-                    "content-type": req.headers["content-type"],
-                    "content-length": req.headers["content-length"]
-                }
-            }, function (error, response, body) {
-                if (error)
-                    return reject(error);
-                try {
-                    var token = JSON.parse(body);
-                    if (token.error)
-                        return reject(new Error(token.message));
-                    resolve(token);
-                }
-                catch (err) {
-                    return reject(new Error(body));
-                }
-            });
-        });
-    };
-    /**
     * Sets a meta value by name for the specified user
     * @param {string} name The name of the meta value
     * @param {any} val The value to set

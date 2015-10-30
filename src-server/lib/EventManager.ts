@@ -49,24 +49,38 @@ export class EventManager extends events.EventEmitter
 
         return new Promise(function (resolve, reject)
         {
-            var _client = new (<typeof WS.WebSocket><any>ws)(cfg.usersSocketURL, undefined, { headers: { origin: cfg.usersSocketOrigin } });
-
-            // Opens a stream to the users socket events
-            _client.on('open', function ()
+            var reconnectInterval = 3 * 1000;
+            var _client;
+            var connect = function ()
             {
-                winston.info(`Connected to the users socket stream`, { process: process.pid });
-                return resolve();
-            });
+                var _client = new (<typeof WS.WebSocket><any>ws)(cfg.usersSocketURL, undefined, { headers: { origin: cfg.usersSocketOrigin } });
+                
+                // Opens a stream to the users socket events
+                _client.on('open', function ()
+                {
+                    winston.info(`Connected to the users socket stream`, { process: process.pid });
+                    return resolve();
+                });
 
-            // Report if there are any errors
-            _client.on('error', function (err: Error)
-            {
-                winston.error(`An error occurred when trying to connect to the users socket: ${err.message}`, { process: process.pid });
-                return reject();
-            });
+                // Opens a stream to the users socket events
+                _client.on('close', function ()
+                {
+                    winston.error(`We lost connection to the stream`, { process: process.pid });
+                    setTimeout(connect, reconnectInterval);
+                });
 
-            // We have recieved a message from the user socket
-            _client.on('message', that.onMessage.bind(that));
+                // Report if there are any errors
+                _client.on('error', function (err: Error)
+                {
+                    winston.error(`An error occurred when trying to connect to the users socket: ${err.message}`, { process: process.pid });
+                    setTimeout(connect, reconnectInterval);
+                });
+
+                // We have recieved a message from the user socket
+                _client.on('message', that.onMessage.bind(that));
+
+            };
+            connect();
         });
     }
 
