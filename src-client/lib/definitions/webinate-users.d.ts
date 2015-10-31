@@ -18,19 +18,46 @@ declare module UsersInterface
         }
 
         /*
-        * The token used for logging in
+        * The socket user event
         */
-        export interface ILogin extends IEvent
+        export interface IUserEvent extends IEvent
         {
+            eventType: number;
             username: string;
         }
 
         /*
-        * The token used for logging out
+        * Interface for file added events
         */
-        export interface ILogout extends IEvent
+        export interface IFilesAddedEvent extends IEvent
         {
             username: string;
+            tokens: Array<IUploadToken>;
+        }
+
+        /*
+        * Interface for file removed events
+        */
+        export interface IFilesRemovedEvent extends IEvent
+        {
+            files: Array<string>;
+        }
+
+        /*
+        * Interface for a bucket being added
+        */
+        export interface IBucketAddedEvent extends IEvent
+        {
+            username: string;
+            bucket: IBucketEntry
+        }
+
+        /*
+        * Interface for a bucket being removed
+        */
+        export interface IBucketRemovedEvent extends IEvent
+        {
+            bucket: IBucketEntry
         }
     }
 
@@ -47,7 +74,7 @@ declare module UsersInterface
         sessionId?: string;
         createdOn?: number;
         lastLoggedIn?: number;
-        privileges?: UserPrivileges;
+        privileges?: number;
         passwordTag?: string;
         meta?: any;
     }
@@ -127,9 +154,6 @@ declare module UsersInterface
     {
         /*Where is the client origin expected from*/
         origin: string;
-    
-        /*Which events is it registered to listen for*/
-        eventListeners: Array<number>;
     }
 
     /*
@@ -271,16 +295,6 @@ declare module UsersInterface
         challenge?: string;
         meta?: any;
         privileges?: number;
-    }
-
-    /*
-    * Describes what kind of privileges the user has
-    */
-    export enum UserPrivileges
-    {
-        SuperAdmin = 1,
-        Admin = 2,
-        Regular = 3
     }
 
     /*

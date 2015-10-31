@@ -12,7 +12,9 @@ export enum UserEventType
     Activated,
     Removed,
     FilesUploaded,
-    FilesRemoved
+    FilesRemoved,
+    BucketUploaded,
+    BucketRemoved
 }
 
 export interface UserEvent
@@ -93,7 +95,7 @@ export class EventManager extends events.EventEmitter
         {
             try
             {
-                var event: UserEvent = <users.SocketEvents.IEvent>JSON.parse(data);
+                var event = <users.SocketEvents.IEvent>JSON.parse(data);
                 this.emit(UserEventType[event.eventType], event);
             }
             catch (err)

@@ -13,6 +13,8 @@ var events = require("events");
     UserEventType[UserEventType["Removed"] = 3] = "Removed";
     UserEventType[UserEventType["FilesUploaded"] = 4] = "FilesUploaded";
     UserEventType[UserEventType["FilesRemoved"] = 5] = "FilesRemoved";
+    UserEventType[UserEventType["BucketUploaded"] = 6] = "BucketUploaded";
+    UserEventType[UserEventType["BucketRemoved"] = 7] = "BucketRemoved";
 })(exports.UserEventType || (exports.UserEventType = {}));
 var UserEventType = exports.UserEventType;
 /**
