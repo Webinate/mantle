@@ -27,12 +27,12 @@ declare module UsersInterface
         }
 
         /*
-        * Interface for file added events
-        */
+         * Interface for file added events
+         */
         export interface IFilesAddedEvent extends IEvent
         {
             username: string;
-            tokens: Array<IUploadToken>;
+            files: Array<IFileEntry>;
         }
 
         /*

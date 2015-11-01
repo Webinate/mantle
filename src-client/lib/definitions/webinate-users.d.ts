@@ -32,7 +32,7 @@ declare module UsersInterface
         export interface IFilesAddedEvent extends IEvent
         {
             username: string;
-            tokens: Array<IUploadToken>;
+            files: Array<IFileEntry>;
         }
 
         /*
