@@ -654,7 +654,7 @@ declare module Modepress
         * @param {string} existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
         * @returns {boolean}
         */
-        hasPermission(user: UsersInterface.IUserEntry, level: UsersInterface.UserPrivileges, existingUser?: string): boolean;
+        hasPermission(user: UsersInterface.IUserEntry, level: number, existingUser?: string): boolean;
 
         /**
 	    * Attempts to log a user in

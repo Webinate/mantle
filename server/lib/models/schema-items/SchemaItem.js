@@ -7,6 +7,7 @@ var SchemaItem = (function () {
         this.value = value;
         this.sensitive = sensitive;
         this._unique = false;
+        this._uniqueIndexer = false;
         this._indexable = false;
     }
     /**
@@ -17,6 +18,7 @@ var SchemaItem = (function () {
     SchemaItem.prototype.clone = function (copy) {
         copy = copy === undefined ? new SchemaItem(this.name, this.value, this.sensitive) : copy;
         copy._unique = this._unique;
+        copy._uniqueIndexer = this._uniqueIndexer;
         copy.sensitive = this.sensitive;
         return copy;
     };
@@ -26,11 +28,6 @@ var SchemaItem = (function () {
     */
     SchemaItem.prototype.getIndexable = function () { return this._indexable; };
     /**
-    * Gets if this item represents a unique value in the database. An example might be a username
-    * @returns {boolean}
-    */
-    SchemaItem.prototype.getUnique = function () { return this._unique; };
-    /**
     * Sets if this item is indexable by mongodb
     * @returns {SchemaItem}
     */
@@ -39,11 +36,33 @@ var SchemaItem = (function () {
         return this;
     };
     /**
+    * Gets if this item represents a unique value in the database. An example might be a username
+    * @returns {boolean}
+    */
+    SchemaItem.prototype.getUnique = function () { return this._unique; };
+    /**
     * Sets if this item represents a unique value in the database. An example might be a username
     * @returns {SchemaItem}
     */
     SchemaItem.prototype.setUnique = function (val) {
         this._unique = val;
+        return this;
+    };
+    /**
+    * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
+    * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
+    * a given project. In this case the project item is set as a uniqueIndexer
+    * @returns {boolean}
+    */
+    SchemaItem.prototype.getUniqueIndexer = function () { return this._uniqueIndexer; };
+    /**
+    * Sets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
+    * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
+    * a given project. In this case the project item is set as a uniqueIndexer
+    * @returns {SchemaItem}
+    */
+    SchemaItem.prototype.setUniqueIndexer = function (val) {
+        this._uniqueIndexer = val;
         return this;
     };
     /**

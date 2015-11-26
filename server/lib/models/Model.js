@@ -347,6 +347,8 @@ var Model = (function () {
                     searchField[items[i].name] = items[i].getValue();
                     searchToken.$or.push(searchField);
                 }
+                else if (items[i].getUniqueIndexer())
+                    searchToken[items[i].name] = items[i].getValue();
             }
             if (!hasUniqueField)
                 return resolve(true);
