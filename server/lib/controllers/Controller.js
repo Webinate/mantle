@@ -1,6 +1,20 @@
 var Controller = (function () {
     function Controller(models) {
-        this._models = models;
+        this._models = [];
+        if (models) {
+            for (var ii = 0, il = models.length; ii < il; ii++) {
+                var modelAlreadyAdded = false;
+                for (var i = 0, l = Controller._models.length; i < l; i++)
+                    if (Controller._models[i].collectionName == models[ii].collectionName) {
+                        modelAlreadyAdded = true;
+                        break;
+                    }
+                if (!modelAlreadyAdded) {
+                    this._models.push(models[ii]);
+                    Controller._models.push(models[ii]);
+                }
+            }
+        }
     }
     /**
     * Called to initialize this controller and its related database objects
@@ -27,7 +41,7 @@ var Controller = (function () {
     * returns {models.Model}
     */
     Controller.prototype.getModel = function (collectionName) {
-        var models = this._models;
+        var models = Controller._models;
         for (var i = 0, l = models.length; i < l; i++)
             if (models[i].collectionName == collectionName)
                 return models[i];
@@ -46,6 +60,7 @@ var Controller = (function () {
             sanitizedData.push(instances[i].schema.generateCleanData(!verbose, instances[i]._id));
         return sanitizedData;
     };
+    Controller._models = [];
     return Controller;
 })();
 exports.Controller = Controller;

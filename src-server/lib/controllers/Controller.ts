@@ -4,11 +4,33 @@ import {IControllerPlugin} from "modepress-api";
 
 export class Controller
 {
-	protected _models: Array<Model>;
+    private static _models: Array<Model> = [];
+    private _models: Array<Model>;
 
 	constructor(models: Array<Model>)
-	{
-		this._models = models;
+    {
+        this._models = [];
+
+        if (models)
+        {
+            for (var ii = 0, il = models.length; ii < il; ii++)
+            {
+                var modelAlreadyAdded = false;
+
+                for (var i = 0, l = Controller._models.length; i < l; i++)
+                    if (Controller._models[i].collectionName == models[ii].collectionName)
+                    {
+                        modelAlreadyAdded = true;
+                        break;
+                    }
+
+                if (!modelAlreadyAdded)
+                {
+                    this._models.push(models[ii]);
+                    Controller._models.push(models[ii]);
+                }
+            }
+        }
 	}
 
 	/**
@@ -45,8 +67,8 @@ export class Controller
 	* returns {models.Model}
 	*/
 	getModel(collectionName: string): Model
-	{
-		var models = this._models;
+    {
+        var models = Controller._models;
 		for (var i = 0, l = models.length; i < l; i++)
 			if (models[i].collectionName == collectionName)
 				return models[i];

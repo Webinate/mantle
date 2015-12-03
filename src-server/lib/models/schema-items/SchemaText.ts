@@ -47,6 +47,7 @@ export class SchemaText extends SchemaItem<string>
 	{
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
+        this.value = this.value || "";
         var transformedValue = sanitizeHtml(this.value.trim(), { allowedTags: [] });
         this.value = transformedValue;
         

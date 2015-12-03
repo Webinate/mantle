@@ -123,4 +123,14 @@ export class SchemaItem<T>
     {
         return this.value;
     }
+
+    /**
+	* Sets the value of this item
+    * @param {T} val The value to set
+    * @returns {SchemaValue}
+	*/
+    public setValue(val : T): T
+    {
+        return this.value = val;
+    }
 }
