@@ -96,6 +96,14 @@ var SchemaItem = (function () {
         if (sanitize === void 0) { sanitize = false; }
         return this.value;
     };
+    /**
+    * Sets the value of this item
+    * @param {T} val The value to set
+    * @returns {SchemaValue}
+    */
+    SchemaItem.prototype.setValue = function (val) {
+        return this.value = val;
+    };
     return SchemaItem;
 })();
 exports.SchemaItem = SchemaItem;

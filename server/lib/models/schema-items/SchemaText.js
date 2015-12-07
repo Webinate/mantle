@@ -45,6 +45,7 @@ var SchemaText = (function (_super) {
     SchemaText.prototype.validate = function () {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
+        this.value = this.value || "";
         var transformedValue = sanitizeHtml(this.value.trim(), { allowedTags: [] });
         this.value = transformedValue;
         if (transformedValue.length < minCharacters && minCharacters == 1)
