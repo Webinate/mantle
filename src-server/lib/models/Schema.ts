@@ -44,7 +44,7 @@ export class Schema
         {
             for (var ii = 0; ii < l; ii++)
                 if (items[ii].name == i)
-                    items[ii].getValue( data[i] );
+                    items[ii].setValue( data[i] );
         }
     }
 
