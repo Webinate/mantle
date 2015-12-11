@@ -395,6 +395,22 @@ declare module Modepress
         * @returns {SchemaValue}
         */
         public getValue(sanitize: boolean): T;
+
+        /**
+        * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But 
+        * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
+        * a given project. In this case the project item is set as a uniqueIndexer
+        * @returns {boolean}
+        */
+        public getUniqueIndexer(): boolean;
+
+        /**
+        * Sets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But 
+        * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
+        * a given project. In this case the project item is set as a uniqueIndexer
+        * @returns {SchemaItem}
+        */
+        public setUniqueIndexer(val?: boolean): SchemaItem<T>;
     }
 
     /**

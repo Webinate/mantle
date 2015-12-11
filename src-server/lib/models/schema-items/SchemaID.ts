@@ -41,7 +41,7 @@ export class SchemaId extends SchemaItem<ObjectID | string>
         if (typeof this.value == "string")
         {
             if (Utils.isValidObjectID(<string>this.value))
-                transformedValue = new ObjectID(<string>this.value);
+                transformedValue = this.value = new ObjectID(<string>this.value);
             else if ((<string>this.value).trim() != "")
                 return `Please use a valid ID for '${this.name}'`;
             else

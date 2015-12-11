@@ -39,7 +39,7 @@ var SchemaId = (function (_super) {
         var transformedValue = this.value;
         if (typeof this.value == "string") {
             if (Utils_1.Utils.isValidObjectID(this.value))
-                transformedValue = new mongodb_1.ObjectID(this.value);
+                transformedValue = this.value = new mongodb_1.ObjectID(this.value);
             else if (this.value.trim() != "")
                 return "Please use a valid ID for '" + this.name + "'";
             else
