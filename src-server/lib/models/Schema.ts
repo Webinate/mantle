@@ -58,8 +58,8 @@ export class Schema
 		var items = this.items;
 		
 		for (var i = 0, l = items.length; i < l; i++)
-			if (items[i].name == name)
-				items[i].value = val;
+            if (items[i].name == name)
+                items[i].setValue( val );
 	}
 
 	/**

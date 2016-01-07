@@ -805,6 +805,20 @@ declare module Modepress
     }
 
     /**
+    * A json scheme item for use in Models
+    */
+    class SchemaJSON extends SchemaItem<any>
+    {
+        /**
+        * Creates a new schema item
+        * @param {string} name The name of this item
+        * @param {any} val The text of this item
+        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
+        */
+        constructor(name: string, val: any, sensitive: boolean);
+    }
+
+    /**
     * A date scheme item for use in Models
     */
     class SchemaDate extends SchemaItem<number>
@@ -876,6 +890,7 @@ declare module Modepress
         export var num: typeof SchemaNumber;
         export var text: typeof SchemaText;
         export var textArray: typeof SchemaTextArray;
+        export var json: typeof SchemaJSON;
         export var numArray: typeof SchemaNumArray;
         export var idArray: typeof SchemaIdArray;
         export var date: typeof SchemaDate;

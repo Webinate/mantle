@@ -39,7 +39,7 @@ var Schema = (function () {
         var items = this.items;
         for (var i = 0, l = items.length; i < l; i++)
             if (items[i].name == name)
-                items[i].value = val;
+                items[i].setValue(val);
     };
     /**
     * De-serializes the schema items from the mongodb data entry

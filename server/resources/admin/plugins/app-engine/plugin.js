@@ -1,5 +1,28 @@
 var Animate;
 (function (Animate) {
+    var EventTypes;
+    (function (EventTypes) {
+        EventTypes.PORTAL_ADDED = "portal-added";
+        EventTypes.PORTAL_REMOVED = "portal-removed";
+        EventTypes.PORTAL_EDITED = "edited";
+        EventTypes.CONTAINER_DELETED = "container-deleted";
+    })(EventTypes = Animate.EventTypes || (Animate.EventTypes = {}));
+    /**
+    * Defines which types of files to search through
+    */
+    (function (FileSearchType) {
+        FileSearchType[FileSearchType["Global"] = 0] = "Global";
+        FileSearchType[FileSearchType["User"] = 1] = "User";
+        FileSearchType[FileSearchType["Project"] = 2] = "Project";
+    })(Animate.FileSearchType || (Animate.FileSearchType = {}));
+    var FileSearchType = Animate.FileSearchType;
+    (function (PortalType) {
+        PortalType[PortalType["PARAMETER"] = 0] = "PARAMETER";
+        PortalType[PortalType["PRODUCT"] = 1] = "PRODUCT";
+        PortalType[PortalType["INPUT"] = 2] = "INPUT";
+        PortalType[PortalType["OUTPUT"] = 3] = "OUTPUT";
+    })(Animate.PortalType || (Animate.PortalType = {}));
+    var PortalType = Animate.PortalType;
     /*
     * The payment type of the user
     */
@@ -12,6 +35,70 @@ var Animate;
         UserPlan[UserPlan["Custom"] = 6] = "Custom";
     })(Animate.UserPlan || (Animate.UserPlan = {}));
     var UserPlan = Animate.UserPlan;
+    (function (ResourceType) {
+        ResourceType[ResourceType["GROUP"] = 1] = "GROUP";
+        ResourceType[ResourceType["ASSET"] = 2] = "ASSET";
+        ResourceType[ResourceType["CONTAINER"] = 3] = "CONTAINER";
+        ResourceType[ResourceType["FILE"] = 4] = "FILE";
+        ResourceType[ResourceType["SCRIPT"] = 5] = "SCRIPT";
+    })(Animate.ResourceType || (Animate.ResourceType = {}));
+    var ResourceType = Animate.ResourceType;
+    /**
+    * Describes the type of access users have to a project
+    */
+    (function (PrivilegeType) {
+        PrivilegeType[PrivilegeType["NONE"] = 0] = "NONE";
+        PrivilegeType[PrivilegeType["READ"] = 1] = "READ";
+        PrivilegeType[PrivilegeType["WRITE"] = 2] = "WRITE";
+        PrivilegeType[PrivilegeType["ADMIN"] = 3] = "ADMIN";
+    })(Animate.PrivilegeType || (Animate.PrivilegeType = {}));
+    var PrivilegeType = Animate.PrivilegeType;
+    /**
+    * Describes the category of a project
+    */
+    (function (Category) {
+        Category[Category["Other"] = 1] = "Other";
+        Category[Category["Artistic"] = 2] = "Artistic";
+        Category[Category["Gaming"] = 3] = "Gaming";
+        Category[Category["Informative"] = 4] = "Informative";
+        Category[Category["Musical"] = 5] = "Musical";
+        Category[Category["Technical"] = 6] = "Technical";
+        Category[Category["Promotional"] = 7] = "Promotional";
+    })(Animate.Category || (Animate.Category = {}));
+    var Category = Animate.Category;
+    /**
+    * Describes a property type
+    */
+    (function (PropertyType) {
+        PropertyType[PropertyType["ASSET"] = 0] = "ASSET";
+        PropertyType[PropertyType["ASSET_LIST"] = 1] = "ASSET_LIST";
+        PropertyType[PropertyType["NUMBER"] = 2] = "NUMBER";
+        PropertyType[PropertyType["COLOR"] = 3] = "COLOR";
+        PropertyType[PropertyType["GROUP"] = 4] = "GROUP";
+        PropertyType[PropertyType["FILE"] = 5] = "FILE";
+        PropertyType[PropertyType["STRING"] = 6] = "STRING";
+        PropertyType[PropertyType["OBJECT"] = 7] = "OBJECT";
+        PropertyType[PropertyType["BOOL"] = 8] = "BOOL";
+        PropertyType[PropertyType["ENUM"] = 9] = "ENUM";
+        PropertyType[PropertyType["HIDDEN"] = 10] = "HIDDEN";
+        PropertyType[PropertyType["HIDDEN_FILE"] = 11] = "HIDDEN_FILE";
+        PropertyType[PropertyType["OPTIONS"] = 12] = "OPTIONS";
+    })(Animate.PropertyType || (Animate.PropertyType = {}));
+    var PropertyType = Animate.PropertyType;
+    /**
+    * Describes the type of canvas item to create
+    */
+    (function (CanvasItemType) {
+        CanvasItemType[CanvasItemType["Link"] = 0] = "Link";
+        CanvasItemType[CanvasItemType["Behaviour"] = 1] = "Behaviour";
+        CanvasItemType[CanvasItemType["BehaviourAsset"] = 2] = "BehaviourAsset";
+        CanvasItemType[CanvasItemType["BehaviourShortcut"] = 3] = "BehaviourShortcut";
+        CanvasItemType[CanvasItemType["BehaviourPortal"] = 4] = "BehaviourPortal";
+        CanvasItemType[CanvasItemType["BehaviourScript"] = 5] = "BehaviourScript";
+        CanvasItemType[CanvasItemType["BehaviourComment"] = 6] = "BehaviourComment";
+        CanvasItemType[CanvasItemType["BehaviourInstance"] = 7] = "BehaviourInstance";
+    })(Animate.CanvasItemType || (Animate.CanvasItemType = {}));
+    var CanvasItemType = Animate.CanvasItemType;
 })(Animate || (Animate = {}));
 var HatcheryPlugin;
 (function (HatcheryPlugin) {
@@ -64,7 +151,7 @@ _plugins.push(new HatcheryPlugin.AppEnginePlugin());
 /// <reference path="../source-server/definitions/webinate-users.d.ts" />
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
-/// <reference path="../source-client/lib/core/UserPlan.ts" />
+/// <reference path="../source-client/lib/core/Enums.ts" />
 /// <reference path="lib/Plugin.ts" /> 
 var HatcheryPlugin;
 (function (HatcheryPlugin) {
