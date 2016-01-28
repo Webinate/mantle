@@ -8,6 +8,7 @@ export class SchemaText extends SchemaItem<string>
 {
     public minCharacters: number;
     public maxCharacters: number;
+    public htmlClean: boolean;
 
 	/**
 	* Creates a new schema item
@@ -16,12 +17,14 @@ export class SchemaText extends SchemaItem<string>
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
 	* @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
     * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
+    * @param {boolean} htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
 	*/
-    constructor(name: string, val: string, minCharacters: number = 0, maxCharacters: number = 10000, sensitive: boolean = false)
+    constructor(name: string, val: string, minCharacters: number = 0, maxCharacters: number = 10000, sensitive: boolean = false, htmlClean: boolean = true)
     {
         super(name, val, sensitive);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
+        this.htmlClean = htmlClean;
 	}
 
 	/**
@@ -36,6 +39,7 @@ export class SchemaText extends SchemaItem<string>
 
         copy.maxCharacters = this.maxCharacters;
         copy.minCharacters = this.minCharacters;
+        copy.htmlClean = this.htmlClean;
 		return copy;
 	}
 
@@ -48,7 +52,13 @@ export class SchemaText extends SchemaItem<string>
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
         this.value = this.value || "";
-        var transformedValue = sanitizeHtml(this.value.trim(), { allowedTags: [] });
+        var transformedValue = "";
+
+        if (this.htmlClean)
+            transformedValue = sanitizeHtml(this.value.trim(), { allowedTags: [] });
+        else
+            transformedValue = this.value.trim();
+
         this.value = transformedValue;
         
         if (transformedValue.length < minCharacters && minCharacters == 1)

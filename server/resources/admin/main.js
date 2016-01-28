@@ -76,8 +76,7 @@ var clientAdmin;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var clientAdmin;
 (function (clientAdmin) {
@@ -143,7 +142,7 @@ var clientAdmin;
             this.loading = true;
             var index = this.index;
             var limit = this.limit;
-            that.http.get(that.apiURL + "/renders/get-renders?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm).then(function (token) {
+            that.http.get(that.apiURL + "/renders/get-renders?index=" + index + "&verbose=true&limit=" + limit + "&search=" + that.searchTerm).then(function (token) {
                 if (token.data.error) {
                     that.error = true;
                     that.errorMsg = token.data.message;

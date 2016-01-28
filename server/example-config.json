@@ -1,6 +1,6 @@
 {
-  "modepressRenderURL": "",
-  "rendererPort": 3000,
+  "enableAjaxRendering": true,
+  "ajaxRenderExpiration": 86400,
   "cacheLifetime": 2592000000,
   "databaseHost": "127.0.0.1",
   "databasePort": 27017,

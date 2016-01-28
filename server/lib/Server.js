@@ -6,6 +6,7 @@ var https = require("https");
 var fs = require("fs");
 var winston = require("winston");
 var compression = require("compression");
+var PageRenderer_1 = require("./controllers/PageRenderer");
 var CORSController_1 = require("./controllers/CORSController");
 var PathHandler_1 = require("./PathHandler");
 var Server = (function () {
@@ -49,6 +50,7 @@ var Server = (function () {
             // Create each of your controllers here
             var controllerPromises = [];
             var controllers = [];
+            controllers.push(new PageRenderer_1.default(server, config, app));
             // Load the controllers
             for (var i = 0, l = server.controllers.length; i < l; i++) {
                 var func = require(server.controllers[i].path);

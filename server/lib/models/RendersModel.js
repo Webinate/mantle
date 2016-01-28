@@ -9,8 +9,9 @@ var RendersModel = (function (_super) {
     __extends(RendersModel, _super);
     function RendersModel() {
         _super.call(this, "renders");
-        this.defaultSchema.add(new SchemaItemFactory_1.text("url", "", 1));
-        this.defaultSchema.add(new SchemaItemFactory_1.text("html", "", 0, Infinity));
+        this.defaultSchema.add(new SchemaItemFactory_1.text("url", "", 1, 1000, false, false));
+        this.defaultSchema.add(new SchemaItemFactory_1.text("html", "", 0, Number.MAX_VALUE, true, false));
+        this.defaultSchema.add(new SchemaItemFactory_1.date("expiration", undefined, true, false));
         this.defaultSchema.add(new SchemaItemFactory_1.date("createdOn")).setIndexable(true);
     }
     return RendersModel;

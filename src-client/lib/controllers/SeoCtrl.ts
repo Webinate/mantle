@@ -86,7 +86,7 @@
             var index = this.index;
             var limit = this.limit;
 
-            that.http.get<Modepress.IGetRenders>(`${that.apiURL}/renders/get-renders?index=${index}&limit=${limit}&search=${that.searchTerm}`).then(function (token)
+            that.http.get<Modepress.IGetRenders>(`${that.apiURL}/renders/get-renders?index=${index}&verbose=true&limit=${limit}&search=${that.searchTerm}`).then(function (token)
             {
                 if (token.data.error)
                 {

@@ -12,6 +12,7 @@ import * as compression from "compression";
 import {MongoWrapper} from "./MongoWrapper";
 import {IConfig, IServer} from "modepress-api";
 import {Controller} from "./controllers/Controller"
+import PageRenderer from "./controllers/PageRenderer"
 import CORSController from "./controllers/CORSController";
 import {PathHandler} from "./PathHandler";
 import * as UsersService from "./UsersService";
@@ -41,6 +42,7 @@ export class Server
 
             // Add the CORS controller
             new CORSController(app, server);
+           
             
             // Enable GZIPPING
             app.use(compression());
@@ -79,7 +81,9 @@ export class Server
             // Create each of your controllers here
             var controllerPromises: Array<Promise<any>> = [];
             var controllers: Array<Controller> = [];
-  
+
+            controllers.push(new PageRenderer(server, config, app));
+            
             // Load the controllers
             for (var i = 0, l: number = server.controllers.length; i < l; i++)
             {
