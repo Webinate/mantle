@@ -1,5 +1,5 @@
-﻿import {Model} from "./Model";
-import {num, text, date} from "./schema-items/SchemaItemFactory";
+﻿import {Model} from "./model";
+import {num, text, date} from "./schema-items/schema-item-factory";
 
 export class CategoriesModel extends Model
 {

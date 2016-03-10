@@ -1,5 +1,5 @@
-﻿import {SchemaItem} from "./SchemaItem";
-import {NumberType} from "./SchemaNumber";
+﻿import {SchemaItem} from "./schema-item";
+import {NumberType} from "./schema-number";
 
 /**
 * A number array scheme item for use in Models
@@ -79,7 +79,7 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
                 temp = parseInt(transformedValue.toString());
             else
                 temp = parseFloat((parseFloat(transformedValue.toString()).toFixed(decimalPlaces)));
-            
+
             if (temp < min || temp > max)
                 return `The value of ${this.name} is not within the range of ${this.min} and ${this.max}`;
 
@@ -90,7 +90,7 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
             return `You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`;
         if (transformedValue.length > this.maxItems)
             return `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`;
-        
+
         return true;
     }
 

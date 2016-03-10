@@ -1,4 +1,4 @@
-﻿import {SchemaItem} from "./SchemaItem";
+﻿import {SchemaItem} from "./schema-item";
 import sanitizeHtml = require("sanitize-html");
 
 /**
@@ -60,7 +60,7 @@ export class SchemaText extends SchemaItem<string>
             transformedValue = this.value.trim();
 
         this.value = transformedValue;
-        
+
         if (transformedValue.length < minCharacters && minCharacters == 1)
             return `${this.name} cannot be empty`;
 		if (transformedValue.length > maxCharacters)

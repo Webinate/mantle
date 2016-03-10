@@ -4,10 +4,10 @@ import {IConfig, IServer, IResponse, IRender, IGetRenders} from "modepress-api";
 import * as winston from "winston";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller} from "./Controller";
-import {UsersService} from "../UsersService"
-import {RendersModel} from "../models/RendersModel";
-import {ModelInstance} from "../models/Model";
+import {Controller} from "./controller";
+import {UsersService} from "../users-service"
+import {RendersModel} from "../models/renders-model";
+import {ModelInstance} from "../models/model";
 import * as net from "net";
 import * as url from "url";
 import * as jsdom from "jsdom";
@@ -43,7 +43,7 @@ export default class PageRenderer extends Controller
         'vkShare',
         'W3C_Validator'
     ];
-    
+
     private static extensionsToIgnore: Array<string> = [
         '.js',
         '.css',
@@ -89,7 +89,7 @@ export default class PageRenderer extends Controller
 	* Creates a new instance of the email controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
@@ -101,7 +101,7 @@ export default class PageRenderer extends Controller
         this.renderQueryFlag = "__render__request";
         e.use(this.processBotRequest.bind(this));
         this.expiration = config.ajaxRenderExpiration * 1000;
-        
+
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
@@ -186,7 +186,7 @@ export default class PageRenderer extends Controller
                 if (win.prerenderReady === undefined || win.prerenderReady || curTries > maxTries)
                 {
                     var html = that.stripScripts(win.document.documentElement.outerHTML);
-                    
+
                     // Cleanup
                     clearTimeout(timer);
                     win.close();
@@ -269,7 +269,7 @@ export default class PageRenderer extends Controller
                 winston.info(`Updating render '${url}'`, { process: process.pid });
                 model.update<IRender>(<IRender>{ _id: ins.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
             }
-            
+
             winston.info("Sending back render without script tags", { process: process.pid });
 
             res.status(200);
@@ -279,7 +279,7 @@ export default class PageRenderer extends Controller
         {
             res.status(404);
             return res.send("Page does not exist");
-        });        
+        });
     };
 
     /**
@@ -308,15 +308,15 @@ export default class PageRenderer extends Controller
 
         //if it is a bot and is requesting a resource...dont prerender
         if (PageRenderer.extensionsToIgnore.some(function (extension) { return req.url.indexOf(extension) !== -1; })) return false;
-        
+
         return isRequestingPrerenderedPage;
     }
 
     /**
     * Attempts to find a render by ID and then display it back to the user
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private previewRender(req: express.Request, res: express.Response, next: Function)
     {
@@ -344,15 +344,15 @@ export default class PageRenderer extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.writeHead(404);            
+            res.writeHead(404);
         });
     }
 
     /**
    * Attempts to remove a render by ID
-   * @param {express.Request} req 
+   * @param {express.Request} req
    * @param {express.Response} res
-   * @param {Function} next 
+   * @param {Function} next
    */
     private removeRender(req: express.Request, res: express.Response, next: Function)
     {
@@ -380,11 +380,11 @@ export default class PageRenderer extends Controller
     }
 
     /**
-    * This funciton checks the logged in user is an admin. If not an admin it returns an error, 
+    * This funciton checks the logged in user is an admin. If not an admin it returns an error,
     * if true it passes the scope onto the next function in the queue
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private authenticateAdmin(req: express.Request, res: express.Response, next: Function)
     {
@@ -427,9 +427,9 @@ export default class PageRenderer extends Controller
 
     /**
     * Returns an array of IPost items
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private getRenders(req: express.Request, res: express.Response, next: Function)
     {
@@ -438,7 +438,7 @@ export default class PageRenderer extends Controller
         var that = this;
         var count = 0;
 
-        var findToken = {};       
+        var findToken = {};
 
         // Set the default sort order to ascending
         var sortOrder = -1;
@@ -449,10 +449,10 @@ export default class PageRenderer extends Controller
             else
                 sortOrder = -1;
         }
-        
+
         // Sort by the date created
         var sort: IRender = { createdOn: sortOrder };
-        
+
         var getContent: boolean = true;
         if (req.query.minimal)
             getContent = false;
@@ -461,8 +461,8 @@ export default class PageRenderer extends Controller
         if (req.query.search)
             (<IRender>findToken).url = <any>new RegExp(req.query.search, "i");
 
-        
-        
+
+
         // First get the count
         renders.count(findToken).then(function(num)
         {
@@ -491,15 +491,15 @@ export default class PageRenderer extends Controller
 
     /**
     * Removes all cache items from the db
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private clearRenders(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
-       
+
         // First get the count
         renders.deleteInstances({}).then(function(num)
         {

@@ -1,5 +1,5 @@
-﻿import {Model} from "./Model";
-import {text, date, html} from "./schema-items/SchemaItemFactory";
+﻿import {Model} from "./model";
+import {text, date, html} from "./schema-items/schema-item-factory";
 
 export class RendersModel extends Model
 {

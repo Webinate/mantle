@@ -1,4 +1,4 @@
-﻿import {SchemaItem} from "./SchemaItem";
+﻿import {SchemaItem} from "./schema-item";
 import sanitizeHtml = require("sanitize-html");
 
 /**
@@ -77,18 +77,18 @@ export class SchemaHtml extends SchemaItem<string>
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
         var transformedValue = this.value.trim();
-        
+
         if (transformedValue.length < minCharacters && minCharacters == 1)
             return `'${this.name}' cannot be empty`;
         else if (transformedValue.length > maxCharacters)
             return `The character length of '${this.name}' is too long, please keep it below ${maxCharacters}`;
         else if (transformedValue.length < minCharacters)
             return `The character length of '${this.name}' is too short, please keep it above ${minCharacters}`;
-              
+
         var sanitizedHTML = sanitizeHtml(this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
         if (this.errorBadHTML && transformedValue != sanitizedHTML)
             return `'${this.name}' has html code that is not allowed`;
-        
+
         this.value = sanitizedHTML;
         return true;
     }

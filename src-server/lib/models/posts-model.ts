@@ -1,6 +1,6 @@
-﻿import {Model} from "./Model";
-import {num, text, bool, textArray, date, html} from "./schema-items/SchemaItemFactory";
-import {SchemaHtml} from "./schema-items/SchemaHTML";
+﻿import {Model} from "./model";
+import {num, text, bool, textArray, date, html} from "./schema-items/schema-item-factory";
+import {SchemaHtml} from "./schema-items/schema-html";
 
 
 export class PostsModel extends Model

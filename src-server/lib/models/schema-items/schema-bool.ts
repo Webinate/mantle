@@ -1,55 +1,51 @@
-﻿import {SchemaItem} from "./SchemaItem";
-import sanitizeHtml = require("sanitize-html");
+﻿import {SchemaItem} from "./schema-item";
 
 /**
-* A json scheme item for use in Models
+* A bool scheme item for use in Models
 */
-export class SchemaJSON extends SchemaItem<any>
+export class SchemaBool extends SchemaItem<boolean>
 {
 	/**
 	* Creates a new schema item
 	* @param {string} name The name of this item
-	* @param {any} val The text of this item
+	* @param {boolean} val The value of this item
     * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
-    constructor(name: string, val: any, sensitive: boolean = false)
+    constructor(name: string, val: boolean, sensitive: boolean = false)
     {
         super(name, val, sensitive);
 	}
 
 	/**
 	* Creates a clone of this item
-	* @returns {SchemaJSON} copy A sub class of the copy
-	* @returns {SchemaJSON}
+	* @returns {SchemaBool} copy A sub class of the copy
+	* @returns {SchemaBool}
 	*/
-    public clone(copy?: SchemaJSON): SchemaJSON
-	{
-        copy = copy === undefined ? new SchemaJSON(this.name, this.value) : copy;
+    public clone(copy?: SchemaBool): SchemaBool
+    {
+        copy = copy === undefined ? new SchemaBool(this.name, <boolean>this.value) : copy;
 		super.clone(copy);
 		return copy;
 	}
 
 	/**
-	* Checks the value stored to see if its correct in its current form
+	* Always true
 	* @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
 	*/
 	public validate(): boolean | string
-    {
-        if (this.value === undefined)
-            this.value = null;
-
+	{
         return true;
     }
 
     /**
 	* Gets the value of this item
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
-    * @returns {SchemaValue}
+    * @returns {boolean}
 	*/
-    public getValue(sanitize: boolean = false): any
+    public getValue(sanitize: boolean = false): boolean
     {
         if (this.sensitive && sanitize)
-            return {};
+            return false;
         else
             return this.value;
     }

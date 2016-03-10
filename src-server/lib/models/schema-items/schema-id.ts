@@ -1,6 +1,6 @@
-﻿import {SchemaItem} from "./SchemaItem";
+﻿import {SchemaItem} from "./schema-item";
 import {ObjectID} from "mongodb";
-import {Utils} from "../../Utils"
+import {Utils} from "../../utils"
 
 /**
 * A mongodb ObjectID scheme item for use in Models
@@ -47,7 +47,7 @@ export class SchemaId extends SchemaItem<ObjectID | string>
             else
                 transformedValue = null;
         }
-        
+
         if (!transformedValue)
         {
             this.value = null;

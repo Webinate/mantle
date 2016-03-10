@@ -1,11 +1,11 @@
 ﻿import {IServer, IPath} from "modepress-api";
 import * as express from "express";
 import * as fs from "fs";
-import {UsersService} from "./UsersService";
+import {UsersService} from "./users-service";
 
 /**
 * A simple wrapper that holds information on each path the server can respond to.
-* If the server detects a template route is possible it uses that as a preference 
+* If the server detects a template route is possible it uses that as a preference
 * to a static one.
 */
 export class PathHandler
@@ -38,7 +38,7 @@ export class PathHandler
         var url = `${(requestIsSecure ? "https" : "http") }://${config.host}`;
         var usersURL = `${UsersService.usersURL}`;
         var options: any = { usersURL: usersURL, url: url };
-        
+
         if (path.plugins)
             options.plugins = ["/admin/plugins/app-engine/plugin.js"];//path.plugins;
         else

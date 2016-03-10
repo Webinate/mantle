@@ -1,5 +1,5 @@
 ﻿import * as mongodb from "mongodb";
-import {Schema} from "./Schema";
+import {Schema} from "./schema";
 import * as winston from "winston";
 import {IModelEntry} from "modepress-api";
 
@@ -62,7 +62,7 @@ export class Model
 	public defaultSchema: Schema;
 	private _collectionName: string;
 	private _initialized: boolean;
-	
+
 	/**
 	* Creates an instance of a Model
 	* @param {string} collection The collection name associated with this model
@@ -72,7 +72,7 @@ export class Model
 		this.collection = null;
 		this._collectionName = collection;
 		this._initialized = false;
-        this.defaultSchema = new Schema();        
+        this.defaultSchema = new Schema();
 	}
 
 	/**
@@ -114,7 +114,7 @@ export class Model
 			}
 
 			// The collection does not exist - so create it
-			db.createCollection(model._collectionName, function (err: Error, collection: mongodb.Collection) 
+			db.createCollection(model._collectionName, function (err: Error, collection: mongodb.Collection)
             {
 				if (err || !collection)
 					return reject(new Error("Error creating collection: " + err.message));
@@ -171,7 +171,7 @@ export class Model
 	//	return new Promise<number>(function(resolve, reject)
 	//	{
 	//		var collection = model.collection;
-			
+
 	//		// Attempt to save the data to mongo collection
 	//		collection.update(selector, document, function (err: Error, result: mongodb.WriteResult<any> )
 	//		{
@@ -184,7 +184,7 @@ export class Model
 	//		});
 	//	});
 	//}
-	
+
     /**
 	* Gets the number of DB entries based on the selector
 	* @param {any} selector The mongodb selector
@@ -217,7 +217,7 @@ export class Model
 	/**
 	* Gets an arrray of instances based on the selector search criteria
 	* @param {any} selector The mongodb selector
-	* @param {any} sort Specify an array of items to sort. 
+	* @param {any} sort Specify an array of items to sort.
     * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
     * @param {number} startIndex The start index of where to select from
 	* @param {number} limit The number of results to fetch
@@ -306,11 +306,11 @@ export class Model
                     {
                         // Create the instance array
                         var instance: ModelInstance<T>;
-                        
+
                         instance = new ModelInstance<T>(model, result);
                         instance.schema.deserialize(result);
                         instance._id = (<IModelEntry>result)._id;
-                
+
                         // Complete
                         resolve(instance);
                     }
@@ -318,7 +318,7 @@ export class Model
             }
         });
     }
-	
+
 	/**
 	* Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	* @returns {Promise<number>}
@@ -371,7 +371,7 @@ export class Model
                     // If we have data, then set the variables
                     if (data)
                         instance.schema.set(data);
-                    
+
                     // Make sure the new updates are valid
                     if (!instance.schema.validate())
                     {
@@ -436,7 +436,7 @@ export class Model
     /**
 	* Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
 	* @param {any} data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-	* by parsing the data object and setting each schema item's value by the name/value in the data object. 
+	* by parsing the data object and setting each schema item's value by the name/value in the data object.
 	* @returns {Promise<boolean>}
 	*/
     checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>
@@ -481,12 +481,12 @@ export class Model
             }
         });
     }
-    
+
 
 	/**
 	* Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
 	* @param {any} data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-	* by parsing the data object and setting each schema item's value by the name/value in the data object. 
+	* by parsing the data object and setting each schema item's value by the name/value in the data object.
 	* @returns {Promise<ModelInstance<T>>}
 	*/
 	createInstance<T>( data? : T ): Promise<ModelInstance<T>>
@@ -496,7 +496,7 @@ export class Model
 		return new Promise<ModelInstance<T>>(function (resolve, reject)
 		{
             var newInstance = new ModelInstance<T>(that, null);
-			
+
 			// If we have data, then set the variables
 			if (data)
                 newInstance.schema.set(data);
@@ -523,7 +523,7 @@ export class Model
 	}
 
 	/**
-	* Attempts to insert an array of instances of this model into the database. 
+	* Attempts to insert an array of instances of this model into the database.
 	* @param {Promise<Array<ModelInstance<T>>>} instances An array of instances to save
 	* @returns {Promise<Array<ModelInstance<T>>>}
 	*/
@@ -560,7 +560,7 @@ export class Model
 					var json = schema.serialize();
 					documents.push(json);
 				}
-				
+
 				// Attempt to save the data to mongo collection
 				collection.insert(documents, function (err: Error, result: mongodb.WriteResult<any> )
 				{
@@ -571,7 +571,7 @@ export class Model
 						// Assign the ID's
 						for (var i = 0, l = result.ops.length; i < l; i++)
 							instances[i]._id = result.ops[i]._id;
-						
+
 						resolve(instances);
 					}
 				});

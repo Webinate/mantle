@@ -1,11 +1,11 @@
-﻿import * as _Controller from "./lib/controllers/Controller";
-import * as _Models from "./lib/models/Model";
-import * as _Schema from "./lib/models/Schema";
-import * as _UsersService from "./lib/UsersService";
-import * as _SchemaFactory from "./lib/models/schema-items/SchemaItemFactory";
-import * as _EventManager from "./lib/EventManager";
-import * as _PermissionController from "./lib/PermissionControllers";
-import {Utils} from "./lib/Utils";
+﻿import * as _Controller from "./lib/controllers/controller";
+import * as _Models from "./lib/models/model";
+import * as _Schema from "./lib/models/schema";
+import * as _UsersService from "./lib/users-service";
+import * as _SchemaFactory from "./lib/models/schema-items/schema-item-factory";
+import * as _EventManager from "./lib/event-manager";
+import * as _PermissionController from "./lib/permission-controllers";
+import {Utils} from "./lib/utils";
 
 export var Controller = _Controller.Controller;
 export var Model = _Models.Model;

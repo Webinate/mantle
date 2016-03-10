@@ -1,4 +1,4 @@
-﻿import {SchemaItem} from "./SchemaItem";
+﻿import {SchemaItem} from "./schema-item";
 import sanitizeHtml = require("sanitize-html");
 
 /**
@@ -62,14 +62,14 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
             if (transformedValue[i].trim() == "")
                 toRemove.push(i);
         }
-        
+
         // Remove any "" cells
         for (var i = toRemove.length - 1; i >= 0; i--)
             transformedValue.splice(toRemove[i], 1);
 
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
-       
+
 
         if (transformedValue.length < this.minItems)
             return `You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`;
@@ -84,10 +84,10 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
             else if (transformedValue[i].length < minCharacters)
                 return `The character length of '${transformedValue[i]}' in ${this.name} is too short, please keep it above ${minCharacters}`;
 
-            
+
         }
 
-        
+
 
 
         return true;

@@ -9,13 +9,13 @@ import * as winston from "winston";
 import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
-import {MongoWrapper} from "./MongoWrapper";
+import {MongoWrapper} from "./mongo-wrapper";
 import {IConfig} from "modepress-api";
-import {Controller} from "./controllers/Controller"
-import {UsersService} from "./UsersService";
-import {PathHandler} from "./PathHandler";
-import {Server} from "./Server";
-import {EventManager} from "./EventManager";
+import {Controller} from "./controllers/controller"
+import {UsersService} from "./users-service";
+import {PathHandler} from "./path-handler";
+import {Server} from "./server";
+import {EventManager} from "./event-manager";
 
 var config: IConfig = null;
 var args = yargs.argv;
@@ -79,24 +79,24 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
     // Database loaded
     winston.info(`Successfully connected to '${config.databaseName}' at ${config.databaseHost}:${config.databasePort}`, { process: process.pid });
     winston.info(`Starting up HTTP servers...`, { process: process.pid });
-    
+
     // Create each of your controllers here
     var promises: Array<Promise<any>> = [];
 
     UsersService.getSingleton(config);
-  
+
     // Load the controllers
     for (var i = 0, l = config.servers.length; i < l; i++)
     {
         var server = new Server(config.servers[i], config, db);
         promises.push(server.initialize(db));
     }
-    
+
     // Return a promise once all the controllers are complete
     Promise.all(promises).then(function (e)
     {
         winston.info(`Servers up and runnning`, { process: process.pid });
-        
+
         // Create the readline interface
         var rl = readline.createInterface({
             input: process.stdin,
@@ -172,7 +172,7 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
     {
         winston.error(e.message, { process: process.pid });
     });
-    
+
 }).catch(function (error: Error)
 {
     // Error occurred

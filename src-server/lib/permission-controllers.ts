@@ -1,12 +1,12 @@
 ﻿import express = require("express");
-import {UsersService} from "./UsersService";
+import {UsersService} from "./users-service";
 import {IResponse, IAuthReq} from "modepress-api";
 
 /**
 * This funciton checks if user is logged in
-* @param {express.Request} req 
+* @param {express.Request} req
 * @param {express.Response} res
-* @param {Function} next 
+* @param {Function} next
 */
 export function getUser(req: express.Request, res: express.Response, next: Function)
 {
@@ -24,7 +24,7 @@ export function getUser(req: express.Request, res: express.Response, next: Funct
             (<IAuthReq><Express.Request>req)._user = auth.user;
             (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
 
-            
+
             // Check if this must be cleaned or not
             var verbose = (req.query.verbose ? true : false);
             if (verbose)
@@ -46,11 +46,11 @@ export function getUser(req: express.Request, res: express.Response, next: Funct
 }
 
 /**
-* This funciton checks the logged in user is an admin. If not an admin it returns an error, 
+* This funciton checks the logged in user is an admin. If not an admin it returns an error,
 * if true it passes the scope onto the next function in the queue
-* @param {express.Request} req 
+* @param {express.Request} req
 * @param {express.Response} res
-* @param {Function} next 
+* @param {Function} next
 */
 export function isAdmin(req: express.Request, res: express.Response, next: Function)
 {
@@ -94,9 +94,9 @@ export function isAdmin(req: express.Request, res: express.Response, next: Funct
 
 /**
 * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
-* @param {express.Request} req 
+* @param {express.Request} req
 * @param {express.Response} res
-* @param {Function} next 
+* @param {Function} next
 */
 export function canEdit(req: express.Request, res: express.Response, next: Function)
 {
@@ -142,9 +142,9 @@ export function canEdit(req: express.Request, res: express.Response, next: Funct
 
 /**
 * This funciton checks if user is logged in and throws an error if not
-* @param {express.Request} req 
+* @param {express.Request} req
 * @param {express.Response} res
-* @param {Function} next 
+* @param {Function} next
 */
 export function isAuthenticated(req: express.Request, res: express.Response, next: Function)
 {
@@ -171,7 +171,7 @@ export function isAuthenticated(req: express.Request, res: express.Response, nex
                     verbose = false;
 
         (<IAuthReq><Express.Request>req)._verbose = verbose;
-        
+
         next();
 
     }).catch(function (error: Error)

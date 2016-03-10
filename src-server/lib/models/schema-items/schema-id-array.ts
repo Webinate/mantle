@@ -1,7 +1,7 @@
-﻿import {SchemaItem} from "./SchemaItem";
+﻿import {SchemaItem} from "./schema-item";
 import sanitizeHtml = require("sanitize-html");
 import {ObjectID} from "mongodb";
-import {Utils} from "../../Utils"
+import {Utils} from "../../utils"
 
 /**
 * A n ID array scheme item for use in Models
@@ -60,7 +60,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID>>
                     return `Please use a valid ID for '${this.name}'`;
             }
         }
-        
+
 
         if (transformedValue.length < this.minItems)
             return `You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`;

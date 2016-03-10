@@ -8,7 +8,7 @@ var outDir = "dist";
 // Builds each of the ts files into JS files in the output folder
 gulp.task('ts-code', function() {
 
-    return gulp.src(['Main.ts', 'ModepressAPI.ts', 'lib/**/*.ts', 'lib/**/*.json'], { base: "." })
+    return gulp.src(['main.ts', 'modepress-api.ts', 'lib/**/*.ts', 'lib/**/*.json'], { base: "." })
         .pipe(ts({
             "module": "commonjs",
             "removeComments": false,

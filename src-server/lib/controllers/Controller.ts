@@ -1,4 +1,4 @@
-﻿import {Model, ModelInstance} from "../models/Model";
+﻿import {Model, ModelInstance} from "../models/model";
 import * as mongodb from "mongodb";
 import {IControllerPlugin} from "modepress-api";
 

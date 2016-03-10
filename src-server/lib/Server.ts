@@ -9,13 +9,13 @@ import * as winston from "winston";
 import * as yargs from "yargs";
 import * as readline from "readline";
 import * as compression from "compression";
-import {MongoWrapper} from "./MongoWrapper";
+import {MongoWrapper} from "./mongo-wrapper";
 import {IConfig, IServer} from "modepress-api";
-import {Controller} from "./controllers/Controller"
-import PageRenderer from "./controllers/PageRenderer"
-import CORSController from "./controllers/CORSController";
-import {PathHandler} from "./PathHandler";
-import * as UsersService from "./UsersService";
+import {Controller} from "./controllers/controller"
+import PageRenderer from "./controllers/page-renderer"
+import CORSController from "./controllers/cors-controller";
+import {PathHandler} from "./path-handler";
+import * as UsersService from "./users-service";
 
 export class Server
 {
@@ -42,11 +42,11 @@ export class Server
 
             // Add the CORS controller
             new CORSController(app, server);
-           
-            
+
+
             // Enable GZIPPING
             app.use(compression());
-    
+
             // User defined static folders
             for (var i = 0, l: number = server.staticFilesFolder.length; i < l; i++)
             {
@@ -56,7 +56,7 @@ export class Server
 
             // Setup the jade template engine
             app.set('view engine', 'jade');
-    
+
             // Set any jade paths
             var allViewPaths = ['./views']; //admin path
             for (var i = 0, l: number = server.paths.length; i < l; i++)
@@ -74,23 +74,23 @@ export class Server
             }
 
             app.set('views', allViewPaths);
-    
+
             // log every request to the console
             app.use(morgan('dev'));
-    
+
             // Create each of your controllers here
             var controllerPromises: Array<Promise<any>> = [];
             var controllers: Array<Controller> = [];
 
             controllers.push(new PageRenderer(server, config, app));
-            
+
             // Load the controllers
             for (var i = 0, l: number = server.controllers.length; i < l; i++)
             {
                 var func = require(server.controllers[i].path);
                 controllers.push(new func.default(server, config, app));
             }
-    
+
             // Maps the path specified to an HTML or template
             for (var i = 0, l: number = server.paths.length; i < l; i++)
             {
@@ -100,7 +100,7 @@ export class Server
 
             winston.info(`Attempting to start HTTP server...`, { process: process.pid });
 
-            // Start app with node server.js 
+            // Start app with node server.js
             var httpServer = http.createServer(app);
             httpServer.listen(server.portHTTP);
             winston.info(`Listening on HTTP port ${server.portHTTP}`, { process: process.pid });
@@ -145,12 +145,12 @@ export class Server
                 winston.info(`Listening on HTTPS port ${port}`, { process: process.pid });
             }
 
-            
-    
+
+
             // Initialize all the controllers
             for (var i = 0, l: number = controllers.length; i < l; i++)
                 controllerPromises.push(controllers[i].initialize(db));
-	
+
             // Return a promise once all the controllers are complete
             Promise.all(controllerPromises).then(function (e)
             {

@@ -1,7 +1,7 @@
 ﻿import * as mongodb from "mongodb";
 import * as http from "http";
 import {IServer} from "modepress-api";
-import {Controller} from "./Controller"
+import {Controller} from "./controller"
 import express = require("express");
 
 /**
@@ -18,7 +18,7 @@ export default class CORSController extends Controller
     constructor(e: express.Express, config: IServer)
     {
         super(null);
-        
+
         var matches: Array<RegExp> = [];
         for (var i = 0, l = config.approvedDomains.length; i < l; i++)
             matches.push(new RegExp(config.approvedDomains[i]));

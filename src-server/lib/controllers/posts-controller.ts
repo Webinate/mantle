@@ -3,11 +3,11 @@ import * as mongodb from "mongodb";
 import * as entities from "entities";
 import * as express from "express";
 import * as compression from "compression";
-import {Controller} from "./Controller";
-import {PostsModel} from "../models/PostsModel";
-import {CategoriesModel} from "../models/CategoriesModel";
-import {UsersService} from "../UsersService";
-import {getUser, isAdmin} from "../PermissionControllers";
+import {Controller} from "./controller";
+import {PostsModel} from "../models/posts-model";
+import {CategoriesModel} from "../models/categories-model";
+import {UsersService} from "../users-service";
+import {getUser, isAdmin} from "../permission-controllers";
 import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts, IAuthReq} from "modepress-api";
 import * as winston from "winston";
 
@@ -20,19 +20,19 @@ export default class PostsController extends Controller
 	* Creates a new instance of the email controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
         super([new PostsModel(), new CategoriesModel()]);
-        
+
         var router = express.Router();
 
         router.use(compression());
 		router.use(bodyParser.urlencoded({ 'extended': true }));
 		router.use(bodyParser.json());
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        
+
         router.get("/get-posts", <any>[getUser, this.getPosts.bind(this)]);
         router.get("/get-post/:slug", <any>[getUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
@@ -48,9 +48,9 @@ export default class PostsController extends Controller
 
     /**
     * Returns an array of IPost items
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private getPosts(req: express.Request, res: express.Response, next: Function)
     {
@@ -80,7 +80,7 @@ export default class PostsController extends Controller
                 visibility = "all";
             else if ((<string>req.query.visibility).toLowerCase() == "private")
                  visibility = "private";
-        } 
+        }
 
         var users = UsersService.getSingleton();
 
@@ -150,12 +150,12 @@ export default class PostsController extends Controller
         var getContent: boolean = true;
         if (req.query.minimal)
             getContent = false;
-        
+
 
         // Stephen is lovely
         if (findToken.$or.length == 0)
             delete findToken.$or;
-        
+
         // First get the count
         posts.count(findToken).then(function (num)
         {
@@ -184,9 +184,9 @@ export default class PostsController extends Controller
 
     /**
     * Returns a single post
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private getPost(req: express.Request, res: express.Response, next: Function)
     {
@@ -196,7 +196,7 @@ export default class PostsController extends Controller
         var count = 0;
         var findToken: IPost = { slug: req.params.slug };
         var user: UsersInterface.IUserEntry = (<IAuthReq><Express.Request>req)._user;
-        
+
         posts.findInstances<IPost>(findToken, [], 0, 1).then(function (instances)
         {
             if (instances.length == 0)
@@ -235,9 +235,9 @@ export default class PostsController extends Controller
 
     /**
     * Returns an array of ICategory items
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private getCategories(req: express.Request, res: express.Response, next: Function)
     {
@@ -267,15 +267,15 @@ export default class PostsController extends Controller
 
     /**
     * Attempts to remove a post by ID
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private removePost(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
-        
+
         posts.deleteInstances(<IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
         {
             if (numRemoved == 0)
@@ -298,9 +298,9 @@ export default class PostsController extends Controller
 
     /**
     * Attempts to remove a category by ID
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private removeCategory(req: express.Request, res: express.Response, next: Function)
     {
@@ -329,9 +329,9 @@ export default class PostsController extends Controller
 
     /**
     * Attempts to update a post by ID
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private updatePost(req: express.Request, res: express.Response, next: Function)
     {
@@ -364,12 +364,12 @@ export default class PostsController extends Controller
             }));
         });
     }
-    
+
     /**
-    * Attempts to create a new post. The 
-    * @param {express.Request} req 
+    * Attempts to create a new post. The
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private createPost(req: express.Request, res: express.Response, next: Function)
     {
@@ -379,7 +379,7 @@ export default class PostsController extends Controller
 
         // User is passed from the authentication function
         token.author = (<IAuthReq><Express.Request>req)._user.username;
-    
+
         posts.createInstance(token).then(function (instance)
         {
             res.end(JSON.stringify(<IGetPost>{
@@ -400,9 +400,9 @@ export default class PostsController extends Controller
 
     /**
    * Attempts to create a new category item.
-   * @param {express.Request} req 
+   * @param {express.Request} req
    * @param {express.Response} res
-   * @param {Function} next 
+   * @param {Function} next
    */
     private createCategory(req: express.Request, res: express.Response, next: Function)
     {

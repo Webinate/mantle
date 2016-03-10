@@ -1,4 +1,4 @@
-﻿import {SchemaItem} from "./SchemaItem";
+﻿import {SchemaItem} from "./schema-item";
 
 /**
 * Describes the type of number to store

@@ -1,7 +1,7 @@
 ﻿import express = require("express");
-import controllerModule = require("./Controller");
+import controllerModule = require("./controller");
 import bodyParser = require('body-parser');
-import {UsersService} from "../UsersService"
+import {UsersService} from "../users-service"
 import {IConfig, IServer, IMessage} from "modepress-api"
 import * as winston from "winston";
 
@@ -11,31 +11,31 @@ export default class EmailsController extends controllerModule.Controller
 	* Creates a new instance of the email controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
         super(null);
-        
+
 		var router = express.Router();
 		router.use(bodyParser.urlencoded({ 'extended': true }));
 		router.use(bodyParser.json());
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-		
+
 		// Filter the post requests
 		router.post("/", this.onPost.bind(this));
-		
+
 		// Register the path
 		e.use("/api/message-admin", router);
 	}
-	
+
 	/**
 	* Called whenever a post request is caught by this controller
 	* @param {express.Request} req The request object
 	* @param {express.Response} res The response object
 	* @param {Function} next
 	*/
-	protected onPost(req: express.Request, res: express.Response, next: Function): any 
+	protected onPost(req: express.Request, res: express.Response, next: Function): any
 	{
 		// Set the content type
         res.setHeader('Content-Type', 'application/json');

@@ -1,4 +1,4 @@
-﻿import {SchemaItem} from "./SchemaItem";
+﻿import {SchemaItem} from "./schema-item";
 
 /**
 * A date scheme item for use in Models

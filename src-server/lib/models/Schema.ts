@@ -1,4 +1,4 @@
-﻿import {SchemaItem} from "./schema-items/SchemaItem";
+﻿import {SchemaItem} from "./schema-items/schema-item";
 import {ObjectID} from "mongodb"
 import {IModelEntry} from "modepress-api";
 
@@ -15,7 +15,7 @@ export class Schema
 		this.items = [];
 		this.error = "";
 	}
-	
+
 	/**
 	* Creates a copy of the schema
 	* @returns {Schema}
@@ -56,7 +56,7 @@ export class Schema
 	setVal(name: string, val: any)
 	{
 		var items = this.items;
-		
+
 		for (var i = 0, l = items.length; i < l; i++)
             if (items[i].name == name)
                 items[i].setValue( val );
@@ -80,7 +80,7 @@ export class Schema
 	{
 		var toReturn = {};
 		var items = this.items;
-		
+
 		for (var i = 0, l = items.length; i < l; i++)
             toReturn[items[i].name] = items[i].getValue();
 
