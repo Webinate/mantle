@@ -3,7 +3,7 @@ var ts = require('gulp-typescript');
 
 // CONFIG
 // ==============================
-var outDir = "dist";
+var outDir = "../server";
 
 // Builds each of the ts files into JS files in the output folder
 gulp.task('ts-code', function() {

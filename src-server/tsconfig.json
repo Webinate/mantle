@@ -9,7 +9,7 @@
     "target": "es5",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "outDir": "dist"
+    "outDir": "../server"
   },
   "files": [
       "main.ts",
