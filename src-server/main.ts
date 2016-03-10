@@ -1,4 +1,6 @@
-﻿import * as cluster from "cluster";
+﻿/// <reference path="./lib/references.d.ts" />
+
+import * as cluster from "cluster";
 import * as os from "os";
 import * as yargs from "yargs";
 
