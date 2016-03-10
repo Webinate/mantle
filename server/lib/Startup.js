@@ -4,10 +4,10 @@ var fs = require("fs");
 var winston = require("winston");
 var yargs = require("yargs");
 var readline = require("readline");
-var MongoWrapper_1 = require("./MongoWrapper");
-var UsersService_1 = require("./UsersService");
-var Server_1 = require("./Server");
-var EventManager_1 = require("./EventManager");
+var mongo_wrapper_1 = require("./mongo-wrapper");
+var users_service_1 = require("./users-service");
+var server_1 = require("./server");
+var event_manager_1 = require("./event-manager");
 var config = null;
 var args = yargs.argv;
 // Add the console colours
@@ -42,22 +42,22 @@ catch (err) {
 // Attempt to connect to Users
 if (config.usersSocketURL != "") {
     winston.info("Attempting to connect to users socket at: '" + config.usersSocketURL + "'", { process: process.pid });
-    new EventManager_1.EventManager(config).init().catch(function (err) {
+    new event_manager_1.EventManager(config).init().catch(function (err) {
         winston.error("Could not connect to user socket even though it was specified at: '" + config.usersSocketURL + "'", { process: process.pid });
         process.exit();
     });
 }
 winston.info("Attempting to connect to mongodb...", { process: process.pid });
-MongoWrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName).then(function (db) {
+mongo_wrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseName).then(function (db) {
     // Database loaded
     winston.info("Successfully connected to '" + config.databaseName + "' at " + config.databaseHost + ":" + config.databasePort, { process: process.pid });
     winston.info("Starting up HTTP servers...", { process: process.pid });
     // Create each of your controllers here
     var promises = [];
-    UsersService_1.UsersService.getSingleton(config);
+    users_service_1.UsersService.getSingleton(config);
     // Load the controllers
     for (var i = 0, l = config.servers.length; i < l; i++) {
-        var server = new Server_1.Server(config.servers[i], config, db);
+        var server = new server_1.Server(config.servers[i], config, db);
         promises.push(server.initialize(db));
     }
     // Return a promise once all the controllers are complete

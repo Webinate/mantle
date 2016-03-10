@@ -3,17 +3,17 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Model_1 = require("./Model");
-var SchemaItemFactory_1 = require("./schema-items/SchemaItemFactory");
+var model_1 = require("./model");
+var schema_item_factory_1 = require("./schema-items/schema-item-factory");
 var CategoriesModel = (function (_super) {
     __extends(CategoriesModel, _super);
     function CategoriesModel() {
         _super.call(this, "categories");
-        this.defaultSchema.add(new SchemaItemFactory_1.text("title", "", 1));
-        this.defaultSchema.add(new SchemaItemFactory_1.text("slug", "", 1, 20)).setUnique(true);
-        this.defaultSchema.add(new SchemaItemFactory_1.text("description", ""));
-        this.defaultSchema.add(new SchemaItemFactory_1.text("parent", ""));
+        this.defaultSchema.add(new schema_item_factory_1.text("title", "", 1));
+        this.defaultSchema.add(new schema_item_factory_1.text("slug", "", 1, 20)).setUnique(true);
+        this.defaultSchema.add(new schema_item_factory_1.text("description", ""));
+        this.defaultSchema.add(new schema_item_factory_1.text("parent", ""));
     }
     return CategoriesModel;
-})(Model_1.Model);
+})(model_1.Model);
 exports.CategoriesModel = CategoriesModel;

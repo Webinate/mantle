@@ -3,8 +3,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var SchemaItem_1 = require("./SchemaItem");
-var SchemaNumber_1 = require("./SchemaNumber");
+var schema_item_1 = require("./schema-item");
+var schema_number_1 = require("./schema-number");
 /**
 * A number array scheme item for use in Models
 */
@@ -27,7 +27,7 @@ var SchemaNumArray = (function (_super) {
         if (maxItems === void 0) { maxItems = Infinity; }
         if (min === void 0) { min = -Infinity; }
         if (max === void 0) { max = Infinity; }
-        if (type === void 0) { type = SchemaNumber_1.NumberType.Integer; }
+        if (type === void 0) { type = schema_number_1.NumberType.Integer; }
         if (decimalPlaces === void 0) { decimalPlaces = 2; }
         if (sensitive === void 0) { sensitive = false; }
         _super.call(this, name, val, sensitive);
@@ -68,7 +68,7 @@ var SchemaNumArray = (function (_super) {
         var temp;
         var decimalPlaces = this.decimalPlaces;
         for (var i = 0, l = transformedValue.length; i < l; i++) {
-            if (type == SchemaNumber_1.NumberType.Integer)
+            if (type == schema_number_1.NumberType.Integer)
                 temp = parseInt(transformedValue.toString());
             else
                 temp = parseFloat((parseFloat(transformedValue.toString()).toFixed(decimalPlaces)));
@@ -95,5 +95,5 @@ var SchemaNumArray = (function (_super) {
             return this.value;
     };
     return SchemaNumArray;
-})(SchemaItem_1.SchemaItem);
+})(schema_item_1.SchemaItem);
 exports.SchemaNumArray = SchemaNumArray;

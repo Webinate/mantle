@@ -3,9 +3,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var SchemaItem_1 = require("./SchemaItem");
+var schema_item_1 = require("./schema-item");
 var mongodb_1 = require("mongodb");
-var Utils_1 = require("../../Utils");
+var utils_1 = require("../../utils");
 /**
 * A n ID array scheme item for use in Models
 */
@@ -47,7 +47,7 @@ var SchemaIdArray = (function (_super) {
         var transformedValue = this.value;
         for (var i = 0, l = transformedValue.length; i < l; i++) {
             if (typeof this.value[i] == "string") {
-                if (Utils_1.Utils.isValidObjectID(this.value[i]))
+                if (utils_1.Utils.isValidObjectID(this.value[i]))
                     transformedValue[i] = new mongodb_1.ObjectID(this.value[i]);
                 else if (this.value[i].trim() != "")
                     return "Please use a valid ID for '" + this.name + "'";
@@ -74,5 +74,5 @@ var SchemaIdArray = (function (_super) {
             return this.value;
     };
     return SchemaIdArray;
-})(SchemaItem_1.SchemaItem);
+})(schema_item_1.SchemaItem);
 exports.SchemaIdArray = SchemaIdArray;

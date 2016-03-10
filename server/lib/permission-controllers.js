@@ -1,4 +1,4 @@
-var UsersService_1 = require("./UsersService");
+var users_service_1 = require("./users-service");
 /**
 * This funciton checks if user is logged in
 * @param {express.Request} req
@@ -6,7 +6,7 @@ var UsersService_1 = require("./UsersService");
 * @param {Function} next
 */
 function getUser(req, res, next) {
-    var users = UsersService_1.UsersService.getSingleton();
+    var users = users_service_1.UsersService.getSingleton();
     users.authenticated(req).then(function (auth) {
         if (!auth.authenticated) {
             req._user = null;
@@ -39,7 +39,7 @@ exports.getUser = getUser;
 * @param {Function} next
 */
 function isAdmin(req, res, next) {
-    var users = UsersService_1.UsersService.getSingleton();
+    var users = users_service_1.UsersService.getSingleton();
     users.authenticated(req).then(function (auth) {
         if (!auth.authenticated) {
             res.setHeader('Content-Type', 'application/json');
@@ -77,7 +77,7 @@ exports.isAdmin = isAdmin;
 * @param {Function} next
 */
 function canEdit(req, res, next) {
-    var users = UsersService_1.UsersService.getSingleton();
+    var users = users_service_1.UsersService.getSingleton();
     var targetUser = req.params.user;
     users.authenticated(req).then(function (auth) {
         if (!auth.authenticated) {
@@ -116,7 +116,7 @@ exports.canEdit = canEdit;
 * @param {Function} next
 */
 function isAuthenticated(req, res, next) {
-    var users = UsersService_1.UsersService.getSingleton();
+    var users = users_service_1.UsersService.getSingleton();
     users.authenticated(req).then(function (auth) {
         if (!auth.authenticated) {
             res.setHeader('Content-Type', 'application/json');

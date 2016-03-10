@@ -7,11 +7,11 @@ var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 var express = require("express");
 var compression = require("compression");
-var Controller_1 = require("./Controller");
-var PostsModel_1 = require("../models/PostsModel");
-var CategoriesModel_1 = require("../models/CategoriesModel");
-var UsersService_1 = require("../UsersService");
-var PermissionControllers_1 = require("../PermissionControllers");
+var controller_1 = require("./controller");
+var posts_model_1 = require("../models/posts-model");
+var categories_model_1 = require("../models/categories-model");
+var users_service_1 = require("../users-service");
+var permission_controllers_1 = require("../permission-controllers");
 var winston = require("winston");
 /**
 * A controller that deals with the management of posts
@@ -25,20 +25,20 @@ var PostsController = (function (_super) {
     * @param {express.Express} e The express instance of this server
     */
     function PostsController(server, config, e) {
-        _super.call(this, [new PostsModel_1.PostsModel(), new CategoriesModel_1.CategoriesModel()]);
+        _super.call(this, [new posts_model_1.PostsModel(), new categories_model_1.CategoriesModel()]);
         var router = express.Router();
         router.use(compression());
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/get-posts", [PermissionControllers_1.getUser, this.getPosts.bind(this)]);
-        router.get("/get-post/:slug", [PermissionControllers_1.getUser, this.getPost.bind(this)]);
+        router.get("/get-posts", [permission_controllers_1.getUser, this.getPosts.bind(this)]);
+        router.get("/get-post/:slug", [permission_controllers_1.getUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", [PermissionControllers_1.isAdmin, this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", [PermissionControllers_1.isAdmin, this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", [PermissionControllers_1.isAdmin, this.updatePost.bind(this)]);
-        router.post("/create-post", [PermissionControllers_1.isAdmin, this.createPost.bind(this)]);
-        router.post("/create-category", [PermissionControllers_1.isAdmin, this.createCategory.bind(this)]);
+        router.delete("/remove-post/:id", [permission_controllers_1.isAdmin, this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", [permission_controllers_1.isAdmin, this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", [permission_controllers_1.isAdmin, this.updatePost.bind(this)]);
+        router.post("/create-post", [permission_controllers_1.isAdmin, this.createPost.bind(this)]);
+        router.post("/create-category", [permission_controllers_1.isAdmin, this.createCategory.bind(this)]);
         // Register the path
         e.use("/api/posts", router);
     }
@@ -71,7 +71,7 @@ var PostsController = (function (_super) {
             else if (req.query.visibility.toLowerCase() == "private")
                 visibility = "private";
         }
-        var users = UsersService_1.UsersService.getSingleton();
+        var users = users_service_1.UsersService.getSingleton();
         // Only admins are allowed to see private posts
         if (!user || ((visibility == "all" || visibility == "private") && users.hasPermission(user, 2) == false))
             visibility = "public";
@@ -161,7 +161,7 @@ var PostsController = (function (_super) {
         posts.findInstances(findToken, [], 0, 1).then(function (instances) {
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find post"));
-            var users = UsersService_1.UsersService.getSingleton();
+            var users = users_service_1.UsersService.getSingleton();
             // Only admins are allowed to see private posts
             if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false)) {
                 res.end(JSON.stringify({
@@ -339,6 +339,6 @@ var PostsController = (function (_super) {
         });
     };
     return PostsController;
-})(Controller_1.Controller);
+})(controller_1.Controller);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PostsController;

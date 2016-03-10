@@ -3,9 +3,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var SchemaItem_1 = require("./SchemaItem");
+var schema_item_1 = require("./schema-item");
 var mongodb_1 = require("mongodb");
-var Utils_1 = require("../../Utils");
+var utils_1 = require("../../utils");
 /**
 * A mongodb ObjectID scheme item for use in Models
 */
@@ -38,7 +38,7 @@ var SchemaId = (function (_super) {
     SchemaId.prototype.validate = function () {
         var transformedValue = this.value;
         if (typeof this.value == "string") {
-            if (Utils_1.Utils.isValidObjectID(this.value))
+            if (utils_1.Utils.isValidObjectID(this.value))
                 transformedValue = this.value = new mongodb_1.ObjectID(this.value);
             else if (this.value.trim() != "")
                 return "Please use a valid ID for '" + this.name + "'";
@@ -69,5 +69,5 @@ var SchemaId = (function (_super) {
             return this.value;
     };
     return SchemaId;
-})(SchemaItem_1.SchemaItem);
+})(schema_item_1.SchemaItem);
 exports.SchemaId = SchemaId;

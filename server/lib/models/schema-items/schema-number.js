@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var SchemaItem_1 = require("./SchemaItem");
+var schema_item_1 = require("./schema-item");
 /**
 * Describes the type of number to store
 */
@@ -86,5 +86,5 @@ var SchemaNumber = (function (_super) {
             return this.value;
     };
     return SchemaNumber;
-})(SchemaItem_1.SchemaItem);
+})(schema_item_1.SchemaItem);
 exports.SchemaNumber = SchemaNumber;

@@ -1,5 +1,5 @@
 var fs = require("fs");
-var UsersService_1 = require("./UsersService");
+var users_service_1 = require("./users-service");
 /**
 * A simple wrapper that holds information on each path the server can respond to.
 * If the server detects a template route is possible it uses that as a preference
@@ -25,7 +25,7 @@ var PathHandler = (function () {
         var path = this._path;
         var requestIsSecure = (req.connection.encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         var url = (requestIsSecure ? "https" : "http") + "://" + config.host;
-        var usersURL = "" + UsersService_1.UsersService.usersURL;
+        var usersURL = "" + users_service_1.UsersService.usersURL;
         var options = { usersURL: usersURL, url: url };
         if (path.plugins)
             options.plugins = ["/admin/plugins/app-engine/plugin.js"]; //path.plugins;

@@ -4,9 +4,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var express = require("express");
-var controllerModule = require("./Controller");
+var controllerModule = require("./controller");
 var bodyParser = require('body-parser');
-var UsersService_1 = require("../UsersService");
+var users_service_1 = require("../users-service");
 var winston = require("winston");
 var EmailsController = (function (_super) {
     __extends(EmailsController, _super);
@@ -37,7 +37,7 @@ var EmailsController = (function (_super) {
         // Set the content type
         res.setHeader('Content-Type', 'application/json');
         var message = "Hello admin,\n\t\t\tWe have received a message from " + req.body.name + ":\n\n\t\t\t" + req.body.message + "\n\n\t\t\tEmail: " + req.body.email + "\n\t\t\tPhone: " + req.body.phone + "\n\t\t\tWebsite: " + req.body.website;
-        UsersService_1.UsersService.getSingleton().sendAdminEmail(message).then(function (body) {
+        users_service_1.UsersService.getSingleton().sendAdminEmail(message).then(function (body) {
             res.end(body);
         }).catch(function (err) {
             winston.error(err.message, { process: process.pid });

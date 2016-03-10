@@ -1,4 +1,4 @@
-var Schema_1 = require("./Schema");
+var schema_1 = require("./schema");
 var winston = require("winston");
 /**
 * An instance of a model with its own unique schema and ID. The initial schema is a clone
@@ -43,7 +43,7 @@ var Model = (function () {
         this.collection = null;
         this._collectionName = collection;
         this._initialized = false;
-        this.defaultSchema = new Schema_1.Schema();
+        this.defaultSchema = new schema_1.Schema();
     }
     Object.defineProperty(Model.prototype, "collectionName", {
         /**

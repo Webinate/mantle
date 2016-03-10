@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var SchemaItem_1 = require("./SchemaItem");
+var schema_item_1 = require("./schema-item");
 var sanitizeHtml = require("sanitize-html");
 /**
 * A text scheme item for use in Models
@@ -89,5 +89,5 @@ var SchemaTextArray = (function (_super) {
             return this.value;
     };
     return SchemaTextArray;
-})(SchemaItem_1.SchemaItem);
+})(schema_item_1.SchemaItem);
 exports.SchemaTextArray = SchemaTextArray;

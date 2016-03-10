@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var SchemaItem_1 = require("./SchemaItem");
+var schema_item_1 = require("./schema-item");
 /**
 * A date scheme item for use in Models
 */
@@ -55,5 +55,5 @@ var SchemaDate = (function (_super) {
             return (this.value !== undefined && this.value !== null ? this.value : Date.now());
     };
     return SchemaDate;
-})(SchemaItem_1.SchemaItem);
+})(schema_item_1.SchemaItem);
 exports.SchemaDate = SchemaDate;

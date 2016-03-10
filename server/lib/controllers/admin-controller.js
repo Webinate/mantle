@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var express = require("express");
-var controllerModule = require("./Controller");
+var controllerModule = require("./controller");
 var winston = require("winston");
 var AdminController = (function (_super) {
     __extends(AdminController, _super);

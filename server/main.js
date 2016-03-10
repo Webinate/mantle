@@ -1,3 +1,4 @@
+/// <reference path="./lib/references.d.ts" />
 var cluster = require("cluster");
 var os = require("os");
 var yargs = require("yargs");

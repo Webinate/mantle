@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Controller_1 = require("./Controller");
+var controller_1 = require("./controller");
 /**
 * Checks all incomming requests to see if they are CORS approved
 */
@@ -45,6 +45,6 @@ var CORSController = (function (_super) {
         });
     }
     return CORSController;
-})(Controller_1.Controller);
+})(controller_1.Controller);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CORSController;

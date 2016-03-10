@@ -6,9 +6,9 @@ var https = require("https");
 var fs = require("fs");
 var winston = require("winston");
 var compression = require("compression");
-var PageRenderer_1 = require("./controllers/PageRenderer");
-var CORSController_1 = require("./controllers/CORSController");
-var PathHandler_1 = require("./PathHandler");
+var page_renderer_1 = require("./controllers/page-renderer");
+var cors_controller_1 = require("./controllers/cors-controller");
+var path_handler_1 = require("./path-handler");
 var Server = (function () {
     function Server(server, config, db) {
         this._config = config;
@@ -22,7 +22,7 @@ var Server = (function () {
             var server = that._server;
             var app = express();
             // Add the CORS controller
-            new CORSController_1.default(app, server);
+            new cors_controller_1.default(app, server);
             // Enable GZIPPING
             app.use(compression());
             // User defined static folders
@@ -50,7 +50,7 @@ var Server = (function () {
             // Create each of your controllers here
             var controllerPromises = [];
             var controllers = [];
-            controllers.push(new PageRenderer_1.default(server, config, app));
+            controllers.push(new page_renderer_1.default(server, config, app));
             // Load the controllers
             for (var i = 0, l = server.controllers.length; i < l; i++) {
                 var func = require(server.controllers[i].path);
@@ -58,11 +58,11 @@ var Server = (function () {
             }
             // Maps the path specified to an HTML or template
             for (var i = 0, l = server.paths.length; i < l; i++) {
-                var handler = new PathHandler_1.PathHandler(server.paths[i], server);
+                var handler = new path_handler_1.PathHandler(server.paths[i], server);
                 app.get(server.paths[i].path, handler.handle.bind(handler));
             }
             winston.info("Attempting to start HTTP server...", { process: process.pid });
-            // Start app with node server.js 
+            // Start app with node server.js
             var httpServer = http.createServer(app);
             httpServer.listen(server.portHTTP);
             winston.info("Listening on HTTP port " + server.portHTTP, { process: process.pid });

@@ -1,4 +1,4 @@
-var SchemaItem_1 = require("./schema-items/SchemaItem");
+var schema_item_1 = require("./schema-items/schema-item");
 /**
 * Gives an overall description of each property in a model
 */
@@ -122,7 +122,7 @@ var Schema = (function () {
     Schema.prototype.remove = function (val) {
         var items = this.items;
         var name = "";
-        if (val instanceof SchemaItem_1.SchemaItem)
+        if (val instanceof schema_item_1.SchemaItem)
             name = val.name;
         for (var i = 0, l = items.length; i < l; i++)
             if (items[i].name == name) {

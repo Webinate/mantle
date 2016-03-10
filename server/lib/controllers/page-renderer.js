@@ -7,9 +7,9 @@ var mongodb = require("mongodb");
 var winston = require("winston");
 var express = require("express");
 var bodyParser = require("body-parser");
-var Controller_1 = require("./Controller");
-var UsersService_1 = require("../UsersService");
-var RendersModel_1 = require("../models/RendersModel");
+var controller_1 = require("./controller");
+var users_service_1 = require("../users-service");
+var renders_model_1 = require("../models/renders-model");
 var url = require("url");
 var jsdom = require("jsdom");
 /**
@@ -25,7 +25,7 @@ var PageRenderer = (function (_super) {
     * @param {express.Express} e The express instance of this server
     */
     function PageRenderer(server, config, e) {
-        _super.call(this, [new RendersModel_1.RendersModel()]);
+        _super.call(this, [new renders_model_1.RendersModel()]);
         if (!config.enableAjaxRendering)
             return;
         this.renderQueryFlag = "__render__request";
@@ -253,7 +253,7 @@ var PageRenderer = (function (_super) {
     * @param {Function} next
     */
     PageRenderer.prototype.authenticateAdmin = function (req, res, next) {
-        var users = UsersService_1.UsersService.getSingleton();
+        var users = users_service_1.UsersService.getSingleton();
         users.authenticated(req).then(function (auth) {
             if (!auth.authenticated) {
                 res.setHeader('Content-Type', 'application/json');
@@ -416,6 +416,6 @@ var PageRenderer = (function (_super) {
         '.torrent'
     ];
     return PageRenderer;
-})(Controller_1.Controller);
+})(controller_1.Controller);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PageRenderer;
