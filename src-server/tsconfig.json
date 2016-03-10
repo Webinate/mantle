@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "removeComments": false,
+    "noEmitOnError": true,
+    "declaration": false,
+    "sourceMap": false,
+    "preserveConstEnums": true,
+    "target": "es5",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "outDir": "dist"
+  },
+  "files": [
+      "Main.ts",
+      "ModepressApi.ts",
+      "lib/Startup.ts"
+  ]
+}
