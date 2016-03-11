@@ -6,7 +6,7 @@ var merge = require('merge-stream');
 
 // CONFIG
 // ==============================
-var outDir = "../server/resources";
+var outDir = "../server/resources/admin";
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 var tsFiles = tsConfig.files;
 
