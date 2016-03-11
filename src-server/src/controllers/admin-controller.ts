@@ -33,11 +33,7 @@ export default class AdminController extends controllerModule.Controller
             var url = `${(requestIsSecure ? "https" : "http") }://${server.host}`;
             var usersURL = `${config.usersURL}`;
             var options: any = { usersURL: usersURL, url: url };
-
-            if (config.adminPlugins)
-                options.plugins = config.adminPlugins;
-            else
-                options.plugins = [];
+            options.plugins = config.adminPlugins || [];
 
             if (config.adminPluginVariables)
             {

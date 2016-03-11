@@ -25,6 +25,15 @@ export class PathHandler
     }
 
     /**
+     * Creates a new endpoint route based on the path
+     * @param {express.Express} app The express instance for this application
+     */
+    route(app: express.Express )
+    {
+        app.get(this._path.path, this.handle.bind(this));
+    }
+
+    /**
     * Function used to handle a request from express
     * @param {IPath}
     * @param {ServerConfig}
@@ -38,11 +47,7 @@ export class PathHandler
         var url = `${(requestIsSecure ? "https" : "http") }://${config.host}`;
         var usersURL = `${UsersService.usersURL}`;
         var options: any = { usersURL: usersURL, url: url };
-
-        if (path.plugins)
-            options.plugins = ["/admin/plugins/app-engine/plugin.js"];//path.plugins;
-        else
-            options.plugins = [];
+        options.plugins = path.plugins || [];
 
         // Give priority to template routes
         if (path.templatePath && path.templatePath != "" && fs.existsSync(`${path.templatePath}/${path.index}.jade`))
