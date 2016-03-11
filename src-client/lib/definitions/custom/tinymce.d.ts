@@ -33,6 +33,9 @@ interface TinyMceOptions
     /** Selector option, allows you to use CSS selector syntax for determining what areas should be editable, this is the recommended way of selecting what elements should be editable. **/
     selector?: string;
 
+    toolbar1?: string;
+    toolbar2?: string;
+
     /** This option enables you to specify location of the current skin. Enables you to load TinyMCE from one URL for example a CDN then load a local skin on the current server. */
     skin_url?: string;
 
@@ -54,14 +57,16 @@ interface TinyMceOptions
     /** This option enables you to specify location of the current theme. Enables you to load TinyMCE from one URL for example a CDN then load a local theme on the current server. */
     theme_url?: string;
 
-    /** 
+    /**
     * Set what plugins should be included, by default, NO plugins are loaded.
-    * See http://www.tinymce.com/wiki.php/Plugins 
+    * See http://www.tinymce.com/wiki.php/Plugins
     */
     plugins?: Array<string>;
 
     /** Set the height of the editor **/
     height?: number;
+
+    setup?: (editor) => void;
 }
 
 interface TinyMceStatic extends TinyMceObservable

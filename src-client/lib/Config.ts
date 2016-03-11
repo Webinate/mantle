@@ -2,6 +2,14 @@
 {
 	'use strict';
 
+    /**
+     * A custom interface using our additional variables
+     */
+    interface CustomState extends ng.ui.IState
+    {
+        authenticate?: boolean;
+    }
+
 	/**
 	* Configures the Angular application
 	*/
@@ -22,13 +30,13 @@
         constructor(routeProvider: angular.ui.IUrlRouterProvider, stateProvider: angular.ui.IStateProvider, $locationProvider: angular.ILocationProvider, $httpProvider: angular.IHttpProvider, cfpLoadingBarProvider)
 		{
             $locationProvider.html5Mode(true);
-            
+
             // Turn off the loading bar spinner
             cfpLoadingBarProvider.includeSpinner = false;
-        
+
             // Allows us to use CORS with angular
             $httpProvider.defaults.withCredentials = true;
-            
+
             // When we go to logout - it redirects us back to the login screen after its task is complete
             routeProvider.when("/admin/logout", ["$state", "Authenticator", function(state: ng.ui.IStateService, auth: Authenticator)
             {
@@ -37,18 +45,17 @@
                     state.go("login");
                 });
             }]);
-			
+
             // If the path doesn't match any of the urls go to the default state
             routeProvider.otherwise(function ($injector, $location)
             {
                 var $state = $injector.get("$state");
                 $state.go("default");
             });
-			
+
             // Setup the different states
 			stateProvider
-                .state("default",
-                {
+                .state("default", <CustomState>{
                     views: {
                         "main-view": {
                             templateUrl: "admin/templates/dashboard.html",
@@ -65,25 +72,25 @@
                     url: "/admin",
                     authenticate: true
                 })
-                .state('default.seo', {
+                .state('default.seo', <CustomState>{
                     templateUrl: 'admin/templates/dash-seo.html',
                     authenticate: true,
                     controller: "seoCtrl",
                     controllerAs: "controller"
                 })
-                .state('default.media', {
+                .state('default.media', <CustomState>{
                     templateUrl: 'admin/templates/dash-media.html',
                     authenticate: true,
                     controller: "mediaCtrl",
                     controllerAs: "mediaController"
                 })
-                .state('default.users', {
+                .state('default.users', <CustomState>{
                     templateUrl: 'admin/templates/dash-users.html',
                     authenticate: true,
                     controller: "usersCtrl",
                     controllerAs: "controller"
                 })
-                .state('default.posts', {
+                .state('default.posts', <CustomState>{
                     templateUrl: 'admin/templates/dash-posts.html',
                     authenticate: true,
                     controller: "postsCtrl",
@@ -102,8 +109,7 @@
                         }]
                     }
                 })
-                .state("login",
-				{
+                .state("login", <CustomState>{
 					views: {
 						"main-view": {
                             templateUrl: "admin/templates/log-in.html",
@@ -114,8 +120,7 @@
                     url: '/admin/login',
                     authenticate: false
                 })
-				.state("register",
-				{
+				.state("register", <CustomState>{
 					views: {
 						"main-view": {
                             templateUrl: "admin/templates/register.html",
@@ -126,12 +131,11 @@
 					onExit: function ()
 					{
 						Recaptcha.destroy();
-					},					
+					},
                     url: '/admin/register',
-                    authenticate: false		
+                    authenticate: false
 				})
-				.state("message",
-				{
+				.state("message", <CustomState> {
 					views: {
 						"main-view": {
                             templateUrl: "admin/templates/message.html",
@@ -148,11 +152,10 @@
                                 $scope.error = ($stateParams.status == "error" ? true : false );
 							}]
 						}
-					},					
+					},
                     url: "/admin/message?message&status&origin"
                 })
-                .state("password-rest",
-                    {
+                .state("password-rest", <CustomState> {
                         views: {
                             "main-view": {
                                 templateUrl: "admin/templates/password-reset.html",
@@ -165,7 +168,7 @@
                                 //    txtbox.innerHTML = $stateParams.user;
                                 //    $scope.user = txtbox.value;
                                 //    $scope.key = $stateParams.key;
-                                //}]                                
+                                //}]
                             }
                         },
                         url: "/admin/password-reset-form?key&user&origin"

@@ -76,8 +76,7 @@ var clientAdmin;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var clientAdmin;
 (function (clientAdmin) {
@@ -143,7 +142,7 @@ var clientAdmin;
             this.loading = true;
             var index = this.index;
             var limit = this.limit;
-            that.http.get(that.apiURL + "/renders/get-renders?index=" + index + "&limit=" + limit + "&search=" + that.searchTerm).then(function (token) {
+            that.http.get(that.apiURL + "/renders/get-renders?index=" + index + "&verbose=true&limit=" + limit + "&search=" + that.searchTerm).then(function (token) {
                 if (token.data.error) {
                     that.error = true;
                     that.errorMsg = token.data.message;
@@ -1267,22 +1266,3 @@ var clientAdmin;
     for (var i = 0, l = _plugins.length; i < l; i++)
         _plugins[i].onInit(appModule);
 })(clientAdmin || (clientAdmin = {}));
-/// <reference path="../src-server/custom-definitions/modepress-api.d.ts" />
-/// <reference path="lib/definitions/es6-promise.d.ts" />
-/// <reference path="lib/definitions/jquery.d.ts" />
-/// <reference path="lib/definitions/angular.d.ts" />
-/// <reference path="lib/definitions/angular-ui-router.d.ts" />
-/// <reference path="lib/definitions/tinymce.d.ts" />
-/// <reference path="lib/definitions/recaptcha.d.ts" />
-/// <reference path="lib/definitions/webinate-users.d.ts" />
-/// <reference path="lib/controllers/PagedContentCtrl.ts" />
-/// <reference path="lib/controllers/SEOCtrl.ts" />
-/// <reference path="lib/controllers/LoginCtrl.ts" />
-/// <reference path="lib/controllers/RegisterCtrl.ts" />
-/// <reference path="lib/controllers/PasswordCtrl.ts" />
-/// <reference path="lib/controllers/MediaCtrl.ts" />
-/// <reference path="lib/controllers/UsersCtrl.ts" />
-/// <reference path="lib/controllers/PostsCtrl.ts" />
-/// <reference path="lib/Authenticator.ts" />
-/// <reference path="lib/Config.ts" />
-/// <reference path="lib/Application.ts" /> 

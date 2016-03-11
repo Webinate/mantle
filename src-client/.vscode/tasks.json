@@ -1,0 +1,26 @@
+{
+    "version": "0.1.0",
+    "command": "gulp",
+    "isShellCommand": true,
+    "args": [
+         "--no-color"
+    ],
+    "tasks": [
+		{
+			"taskName": "build-all",
+			"isBuildCommand": true,
+			"showOutput": "always",
+            "problemMatcher": {
+                "fileLocation": ["relative", "${workspaceRoot}"],
+                "pattern": {
+                    "regexp": "^(.*)\\((.*),(.*)\\):\\s(error|warning)\\s(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+		}
+	]
+}

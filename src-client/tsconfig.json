@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "module": "amd",
+    "removeComments": false,
+    "noEmitOnError": true,
+    "declaration": false,
+    "sourceMap": false,
+    "preserveConstEnums": true,
+    "target": "es5",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "outFile": "../server/resources/main.js"
+  },
+  "files": [
+        "../src-server/src/definitions/custom/modepress-api.d.ts",
+        "lib/definitions/required/es6-promise.d.ts",
+        "lib/definitions/required/jquery.d.ts",
+        "lib/definitions/required/angular.d.ts",
+        "lib/definitions/required/angular-ui-router.d.ts",
+        "lib/definitions/required/recaptcha.d.ts",
+        "lib/definitions/required/webinate-users.d.ts",
+        "lib/definitions/custom/tinymce.d.ts",
+        "lib/definitions/custom/modepress-client.d.ts",
+        "lib/controllers/PagedContentCtrl.ts",
+        "lib/controllers/SEOCtrl.ts",
+        "lib/controllers/LoginCtrl.ts",
+        "lib/controllers/RegisterCtrl.ts",
+        "lib/controllers/PasswordCtrl.ts",
+        "lib/controllers/MediaCtrl.ts",
+        "lib/controllers/UsersCtrl.ts",
+        "lib/controllers/PostsCtrl.ts",
+        "lib/Authenticator.ts",
+        "lib/Config.ts",
+        "lib/Application.ts"
+  ]
+}
