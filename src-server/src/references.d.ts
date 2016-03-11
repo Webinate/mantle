@@ -4,7 +4,6 @@
 /// <reference path="./definitions/required/morgan.d.ts" />
 /// <reference path="./definitions/required/compression.d.ts" />
 /// <reference path="./definitions/required/entities.d.ts" />
-/// <reference path="./definitions/required/bcrypt-nodejs.d.ts" />
 /// <reference path="./definitions/required/body-parser.d.ts" />
 /// <reference path="./definitions/required/method-override.d.ts" />
 /// <reference path="./definitions/required/mongodb.d.ts" />
