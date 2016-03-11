@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var fs = require('fs');
 var concat = require('gulp-concat');
 var ts = require('gulp-typescript');
+var merge = require('merge-stream');
 
 // CONFIG
 // ==============================
@@ -44,6 +45,10 @@ gulp.task('ts-code', function() {
 // Builds the definition
 gulp.task('ts-code-declaration', function() {
 
+    var requiredDeclarationFiles = gulp.src([
+        "./lib/definitions/custom/modepress-client.d.ts",
+    ]);
+
     var tsDefinition = gulp.src(tsFiles, { base: "." })
         .pipe(ts({
             "module": "amd",
@@ -59,8 +64,7 @@ gulp.task('ts-code-declaration', function() {
 
 
      // Merge the streams
-     tsDefinition
-        .pipe(concat('definitions.d.ts'))
+     merge(requiredDeclarationFiles, tsDefinition)
         .pipe(gulp.dest(outDir + "/definitions"));
 });
 
