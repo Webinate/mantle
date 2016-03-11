@@ -1,12 +1,12 @@
-﻿/// <reference path="../src-server/custom-definitions/modepress-api.d.ts" />
+﻿/// <reference path="../src-server/src/definitions/custom/modepress-api.d.ts" />
 
-/// <reference path="lib/definitions/es6-promise.d.ts" />
-/// <reference path="lib/definitions/jquery.d.ts" />
-/// <reference path="lib/definitions/angular.d.ts" />
-/// <reference path="lib/definitions/angular-ui-router.d.ts" />
-/// <reference path="lib/definitions/tinymce.d.ts" />
-/// <reference path="lib/definitions/recaptcha.d.ts" />
-/// <reference path="lib/definitions/webinate-users.d.ts" />
+/// <reference path="lib/definitions/required/es6-promise.d.ts" />
+/// <reference path="lib/definitions/required/jquery.d.ts" />
+/// <reference path="lib/definitions/required/angular.d.ts" />
+/// <reference path="lib/definitions/required/angular-ui-router.d.ts" />
+/// <reference path="lib/definitions/required/tinymce.d.ts" />
+/// <reference path="lib/definitions/required/recaptcha.d.ts" />
+/// <reference path="lib/definitions/required/webinate-users.d.ts" />
 
 /// <reference path="lib/controllers/PagedContentCtrl.ts" />
 /// <reference path="lib/controllers/SEOCtrl.ts" />
