@@ -1,4 +1,4 @@
-﻿/// <reference path="./lib/references.d.ts" />
+﻿/// <reference path="./src/references.d.ts" />
 
 import * as cluster from "cluster";
 import * as os from "os";
@@ -34,7 +34,7 @@ if (args.numThreads)
 if (numCPUs == 1)
 {
     console.log(`Running as single cluster`);
-    require("./lib/Startup.js");
+    require("./src/Startup.js");
 }
 else if (cluster.isMaster)
 {
@@ -67,5 +67,5 @@ else if (cluster.isMaster)
 }
 else
 {
-    require("./lib/Startup.js");
+    require("./src/Startup.js");
 }

@@ -1,10 +1,10 @@
-var _Controller = require("./lib/controllers/controller");
-var _Models = require("./lib/models/model");
-var _UsersService = require("./lib/users-service");
-var _SchemaFactory = require("./lib/models/schema-items/schema-item-factory");
-var _EventManager = require("./lib/event-manager");
-var _PermissionController = require("./lib/permission-controllers");
-var utils_1 = require("./lib/utils");
+var _Controller = require("./src/controllers/controller");
+var _Models = require("./src/models/model");
+var _UsersService = require("./src/users-service");
+var _SchemaFactory = require("./src/models/schema-items/schema-item-factory");
+var _EventManager = require("./src/event-manager");
+var _PermissionController = require("./src/permission-controllers");
+var utils_1 = require("./src/utils");
 exports.Controller = _Controller.Controller;
 exports.Model = _Models.Model;
 exports.UsersService = _UsersService.UsersService;

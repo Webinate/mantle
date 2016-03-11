@@ -1,4 +1,4 @@
-/// <reference path="./lib/references.d.ts" />
+/// <reference path="./src/references.d.ts" />
 var cluster = require("cluster");
 var os = require("os");
 var yargs = require("yargs");
@@ -24,7 +24,7 @@ if (args.numThreads) {
 // Run as a single cluster
 if (numCPUs == 1) {
     console.log("Running as single cluster");
-    require("./lib/Startup.js");
+    require("./src/Startup.js");
 }
 else if (cluster.isMaster) {
     // Fork workers.
@@ -48,5 +48,5 @@ else if (cluster.isMaster) {
     });
 }
 else {
-    require("./lib/Startup.js");
+    require("./src/Startup.js");
 }
