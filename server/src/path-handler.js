@@ -16,6 +16,13 @@ var PathHandler = (function () {
         this._config = cfg;
     }
     /**
+     * Creates a new endpoint route based on the path
+     * @param {express.Express} app The express instance for this application
+     */
+    PathHandler.prototype.route = function (app) {
+        app.get(this._path.path, this.handle.bind(this));
+    };
+    /**
     * Function used to handle a request from express
     * @param {IPath}
     * @param {ServerConfig}
@@ -27,10 +34,7 @@ var PathHandler = (function () {
         var url = (requestIsSecure ? "https" : "http") + "://" + config.host;
         var usersURL = "" + users_service_1.UsersService.usersURL;
         var options = { usersURL: usersURL, url: url };
-        if (path.plugins)
-            options.plugins = ["/admin/plugins/app-engine/plugin.js"]; //path.plugins;
-        else
-            options.plugins = [];
+        options.plugins = path.plugins || [];
         // Give priority to template routes
         if (path.templatePath && path.templatePath != "" && fs.existsSync(path.templatePath + "/" + path.index + ".jade"))
             res.render(path.templatePath + "/" + path.index, options);

@@ -57,10 +57,8 @@ var Server = (function () {
                 controllers.push(new func.default(server, config, app));
             }
             // Maps the path specified to an HTML or template
-            for (var i = 0, l = server.paths.length; i < l; i++) {
-                var handler = new path_handler_1.PathHandler(server.paths[i], server);
-                app.get(server.paths[i].path, handler.handle.bind(handler));
-            }
+            for (var i = 0, l = server.paths.length; i < l; i++)
+                var handler = new path_handler_1.PathHandler(server.paths[i], server).route(app);
             winston.info("Attempting to start HTTP server...", { process: process.pid });
             // Start app with node server.js
             var httpServer = http.createServer(app);
