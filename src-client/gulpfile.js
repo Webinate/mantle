@@ -7,6 +7,7 @@ var merge = require('merge-stream');
 // CONFIG
 // ==============================
 var outDir = "../server/resources/admin";
+var outDirDefinitions = "../server/definitions";
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 var tsFiles = tsConfig.files;
 
@@ -65,7 +66,7 @@ gulp.task('ts-code-declaration', function() {
 
      // Merge the streams
      merge(requiredDeclarationFiles, tsDefinition)
-        .pipe(gulp.dest(outDir + "/definitions"));
+        .pipe(gulp.dest(outDirDefinitions));
 });
 
 gulp.task('build-all', ['ts-code', 'ts-code-declaration']);
