@@ -75,6 +75,25 @@ export class Model
         this.defaultSchema = new Schema();
 	}
 
+    /**
+     * Creates an index for a collection
+     * @param {string} name The name of the field we are setting an index of
+     * @param {mongodb.Collection} collection The collection we are setting the index on
+     */
+    private createIndex(name: string, collection: mongodb.Collection): Promise<any>
+    {
+        return new Promise<any>(function (resolve, reject)
+        {
+            collection.createIndex(name, function (err, index: string)
+            {
+                if (err)
+                    reject(err);
+                else
+                    resolve();
+            });
+        });
+    }
+
 	/**
 	* Gets the name of the collection associated with this model
 	* @returns {string}
@@ -116,7 +135,7 @@ export class Model
                         var items = model.defaultSchema.items;
                         for (var i = 0, l = items.length; i < l; i++)
                             if (items[i].getIndexable())
-                                promises.push(model.collection.createIndex(items[i].name, collection));
+                                promises.push(model.createIndex(items[i].name, collection));
 
                         if (promises.length == 0)
                         {

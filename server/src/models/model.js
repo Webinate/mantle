@@ -46,6 +46,16 @@ var Model = (function () {
         this._initialized = false;
         this.defaultSchema = new schema_1.Schema();
     }
+    Model.prototype.createIndex = function (name, collection) {
+        return new Promise(function (resolve, reject) {
+            collection.createIndex(name, function (err, index) {
+                if (err)
+                    reject(err);
+                else
+                    resolve();
+            });
+        });
+    };
     Object.defineProperty(Model.prototype, "collectionName", {
         /**
         * Gets the name of the collection associated with this model
@@ -81,7 +91,7 @@ var Model = (function () {
                         var items = model.defaultSchema.items;
                         for (var i = 0, l = items.length; i < l; i++)
                             if (items[i].getIndexable())
-                                promises.push(model.collection.createIndex(items[i].name, collection));
+                                promises.push(model.createIndex(items[i].name, collection));
                         if (promises.length == 0) {
                             model._initialized = true;
                             return Promise.resolve();
