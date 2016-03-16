@@ -12,8 +12,12 @@
     "outDir": "../server"
   },
   "files": [
+      "src/references.d.ts",
       "main.ts",
       "modepress-api.ts",
-      "src/startup.ts"
+      "src/startup.ts",
+      "src/controllers/admin-controller.ts",
+      "src/controllers/posts-controller.ts",
+      "src/controllers/emails-controller.ts"
   ]
 }
