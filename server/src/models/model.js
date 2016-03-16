@@ -46,6 +46,11 @@ var Model = (function () {
         this._initialized = false;
         this.defaultSchema = new schema_1.Schema();
     }
+    /**
+     * Creates an index for a collection
+     * @param {string} name The name of the field we are setting an index of
+     * @param {mongodb.Collection} collection The collection we are setting the index on
+     */
     Model.prototype.createIndex = function (name, collection) {
         return new Promise(function (resolve, reject) {
             collection.createIndex(name, function (err, index) {
@@ -165,6 +170,7 @@ var Model = (function () {
     * @returns {Promise<Array<ModelInstance<T>>>}
     */
     Model.prototype.findInstances = function (selector, sort, startIndex, limit, projection) {
+        if (limit === void 0) { limit = -1; }
         var model = this;
         return new Promise(function (resolve, reject) {
             var collection = model.collection;

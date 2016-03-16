@@ -224,7 +224,7 @@ export class Model
     * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	* @returns {Promise<Array<ModelInstance<T>>>}
 	*/
-    findInstances<T>(selector: any, sort?: any, startIndex?: number, limit?: number, projection?: any): Promise<Array<ModelInstance<T>>>
+    findInstances<T>(selector: any, sort?: any, startIndex?: number, limit: number = -1, projection?: any): Promise<Array<ModelInstance<T>>>
 	{
 		var model = this;
 		return new Promise<Array<ModelInstance<T>>>(function (resolve, reject)
