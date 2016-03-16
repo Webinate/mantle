@@ -1,3 +1,4 @@
+"use strict";
 var _Controller = require("./src/controllers/controller");
 var _Models = require("./src/models/model");
 var _UsersService = require("./src/users-service");

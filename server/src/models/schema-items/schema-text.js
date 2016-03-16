@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -78,5 +79,5 @@ var SchemaText = (function (_super) {
             return this.value;
     };
     return SchemaText;
-})(schema_item_1.SchemaItem);
+}(schema_item_1.SchemaItem));
 exports.SchemaText = SchemaText;

@@ -81,20 +81,6 @@ export class Model
 	*/
 	get collectionName():string { return this._collectionName; }
 
-    private createIndex(name: string, collection: mongodb.Collection): Promise<any>
-    {
-        return new Promise<any>(function (resolve, reject)
-        {
-            collection.ensureIndex(name, function (err, index: string)
-            {
-                if (err)
-                    reject(err);
-                else
-                    resolve();
-            });
-        });
-    }
-
 	/**
 	* Initializes the model by setting up the database collections
 	* @param {mongodb.Db} db The database used to create this model
@@ -123,36 +109,31 @@ export class Model
                     model.collection = collection;
 
                     // First remove all existing indices
-                    collection.dropAllIndexes(function(err)
-                    {
-                        if (err)
-                            return reject(err);
+                    collection.dropIndexes().then( function(response) {
 
                         // Now re-create the models who need index supports
-                        var promises: Array<Promise<any>> = [];
+                        var promises: Array<Promise<string>> = [];
                         var items = model.defaultSchema.items;
                         for (var i = 0, l = items.length; i < l; i++)
                             if (items[i].getIndexable())
-                                promises.push(model.createIndex(items[i].name, collection));
+                                promises.push(model.collection.createIndex(items[i].name, collection));
 
                         if (promises.length == 0)
                         {
                             model._initialized = true;
-                            winston.info(`Successfully created model '${model._collectionName}'`, { process: process.pid });
-                            return resolve(model);
+                            return Promise.resolve();
                         }
 
-                        Promise.all(promises).then(function ()
-                        {
-                            model._initialized = true;
-                            winston.info(`Successfully created model '${model._collectionName}'`, { process: process.pid });
-                            return resolve(model);
+                        return Promise.all(promises);
 
-                        }).catch(function (err)
-                        {
-                            return reject(err);
-                        });
+                    }).then(function (models) {
 
+                        model._initialized = true;
+                        winston.info(`Successfully created model '${model._collectionName}'`, { process: process.pid });
+                        return resolve(model);
+
+                    }).catch(function(err) {
+                        return reject(err);
                     });
 				}
 			});
@@ -236,43 +217,27 @@ export class Model
 			else
 			{
 				// Attempt to save the data to mongo collection
-                collection.find(selector, projection || {}, startIndex, limit, function (err: Error, result: mongodb.Cursor)
-				{
-					// Check for errors
-					if (err || !result)
-						reject(err);
-					else
+                collection.find(selector).limit(limit).skip(startIndex).project(projection || {}).sort(sort).toArray().then( function(result) {
+
+                    // Create the instance array
+                    var instances: Array<ModelInstance<T>> = [],
+                        instance: ModelInstance<T>;
+
+                    // For each data entry, create a new instance
+                    for (var i = 0, l = result.length; i < l; i++)
                     {
-                        var cursor = result;
-                        if (sort)
-                            cursor = result.sort(sort);
+                        instance = new ModelInstance<T>(model, result[i]);
+                        instance.schema.deserialize(result[i]);
+                        instance._id = result[i]._id;
+                        instances.push(instance);
+                    }
 
-                        result.toArray(function(err: Error, dbEntries: Array<any>)
-						{
-							// Check for errors
-							if (err)
-								reject(err);
-							else
-							{
-								// Create the instance array
-								var instances: Array<ModelInstance<T>> = [],
-									instance: ModelInstance<T>;
+                    // Complete
+                    resolve(instances);
 
-								// For each data entry, create a new instance
-								for (var i = 0, l = dbEntries.length; i < l; i++)
-								{
-                                    instance = new ModelInstance<T>(model, dbEntries[i]);
-									instance.schema.deserialize(dbEntries[i]);
-									instance._id = dbEntries[i]._id;
-									instances.push(instance);
-								}
-
-								// Complete
-								resolve(instances);
-							}
-						});
-					}
-				});
+				}).catch(function(err: Error){
+		            reject(err);
+                });
 			}
 		});
     }
@@ -295,12 +260,9 @@ export class Model
             else
             {
                 // Attempt to save the data to mongo collection
-                collection.findOne(selector, projection || {}, function (err: Error, result: T)
-                {
+                collection.find(selector).limit(1).project(projection || {}).next().then( function (result) {
                     // Check for errors
-                    if (err)
-                        reject(err);
-                    else if (!result)
+                    if (!result)
                         return resolve(null);
                     else
                     {
@@ -312,8 +274,10 @@ export class Model
                         instance._id = (<IModelEntry>result)._id;
 
                         // Complete
-                        resolve(instance);
+                        return resolve(instance);
                     }
+                }).catch(function(err: Error){
+                    reject(err);
                 });
             }
         });
@@ -330,14 +294,11 @@ export class Model
 		return new Promise<number>(function (resolve, reject)
 		{
 			var collection = model.collection;
-			collection.remove(selector, function (err: Error, result: mongodb.WriteResult<any> )
-			{
-				// Report what happened
-				if (err)
-					reject(err);
-				else
-					resolve(result.result.n );
-			});
+			collection.deleteMany(selector).then( function ( deleteResult ) {
+				resolve(deleteResult.deletedCount);
+			}).catch(function(err: Error){
+                reject(err);
+            });
 		});
     }
 
@@ -402,25 +363,22 @@ export class Model
                         var json = instance.schema.serialize();
                         var collection = that.collection;
 
-                        collection.update({ _id: (<IModelEntry>instance)._id }, { $set: json }, function (err: Error, result: mongodb.WriteResult<any>)
-                        {
-                            if (err)
-                            {
-                                toRet.error = true;
-                                toRet.tokens.push({ error: err.message, instance: instance });
-                                if (index == instances.length - 1)
-                                    return resolve(toRet);
-                                else
-                                    return;
-                            }
+                        collection.updateOne({ _id: (<IModelEntry>instance)._id }, { $set: json }).then( function (updateResult) {
+
+                            toRet.tokens.push({ error: false, instance: instance });
+                            if (index == instances.length - 1)
+                                return resolve(toRet);
                             else
-                            {
-                                toRet.tokens.push({ error: false, instance: instance });
-                                if (index == instances.length - 1)
-                                    return resolve(toRet);
-                                else
-                                    return;
-                            }
+                                return;
+
+                        }).catch(function(err: Error) {
+
+                            toRet.error = true;
+                            toRet.tokens.push({ error: err.message, instance: instance });
+                            if (index == instances.length - 1)
+                                return resolve(toRet);
+                            else
+                                return;
                         });
                     });
                 });
@@ -562,19 +520,17 @@ export class Model
 				}
 
 				// Attempt to save the data to mongo collection
-				collection.insert(documents, function (err: Error, result: mongodb.WriteResult<any> )
-				{
-					if (err || !result)
-						reject(err);
-					else
-					{
-						// Assign the ID's
-						for (var i = 0, l = result.ops.length; i < l; i++)
-							instances[i]._id = result.ops[i]._id;
+				collection.insertMany(documents).then(function (insertResult) {
 
-						resolve(instances);
-					}
-				});
+                    // Assign the ID's
+                    for (var i = 0, l = insertResult.ops.length; i < l; i++)
+                        instances[i]._id = insertResult.ops[i]._id;
+
+                    resolve(instances);
+
+				}).catch(function(err: Error){
+                    reject(err);
+                });
 			}
 		});
 	}

@@ -104,7 +104,7 @@ MongoWrapper.connect(config.databaseHost, config.databasePort, config.databaseNa
         });
 
         // Set the prompt to be a >
-        rl.setPrompt('> ', 2);
+        rl.setPrompt('> ');
         rl.prompt();
         var heapdump = null;
 

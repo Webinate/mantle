@@ -1,157 +1,136 @@
-﻿///<reference path='./node.d.ts' />
+﻿// Type definitions for ws
+// Project: https://github.com/einaros/ws
+// Definitions by: Paul Loyd <https://github.com/loyd>
+// Definitions: https://github.com/borisyankov/DefinitelyTyped
+
+/// <reference path="./node.d.ts" />
 
 declare module "ws" {
+    import * as events from 'events';
+    import * as http from 'http';
+    import * as net from 'net';
 
-    var server: WS.Static;
+    class WebSocket extends events.EventEmitter {
+        static CONNECTING: number;
+        static OPEN: number;
+        static CLOSING: number;
+        static CLOSED: number;
 
-    export = server;
-}
+        bytesReceived: number;
+        readyState: number;
+        protocolVersion: string;
+        url: string;
+        supports: any;
+        upgradeReq: http.ServerRequest;
 
-declare module WS
-{
+        CONNECTING: number;
+        OPEN: number;
+        CLOSING: number;
+        CLOSED: number;
 
+        onopen: (event: {target: WebSocket}) => void;
+        onerror: (err: Error) => void;
+        onclose: (event: {wasClean: boolean; code: number; reason: string; target: WebSocket}) => void;
+        onmessage: (event: {data: any; type: string; target: WebSocket}) => void;
 
-    export interface Static
-    {
-        /**
-        * Create a new WebSocket connection.
-        *
-        * @param {String} address The URL/address we need to connect to.
-        * @param {Function} fn Open listener.
-        * @returns {WebSocket}
-        */
-        createConnection(address: string, fn?: Function): WebSocket;
+        constructor(address: string, options?: {
+            protocol?: string;
+            agent?: http.Agent;
+            headers?: {[key: string]: string};
+            protocolVersion?: any;
+            host?: string;
+            origin?: string;
+            pfx?: any;
+            key?: any;
+            passphrase?: string;
+            cert?: any;
+            ca?: any[];
+            ciphers?: string;
+            rejectUnauthorized?: boolean;
+        });
 
-        Server: typeof Server;
+        close(code?: number, data?: any): void;
+        pause(): void;
+        resume(): void;
+        ping(data?: any, options?: {mask?: boolean; binary?: boolean}, dontFail?: boolean): void;
+        pong(data?: any, options?: {mask?: boolean; binary?: boolean}, dontFail?: boolean): void;
+        send(data: any, cb?: (err: Error) => void): void;
+        send(data: any, options: {mask?: boolean; binary?: boolean}, cb?: (err: Error) => void): void;
+        stream(options: {mask?: boolean; binary?: boolean}, cb?: (err: Error, final: boolean) => void): void;
+        stream(cb?: (err: Error, final: boolean) => void): void;
+        terminate(): void;
+
+        // HTML5 WebSocket events
+        addEventListener(method: 'message', cb?: (event: {data: any; type: string; target: WebSocket}) => void): void;
+        addEventListener(method: 'close', cb?: (event: {wasClean: boolean; code: number;
+                                                        reason: string; target: WebSocket}) => void): void;
+        addEventListener(method: 'error', cb?: (err: Error) => void): void;
+        addEventListener(method: 'open', cb?: (event: {target: WebSocket}) => void): void;
+        addEventListener(method: string, listener?: () => void): void;
+
+        // Events
+        on(event: 'error', cb: (err: Error) => void): this;
+        on(event: 'close', cb: (code: number, message: string) => void): this;
+        on(event: 'message', cb: (data: any, flags: {binary: boolean}) => void): this;
+        on(event: 'ping', cb: (data: any, flags: {binary: boolean}) => void): this;
+        on(event: 'pong', cb: (data: any, flags: {binary: boolean}) => void): this;
+        on(event: 'open', cb: () => void): this;
+        on(event: string, listener: () => void): this;
+
+        addListener(event: 'error', cb: (err: Error) => void): this;
+        addListener(event: 'close', cb: (code: number, message: string) => void): this;
+        addListener(event: 'message', cb: (data: any, flags: {binary: boolean}) => void): this;
+        addListener(event: 'ping', cb: (data: any, flags: {binary: boolean}) => void): this;
+        addListener(event: 'pong', cb: (data: any, flags: {binary: boolean}) => void): this;
+        addListener(event: 'open', cb: () => void): this;
+        addListener(event: string, listener: () => void): this;
     }
 
-    /**
-    * WebSocket implementation
-    */
-    export class WebSocket implements NodeJS.EventEmitter
-    {
-        public _isServer: boolean;
-        public url: string;
-        public protocol: string;
-        public readyState: string;
-        public extensions: string;
-        public protocolVersion: string;
-        public upgradeReq: any;
-        public supports: { binary: boolean; };
- 
-        /**
-        * WebSocket implementation
-        *
-        * @constructor
-        * @param {String} address Connection address.
-        * @param {String|Array} protocols WebSocket protocols.
-        * @param {Object} options Additional connection options.
-        */
-        constructor(path: string, protocols?: string | Array<any>, options?: any);
+    module WebSocket {
+        export interface IServerOptions {
+            host?: string;
+            port?: number;
+            server?: http.Server;
+            verifyClient?: {
+                (info: {origin: string; secure: boolean; req: http.ServerRequest}): boolean;
+                (info: {origin: string; secure: boolean; req: http.ServerRequest},
+                                                 callback: (res: boolean) => void): void;
+            };
+            handleProtocols?: any;
+            path?: string;
+            noServer?: boolean;
+            disableHixie?: boolean;
+            clientTracking?: boolean;
+        }
 
-        /**
-        * Gracefully closes the connection, after sending a description message to the server
-        *
-        * @param {Object} data to be sent to the server
-        */
-        close(code, data);
+        export class Server extends events.EventEmitter {
+            options: IServerOptions;
+            path: string;
+            clients: WebSocket[];
 
-        /**
-        * Pause the client stream
-        */
-        pause();
+            constructor(options?: IServerOptions, callback?: Function);
 
-        /**
-        * Sends a ping
-        *
-        * @param {Object} data to be sent to the server
-        * @param {Object} Members - mask: boolean, binary: boolean
-        * @param {boolean} dontFailWhenClosed indicates whether or not to throw if the connection isnt open
-        */
-        ping(data, options, dontFailWhenClosed);
+            close(): void;
+            handleUpgrade(request: http.ServerRequest, socket: net.Socket,
+                          upgradeHead: Buffer, callback: (client: WebSocket) => void): void;
 
-        /**
-        * Resume the client stream
-        */
-        resume();
+            // Events
+            on(event: 'error', cb: (err: Error) => void): this;
+            on(event: 'headers', cb: (headers: string[]) => void): this;
+            on(event: 'connection', cb: (client: WebSocket) => void): this;
+            on(event: string, listener: () => void): this;
 
-        /**
-        * Sends a pong
-        *
-        * @param {Object} data to be sent to the server
-        * @param {Object} Members - mask: boolean, binary: boolean
-        * @param {boolean} dontFailWhenClosed indicates whether or not to throw if the connection isnt open
-        */
-        pong(data, options, dontFailWhenClosed);
+            addListener(event: 'error', cb: (err: Error) => void): this;
+            addListener(event: 'headers', cb: (headers: string[]) => void): this;
+            addListener(event: 'connection', cb: (client: WebSocket) => void): this;
+            addListener(event: string, listener: () => void): this;
+        }
 
-        /**
-        * Sends a piece of data
-        *
-        * @param {Object} data to be sent to the server
-        * @param {Object} Members - mask: boolean, binary: boolean, compress: boolean
-        * @param {function} Optional callback which is executed after the send completes
-        */
-        send(data, options?: { mask: boolean; binary: boolean; compress: boolean; }, cb?: Function);
-
-        /**
-        * Streams data through calls to a user supplied function
-        *
-        * @param {Object} Members - mask: boolean, binary: boolean, compress: boolean
-        * @param {function} 'function (error, send)' which is executed on successive ticks of which send is 'function (data, final)'
-        */
-        stream(options, cb: (Error, send) => any);
-
-        /**
-        * Immediately shuts down the connection
-        */
-        terminate();
-
-        addListener(event: string, listener: Function): NodeJS.EventEmitter;
-        on(event: string, listener: Function): NodeJS.EventEmitter;
-        once(event: string, listener: Function): NodeJS.EventEmitter;
-        removeListener(event: string, listener: Function): NodeJS.EventEmitter;
-        removeAllListeners(event?: string): NodeJS.EventEmitter;
-        setMaxListeners(n: number): void;
-        listeners(event: string): Function[];
-        emit(event: string, ...args: any[]): boolean;
+        export function createServer(options?: IServerOptions,
+            connectionListener?: (client: WebSocket) => void): Server;
+        export function connect(address: string, openListener?: Function): void;
+        export function createConnection(address: string, openListener?: Function): void;
     }
 
-    export interface ServerOptions
-    {
-        host?: string;
-        port?: number;
-        /*A nodejs http server - if not provided one is created for you*/
-        server?: any;
-        verifyClient?: boolean;
-        handleProtocols?: boolean;
-        path?: string;
-        noServer?: boolean;
-        disableHixie?: boolean;
-        clientTracking?: boolean;
-        perMessageDeflate?: boolean;
-    }
-
-    /**
-    * WebSocket Server implementation
-    */
-    export class Server implements NodeJS.EventEmitter
-    {
-        clients: Array<WebSocket>;
-
-        constructor(options?: ServerOptions, callback?);
-
-        /**
-        * Immediately shuts down the connection.
-        */
-        close(code, data, mask, cb);
-
-        addListener(event: string, listener: Function): NodeJS.EventEmitter;
-        on(event: string, listener: Function): NodeJS.EventEmitter;
-        once(event: string, listener: Function): NodeJS.EventEmitter;
-        removeListener(event: string, listener: Function): NodeJS.EventEmitter;
-        removeAllListeners(event?: string): NodeJS.EventEmitter;
-        setMaxListeners(n: number): void;
-        listeners(event: string): Function[];
-        emit(event: string, ...args: any[]): boolean;
-    }
+    export = WebSocket;
 }

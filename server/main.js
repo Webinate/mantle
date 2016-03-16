@@ -1,4 +1,5 @@
 /// <reference path="./src/references.d.ts" />
+"use strict";
 var cluster = require("cluster");
 var os = require("os");
 var yargs = require("yargs");

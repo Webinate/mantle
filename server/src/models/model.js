@@ -1,3 +1,4 @@
+"use strict";
 var schema_1 = require("./schema");
 var winston = require("winston");
 /**
@@ -29,7 +30,7 @@ var ModelInstance = (function () {
         return uniqueNames;
     };
     return ModelInstance;
-})();
+}());
 exports.ModelInstance = ModelInstance;
 /**
 * Models map data in the application/client to data in the database
@@ -54,16 +55,6 @@ var Model = (function () {
         enumerable: true,
         configurable: true
     });
-    Model.prototype.createIndex = function (name, collection) {
-        return new Promise(function (resolve, reject) {
-            collection.ensureIndex(name, function (err, index) {
-                if (err)
-                    reject(err);
-                else
-                    resolve();
-            });
-        });
-    };
     /**
     * Initializes the model by setting up the database collections
     * @param {mongodb.Db} db The database used to create this model
@@ -84,27 +75,24 @@ var Model = (function () {
                 else {
                     model.collection = collection;
                     // First remove all existing indices
-                    collection.dropAllIndexes(function (err) {
-                        if (err)
-                            return reject(err);
+                    collection.dropIndexes().then(function (response) {
                         // Now re-create the models who need index supports
                         var promises = [];
                         var items = model.defaultSchema.items;
                         for (var i = 0, l = items.length; i < l; i++)
                             if (items[i].getIndexable())
-                                promises.push(model.createIndex(items[i].name, collection));
+                                promises.push(model.collection.createIndex(items[i].name, collection));
                         if (promises.length == 0) {
                             model._initialized = true;
-                            winston.info("Successfully created model '" + model._collectionName + "'", { process: process.pid });
-                            return resolve(model);
+                            return Promise.resolve();
                         }
-                        Promise.all(promises).then(function () {
-                            model._initialized = true;
-                            winston.info("Successfully created model '" + model._collectionName + "'", { process: process.pid });
-                            return resolve(model);
-                        }).catch(function (err) {
-                            return reject(err);
-                        });
+                        return Promise.all(promises);
+                    }).then(function (models) {
+                        model._initialized = true;
+                        winston.info("Successfully created model '" + model._collectionName + "'", { process: process.pid });
+                        return resolve(model);
+                    }).catch(function (err) {
+                        return reject(err);
                     });
                 }
             });
@@ -174,33 +162,20 @@ var Model = (function () {
                 reject(new Error("The model has not been initialized"));
             else {
                 // Attempt to save the data to mongo collection
-                collection.find(selector, projection || {}, startIndex, limit, function (err, result) {
-                    // Check for errors
-                    if (err || !result)
-                        reject(err);
-                    else {
-                        var cursor = result;
-                        if (sort)
-                            cursor = result.sort(sort);
-                        result.toArray(function (err, dbEntries) {
-                            // Check for errors
-                            if (err)
-                                reject(err);
-                            else {
-                                // Create the instance array
-                                var instances = [], instance;
-                                // For each data entry, create a new instance
-                                for (var i = 0, l = dbEntries.length; i < l; i++) {
-                                    instance = new ModelInstance(model, dbEntries[i]);
-                                    instance.schema.deserialize(dbEntries[i]);
-                                    instance._id = dbEntries[i]._id;
-                                    instances.push(instance);
-                                }
-                                // Complete
-                                resolve(instances);
-                            }
-                        });
+                collection.find(selector).limit(limit).skip(startIndex).project(projection || {}).sort(sort).toArray().then(function (result) {
+                    // Create the instance array
+                    var instances = [], instance;
+                    // For each data entry, create a new instance
+                    for (var i = 0, l = result.length; i < l; i++) {
+                        instance = new ModelInstance(model, result[i]);
+                        instance.schema.deserialize(result[i]);
+                        instance._id = result[i]._id;
+                        instances.push(instance);
                     }
+                    // Complete
+                    resolve(instances);
+                }).catch(function (err) {
+                    reject(err);
                 });
             }
         });
@@ -219,11 +194,9 @@ var Model = (function () {
                 reject(new Error("The model has not been initialized"));
             else {
                 // Attempt to save the data to mongo collection
-                collection.findOne(selector, projection || {}, function (err, result) {
+                collection.find(selector).limit(1).project(projection || {}).next().then(function (result) {
                     // Check for errors
-                    if (err)
-                        reject(err);
-                    else if (!result)
+                    if (!result)
                         return resolve(null);
                     else {
                         // Create the instance array
@@ -232,8 +205,10 @@ var Model = (function () {
                         instance.schema.deserialize(result);
                         instance._id = result._id;
                         // Complete
-                        resolve(instance);
+                        return resolve(instance);
                     }
+                }).catch(function (err) {
+                    reject(err);
                 });
             }
         });
@@ -246,12 +221,10 @@ var Model = (function () {
         var model = this;
         return new Promise(function (resolve, reject) {
             var collection = model.collection;
-            collection.remove(selector, function (err, result) {
-                // Report what happened
-                if (err)
-                    reject(err);
-                else
-                    resolve(result.result.n);
+            collection.deleteMany(selector).then(function (deleteResult) {
+                resolve(deleteResult.deletedCount);
+            }).catch(function (err) {
+                reject(err);
             });
         });
     };
@@ -301,22 +274,19 @@ var Model = (function () {
                         // Transform the schema into a JSON ready format
                         var json = instance.schema.serialize();
                         var collection = that.collection;
-                        collection.update({ _id: instance._id }, { $set: json }, function (err, result) {
-                            if (err) {
-                                toRet.error = true;
-                                toRet.tokens.push({ error: err.message, instance: instance });
-                                if (index == instances.length - 1)
-                                    return resolve(toRet);
-                                else
-                                    return;
-                            }
-                            else {
-                                toRet.tokens.push({ error: false, instance: instance });
-                                if (index == instances.length - 1)
-                                    return resolve(toRet);
-                                else
-                                    return;
-                            }
+                        collection.updateOne({ _id: instance._id }, { $set: json }).then(function (updateResult) {
+                            toRet.tokens.push({ error: false, instance: instance });
+                            if (index == instances.length - 1)
+                                return resolve(toRet);
+                            else
+                                return;
+                        }).catch(function (err) {
+                            toRet.error = true;
+                            toRet.tokens.push({ error: err.message, instance: instance });
+                            if (index == instances.length - 1)
+                                return resolve(toRet);
+                            else
+                                return;
                         });
                     });
                 });
@@ -419,19 +389,17 @@ var Model = (function () {
                     documents.push(json);
                 }
                 // Attempt to save the data to mongo collection
-                collection.insert(documents, function (err, result) {
-                    if (err || !result)
-                        reject(err);
-                    else {
-                        // Assign the ID's
-                        for (var i = 0, l = result.ops.length; i < l; i++)
-                            instances[i]._id = result.ops[i]._id;
-                        resolve(instances);
-                    }
+                collection.insertMany(documents).then(function (insertResult) {
+                    // Assign the ID's
+                    for (var i = 0, l = insertResult.ops.length; i < l; i++)
+                        instances[i]._id = insertResult.ops[i]._id;
+                    resolve(instances);
+                }).catch(function (err) {
+                    reject(err);
                 });
             }
         });
     };
     return Model;
-})();
+}());
 exports.Model = Model;

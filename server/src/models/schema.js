@@ -1,3 +1,4 @@
+"use strict";
 var schema_item_1 = require("./schema-items/schema-item");
 /**
 * Gives an overall description of each property in a model
@@ -131,5 +132,5 @@ var Schema = (function () {
             }
     };
     return Schema;
-})();
+}());
 exports.Schema = Schema;

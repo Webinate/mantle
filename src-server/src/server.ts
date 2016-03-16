@@ -43,7 +43,6 @@ export class Server
             // Add the CORS controller
             new CORSController(app, server);
 
-
             // Enable GZIPPING
             app.use(compression());
 

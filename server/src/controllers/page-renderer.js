@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -416,6 +417,6 @@ var PageRenderer = (function (_super) {
         '.torrent'
     ];
     return PageRenderer;
-})(controller_1.Controller);
+}(controller_1.Controller));
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PageRenderer;

@@ -1,3 +1,4 @@
+"use strict";
 var request = require("request");
 /**
 * Singleton service for communicating with a webinate-users server
@@ -183,5 +184,5 @@ var UsersService = (function () {
         return UsersService._singleton;
     };
     return UsersService;
-})();
+}());
 exports.UsersService = UsersService;

@@ -55,8 +55,8 @@ export class EventManager extends events.EventEmitter
             var _client;
             var connect = function ()
             {
-                var _client = new (<typeof WS.WebSocket><any>ws)(cfg.usersSocketURL, undefined, { headers: { origin: cfg.usersSocketOrigin } });
-                
+                var _client = new ws(cfg.usersSocketURL, { headers: { origin: cfg.usersSocketOrigin } });
+
                 // Opens a stream to the users socket events
                 _client.on('open', function ()
                 {

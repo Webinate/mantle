@@ -1,3 +1,4 @@
+"use strict";
 /**
 * Singleton service for communicating with a webinate-users server
 */
@@ -19,5 +20,5 @@ var Utils = (function () {
         return valid;
     };
     return Utils;
-})();
+}());
 exports.Utils = Utils;

@@ -1,3 +1,4 @@
+"use strict";
 var Controller = (function () {
     function Controller(models) {
         this._models = [];
@@ -62,5 +63,5 @@ var Controller = (function () {
     };
     Controller._models = [];
     return Controller;
-})();
+}());
 exports.Controller = Controller;

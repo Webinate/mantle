@@ -1,3 +1,4 @@
+"use strict";
 var mongodb = require("mongodb");
 var MongoWrapper = (function () {
     function MongoWrapper() {
@@ -47,5 +48,5 @@ var MongoWrapper = (function () {
         });
     };
     return MongoWrapper;
-})();
+}());
 exports.MongoWrapper = MongoWrapper;

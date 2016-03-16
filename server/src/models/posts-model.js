@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -23,5 +24,5 @@ var PostsModel = (function (_super) {
         this.defaultSchema.add(new schema_item_factory_1.date("lastUpdated", undefined, false, true)).setIndexable(true);
     }
     return PostsModel;
-})(model_1.Model);
+}(model_1.Model));
 exports.PostsModel = PostsModel;

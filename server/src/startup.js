@@ -1,3 +1,4 @@
+"use strict";
 var express = require("express");
 var app = express(); // create our app with express
 var fs = require("fs");
@@ -69,7 +70,7 @@ mongo_wrapper_1.MongoWrapper.connect(config.databaseHost, config.databasePort, c
             output: process.stdout
         });
         // Set the prompt to be a >
-        rl.setPrompt('> ', 2);
+        rl.setPrompt('> ');
         rl.prompt();
         var heapdump = null;
         // Now each time the user hits enter

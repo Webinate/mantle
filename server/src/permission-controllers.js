@@ -1,3 +1,4 @@
+"use strict";
 var users_service_1 = require("./users-service");
 /**
 * This funciton checks if user is logged in

@@ -1,3 +1,4 @@
+"use strict";
 /**
 * A definition of each item in the model
 */
@@ -105,5 +106,5 @@ var SchemaItem = (function () {
         return this.value = val;
     };
     return SchemaItem;
-})();
+}());
 exports.SchemaItem = SchemaItem;

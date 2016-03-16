@@ -1,5 +1,3 @@
-﻿///<reference path='./express.d.ts' />
-
 declare module UsersInterface
 {
     export class User
@@ -27,8 +25,8 @@ declare module UsersInterface
         }
 
         /*
-         * Interface for file added events
-         */
+        * Interface for file added events
+        */
         export interface IFilesAddedEvent extends IEvent
         {
             username: string;
@@ -40,7 +38,7 @@ declare module UsersInterface
         */
         export interface IFilesRemovedEvent extends IEvent
         {
-            files: Array<string>;
+            files: Array<IFileEntry>;
         }
 
         /*
@@ -84,12 +82,13 @@ declare module UsersInterface
     */
     export interface IBucketEntry
     {
-        _id?: any;
+        _id?:any;
         name?: string;
         identifier?: string;
         user?: string;
         created?: number;
         memoryUsed?: number;
+        meta?: any;
     }
 
     /**
@@ -121,6 +120,8 @@ declare module UsersInterface
         mimeType?: string;
         isPublic?: boolean;
         numDownloads?: number;
+        parentFile?: string;
+        meta?: any;
     }
 
     /**
@@ -168,7 +169,7 @@ declare module UsersInterface
         */
         port: number;
 
-    
+
         /**
         * An array of expected clients
         * [
@@ -181,7 +182,7 @@ declare module UsersInterface
     /*
     * Users stores data on an external cloud bucket with Google
     */
-    export interface IGoogleStorage
+    export interface IGoogleProperties
     {
         /*
         * Path to the key file
@@ -189,33 +190,56 @@ declare module UsersInterface
         keyFile: string;
 
         /*
-        * Project ID
+        * Mail settings
         */
-        projectId: string;
+        mail: {
 
-        /**
-        * The name of the mongodb collection for storing bucket details
-        * eg: "buckets"
-        */
-        bucketsCollection: string;
+            /*
+            * The email account to use the gmail API through. This account must be authorized to
+            * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
+            */
+            apiEmail: string;
 
-        /**
-        * The name of the mongodb collection for storing file details
-        * eg: "files"
-        */
-        filesCollection: string;
+            /*
+            * The email to use as the from field when sending mail. This can be different from the apiEmail.
+            */
+            from: string;
+        };
 
-        /**
-        * The name of the mongodb collection for storing user stats
-        * eg: "storageAPI"
+        /*
+        * Describes the bucket details
         */
-        statsCollection: string;
-    
-        /**
-        * The length of time the assets should be cached on a user's browser. 
-        * eg:  2592000000 or 30 days
-        */
-        cacheLifetime: number;
+        bucket : {
+
+            /*
+            * Project ID
+            */
+            projectId: string;
+
+            /**
+            * The name of the mongodb collection for storing bucket details
+            * eg: "buckets"
+            */
+            bucketsCollection: string;
+
+            /**
+            * The name of the mongodb collection for storing file details
+            * eg: "files"
+            */
+            filesCollection: string;
+
+            /**
+            * The name of the mongodb collection for storing user stats
+            * eg: "storageAPI"
+            */
+            statsCollection: string;
+
+            /**
+            * The length of time the assets should be cached on a user's browser.
+            * eg:  2592000000 or 30 days
+            */
+            cacheLifetime: number;
+        }
     }
 
     /*
@@ -246,6 +270,23 @@ declare module UsersInterface
         filename: string;
         error: boolean;
         errorMsg: string;
+        url: string;
+    }
+
+    /*
+    * A POST request that returns the details of a text upload
+    */
+    export interface IUploadTextResponse extends IResponse
+    {
+        token: IUploadToken;
+    }
+
+    /*
+    * A POST request that returns the details of a binary upload
+    */
+    export interface IUploadBinaryResponse extends IResponse
+    {
+        token: IUploadToken;
     }
 
     /*
@@ -313,13 +354,13 @@ declare module UsersInterface
     export interface IConfig
     {
         /**
-        * The domain or host of the site. 
+        * The domain or host of the site.
         * eg: "127.0.0.1" or "webinate.net"
         */
         host: string;
 
         /**
-        * The RESTful path of this service. 
+        * The RESTful path of this service.
         * eg: If "/api", then the API url would be 127.0.0.1:80/api (or rather host:port/restURL)
         */
         restURL: string;
@@ -334,11 +375,11 @@ declare module UsersInterface
         * A secret string to identify authenticated servers
         */
         secret: string;
-    
+
         /**
-        * The URL to redirect to after the user attempts to activate their account. 
+        * The URL to redirect to after the user attempts to activate their account.
         * User's can activate their account via the "/activate-account" URL, and after its validation the server will redirect to this URL
-        * adding a query ?message=You%20have%20activated%20your%20account&status=success. 
+        * adding a query ?message=You%20have%20activated%20your%20account&status=success.
         * The status can be either 'success' or 'error'
         *
         * eg: "http://localhost/notify-user"
@@ -352,9 +393,9 @@ declare module UsersInterface
         * eg: "http://localhost/reset-password"
         */
         passwordResetURL: string;
-        
+
         /**
-        * An array of approved domains that can access this API. 
+        * An array of approved domains that can access this API.
         * e.g. ["webinate\\.net", "127.0.0.1:80", "http:\/\/127.0.0.1"] etc...
         */
         approvedDomains: Array<string>;
@@ -375,7 +416,7 @@ declare module UsersInterface
         * Information regarding the websocket communication. Used for events and IPC
         */
         websocket: IWebsocket;
-	
+
         /**
         * The name of the mongo database name
         */
@@ -392,7 +433,7 @@ declare module UsersInterface
         * eg: "sessions"
         */
         sessionCollection: string;
-    
+
         /**
         * The host the DB is listening on
         * e.g. "127.0.0.1"
@@ -412,7 +453,7 @@ declare module UsersInterface
         ssl: boolean;
 
         /**
-        * The path to the SSL private key 
+        * The path to the SSL private key
         */
         sslKey: string;
 
@@ -443,7 +484,7 @@ declare module UsersInterface
         */
         sessionPath?: string;
 
-        /**  
+        /**
         * If present, the cookie (and hence the session) will apply to the given domain, including any subdomains.
         * For example, on a request from foo.example.org, if the domain is set to '.example.org', then this session will persist across any subdomain of example.org.
         * By default, the domain is not set, and the session will only be visible to other requests that exactly match the domain.
@@ -457,7 +498,7 @@ declare module UsersInterface
         * e.g: true/false. Default is true
         */
         sessionPersistent?: boolean;
-	
+
         /**
         * The default length of user sessions in seconds
         * e.g 1800
@@ -465,46 +506,22 @@ declare module UsersInterface
         sessionLifetime?: number;
 
         /**
-        * The private key to use for Google captcha 
+        * The private key to use for Google captcha
         * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
         */
         captchaPrivateKey: string;
 
         /**
-        * The public key to use for Google captcha 
+        * The public key to use for Google captcha
         * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
         */
         captchaPublicKey: string;
-	
-        /**
-        * The 'from' email when they receive an email for the server
-        * eg: support@host.com
-        */
-        emailFrom: string;
-
-        /**
-        * Email service we are using to send mail. For example 'Gmail'
-        * eg: "Gmail"
-        */
-        emailService: string;
-
-        /**
-        * The email address / username of the service
-        * e.g: "provider@gmail.com"
-        */
-        emailServiceUser: string;
-
-        /**
-        * The password of the email service
-        * e.g: "provider_password"
-        */
-        emailServicePassword: string;
 
         /**
         * The administrative user. This is the root user that will have access to the information in the database.
         * This can be anything you like, but try to use passwords that are hard to guess
-        * eg: 
-    
+        * eg:
+
         "adminUser": {
                 "username": "root",
                 "email": "root_email@host.com",
@@ -516,14 +533,20 @@ declare module UsersInterface
         /**
         * Information relating to the Google storage platform
         *
-        "bucket": {
-                "keyFile": "",
-                "projectId": "",
-                "bucketsCollection": "buckets",
-                "filesCollection": "files"
+        "google": {
+            "keyFile": "",
+            "mail":{
+                "apiEmail": "",
+                "from": ""
+            },
+            "bucket": {
+                    "projectId": "",
+                    "bucketsCollection": "buckets",
+                    "filesCollection": "files"
+                }
             }
         */
-        bucket: IGoogleStorage;
+        google: IGoogleProperties;
     }
 
     export interface IGetUser extends IGetResponse<IUserEntry> { }

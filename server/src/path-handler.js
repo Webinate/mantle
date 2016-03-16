@@ -1,3 +1,4 @@
+"use strict";
 var fs = require("fs");
 var users_service_1 = require("./users-service");
 /**
@@ -43,5 +44,5 @@ var PathHandler = (function () {
     };
     ;
     return PathHandler;
-})();
+}());
 exports.PathHandler = PathHandler;

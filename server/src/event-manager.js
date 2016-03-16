@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -40,7 +41,7 @@ var EventManager = (function (_super) {
             var reconnectInterval = 3 * 1000;
             var _client;
             var connect = function () {
-                var _client = new ws(cfg.usersSocketURL, undefined, { headers: { origin: cfg.usersSocketOrigin } });
+                var _client = new ws(cfg.usersSocketURL, { headers: { origin: cfg.usersSocketOrigin } });
                 // Opens a stream to the users socket events
                 _client.on('open', function () {
                     winston.info("Connected to the users socket stream", { process: process.pid });
@@ -77,5 +78,5 @@ var EventManager = (function (_super) {
         }
     };
     return EventManager;
-})(events.EventEmitter);
+}(events.EventEmitter));
 exports.EventManager = EventManager;

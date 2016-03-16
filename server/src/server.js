@@ -1,3 +1,4 @@
+"use strict";
 var express = require("express");
 var app = express(); // create our app with express
 var morgan = require("morgan"); // log requests to the console
@@ -104,5 +105,5 @@ var Server = (function () {
         });
     };
     return Server;
-})();
+}());
 exports.Server = Server;

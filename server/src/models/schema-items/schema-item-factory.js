@@ -1,3 +1,4 @@
+"use strict";
 var numbers = require("./schema-number");
 var schema_text_1 = require("./schema-text");
 var schema_bool_1 = require("./schema-bool");
