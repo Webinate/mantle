@@ -35,14 +35,32 @@ var PostsController = (function (_super) {
         router.get("/get-posts", [permission_controllers_1.getUser, this.getPosts.bind(this)]);
         router.get("/get-post/:slug", [permission_controllers_1.getUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", [permission_controllers_1.isAdmin, this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", [permission_controllers_1.isAdmin, this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", [permission_controllers_1.isAdmin, this.updatePost.bind(this)]);
+        router.delete("/remove-post/:id", [permission_controllers_1.isAdmin, this.checkId.bind(this), this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", [permission_controllers_1.isAdmin, this.checkId.bind(this), this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", [permission_controllers_1.isAdmin, this.checkId.bind(this), this.updatePost.bind(this)]);
         router.post("/create-post", [permission_controllers_1.isAdmin, this.createPost.bind(this)]);
         router.post("/create-category", [permission_controllers_1.isAdmin, this.createCategory.bind(this)]);
         // Register the path
         e.use("/api/posts", router);
     }
+    /**
+    * Checks for a mongo id parameter and that its valid
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    PostsController.prototype.checkId = function (req, res, next) {
+        // Make sure the id format is correct
+        if (!mongodb.ObjectID.isValid(req.params.id)) {
+            winston.error("Cannot delete post: invalid ID format '" + req.url + "'", { process: process.pid });
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify({
+                error: true,
+                message: "Invalid ID format"
+            }));
+        }
+        next();
+    };
     /**
     * Returns an array of IPost items
     * @param {express.Request} req
@@ -72,6 +90,8 @@ var PostsController = (function (_super) {
             else if (req.query.visibility.toLowerCase() == "private")
                 visibility = "private";
         }
+        else
+            visibility = "all";
         var users = users_service_1.UsersService.getSingleton();
         // Only admins are allowed to see private posts
         if (!user || ((visibility == "all" || visibility == "private") && users.hasPermission(user, 2) == false))
@@ -195,7 +215,7 @@ var PostsController = (function (_super) {
         res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
         var that = this;
-        categories.findInstances({}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances) {
+        categories.findInstances({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances) {
             var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify({
                 error: false,
@@ -220,6 +240,7 @@ var PostsController = (function (_super) {
     PostsController.prototype.removePost = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
+        // Attempt to delete the instances
         posts.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a post with that ID"));
@@ -305,7 +326,7 @@ var PostsController = (function (_super) {
             res.end(JSON.stringify({
                 error: false,
                 message: "New post created",
-                data: instance.schema.generateCleanData(true, instance._id)
+                data: instance.schema.generateCleanData(false, instance._id)
             }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });
