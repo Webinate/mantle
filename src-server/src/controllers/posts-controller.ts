@@ -36,14 +36,36 @@ export default class PostsController extends Controller
         router.get("/get-posts", <any>[getUser, this.getPosts.bind(this)]);
         router.get("/get-post/:slug", <any>[getUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", <any>[isAdmin, this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", <any>[isAdmin, this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", <any>[isAdmin, this.updatePost.bind(this)]);
+        router.delete("/remove-post/:id", <any>[isAdmin, this.checkId.bind(this), this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", <any>[isAdmin, this.checkId.bind(this), this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", <any>[isAdmin, this.checkId.bind(this), this.updatePost.bind(this)]);
         router.post("/create-post", <any>[isAdmin, this.createPost.bind(this)]);
         router.post("/create-category", <any>[isAdmin, this.createCategory.bind(this)]);
 
 		// Register the path
 		e.use( "/api/posts", router );
+    }
+
+    /**
+    * Checks for a mongo id parameter and that its valid
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    private checkId( req: express.Request, res: express.Response, next: Function )
+    {
+        // Make sure the id format is correct
+        if ( !mongodb.ObjectID.isValid(req.params.id)) {
+
+            winston.error( `Cannot delete post: invalid ID format '${req.url}'` , {process: process.pid})
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: "Invalid ID format"
+            }));
+        }
+
+       next();
     }
 
     /**
@@ -81,6 +103,8 @@ export default class PostsController extends Controller
             else if ((<string>req.query.visibility).toLowerCase() == "private")
                  visibility = "private";
         }
+        else
+            visibility = "all";
 
         var users = UsersService.getSingleton();
 
@@ -245,7 +269,7 @@ export default class PostsController extends Controller
         var categories = this.getModel("categories");
         var that = this;
 
-        categories.findInstances<ICategory>({}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
+        categories.findInstances<ICategory>({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
         {
             var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<IGetCategories>{
@@ -276,6 +300,7 @@ export default class PostsController extends Controller
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
 
+        // Attempt to delete the instances
         posts.deleteInstances(<IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
         {
             if (numRemoved == 0)
@@ -385,7 +410,7 @@ export default class PostsController extends Controller
             res.end(JSON.stringify(<IGetPost>{
                 error: false,
                 message: "New post created",
-                data: instance.schema.generateCleanData(true, instance._id)
+                data: instance.schema.generateCleanData(false, instance._id)
             }));
 
         }).catch(function (error: Error)
