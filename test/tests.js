@@ -151,7 +151,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Fetched 1 post with category specified', function(done){
         modepressAgent
-            .get('/api/posts/get-posts?categories=news').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts/get-posts?categories=super-tests').expect(200).expect('Content-Type', /json/)
             .set('Cookie', adminCookie)
             .end(function(err, res) {
                 test.number(res.body.count).is(1);
