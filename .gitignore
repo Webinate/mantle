@@ -23,6 +23,8 @@ build/
 bld/
 [Oo]bj/
 node_modules/
+server/resources/admin/plugins/
+server/plugins
 
 # Visual Studo 2015 cache/options directory
 .vs/
