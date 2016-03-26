@@ -6,7 +6,7 @@ var fs = require("fs");
 
 // CONFIG
 // ==============================
-var outDir = "../server";
+var outDir = "./dist";
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 
 /**
