@@ -222,6 +222,11 @@
         * e.g. ["./plugins/my-plugin/index.js"]
         */
         plugins: Array<string>;
+
+        /**
+        * An array of javascript variables that will be sent to any jade templates for a given path
+        */
+        variables: { [name: string]: string };
     }
 
     /**

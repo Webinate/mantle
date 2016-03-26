@@ -29,7 +29,8 @@
           "templatePath": "",
           "index": "",
           "template": "",
-          "plugins": [ ]
+          "plugins": [ ],
+		  "variables": { "hello" : "world" }
         }
       ]
     }

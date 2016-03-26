@@ -2,24 +2,44 @@ var gulp = require('gulp');
 var ts = require('gulp-typescript');
 var download = require('gulp-download');
 var rename = require("gulp-rename");
+var fs = require("fs");
 
 // CONFIG
 // ==============================
 var outDir = "../server";
+var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
+
+/**
+ * Checks to see that all TS files listed exist
+ */
+gulp.task('check-files', function(){
+
+    // Make sure the files exist
+    for (var i = 0, l = tsConfig.files.length; i < l; i++ )
+        if(!fs.existsSync(tsConfig.files[i]))
+        {
+            console.log("File does not exist:" + tsConfig.files[i] );
+            process.exit();
+        }
+})
 
 // Builds each of the ts files into JS files in the output folder
-gulp.task('ts-code', function() {
+gulp.task('ts-code', ['check-files'], function() {
 
-    return gulp.src(['main.ts', 'modepress-api.ts', 'src/**/*.ts', 'src/**/*.json'], { base: "." })
+    var src = tsConfig.files.concat('src/**/*.json');
+
+    return gulp.src(src, { base: "." })
         .pipe(ts({
-            "module": "commonjs",
-            "removeComments": false,
-            "noEmitOnError": true,
-            "declaration": false,
-            "sourceMap": false,
-            "preserveConstEnums": true,
-            "target": "es5",
-            "noImplicitAny": false
+            "module": tsConfig.compilerOptions.module,
+            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
+            "removeComments": tsConfig.compilerOptions.removeComments,
+            "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
+            "declaration": tsConfig.compilerOptions.declaration,
+            "sourceMap": tsConfig.compilerOptions.sourceMap,
+            "preserveConstEnums": tsConfig.compilerOptions.preserveConstEnums,
+            "target": tsConfig.compilerOptions.target,
+            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
+            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels
             }))
         .pipe(gulp.dest(outDir));
 });

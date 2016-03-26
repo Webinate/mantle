@@ -35,8 +35,6 @@ export class PathHandler
 
     /**
     * Function used to handle a request from express
-    * @param {IPath}
-    * @param {ServerConfig}
     */
     handle(req: express.Request, res: express.Response)
     {
@@ -45,14 +43,30 @@ export class PathHandler
 
         var requestIsSecure = ((<any>req.connection).encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         var url = `${(requestIsSecure ? "https" : "http") }://${config.host}`;
-        var usersURL = `${UsersService.usersURL}`;
-        var options: any = { usersURL: usersURL, url: url };
+        var options: any = {
+            usersURL: `${UsersService.usersURL}`,
+            mediaURL: `${UsersService.mediaURL}`,
+            url: url };
+
         options.plugins = path.plugins || [];
+        options.variables = {};
+
+        // Add any custom variables
+        if (path.variables)
+        {
+            for ( var i in path.variables )
+                 options.variables[i] = path.variables[i];
+        }
 
         // Give priority to template routes
-        if (path.templatePath && path.templatePath != "" && fs.existsSync(`${path.templatePath}/${path.index}.jade`))
-            res.render(`${path.templatePath}/${path.index}`, options);
+        if ( fs.existsSync(path.index) )
+        {
+             if ( fs.existsSync(path.index) && path.index.indexOf(".jade") )
+                res.render(path.index, options);
+            else
+                res.sendfile(path.index);
+        }
         else
-            res.sendfile(path.index);
+            res.send(404, "File not found");
     };
 }

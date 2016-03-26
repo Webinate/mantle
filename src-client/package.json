@@ -9,6 +9,12 @@
     "gulp": "~3.9.1",
     "gulp-typescript": "~2.11.0",
     "gulp-concat": "~2.6.0",
-    "merge-stream": "~1.0.0"
+    "merge-stream": "~1.0.0",
+    "gulp-gunzip": "^0.0.3",
+    "request": "^2.69.0",
+    "vinyl-source-stream": "^1.1.0",
+    "gulp-untar": "^0.0.4",
+    "gulp-util": "^3.0.7",
+    "gulp-filter" : "^4.0.0"
   }
 }

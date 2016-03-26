@@ -24,7 +24,7 @@ var uconfig = fs.readFileSync(args.uconfig);
 try
 {
     // Parse the config files
-    console.log("Parsing file config files...");
+    console.log("Parsing files...");
     config = JSON.parse(config);
 	uconfig = JSON.parse(uconfig);
     config = config.servers[ parseInt(args.server) ];
