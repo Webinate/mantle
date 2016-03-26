@@ -23,9 +23,9 @@ build/
 bld/
 [Oo]bj/
 node_modules/
-src-client/dist/
+admin/dist/
 server/resources/admin/plugins/
-src-server/dist/plugins/
+server/dist/plugins/
 third-party/
 
 # Visual Studo 2015 cache/options directory
