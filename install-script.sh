@@ -16,7 +16,7 @@ wget https://github.com/MKHenson/modepress/archive/v$(version).zip
 unzip -o "v$(version).zip" "modepress-$(version)/*"
 
 # Moves the server folder to the current directory
-cp -r modepress-$(version)/server/* .
+cp -r modepress-$(version)/src-server/dist/* .
 
 # Remove modepress folder
 if [ -d "modepress-$(version)" ]; then

@@ -11,7 +11,7 @@ wget https://github.com/MKHenson/modepress/archive/dev.zip
 unzip -o "dev.zip" "modepress-dev/*"
 
 # Moves the server folder to the current directory
-cp -r modepress-dev/server/* .
+cp -r modepress-dev/src-server/dist/* .
 
 # Remove modepress folder
 if [ -d "modepress-dev" ]; then
