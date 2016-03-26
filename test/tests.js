@@ -40,6 +40,7 @@ var modepressAgent = test.httpAgent("http://"+ config.host +":" + config.portHTT
 var adminCookie = "";
 var numPosts = 0;
 var lastPost = null;
+var tempPost = null;
 
 /**
  * Log in as an admin user and store the cookie for later
@@ -149,6 +150,26 @@ describe('Testing all post related endpoints', function() {
             });
     })
 
+    it('Can fetch posts and impose a limit off 1 on them', function(done) {
+        modepressAgent
+            .get('/api/posts/get-posts?limit=1').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+                test.array(res.body.data).hasLength(1);
+                done();
+            });
+    })
+
+    it('Can fetch posts and impose a limit off 0 on them', function(done) {
+        modepressAgent
+            .get('/api/posts/get-posts?index=1&limit=1').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+                test.array(res.body.data).hasLength(1);
+                done();
+            });
+    })
+
     it('Fetched 1 post with category specified', function(done){
         modepressAgent
             .get('/api/posts/get-posts?categories=super-tests').expect(200).expect('Content-Type', /json/)
@@ -228,7 +249,7 @@ describe('Testing all post related endpoints', function() {
             });
     })
 
-    it('Can create a post with the same slug', function(done) {
+    it('Cannot create a post with the same slug', function(done) {
         modepressAgent
             .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', adminCookie)
@@ -239,6 +260,158 @@ describe('Testing all post related endpoints', function() {
             .end(function(err, res) {
                 test
                     .string(res.body.message).is("'slug' must be unique")
+
+                done();
+            });
+    })
+
+    it('Cannot edit a post with an invalid ID', function(done) {
+        modepressAgent
+            .put('/api/posts/update-post/woohoo').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .send( {
+                title: "Simple Test 3"
+            } )
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("Invalid ID format")
+
+                done();
+            });
+    })
+
+    it('Cannot edit a post with an valid ID but doesnt exist', function(done) {
+        modepressAgent
+            .put('/api/posts/update-post/123456789012345678901234').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .send( {
+                title: "Simple Test 3"
+            } )
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("Could not find post with that id")
+
+                done();
+            });
+    })
+
+    it('Cannot edit a post without permission', function(done) {
+        modepressAgent
+            .put('/api/posts/update-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .send( {
+                title: "Simple Test 3"
+            } )
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("You must be logged in to make this request")
+
+                done();
+            });
+    })
+
+    it('Should create a new temp post', function(done) {
+        modepressAgent
+            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .send( {
+                title: "To Delete",
+                slug: "--to--delete--"
+            } )
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("New post created")
+
+               tempPost = res.body.data._id
+               done();
+            });
+    })
+
+    it('Cannot edit a post with the same slug', function(done) {
+        modepressAgent
+            .put('/api/posts/update-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .send({
+                slug: "--to--delete--"
+            })
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("'slug' must be unique")
+
+                done();
+            });
+    })
+
+    it('Can edit a post with valid details', function(done) {
+        modepressAgent
+            .put('/api/posts/update-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .send({
+                content: "Updated"
+            })
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("Post Updated")
+
+                done();
+            });
+    })
+
+    it('Cannot fetch single post by invalid slug', function(done) {
+        modepressAgent
+            .get('/api/posts/get-post/WRONGWRONGWRONG').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("Could not find post")
+
+                done();
+            });
+    })
+
+    it('Can fetch single post by slug', function(done) {
+        modepressAgent
+            .get('/api/posts/get-post/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("Found 1 posts")
+
+                done();
+            });
+    })
+
+    it('Cannot fetch single post by slug when its private and not logged in', function(done) {
+        modepressAgent
+            .get('/api/posts/get-post/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("That post is marked private")
+
+                done();
+            });
+    })
+
+    it('Can set a post to public', function(done) {
+        modepressAgent
+            .put('/api/posts/update-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .send({
+                public: true
+            })
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("Post Updated")
+
+                done();
+            });
+    })
+
+    it('Can fetch single post by slug when its public and not logged in', function(done) {
+        modepressAgent
+            .get('/api/posts/get-post/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("Found 1 posts")
 
                 done();
             });
@@ -268,9 +441,32 @@ describe('Testing all post related endpoints', function() {
             });
     })
 
+    it('Cannot delete a post without permission', function(done) {
+        modepressAgent
+            .delete('/api/posts/remove-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("You must be logged in to make this request")
+
+                done();
+            });
+    })
+
     it('Can delete a post with valid ID', function(done) {
         modepressAgent
             .delete('/api/posts/remove-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("Post has been successfully removed")
+
+                done();
+            });
+    })
+
+    it('Can delete temp post with valid ID', function(done) {
+        modepressAgent
+            .delete('/api/posts/remove-post/' + tempPost ).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', adminCookie)
             .end(function(err, res) {
                 test
