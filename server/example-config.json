@@ -7,28 +7,26 @@
   "databaseName": "test",
   "usersURL": "",
   "usersSecret": "",
-  "adminURL": "/admin",
-  "adminPlugins": [ ],
-  "adminPluginVariables": { },
   "servers": [
     {
       "host": "localhost",
       "portHTTP": 80,
-      "staticFilesFolder": [ ],
+      "staticFilesFolder": [ "../src-client/dist" ],
       "ssl": false,
       "sslKey": "",
       "sslCert": "",
       "sslRoot": "",
       "sslIntermediate": "",
-      "controllers": [ ],
+      "controllers": [ 
+		{ "path" : "./controllers/emails-controller.js" },
+		{ "path" : "./controllers/posts-controller.js" }
+	  ],
       "approvedDomains": [ "webinate\\.net", "127.0.0.1:80", "http:\/\/127.0.0.1" ],
       "paths": [
         {
           "name": "default",
           "path": "*",
-          "templatePath": "",
-          "index": "",
-          "template": "",
+          "index": "../src-client/dist/index.jade",
           "plugins": [ ],
 		  "variables": { "hello" : "world" }
         }

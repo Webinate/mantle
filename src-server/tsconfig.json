@@ -25,7 +25,6 @@
       "src/mongo-wrapper.ts",
       "src/event-manager.ts",
       "src/controllers/controller.ts",
-      "src/controllers/admin-controller.ts",
       "src/controllers/posts-controller.ts",
       "src/controllers/emails-controller.ts",
       "src/controllers/cors-controller.ts",

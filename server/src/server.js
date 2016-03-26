@@ -33,19 +33,6 @@ var Server = (function () {
             }
             // Setup the jade template engine
             app.set('view engine', 'jade');
-            // Set any jade paths
-            var allViewPaths = ['./views']; //admin path
-            for (var i = 0, l = server.paths.length; i < l; i++) {
-                if (server.paths[i].templatePath != "") {
-                    if (!fs.existsSync(server.paths[i].templatePath))
-                        winston.info("The template path '" + server.paths[i].templatePath + "' does not exist", { process: process.pid });
-                    else {
-                        winston.info("Adding jade template folder '" + server.paths[i].templatePath + "'", { process: process.pid });
-                        allViewPaths.push(server.paths[i].templatePath);
-                    }
-                }
-            }
-            app.set('views', allViewPaths);
             // log every request to the console
             app.use(morgan('dev'));
             // Create each of your controllers here

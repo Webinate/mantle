@@ -200,25 +200,18 @@
         name: string;
 
         /**
-        * The express route to use. E.g. "*" or "/some-route"
+        * The express end point route to use. E.g. "*" or "/some-route"
         */
         path: string;
 
         /**
-        * The path of where to find jade templates for this route. E.g. "/templates"
-        */
-        templatePath: string;
-
-        /**
-        * The path or name of the template file to use. If a template path is set then the route resolves to
-        * templatePath + index if the file exists. If it does then the express render function is used to send that jade file.
-        * If not then the index is considered a static file and sent with the sendFile function.
-        * e.g. "index"
+        * The file to be sent when the path resolves. This must be a file path and point to a file that exists.
+        * The file could be any valid html file. Alternatively it can be rendered as an express jade file (.jade)
         */
         index: string;
 
         /**
-        * An array of javascript file paths for modepress plugins
+        * An array of javascript file paths that should be added to the page when it loads
         * e.g. ["./plugins/my-plugin/index.js"]
         */
         plugins: Array<string>;
@@ -278,21 +271,6 @@
         * A secret token to identify this server to the Users service
         */
         usersSecret: string;
-
-        /**
-        * The path to use for accessing the admin panel
-        */
-        adminURL: string;
-
-        /**
-        * An array of admin javascript plugin paths
-        */
-        adminPlugins: Array<string>;
-
-        /**
-        * An array of javascript variables that will be inserted on the page
-        */
-        adminPluginVariables: { [name: string]: string };
 
         /**
         * An array of servers for each host / route that modepress is supporting

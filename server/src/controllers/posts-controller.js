@@ -176,7 +176,6 @@ var PostsController = (function (_super) {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
-        var count = 0;
         var findToken = { slug: req.params.slug };
         var user = req._user;
         posts.findInstances(findToken, [], 0, 1).then(function (instances) {
@@ -194,7 +193,7 @@ var PostsController = (function (_super) {
             var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify({
                 error: false,
-                message: "Found " + count + " posts",
+                message: "Found " + instances.length + " posts",
                 data: sanitizedData[0]
             }));
         }).catch(function (error) {
@@ -298,10 +297,9 @@ var PostsController = (function (_super) {
                     message: instance.tokens[0].error
                 }));
             }
-            res.end(JSON.stringify({
-                error: false,
-                message: "Post Updated"
-            }));
+            if (instance.tokens.length == 0)
+                return res.end(JSON.stringify({ error: false, message: "Could not find post with that id" }));
+            res.end(JSON.stringify({ error: false, message: "Post Updated" }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({

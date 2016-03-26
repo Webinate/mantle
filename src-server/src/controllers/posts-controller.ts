@@ -217,7 +217,6 @@ export default class PostsController extends Controller
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
-        var count = 0;
         var findToken: IPost = { slug: req.params.slug };
         var user: UsersInterface.IUserEntry = (<IAuthReq><Express.Request>req)._user;
 
@@ -243,7 +242,7 @@ export default class PostsController extends Controller
 
             res.end(JSON.stringify(<IGetPost>{
                 error: false,
-                message: `Found ${count} posts`,
+                message: `Found ${instances.length} posts`,
                 data: sanitizedData[0]
             }));
 
@@ -375,10 +374,10 @@ export default class PostsController extends Controller
                 }));
             }
 
-            res.end(JSON.stringify(<IResponse>{
-                error: false,
-                message: "Post Updated"
-            }));
+            if ( instance.tokens.length == 0 )
+                return res.end(JSON.stringify(<IResponse>{ error: false, message: "Could not find post with that id" }));
+
+            res.end(JSON.stringify(<IResponse>{ error: false, message: "Post Updated" }));
 
         }).catch(function (error: Error)
         {
