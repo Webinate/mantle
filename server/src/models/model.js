@@ -170,8 +170,8 @@ var Model = (function () {
     * @returns {Promise<Array<ModelInstance<T>>>}
     */
     Model.prototype.findInstances = function (selector, sort, startIndex, limit, projection) {
-        if (startIndex === void 0) { startIndex = -1; }
-        if (limit === void 0) { limit = -1; }
+        if (startIndex === void 0) { startIndex = 0; }
+        if (limit === void 0) { limit = 0; }
         var model = this;
         return new Promise(function (resolve, reject) {
             var collection = model.collection;

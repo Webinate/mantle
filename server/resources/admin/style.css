@@ -1,8 +1,8 @@
-﻿/**
+/**
 ======================================================
 			CSS BASE DEFINITIONS
 ======================================================
-Please only put css rules in here that fix / provide 
+Please only put css rules in here that fix / provide
 global rules for all pages
 
 	eg: Default font for all pages
@@ -321,9 +321,19 @@ button[disabled], html input[disabled] {
 
 /**
 ======================================================
+				TINY OVERRIDES
+======================================================
+Overrides for the TinyMCE editor
+**/
+.mce-container .mce-panel{
+    border: 0 solid #efefef;
+}
+
+/**
+======================================================
 				CSS LAYOUT DEFINITIONS
 ======================================================
-Please only put css rules in here for layout related requirements. 
+Please only put css rules in here for layout related requirements.
 
 	eg: How to format a list or table
 **/
@@ -869,7 +879,7 @@ form .category-buttons .nav-button {
 ======================================================
 				CSS MODULE DEFINITIONS
 ======================================================
-Please only put css rules in here for generalized modules. 
+Please only put css rules in here for generalized modules.
 
 	eg: classes for highlighting text on certain pages
 **/
@@ -893,7 +903,7 @@ Please only put css rules in here for generalized modules.
 .file.selected .file-preview {
     box-shadow: none;
 }
- 
+
 .folder.selected, .file.selected {
     background:#74A2E0;
     color:#fff;
@@ -997,7 +1007,7 @@ form label {
 	background:#d3f5b2;
 	border:2px dashed green;
 	color:green;
-	
+
 }
 .admin-message .error {
 	background:#F5E5B2;
@@ -1235,11 +1245,11 @@ form label {
 **/
 @media screen and (max-width:1200px) {
 }
-@media screen and (max-width:1100px) { 
+@media screen and (max-width:1100px) {
 }
-@media screen and (max-width:961px) {  
+@media screen and (max-width:961px) {
 }
-@media screen and (max-width:800px) {  
+@media screen and (max-width:800px) {
 }
 @media screen and (max-width:655px) {
 	.register, .log-in {
@@ -1247,7 +1257,7 @@ form label {
 		padding:10px 50px 50px 50px;
 	}
 }
-@media screen and (max-width:540px) { 
+@media screen and (max-width:540px) {
 }
 @media screen and (max-width:390px) {
 }
