@@ -11,13 +11,13 @@
     {
       "host": "localhost",
       "portHTTP": 80,
-      "staticFilesFolder": [ "../src-client/dist" ],
+      "staticFilesFolder": [ "../../admin/dist" ],
       "ssl": false,
       "sslKey": "",
       "sslCert": "",
       "sslRoot": "",
       "sslIntermediate": "",
-      "controllers": [ 
+      "controllers": [
 		{ "path" : "./controllers/emails-controller.js" },
 		{ "path" : "./controllers/posts-controller.js" }
 	  ],
@@ -26,7 +26,7 @@
         {
           "name": "default",
           "path": "*",
-          "index": "../src-client/dist/index.jade",
+          "index": "../../admin/dist/index.jade",
           "plugins": [ ],
 		  "variables": { "hello" : "world" }
         }
@@ -34,5 +34,5 @@
     }
   ],
   "usersSocketURL": "ws://www.webinate.net:123",
-  "usersSocketOrigin": "webinate.net"  
+  "usersSocketOrigin": "webinate.net"
 }

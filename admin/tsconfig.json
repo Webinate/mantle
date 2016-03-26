@@ -9,10 +9,10 @@
     "target": "es5",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "outFile": "../server/resources/main.js"
+    "outFile": "./dist/main.js"
   },
   "files": [
-        "../src-server/src/definitions/custom/modepress-api.d.ts",
+        "../server/src/definitions/custom/modepress-api.d.ts",
         "lib/definitions/required/es6-promise.d.ts",
         "lib/definitions/required/jquery.d.ts",
         "lib/definitions/required/angular.d.ts",
