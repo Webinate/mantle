@@ -358,6 +358,7 @@ declare module clientAdmin {
     }
 }
 declare var _users: string;
+declare var _media: string;
 declare var _cache: string;
 declare var _plugins: Array<ModepressAdmin.IAdminPlugin>;
 /**
