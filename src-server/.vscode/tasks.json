@@ -11,7 +11,7 @@
 			"isBuildCommand": true,
 			"showOutput": "always",
             "problemMatcher": {
-                "fileLocation": ["relative", "${workspaceRoot}"],
+                "fileLocation":"relative",
                 "pattern": {
                     "regexp": "^(.*)\\((.*),(.*)\\):\\s(error|warning)\\s(.*)$",
                     "file": 1,
@@ -24,10 +24,9 @@
 		},
         {
 			"taskName": "install",
-			"isBuildCommand": true,
 			"showOutput": "always",
             "problemMatcher": {
-                "fileLocation": ["relative", "${workspaceRoot}"],
+                "fileLocation": "relative",
                 "pattern": {
                     "regexp": "^(.*)\\((.*),(.*)\\):\\s(error|warning)\\s(.*)$",
                     "file": 1,
