@@ -6,10 +6,10 @@
 </div>
 
 <div class="sub-menu">
-    <h>Media<img ng-show="mediaController.loading" src="/admin/media/images/loader.gif" /></h>
+    <h>Media<img ng-show="mediaController.loading" src="/media/images/loader.gif" /></h>
 	<div class="nav-button right" ng-if="controller"><a ng-click="controller.closeMediaBrowser()">Close X</a></div>
 	<div class="console">
-		
+
 		<div class="button blue" ng-click="mediaController.folderFormVisible = !mediaController.folderFormVisible" ng-show="!mediaController.selectedFolder">New Folder</div>
 		<div class="button blue" ngf-select ngf-multiple="true" ngf-change="mediaController.upload($files)" ng-show="mediaController.selectedFolder"><div class="cross"></div>Upload File</div>
 		<div ng-if="controller" ng-show="mediaController.selectedFolder && mediaController.selectedEntity" class="button green" ng-click="controller.selectFile(mediaController.selectedEntity)">Select File</div>
@@ -26,11 +26,11 @@
 				<h2 ng-if="!mediaController.editFileMode">{{mediaController.selectedEntity.name}}</h2>
 				<input ng-if="mediaController.editFileMode" type="text" id="file-name" value="{{mediaController.selectedEntity.name}}" />
 				<input ng-if="!mediaController.editFileMode" type="text" value="{{mediaController.selectedEntity.publicURL}}" />
-				<div title="ID"><img  src="/admin/media/images/file-info-id.jpg" />{{mediaController.selectedEntity.identifier}}</div>
-				<div title="Created On"><img  src="/admin/media/images/file-info-clock.jpg" />{{mediaController.selectedEntity.created | date:"MM/dd/yyyy 'at' h:mma"}}</div>
-				<div title="Size"><img  src="/admin/media/images/file-info-size.jpg" />{{mediaController.selectedEntity.size | bytes}}</div>
-				<div title="Mime Type"><img  src="/admin/media/images/file-info-mime.jpg" />{{mediaController.selectedEntity.mimeType}}</div>
-				<div title="Num Downloads"><img  src="/admin/media/images/file-info-downloads.jpg" />{{mediaController.selectedEntity.numDownloads}}</div>
+				<div title="ID"><img  src="/media/images/file-info-id.jpg" />{{mediaController.selectedEntity.identifier}}</div>
+				<div title="Created On"><img  src="/media/images/file-info-clock.jpg" />{{mediaController.selectedEntity.created | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+				<div title="Size"><img  src="/media/images/file-info-size.jpg" />{{mediaController.selectedEntity.size | bytes}}</div>
+				<div title="Mime Type"><img  src="/media/images/file-info-mime.jpg" />{{mediaController.selectedEntity.mimeType}}</div>
+				<div title="Num Downloads"><img  src="/media/images/file-info-downloads.jpg" />{{mediaController.selectedEntity.numDownloads}}</div>
 				<div ng-if="mediaController.editFileMode && !mediaController.loading" class="button green" ng-click="mediaController.renameFile(mediaController.selectedEntity)">Update</div>
 				<div class="nav-button file-edit"><a ng-click="mediaController.editFileMode = !mediaController.editFileMode">{{ (!mediaController.editFileMode ? "Edit" : "Cancel") }}</a></div>
 			</div>
@@ -55,12 +55,12 @@
 			<div class="drive">
 				<div class="folders" ng-if="!mediaController.selectedFolder">
 					<div class="folder unselectable" ng-dblclick="mediaController.openFolder(folder)" ng-click="mediaController.selectEntity(folder)" ng-repeat="folder in mediaController.entries" ng-class="{ selected : folder.selected }">
-						<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>{{folder.name}}
+						<div class="icon" style="background-image:url('/media/images/folder.png')"></div>{{folder.name}}
 					</div>
 				</div>
 				<div class="files" ng-if="mediaController.selectedFolder">
 					<div class="folder unselectable" ng-dblclick="mediaController.openFolder()">
-						<div class="icon" style="background-image:url('/admin/media/images/folder.png')"></div>.. {{mediaController.selectedFolder.name}}
+						<div class="icon" style="background-image:url('/media/images/folder.png')"></div>.. {{mediaController.selectedFolder.name}}
 					</div>
 					<div class="fix"></div>
 					<div class="file unselectable" ng-click="mediaController.selectEntity(file)" ng-repeat="file in mediaController.entries" ng-class="{ selected : file.selected }">
@@ -69,7 +69,7 @@
 							<div class="background-tiles inner" ng-switch-when="image/jpeg"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
 							<div class="background-tiles inner" ng-switch-when="image/png"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
 							<div class="background-tiles inner" ng-switch-when="image/gif"><div class="div-center"></div><img src="{{file.publicURL}}" /></div>
-							<div class="background-tiles inner" ng-switch-default><div class="div-center"></div><img src="/admin/media/images/standard-file.png"></div>
+							<div class="background-tiles inner" ng-switch-default><div class="div-center"></div><img src="/media/images/standard-file.png"></div>
 						</div>
 						<div class="file-name">{{file.name}}</div>
 					</div>
@@ -77,10 +77,10 @@
 			</div>
 			<div class="fix"></div>
 		</div>
-		
-		
 
-		
+
+
+
 	</div>
 	<div class="navigation">
 		<div class="back column">

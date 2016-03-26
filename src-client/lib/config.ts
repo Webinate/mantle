@@ -38,7 +38,7 @@
             $httpProvider.defaults.withCredentials = true;
 
             // When we go to logout - it redirects us back to the login screen after its task is complete
-            routeProvider.when("/admin/logout", ["$state", "Authenticator", function(state: ng.ui.IStateService, auth: Authenticator)
+            routeProvider.when("/logout", ["$state", "Authenticator", function(state: ng.ui.IStateService, auth: Authenticator)
             {
                 return auth.logout().then(function (val)
                 {
@@ -58,7 +58,7 @@
                 .state("default", <CustomState>{
                     views: {
                         "main-view": {
-                            templateUrl: "admin/templates/dashboard.html",
+                            templateUrl: "templates/dashboard.html",
                             "controller": ["$scope", function ($scope)
                             {
                                 var dashLinks = [];
@@ -69,29 +69,29 @@
                             }]
                         }
                     },
-                    url: "/admin",
+                    url: "/",
                     authenticate: true
                 })
                 .state('default.seo', <CustomState>{
-                    templateUrl: 'admin/templates/dash-seo.html',
+                    templateUrl: 'templates/dash-seo.html',
                     authenticate: true,
                     controller: "seoCtrl",
                     controllerAs: "controller"
                 })
                 .state('default.media', <CustomState>{
-                    templateUrl: 'admin/templates/dash-media.html',
+                    templateUrl: 'templates/dash-media.html',
                     authenticate: true,
                     controller: "mediaCtrl",
                     controllerAs: "mediaController"
                 })
                 .state('default.users', <CustomState>{
-                    templateUrl: 'admin/templates/dash-users.html',
+                    templateUrl: 'templates/dash-users.html',
                     authenticate: true,
                     controller: "usersCtrl",
                     controllerAs: "controller"
                 })
                 .state('default.posts', <CustomState>{
-                    templateUrl: 'admin/templates/dash-posts.html',
+                    templateUrl: 'templates/dash-posts.html',
                     authenticate: true,
                     controller: "postsCtrl",
                     controllerAs: "controller",
@@ -112,18 +112,18 @@
                 .state("login", <CustomState>{
 					views: {
 						"main-view": {
-                            templateUrl: "admin/templates/log-in.html",
+                            templateUrl: "templates/log-in.html",
 							controller: "loginCtrl",
 							controllerAs: "controller"
 						}
 					},
-                    url: '/admin/login',
+                    url: '/login',
                     authenticate: false
                 })
 				.state("register", <CustomState>{
 					views: {
 						"main-view": {
-                            templateUrl: "admin/templates/register.html",
+                            templateUrl: "templates/register.html",
                             controller: "registerCtrl",
 							controllerAs: "controller"
 						}
@@ -132,13 +132,13 @@
 					{
 						Recaptcha.destroy();
 					},
-                    url: '/admin/register',
+                    url: '/register',
                     authenticate: false
 				})
 				.state("message", <CustomState> {
 					views: {
 						"main-view": {
-                            templateUrl: "admin/templates/message.html",
+                            templateUrl: "templates/message.html",
                             controller: ["$scope", "$stateParams", function ($scope, $stateParams )
 							{
 								// Decodes the html
@@ -153,12 +153,12 @@
 							}]
 						}
 					},
-                    url: "/admin/message?message&status&origin"
+                    url: "/message?message&status&origin"
                 })
                 .state("password-rest", <CustomState> {
                         views: {
                             "main-view": {
-                                templateUrl: "admin/templates/password-reset.html",
+                                templateUrl: "templates/password-reset.html",
                                 controllerAs: "controller",
                                 controller: "passwordCtrl"
                                 //controller: ["$scope", "$stateParams", function ($scope, $stateParams)
@@ -171,7 +171,7 @@
                                 //}]
                             }
                         },
-                        url: "/admin/password-reset-form?key&user&origin"
+                        url: "/password-reset-form?key&user&origin"
                 })
 
             for (var i = 0, l = _plugins.length; i < l; i++)

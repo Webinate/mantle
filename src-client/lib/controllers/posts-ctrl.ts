@@ -61,7 +61,7 @@
                 {
                     editor.addButton('drive', {
                         text: "",
-                        image: "/admin/media/images/image-icon.png",
+                        image: "/media/images/image-icon.png",
                         onclick: function ()
                         {
                             that.openMediaBrowser();
@@ -73,7 +73,7 @@
                 toolbar1: "insertfile undo redo | styleselect | bold italic charmap | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link drive | print preview media | forecolor backcolor emoticons",
                 toolbar2: "pagebreak | spellchecker searchreplace | fullpage fullscreen"
             });
-            
+
             // The category token
             this.categoryToken = { title: "", description: "", slug: "" };
 
@@ -190,7 +190,7 @@
                 tinymce.editors[0].setContent(that.postToken.content);
             });
         }
-        
+
         /**
 		* Fetches the posts from the database
 		*/
@@ -219,7 +219,7 @@
                     that.posts = token.data.data;
                     that.last = token.data.count;
                 }
-               
+
                 that.loading = false;
             });
         }
@@ -237,7 +237,7 @@
                 if (newTag != "" && this.postToken.tags.indexOf(newTag) == -1)
                     this.postToken.tags.push(newTag);
             }
-            
+
             this.scope.tagForm.$setUntouched();
             this.scope.tagForm.$setPristine();
 
@@ -275,7 +275,7 @@
                 that.loading = false;
                 (<any>post).confirmDelete = false;
             });
-        }       
+        }
 
         /**
         * Removes a category from the database by ID
@@ -305,10 +305,10 @@
 
                 that.loading = false;
             });
-        }   
+        }
 
         /**
-        * Creates a new user 
+        * Creates a new user
         */
         createPost()
         {
@@ -368,7 +368,7 @@
         }
 
         /**
-        * Creates a new category 
+        * Creates a new category
         */
         createCategory()
         {

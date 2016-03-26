@@ -6,7 +6,7 @@
 </div>
 
 <div class="sub-menu only-header">
-    <h>SEO<img ng-show="controller.loading" src="/admin/media/images/loader.gif" /></h> 
+    <h>SEO<img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
 </div>
 
 <div class="seo content-view only-header">
@@ -21,7 +21,7 @@
 				<div class="div-list" ng-repeat="render in controller.renders">
 					<div class="name left">
 						<a target="_blank" ng-href="{{controller.apiURL}}/renders/preview-render/{{render._id}}">{{render.url}}</a>
-					</div>					
+					</div>
 					<div class="right">
 						<div class="nav-button red-highlight" ng-click="controller.removeRender(render)">
 							<a href="">Remove</a>

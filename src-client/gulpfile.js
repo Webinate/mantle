@@ -12,7 +12,7 @@ var filter = require('gulp-filter');
 
 // CONFIG
 // ==============================
-var outDir = "../server/resources/admin";
+var outDir = "./dist";
 var outDirDefinitions = "../server/definitions";
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 var tsFiles = tsConfig.files;
