@@ -13,7 +13,7 @@ var filter = require('gulp-filter');
 // CONFIG
 // ==============================
 var outDir = "./dist";
-var outDirDefinitions = "../server/definitions";
+var outDirDefinitions = "../server/dist/definitions";
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 var tsFiles = tsConfig.files;
 
@@ -38,14 +38,16 @@ gulp.task('ts-code', function() {
 
     return gulp.src(tsFiles, { base: "." })
         .pipe(ts({
-            "module": "amd",
-            "removeComments": false,
-            "noEmitOnError": true,
-            "declaration": true,
-            "sourceMap": false,
-            "preserveConstEnums": true,
-            "target": "es5",
-            "noImplicitAny": false,
+            "module": tsFiles.compilerOptions.module,
+            "removeComments": tsFiles.compilerOptions.removeComments,
+            "noEmitOnError": tsFiles.compilerOptions.noEmitOnError,
+            "declaration": tsFiles.compilerOptions.declaration,
+            "sourceMap": tsFiles.compilerOptions.sourceMap,
+            "preserveConstEnums": tsFiles.compilerOptions.preserveConstEnums,
+            "target": tsFiles.compilerOptions.target,
+            "noImplicitAny": tsFiles.compilerOptions.noImplicitAny,
+            "allowUnreachableCode": tsFiles.compilerOptions.allowUnreachableCode,
+            "allowUnusedLabels": tsFiles.compilerOptions.allowUnusedLabels,
             "out":"main.js",
             }))
         .pipe(gulp.dest(outDir));
