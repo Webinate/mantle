@@ -6,7 +6,6 @@ var fs = require("fs");
 
 // CONFIG
 // ==============================
-var outDir = "./dist";
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 
 /**
@@ -41,7 +40,7 @@ gulp.task('ts-code', ['check-files'], function() {
             "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
             "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels
             }))
-        .pipe(gulp.dest(outDir));
+        .pipe(gulp.dest(tsConfig.compilerOptions.outDir));
 });
 
 /**
@@ -76,7 +75,7 @@ gulp.task('install', function () {
 gulp.task('ts-code-definitions', function() {
 
     return gulp.src(['src/definitions/custom/modepress-api.d.ts'], { base: "src/definitions/custom/" })
-        .pipe(gulp.dest(outDir + "/definitions"));
+        .pipe(gulp.dest(tsConfig.compilerOptions.outDir + "/definitions"));
 });
 
 gulp.task('build-all', ['ts-code', 'ts-code-definitions']);
