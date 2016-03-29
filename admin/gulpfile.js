@@ -38,16 +38,16 @@ gulp.task('ts-code', function() {
 
     return gulp.src(tsFiles, { base: "." })
         .pipe(ts({
-            "module": tsFiles.compilerOptions.module,
-            "removeComments": tsFiles.compilerOptions.removeComments,
-            "noEmitOnError": tsFiles.compilerOptions.noEmitOnError,
-            "declaration": tsFiles.compilerOptions.declaration,
-            "sourceMap": tsFiles.compilerOptions.sourceMap,
-            "preserveConstEnums": tsFiles.compilerOptions.preserveConstEnums,
-            "target": tsFiles.compilerOptions.target,
-            "noImplicitAny": tsFiles.compilerOptions.noImplicitAny,
-            "allowUnreachableCode": tsFiles.compilerOptions.allowUnreachableCode,
-            "allowUnusedLabels": tsFiles.compilerOptions.allowUnusedLabels,
+            "module": tsConfig.compilerOptions.module,
+            "removeComments": tsConfig.compilerOptions.removeComments,
+            "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
+            "declaration": tsConfig.compilerOptions.declaration,
+            "sourceMap": tsConfig.compilerOptions.sourceMap,
+            "preserveConstEnums": tsConfig.compilerOptions.preserveConstEnums,
+            "target": tsConfig.compilerOptions.target,
+            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
+            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
+            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels,
             "out":"main.js",
             }))
         .pipe(gulp.dest(outDir));
