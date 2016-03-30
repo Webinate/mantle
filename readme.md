@@ -1,17 +1,17 @@
 # modepress
-A simple Mongo-Node CMS server. The server content can be accessed via an admin 
+A simple Mongo-Node CMS server. The server content can be accessed via an admin
 panel and content can be requested via its RESTful API.
-Modepress is written in Typescript using (at the least) mongodb v3 and nodejs 0.0.12. 
+Modepress is written in Typescript using (at the least) mongodb v3 and nodejs 0.0.12.
 Both mongo and node must be setup and running before you can run modepress.
 Modepress also requires an instance of webinate-users to be running.
 
 ## Current stable version
-* v0.0.22
+* v0.0.23
 
 ## Requirements
 * MongoDB v3
 * Node 0.12
-* [Webinate-Users](https://github.com/MKHenson/webinate-users) 
+* [Webinate-Users](https://github.com/MKHenson/webinate-users)
 * **Tested Ubuntu v14**
 
 ## Installation
