@@ -1,0 +1,13 @@
+<ng-transclude></ng-transclude>
+<div class="navigation">
+    <div class="back column">
+        <div ng-show="index" class="nav-button red-highlight" ng-click="goFirst()"><a href="">First</a></div>
+        <div ng-show="index" class="nav-button red-highlight" ng-click="goPrev()"><a href="">Prev</a></div>
+    </div>
+    <div class="column center">{{getPageNum()}} of {{getTotalPages()}}</div>
+    <div class="forward column">
+        <div ng-show="index + limit < last" class="nav-button red-highlight" ng-click="goNext()"><a href="">Next</a></div>
+        <div ng-show="index < last - limit" class="nav-button red-highlight" ng-click="goLast()"><a href="">Last</a></div>
+    </div>
+    <div class="fix"></div>
+</div>

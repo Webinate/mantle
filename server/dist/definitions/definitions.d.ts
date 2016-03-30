@@ -250,8 +250,9 @@ declare module clientAdmin {
         showMediaBrowser: boolean;
         defaultSlug: string;
         targetImgReciever: string;
+        private _q;
         static $inject: string[];
-        constructor(scope: any, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>);
+        constructor(scope: any, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService);
         /**
         * Opens the media browser
         */
@@ -289,7 +290,7 @@ declare module clientAdmin {
         /**
         * Fetches the posts from the database
         */
-        updatePageContent(): void;
+        updatePageContent(index?: number, limit?: number): ng.IPromise<number>;
         /**
         * Processes the tags in a post array of keywords
         */
@@ -320,6 +321,34 @@ declare module clientAdmin {
         * Adds this category to the post's selected categories
         */
         selectCategory(category: Modepress.ICategory): void;
+    }
+}
+declare module clientAdmin {
+    /**
+    * Interface for the object you pass as the directive's 'interface' attribute
+    */
+    interface IPager {
+        updatePageContent: (index?: number, limit?: number) => ng.IPromise<number>;
+    }
+    /**
+    * Controller for the dashboard media section
+    */
+    class Pager implements ng.IDirective {
+        restrict: string;
+        transclude: boolean;
+        templateUrl: string;
+        scope: {
+            interface: string;
+            index: string;
+            limit: string;
+            last: string;
+        };
+        constructor();
+        link: (scope: any, elem: JQuery, attributes: ng.IAttributes, ngModel: ng.INgModelController) => void;
+        /**
+         * Creates an intance of the pager directive
+         */
+        static factory(): ng.IDirectiveFactory;
     }
 }
 declare module clientAdmin {

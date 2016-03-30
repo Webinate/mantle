@@ -26,10 +26,11 @@
         public showMediaBrowser: boolean;
         public defaultSlug: string;
         public targetImgReciever: string;
+        private _q: ng.IQService;
 
 		// $inject annotation.
-        public static $inject = ["$scope", "$http", "apiURL", "mediaURL", "categories"];
-        constructor(scope, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>)
+        public static $inject = ["$scope", "$http", "apiURL", "mediaURL", "categories", "$q"];
+        constructor(scope, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService)
         {
             super(http);
             this.newCategoryMode = false;
@@ -50,9 +51,10 @@
             this.defaultSlug = "";
             this.showMediaBrowser = false;
             this.targetImgReciever = "";
+            this._q = $q;
 
             this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true, brief: "" };
-            this.updatePageContent();
+            //this.updatePageContent();
             var that = this;
 
             tinymce.init({
@@ -194,33 +196,38 @@
         /**
 		* Fetches the posts from the database
 		*/
-        updatePageContent()
+        updatePageContent(index?: number, limit? : number)
         {
             var that = this;
             this.error = false;
             this.errorMsg = "";
             this.loading = true;
-            var index = this.index;
-            var limit = this.limit;
+            //var index = this.index;
+            //var limit = this.limit;
             var keyword = this.searchKeyword;
             var searchCategory = this.searchCategory;
             var order = this.sortOrder;
             var sortType = this.sortType;
 
-            that.http.get<Modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
+            return new this._q<number>(function(resolve, reject)
             {
-                if (token.data.error) {
-                    that.error = true;
-                    that.errorMsg = token.data.message;
-                    that.posts = [];
-                    that.last = 1;
-                }
-                else {
-                    that.posts = token.data.data;
-                    that.last = token.data.count;
-                }
+                that.http.get<Modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
+                {
+                    if (token.data.error) {
+                        that.error = true;
+                        that.errorMsg = token.data.message;
+                        that.posts = [];
+                        that.last = 1;
+                        resolve(1);
+                    }
+                    else {
+                        that.posts = token.data.data;
+                        that.last = token.data.count;
+                        resolve(token.data.count);
+                    }
 
-                that.loading = false;
+                    that.loading = false;
+                });
             });
         }
 

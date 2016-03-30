@@ -10,8 +10,6 @@
 	</div>
 </div>
 
-
-
 <div class="sub-menu">
     <h>Posts<img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
     <div class="console" ng-show="!controller.showNewPostForm">
@@ -190,90 +188,77 @@
             </div>
 
             <div class="fix"></div>
-
-
         </div>
     </div>
 
     <div class="content-view-item-list" ng-show="!controller.showNewPostForm">
-        <div class="content-view-item" ng-repeat="post in controller.posts">
-            <div class="arrow animate-fast" ng-click="post.more = (post.more === undefined ? true : !post.more )" ng-class="{ active : post.more }"></div>
-            <div class="view-item-label date">Created: {{post.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
-            <div class="view-item-label date nav-button red-highlight"><a href="" ng-click="controller.editPostMode(post)">Edit</a></div>
-            <div class="view-item-label date nav-button red-highlight"><a href="" ng-click="post.confirmDelete=true">Remove</a></div>
-            <div class="view-item-label"><b>{{post.title}}</b> : <span class="slug">{{post.slug}}</span></div>
-            <div class="content-view-details animated-panel animate-show" ng-show="post.more">
-                 <div class="content-view-detail">
-                    <div class="label">ID: </div>
-                    <div class="textbox">{{post._id}}</div>
-                    <div class="fix"></div>
-                </div>
-				<div class="content-view-detail">
-					<div class="label">Brief: </div>
-					<div class="textbox">{{post.brief}}</div>
-					<div class="fix"></div>
-				</div>
-                <div class="content-view-detail">
-                    <div class="label">Created on: </div>
-                    <div class="textbox">{{post.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Last Updated: </div>
-                    <div class="textbox">{{post.lastUpdated | date:"MM/dd/yyyy 'at' h:mma"}}</div>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Visibility: </div>
-                    <div class="textbox">{{post.public ? "public" : "private"}}</div>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Tags: </div>
-                    <div class="textbox">{{post.tags.join(", ")}}</div>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Categories: </div>
-                    <div class="textbox">{{post.categories.join(", ")}}</div>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Content</div>
-                    <div class="preview" ng-bind-html="post.content"></div>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Featured Image</div>
-                    <div ng-bind-html="post.featuredImage"></div>
-                    <div class="fix"></div>
-                </div>
+        <div pager interface="controller" limit="2">
+            <div class="content-view-item" ng-repeat="post in controller.posts">
+                <div class="arrow animate-fast" ng-click="post.more = (post.more === undefined ? true : !post.more )" ng-class="{ active : post.more }"></div>
+                <div class="view-item-label date">Created: {{post.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+                <div class="view-item-label date nav-button red-highlight"><a href="" ng-click="controller.editPostMode(post)">Edit</a></div>
+                <div class="view-item-label date nav-button red-highlight"><a href="" ng-click="post.confirmDelete=true">Remove</a></div>
+                <div class="view-item-label"><b>{{post.title}}</b> : <span class="slug">{{post.slug}}</span></div>
+                <div class="content-view-details animated-panel animate-show" ng-show="post.more">
+                    <div class="content-view-detail">
+                        <div class="label">ID: </div>
+                        <div class="textbox">{{post._id}}</div>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="content-view-detail">
+                        <div class="label">Brief: </div>
+                        <div class="textbox">{{post.brief}}</div>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="content-view-detail">
+                        <div class="label">Created on: </div>
+                        <div class="textbox">{{post.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="content-view-detail">
+                        <div class="label">Last Updated: </div>
+                        <div class="textbox">{{post.lastUpdated | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="content-view-detail">
+                        <div class="label">Visibility: </div>
+                        <div class="textbox">{{post.public ? "public" : "private"}}</div>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="content-view-detail">
+                        <div class="label">Tags: </div>
+                        <div class="textbox">{{post.tags.join(", ")}}</div>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="content-view-detail">
+                        <div class="label">Categories: </div>
+                        <div class="textbox">{{post.categories.join(", ")}}</div>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="content-view-detail">
+                        <div class="label">Content</div>
+                        <div class="preview" ng-bind-html="post.content"></div>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="content-view-detail">
+                        <div class="label">Featured Image</div>
+                        <div ng-bind-html="post.featuredImage"></div>
+                        <div class="fix"></div>
+                    </div>
 
-                <div class="content-view-detail">
-                    <div class="buttons">
-                        <div class="nav-button red-highlight" ng-click="post.confirmDelete=true"><a href="">Remove Post</a></div>
-                        <div class="button blue" ng-click="controller.editPostMode(post)">Edit Post</div>
+                    <div class="content-view-detail">
+                        <div class="buttons">
+                            <div class="nav-button red-highlight" ng-click="post.confirmDelete=true"><a href="">Remove Post</a></div>
+                            <div class="button blue" ng-click="controller.editPostMode(post)">Edit Post</div>
+                        </div>
                     </div>
                 </div>
+                <div class="user-confirmation animated-panel animate-show" ng-show="post.confirmDelete">
+                    <div> you sure you want to delete this post? </div>
+                    <div class="button red" ng-click="controller.removePost(post)">Yes</div>
+                    <div class="button red" ng-click="post.confirmDelete=false">No</div>
+                </div>
             </div>
-            <div class="user-confirmation animated-panel animate-show" ng-show="post.confirmDelete">
-                <div> you sure you want to delete this post? </div>
-                <div class="button red" ng-click="controller.removePost(post)">Yes</div>
-                <div class="button red" ng-click="post.confirmDelete=false">No</div>
-            </div>
-        </div>
-
-        <div class="navigation">
-            <div class="back column">
-                <div ng-show="controller.index" class="nav-button red-highlight" ng-click="controller.goFirst()"><a href="">First</a></div>
-                <div ng-show="controller.index" class="nav-button red-highlight" ng-click="controller.goPrev()"><a href="">Prev</a></div>
-            </div>
-            <div class="column center">{{controller.getPageNum()}} of {{controller.getTotalPages()}}</div>
-            <div class="forward column">
-                <div ng-show="controller.index + controller.limit < controller.last" class="nav-button red-highlight" ng-click="controller.goNext()"><a href="">Next</a></div>
-                <div ng-show="controller.index < controller.last - controller.limit" class="nav-button red-highlight" ng-click="controller.goLast()"><a href="">Last</a></div>
-            </div>
-            <div class="fix"></div>
         </div>
     </div>
 </div>

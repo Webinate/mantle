@@ -29,6 +29,7 @@
         "lib/controllers/media-ctrl.ts",
         "lib/controllers/users-ctrl.ts",
         "lib/controllers/posts-ctrl.ts",
+        "lib/directives/pager.ts",
         "lib/authenticator.ts",
         "lib/config.ts",
         "lib/application.ts"

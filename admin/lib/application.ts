@@ -42,6 +42,7 @@ module clientAdmin
         .controller("seoCtrl", SEOCtrl)
         .controller("mediaCtrl", MediaCtrl)
         .service("Authenticator", Authenticator)
+        .directive('pager', Pager.factory())
         .config(Config)
         .run(["$rootScope", "$location", "$state", "Authenticator", function ($rootScope, $location, $state: ng.ui.IStateService, auth: Authenticator)
         {
