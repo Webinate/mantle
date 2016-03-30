@@ -44,7 +44,7 @@ var PathHandler = (function () {
         }
         // Give priority to template routes
         if (fs.existsSync(path.index)) {
-            if (fs.existsSync(path.index) && path.index.indexOf(".jade"))
+            if (fs.existsSync(path.index) && path.index.indexOf(".jade") != -1)
                 res.render(path.index, options);
             else
                 res.sendfile(path.index);
