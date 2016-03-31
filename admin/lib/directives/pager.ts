@@ -3,9 +3,10 @@ module clientAdmin
     /**
 	* Interface for the object you pass as the directive's 'interface' attribute
 	*/
-    export interface IPager
+    export interface IPagerRemote
     {
-        updatePageContent : (index?: number, limit? : number) => ng.IPromise<number>;
+        update : (index?: number, limit? : number) => ng.IPromise<number>;
+        invalidate?: () => void;
     }
 
 
@@ -18,7 +19,7 @@ module clientAdmin
         transclude = true;
         templateUrl = 'templates/directives/pager.html';
         scope = {
-            interface: '=', // must be IPager
+            interface: '=', // must be IPagerRemote
             index: '=?',
             limit: '=?',
             last: '=?'
@@ -33,7 +34,15 @@ module clientAdmin
             scope.index = scope.index || 0;
             scope.limit = scope.limit || 10;
             scope.last = scope.last || 1;
-            var iPager : IPager = scope.interface;
+            var iPager : IPagerRemote = scope.interface;
+
+            /**
+             * Creates the invalidate function which can be used externally to control
+             * when the pager updates its content
+             */
+            iPager.invalidate = function() {
+                handlePromise(iPager.update( scope.index, scope.limit ));
+            }
 
             /**
              * Handles the promise returned by the update function
@@ -71,7 +80,7 @@ module clientAdmin
             scope.goFirst = function()
             {
                 scope.index = 0;
-                handlePromise( iPager.updatePageContent( scope.index, scope.limit) );
+                handlePromise( iPager.update( scope.index, scope.limit) );
             }
 
             /**
@@ -80,7 +89,7 @@ module clientAdmin
             scope.goLast = function()
             {
                 scope.index = scope.last - (scope.last % scope.limit);
-                handlePromise( iPager.updatePageContent( scope.index, scope.limit) );
+                handlePromise( iPager.update( scope.index, scope.limit) );
             }
 
             /**
@@ -89,7 +98,7 @@ module clientAdmin
             scope.goNext = function()
             {
                scope.index += scope.limit;
-               handlePromise( iPager.updatePageContent( scope.index, scope.limit) );
+               handlePromise( iPager.update( scope.index, scope.limit) );
             }
 
             /**
@@ -101,11 +110,11 @@ module clientAdmin
                 if (scope.index < 0)
                     scope.index = 0;
 
-                handlePromise( iPager.updatePageContent( scope.index, scope.limit) );
+                handlePromise( iPager.update( scope.index, scope.limit) );
             }
 
             // Call the initial update
-            handlePromise( iPager.updatePageContent( scope.index, scope.limit) );
+            handlePromise( iPager.update( scope.index, scope.limit) );
         }
 
         /**

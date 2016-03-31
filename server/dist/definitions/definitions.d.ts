@@ -228,7 +228,7 @@ declare module clientAdmin {
     /**
     * Controller for the dashboard posts section
     */
-    class PostsCtrl extends PagedContentCtrl {
+    class PostsCtrl {
         postToken: Modepress.IPost;
         posts: Array<Modepress.IPost>;
         showNewPostForm: boolean;
@@ -251,6 +251,11 @@ declare module clientAdmin {
         defaultSlug: string;
         targetImgReciever: string;
         private _q;
+        private http;
+        private error;
+        private loading;
+        private errorMsg;
+        private pager;
         static $inject: string[];
         constructor(scope: any, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService);
         /**
@@ -287,10 +292,7 @@ declare module clientAdmin {
         * Sets the page into edit mode
         */
         editPostMode(post: Modepress.IPost): void;
-        /**
-        * Fetches the posts from the database
-        */
-        updatePageContent(index?: number, limit?: number): ng.IPromise<number>;
+        createPagerRemote(): IPagerRemote;
         /**
         * Processes the tags in a post array of keywords
         */
@@ -327,8 +329,9 @@ declare module clientAdmin {
     /**
     * Interface for the object you pass as the directive's 'interface' attribute
     */
-    interface IPager {
-        updatePageContent: (index?: number, limit?: number) => ng.IPromise<number>;
+    interface IPagerRemote {
+        update: (index?: number, limit?: number) => ng.IPromise<number>;
+        invalidate?: () => void;
     }
     /**
     * Controller for the dashboard media section

@@ -15,7 +15,7 @@
     <div class="console" ng-show="!controller.showNewPostForm">
         <div class="button blue" ng-click="controller.newPostMode()"><div class="cross"></div>New Post</div>
         <div class="button blue" ng-click="controller.showFilters = !controller.showFilters"><div class="cross" ng-show="!controller.showFilters"></div><div class="minus" ng-show="controller.showFilters"></div>Filters</div>
-        <div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button" ng-click="controller.updatePageContent()"></div></div>
+        <div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button" ng-click="controller.pager.invalidate()"></div></div>
         <div class="fix"></div>
     </div>
 
@@ -63,7 +63,7 @@
         <div class="filter-group">
             <div class="label">Category</div>
             <div class="dropdown">
-                <select ng-model="controller.searchCategory" ng-change="controller.updatePageContent()">
+                <select ng-model="controller.searchCategory" ng-change="controller.pager.invalidate()">
                     <option value=""></option>
                     <option ng-repeat="category in controller.categories" ng-value="category.slug">{{category.title}}</option>
                 </select>
@@ -192,7 +192,7 @@
     </div>
 
     <div class="content-view-item-list" ng-show="!controller.showNewPostForm">
-        <div pager interface="controller" limit="2">
+        <div pager interface="controller.pager" limit="2">
             <div class="content-view-item" ng-repeat="post in controller.posts">
                 <div class="arrow animate-fast" ng-click="post.more = (post.more === undefined ? true : !post.more )" ng-class="{ active : post.more }"></div>
                 <div class="view-item-label date">Created: {{post.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>

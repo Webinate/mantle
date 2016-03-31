@@ -3,7 +3,7 @@
 	/**
 	* Controller for the dashboard posts section
 	*/
-    export class PostsCtrl extends PagedContentCtrl
+    export class PostsCtrl
     {
         public postToken: Modepress.IPost;
         public posts: Array<Modepress.IPost>;
@@ -26,13 +26,18 @@
         public showMediaBrowser: boolean;
         public defaultSlug: string;
         public targetImgReciever: string;
+
         private _q: ng.IQService;
+        private http: ng.IHttpService;
+        private error: boolean;
+        private loading: boolean;
+        private errorMsg: string;
+        private pager: IPagerRemote;
 
 		// $inject annotation.
         public static $inject = ["$scope", "$http", "apiURL", "mediaURL", "categories", "$q"];
         constructor(scope, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService)
         {
-            super(http);
             this.newCategoryMode = false;
             this.scope = scope;
             this.apiURL = apiURL;
@@ -51,10 +56,15 @@
             this.defaultSlug = "";
             this.showMediaBrowser = false;
             this.targetImgReciever = "";
+
+            this.http = http;
+            this.loading = false;
+            this.error = false;
+            this.errorMsg = "";
             this._q = $q;
+            this.pager = this.createPagerRemote();
 
             this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true, brief: "" };
-            //this.updatePageContent();
             var that = this;
 
             tinymce.init({
@@ -139,13 +149,13 @@
         swapOrder()
         {
             this.sortOrder = (this.sortOrder == 'asc' ? 'desc' : 'asc');
-            this.updatePageContent();
+            this.pager.invalidate();
         }
 
         swapSortType()
         {
             this.sortType = (this.sortType == 'created' ? 'updated' : 'created');
-            this.updatePageContent();
+            this.pager.invalidate();
         }
 
         /**
@@ -193,42 +203,42 @@
             });
         }
 
-        /**
-		* Fetches the posts from the database
-		*/
-        updatePageContent(index?: number, limit? : number)
+        createPagerRemote(): IPagerRemote
         {
             var that = this;
-            this.error = false;
-            this.errorMsg = "";
-            this.loading = true;
-            //var index = this.index;
-            //var limit = this.limit;
-            var keyword = this.searchKeyword;
-            var searchCategory = this.searchCategory;
-            var order = this.sortOrder;
-            var sortType = this.sortType;
-
-            return new this._q<number>(function(resolve, reject)
-            {
-                that.http.get<Modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
+            var remote: IPagerRemote = {
+                update: function(index?: number, limit? : number)
                 {
-                    if (token.data.error) {
-                        that.error = true;
-                        that.errorMsg = token.data.message;
-                        that.posts = [];
-                        that.last = 1;
-                        resolve(1);
-                    }
-                    else {
-                        that.posts = token.data.data;
-                        that.last = token.data.count;
-                        resolve(token.data.count);
-                    }
+                    that.error = false;
+                    that.errorMsg = "";
+                    that.loading = true;
+                    var keyword = that.searchKeyword;
+                    var searchCategory = that.searchCategory;
+                    var order = that.sortOrder;
+                    var sortType = that.sortType;
 
-                    that.loading = false;
-                });
-            });
+                    return new that._q<number>(function(resolve, reject)
+                    {
+                        that.http.get<Modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
+                        {
+                            if (token.data.error) {
+                                that.error = true;
+                                that.errorMsg = token.data.message;
+                                that.posts = [];
+                                resolve(1);
+                            }
+                            else {
+                                that.posts = token.data.data;
+                                resolve(token.data.count);
+                            }
+
+                            that.loading = false;
+                        });
+                    });
+                }
+            };
+
+            return remote;
         }
 
         /**
