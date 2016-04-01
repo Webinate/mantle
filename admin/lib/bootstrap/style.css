@@ -630,6 +630,9 @@ max-height: 0;
 .console {
     margin: 10px 0 0 0;
 }
+.console .button {
+    margin: 0 5px 0 0;
+}
 .content-view form input[type="submit"]{
     margin: 20px 0 20px 10px;
 }

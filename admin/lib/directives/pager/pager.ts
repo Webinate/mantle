@@ -17,7 +17,7 @@ module clientAdmin
 	{
         restrict = 'A';
         transclude = true;
-        templateUrl = 'templates/directives/pager.html';
+        templateUrl = 'directives/pager/pager.html';
         scope = {
             interface: '=', // must be IPagerRemote
             index: '=?',

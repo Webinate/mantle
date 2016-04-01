@@ -58,7 +58,7 @@
                 .state("default", <CustomState>{
                     views: {
                         "main-view": {
-                            templateUrl: "templates/dashboard.html",
+                            templateUrl: "states/default/dashboard.html",
                             "controller": ["$scope", function ($scope)
                             {
                                 var dashLinks = [];
@@ -73,25 +73,25 @@
                     authenticate: true
                 })
                 .state('default.seo', <CustomState>{
-                    templateUrl: 'templates/dash-seo.html',
+                    templateUrl: 'states/seo/dash-seo.html',
                     authenticate: true,
                     controller: "seoCtrl",
                     controllerAs: "controller"
                 })
                 .state('default.media', <CustomState>{
-                    templateUrl: 'templates/dash-media.html',
+                    templateUrl: 'states/media/dash-media.html',
                     authenticate: true,
                     controller: "mediaCtrl",
                     controllerAs: "mediaController"
                 })
                 .state('default.users', <CustomState>{
-                    templateUrl: 'templates/dash-users.html',
+                    templateUrl: 'states/users/dash-users.html',
                     authenticate: true,
                     controller: "usersCtrl",
                     controllerAs: "controller"
                 })
                 .state('default.posts', <CustomState>{
-                    templateUrl: 'templates/dash-posts.html',
+                    templateUrl: 'states/posts/dash-posts.html',
                     authenticate: true,
                     controller: "postsCtrl",
                     controllerAs: "controller",
@@ -112,7 +112,7 @@
                 .state("login", <CustomState>{
 					views: {
 						"main-view": {
-                            templateUrl: "templates/log-in.html",
+                            templateUrl: "states/login/log-in.html",
 							controller: "loginCtrl",
 							controllerAs: "controller"
 						}
@@ -123,7 +123,7 @@
 				.state("register", <CustomState>{
 					views: {
 						"main-view": {
-                            templateUrl: "templates/register.html",
+                            templateUrl: "states/register/register.html",
                             controller: "registerCtrl",
 							controllerAs: "controller"
 						}
@@ -138,7 +138,7 @@
 				.state("message", <CustomState> {
 					views: {
 						"main-view": {
-                            templateUrl: "templates/message.html",
+                            templateUrl: "states/message/message.html",
                             controller: ["$scope", "$stateParams", function ($scope, $stateParams )
 							{
 								// Decodes the html
@@ -158,7 +158,7 @@
                 .state("password-rest", <CustomState> {
                         views: {
                             "main-view": {
-                                templateUrl: "templates/password-reset.html",
+                                templateUrl: "states/password-reset/password-reset.html",
                                 controllerAs: "controller",
                                 controller: "passwordCtrl"
                                 //controller: ["$scope", "$stateParams", function ($scope, $stateParams)
