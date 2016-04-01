@@ -9,6 +9,9 @@ var request = require('request');
 var untar = require('gulp-untar');
 var source = require('vinyl-source-stream');
 var filter = require('gulp-filter');
+var ngHtml2Js = require("gulp-ng-html2js");
+var minifyHtml = require("gulp-minify-html");
+var uglify = require("gulp-uglify");
 
 // CONFIG
 // ==============================
@@ -56,9 +59,9 @@ gulp.task('ts-code', function() {
 /**
  * Copies the html source to its output directory
  */
-gulp.task('copy-html', function() {
+gulp.task('copy-bootstrap', function() {
 
-    return gulp.src("html/**", { base: "html" })
+    return gulp.src("lib/bootstrap/**", { base: "lib/bootstrap" })
         .pipe(gulp.dest(outDir));
 
 });
@@ -146,6 +149,24 @@ gulp.task('deploy-third-party', function() {
         .pipe(gulp.dest(outDir + "/third-party"));
 });
 
+/**
+ * Builds the definition
+ */
+gulp.task('html-to-ng', function() {
+    gulp.src("./lib/**/*.html")
+        .pipe(minifyHtml({
+            empty: true,
+            spare: true,
+            quotes: true
+        }))
+        .pipe(ngHtml2Js({
+            moduleName: "admin-templates",
+            prefix: ""
+        }))
+        .pipe(concat("partials.min.js"))
+        .pipe(uglify())
+        .pipe(gulp.dest(outDir + "/templates"));
+});
 
 /**
  * Builds the definition
@@ -175,4 +196,4 @@ gulp.task('ts-code-declaration', function() {
         .pipe(gulp.dest(outDirDefinitions));
 });
 
-gulp.task('build-all', [ 'deploy-third-party', 'copy-html', 'ts-code', 'ts-code-declaration']);
+gulp.task('build-all', [ 'copy-bootstrap', 'deploy-third-party', 'html-to-ng', 'ts-code', 'ts-code-declaration']);
