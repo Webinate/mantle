@@ -1,21 +1,20 @@
 ﻿<div class="admin-toolbar">
-    <div class="toolbar-item"><a target="_self" href="."><img src="/media/images/logo-home-small.jpg" /></a></div>
+    <div class="toolbar-item"><a target="_self" href="."><div class="icon sprite sprite-logo-home-small"></div></a></div>
     <div class="toolbar-item nav-button"><a target="_self" href="logout">Logout</a></div>
     <div class="fix"></div>
 </div>
-
 <div class="admin-nav">
 	<div ui-sref="default.posts" ui-sref-active="active" class="admin-section">
-		<div class="inner"><div class="icon" style="background-image:url('/media/images/posts.png');"></div>Posts</div>
+		<div class="inner"><div class="icon sprite sprite-posts"></div>Posts</div>
 	</div>
 	<div ui-sref="default.users" ui-sref-active="active" class="admin-section">
-		<div class="inner"><div class="icon" style="background-image:url('/media/images/users.png');"></div>User Management</div>
+		<div class="inner"><div class="icon sprite sprite-users"></div>User Management</div>
 	</div>
 	<div ui-sref="default.media" ui-sref-active="active" class="admin-section">
-		<div class="inner"><div class="icon" style="background-image:url('/media/images/media.png');"></div>Media</div>
+		<div class="inner"><div class="icon sprite sprite-media"></div>Media</div>
 	</div>
 	<div ui-sref="default.seo" ui-sref-active="active" class="admin-section">
-		<div class="inner"><div class="icon" style="background-image:url('/media/images/seo.png');"></div>SEO</div>
+		<div class="inner"><div class="icon sprite sprite-seo"></div>SEO</div>
 	</div>
 
 	<div ng-repeat="link in dashLinks">

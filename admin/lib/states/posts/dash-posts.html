@@ -15,7 +15,7 @@
     <div class="console" ng-show="!controller.showNewPostForm">
         <div class="button blue" ng-click="controller.newPostMode()"><div class="cross"></div>New Post</div>
         <div class="button blue" ng-click="controller.showFilters = !controller.showFilters"><div class="cross" ng-show="!controller.showFilters"></div><div class="minus" ng-show="controller.showFilters"></div>Filters</div>
-        <div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button" ng-click="controller.pager.invalidate()"></div></div>
+        <div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button sprite sprite-search" ng-click="controller.pager.invalidate()"></div></div>
         <div class="fix"></div>
     </div>
 

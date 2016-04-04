@@ -12,6 +12,12 @@ var filter = require('gulp-filter');
 var ngHtml2Js = require("gulp-ng-html2js");
 var minifyHtml = require("gulp-minify-html");
 var uglify = require("gulp-uglify");
+var gulpif = require("gulp-if");
+var sprity = require('sprity');
+var sass = require('gulp-sass');
+var spritySass = require('sprity-sass');
+var rimraf = require('rimraf');
+
 
 // CONFIG
 // ==============================
@@ -32,7 +38,33 @@ gulp.task('check-files', function(){
             console.log("File does not exist:" + tsFiles[i] );
             process.exit();
         }
+});
+
+gulp.task('sass', ['sprites'], function(){
+
+    // Compile all sass files into temp/css
+    var sassFiles = gulp.src('./lib/style.scss', { base: "./lib" })
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest(outDir + '/css'))
 })
+
+/**
+ * Generate dist/media/sprites/sprite.png and /lib/temp/sprite.scss
+ */
+gulp.task('sprites', function () {
+  return sprity.src({
+    src: './lib/media/sprites/**/*.{png,jpg}',
+    style: './sprites.scss',
+    cssPath: '/media/sprites',
+    name: 'sprites',
+    orientation : 'binary-tree',
+    prefix: 'sprite',
+    processor: 'sass',
+    'style-type': 'scss',
+    margin:0
+  })
+  .pipe(gulpif('*.png', gulp.dest( outDir + '/media/sprites'), gulp.dest(  "lib/temp-css"  )))
+});
 
 /**
  * Builds each of the ts files into JS files in the output folder
@@ -59,12 +91,13 @@ gulp.task('ts-code', function() {
 /**
  * Copies the html source to its output directory
  */
-gulp.task('copy-bootstrap', function() {
+gulp.task('copy-index', function() {
 
-    return gulp.src("lib/bootstrap/**", { base: "lib/bootstrap" })
+    return gulp.src(["lib/index.jade", "lib/media/images/**.*"], { base: "lib" })
         .pipe(gulp.dest(outDir));
 
 });
+
 
 /**
  * Deletes a folder and all its children recursively
@@ -196,4 +229,4 @@ gulp.task('ts-code-declaration', function() {
         .pipe(gulp.dest(outDirDefinitions));
 });
 
-gulp.task('build-all', [ 'copy-bootstrap', 'deploy-third-party', 'html-to-ng', 'ts-code', 'ts-code-declaration']);
+gulp.task('build-all', [ 'sass', 'copy-index', 'deploy-third-party', 'html-to-ng', 'ts-code', 'ts-code-declaration']);

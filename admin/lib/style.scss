@@ -1,3 +1,5 @@
+@import "temp-css/sprites.scss"; // Generated in the build process
+
 /**
 ======================================================
 			CSS BASE DEFINITIONS
@@ -318,7 +320,9 @@ button[disabled], html input[disabled] {
 .hidden {
     visibility:hidden;
 }
-
+.sprite {
+    display: inline-block;
+}
 /**
 ======================================================
 				TINY OVERRIDES
@@ -411,8 +415,13 @@ form .nav-button {
     float:right;
     margin: 0 10px 0 0;
 }
-.toolbar-item img {
+.toolbar-item .sprite {
     margin: 5px 0 0 20px;
+}
+.sprite-logo-home-small{
+    @include sprite-position($logo-home-small);
+    @include sprite-width($logo-home-small);
+    @include sprite-height($logo-home-small);
 }
 .main-view {
     height:100%;
@@ -433,8 +442,30 @@ form .nav-button {
     display:inline-block;
     vertical-align:middle;
 }
-.admin-section.active .icon {
-    background-position-y:-32px;
+
+.admin-section .icon.sprite.sprite-posts{
+    @include sprite-position($posts);
+}
+.admin-section .icon.sprite.sprite-users{
+    @include sprite-position($users);
+}
+.admin-section .icon.sprite.sprite-media{
+    @include sprite-position($media);
+}
+.admin-section .icon.sprite.sprite-seo{
+    @include sprite-position($seo);
+}
+.admin-section.active .icon.sprite-posts {
+    background-position-y: (nth($posts, 2) - (sprite-height($posts) / 2));
+}
+.admin-section.active .icon.sprite-users {
+    background-position-y: (nth($users, 2) - (sprite-height($users) / 2));
+}
+.admin-section.active .icon.sprite-media {
+    background-position-y: (nth($media, 2) - (sprite-height($media) / 2));
+}
+.admin-section.active .icon.sprite-seo {
+    background-position-y: (nth($seo, 2) - (sprite-height($seo) / 2));
 }
 .admin-view {
     width:80%;
@@ -660,7 +691,6 @@ max-height: 0;
     text-align: right;
 }
 .console .search {
-    display: inline-block;
     height: 30px;
     float: right;
 }
@@ -670,15 +700,15 @@ max-height: 0;
     padding:5px;
 }
 .search-button {
-    background-image: url("/media/images/search.png");
-    width:30px;
-    height:30px;
+    @include sprite-position($search);
+    @include sprite-width($search);
+    height: sprite-height($search) / 2;
     display:inline-block;
     cursor:pointer;
     margin:5px 10px 0 10px;
 }
 .search-button:hover {
-    background-position-y:-30px;
+    background-position-y: (nth($search, 2) - (sprite-height($search) / 2));
 }
 .category .cross, .tag .cross, .red .cross {
     -ms-transform: rotate(45deg);
@@ -798,10 +828,10 @@ form .category-buttons .nav-button {
     overflow: hidden;
 }
 .folder .icon {
-    width:32px;
-    height:32px;
+    width:nth($folder, 3);
+    height:nth($folder, 4) / 2;
     float:left;
-    background-position:top left;
+    @include sprite-position($folder);
     margin:0 5px 0 0;
 }
 .file-preview {
@@ -827,6 +857,11 @@ form .category-buttons .nav-button {
     width: 100%;
     height: 100%;
     text-align: center;
+}
+.file-preview .inner .sprite-standard-file{
+    @include sprite($standard-file);
+    display: inline-block;
+    vertical-align: middle;
 }
 .panel-view {
     height:100%;
@@ -858,7 +893,23 @@ form .category-buttons .nav-button {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.file-info div img {
+.file-info div .sprite-file-info-clock{
+    @include sprite($file-info-clock);
+}
+.file-info div .sprite-file-info-downloads{
+    @include sprite($file-info-downloads);
+}
+.file-info div .sprite-file-info-id{
+    @include sprite($file-info-id);
+}
+.file-info div .sprite-file-info-mime{
+    @include sprite($file-info-mime);
+}
+.file-info div .sprite-file-info-size{
+    @include sprite($file-info-size);
+}
+.file-info div .sprite {
+    display: inline-block;
     vertical-align:middle;
     margin: 0 10px 0 0;
 }
@@ -913,7 +964,7 @@ Please only put css rules in here for generalized modules.
     box-shadow: 0 3px 3px 0 rgba(0,0,0,.3);
 }
 .folder.selected .icon {
-    background-position-y:-32px;
+    background-position-y: (nth($folder, 2) - (sprite-height($folder) / 2));
 }
 
 form input[type="text"], form input[type="password"], form input[type="email"] {

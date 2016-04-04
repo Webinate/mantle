@@ -24,6 +24,7 @@ bld/
 [Oo]bj/
 node_modules/
 admin/dist/
+admin/lib/temp-css/
 server/resources/admin/plugins/
 server/dist/plugins/
 third-party/
@@ -139,7 +140,7 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-# TODO: Comment the next line if you want to checkin your web deploy settings 
+# TODO: Comment the next line if you want to checkin your web deploy settings
 # but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
 *.publishproj

@@ -18,6 +18,11 @@
     "gulp-filter" : "^4.0.0",
     "gulp-ng-html2js": "^0.2.2",
     "gulp-minify-html": "^1.0.6",
-    "gulp-uglify": "^1.5.3"
+    "gulp-uglify": "^1.5.3",
+    "sprity": "^1.0.8",
+    "gulp-if": "^2.0.0",
+    "gulp-sass": "^2.2.0",
+    "sprity-sass": "^1.0.4",
+    "rimraf": "^2.5.2"
   }
 }
