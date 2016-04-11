@@ -79,12 +79,17 @@ var Schema = (function () {
     };
     /**
     * Checks the value stored to see if its correct in its current form
+    * @param {boolean} checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
     * @returns {boolean} Returns true if successful
     */
-    Schema.prototype.validate = function () {
+    Schema.prototype.validate = function (checkForRequiredFields) {
         var items = this.items;
         this.error = "";
         for (var i = 0, l = items.length; i < l; i++) {
+            if (checkForRequiredFields && !items[i].getModified() && items[i].getRequired()) {
+                this.error = items[i].name + " is required";
+                return false;
+            }
             var validated = items[i].validate();
             if (validated !== true) {
                 this.error = validated;

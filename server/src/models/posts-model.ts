@@ -11,7 +11,7 @@ export class PostsModel extends Model
 
         this.defaultSchema.add(new text("author", "", 1));
         this.defaultSchema.add(new text("title", "", 1));
-        this.defaultSchema.add(new text("slug", "", 1, 512)).setUnique(true);
+        this.defaultSchema.add(new text("slug", "", 1, 512)).setUnique(true).setRequired(true);
         this.defaultSchema.add(new text("brief", ""));
         this.defaultSchema.add(new text("featuredImage", ""));
         this.defaultSchema.add(new html("content", "", SchemaHtml.defaultTags.concat("img"), undefined, false));

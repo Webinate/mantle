@@ -89,7 +89,7 @@ describe('Testing all post related endpoints', function() {
             });
     })
 
-    it('Cannot create post without title', function(done) {
+    it('Cannot create a post without title', function(done) {
         modepressAgent
             .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', adminCookie)
@@ -102,8 +102,21 @@ describe('Testing all post related endpoints', function() {
                 done();
             });
     })
+	
+	 it('Cannot create a post without a slug field', function(done) {
+        modepressAgent
+            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .send( { title: "test" } )
+            .end(function(err, res) {
+                test
+                    .string(res.body.message).is("slug is required")
+					.bool(res.body.error).isTrue()
+                done();
+            });
+    })
 
-    it('Cannot create post without slug', function(done) {
+    it('Cannot create a post without slug', function(done) {
         modepressAgent
             .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', adminCookie)

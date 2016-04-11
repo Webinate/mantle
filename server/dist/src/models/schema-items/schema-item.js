@@ -10,6 +10,8 @@ var SchemaItem = (function () {
         this._unique = false;
         this._uniqueIndexer = false;
         this._indexable = false;
+        this._required = false;
+        this._modified = false;
     }
     /**
     * Creates a clone of this item
@@ -20,6 +22,7 @@ var SchemaItem = (function () {
         copy = copy === undefined ? new SchemaItem(this.name, this.value, this.sensitive) : copy;
         copy._unique = this._unique;
         copy._uniqueIndexer = this._uniqueIndexer;
+        copy._required = this._required;
         copy.sensitive = this.sensitive;
         return copy;
     };
@@ -34,6 +37,19 @@ var SchemaItem = (function () {
     */
     SchemaItem.prototype.setIndexable = function (val) {
         this._indexable = val;
+        return this;
+    };
+    /**
+    * Gets if this item is required. If true, then validations will fail if they are not specified
+    * @returns {boolean}
+    */
+    SchemaItem.prototype.getRequired = function () { return this._required; };
+    /**
+    * Sets if this item is required. If true, then validations will fail if they are not specified
+    * @returns {SchemaItem}
+    */
+    SchemaItem.prototype.setRequired = function (val) {
+        this._required = val;
         return this;
     };
     /**
@@ -74,6 +90,13 @@ var SchemaItem = (function () {
         return this.sensitive;
     };
     /**
+    * Gets if this item has been edited since its creation
+    * @returns {boolean}
+    */
+    SchemaItem.prototype.getModified = function () {
+        return this._modified;
+    };
+    /**
     * Sets if this item is sensitive
     * @returns {SchemaItem<T>}
     */
@@ -103,6 +126,7 @@ var SchemaItem = (function () {
     * @returns {SchemaValue}
     */
     SchemaItem.prototype.setValue = function (val) {
+        this._modified = true;
         return this.value = val;
     };
     return SchemaItem;

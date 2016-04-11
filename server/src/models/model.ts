@@ -353,7 +353,7 @@ export class Model
                         instance.schema.set(data);
 
                     // Make sure the new updates are valid
-                    if (!instance.schema.validate())
+                    if (!instance.schema.validate(false))
                     {
                         if (instance.schema.error)
                             toRet.error = true;
@@ -527,7 +527,7 @@ export class Model
 					var schema = instance.schema;
 
 					// Make sure the parameters are valid
-					if (!schema.validate())
+					if (!schema.validate(true))
 					{
 						reject(new Error(schema.error));
 						return;

@@ -35,6 +35,9 @@ var SchemaBool = (function (_super) {
     * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
     */
     SchemaBool.prototype.validate = function () {
+        var val = _super.prototype.validate.call(this);
+        if (!val)
+            return false;
         return true;
     };
     /**

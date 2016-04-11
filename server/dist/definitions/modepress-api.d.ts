@@ -321,6 +321,18 @@ declare module Modepress
         public setSensitive(val: boolean);
 
         /**
+        * Gets if this item is required. This will throw an error on the item if the value is not set before validation.
+        * @returns {boolean}
+        */
+        public getRequired(): boolean;
+
+        /**
+        * Sets if this item is required. This will throw an error on the item if the value is not set before validation.
+        * @returns {SchemaItem<T>}
+        */
+        public setRequired(val: boolean);
+
+        /**
         * Gets if this item is indexable by mongodb
         * @returns {boolean}
         */

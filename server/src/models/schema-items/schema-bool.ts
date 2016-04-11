@@ -34,6 +34,10 @@ export class SchemaBool extends SchemaItem<boolean>
 	*/
 	public validate(): boolean | string
 	{
+        var val = super.validate();
+        if (!val)
+            return false;
+
         return true;
     }
 

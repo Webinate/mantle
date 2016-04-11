@@ -269,7 +269,7 @@ var Model = (function () {
                     if (data)
                         instance.schema.set(data);
                     // Make sure the new updates are valid
-                    if (!instance.schema.validate()) {
+                    if (!instance.schema.validate(false)) {
                         if (instance.schema.error)
                             toRet.error = true;
                         toRet.tokens.push({ error: instance.schema.error, instance: instance });
@@ -397,7 +397,7 @@ var Model = (function () {
                     // Get the schema
                     var schema = instance.schema;
                     // Make sure the parameters are valid
-                    if (!schema.validate()) {
+                    if (!schema.validate(true)) {
                         reject(new Error(schema.error));
                         return;
                     }

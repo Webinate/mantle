@@ -110,15 +110,22 @@ export class Schema
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {boolean} Returns true if successful
+	* @param {boolean} checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
+    * @returns {boolean} Returns true if successful
 	*/
-	public validate(): boolean
+	public validate( checkForRequiredFields: boolean ): boolean
 	{
 		var items = this.items;
 		this.error = "";
 
 		for (var i = 0, l = items.length; i < l; i++)
 		{
+            if ( checkForRequiredFields && !items[i].getModified() && items[i].getRequired() )
+            {
+				this.error = `${items[i].name} is required`;
+				return false;
+			}
+
 			var validated = items[i].validate();
 			if (validated !== true)
 			{
