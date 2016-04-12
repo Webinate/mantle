@@ -7,6 +7,8 @@ module clientAdmin
     {
         update : (index?: number, limit? : number) => ng.IPromise<number>;
         invalidate?: () => void;
+        goFirst?: () => void;
+        goLast?: () => void;
     }
 
 
@@ -42,6 +44,20 @@ module clientAdmin
              */
             iPager.invalidate = function() {
                 handlePromise(iPager.update( scope.index, scope.limit ));
+            }
+
+            /**
+             * Go to the first page
+             */
+            iPager.goFirst = function() {
+                scope.goFirst();
+            }
+
+            /**
+             * Go to the last page
+             */
+            iPager.goLast = function() {
+                scope.goLast();
             }
 
             /**
