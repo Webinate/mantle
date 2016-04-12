@@ -1,65 +1,26 @@
 declare module clientAdmin {
     /**
-    * Abstract class for controllers that page through content items.
-    */
-    class PagedContentCtrl {
-        static singleton: PagedContentCtrl;
-        protected http: ng.IHttpService;
-        protected error: boolean;
-        protected errorMsg: string;
-        protected loading: boolean;
-        protected index: number;
-        protected limit: number;
-        protected last: number;
-        protected searchTerm: string;
-        constructor(http: ng.IHttpService);
-        /**
-        * Updates the content
-        */
-        updatePageContent(): void;
-        /**
-        * Gets the current page number
-        * @returns {number}
-        */
-        getPageNum(): number;
-        /**
-        * Gets the total number of pages
-        * @returns {number}
-        */
-        getTotalPages(): number;
-        /**
-        * Sets the page search back to index = 0
-        */
-        goFirst(): void;
-        /**
-        * Gets the last set of users
-        */
-        goLast(): void;
-        /**
-        * Sets the page search back to index = 0
-        */
-        goNext(): void;
-        /**
-        * Sets the page search back to index = 0
-        */
-        goPrev(): void;
-        /**
-        * Called when the controller is being destroyed
-        */
-        onDispose(): void;
-    }
-}
-declare module clientAdmin {
-    /**
     * Controller for the dashboard users section
     */
-    class SEOCtrl extends PagedContentCtrl {
+    class SEOCtrl {
         protected apiURL: string;
         protected cacheURL: string;
         protected showRenders: boolean;
         protected renders: Array<Modepress.IRender>;
+        private _q;
+        private http;
+        private error;
+        private loading;
+        private errorMsg;
+        private pager;
+        private searchTerm;
         static $inject: string[];
-        constructor(scope: any, http: ng.IHttpService, apiURL: string, cacheURL: string);
+        constructor(scope: any, http: ng.IHttpService, apiURL: string, cacheURL: string, $q: ng.IQService);
+        /**
+         * Fetches the users from the database
+         * @returns {IPagerRemote}
+         */
+        createPagerRemote(): IPagerRemote;
         /**
         * Clears all render items
         */
@@ -68,10 +29,6 @@ declare module clientAdmin {
         * Removes a render from the database
         */
         removeRender(render: Modepress.IRender): void;
-        /**
-        * Fetches the users from the database
-        */
-        updatePageContent(): void;
     }
 }
 declare module clientAdmin {
@@ -151,7 +108,7 @@ declare module clientAdmin {
     /**
     * Controller for the dashboard media section
     */
-    class MediaCtrl extends PagedContentCtrl {
+    class MediaCtrl {
         private mediaURL;
         folderFormVisible: boolean;
         scope: any;
@@ -164,8 +121,15 @@ declare module clientAdmin {
         editMode: boolean;
         multiSelect: boolean;
         editFileMode: boolean;
+        private _q;
+        private http;
+        private error;
+        private loading;
+        private errorMsg;
+        private pager;
+        private searchTerm;
         static $inject: string[];
-        constructor(scope: any, http: ng.IHttpService, mediaURL: string, upload: any);
+        constructor(scope: any, http: ng.IHttpService, mediaURL: string, upload: any, $q: ng.IQService);
         upload(files: any): void;
         /**
         * Creates a new folder
@@ -188,31 +152,40 @@ declare module clientAdmin {
         */
         selectEntity(entity: any): void;
         /**
-        * Fetches the users from the database
-        */
-        updatePageContent(): void;
+         * Fetches the media entries (folers/actual media) from the database
+         * @returns {IPagerRemote}
+         */
+        createPagerRemote(): IPagerRemote;
     }
 }
 declare module clientAdmin {
     /**
     * Controller for the dashboard users section
     */
-    class UsersCtrl extends PagedContentCtrl {
+    class UsersCtrl {
         private newUser;
         private usersURL;
         protected users: Array<UsersInterface.IUserEntry>;
         showUserForm: boolean;
         scope: any;
+        private _q;
+        private http;
+        private error;
+        private loading;
+        private errorMsg;
+        private pager;
+        private searchTerm;
         static $inject: string[];
-        constructor(scope: any, http: ng.IHttpService, usersURL: string);
+        constructor(scope: any, http: ng.IHttpService, usersURL: string, $q: ng.IQService);
         /**
         * Opens the new user form
         */
         newUserMode(): void;
         /**
-        * Fetches the users from the database
-        */
-        updatePageContent(): void;
+         * Fetches the users from the database
+         * @returns {IPagerRemote}
+         */
+        createPagerRemote(): IPagerRemote;
         /**
         * Removes a user from the database
         * @param {UsersInterface.IUserEntry} user The user to remove
@@ -332,6 +305,8 @@ declare module clientAdmin {
     interface IPagerRemote {
         update: (index?: number, limit?: number) => ng.IPromise<number>;
         invalidate?: () => void;
+        goFirst?: () => void;
+        goLast?: () => void;
     }
     /**
     * Controller for the dashboard media section

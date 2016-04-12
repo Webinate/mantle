@@ -3,25 +3,39 @@
 	/**
 	* Controller for the dashboard users section
 	*/
-    export class UsersCtrl extends PagedContentCtrl
+    export class UsersCtrl
 	{
-        private newUser: { username: string; password: string; email: string; type: string; privileges: number };        
+        private newUser: { username: string; password: string; email: string; type: string; privileges: number };
         private usersURL: string;
         protected users: Array<UsersInterface.IUserEntry>;
         public showUserForm: boolean;
         public scope: any;
 
+        private _q: ng.IQService;
+        private http: ng.IHttpService;
+        private error: boolean;
+        private loading: boolean;
+        private errorMsg: string;
+        private pager: IPagerRemote;
+        private searchTerm: string;
+
 		// $inject annotation.
-        public static $inject = ["$scope", "$http", "usersURL"];
-        constructor(scope: any, http: ng.IHttpService, usersURL: string)
+        public static $inject = ["$scope", "$http", "usersURL", "$q"];
+        constructor(scope: any, http: ng.IHttpService, usersURL: string, $q: ng.IQService)
         {
-            super(http);
+            this.http = http;
             this.scope = scope;
             this.usersURL = usersURL;
             this.users = [];
             this.showUserForm = false;
             this.newUser = { email: "", password: "", username: "", type: "3", privileges: 3 };
-            this.updatePageContent();
+
+            this._q = $q;
+            this.loading = false;
+            this.error = false;
+            this.errorMsg = "";
+            this.searchTerm = "";
+            this.pager = this.createPagerRemote();
         }
 
         /**
@@ -33,34 +47,42 @@
             this.scope.newUserForm.$setPristine();
             this.showUserForm = !this.showUserForm
         }
-        
+
         /**
-		* Fetches the users from the database
-		*/
-        updatePageContent()
+         * Fetches the users from the database
+         * @returns {IPagerRemote}
+         */
+        createPagerRemote(): IPagerRemote
         {
             var that = this;
-            this.error = false;
-            this.errorMsg = "";
-            this.loading = true;
-            var index = this.index;
-            var limit = this.limit;
+            var remote: IPagerRemote = {
+                update: function(index?: number, limit? : number)
+                {
+                    that.error = false;
+                    that.errorMsg = "";
 
-            that.http.get<UsersInterface.IGetUsers>(`${that.usersURL}/users?verbose=true&index=${index}&limit=${limit}&search=${that.searchTerm}`).then(function(token)
-            {
-                if (token.data.error) {
-                    that.error = true;
-                    that.errorMsg = token.data.message;
-                    that.users = [];
-                    that.last = 1;
+                    return new that._q<number>(function(resolve, reject)
+                    {
+                        that.http.get<Modepress.IGetPosts>(`${that.usersURL}/users?verbose=true&index=${index}&limit=${limit}&search=${that.searchTerm}`).then(function (token)
+                        {
+                            if (token.data.error) {
+                                that.error = true;
+                                that.errorMsg = token.data.message;
+                                that.users = [];
+                                resolve(1);
+                            }
+                            else {
+                                that.users = token.data.data;
+                                resolve(token.data.count);
+                            }
+
+                            that.loading = false;
+                        });
+                    });
                 }
-                else {
-                    that.users = token.data.data;
-                    that.last = token.data.count;
-                }
-               
-                that.loading = false;
-            });
+            };
+
+            return remote;
         }
 
         /**
@@ -86,10 +108,10 @@
                 that.loading = false;
                 (<any>user).confirmDelete = false;
             });
-        }       
+        }
 
         /**
-        * Creates a new user 
+        * Creates a new user
         */
         createNewUser()
         {

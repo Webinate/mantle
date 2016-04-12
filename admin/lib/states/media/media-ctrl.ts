@@ -3,7 +3,7 @@
 	/**
 	* Controller for the dashboard media section
 	*/
-    export class MediaCtrl extends PagedContentCtrl
+    export class MediaCtrl
 	{
         private mediaURL: string;
         public folderFormVisible: boolean;
@@ -18,11 +18,18 @@
         public multiSelect: boolean;
         public editFileMode: boolean;
 
+        private _q: ng.IQService;
+        private http: ng.IHttpService;
+        private error: boolean;
+        private loading: boolean;
+        private errorMsg: string;
+        private pager: IPagerRemote;
+        private searchTerm: string;
+
         // $inject annotation.
-        public static $inject = ["$scope", "$http", "mediaURL", "Upload"];
-        constructor(scope: any, http: ng.IHttpService, mediaURL: string, upload: any)
+        public static $inject = ["$scope", "$http", "mediaURL", "Upload", "$q"];
+        constructor(scope: any, http: ng.IHttpService, mediaURL: string, upload: any, $q : ng.IQService)
         {
-            super(http);
             this.scope = scope;
             this.mediaURL = mediaURL;
             this.folderFormVisible = false;
@@ -31,10 +38,17 @@
             this.selectedFolder = null;
             this.uploader = upload;
             this.selectedEntities = [];
-            this.updatePageContent();
             this.selectedEntity = null;
             this.multiSelect = true;
             this.editFileMode = false;
+
+            this._q = $q;
+            this.http = http;
+            this.loading = false;
+            this.error = false;
+            this.errorMsg = "";
+            this.searchTerm = "";
+            this.pager = this.createPagerRemote();
         }
 
         upload(files)
@@ -55,8 +69,8 @@
                         file: file
 
                     }).success(function (data, status, headers, config)
-                    {   
-                        that.updatePageContent();
+                    {
+                        that.pager.invalidate();
 
                     }).error(function (data, status, headers, config)
                     {
@@ -68,7 +82,7 @@
         };
 
         /**
-        * Creates a new folder 
+        * Creates a new folder
         */
         newFolder()
         {
@@ -95,13 +109,13 @@
                 else
                 {
                     $("#new-folder").val("");
-                    that.updatePageContent();
+                    that.pager.invalidate();
                 }
 
                 that.loading = false;
             });
         }
-        
+
         /**
         * Attempts to open a folder
         */
@@ -109,11 +123,10 @@
         {
             var that = this;
             var command = "files";
-            this.index = 0;
             this.selectedFolder = folder;
             this.folderFormVisible = false;
             this.confirmDelete = false;
-            this.updatePageContent();
+            that.pager.goFirst();
         }
 
         /**
@@ -150,7 +163,7 @@
                     that.errorMsg = token.data.message;
                 }
                 else
-                    that.updatePageContent();
+                    that.pager.invalidate();
 
                 that.loading = false;
                 that.confirmDelete = false;
@@ -215,42 +228,49 @@
         }
 
         /**
-        * Fetches the users from the database
-        */
-        updatePageContent()
+         * Fetches the media entries (folers/actual media) from the database
+         * @returns {IPagerRemote}
+         */
+        createPagerRemote(): IPagerRemote
         {
             var that = this;
-            this.error = false;
-            this.errorMsg = "";
-            this.loading = true;
-            this.selectedEntities.splice(0, this.selectedEntities.length);
-            this.selectedEntity = null;
-            var index = this.index;
-            var limit = this.limit;
-            var command = "";
-
-            if (this.selectedFolder)
-                command = `${that.mediaURL}/get-files/${Authenticator.user.username}/${this.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
-            else
-                command = `${that.mediaURL}/get-buckets/${Authenticator.user.username}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
-
-            that.http.get<UsersInterface.IGetFiles>(command).then(function (token)
-            {
-                if (token.data.error)
+            var remote: IPagerRemote = {
+                update: function(index?: number, limit? : number)
                 {
-                    that.error = true;
-                    that.errorMsg = token.data.message;
-                    that.entries = [];
-                    that.last = 1;
-                }
-                else
-                {
-                    that.entries = token.data.data;
-                    that.last = token.data.count;
-                }
+                    that.error = false;
+                    that.errorMsg = "";
+                    that.loading = true;
+                    that.selectedEntities.splice(0, that.selectedEntities.length);
+                    that.selectedEntity = null;
+                    var command = "";
 
-                that.loading = false;
-            });
+                    if (that.selectedFolder)
+                        command = `${that.mediaURL}/get-files/${Authenticator.user.username}/${that.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
+                    else
+                        command = `${that.mediaURL}/get-buckets/${Authenticator.user.username}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
+
+                    return new that._q<number>(function(resolve, reject)
+                    {
+                        that.http.get<UsersInterface.IGetFiles>(command).then(function (token)
+                        {
+                            if (token.data.error) {
+                                that.error = true;
+                                that.errorMsg = token.data.message;
+                                that.entries = [];
+                                resolve(1);
+                            }
+                            else {
+                                that.entries = token.data.data;
+                                resolve(token.data.count);
+                            }
+
+                            that.loading = false;
+                        });
+                    });
+                }
+            };
+
+            return remote;
         }
 	}
 }
