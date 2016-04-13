@@ -34,7 +34,7 @@
 			this.error = false;
 			this.errorMsg = "Hello";
 		}
-		
+
 		/**
 		* Attempts to log the user in
 		*/
@@ -48,7 +48,7 @@
             this.errorMsg = "";
             this.loading = true;
 
-            this.http.post<UsersInterface.IAuthenticationResponse>(`${host}/login`, token).then(function (response)
+            this.http.post<UsersInterface.IAuthenticationResponse>(`${host}/users/login`, token).then(function (response)
 			{
                 var responseToken = response.data;
 				if (responseToken.error)

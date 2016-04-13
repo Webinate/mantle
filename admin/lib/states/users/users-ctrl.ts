@@ -96,7 +96,7 @@
             this.errorMsg = "";
             this.loading = true;
 
-            that.http.delete<UsersInterface.IResponse>(`${that.usersURL}/users/${user.username}/remove-user`).then(function (token)
+            that.http.delete<UsersInterface.IResponse>(`${that.usersURL}/users/${user.username}`).then(function (token)
             {
                 if (token.data.error) {
                     that.error = true;
@@ -128,7 +128,7 @@
 
             registerToken.privileges = registerToken.type == "2" ? 2 : 3;
 
-            that.http.post<UsersInterface.IGetUser>(`${that.usersURL}/create-user`, registerToken).then(function(token)
+            that.http.post<UsersInterface.IGetUser>(`${that.usersURL}/users`, registerToken).then(function(token)
             {
                 if (token.data.error) {
                     that.error = true;

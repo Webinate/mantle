@@ -245,7 +245,7 @@
                     var command = "";
 
                     if (that.selectedFolder)
-                        command = `${that.usersURL}/users/${Authenticator.user.username}/buckets/${that.selectedFolder.name}/get-files?index=${index}&limit=${limit}&search=${that.searchTerm}`
+                        command = `${that.usersURL}/users/${Authenticator.user.username}/buckets/${that.selectedFolder.name}/files?index=${index}&limit=${limit}&search=${that.searchTerm}`
                     else
                         command = `${that.usersURL}/users/${Authenticator.user.username}/buckets?index=${index}&limit=${limit}&search=${that.searchTerm}`
 

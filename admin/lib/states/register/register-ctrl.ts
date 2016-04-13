@@ -109,7 +109,7 @@
 			token.challenge = Recaptcha.get_challenge();
 			token.captcha = Recaptcha.get_response();
 
-            this.http.post<UsersInterface.IAuthenticationResponse>(`${that.usersURL}/register`, token).then(function (response)
+            this.http.post<UsersInterface.IAuthenticationResponse>(`${that.usersURL}/users/register`, token).then(function (response)
 			{
 				var responseToken = response.data;
 				if (responseToken.error)

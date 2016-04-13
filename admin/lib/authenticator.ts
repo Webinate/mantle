@@ -9,7 +9,7 @@
         private _q: ng.IQService;
         private _usersURL: string;
         public static user: UsersInterface.IUserEntry;
-        
+
 		// $inject annotation.
         public static $inject = ["$http", "$q", "usersURL"];
         constructor(http: ng.IHttpService, q: ng.IQService, usersURL: string )

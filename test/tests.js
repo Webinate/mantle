@@ -48,7 +48,7 @@ var tempPost = null;
 describe('Log in as an admin user', function() {
     it('logged in with a valid username & valid password', function(done){
         usersAgent
-            .post('/login').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/users/login').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .send({username: uconfig.adminUser.username, password: uconfig.adminUser.password })
             .end(function(err, res) {
                 test.bool(res.body.error).isNotTrue()
@@ -102,7 +102,7 @@ describe('Testing all post related endpoints', function() {
                 done();
             });
     })
-	
+
 	 it('Cannot create a post without a slug field', function(done) {
         modepressAgent
             .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
