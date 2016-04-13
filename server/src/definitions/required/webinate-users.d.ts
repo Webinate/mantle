@@ -361,15 +361,9 @@ declare module UsersInterface
 
         /**
         * The RESTful path of this service.
-        * eg: If "/api", then the API url would be 127.0.0.1:80/api (or rather host:port/restURL)
+        * eg: If "/api", then the API url would be 127.0.0.1:80/api (or rather host:port/api)
         */
-        restURL: string;
-
-        /**
-        * The RESTful path of the media API
-        * eg: If "/media", then the API url would be 127.0.0.1:80/media (or rather host:port/restURL)
-        */
-        mediaURL: string;
+        apiPrefix: string;
 
         /**
         * A secret string to identify authenticated servers

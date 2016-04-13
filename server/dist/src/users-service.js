@@ -9,8 +9,7 @@ var UsersService = (function () {
     * @param {IConfig} config The config file of this server
     */
     function UsersService(config) {
-        UsersService.usersURL = config.usersURL + "/users";
-        UsersService.mediaURL = config.usersURL + "/media";
+        UsersService.usersURL = config.usersURL;
         this._secret = config.usersSecret;
     }
     /**
@@ -39,7 +38,7 @@ var UsersService = (function () {
     UsersService.prototype.setMetaValue = function (name, val, user, req) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.post(UsersService.usersURL + "/meta/" + user + "/" + name, { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+            request.post(UsersService.usersURL + "/users/" + user + "/meta/" + name, { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
                 if (error)
                     return reject(error);
                 var token = JSON.parse(body);
@@ -59,7 +58,7 @@ var UsersService = (function () {
     UsersService.prototype.setMeta = function (val, user, req) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.post(UsersService.usersURL + "/meta/" + user, { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+            request.post(UsersService.usersURL + "/users/" + user + "/meta", { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
                 if (error)
                     return reject(error);
                 var token = JSON.parse(body);
@@ -79,7 +78,7 @@ var UsersService = (function () {
     UsersService.prototype.getMetaVal = function (user, name, req) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.get(UsersService.usersURL + "/meta/" + user + "/" + name, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+            request.get(UsersService.usersURL + "/users/" + user + "/meta/" + name, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
                 if (error)
                     return reject(error);
                 var token = JSON.parse(body);
@@ -150,7 +149,7 @@ var UsersService = (function () {
     UsersService.prototype.getStats = function (user, req) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.get(UsersService.mediaURL + "/get-stats/" + user, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+            request.get(UsersService.usersURL + "/stats/get-stats/" + user, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
                 if (error)
                     return reject(error);
                 var token = JSON.parse(body);

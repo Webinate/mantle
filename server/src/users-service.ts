@@ -11,7 +11,6 @@ export class UsersService
     private static _singleton: UsersService;
 
     public static usersURL: string;
-    public static mediaURL: string;
     private _secret: string;
 
     /**
@@ -20,9 +19,8 @@ export class UsersService
 	*/
     constructor(config: IConfig )
     {
-        UsersService.usersURL = config.usersURL + "/users";
-        UsersService.mediaURL = config.usersURL + "/media";        
-        this._secret = config.usersSecret;        
+        UsersService.usersURL = config.usersURL;
+        this._secret = config.usersSecret;
     }
 
     /**
@@ -33,7 +31,7 @@ export class UsersService
     sendAdminEmail(message: string): Promise<any>
     {
         var that = this;
-        return new Promise(function(resolve, reject) 
+        return new Promise(function(resolve, reject)
         {
             request.post(`${UsersService.usersURL}/message-webmaster`, { form: { message: message } }, function (error, response, body)
             {
@@ -58,7 +56,7 @@ export class UsersService
         var that = this;
         return new Promise<UsersInterface.IResponse>(function (resolve, reject)
         {
-            request.post(`${UsersService.usersURL}/meta/${user}/${name}`, { body: { secret: that._secret, value: val }, headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            request.post(`${UsersService.usersURL}/users/${user}/meta/${name}`, { body: { secret: that._secret, value: val }, headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
             {
                 if (error)
                     return reject(error);
@@ -85,7 +83,7 @@ export class UsersService
         var that = this;
         return new Promise<UsersInterface.IResponse>(function (resolve, reject)
         {
-            request.post(`${UsersService.usersURL}/meta/${user}`, { body: { secret: that._secret, value: val }, headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            request.post(`${UsersService.usersURL}/users/${user}/meta`, { body: { secret: that._secret, value: val }, headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
             {
                 if (error)
                     return reject(error);
@@ -112,7 +110,7 @@ export class UsersService
         var that = this;
         return new Promise<any>(function (resolve, reject)
         {
-            request.get(`${UsersService.usersURL}/meta/${user}/${name}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            request.get(`${UsersService.usersURL}/users/${user}/meta/${name}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
             {
                 if (error)
                     return reject(error);
@@ -185,7 +183,7 @@ export class UsersService
 	* @returns {boolean}
 	*/
     hasPermission(user: UsersInterface.IUserEntry, level: number, existingUser?: string): boolean
-    {   
+    {
         if (existingUser !== undefined)
         {
             if ((user.email != existingUser && user.username != existingUser) && user.privileges > level)
@@ -196,7 +194,7 @@ export class UsersService
 
         return true;
     }
-    
+
    /**
    * Attempts to download a users usage stats
    * @param {express.Request} req
@@ -206,7 +204,7 @@ export class UsersService
         var that = this;
         return new Promise<UsersInterface.IGetUserStorageData>(function (resolve, reject)
         {
-            request.get(`${UsersService.mediaURL}/get-stats/${user}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
+            request.get(`${UsersService.usersURL}/stats/get-stats/${user}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
             {
                 if (error)
                     return reject(error);
@@ -234,7 +232,7 @@ export class UsersService
             {
                 if (error)
                     return reject(error);
-                
+
                 resolve(JSON.parse(body));
             });
         });

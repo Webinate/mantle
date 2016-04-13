@@ -43,10 +43,7 @@ export class PathHandler
 
         var requestIsSecure = ((<any>req.connection).encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         var url = `${(requestIsSecure ? "https" : "http") }://${config.host}`;
-        var options: any = {
-            usersURL: `${UsersService.usersURL}`,
-            mediaURL: `${UsersService.mediaURL}`,
-            url: url };
+        var options: any = { usersURL: `${UsersService.usersURL}`, url: url };
 
         options.plugins = path.plugins || [];
         options.variables = {};

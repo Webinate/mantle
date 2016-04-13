@@ -1,5 +1,4 @@
 ﻿declare var _users: string;
-declare var _media: string;
 declare var _cache: string;
 declare var _plugins: Array<ModepressAdmin.IAdminPlugin>;
 
@@ -12,7 +11,6 @@ module clientAdmin
 
     var appModule = angular.module("admin", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', 'ngFileUpload', 'admin-templates'])
         .constant("usersURL", _users )
-        .constant("mediaURL", _media )
         .constant("apiURL", "./api")
         .constant("cacheURL", _cache)
         .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")

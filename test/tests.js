@@ -48,7 +48,7 @@ var tempPost = null;
 describe('Log in as an admin user', function() {
     it('logged in with a valid username & valid password', function(done){
         usersAgent
-            .post('/users/login').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/login').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .send({username: uconfig.adminUser.username, password: uconfig.adminUser.password })
             .end(function(err, res) {
                 test.bool(res.body.error).isNotTrue()

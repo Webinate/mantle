@@ -17,6 +17,8 @@ var sprity = require('sprity');
 var sass = require('gulp-sass');
 var spritySass = require('sprity-sass');
 var rimraf = require('rimraf');
+var download = require('gulp-download');
+var rename = require("gulp-rename");
 
 
 // CONFIG
@@ -69,7 +71,7 @@ gulp.task('sprites', function () {
 /**
  * Builds each of the ts files into JS files in the output folder
  */
-gulp.task('ts-code', function() {
+gulp.task('ts-code', ['check-files'], function() {
 
     return gulp.src(tsFiles, { base: "." })
         .pipe(ts({
@@ -116,6 +118,34 @@ function deleteFolderRecursive(path) {
         fs.rmdirSync(path);
     }
 };
+
+/**
+ * This function downloads a definition file from github and writes it to a destination
+ * @param {string} url The url of the file to download
+ * @param {string} dest The destination folder to move the file to
+ */
+function getDefinition(url, dest, name) {
+    return new Promise(function(resolve, reject) {
+        download(url)
+            .pipe(rename(name))
+            .pipe(gulp.dest(dest))
+            .on('error', function(err) {
+                throw(err)
+            })
+            .on('end', function() {
+                resolve(true);
+            })
+    });
+}
+
+/**
+ * Downloads the definition files used in the development of the application and moves them into the definitions folder
+ */
+gulp.task('install-definitions', function () {
+     return Promise.all([
+            getDefinition("https://raw.githubusercontent.com/MKHenson/users/dev/dist/definitions/definitions.d.ts", "lib/definitions/required/", "webinate-users.d.ts")
+         ]);
+});
 
 /**
  * Downloads a tarbal from a given url and unzips it into a specified folder

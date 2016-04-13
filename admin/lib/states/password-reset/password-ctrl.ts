@@ -58,7 +58,7 @@
             this.errorMsg = "";
             this.loading = true;
 
-            this.http.get<UsersInterface.IResponse>(`${host}/request-password-reset/${that.loginToken.user}`).then(function (response)
+            this.http.get<UsersInterface.IResponse>(`${host}/users/${that.loginToken.user}/request-password-reset`).then(function (response)
             {
                 var responseToken = response.data;
                 if (responseToken.error)
@@ -80,9 +80,9 @@
                 that.loading = false;
                 that.errorMsg = "Could not communicate with server";
             });
-            
+
         }
-		
+
 		/**
 		* Attempts to reset the password based on the current credentials
 		*/

@@ -6,3 +6,5 @@
 /// <reference path="./definitions/required/express.d.ts" />
 /// <reference path="./definitions/required/webinate-users.d.ts" />
 /// <reference path="./definitions/required/recaptcha.d.ts" />
+/// <reference path="./definitions/custom/tinymce.d.ts" />
+/// <reference path="./definitions/custom/modepress-client.d.ts" />

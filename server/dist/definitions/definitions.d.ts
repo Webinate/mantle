@@ -109,7 +109,7 @@ declare module clientAdmin {
     * Controller for the dashboard media section
     */
     class MediaCtrl {
-        private mediaURL;
+        private usersURL;
         folderFormVisible: boolean;
         scope: any;
         entries: Array<any>;
@@ -129,7 +129,7 @@ declare module clientAdmin {
         private pager;
         private searchTerm;
         static $inject: string[];
-        constructor(scope: any, http: ng.IHttpService, mediaURL: string, upload: any, $q: ng.IQService);
+        constructor(scope: any, http: ng.IHttpService, usersURL: string, upload: any, $q: ng.IQService);
         upload(files: any): void;
         /**
         * Creates a new folder
@@ -207,7 +207,6 @@ declare module clientAdmin {
         showNewPostForm: boolean;
         editMode: boolean;
         apiURL: string;
-        mediaURL: string;
         scope: any;
         successMessage: string;
         tagString: string;
@@ -230,7 +229,7 @@ declare module clientAdmin {
         private errorMsg;
         private pager;
         static $inject: string[];
-        constructor(scope: any, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService);
+        constructor(scope: any, http: ng.IHttpService, apiURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService);
         /**
         * Opens the media browser
         */
@@ -365,7 +364,6 @@ declare module clientAdmin {
     }
 }
 declare var _users: string;
-declare var _media: string;
 declare var _cache: string;
 declare var _plugins: Array<ModepressAdmin.IAdminPlugin>;
 /**

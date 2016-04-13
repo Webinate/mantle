@@ -5,7 +5,7 @@
 	*/
     export class MediaCtrl
 	{
-        private mediaURL: string;
+        private usersURL: string;
         public folderFormVisible: boolean;
         public scope: any;
         public entries: Array<any>;
@@ -27,11 +27,11 @@
         private searchTerm: string;
 
         // $inject annotation.
-        public static $inject = ["$scope", "$http", "mediaURL", "Upload", "$q"];
-        constructor(scope: any, http: ng.IHttpService, mediaURL: string, upload: any, $q : ng.IQService)
+        public static $inject = ["$scope", "$http", "usersURL", "Upload", "$q"];
+        constructor(scope: any, http: ng.IHttpService, usersURL: string, upload: any, $q : ng.IQService)
         {
             this.scope = scope;
-            this.mediaURL = mediaURL;
+            this.usersURL = usersURL;
             this.folderFormVisible = false;
             this.confirmDelete = false;
             this.editMode = false;
@@ -65,7 +65,7 @@
                 {
                     var file = files[i];
                     this.uploader.upload({
-                        url: `${that.mediaURL}/upload/${that.selectedFolder.name}`,
+                        url: `${that.usersURL}/buckets/${that.selectedFolder.name}/upload`,
                         file: file
 
                     }).success(function (data, status, headers, config)
@@ -99,7 +99,7 @@
                 return;
             }
 
-            this.http.post<UsersInterface.IResponse>(`${that.mediaURL}/create-bucket/${Authenticator.user.username}/${folderName}`, null).then(function(token)
+            this.http.post<UsersInterface.IResponse>(`${that.usersURL}/users/${Authenticator.user.username}/buckets/${folderName}`, null).then(function(token)
             {
                 if (token.data.error)
                 {
@@ -138,7 +138,7 @@
             that.error = false;
             that.errorMsg = "";
             that.loading = true;
-            var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
+            var command = (this.selectedFolder ? "files" : "buckets");
 
             var entities = "";
 
@@ -155,7 +155,7 @@
 
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "" );
 
-            that.http.delete<UsersInterface.IResponse>(`${that.mediaURL}/${command}/${entities}`).then(function (token)
+            that.http.delete<UsersInterface.IResponse>(`${that.usersURL}/${command}/${entities}`).then(function (token)
             {
                 if (token.data.error)
                 {
@@ -180,7 +180,7 @@
             that.errorMsg = "";
             that.loading = true;
 
-            that.http.put<UsersInterface.IResponse>(`${that.mediaURL}/rename-file/${file.identifier}`, { name: $("#file-name").val() }).then(function (token)
+            that.http.put<UsersInterface.IResponse>(`${that.usersURL}/files/${file.identifier}/rename-file`, { name: $("#file-name").val() }).then(function (token)
             {
                 if (token.data.error)
                 {
@@ -245,9 +245,9 @@
                     var command = "";
 
                     if (that.selectedFolder)
-                        command = `${that.mediaURL}/get-files/${Authenticator.user.username}/${that.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
+                        command = `${that.usersURL}/users/${Authenticator.user.username}/buckets/${that.selectedFolder.name}/get-files?index=${index}&limit=${limit}&search=${that.searchTerm}`
                     else
-                        command = `${that.mediaURL}/get-buckets/${Authenticator.user.username}/?index=${index}&limit=${limit}&search=${that.searchTerm}`
+                        command = `${that.usersURL}/users/${Authenticator.user.username}/buckets?index=${index}&limit=${limit}&search=${that.searchTerm}`
 
                     return new that._q<number>(function(resolve, reject)
                     {

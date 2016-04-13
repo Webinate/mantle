@@ -10,7 +10,6 @@
         public showNewPostForm: boolean;
         public editMode: boolean;
         public apiURL: string;
-        public mediaURL: string;
         public scope: any;
         public successMessage: string;
         public tagString: string;
@@ -35,13 +34,12 @@
         private pager: IPagerRemote;
 
 		// $inject annotation.
-        public static $inject = ["$scope", "$http", "apiURL", "mediaURL", "categories", "$q"];
-        constructor(scope, http: ng.IHttpService, apiURL: string, mediaURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService)
+        public static $inject = ["$scope", "$http", "apiURL", "categories", "$q"];
+        constructor(scope, http: ng.IHttpService, apiURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService)
         {
             this.newCategoryMode = false;
             this.scope = scope;
             this.apiURL = apiURL;
-            this.mediaURL = mediaURL;
             this.posts = [];
             this.successMessage = "";
             this.tagString = "";

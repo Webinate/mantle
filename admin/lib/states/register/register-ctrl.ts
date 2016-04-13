@@ -22,7 +22,7 @@
 			this.http = http;
             this.q = q;
             this.usersURL = usersURL;
-			
+
 			// Create the register token
 			this.registerToken = {
 				username: "",
@@ -33,7 +33,7 @@
                 privileges: 3,
                 meta: {}
 			};
-			
+
 			this.error = false;
 			this.showSuccessMessage = false;
 			this.errorMsg = "";
@@ -41,7 +41,7 @@
 			this.loading = false;
 
 			// Initialize the google captcha
-			jQuery('#google-captcha').each(function(){				
+			jQuery('#google-captcha').each(function(){
 				Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", this, { theme: "white" });
 			});
 		}
@@ -54,7 +54,7 @@
 			var that = this;
 			var token = this.registerToken;
 			var user = (token.email && token.email != "" ? token.email : token.username);
-			
+
 			this.loading = true;
 			this.error = false;
 			this.showSuccessMessage = false;
@@ -69,7 +69,7 @@
 				return;
 			}
 
-            this.http.get<UsersInterface.IResponse>(`${that.usersURL}/resend-activation/${user}`).then(function (response)
+            this.http.get<UsersInterface.IResponse>(`${that.usersURL}/users/${user}/resend-activation`).then(function (response)
 			{
 				var responseToken = response.data;
 				if (responseToken.error)

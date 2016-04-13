@@ -31,10 +31,7 @@ var PathHandler = (function () {
         var path = this._path;
         var requestIsSecure = (req.connection.encrypted || req.headers["x-forwarded-proto"] == "https" ? true : false);
         var url = (requestIsSecure ? "https" : "http") + "://" + config.host;
-        var options = {
-            usersURL: "" + users_service_1.UsersService.usersURL,
-            mediaURL: "" + users_service_1.UsersService.mediaURL,
-            url: url };
+        var options = { usersURL: "" + users_service_1.UsersService.usersURL, url: url };
         options.plugins = path.plugins || [];
         options.variables = {};
         // Add any custom variables
