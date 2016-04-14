@@ -18,9 +18,9 @@
       "sslRoot": "",
       "sslIntermediate": "",
       "controllers": [
-		{ "path" : "./controllers/emails-controller.js" },
-		{ "path" : "./controllers/posts-controller.js" }
-	  ],
+        { "path" : "./controllers/emails-controller.js" },
+        { "path" : "./controllers/posts-controller.js" }
+      ],
       "approvedDomains": [ "webinate\\.net", "127.0.0.1:80", "http:\/\/127.0.0.1" ],
       "paths": [
         {
@@ -28,7 +28,7 @@
           "path": "*",
           "index": "../../admin/dist/index.jade",
           "plugins": [ ],
-		  "variables": { "hello" : "world" }
+		      "variables": { "hello" : "world" }
         }
       ]
     }
