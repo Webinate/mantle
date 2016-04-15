@@ -5,6 +5,9 @@ declare module UsersInterface
         dbEntry: IUserEntry;
     }
 
+    /*
+    * Describes the different types of event interfaces we can use to interact with the system via web sockets
+    */
     export module SocketEvents
     {
         /*
@@ -16,11 +19,32 @@ declare module UsersInterface
         }
 
         /*
+        * A very simple echo event. This simply pings the server with a message, which then returns with the same message
+        * either to the client or, if broadcast is true, to all clients.
+        */
+        export interface IEchoEvent extends IEvent
+        {
+            message: string;
+            broadcast?: boolean;
+        }
+
+        /*
+        * Describes a get/set Meta request, which can fetch or set meta data for a given user
+        * if you provide a property value, then only that specific meta property is edited.
+        * If not provided, then the entire meta data is set.
+        */
+        export interface IMetaEvent extends IEvent
+        {
+            username?: string;
+            property: string;
+            val: any;
+        }
+
+        /*
         * The socket user event
         */
         export interface IUserEvent extends IEvent
         {
-            eventType: number;
             username: string;
         }
 
@@ -147,16 +171,6 @@ declare module UsersInterface
         expiration: number;
     }
 
-
-    /*
-    * Describes the type of client listening communicating to the web sockets
-    */
-    export interface IWebsocketClient
-    {
-        /*Where is the client origin expected from*/
-        origin: string;
-    }
-
     /*
     * Users stores data on an external cloud bucket with Google
     */
@@ -171,12 +185,13 @@ declare module UsersInterface
 
 
         /**
-        * An array of expected clients
+        * An array of safe origins for socket communication
         * [
-        *   { origin: "webinate.net", eventListeners: [1,4,5,6] }
+        *   "webinate.net",
+        *   "localhost"
         * ]
         */
-        clients: Array<IWebsocketClient>;
+        approvedSocketDomains: Array<string>;
     }
 
     /*
@@ -364,11 +379,6 @@ declare module UsersInterface
         * eg: If "/api", then the API url would be 127.0.0.1:80/api (or rather host:port/api)
         */
         apiPrefix: string;
-
-        /**
-        * A secret string to identify authenticated servers
-        */
-        secret: string;
 
         /**
         * The URL to redirect to after the user attempts to activate their account.
