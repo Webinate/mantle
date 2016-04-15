@@ -7,20 +7,16 @@ import * as users from "webinate-users";
 
 export enum UserEventType
 {
-    Login,
-    Logout,
-    Activated,
-    Removed,
-    FilesUploaded,
-    FilesRemoved,
-    BucketUploaded,
-    BucketRemoved
-}
-
-export interface UserEvent
-{
-    username: string;
-    eventType: UserEventType;
+    Login = 1,
+    Logout = 2,
+    Activated = 3,
+    Removed = 4,
+    FilesUploaded = 5,
+    FilesRemoved = 6,
+    BucketUploaded = 7,
+    BucketRemoved = 8,
+    MetaRequest = 9,
+    Echo = 10
 }
 
 /**

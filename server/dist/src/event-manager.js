@@ -8,14 +8,16 @@ var ws = require("ws");
 var winston = require("winston");
 var events = require("events");
 (function (UserEventType) {
-    UserEventType[UserEventType["Login"] = 0] = "Login";
-    UserEventType[UserEventType["Logout"] = 1] = "Logout";
-    UserEventType[UserEventType["Activated"] = 2] = "Activated";
-    UserEventType[UserEventType["Removed"] = 3] = "Removed";
-    UserEventType[UserEventType["FilesUploaded"] = 4] = "FilesUploaded";
-    UserEventType[UserEventType["FilesRemoved"] = 5] = "FilesRemoved";
-    UserEventType[UserEventType["BucketUploaded"] = 6] = "BucketUploaded";
-    UserEventType[UserEventType["BucketRemoved"] = 7] = "BucketRemoved";
+    UserEventType[UserEventType["Login"] = 1] = "Login";
+    UserEventType[UserEventType["Logout"] = 2] = "Logout";
+    UserEventType[UserEventType["Activated"] = 3] = "Activated";
+    UserEventType[UserEventType["Removed"] = 4] = "Removed";
+    UserEventType[UserEventType["FilesUploaded"] = 5] = "FilesUploaded";
+    UserEventType[UserEventType["FilesRemoved"] = 6] = "FilesRemoved";
+    UserEventType[UserEventType["BucketUploaded"] = 7] = "BucketUploaded";
+    UserEventType[UserEventType["BucketRemoved"] = 8] = "BucketRemoved";
+    UserEventType[UserEventType["MetaRequest"] = 9] = "MetaRequest";
+    UserEventType[UserEventType["Echo"] = 10] = "Echo";
 })(exports.UserEventType || (exports.UserEventType = {}));
 var UserEventType = exports.UserEventType;
 /**
