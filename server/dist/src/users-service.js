@@ -10,7 +10,6 @@ var UsersService = (function () {
     */
     function UsersService(config) {
         UsersService.usersURL = config.usersURL;
-        this._secret = config.usersSecret;
     }
     /**
     * Sends an email to the admin account
@@ -24,65 +23,6 @@ var UsersService = (function () {
                 if (error)
                     return reject(error);
                 resolve(body);
-            });
-        });
-    };
-    /**
-    * Sets a meta value by name for the specified user
-    * @param {string} name The name of the meta value
-    * @param {any} val The value to set
-    * @param {string} user The username of the target user
-    * @param {Request} req
-    * @returns {Promise<UsersInterface.IResponse>}
-    */
-    UsersService.prototype.setMetaValue = function (name, val, user, req) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
-            request.post(UsersService.usersURL + "/users/" + user + "/meta/" + name, { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
-                if (error)
-                    return reject(error);
-                var token = JSON.parse(body);
-                if (token.error)
-                    return reject(new Error(token.message));
-                resolve(token);
-            });
-        });
-    };
-    /**
-    * Sets a users meta data
-    * @param {any} val The value to set
-    * @param {string} user The username of the target user
-    * @param {Request} req
-    * @returns {Promise<UsersInterface.IResponse>}
-    */
-    UsersService.prototype.setMeta = function (val, user, req) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
-            request.post(UsersService.usersURL + "/users/" + user + "/meta", { body: { secret: that._secret, value: val }, headers: { cookie: req.headers.cookie } }, function (error, response, body) {
-                if (error)
-                    return reject(error);
-                var token = JSON.parse(body);
-                if (token.error)
-                    return reject(new Error(token.message));
-                resolve(token);
-            });
-        });
-    };
-    /**
-    * Gets a user's meta value
-    * @param {string} user The username of the user
-    * @param {string} name The meta value name we are looking for
-    * @param {express.Request} req
-    * @returns {any} The meta value
-    */
-    UsersService.prototype.getMetaVal = function (user, name, req) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
-            request.get(UsersService.usersURL + "/users/" + user + "/meta/" + name, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
-                if (error)
-                    return reject(error);
-                var token = JSON.parse(body);
-                resolve(token);
             });
         });
     };
@@ -141,23 +81,6 @@ var UsersService = (function () {
         else if (user.privileges > level)
             return false;
         return true;
-    };
-    /**
-    * Attempts to download a users usage stats
-    * @param {express.Request} req
-    */
-    UsersService.prototype.getStats = function (user, req) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
-            request.get(UsersService.usersURL + "/stats/get-stats/" + user, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
-                if (error)
-                    return reject(error);
-                var token = JSON.parse(body);
-                if (token.error)
-                    return reject(new Error(token.message));
-                resolve(token);
-            });
-        });
     };
     /**
     * Attempts to get a user by username

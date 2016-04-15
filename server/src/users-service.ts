@@ -11,7 +11,6 @@ export class UsersService
     private static _singleton: UsersService;
 
     public static usersURL: string;
-    private _secret: string;
 
     /**
 	* Creates an instance of the service
@@ -20,7 +19,6 @@ export class UsersService
     constructor(config: IConfig )
     {
         UsersService.usersURL = config.usersURL;
-        this._secret = config.usersSecret;
     }
 
     /**
@@ -39,84 +37,6 @@ export class UsersService
                     return reject(error);
 
                 resolve(body);
-            });
-        });
-    }
-
-    /**
-	* Sets a meta value by name for the specified user
-	* @param {string} name The name of the meta value
-    * @param {any} val The value to set
-    * @param {string} user The username of the target user
-    * @param {Request} req
-	* @returns {Promise<UsersInterface.IResponse>}
-	*/
-    setMetaValue(name: string, val: any, user: string, req: express.Request): Promise<UsersInterface.IResponse>
-    {
-        var that = this;
-        return new Promise<UsersInterface.IResponse>(function (resolve, reject)
-        {
-            request.post(`${UsersService.usersURL}/users/${user}/meta/${name}`, { body: { secret: that._secret, value: val }, headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
-
-                var token: UsersInterface.IResponse = JSON.parse(body);
-
-                if (token.error)
-                    return reject(new Error(token.message));
-
-                resolve(token);
-            });
-        });
-    }
-
-    /**
-	* Sets a users meta data
-    * @param {any} val The value to set
-    * @param {string} user The username of the target user
-    * @param {Request} req
-	* @returns {Promise<UsersInterface.IResponse>}
-	*/
-    setMeta(val: any, user: string, req: express.Request): Promise<UsersInterface.IResponse>
-    {
-        var that = this;
-        return new Promise<UsersInterface.IResponse>(function (resolve, reject)
-        {
-            request.post(`${UsersService.usersURL}/users/${user}/meta`, { body: { secret: that._secret, value: val }, headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
-
-                var token: UsersInterface.IResponse = JSON.parse(body);
-
-                if (token.error)
-                    return reject(new Error(token.message));
-
-                resolve(token);
-            });
-        });
-    }
-
-	/**
-	* Gets a user's meta value
-    * @param {string} user The username of the user
-    * @param {string} name The meta value name we are looking for
-	* @param {express.Request} req
-    * @returns {any} The meta value
-	*/
-    private getMetaVal(user: string, name: string, req: any): any
-    {
-        var that = this;
-        return new Promise<any>(function (resolve, reject)
-        {
-            request.get(`${UsersService.usersURL}/users/${user}/meta/${name}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
-
-                var token: any = JSON.parse(body);
-                resolve(token);
             });
         });
     }
@@ -193,30 +113,6 @@ export class UsersService
             return false;
 
         return true;
-    }
-
-   /**
-   * Attempts to download a users usage stats
-   * @param {express.Request} req
-   */
-    getStats(user: string, req: express.Request): Promise<UsersInterface.IGetUserStorageData>
-    {
-        var that = this;
-        return new Promise<UsersInterface.IGetUserStorageData>(function (resolve, reject)
-        {
-            request.get(`${UsersService.usersURL}/stats/get-stats/${user}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
-
-                var token: UsersInterface.IGetUserStorageData = JSON.parse(body);
-
-                if (token.error)
-                    return reject(new Error(token.message));
-
-                resolve(token);
-            });
-        });
     }
 
     /**

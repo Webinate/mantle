@@ -268,11 +268,6 @@
         usersURL: string;
 
         /**
-        * A secret token to identify this server to the Users service
-        */
-        usersSecret: string;
-
-        /**
         * An array of servers for each host / route that modepress is supporting
         */
         servers: Array<IServer>;
@@ -614,17 +609,6 @@
         * @returns {Promise<any>}
         */
         sendAdminEmail(message: string): Promise<any>;
-
-        /**
-        * Sets a meta value by name for the specified user
-        * @param {string} name The name of the meta value
-        * @param {any} val The value to set
-        * @param {string} user The username of the target user
-        * @param {Request} req
-        * @param {Response} res
-        * @returns {Promise<UsersInterface.IResponse>}
-        */
-        setMetaValue(name: string, val: any, user: string, req, res): Promise<UsersInterface.IResponse>;
 
         /**
         * Checks if a user is logged in and authenticated
