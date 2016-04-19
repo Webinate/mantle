@@ -107,10 +107,7 @@ export class Schema
             toReturn[items[i].name] = items[i].getValue();
 		}
 
-        if (sanitize)
-            (<IModelEntry>toReturn)._id = null;
-       else
-            (<IModelEntry>toReturn)._id = id;
+       (<IModelEntry>toReturn)._id = id;
 
         return toReturn;
     }
