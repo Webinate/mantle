@@ -98,7 +98,14 @@ export class Schema
         var items = this.items;
 
         for (var i = 0, l = items.length; i < l; i++)
-            toReturn[items[i].name] = items[i].getValue(sanitize);
+		{
+			// If this data is sensitive and the request must be sanitized
+			// then skip the item
+			if ( items[i].getSensitive() && sanitize )
+				continue;
+
+            toReturn[items[i].name] = items[i].getValue();
+		}
 
         if (sanitize)
             (<IModelEntry>toReturn)._id = null;

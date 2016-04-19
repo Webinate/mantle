@@ -76,15 +76,10 @@ var SchemaNumber = (function (_super) {
     };
     /**
     * Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
     */
-    SchemaNumber.prototype.getValue = function (sanitize) {
-        if (sanitize === void 0) { sanitize = false; }
-        if (this.sensitive && sanitize)
-            return 0;
-        else
-            return this.value;
+    SchemaNumber.prototype.getValue = function () {
+        return this.value;
     };
     return SchemaNumber;
 }(schema_item_1.SchemaItem));

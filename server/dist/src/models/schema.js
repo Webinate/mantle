@@ -69,8 +69,13 @@ var Schema = (function () {
     Schema.prototype.generateCleanData = function (sanitize, id) {
         var toReturn = {};
         var items = this.items;
-        for (var i = 0, l = items.length; i < l; i++)
-            toReturn[items[i].name] = items[i].getValue(sanitize);
+        for (var i = 0, l = items.length; i < l; i++) {
+            // If this data is sensitive and the request must be sanitized
+            // then skip the item
+            if (items[i].getSensitive() && sanitize)
+                continue;
+            toReturn[items[i].name] = items[i].getValue();
+        }
         if (sanitize)
             toReturn._id = null;
         else

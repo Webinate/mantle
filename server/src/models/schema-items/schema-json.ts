@@ -43,14 +43,10 @@ export class SchemaJSON extends SchemaItem<any>
 
     /**
 	* Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
 	*/
-    public getValue(sanitize: boolean = false): any
+    public getValue(): any
     {
-        if (this.sensitive && sanitize)
-            return {};
-        else
-            return this.value;
+        return this.value;
     }
 }

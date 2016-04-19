@@ -6,7 +6,7 @@ var SchemaItem = (function () {
     function SchemaItem(name, value, sensitive) {
         this.name = name;
         this.value = value;
-        this.sensitive = sensitive;
+        this._sensitive = sensitive;
         this._unique = false;
         this._uniqueIndexer = false;
         this._indexable = false;
@@ -19,11 +19,11 @@ var SchemaItem = (function () {
     * @returns {SchemaItem}
     */
     SchemaItem.prototype.clone = function (copy) {
-        copy = copy === undefined ? new SchemaItem(this.name, this.value, this.sensitive) : copy;
+        copy = copy === undefined ? new SchemaItem(this.name, this.value, this._sensitive) : copy;
         copy._unique = this._unique;
         copy._uniqueIndexer = this._uniqueIndexer;
         copy._required = this._required;
-        copy.sensitive = this.sensitive;
+        copy._sensitive = this._sensitive;
         return copy;
     };
     /**
@@ -87,7 +87,7 @@ var SchemaItem = (function () {
     * @returns {boolean}
     */
     SchemaItem.prototype.getSensitive = function () {
-        return this.sensitive;
+        return this._sensitive;
     };
     /**
     * Gets if this item has been edited since its creation
@@ -101,7 +101,7 @@ var SchemaItem = (function () {
     * @returns {SchemaItem<T>}
     */
     SchemaItem.prototype.setSensitive = function (val) {
-        this.sensitive = val;
+        this._sensitive = val;
         return this;
     };
     /**
@@ -113,11 +113,9 @@ var SchemaItem = (function () {
     };
     /**
     * Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
     */
-    SchemaItem.prototype.getValue = function (sanitize) {
-        if (sanitize === void 0) { sanitize = false; }
+    SchemaItem.prototype.getValue = function () {
         return this.value;
     };
     /**

@@ -43,14 +43,10 @@ export class SchemaBool extends SchemaItem<boolean>
 
     /**
 	* Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {boolean}
 	*/
-    public getValue(sanitize: boolean = false): boolean
+    public getValue(): boolean
     {
-        if (this.sensitive && sanitize)
-            return false;
-        else
-            return this.value;
+        return this.value;
     }
 }

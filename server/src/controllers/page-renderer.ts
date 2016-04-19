@@ -328,7 +328,7 @@ export default class PageRenderer extends Controller
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find a render with that ID"));
 
-            var html : string = instances[0].schema.getByName("html").getValue(false);
+            var html : string = instances[0].schema.getByName("html").getValue();
 
             var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
             for (var i = 0; matches && i < matches.length; i++)

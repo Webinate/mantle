@@ -57,14 +57,10 @@ var SchemaId = (function (_super) {
     };
     /**
     * Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
     */
-    SchemaId.prototype.getValue = function (sanitize) {
-        if (sanitize === void 0) { sanitize = false; }
-        if (this.sensitive && sanitize)
-            return null;
-        else if (!this.value)
+    SchemaId.prototype.getValue = function () {
+        if (!this.value)
             return null;
         else
             return this.value;

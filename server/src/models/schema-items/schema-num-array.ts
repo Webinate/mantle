@@ -96,14 +96,10 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
 
     /**
 	* Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {Array<number>}
 	*/
-    public getValue(sanitize: boolean = false): Array<number>
+    public getValue(): Array<number>
     {
-        if (this.sensitive && sanitize)
-            return null;
-        else
-            return this.value;
+        return this.value;
     }
 }

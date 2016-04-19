@@ -209,7 +209,7 @@ var PageRenderer = (function (_super) {
         renders.findInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances) {
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find a render with that ID"));
-            var html = instances[0].schema.getByName("html").getValue(false);
+            var html = instances[0].schema.getByName("html").getValue();
             var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
             for (var i = 0; matches && i < matches.length; i++) {
                 if (matches[i].indexOf('application/ld+json') === -1) {

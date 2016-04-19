@@ -41,15 +41,10 @@ var SchemaJSON = (function (_super) {
     };
     /**
     * Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
     */
-    SchemaJSON.prototype.getValue = function (sanitize) {
-        if (sanitize === void 0) { sanitize = false; }
-        if (this.sensitive && sanitize)
-            return {};
-        else
-            return this.value;
+    SchemaJSON.prototype.getValue = function () {
+        return this.value;
     };
     return SchemaJSON;
 }(schema_item_1.SchemaItem));
