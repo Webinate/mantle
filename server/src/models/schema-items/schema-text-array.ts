@@ -83,26 +83,17 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
                 return `The character length of '${transformedValue[i]}' in ${this.name} is too long, please keep it below ${maxCharacters}`;
             else if (transformedValue[i].length < minCharacters)
                 return `The character length of '${transformedValue[i]}' in ${this.name} is too short, please keep it above ${minCharacters}`;
-
-
         }
-
-
-
 
         return true;
     }
 
     /**
 	* Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {Array<string>}
 	*/
-    public getValue(sanitize: boolean = false): Array<string>
+    public getValue(): Array<string>
     {
-        if (this.sensitive && sanitize)
-            return null;
-        else
-            return this.value;
+        return this.value;
     }
 }

@@ -62,14 +62,11 @@ export class SchemaId extends SchemaItem<ObjectID | string>
 
     /**
 	* Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
 	*/
-    public getValue(sanitize: boolean = false): ObjectID
+    public getValue(): ObjectID
     {
-        if (this.sensitive && sanitize)
-            return null;
-        else if (!this.value)
+        if (!this.value)
             return null;
         else
             return <ObjectID>this.value;

@@ -5,7 +5,7 @@ export class SchemaItem<T>
 {
 	public name: string;
     public value: T;
-    public sensitive: boolean;
+    private _sensitive: boolean;
     private _unique: boolean;
     private _uniqueIndexer: boolean;
     private _indexable: boolean;
@@ -16,7 +16,7 @@ export class SchemaItem<T>
 	{
 		this.name = name;
         this.value = value;
-        this.sensitive = sensitive;
+        this._sensitive = sensitive;
         this._unique = false;
         this._uniqueIndexer = false;
         this._indexable = false;
@@ -31,11 +31,11 @@ export class SchemaItem<T>
 	*/
     public clone(copy?: SchemaItem<T>): SchemaItem<T>
     {
-        copy = copy === undefined ? new SchemaItem(this.name, this.value, this.sensitive) : copy;
+        copy = copy === undefined ? new SchemaItem(this.name, this.value, this._sensitive) : copy;
         copy._unique = this._unique;
         copy._uniqueIndexer = this._uniqueIndexer;
         copy._required = this._required;
-        copy.sensitive = this.sensitive;
+        copy._sensitive = this._sensitive;
 		return copy;
     }
 
@@ -113,7 +113,7 @@ export class SchemaItem<T>
     */
     public getSensitive(): boolean
     {
-        return this.sensitive;
+        return this._sensitive;
     }
 
     /**
@@ -131,7 +131,7 @@ export class SchemaItem<T>
     */
     public setSensitive(val: boolean): SchemaItem<T>
     {
-        this.sensitive = val;
+        this._sensitive = val;
         return this;
     }
 
@@ -146,10 +146,9 @@ export class SchemaItem<T>
 
     /**
 	* Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
 	*/
-    public getValue(sanitize: boolean = false): T
+    public getValue(): T
     {
         return this.value;
     }

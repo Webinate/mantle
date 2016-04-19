@@ -359,10 +359,9 @@
 
         /**
         * Gets the value of this item
-        * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
         * @returns {SchemaValue}
         */
-        public getValue(sanitize: boolean): T;
+        public getValue(): T;
 
         /**
         * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But

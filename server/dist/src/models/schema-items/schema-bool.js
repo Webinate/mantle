@@ -42,15 +42,10 @@ var SchemaBool = (function (_super) {
     };
     /**
     * Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {boolean}
     */
-    SchemaBool.prototype.getValue = function (sanitize) {
-        if (sanitize === void 0) { sanitize = false; }
-        if (this.sensitive && sanitize)
-            return false;
-        else
-            return this.value;
+    SchemaBool.prototype.getValue = function () {
+        return this.value;
     };
     return SchemaBool;
 }(schema_item_1.SchemaItem));

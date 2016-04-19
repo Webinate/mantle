@@ -47,14 +47,10 @@ export class SchemaDate extends SchemaItem<number>
 
     /**
 	* Gets the value of this item
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @returns {SchemaValue}
 	*/
-    public getValue(sanitize: boolean = false): number
+    public getValue(): number
     {
-        if (this.sensitive && sanitize)
-            return 0;
-        else
-            return (this.value !== undefined && this.value !== null ? this.value : Date.now() );
+        return (this.value !== undefined && this.value !== null ? this.value : Date.now() );
     }
 }
