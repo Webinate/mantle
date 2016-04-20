@@ -16,6 +16,11 @@ declare module UsersInterface
         export interface IEvent
         {
             eventType: number;
+
+            /*
+            * Will be null if no error, or a string if there is
+            */
+            error: string;
         }
 
         /*

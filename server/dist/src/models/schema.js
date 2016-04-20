@@ -76,10 +76,7 @@ var Schema = (function () {
                 continue;
             toReturn[items[i].name] = items[i].getValue();
         }
-        if (sanitize)
-            toReturn._id = null;
-        else
-            toReturn._id = id;
+        toReturn._id = id;
         return toReturn;
     };
     /**
