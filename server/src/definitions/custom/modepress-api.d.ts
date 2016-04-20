@@ -6,6 +6,8 @@
     export interface IModelEntry
     {
         _id?: any;
+        requiredDependencies?: Array<{ collection: string, _id : any }>
+        optionalDependencies?: Array<{ collection: string, _id : any }>
     }
 
     /*

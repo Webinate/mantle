@@ -6,6 +6,7 @@ declare module Modepress
     export interface IModelEntry
     {
         _id?: any;
+        dependencies: Array<{ collection: string, _id : any }>
     }
 
     /*
