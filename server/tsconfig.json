@@ -38,6 +38,7 @@
       "src/models/schema-items/schema-date.ts",
       "src/models/schema-items/schema-html.ts",
       "src/models/schema-items/schema-id.ts",
+      "src/models/schema-items/schema-foreign-key.ts",
       "src/models/schema-items/schema-id-array.ts",
       "src/models/schema-items/schema-item.ts",
       "src/models/schema-items/schema-item-factory.ts",
