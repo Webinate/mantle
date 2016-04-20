@@ -17,15 +17,13 @@ var SchemaText = (function (_super) {
     * @param {string} val The text of this item
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
     * @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     * @param {boolean} htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
     */
-    function SchemaText(name, val, minCharacters, maxCharacters, sensitive, htmlClean) {
+    function SchemaText(name, val, minCharacters, maxCharacters, htmlClean) {
         if (minCharacters === void 0) { minCharacters = 0; }
         if (maxCharacters === void 0) { maxCharacters = 10000; }
-        if (sensitive === void 0) { sensitive = false; }
         if (htmlClean === void 0) { htmlClean = true; }
-        _super.call(this, name, val, sensitive);
+        _super.call(this, name, val);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
         this.htmlClean = htmlClean;

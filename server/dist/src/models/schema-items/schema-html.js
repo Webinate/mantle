@@ -20,16 +20,14 @@ var SchemaHtml = (function (_super) {
     * @param {boolean} errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
     * @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     */
-    function SchemaHtml(name, val, allowedTags, allowedAttributes, errorBadHTML, minCharacters, maxCharacters, sensitive) {
+    function SchemaHtml(name, val, allowedTags, allowedAttributes, errorBadHTML, minCharacters, maxCharacters) {
         if (allowedTags === void 0) { allowedTags = SchemaHtml.defaultTags; }
         if (allowedAttributes === void 0) { allowedAttributes = SchemaHtml.defaultAllowedAttributes; }
         if (errorBadHTML === void 0) { errorBadHTML = true; }
         if (minCharacters === void 0) { minCharacters = 0; }
         if (maxCharacters === void 0) { maxCharacters = 10000; }
-        if (sensitive === void 0) { sensitive = false; }
-        _super.call(this, name, val, sensitive);
+        _super.call(this, name, val);
         this.errorBadHTML = errorBadHTML;
         this.allowedAttributes = allowedAttributes;
         this.allowedTags = allowedTags;

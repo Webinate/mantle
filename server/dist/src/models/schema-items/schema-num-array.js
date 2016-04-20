@@ -21,17 +21,15 @@ var SchemaNumArray = (function (_super) {
     * @param {number} max [Optional] Specify the maximum a number can be
     * @param {NumberType} type [Optional] What type of numbers to expect
     * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     */
-    function SchemaNumArray(name, val, minItems, maxItems, min, max, type, decimalPlaces, sensitive) {
+    function SchemaNumArray(name, val, minItems, maxItems, min, max, type, decimalPlaces) {
         if (minItems === void 0) { minItems = 0; }
         if (maxItems === void 0) { maxItems = Infinity; }
         if (min === void 0) { min = -Infinity; }
         if (max === void 0) { max = Infinity; }
         if (type === void 0) { type = schema_number_1.NumberType.Integer; }
         if (decimalPlaces === void 0) { decimalPlaces = 2; }
-        if (sensitive === void 0) { sensitive = false; }
-        _super.call(this, name, val, sensitive);
+        _super.call(this, name, val);
         this.max = max;
         this.min = min;
         this.maxItems = maxItems;

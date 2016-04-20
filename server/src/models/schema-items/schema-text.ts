@@ -16,12 +16,11 @@ export class SchemaText extends SchemaItem<string>
 	* @param {string} val The text of this item
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
 	* @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     * @param {boolean} htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
 	*/
-    constructor(name: string, val: string, minCharacters: number = 0, maxCharacters: number = 10000, sensitive: boolean = false, htmlClean: boolean = true)
+    constructor(name: string, val: string, minCharacters: number = 0, maxCharacters: number = 10000, htmlClean: boolean = true)
     {
-        super(name, val, sensitive);
+        super(name, val);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
         this.htmlClean = htmlClean;

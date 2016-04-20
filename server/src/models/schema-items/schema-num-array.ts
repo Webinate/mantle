@@ -23,11 +23,10 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
 	* @param {number} max [Optional] Specify the maximum a number can be
     * @param {NumberType} type [Optional] What type of numbers to expect
     * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
-    constructor(name: string, val: Array<number>, minItems: number = 0, maxItems: number = Infinity, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2, sensitive: boolean = false)
+    constructor(name: string, val: Array<number>, minItems: number = 0, maxItems: number = Infinity, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2)
     {
-        super(name, val, sensitive);
+        super(name, val);
         this.max = max;
         this.min = min;
         this.maxItems = maxItems;

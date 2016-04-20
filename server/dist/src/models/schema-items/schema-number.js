@@ -26,15 +26,13 @@ var SchemaNumber = (function (_super) {
     * @param {number} max [Optional] The maximum value the value can be
     * @param {NumberType} type [Optional] The type of number the schema represents
     * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     */
-    function SchemaNumber(name, val, min, max, type, decimalPlaces, sensitive) {
+    function SchemaNumber(name, val, min, max, type, decimalPlaces) {
         if (min === void 0) { min = -Infinity; }
         if (max === void 0) { max = Infinity; }
         if (type === void 0) { type = NumberType.Integer; }
         if (decimalPlaces === void 0) { decimalPlaces = 2; }
-        if (sensitive === void 0) { sensitive = false; }
-        _super.call(this, name, val, sensitive);
+        _super.call(this, name, val);
         this.min = min;
         this.max = max;
         this.type = type;

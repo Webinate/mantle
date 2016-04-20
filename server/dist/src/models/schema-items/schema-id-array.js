@@ -18,13 +18,11 @@ var SchemaIdArray = (function (_super) {
     * @param {Array<string|ObjectID>} val The array of ids for this schema item
     * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
     * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     */
-    function SchemaIdArray(name, val, minItems, maxItems, sensitive) {
+    function SchemaIdArray(name, val, minItems, maxItems) {
         if (minItems === void 0) { minItems = 0; }
         if (maxItems === void 0) { maxItems = 10000; }
-        if (sensitive === void 0) { sensitive = false; }
-        _super.call(this, name, val, sensitive);
+        _super.call(this, name, val);
         this.maxItems = maxItems;
         this.minItems = minItems;
     }

@@ -11,12 +11,11 @@ export class SchemaDate extends SchemaItem<number>
 	* Creates a new schema item
 	* @param {string} name The name of this item
 	* @param {number} val The date of this item. If none is specified the Date.now() number is used.
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     * @param {boolean} useNow [Optional] If true, the date will always be updated to use the current date
 	*/
-    constructor(name: string, val?: number, sensitive: boolean = false, useNow: boolean = false)
+    constructor(name: string, val?: number, useNow: boolean = false)
     {
-        super(name, val, sensitive);
+        super(name, val);
         this.useNow = useNow;
 	}
 

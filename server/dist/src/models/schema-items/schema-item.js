@@ -3,10 +3,10 @@
 * A definition of each item in the model
 */
 var SchemaItem = (function () {
-    function SchemaItem(name, value, sensitive) {
+    function SchemaItem(name, value) {
         this.name = name;
         this.value = value;
-        this._sensitive = sensitive;
+        this._sensitive = false;
         this._unique = false;
         this._uniqueIndexer = false;
         this._indexable = false;
@@ -19,7 +19,7 @@ var SchemaItem = (function () {
     * @returns {SchemaItem}
     */
     SchemaItem.prototype.clone = function (copy) {
-        copy = copy === undefined ? new SchemaItem(this.name, this.value, this._sensitive) : copy;
+        copy = copy === undefined ? new SchemaItem(this.name, this.value) : copy;
         copy._unique = this._unique;
         copy._uniqueIndexer = this._uniqueIndexer;
         copy._required = this._required;

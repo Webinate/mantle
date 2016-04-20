@@ -21,7 +21,7 @@ var PostsModel = (function (_super) {
         this.defaultSchema.add(new schema_item_factory_1.textArray("categories", []));
         this.defaultSchema.add(new schema_item_factory_1.textArray("tags", []));
         this.defaultSchema.add(new schema_item_factory_1.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new schema_item_factory_1.date("lastUpdated", undefined, false, true)).setIndexable(true);
+        this.defaultSchema.add(new schema_item_factory_1.date("lastUpdated", undefined, true)).setIndexable(true);
     }
     return PostsModel;
 }(model_1.Model));

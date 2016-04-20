@@ -19,6 +19,6 @@ export class PostsModel extends Model
         this.defaultSchema.add(new textArray("categories", []));
         this.defaultSchema.add(new textArray("tags", []));
         this.defaultSchema.add(new date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new date("lastUpdated", undefined, false, true)).setIndexable(true);
+        this.defaultSchema.add(new date("lastUpdated", undefined, true)).setIndexable(true);
 	}
 }

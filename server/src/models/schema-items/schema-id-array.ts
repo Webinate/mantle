@@ -17,11 +17,10 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID>>
 	* @param {Array<string|ObjectID>} val The array of ids for this schema item
     * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
     * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
-    constructor(name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, sensitive: boolean = false)
+    constructor(name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000)
     {
-        super(name, val, sensitive);
+        super(name, val);
         this.maxItems = maxItems;
         this.minItems = minItems;
 	}

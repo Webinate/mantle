@@ -19,15 +19,13 @@ var SchemaTextArray = (function (_super) {
     * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
     * @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     */
-    function SchemaTextArray(name, val, minItems, maxItems, minCharacters, maxCharacters, sensitive) {
+    function SchemaTextArray(name, val, minItems, maxItems, minCharacters, maxCharacters) {
         if (minItems === void 0) { minItems = 0; }
         if (maxItems === void 0) { maxItems = 10000; }
         if (minCharacters === void 0) { minCharacters = 0; }
         if (maxCharacters === void 0) { maxCharacters = 10000; }
-        if (sensitive === void 0) { sensitive = false; }
-        _super.call(this, name, val, sensitive);
+        _super.call(this, name, val);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
         this.maxItems = maxItems;

@@ -14,11 +14,9 @@ var SchemaJSON = (function (_super) {
     * Creates a new schema item
     * @param {string} name The name of this item
     * @param {any} val The text of this item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     */
-    function SchemaJSON(name, val, sensitive) {
-        if (sensitive === void 0) { sensitive = false; }
-        _super.call(this, name, val, sensitive);
+    function SchemaJSON(name, val) {
+        _super.call(this, name, val);
     }
     /**
     * Creates a clone of this item

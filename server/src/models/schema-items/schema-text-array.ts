@@ -19,11 +19,10 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
     * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
 	* @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
-    constructor(name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, minCharacters: number = 0, maxCharacters: number = 10000, sensitive: boolean = false)
+    constructor(name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, minCharacters: number = 0, maxCharacters: number = 10000)
     {
-        super(name, val, sensitive);
+        super(name, val);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
         this.maxItems = maxItems;

@@ -9,11 +9,10 @@ export class SchemaBool extends SchemaItem<boolean>
 	* Creates a new schema item
 	* @param {string} name The name of this item
 	* @param {boolean} val The value of this item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
-    constructor(name: string, val: boolean, sensitive: boolean = false)
+    constructor(name: string, val: boolean)
     {
-        super(name, val, sensitive);
+        super(name, val);
 	}
 
 	/**

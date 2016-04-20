@@ -27,11 +27,10 @@ export class SchemaNumber extends SchemaItem<number>
 	* @param {number} max [Optional] The maximum value the value can be
 	* @param {NumberType} type [Optional] The type of number the schema represents
 	* @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
-    constructor(name: string, val: number, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2, sensitive: boolean = false)
+    constructor(name: string, val: number, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2)
 	{
-        super(name, val, sensitive);
+        super(name, val);
 		this.min = min;
 		this.max = max;
         this.type = type;

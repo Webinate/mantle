@@ -36,13 +36,12 @@ export class SchemaHtml extends SchemaItem<string>
     * @param {boolean} errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
 	* @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
     constructor(name: string, val: string, allowedTags: Array<string> = SchemaHtml.defaultTags,
         allowedAttributes: { [name: string]: Array<string> } = SchemaHtml.defaultAllowedAttributes,
-        errorBadHTML: boolean = true, minCharacters: number = 0, maxCharacters: number = 10000, sensitive: boolean = false)
+        errorBadHTML: boolean = true, minCharacters: number = 0, maxCharacters: number = 10000)
     {
-        super(name, val, sensitive);
+        super(name, val);
 
         this.errorBadHTML = errorBadHTML;
         this.allowedAttributes = allowedAttributes;

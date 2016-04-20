@@ -14,13 +14,11 @@ var SchemaDate = (function (_super) {
     * Creates a new schema item
     * @param {string} name The name of this item
     * @param {number} val The date of this item. If none is specified the Date.now() number is used.
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
     * @param {boolean} useNow [Optional] If true, the date will always be updated to use the current date
     */
-    function SchemaDate(name, val, sensitive, useNow) {
-        if (sensitive === void 0) { sensitive = false; }
+    function SchemaDate(name, val, useNow) {
         if (useNow === void 0) { useNow = false; }
-        _super.call(this, name, val, sensitive);
+        _super.call(this, name, val);
         this.useNow = useNow;
     }
     /**

@@ -10,11 +10,10 @@ export class SchemaJSON extends SchemaItem<any>
 	* Creates a new schema item
 	* @param {string} name The name of this item
 	* @param {any} val The text of this item
-    * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
 	*/
-    constructor(name: string, val: any, sensitive: boolean = false)
+    constructor(name: string, val: any)
     {
-        super(name, val, sensitive);
+        super(name, val);
 	}
 
 	/**

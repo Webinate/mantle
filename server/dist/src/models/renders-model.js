@@ -10,9 +10,9 @@ var RendersModel = (function (_super) {
     __extends(RendersModel, _super);
     function RendersModel() {
         _super.call(this, "renders");
-        this.defaultSchema.add(new schema_item_factory_1.text("url", "", 1, 1000, false, false));
-        this.defaultSchema.add(new schema_item_factory_1.text("html", "", 0, Number.MAX_VALUE, true, false));
-        this.defaultSchema.add(new schema_item_factory_1.date("expiration", undefined, true, false));
+        this.defaultSchema.add(new schema_item_factory_1.text("url", "", 1, 1000, false));
+        this.defaultSchema.add(new schema_item_factory_1.text("html", "", 0, Number.MAX_VALUE, false));
+        this.defaultSchema.add(new schema_item_factory_1.date("expiration", undefined, false));
         this.defaultSchema.add(new schema_item_factory_1.date("createdOn")).setIndexable(true);
     }
     return RendersModel;

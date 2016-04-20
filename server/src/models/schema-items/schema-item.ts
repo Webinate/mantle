@@ -12,11 +12,11 @@ export class SchemaItem<T>
     private _required: boolean;
     private _modified: boolean;
 
-    constructor(name: string, value: T, sensitive: boolean)
+    constructor(name: string, value: T)
 	{
 		this.name = name;
         this.value = value;
-        this._sensitive = sensitive;
+        this._sensitive = false;
         this._unique = false;
         this._uniqueIndexer = false;
         this._indexable = false;
@@ -31,7 +31,7 @@ export class SchemaItem<T>
 	*/
     public clone(copy?: SchemaItem<T>): SchemaItem<T>
     {
-        copy = copy === undefined ? new SchemaItem(this.name, this.value, this._sensitive) : copy;
+        copy = copy === undefined ? new SchemaItem(this.name, this.value) : copy;
         copy._unique = this._unique;
         copy._uniqueIndexer = this._uniqueIndexer;
         copy._required = this._required;
