@@ -7,12 +7,12 @@ import {IModelEntry} from "modepress-api";
 */
 export class Schema
 {
-	public items: Array<SchemaItem<any>>;
+	private _items: Array<SchemaItem<any>>;
 	public error: string;
 
 	constructor()
 	{
-		this.items = [];
+		this._items = [];
 		this.error = "";
 	}
 
@@ -22,11 +22,11 @@ export class Schema
 	*/
 	public clone(): Schema
 	{
-		var items = this.items;
+		var items = this._items;
 		var copy = new Schema();
 
 		for (var i = 0, l = items.length; i < l; i++)
-			copy.items.push(items[i].clone());
+			copy._items.push(items[i].clone());
 
 		return copy;
     }
@@ -37,7 +37,7 @@ export class Schema
 	*/
     set(data: any)
     {
-        var items = this.items,
+        var items = this._items,
             l = items.length;
 
         for (var i in data)
@@ -55,7 +55,7 @@ export class Schema
 	*/
 	setVal(name: string, val: any)
 	{
-		var items = this.items;
+		var items = this._items;
 
 		for (var i = 0, l = items.length; i < l; i++)
             if (items[i].name == name)
@@ -79,7 +79,7 @@ export class Schema
 	public serialize(): any
 	{
 		var toReturn = {};
-		var items = this.items;
+		var items = this._items;
 
 		for (var i = 0, l = items.length; i < l; i++)
             toReturn[items[i].name] = items[i].getValue();
@@ -95,7 +95,7 @@ export class Schema
     public generateCleanData<T>(sanitize: boolean, id: ObjectID): T
     {
         var toReturn : T = <any>{};
-        var items = this.items;
+        var items = this._items;
 
         for (var i = 0, l = items.length; i < l; i++)
 		{
@@ -119,7 +119,7 @@ export class Schema
 	*/
 	public validate( checkForRequiredFields: boolean ): boolean
 	{
-		var items = this.items;
+		var items = this._items;
 		this.error = "";
 
 		for (var i = 0, l = items.length; i < l; i++)
@@ -148,7 +148,7 @@ export class Schema
 	*/
 	public getByName(val: string): SchemaItem<any>
 	{
-		var items = this.items;
+		var items = this._items;
 		for (var i = 0, l = items.length; i < l; i++)
 			if (items[i].name == val)
 				return items[i];
@@ -163,10 +163,16 @@ export class Schema
 	*/
     public add(val: SchemaItem<any>): SchemaItem<any>
 	{
-		if (this.getByName(val.name))
+        if (val.name == "_id" )
+			throw new Error(`You cannot use the schema item name _id as its a reserved keyword`);
+        else if (val.name == "_requiredDependencies" )
+			throw new Error(`You cannot use the schema item name _requiredDependencies as its a reserved keyword`);
+        else if (val.name == "_optionalDependencies" )
+			throw new Error(`You cannot use the schema item name _optionalDependencies as its a reserved keyword`);
+		else if (this.getByName(val.name))
 			throw new Error(`An item with the name ${val.name} already exists.`);
 
-        this.items.push(val);
+        this._items.push(val);
         return val;
 	}
 
@@ -176,7 +182,7 @@ export class Schema
 	*/
     public remove(val: SchemaItem<any>|string)
 	{
-		var items = this.items;
+		var items = this._items;
 		var name = "";
         if (<SchemaItem<any>>val instanceof SchemaItem)
             name = (<SchemaItem<any>>val).name;
@@ -188,4 +194,13 @@ export class Schema
 				return;
 			}
 	}
+
+    /**
+     * Gets the schema items associated with this schema
+     * @returns {Array<SchemaItem<any>>}
+     */
+    public getItems(): Array<SchemaItem<any>>
+    {
+        return this._items;
+    }
 }

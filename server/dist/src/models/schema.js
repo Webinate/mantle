@@ -5,7 +5,7 @@ var schema_item_1 = require("./schema-items/schema-item");
 */
 var Schema = (function () {
     function Schema() {
-        this.items = [];
+        this._items = [];
         this.error = "";
     }
     /**
@@ -13,10 +13,10 @@ var Schema = (function () {
     * @returns {Schema}
     */
     Schema.prototype.clone = function () {
-        var items = this.items;
+        var items = this._items;
         var copy = new Schema();
         for (var i = 0, l = items.length; i < l; i++)
-            copy.items.push(items[i].clone());
+            copy._items.push(items[i].clone());
         return copy;
     };
     /**
@@ -24,7 +24,7 @@ var Schema = (function () {
     * @param {any} data The data object we are setting
     */
     Schema.prototype.set = function (data) {
-        var items = this.items, l = items.length;
+        var items = this._items, l = items.length;
         for (var i in data) {
             for (var ii = 0; ii < l; ii++)
                 if (items[ii].name == i)
@@ -37,7 +37,7 @@ var Schema = (function () {
     * @param {any} val The new value of the item
     */
     Schema.prototype.setVal = function (name, val) {
-        var items = this.items;
+        var items = this._items;
         for (var i = 0, l = items.length; i < l; i++)
             if (items[i].name == name)
                 items[i].setValue(val);
@@ -56,7 +56,7 @@ var Schema = (function () {
     */
     Schema.prototype.serialize = function () {
         var toReturn = {};
-        var items = this.items;
+        var items = this._items;
         for (var i = 0, l = items.length; i < l; i++)
             toReturn[items[i].name] = items[i].getValue();
         return toReturn;
@@ -68,7 +68,7 @@ var Schema = (function () {
     */
     Schema.prototype.generateCleanData = function (sanitize, id) {
         var toReturn = {};
-        var items = this.items;
+        var items = this._items;
         for (var i = 0, l = items.length; i < l; i++) {
             // If this data is sensitive and the request must be sanitized
             // then skip the item
@@ -85,7 +85,7 @@ var Schema = (function () {
     * @returns {boolean} Returns true if successful
     */
     Schema.prototype.validate = function (checkForRequiredFields) {
-        var items = this.items;
+        var items = this._items;
         this.error = "";
         for (var i = 0, l = items.length; i < l; i++) {
             if (checkForRequiredFields && !items[i].getModified() && items[i].getRequired()) {
@@ -106,7 +106,7 @@ var Schema = (function () {
     * @param {SchemaItem}
     */
     Schema.prototype.getByName = function (val) {
-        var items = this.items;
+        var items = this._items;
         for (var i = 0, l = items.length; i < l; i++)
             if (items[i].name == val)
                 return items[i];
@@ -118,9 +118,15 @@ var Schema = (function () {
     * @returns {SchemaItem}
     */
     Schema.prototype.add = function (val) {
-        if (this.getByName(val.name))
+        if (val.name == "_id")
+            throw new Error("You cannot use the schema item name _id as its a reserved keyword");
+        else if (val.name == "_requiredDependencies")
+            throw new Error("You cannot use the schema item name _requiredDependencies as its a reserved keyword");
+        else if (val.name == "_optionalDependencies")
+            throw new Error("You cannot use the schema item name _optionalDependencies as its a reserved keyword");
+        else if (this.getByName(val.name))
             throw new Error("An item with the name " + val.name + " already exists.");
-        this.items.push(val);
+        this._items.push(val);
         return val;
     };
     /**
@@ -128,7 +134,7 @@ var Schema = (function () {
     * @param {SchemaItem|string} val The name of the item or the item itself
     */
     Schema.prototype.remove = function (val) {
-        var items = this.items;
+        var items = this._items;
         var name = "";
         if (val instanceof schema_item_1.SchemaItem)
             name = val.name;
@@ -137,6 +143,13 @@ var Schema = (function () {
                 items.splice(i, 1);
                 return;
             }
+    };
+    /**
+     * Gets the schema items associated with this schema
+     * @returns {Array<SchemaItem<any>>}
+     */
+    Schema.prototype.getItems = function () {
+        return this._items;
     };
     return Schema;
 }());

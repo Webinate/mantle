@@ -22,9 +22,10 @@ var ModelInstance = (function () {
     ModelInstance.prototype.uniqueFieldNames = function () {
         var instance = this;
         var uniqueNames = "";
-        for (var i = 0, l = instance.schema.items.length; i < l; i++)
-            if (instance.schema.items[i].getUnique())
-                uniqueNames += instance.schema.items[i].name + ", ";
+        var items = instance.schema.getItems();
+        for (var i = 0, l = items.length; i < l; i++)
+            if (items[i].getUnique())
+                uniqueNames += items[i].name + ", ";
         if (uniqueNames != "")
             uniqueNames = uniqueNames.slice(0, uniqueNames.length - 2);
         return uniqueNames;
@@ -93,7 +94,7 @@ var Model = (function () {
                     collection.dropIndexes().then(function (response) {
                         // Now re-create the models who need index supports
                         var promises = [];
-                        var items = model.defaultSchema.items;
+                        var items = model.defaultSchema.getItems();
                         for (var i = 0, l = items.length; i < l; i++)
                             if (items[i].getIndexable())
                                 promises.push(model.createIndex(items[i].name, collection));
@@ -113,30 +114,6 @@ var Model = (function () {
             });
         });
     };
-    ///**
-    //* Updates the models collection based on the search criteria.
-    //* @param {any} selector The selector for defining which entries to update
-    //* @param {any} document The object that defines what has to be updated
-    //* @returns {Promise<number>} A promise with the number of entities affected
-    //*/
-    //update(selector: any, document: any): Promise<number>
-    //{
-    //	var model = this;
-    //	return new Promise<number>(function(resolve, reject)
-    //	{
-    //		var collection = model.collection;
-    //		// Attempt to save the data to mongo collection
-    //		collection.update(selector, document, function (err: Error, result: mongodb.WriteResult<any> )
-    //		{
-    //			if (err)
-    //				reject(err);
-    //			else if (result.result.n !== 0)
-    //				resolve(result.result.n);
-    //			else
-    //				resolve(0);
-    //		});
-    //	});
-    //}
     /**
     * Gets the number of DB entries based on the selector
     * @param {any} selector The mongodb selector
@@ -322,7 +299,7 @@ var Model = (function () {
     Model.prototype.checkUniqueness = function (instance) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            var items = instance.schema.items;
+            var items = instance.schema.getItems();
             var hasUniqueField = false;
             var searchToken = { $or: [] };
             if (instance._id)

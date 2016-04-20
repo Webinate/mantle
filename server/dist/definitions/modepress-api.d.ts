@@ -6,7 +6,8 @@ declare module Modepress
     export interface IModelEntry
     {
         _id?: any;
-        dependencies: Array<{ collection: string, _id : any }>
+        _requiredDependencies?: Array<{ collection: string, _id : any }>
+        _optionalDependencies?: Array<{ collection: string, _id : any }>
     }
 
     /*
@@ -386,10 +387,15 @@ declare module Modepress
     */
     class Schema
     {
-        public items: Array<SchemaItem<any>>;
         public error: string;
 
         constructor();
+
+        /**
+         * Gets the schema items associated with this schema
+         * @returns {Array<SchemaItem<any>>}
+         */
+        public getItems: Array<SchemaItem<any>>;
 
         /**
         * Creates a copy of the schema
