@@ -10,26 +10,33 @@ import {Utils} from "../../utils"
  */
 export class SchemaForeignKey extends SchemaItem<ObjectID | string>
 {
+    public targetCollection : string;
+    public optionalKey : boolean;
+
 	/**
 	* Creates a new schema item
 	* @param {string} name The name of this item
 	* @param {string} val The string representation of the foreign key's _id
     * @param {string} targetCollection The name of the collection to which the target exists
+    * @param {boolean} optionalKey If true, then this key will only be nullified if the target is removed
 	*/
-    constructor(name: string, val: string)
+    constructor(name: string, val: string, targetCollection : string, optionalKey: boolean = false )
     {
         super(name, val);
+        this.targetCollection = targetCollection;
+        this.optionalKey = optionalKey;
     }
 
 	/**
 	* Creates a clone of this item
-	* @returns {SchemaId} copy A sub class of the copy
+	* @returns {SchemaForeignKey} copy A sub class of the copy
 	* @returns {SchemaForeignKey}
 	*/
     public clone(copy?: SchemaForeignKey): SchemaForeignKey
     {
-        copy = copy === undefined ? new SchemaForeignKey(this.name, <string>this.value) : copy;
+        copy = copy === undefined ? new SchemaForeignKey(this.name, <string>this.value, this.targetCollection) : copy;
         super.clone(copy);
+        copy.optionalKey = this.optionalKey;
 		return copy;
 	}
 
@@ -57,15 +64,12 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string>
             return true;
         }
 
-        if (!transformedValue)
-            return `Please use a valid ID for '${this.name}'`;
-		else
-			return true;
+        return true;
     }
 
     /**
 	* Gets the value of this item
-    * @returns {SchemaValue}
+    * @returns {ObjectID}
 	*/
     public getValue(): ObjectID
     {
