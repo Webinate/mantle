@@ -29,6 +29,20 @@ declare module Modepress
     }
 
     /*
+    * Describes the comment model
+    */
+    export interface IComment extends IModelEntry
+    {
+        author?: string;
+        target?: string;
+        responseTarget?: string;
+        public?: boolean;
+        content?: string;
+        createdOn?: number;
+        lastUpdated?: number;
+    }
+
+    /*
     * Describes the category model
     */
     export interface ICategory extends IModelEntry
@@ -103,7 +117,9 @@ declare module Modepress
 
     export interface IGetRenders extends IGetArrayResponse<IRender> { }
     export interface IGetPosts extends IGetArrayResponse<IPost> { }
+    export interface IGetComments extends IGetArrayResponse<IComment> { }
     export interface IGetPost extends IGetResponse<IPost> { }
+    export interface IGetComment extends IGetResponse<IComment> { }
     export interface IGetCategory extends IGetResponse<ICategory> { }
     export interface IGetCategories extends IGetArrayResponse<ICategory> { }
 
@@ -294,9 +310,8 @@ declare module Modepress
     {
         public name: string;
         public value: T;
-        public sensitive: boolean;
 
-        constructor(name: string, value: T, sensitive: boolean);
+        constructor(name: string, value: T);
 
         /**
         * Creates a clone of this item
@@ -315,7 +330,7 @@ declare module Modepress
         * Sets if this item is sensitive
         * @returns {SchemaItem<T>}
         */
-        public setSensitive(val: boolean);
+        public setSensitive(val: boolean) : SchemaItem<T>;
 
         /**
         * Gets if this item is required. This will throw an error on the item if the value is not set before validation.
@@ -422,13 +437,13 @@ declare module Modepress
         */
         public serialize(): any;
 
-        /**
+         /**
         * Serializes the schema items into the JSON format for mongodb
         * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
-        * @param {any} id The db ID of the instance to clean
-        * @returns {any}
+        * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
+        * @returns {Promise<T>}
         */
-        public generateCleanData(sanitize: boolean, id: any): any;
+        public getAsJson<T>( sanitize: boolean, id: any ): Promise<T>;
 
         /**
         * Checks the value stored to see if its correct in its current form
@@ -590,10 +605,10 @@ declare module Modepress
         /**
         * Transforms an array of model instances to its data ready state that can be sent to the client
         * @param {ModelInstance} instances The instances to transform
-        * @param {boolean} instances If true, sensitive data will not be sanitized
-        * @returns {Array<T>}
+        * @param {boolean} verbose If true, sensitive data will not be sanitized
+        * @returns {Promise<Array<T>>}
         */
-        getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose?: boolean): Array<T>;
+        getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose?: boolean): Promise<Array<T>>;
     }
 
     /**
@@ -678,9 +693,8 @@ declare module Modepress
         * @param {number} max [Optional] The maximum value the value can be
         * @param {NumberType} type [Optional] The type of number the schema represents
         * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number, sensitive?: boolean)
+        constructor(name: string, val: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number)
     }
 
     /**
@@ -694,9 +708,8 @@ declare module Modepress
         * @param {string} val The text of this item
         * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
         * @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: string, minCharacters?: number, maxCharacters?: number, sensitive?: boolean);
+        constructor(name: string, val: string, minCharacters?: number, maxCharacters?: number);
     }
 
     /**
@@ -710,9 +723,8 @@ declare module Modepress
         * @param {Array<string|ObjectID>} val The array of ids for this schema item
         * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
         * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, sensitive?: boolean);
+        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number);
     }
 
     /**
@@ -730,9 +742,8 @@ declare module Modepress
         * @param {number} max [Optional] Specify the maximum a number can be
         * @param {NumberType} type [Optional] What type of numbers to expect
         * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?, sensitive?: boolean)
+        constructor(name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?)
     }
 
     /**
@@ -748,9 +759,8 @@ declare module Modepress
         * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
         * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
         * @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number, sensitive?: boolean);
+        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number);
     }
 
     /**
@@ -762,9 +772,8 @@ declare module Modepress
         * Creates a new schema item
         * @param {string} name The name of this item
         * @param {boolean} val The value of this item
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: boolean, sensitive?: boolean);
+        constructor(name: string, val: boolean);
     }
 
     /**
@@ -776,9 +785,8 @@ declare module Modepress
         * Creates a new schema item
         * @param {string} name The name of this item
         * @param {any} val The text of this item
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: any, sensitive: boolean);
+        constructor(name: string, val: any);
     }
 
     /**
@@ -792,10 +800,9 @@ declare module Modepress
         * Creates a new schema item
         * @param {string} name The name of this item
         * @param {number} val The date of this item. If none is specified the Date.now() number is used.
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         * @param {boolean} useNow [Optional] If true, the date will always be updated to use the current date
         */
-        constructor(name: string, val?: number, sensitive?: boolean, useNow?: boolean);
+        constructor(name: string, val?: number, useNow?: boolean);
     }
 
     /**
@@ -809,9 +816,8 @@ declare module Modepress
         * Creates a new schema item
         * @param {string} name The name of this item
         * @param {string} val The string representation of the object ID
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         */
-        constructor(name: string, val: string, sensitive?: boolean );
+        constructor(name: string, val: string );
     }
 
     /**
@@ -821,6 +827,9 @@ declare module Modepress
     {
         /**
         * The default tags allowed
+        * includes: h3, h4, h5, h6, blockquote, p, a, ul, ol,
+        *    nl, li, b, i, strong, em, strike, code, hr, br, div,
+        *    table, thead, caption, tbody, tr, th, td, pre
         */
         public static defaultTags: Array<string>;
 
@@ -838,12 +847,11 @@ declare module Modepress
         * @param {boolean} errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
         * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
         * @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
         * @param {boolean} htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
         */
         constructor(name: string, val: string, allowedTags?: Array<string>,
             allowedAttributes?: { [name: string]: Array<string> },
-            errorBadHTML?: boolean, minCharacters?: number, maxCharacters?: number, sensitive?: boolean, htmlClean?: boolean);
+            errorBadHTML?: boolean, minCharacters?: number, maxCharacters?: number, htmlClean?: boolean);
     }
 
     /**
@@ -914,6 +922,14 @@ declare module Modepress
         params: any;
         query: any;
     }
+
+    /**
+    * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
+    * @param {Express.Request} req
+    * @param {Express.Response} res
+    * @param {Function} next
+    */
+    export function hasId( req: Express.Request, res: Express.Response, next: Function );
 
     /**
     * This funciton checks if user is logged in
