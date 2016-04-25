@@ -20,7 +20,7 @@ var winston = require("winston");
 var PostsController = (function (_super) {
     __extends(PostsController, _super);
     /**
-    * Creates a new instance of the email controller
+    * Creates a new instance of the controller
     * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
@@ -35,32 +35,14 @@ var PostsController = (function (_super) {
         router.get("/get-posts", [permission_controllers_1.getUser, this.getPosts.bind(this)]);
         router.get("/get-post/:slug", [permission_controllers_1.getUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", [permission_controllers_1.isAdmin, this.checkId.bind(this), this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", [permission_controllers_1.isAdmin, this.checkId.bind(this), this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", [permission_controllers_1.isAdmin, this.checkId.bind(this), this.updatePost.bind(this)]);
+        router.delete("/remove-post/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId, this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId, this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId, this.updatePost.bind(this)]);
         router.post("/create-post", [permission_controllers_1.isAdmin, this.createPost.bind(this)]);
         router.post("/create-category", [permission_controllers_1.isAdmin, this.createCategory.bind(this)]);
         // Register the path
         e.use("/api/posts", router);
     }
-    /**
-    * Checks for a mongo id parameter and that its valid
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    PostsController.prototype.checkId = function (req, res, next) {
-        // Make sure the id format is correct
-        if (!mongodb.ObjectID.isValid(req.params.id)) {
-            winston.error("Cannot delete post: invalid ID format '" + req.url + "'", { process: process.pid });
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify({
-                error: true,
-                message: "Invalid ID format"
-            }));
-        }
-        next();
-    };
     /**
     * Returns an array of IPost items
     * @param {express.Request} req
@@ -151,7 +133,8 @@ var PostsController = (function (_super) {
             count = num;
             return posts.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
         }).then(function (instances) {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+        }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
                 count: count,
@@ -183,17 +166,13 @@ var PostsController = (function (_super) {
                 return Promise.reject(new Error("Could not find post"));
             var users = users_service_1.UsersService.getSingleton();
             // Only admins are allowed to see private posts
-            if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false)) {
-                res.end(JSON.stringify({
-                    error: true,
-                    message: "That post is marked private"
-                }));
-                return;
-            }
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false))
+                return Promise.reject(new Error("That post is marked private"));
+            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+        }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
-                message: "Found " + instances.length + " posts",
+                message: "Found " + sanitizedData.length + " posts",
                 data: sanitizedData[0]
             }));
         }).catch(function (error) {
@@ -215,11 +194,12 @@ var PostsController = (function (_super) {
         var categories = this.getModel("categories");
         var that = this;
         categories.findInstances({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances) {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+        }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
                 count: sanitizedData.length,
-                message: "Found " + instances.length + " categories",
+                message: "Found " + sanitizedData.length + " categories",
                 data: sanitizedData
             }));
         }).catch(function (error) {
@@ -290,15 +270,10 @@ var PostsController = (function (_super) {
         var token = req.body;
         var posts = this.getModel("posts");
         posts.update({ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance) {
-            if (instance.error) {
-                winston.error(instance.tokens[0].error, { process: process.pid });
-                return res.end(JSON.stringify({
-                    error: true,
-                    message: instance.tokens[0].error
-                }));
-            }
+            if (instance.error)
+                return Promise.reject(new Error(instance.tokens[0].error));
             if (instance.tokens.length == 0)
-                return res.end(JSON.stringify({ error: false, message: "Could not find post with that id" }));
+                return Promise.reject(new Error("Could not find post with that id"));
             res.end(JSON.stringify({ error: false, message: "Post Updated" }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });
@@ -321,10 +296,12 @@ var PostsController = (function (_super) {
         // User is passed from the authentication function
         token.author = req._user.username;
         posts.createInstance(token).then(function (instance) {
+            return instance.schema.getAsJson(false, instance._id);
+        }).then(function (json) {
             res.end(JSON.stringify({
                 error: false,
                 message: "New post created",
-                data: instance.schema.generateCleanData(false, instance._id)
+                data: json
             }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });
@@ -345,10 +322,12 @@ var PostsController = (function (_super) {
         var token = req.body;
         var categories = this.getModel("categories");
         categories.createInstance(token).then(function (instance) {
+            return instance.schema.getAsJson(true, instance._id);
+        }).then(function (json) {
             res.end(JSON.stringify({
                 error: false,
                 message: "New category created",
-                data: instance.schema.generateCleanData(true, instance._id)
+                data: json
             }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });

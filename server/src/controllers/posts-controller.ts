@@ -17,7 +17,7 @@ import * as winston from "winston";
 export default class PostsController extends Controller
 {
 	/**
-	* Creates a new instance of the email controller
+	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
@@ -345,16 +345,10 @@ export default class PostsController extends Controller
         posts.update(<mp.IPost>{ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance)
         {
             if (instance.error)
-            {
-                winston.error(<string>instance.tokens[0].error, { process: process.pid });
-                return res.end(JSON.stringify(<mp.IResponse>{
-                    error: true,
-                    message: <string>instance.tokens[0].error
-                }));
-            }
+                return Promise.reject(new Error(<string>instance.tokens[0].error));
 
             if ( instance.tokens.length == 0 )
-                return res.end(JSON.stringify(<mp.IResponse>{ error: false, message: "Could not find post with that id" }));
+                return Promise.reject(new Error("Could not find post with that id"));
 
             res.end(JSON.stringify(<mp.IResponse>{ error: false, message: "Post Updated" }));
 
