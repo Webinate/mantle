@@ -52,14 +52,14 @@ var Controller = (function () {
     * Transforms an array of model instances to its data ready state that can be sent to the client
     * @param {ModelInstance} instances The instances to transform
     * @param {boolean} instances If true, sensitive data will not be sanitized
-    * @returns {Array<T>}
+    * @returns {Promise<Array<T>>}
     */
     Controller.prototype.getSanitizedData = function (instances, verbose) {
         if (verbose === void 0) { verbose = false; }
         var sanitizedData = [];
         for (var i = 0, l = instances.length; i < l; i++)
-            sanitizedData.push(instances[i].schema.generateCleanData(!verbose, instances[i]._id));
-        return sanitizedData;
+            sanitizedData.push(instances[i].schema.getAsJson(!verbose, instances[i]._id));
+        return Promise.all(sanitizedData);
     };
     Controller._models = [];
     return Controller;

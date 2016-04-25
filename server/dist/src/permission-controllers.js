@@ -1,5 +1,6 @@
 "use strict";
 var users_service_1 = require("./users-service");
+var mongodb = require("mongodb");
 /**
 * This funciton checks if user is logged in
 * @param {express.Request} req
@@ -32,6 +33,31 @@ function getUser(req, res, next) {
     });
 }
 exports.getUser = getUser;
+/**
+* Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
+* @param {express.Request} req
+* @param {express.Response} res
+* @param {Function} next
+*/
+function hasId(req, res, next) {
+    // Make sure the id
+    if (!req.params.id) {
+        res.setHeader('Content-Type', 'application/json');
+        return res.end(JSON.stringify({
+            error: true,
+            message: "Please specify an ID"
+        }));
+    }
+    else if (!mongodb.ObjectID.isValid(req.params.id)) {
+        res.setHeader('Content-Type', 'application/json');
+        return res.end(JSON.stringify({
+            error: true,
+            message: "Invalid ID format"
+        }));
+    }
+    next();
+}
+exports.hasId = hasId;
 /**
 * This funciton checks the logged in user is an admin. If not an admin it returns an error,
 * if true it passes the scope onto the next function in the queue

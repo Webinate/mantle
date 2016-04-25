@@ -316,7 +316,8 @@ var PageRenderer = (function (_super) {
             count = num;
             return renders.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
         }).then(function (instances) {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+        }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
                 count: count,

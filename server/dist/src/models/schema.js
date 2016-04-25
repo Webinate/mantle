@@ -43,7 +43,8 @@ var Schema = (function () {
                 items[i].setValue(val);
     };
     /**
-    * De-serializes the schema items from the mongodb data entry
+    * De-serializes the schema items from the mongodb data entry.
+    * I.e. the data is the document from the DB and the schema item sets its values from the document
     * @param {any} data
     */
     Schema.prototype.deserialize = function (data) {
@@ -62,22 +63,26 @@ var Schema = (function () {
         return toReturn;
     };
     /**
-    * Serializes the schema items into the JSON format for mongodb
+    * Serializes the schema items into the JSON
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
-    * @returns {any}
+    * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
+    * @returns {Promise<T>}
     */
-    Schema.prototype.generateCleanData = function (sanitize, id) {
-        var toReturn = {};
-        var items = this._items;
-        for (var i = 0, l = items.length; i < l; i++) {
-            // If this data is sensitive and the request must be sanitized
-            // then skip the item
-            if (items[i].getSensitive() && sanitize)
-                continue;
-            toReturn[items[i].name] = items[i].getValue();
-        }
-        toReturn._id = id;
-        return toReturn;
+    Schema.prototype.getAsJson = function (sanitize, id) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            var toReturn = {};
+            var items = that._items;
+            for (var i = 0, l = items.length; i < l; i++) {
+                // If this data is sensitive and the request must be sanitized
+                // then skip the item
+                if (items[i].getSensitive() && sanitize)
+                    continue;
+                toReturn[items[i].name] = items[i].getValue();
+            }
+            toReturn._id = id;
+            resolve(toReturn);
+        });
     };
     /**
     * Checks the value stored to see if its correct in its current form
