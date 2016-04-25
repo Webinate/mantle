@@ -53,10 +53,7 @@ export class SchemaId extends SchemaItem<ObjectID | string>
             return true;
         }
 
-        if (!transformedValue)
-            return `Please use a valid ID for '${this.name}'`;
-		else
-			return true;
+        return true;
     }
 
     /**

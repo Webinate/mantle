@@ -48,10 +48,7 @@ var SchemaId = (function (_super) {
             this.value = null;
             return true;
         }
-        if (!transformedValue)
-            return "Please use a valid ID for '" + this.name + "'";
-        else
-            return true;
+        return true;
     };
     /**
     * Gets the value of this item
