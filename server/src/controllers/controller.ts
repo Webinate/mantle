@@ -80,14 +80,15 @@ export class Controller
     * Transforms an array of model instances to its data ready state that can be sent to the client
     * @param {ModelInstance} instances The instances to transform
     * @param {boolean} instances If true, sensitive data will not be sanitized
-    * @returns {Array<T>}
+    * @returns {Promise<Array<T>>}
     */
-    getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose: boolean = false): Array<T>
+    getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose: boolean = false): Promise<Array<T>>
     {
-        var sanitizedData = [];
-        for (var i = 0, l = instances.length; i < l; i++)
-            sanitizedData.push(instances[i].schema.generateCleanData<T>(!verbose, instances[i]._id));
+        var sanitizedData : Array<Promise<T>> = [];
 
-        return sanitizedData;
+        for (var i = 0, l = instances.length; i < l; i++)
+            sanitizedData.push(instances[i].schema.getAsJson<T>(!verbose, instances[i]._id));
+
+        return Promise.all(sanitizedData);
     }
 }

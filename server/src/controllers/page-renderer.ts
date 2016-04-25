@@ -471,14 +471,16 @@ export default class PageRenderer extends Controller
 
         }).then(function (instances)
         {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
+            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+
+        }).then(function(sanitizedData){
+
             res.end(JSON.stringify(<IGetRenders>{
                 error: false,
                 count: count,
                 message: `Found ${count} renders`,
                 data: sanitizedData
             }));
-
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });

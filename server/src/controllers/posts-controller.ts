@@ -140,7 +140,7 @@ export default class PostsController extends Controller
         }
 
         // Sort by the date created
-        var sort: IPost = { createdOn: sortOrder };
+        var sort: mp.IPost = { createdOn: sortOrder };
 
         // Optionally sort by the last updated
         if (req.query.sort)
@@ -166,15 +166,18 @@ export default class PostsController extends Controller
 
         }).then(function (instances)
        {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<mp.IGetPosts>{
+            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+
+       }).then(function(sanitizedData){
+
+           res.end(JSON.stringify(<mp.IGetPosts>{
                 error: false,
                 count: count,
                 message: `Found ${count} posts`,
                 data: sanitizedData
             }));
 
-        }).catch(function (error: Error)
+       }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<mp.IResponse>{
@@ -207,20 +210,15 @@ export default class PostsController extends Controller
 
             // Only admins are allowed to see private posts
             if (!instances[0].schema.getByName("public").getValue() && ( !user || users.hasPermission(user, 2) == false ) )
-            {
-                res.end(JSON.stringify(<mp.IResponse>{
-                    error: true,
-                    message: "That post is marked private"
-                }));
+                return Promise.reject(new Error("That post is marked private"));
 
-                return;
-            }
+            return that.getSanitizedData<mp.IPost>(instances, Boolean(req.query.verbose));
 
-            var sanitizedData = that.getSanitizedData<mp.IPost>(instances, Boolean(req.query.verbose));
+        }).then(function(sanitizedData){
 
             res.end(JSON.stringify(<mp.IGetPost>{
                 error: false,
-                message: `Found ${instances.length} posts`,
+                message: `Found ${sanitizedData.length} posts`,
                 data: sanitizedData[0]
             }));
 
@@ -248,11 +246,14 @@ export default class PostsController extends Controller
 
         categories.findInstances<mp.ICategory>({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
         {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<mp.IGetCategories>{
+            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+
+        }).then(function(sanitizedData){
+
+          res.end(JSON.stringify(<mp.IGetCategories>{
                 error: false,
                 count: sanitizedData.length,
-                message: `Found ${instances.length} categories`,
+                message: `Found ${sanitizedData.length} categories`,
                 data: sanitizedData
             }));
 
@@ -384,10 +385,14 @@ export default class PostsController extends Controller
 
         posts.createInstance(token).then(function (instance)
         {
+            return instance.schema.getAsJson(false, instance._id);
+
+        }).then(function(json){
+
             res.end(JSON.stringify(<mp.IGetPost>{
                 error: false,
                 message: "New post created",
-                data: instance.schema.generateCleanData(false, instance._id)
+                data: json
             }));
 
         }).catch(function (error: Error)
@@ -414,10 +419,14 @@ export default class PostsController extends Controller
 
         categories.createInstance(token).then(function (instance)
         {
+            return instance.schema.getAsJson(true, instance._id);
+
+        }).then(function(json){
+
             res.end(JSON.stringify(<mp.IGetCategory>{
                 error: false,
                 message: "New category created",
-                data: instance.schema.generateCleanData(true, instance._id)
+                data: json
             }));
 
         }).catch(function (error: Error)

@@ -271,6 +271,7 @@ export class Model
                         // Complete
                         return resolve(instance);
                     }
+
                 }).catch(function(err: Error){
                     reject(err);
                 });

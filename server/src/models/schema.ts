@@ -1,5 +1,7 @@
 ﻿import {SchemaItem} from "./schema-items/schema-item";
-import {ObjectID} from "mongodb"
+import {SchemaForeignKey} from "./schema-items/schema-foreign-key";
+import * as mongodb from "mongodb"
+import {ModelInstance} from "./model"
 import {IModelEntry} from "modepress-api";
 
 /**
@@ -63,7 +65,8 @@ export class Schema
 	}
 
 	/**
-	* De-serializes the schema items from the mongodb data entry
+	* De-serializes the schema items from the mongodb data entry.
+    * I.e. the data is the document from the DB and the schema item sets its values from the document
 	* @param {any} data
 	*/
 	public deserialize(data: any): any
@@ -88,28 +91,33 @@ export class Schema
     }
 
     /**
-	* Serializes the schema items into the JSON format for mongodb
+	* Serializes the schema items into the JSON
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
-	* @returns {any}
+    * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
+	* @returns {Promise<T>}
 	*/
-    public generateCleanData<T>(sanitize: boolean, id: ObjectID): T
+    public getAsJson<T>( sanitize: boolean, id: mongodb.ObjectID ): Promise<T>
     {
-        var toReturn : T = <any>{};
-        var items = this._items;
+        var that = this;
 
-        for (var i = 0, l = items.length; i < l; i++)
-		{
-			// If this data is sensitive and the request must be sanitized
-			// then skip the item
-			if ( items[i].getSensitive() && sanitize )
-				continue;
+        return  new Promise<T>(function( resolve, reject ) {
 
-            toReturn[items[i].name] = items[i].getValue();
-		}
+            var toReturn : T = <any>{};
+            var items = that._items;
 
-       (<IModelEntry>toReturn)._id = id;
+            for (var i = 0, l = items.length; i < l; i++)
+            {
+                // If this data is sensitive and the request must be sanitized
+                // then skip the item
+                if ( items[i].getSensitive() && sanitize )
+                    continue;
 
-        return toReturn;
+                toReturn[items[i].name] = items[i].getValue();
+            }
+
+            (<IModelEntry>toReturn)._id = id;
+            resolve(toReturn);
+        });
     }
 
 	/**
