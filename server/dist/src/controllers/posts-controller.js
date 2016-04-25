@@ -45,7 +45,7 @@ var PostsController = (function (_super) {
     }
     /**
     * Returns an array of IPost items
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -151,7 +151,7 @@ var PostsController = (function (_super) {
     };
     /**
     * Returns a single post
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -185,7 +185,7 @@ var PostsController = (function (_super) {
     };
     /**
     * Returns an array of ICategory items
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -212,7 +212,7 @@ var PostsController = (function (_super) {
     };
     /**
     * Attempts to remove a post by ID
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -237,7 +237,7 @@ var PostsController = (function (_super) {
     };
     /**
     * Attempts to remove a category by ID
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -261,7 +261,7 @@ var PostsController = (function (_super) {
     };
     /**
     * Attempts to update a post by ID
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -285,7 +285,7 @@ var PostsController = (function (_super) {
     };
     /**
     * Attempts to create a new post. The
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -313,7 +313,7 @@ var PostsController = (function (_super) {
     };
     /**
    * Attempts to create a new category item.
-   * @param {express.Request} req
+   * @param {mp.IAuthReq} req
    * @param {express.Response} res
    * @param {Function} next
    */

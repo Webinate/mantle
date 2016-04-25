@@ -48,18 +48,18 @@ export default class PostsController extends Controller
 
     /**
     * Returns an array of IPost items
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getPosts(req: express.Request, res: express.Response, next: Function)
+    private getPosts(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
         var count = 0;
         var visibility = "public";
-        var user: UsersInterface.IUserEntry = (<mp.IAuthReq><Express.Request>req)._user;
+        var user: UsersInterface.IUserEntry = req._user;
 
         var findToken = { $or : [] };
         if (req.query.author)
@@ -189,17 +189,17 @@ export default class PostsController extends Controller
 
     /**
     * Returns a single post
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getPost(req: express.Request, res: express.Response, next: Function)
+    private getPost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
         var findToken: mp.IPost = { slug: req.params.slug };
-        var user: UsersInterface.IUserEntry = (<mp.IAuthReq><Express.Request>req)._user;
+        var user: UsersInterface.IUserEntry = req._user;
 
         posts.findInstances<mp.IPost>(findToken, [], 0, 1).then(function (instances)
         {
@@ -234,11 +234,11 @@ export default class PostsController extends Controller
 
     /**
     * Returns an array of ICategory items
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getCategories(req: express.Request, res: express.Response, next: Function)
+    private getCategories(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
@@ -269,11 +269,11 @@ export default class PostsController extends Controller
 
     /**
     * Attempts to remove a post by ID
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    private removePost(req: express.Request, res: express.Response, next: Function)
+    private removePost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
@@ -301,11 +301,11 @@ export default class PostsController extends Controller
 
     /**
     * Attempts to remove a category by ID
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    private removeCategory(req: express.Request, res: express.Response, next: Function)
+    private removeCategory(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
@@ -332,11 +332,11 @@ export default class PostsController extends Controller
 
     /**
     * Attempts to update a post by ID
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    private updatePost(req: express.Request, res: express.Response, next: Function)
+    private updatePost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var token: mp.IPost = req.body;
@@ -364,18 +364,18 @@ export default class PostsController extends Controller
 
     /**
     * Attempts to create a new post. The
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    private createPost(req: express.Request, res: express.Response, next: Function)
+    private createPost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var token: mp.IPost = req.body;
         var posts = this.getModel("posts");
 
         // User is passed from the authentication function
-        token.author = (<mp.IAuthReq><Express.Request>req)._user.username;
+        token.author = req._user.username;
 
         posts.createInstance(token).then(function (instance)
         {
@@ -401,11 +401,11 @@ export default class PostsController extends Controller
 
     /**
    * Attempts to create a new category item.
-   * @param {express.Request} req
+   * @param {mp.IAuthReq} req
    * @param {express.Response} res
    * @param {Function} next
    */
-    private createCategory(req: express.Request, res: express.Response, next: Function)
+    private createCategory(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var token: mp.ICategory = req.body;

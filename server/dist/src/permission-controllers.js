@@ -68,20 +68,10 @@ exports.hasId = hasId;
 function isAdmin(req, res, next) {
     var users = users_service_1.UsersService.getSingleton();
     users.authenticated(req).then(function (auth) {
-        if (!auth.authenticated) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({
-                error: true,
-                message: "You must be logged in to make this request"
-            }));
-        }
-        else if (!users.hasPermission(auth.user, 2)) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({
-                error: true,
-                message: "You do not have permission"
-            }));
-        }
+        if (!auth.authenticated)
+            return Promise.reject(new Error("You must be logged in to make this request"));
+        else if (!users.hasPermission(auth.user, 2))
+            return Promise.reject(new Error("You do not have permission"));
         else {
             req._user = auth.user;
             req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
@@ -92,7 +82,7 @@ function isAdmin(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({
             error: true,
-            message: "You do not have permission"
+            message: error.message
         }));
     });
 }
@@ -107,20 +97,10 @@ function canEdit(req, res, next) {
     var users = users_service_1.UsersService.getSingleton();
     var targetUser = req.params.user;
     users.authenticated(req).then(function (auth) {
-        if (!auth.authenticated) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({
-                error: true,
-                message: "You must be logged in to make this request"
-            }));
-        }
-        else if (!users.hasPermission(auth.user, 2, targetUser)) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({
-                error: true,
-                message: "You do not have permission"
-            }));
-        }
+        if (!auth.authenticated)
+            return Promise.reject(new Error("You must be logged in to make this request"));
+        else if (!users.hasPermission(auth.user, 2, targetUser))
+            return Promise.reject(new Error("You do not have permission"));
         else {
             req._user = auth.user;
             req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
@@ -131,7 +111,7 @@ function canEdit(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({
             error: true,
-            message: "You do not have permission"
+            message: error.message
         }));
     });
 }
@@ -145,13 +125,8 @@ exports.canEdit = canEdit;
 function isAuthenticated(req, res, next) {
     var users = users_service_1.UsersService.getSingleton();
     users.authenticated(req).then(function (auth) {
-        if (!auth.authenticated) {
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify({
-                error: true,
-                message: auth.message
-            }));
-        }
+        if (!auth.authenticated)
+            return Promise.reject(new Error(auth.message));
         req._user = auth.user;
         req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
         // Check if this must be cleaned or not
@@ -166,7 +141,7 @@ function isAuthenticated(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({
             error: true,
-            message: "An error has occurred: " + error.message
+            message: error.message
         }));
     });
 }

@@ -31,18 +31,17 @@ var CommentsController = (function (_super) {
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/get-comments", [permission_controllers_1.getUser, this.getComments.bind(this)]);
-        router.get("/get-comment/:id", [permission_controllers_1.getUser, this.getComment.bind(this)]);
-        router.delete("/remove-comment/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId, this.remove.bind(this)]);
-        router.put("/update-comment/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId, this.update.bind(this)]);
-        router.post("/create-comment", [permission_controllers_1.isAdmin, this.create.bind(this)]);
-        router.post("/create-category", [permission_controllers_1.isAdmin, this.create.bind(this)]);
+        router.get("/comments", [permission_controllers_1.isAdmin, this.getComments.bind(this)]);
+        router.get("/users/:user/comments/:id", [permission_controllers_1.hasId, this.getComment.bind(this)]);
+        router.delete("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId, this.remove.bind(this)]);
+        router.put("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId, this.update.bind(this)]);
+        router.post("/comments/:target", [permission_controllers_1.canEdit, this.verifyTarget, this.create.bind(this)]);
         // Register the path
-        e.use("/api/comments", router);
+        e.use("/api", router);
     }
     /**
     * Returns an array of IComment items
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -94,16 +93,13 @@ var CommentsController = (function (_super) {
             if (req.query.sort == "updated")
                 sort = { lastUpdated: sortOrder };
         }
-        var getContent = true;
-        if (req.query.minimal)
-            getContent = false;
         // Stephen is lovely
         if (findToken.$or.length == 0)
             delete findToken.$or;
         // First get the count
         comments.count(findToken).then(function (num) {
             count = num;
-            return comments.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
+            return comments.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit));
         }).then(function (instances) {
             return that.getSanitizedData(instances, Boolean(req.query.verbose));
         }).then(function (sanitizedData) {
@@ -123,7 +119,7 @@ var CommentsController = (function (_super) {
     };
     /**
     * Returns a single comment
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -156,6 +152,29 @@ var CommentsController = (function (_super) {
         });
     };
     /**
+    * Checks the request for a target ID. This will throw an error if none is found, or its invalid
+    * @param {mp.IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    CommentsController.prototype.verifyTarget = function (req, res, next) {
+        // Make sure the target id
+        if (!req.params.target) {
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify({
+                error: true,
+                message: "Please specify a target ID"
+            }));
+        }
+        else if (!mongodb.ObjectID.isValid(req.params.target)) {
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify({
+                error: true,
+                message: "Invalid target ID format"
+            }));
+        }
+    };
+    /**
     * Attempts to remove a comment by ID
     * @param {express.Request} req
     * @param {express.Response} res
@@ -164,8 +183,12 @@ var CommentsController = (function (_super) {
     CommentsController.prototype.remove = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var comments = this.getModel("comments");
+        var findToken = {
+            _id: new mongodb.ObjectID(req.params.id),
+            author: req._user.username
+        };
         // Attempt to delete the instances
-        comments.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
+        comments.deleteInstances(findToken).then(function (numRemoved) {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a comment with that ID"));
             res.end(JSON.stringify({
@@ -182,7 +205,7 @@ var CommentsController = (function (_super) {
     };
     /**
     * Attempts to update a comment by ID
-    * @param {express.Request} req
+    * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -190,7 +213,11 @@ var CommentsController = (function (_super) {
         res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var comments = this.getModel("comments");
-        comments.update({ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance) {
+        var findToken = {
+            _id: new mongodb.ObjectID(req.params.id),
+            author: req._user.username
+        };
+        comments.update(findToken, token).then(function (instance) {
             if (instance.error)
                 return Promise.reject(new Error(instance.tokens[0].error));
             if (instance.tokens.length == 0)
@@ -206,7 +233,7 @@ var CommentsController = (function (_super) {
     };
     /**
     * Attempts to create a new comment.
-    * @param {express.Request} req
+    * @param {IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
@@ -216,6 +243,7 @@ var CommentsController = (function (_super) {
         var comments = this.getModel("comments");
         // User is passed from the authentication function
         token.author = req._user.username;
+        token.responseTarget = req.params.target;
         comments.createInstance(token).then(function (instance) {
             return instance.schema.getAsJson(false, instance._id);
         }).then(function (json) {

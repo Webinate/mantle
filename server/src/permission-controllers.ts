@@ -90,21 +90,9 @@ export function isAdmin(req: express.Request, res: express.Response, next: Funct
     users.authenticated(req).then(function (auth)
     {
         if (!auth.authenticated)
-        {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: "You must be logged in to make this request"
-            }));
-        }
+            return Promise.reject(new Error("You must be logged in to make this request"));
         else if (!users.hasPermission(auth.user, 2))
-        {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: "You do not have permission"
-            }));
-        }
+            return Promise.reject(new Error("You do not have permission"));
         else
         {
             (<IAuthReq><Express.Request>req)._user = auth.user;
@@ -118,7 +106,7 @@ export function isAdmin(req: express.Request, res: express.Response, next: Funct
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(<IResponse>{
             error: true,
-            message: "You do not have permission"
+            message: error.message
         }));
     });
 }
@@ -137,27 +125,14 @@ export function canEdit(req: express.Request, res: express.Response, next: Funct
     users.authenticated(req).then(function (auth)
     {
         if (!auth.authenticated)
-        {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: "You must be logged in to make this request"
-            }));
-        }
+            return Promise.reject(new Error("You must be logged in to make this request"));
         else if (!users.hasPermission(auth.user, 2, targetUser))
-        {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: "You do not have permission"
-            }));
-        }
+            return Promise.reject(new Error("You do not have permission"));
         else
         {
             (<IAuthReq><Express.Request>req)._user = auth.user;
             (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
             (<IAuthReq><Express.Request>req)._verbose = (req.query.verbose ? true : false);
-
             next();
         }
 
@@ -166,7 +141,7 @@ export function canEdit(req: express.Request, res: express.Response, next: Funct
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(<IResponse>{
             error: true,
-            message: "You do not have permission"
+            message: error.message
         }));
     });
 }
@@ -183,13 +158,7 @@ export function isAuthenticated(req: express.Request, res: express.Response, nex
     users.authenticated(req).then(function (auth)
     {
         if (!auth.authenticated)
-        {
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: auth.message
-            }));
-        }
+            return Promise.reject(new Error(auth.message));
 
         (<IAuthReq><Express.Request>req)._user = auth.user;
         (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
@@ -210,7 +179,7 @@ export function isAuthenticated(req: express.Request, res: express.Response, nex
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(<IResponse>{
             error: true,
-            message: `An error has occurred: ${error.message}`
+            message: error.message
         }));
     });
 }
