@@ -811,6 +811,9 @@
     {
         /**
         * The default tags allowed
+        * includes: h3, h4, h5, h6, blockquote, p, a, ul, ol,
+        *    nl, li, b, i, strong, em, strike, code, hr, br, div,
+        *    table, thead, caption, tbody, tr, th, td, pre
         */
         public static defaultTags: Array<string>;
 
@@ -903,6 +906,14 @@
         params: any;
         query: any;
     }
+
+    /**
+    * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
+    * @param {Express.Request} req
+    * @param {Express.Response} res
+    * @param {Function} next
+    */
+    export function hasId( req: Express.Request, res: Express.Response, next: Function );
 
     /**
     * This funciton checks if user is logged in

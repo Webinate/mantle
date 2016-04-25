@@ -1,6 +1,7 @@
 ﻿import express = require("express");
 import {UsersService} from "./users-service";
 import {IResponse, IAuthReq} from "modepress-api";
+import * as mongodb from "mongodb";
 
 /**
 * This funciton checks if user is logged in
@@ -43,6 +44,36 @@ export function getUser(req: express.Request, res: express.Response, next: Funct
         req.params.user = null;
         next();
     });
+}
+
+/**
+* Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
+* @param {express.Request} req
+* @param {express.Response} res
+* @param {Function} next
+*/
+export function hasId( req: express.Request, res: express.Response, next: Function )
+{
+    // Make sure the id
+    if (!req.params.id)
+    {
+        res.setHeader( 'Content-Type', 'application/json');
+        return res.end(JSON.stringify(<IResponse>{
+            error: true,
+            message: "Please specify an ID"
+        }));
+    }
+    // Make sure the id format is correct
+    else if ( !mongodb.ObjectID.isValid(req.params.id))
+    {
+        res.setHeader( 'Content-Type', 'application/json');
+        return res.end(JSON.stringify(<IResponse>{
+            error: true,
+            message: "Invalid ID format"
+        }));
+    }
+
+    next();
 }
 
 /**

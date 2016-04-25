@@ -7,7 +7,7 @@ import {Controller} from "./controller";
 import {PostsModel} from "../models/posts-model";
 import {CategoriesModel} from "../models/categories-model";
 import {UsersService} from "../users-service";
-import {getUser, isAdmin} from "../permission-controllers";
+import {getUser, isAdmin, hasId} from "../permission-controllers";
 import * as mp from "modepress-api";
 import * as winston from "winston";
 
@@ -36,36 +36,14 @@ export default class PostsController extends Controller
         router.get("/get-posts", <any>[getUser, this.getPosts.bind(this)]);
         router.get("/get-post/:slug", <any>[getUser, this.getPost.bind(this)]);
         router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", <any>[isAdmin, this.checkId.bind(this), this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", <any>[isAdmin, this.checkId.bind(this), this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", <any>[isAdmin, this.checkId.bind(this), this.updatePost.bind(this)]);
+        router.delete("/remove-post/:id", <any>[isAdmin, hasId, this.removePost.bind(this)]);
+        router.delete("/remove-category/:id", <any>[isAdmin, hasId, this.removeCategory.bind(this)]);
+        router.put("/update-post/:id", <any>[isAdmin, hasId, this.updatePost.bind(this)]);
         router.post("/create-post", <any>[isAdmin, this.createPost.bind(this)]);
         router.post("/create-category", <any>[isAdmin, this.createCategory.bind(this)]);
 
 		// Register the path
 		e.use( "/api/posts", router );
-    }
-
-    /**
-    * Checks for a mongo id parameter and that its valid
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    private checkId( req: express.Request, res: express.Response, next: Function )
-    {
-        // Make sure the id format is correct
-        if ( !mongodb.ObjectID.isValid(req.params.id)) {
-
-            winston.error( `Cannot delete post: invalid ID format '${req.url}'` , {process: process.pid})
-            res.setHeader( 'Content-Type', 'application/json');
-            return res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: "Invalid ID format"
-            }));
-        }
-
-       next();
     }
 
     /**
