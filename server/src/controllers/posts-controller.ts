@@ -8,7 +8,7 @@ import {PostsModel} from "../models/posts-model";
 import {CategoriesModel} from "../models/categories-model";
 import {UsersService} from "../users-service";
 import {getUser, isAdmin} from "../permission-controllers";
-import {IConfig, IServer, IPost, IGetResponse, IGetPost, ICategory, IGetCategory, IGetCategories, IResponse, IGetPosts, IAuthReq} from "modepress-api";
+import * as mp from "modepress-api";
 import * as winston from "winston";
 
 /**
@@ -22,7 +22,7 @@ export default class PostsController extends Controller
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
 	*/
-    constructor(server: IServer, config: IConfig, e: express.Express)
+    constructor(server: mp.IServer, config: mp.IConfig, e: express.Express)
     {
         super([new PostsModel(), new CategoriesModel()]);
 
@@ -58,8 +58,8 @@ export default class PostsController extends Controller
         if ( !mongodb.ObjectID.isValid(req.params.id)) {
 
             winston.error( `Cannot delete post: invalid ID format '${req.url}'` , {process: process.pid})
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify(<IResponse>{
+            res.setHeader( 'Content-Type', 'application/json');
+            return res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: "Invalid ID format"
             }));
@@ -81,7 +81,7 @@ export default class PostsController extends Controller
         var that = this;
         var count = 0;
         var visibility = "public";
-        var user: UsersInterface.IUserEntry = (<IAuthReq><Express.Request>req)._user;
+        var user: UsersInterface.IUserEntry = (<mp.IAuthReq><Express.Request>req)._user;
 
         var findToken = { $or : [] };
         if (req.query.author)
@@ -90,9 +90,9 @@ export default class PostsController extends Controller
         // Check for keywords
         if (req.query.keyword)
         {
-            findToken.$or.push(<IPost>{ title: <any>new RegExp(req.query.keyword, "i") });
-            findToken.$or.push(<IPost>{ content: <any> new RegExp(req.query.keyword, "i") });
-            findToken.$or.push(<IPost>{ brief: <any> new RegExp(req.query.keyword, "i") });
+            findToken.$or.push(<mp.IPost>{ title: <any>new RegExp(req.query.keyword, "i") });
+            findToken.$or.push(<mp.IPost>{ content: <any> new RegExp(req.query.keyword, "i") });
+            findToken.$or.push(<mp.IPost>{ brief: <any> new RegExp(req.query.keyword, "i") });
         }
 
         // Check for visibility
@@ -116,9 +116,9 @@ export default class PostsController extends Controller
         if (visibility != "all")
         {
             if (visibility == "public")
-                (<IPost>findToken).public = true;
+                (<mp.IPost>findToken).public = true;
             else
-                (<IPost>findToken).public = false;
+                (<mp.IPost>findToken).public = false;
         }
 
         // Check for tags (an OR request with tags)
@@ -184,12 +184,12 @@ export default class PostsController extends Controller
         posts.count(findToken).then(function (num)
         {
             count = num;
-            return posts.findInstances<IPost>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
+            return posts.findInstances<mp.IPost>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
 
         }).then(function (instances)
        {
             var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<IGetPosts>{
+            res.end(JSON.stringify(<mp.IGetPosts>{
                 error: false,
                 count: count,
                 message: `Found ${count} posts`,
@@ -199,7 +199,7 @@ export default class PostsController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -217,10 +217,10 @@ export default class PostsController extends Controller
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
-        var findToken: IPost = { slug: req.params.slug };
-        var user: UsersInterface.IUserEntry = (<IAuthReq><Express.Request>req)._user;
+        var findToken: mp.IPost = { slug: req.params.slug };
+        var user: UsersInterface.IUserEntry = (<mp.IAuthReq><Express.Request>req)._user;
 
-        posts.findInstances<IPost>(findToken, [], 0, 1).then(function (instances)
+        posts.findInstances<mp.IPost>(findToken, [], 0, 1).then(function (instances)
         {
             if (instances.length == 0)
                 return Promise.reject(new Error("Could not find post"));
@@ -230,7 +230,7 @@ export default class PostsController extends Controller
             // Only admins are allowed to see private posts
             if (!instances[0].schema.getByName("public").getValue() && ( !user || users.hasPermission(user, 2) == false ) )
             {
-                res.end(JSON.stringify(<IResponse>{
+                res.end(JSON.stringify(<mp.IResponse>{
                     error: true,
                     message: "That post is marked private"
                 }));
@@ -238,9 +238,9 @@ export default class PostsController extends Controller
                 return;
             }
 
-            var sanitizedData = that.getSanitizedData<IPost>(instances, Boolean(req.query.verbose));
+            var sanitizedData = that.getSanitizedData<mp.IPost>(instances, Boolean(req.query.verbose));
 
-            res.end(JSON.stringify(<IGetPost>{
+            res.end(JSON.stringify(<mp.IGetPost>{
                 error: false,
                 message: `Found ${instances.length} posts`,
                 data: sanitizedData[0]
@@ -249,7 +249,7 @@ export default class PostsController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -268,10 +268,10 @@ export default class PostsController extends Controller
         var categories = this.getModel("categories");
         var that = this;
 
-        categories.findInstances<ICategory>({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
+        categories.findInstances<mp.ICategory>({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
         {
             var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<IGetCategories>{
+            res.end(JSON.stringify(<mp.IGetCategories>{
                 error: false,
                 count: sanitizedData.length,
                 message: `Found ${instances.length} categories`,
@@ -281,7 +281,7 @@ export default class PostsController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -300,12 +300,12 @@ export default class PostsController extends Controller
         var posts = this.getModel("posts");
 
         // Attempt to delete the instances
-        posts.deleteInstances(<IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        posts.deleteInstances(<mp.IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
         {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a post with that ID"));
 
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: false,
                 message: "Post has been successfully removed"
             }));
@@ -313,7 +313,7 @@ export default class PostsController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -331,12 +331,12 @@ export default class PostsController extends Controller
         res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
 
-        categories.deleteInstances(<ICategory>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        categories.deleteInstances(<mp.ICategory>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
         {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a category with that ID"));
 
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: false,
                 message: "Category has been successfully removed"
             }));
@@ -344,7 +344,7 @@ export default class PostsController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -360,29 +360,29 @@ export default class PostsController extends Controller
     private updatePost(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var token: IPost = req.body;
+        var token: mp.IPost = req.body;
         var posts = this.getModel("posts");
 
-        posts.update(<IPost>{ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance)
+        posts.update(<mp.IPost>{ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance)
         {
             if (instance.error)
             {
                 winston.error(<string>instance.tokens[0].error, { process: process.pid });
-                return res.end(JSON.stringify(<IResponse>{
+                return res.end(JSON.stringify(<mp.IResponse>{
                     error: true,
                     message: <string>instance.tokens[0].error
                 }));
             }
 
             if ( instance.tokens.length == 0 )
-                return res.end(JSON.stringify(<IResponse>{ error: false, message: "Could not find post with that id" }));
+                return res.end(JSON.stringify(<mp.IResponse>{ error: false, message: "Could not find post with that id" }));
 
-            res.end(JSON.stringify(<IResponse>{ error: false, message: "Post Updated" }));
+            res.end(JSON.stringify(<mp.IResponse>{ error: false, message: "Post Updated" }));
 
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -398,15 +398,15 @@ export default class PostsController extends Controller
     private createPost(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var token: IPost = req.body;
+        var token: mp.IPost = req.body;
         var posts = this.getModel("posts");
 
         // User is passed from the authentication function
-        token.author = (<IAuthReq><Express.Request>req)._user.username;
+        token.author = (<mp.IAuthReq><Express.Request>req)._user.username;
 
         posts.createInstance(token).then(function (instance)
         {
-            res.end(JSON.stringify(<IGetPost>{
+            res.end(JSON.stringify(<mp.IGetPost>{
                 error: false,
                 message: "New post created",
                 data: instance.schema.generateCleanData(false, instance._id)
@@ -415,7 +415,7 @@ export default class PostsController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -431,12 +431,12 @@ export default class PostsController extends Controller
     private createCategory(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var token: ICategory = req.body;
+        var token: mp.ICategory = req.body;
         var categories = this.getModel("categories");
 
         categories.createInstance(token).then(function (instance)
         {
-            res.end(JSON.stringify(<IGetCategory>{
+            res.end(JSON.stringify(<mp.IGetCategory>{
                 error: false,
                 message: "New category created",
                 data: instance.schema.generateCleanData(true, instance._id)
@@ -445,7 +445,7 @@ export default class PostsController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
