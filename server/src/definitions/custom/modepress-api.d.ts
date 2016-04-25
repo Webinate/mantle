@@ -29,6 +29,20 @@
     }
 
     /*
+    * Describes the comment model
+    */
+    export interface IComment extends IModelEntry
+    {
+        author?: string;
+        target?: string;
+        responseTarget?: string;
+        public?: boolean;
+        content?: string;
+        createdOn?: number;
+        lastUpdated?: number;
+    }
+
+    /*
     * Describes the category model
     */
     export interface ICategory extends IModelEntry
@@ -103,7 +117,9 @@
 
     export interface IGetRenders extends IGetArrayResponse<IRender> { }
     export interface IGetPosts extends IGetArrayResponse<IPost> { }
+    export interface IGetComments extends IGetArrayResponse<IComment> { }
     export interface IGetPost extends IGetResponse<IPost> { }
+    export interface IGetComment extends IGetResponse<IComment> { }
     export interface IGetCategory extends IGetResponse<ICategory> { }
     export interface IGetCategories extends IGetArrayResponse<ICategory> { }
 
@@ -421,13 +437,13 @@
         */
         public serialize(): any;
 
-        /**
+         /**
         * Serializes the schema items into the JSON format for mongodb
         * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
-        * @param {any} id The db ID of the instance to clean
-        * @returns {any}
+        * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
+        * @returns {Promise<T>}
         */
-        public generateCleanData(sanitize: boolean, id: any): any;
+        public getAsJson<T>( sanitize: boolean, id: any ): Promise<T>;
 
         /**
         * Checks the value stored to see if its correct in its current form
@@ -590,9 +606,9 @@
         * Transforms an array of model instances to its data ready state that can be sent to the client
         * @param {ModelInstance} instances The instances to transform
         * @param {boolean} verbose If true, sensitive data will not be sanitized
-        * @returns {Array<T>}
+        * @returns {Promise<Array<T>>}
         */
-        getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose?: boolean): Array<T>;
+        getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose?: boolean): Promise<Array<T>>;
     }
 
     /**
