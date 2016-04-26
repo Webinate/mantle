@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var schema_item_1 = require("./schema-item");
+var Model_1 = require("../Model");
 var mongodb_1 = require("mongodb");
 var utils_1 = require("../../utils");
 /**
@@ -61,13 +62,28 @@ var SchemaForeignKey = (function (_super) {
     };
     /**
     * Gets the value of this item
-    * @returns {ObjectID}
+    * @returns {Promise<any>}
     */
     SchemaForeignKey.prototype.getValue = function () {
-        if (!this.value)
+        var that = this;
+        if (!that.value)
             return null;
-        else
-            return this.value;
+        else {
+            return new Promise(function (resolve, reject) {
+                var model = Model_1.Model.getByName(that.targetCollection);
+                if (model) {
+                    model.collection.find({ _id: that.value }).limit(1).next().then(function (result) {
+                        model.createInstance(result).then(function (instance) {
+                            resolve(instance);
+                        }).catch(function (err) {
+                            reject("An error occurred fetching the foreign key for " + that.name + " : '" + err.message + "'");
+                        });
+                    });
+                }
+                else
+                    reject(new Error(that.name + " references a foreign key '" + that.targetCollection + "' which doesn't seem to exist"));
+            });
+        }
     };
     return SchemaForeignKey;
 }(schema_item_1.SchemaItem));

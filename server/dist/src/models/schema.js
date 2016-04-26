@@ -63,7 +63,7 @@ var Schema = (function () {
         return toReturn;
     };
     /**
-    * Serializes the schema items into the JSON
+    * Serializes the schema items into a JSON
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
     * @returns {Promise<T>}
@@ -73,15 +73,35 @@ var Schema = (function () {
         return new Promise(function (resolve, reject) {
             var toReturn = {};
             var items = that._items;
+            var fKey;
+            var model;
+            var promises = [];
+            var promiseOrder = [];
+            toReturn._id = id;
             for (var i = 0, l = items.length; i < l; i++) {
                 // If this data is sensitive and the request must be sanitized
                 // then skip the item
                 if (items[i].getSensitive() && sanitize)
                     continue;
-                toReturn[items[i].name] = items[i].getValue();
+                var itemValue = items[i].getValue();
+                // If its a promise - then add the promise to the promise array
+                if (itemValue instanceof Promise) {
+                    promises.push(itemValue);
+                    // Keep track of the item name in an array so we can fetch it later
+                    promiseOrder.push(items[i].name);
+                }
+                else
+                    toReturn[items[i].name] = itemValue;
             }
-            toReturn._id = id;
-            resolve(toReturn);
+            // Wait for all the promises to resolve
+            Promise.all(promises).then(function (returns) {
+                // Assign the promise values
+                for (var i = 0, l = returns.length; i < l; l++)
+                    toReturn[promiseOrder[i]] = returns[i];
+                resolve(toReturn);
+            }).catch(function (err) {
+                reject(err);
+            });
         });
     };
     /**

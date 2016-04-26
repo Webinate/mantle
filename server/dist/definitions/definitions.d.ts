@@ -330,6 +330,24 @@ declare module clientAdmin {
 }
 declare module clientAdmin {
     /**
+    * Controller for the modal window that shows up when an error occurs
+    */
+    class ErrorModal implements ng.IDirective {
+        restrict: string;
+        templateUrl: string;
+        scope: {
+            visible: string;
+            message: string;
+        };
+        constructor();
+        /**
+         * Creates an intance of the directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+}
+declare module clientAdmin {
+    /**
     * An authentication service for checking if the user is logged in
     */
     class Authenticator {

@@ -1,7 +1,7 @@
 ﻿import {SchemaItem} from "./schema-items/schema-item";
 import {SchemaForeignKey} from "./schema-items/schema-foreign-key";
 import * as mongodb from "mongodb"
-import {ModelInstance} from "./model"
+import {ModelInstance, Model} from "./model"
 import {IModelEntry} from "modepress-api";
 
 /**
@@ -91,7 +91,7 @@ export class Schema
     }
 
     /**
-	* Serializes the schema items into the JSON
+	* Serializes the schema items into a JSON
     * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
     * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
 	* @returns {Promise<T>}
@@ -104,6 +104,13 @@ export class Schema
 
             var toReturn : T = <any>{};
             var items = that._items;
+            var fKey : SchemaForeignKey;
+            var model : Model;
+
+            var promises: Array<Promise<any>> = [];
+            var promiseOrder: Array<string> = [];
+
+            (<IModelEntry>toReturn)._id = id;
 
             for (var i = 0, l = items.length; i < l; i++)
             {
@@ -112,11 +119,33 @@ export class Schema
                 if ( items[i].getSensitive() && sanitize )
                     continue;
 
-                toReturn[items[i].name] = items[i].getValue();
+                var itemValue = items[i].getValue();
+
+                // If its a promise - then add the promise to the promise array
+                if (itemValue instanceof Promise)
+                {
+                    promises.push(itemValue);
+
+                    // Keep track of the item name in an array so we can fetch it later
+                    promiseOrder.push(items[i].name);
+                }
+                else
+                    toReturn[items[i].name] = itemValue;
             }
 
-            (<IModelEntry>toReturn)._id = id;
-            resolve(toReturn);
+            // Wait for all the promises to resolve
+            Promise.all(promises).then(function(returns) {
+
+                // Assign the promise values
+                for ( var i = 0, l = returns.length; i < l; l++ )
+                    toReturn[ promiseOrder[i] ] = returns[i];
+
+                resolve(toReturn);
+
+            }).catch(function(err: Error) {
+
+                reject(err);
+            });
         });
     }
 

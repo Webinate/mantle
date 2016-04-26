@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {Model} from "../Model";
 import {ObjectID} from "mongodb";
 import {Utils} from "../../utils"
 
@@ -8,7 +9,7 @@ import {Utils} from "../../utils"
  * Required keys will mean that the current document cannot exist if the target does not. Optional keys
  * will simply be nullified if the target no longer exists.
  */
-export class SchemaForeignKey extends SchemaItem<ObjectID | string>
+export class SchemaForeignKey extends SchemaItem<ObjectID | string | Promise<any>>
 {
     public targetCollection : string;
     public optionalKey : boolean;
@@ -69,13 +70,34 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string>
 
     /**
 	* Gets the value of this item
-    * @returns {ObjectID}
+    * @returns {Promise<any>}
 	*/
-    public getValue(): ObjectID
+    public getValue(): Promise<any>
     {
-        if (!this.value)
+        var that = this;
+
+        if (!that.value)
             return null;
         else
-            return <ObjectID>this.value;
+        {
+            return new Promise(function( resolve, reject ) {
+
+                var model = Model.getByName(that.targetCollection);
+                if (model)
+                {
+                    model.collection.find({ _id : <ObjectID>that.value }).limit(1).next().then(function( result ) {
+                        model.createInstance(result).then(function( instance ){
+
+                            resolve(instance);
+
+                        }).catch(function( err : Error ) {
+                            reject(`An error occurred fetching the foreign key for ${that.name} : '${err.message}'`);
+                        })
+                    });
+                }
+                else
+                    reject(new Error(`${that.name} references a foreign key '${that.targetCollection}' which doesn't seem to exist`));
+            });
+        }
     }
 }
