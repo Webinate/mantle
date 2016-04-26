@@ -511,6 +511,14 @@ declare module Modepress
         static getByName(name : string) : Model;
 
         /**
+         * Returns a new model of a given type. However if the model was already registered before,
+         * then the previously created model is returned.
+         * @param {any} modelConstructor The model class
+         * @returns {Model} Returns the registered model
+         */
+        static registerModel<T extends Model>( modelConstructor : any ) : T;
+
+        /**
         * Gets the name of the collection associated with this model
         * @returns {string}
         */
