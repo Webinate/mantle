@@ -46,7 +46,32 @@ var Model = (function () {
         this._collectionName = collection;
         this._initialized = false;
         this.defaultSchema = new schema_1.Schema();
+        if (Model._registeredModels[collection])
+            throw new Error("You cannot create model '" + collection + "' as its already been registered");
+        // Register the model
+        Model._registeredModels[collection] = this;
     }
+    /**
+     * Returns a new model of a given type. However if the model was already registered before,
+     * then the previously created model is returned.
+     * @param {any} modelConstructor The model class
+     * @returns {Model} Returns the registered model
+     */
+    Model.registerModel = function (modelConstructor) {
+        var models = Model._registeredModels;
+        for (var i in models)
+            if (modelConstructor == models[i].constructor)
+                return models[i];
+        return new modelConstructor();
+    };
+    /**
+     * Returns a registered model by its name
+     * @param {string} name The name of the model to fetch
+     * @returns {Model} Returns the registered model or null if none exists
+     */
+    Model.getByName = function (name) {
+        return Model._registeredModels[name];
+    };
     /**
      * Creates an index for a collection
      * @param {string} name The name of the field we are setting an index of
@@ -394,6 +419,7 @@ var Model = (function () {
             }
         });
     };
+    Model._registeredModels = {};
     return Model;
 }());
 exports.Model = Model;

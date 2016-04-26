@@ -9,6 +9,7 @@ var mongodb = require("mongodb");
 var express = require("express");
 var compression = require("compression");
 var controller_1 = require("./controller");
+var model_1 = require("../models/model");
 var posts_model_1 = require("../models/posts-model");
 var categories_model_1 = require("../models/categories-model");
 var users_service_1 = require("../users-service");
@@ -26,7 +27,7 @@ var PostsController = (function (_super) {
     * @param {express.Express} e The express instance of this server
     */
     function PostsController(server, config, e) {
-        _super.call(this, [new posts_model_1.PostsModel(), new categories_model_1.CategoriesModel()]);
+        _super.call(this, [model_1.Model.registerModel(posts_model_1.PostsModel), model_1.Model.registerModel(categories_model_1.CategoriesModel)]);
         var router = express.Router();
         router.use(compression());
         router.use(bodyParser.urlencoded({ 'extended': true }));

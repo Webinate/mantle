@@ -7,7 +7,7 @@ import * as bodyParser from "body-parser";
 import {Controller} from "./controller";
 import {UsersService} from "../users-service"
 import {RendersModel} from "../models/renders-model";
-import {ModelInstance} from "../models/model";
+import {ModelInstance, Model} from "../models/model";
 import * as net from "net";
 import * as url from "url";
 import * as jsdom from "jsdom";
@@ -93,7 +93,7 @@ export default class PageRenderer extends Controller
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
-        super([new RendersModel()]);
+        super([ Model.registerModel( RendersModel) ]);
 
         if (!config.enableAjaxRendering)
             return;

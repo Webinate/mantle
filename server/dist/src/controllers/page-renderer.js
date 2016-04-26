@@ -11,6 +11,7 @@ var bodyParser = require("body-parser");
 var controller_1 = require("./controller");
 var users_service_1 = require("../users-service");
 var renders_model_1 = require("../models/renders-model");
+var model_1 = require("../models/model");
 var url = require("url");
 var jsdom = require("jsdom");
 /**
@@ -26,7 +27,7 @@ var PageRenderer = (function (_super) {
     * @param {express.Express} e The express instance of this server
     */
     function PageRenderer(server, config, e) {
-        _super.call(this, [new renders_model_1.RendersModel()]);
+        _super.call(this, [model_1.Model.registerModel(renders_model_1.RendersModel)]);
         if (!config.enableAjaxRendering)
             return;
         this.renderQueryFlag = "__render__request";

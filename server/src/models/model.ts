@@ -58,12 +58,14 @@ export class ModelInstance<T>
 /**
 * Models map data in the application/client to data in the database
 */
-export class Model
+export abstract class Model
 {
 	public collection: mongodb.Collection;
 	public defaultSchema: Schema;
 	private _collectionName: string;
 	private _initialized: boolean;
+
+    private static _registeredModels :  { [name:string] : Model } = {};
 
 	/**
 	* Creates an instance of a Model
@@ -75,7 +77,41 @@ export class Model
 		this._collectionName = collection;
 		this._initialized = false;
         this.defaultSchema = new Schema();
+
+        if (Model._registeredModels[collection])
+            throw new Error(`You cannot create model '${collection}' as its already been registered`);
+
+        // Register the model
+        Model._registeredModels[collection] = this;
 	}
+
+
+    /**
+     * Returns a new model of a given type. However if the model was already registered before,
+     * then the previously created model is returned.
+     * @param {any} modelConstructor The model class
+     * @returns {Model} Returns the registered model
+     */
+    static registerModel<T extends Model>( modelConstructor : any ) : T
+    {
+        var models = Model._registeredModels;
+        for ( var i in models )
+            if ( modelConstructor == models[i].constructor )
+                return <T>models[i];
+
+        return new modelConstructor();
+    }
+
+
+    /**
+     * Returns a registered model by its name
+     * @param {string} name The name of the model to fetch
+     * @returns {Model} Returns the registered model or null if none exists
+     */
+    static getByName(name : string) : Model
+    {
+        return Model._registeredModels[name];
+    }
 
     /**
      * Creates an index for a collection

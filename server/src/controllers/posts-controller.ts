@@ -4,6 +4,7 @@ import * as entities from "entities";
 import * as express from "express";
 import * as compression from "compression";
 import {Controller} from "./controller";
+import {Model} from "../models/model";
 import {PostsModel} from "../models/posts-model";
 import {CategoriesModel} from "../models/categories-model";
 import {UsersService} from "../users-service";
@@ -24,7 +25,7 @@ export default class PostsController extends Controller
 	*/
     constructor(server: mp.IServer, config: mp.IConfig, e: express.Express)
     {
-        super([new PostsModel(), new CategoriesModel()]);
+        super([  Model.registerModel(PostsModel), Model.registerModel(CategoriesModel)]);
 
         var router = express.Router();
 

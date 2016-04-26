@@ -4,6 +4,7 @@ import * as entities from "entities";
 import * as express from "express";
 import * as compression from "compression";
 import {Controller} from "./controller";
+import {Model} from "../models/model";
 import {CommentsModel} from "../models/comments-model";
 import {UsersService} from "../users-service";
 import {getUser, isAdmin, canEdit, hasId} from "../permission-controllers";
@@ -23,7 +24,7 @@ export default class CommentsController extends Controller
 	*/
     constructor(server: mp.IServer, config: mp.IConfig, e: express.Express)
     {
-        super([new CommentsModel()]);
+        super([ Model.registerModel(CommentsModel) ] );
 
         var router = express.Router();
 

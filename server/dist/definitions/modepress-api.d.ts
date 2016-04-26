@@ -504,6 +504,13 @@ declare module Modepress
         constructor(collection: string);
 
         /**
+         * Returns a registered model by its name
+         * @param {string} name The name of the model to fetch
+         * @returns {Model} Returns the registered model or null if none exists
+         */
+        static getByName(name : string) : Model;
+
+        /**
         * Gets the name of the collection associated with this model
         * @returns {string}
         */
