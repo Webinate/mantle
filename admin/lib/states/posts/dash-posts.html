@@ -1,9 +1,12 @@
-<div class="dialog-modal" ng-if="controller.error">
+<error-modal message="controller.errorMsg" visible="controller.error"></error-modal>
+
+<!--<div class="dialog-modal" ng-if="controller.error">
     <div class="dialog-box">
         <p>{{controller.errorMsg}}</p>
         <div class="button red" ng-click="controller.error=false">Ok</div>
     </div>
-</div>
+</div>-->
+
 <div class="dialog-modal" ng-if="controller.showMediaBrowser">
 	<div class="big-dialog-box">
 		<ng-include ng-controller="mediaCtrl as mediaController" src="'states/media/dash-media.html'" ng-init="mediaController.multiSelect= false"></ng-include>

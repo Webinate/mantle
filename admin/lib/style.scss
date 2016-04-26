@@ -335,6 +335,15 @@ Overrides for the TinyMCE editor
 
 /**
 ======================================================
+				IMPORTS
+======================================================
+**/
+@import 'directives/style';
+
+
+
+/**
+======================================================
 				CSS LAYOUT DEFINITIONS
 ======================================================
 Please only put css rules in here for layout related requirements.
@@ -624,23 +633,6 @@ max-height: 0;
 .content-view-detail .buttons .nav-button {
       margin:0 10px 0 0;
       display: inline-block;
-}
-.dialog-modal {
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index:1;
-}
-.dialog-box {
-    position:absolute;
-    top:30%;
-    left:30%;
-    width:40%;
-    padding:20px;
-    text-align:center;
-    z-index:2;
 }
 .big-dialog-box {
     position:absolute;
@@ -1115,13 +1107,6 @@ form label {
     color:#fff;
 }
 .content-view-item{
-    background:#fff;
-}
-
-.dialog-modal {
-    background:rgba(0,0,0,0.75);
-}
-.dialog-box {
     background:#fff;
 }
 .big-dialog-box {
