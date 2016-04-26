@@ -66,10 +66,19 @@ export class Server
             controllers.push(new PageRenderer(server, config, app));
 
             // Load the controllers
-            for (var i = 0, l: number = server.controllers.length; i < l; i++)
+            try
             {
-                var func = require(server.controllers[i].path);
-                controllers.push(new func.default(server, config, app));
+                for (var i = 0, l: number = server.controllers.length; i < l; i++)
+                {
+
+                    var func = require(server.controllers[i].path);
+                    controllers.push(new func.default(server, config, app));
+                }
+            }
+            catch(err)
+            {
+                 winston.error(`An error occurred while creating one of the controllers: '${err.message}'`, { process: process.pid });
+                 process.exit();
             }
 
             // Maps the path specified to an HTML or template
