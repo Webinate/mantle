@@ -374,6 +374,13 @@ declare module UsersInterface
     export interface IConfig
     {
         /**
+        * If true, then the server runs in debug mode. When running tests you should have the application
+        * run in debug mode. You can set this via the config or else use the --debug=true command in the console.
+        * eg: true / false. The default is true.
+        */
+        debugMode: boolean;
+
+        /**
         * The domain or host of the site.
         * eg: "127.0.0.1" or "webinate.net"
         */
