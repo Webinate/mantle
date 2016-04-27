@@ -324,17 +324,10 @@ var Model = (function () {
                     if (data)
                         instance.schema.set(data);
                     // Make sure the new updates are valid
-                    if (!instance.schema.validate(false)) {
-                        if (instance.schema.error)
-                            toRet.error = true;
-                        toRet.tokens.push({ error: instance.schema.error, instance: instance });
-                        if (index == instances.length - 1)
-                            return resolve(toRet);
-                        else
-                            return;
-                    }
-                    // Make sure any unique fields are still being respected
-                    that.checkUniqueness(instance).then(function (unique) {
+                    instance.schema.validate(false).then(function () {
+                        // Make sure any unique fields are still being respected
+                        return that.checkUniqueness(instance);
+                    }).then(function (unique) {
                         if (!unique) {
                             toRet.error = true;
                             toRet.tokens.push({ error: "'" + instance.uniqueFieldNames() + "' must be unique", instance: instance });
@@ -360,6 +353,13 @@ var Model = (function () {
                             else
                                 return;
                         });
+                    }).catch(function (err) {
+                        toRet.error = true;
+                        toRet.tokens.push({ error: err.message, instance: instance });
+                        if (index == instances.length - 1)
+                            return resolve(toRet);
+                        else
+                            return;
                     });
                 });
             }).catch(function (err) {
@@ -447,21 +447,19 @@ var Model = (function () {
             else {
                 var instance;
                 var documents = [];
-                for (var i = 0, l = instances.length; i < l; i++) {
-                    instance = instances[i];
-                    // Get the schema
-                    var schema = instance.schema;
-                    // Make sure the parameters are valid
-                    if (!schema.validate(true)) {
-                        reject(new Error(schema.error));
-                        return;
-                    }
+                var promises = [];
+                // Make sure the parameters are valid
+                for (var i = 0, l = instances.length; i < l; i++)
+                    promises.push(instances[i].schema.validate(true));
+                Promise.all(promises).then(function (schemas) {
                     // Transform the schema into a JSON ready format
-                    var json = schema.serialize();
-                    documents.push(json);
-                }
-                // Attempt to save the data to mongo collection
-                collection.insertMany(documents).then(function (insertResult) {
+                    for (var i = 0, l = schemas.length; i < l; i++) {
+                        var json = schemas[i].serialize();
+                        documents.push(json);
+                    }
+                    // Attempt to save the data to mongo collection
+                    return collection.insertMany(documents);
+                }).then(function (insertResult) {
                     // Assign the ID's
                     for (var i = 0, l = insertResult.ops.length; i < l; i++)
                         instances[i]._id = insertResult.ops[i]._id;

@@ -10,12 +10,10 @@ import {IModelEntry, ISchemaOptions} from "modepress-api";
 export class Schema
 {
 	private _items: Array<SchemaItem<any>>;
-	public error: string;
 
 	constructor()
 	{
 		this._items = [];
-		this.error = "";
 	}
 
 	/**
@@ -151,32 +149,32 @@ export class Schema
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
+	* Checks the values stored in the items to see if they are correct
 	* @param {boolean} checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-    * @returns {boolean} Returns true if successful
+    * @returns {Promise<bool>} Returns true if successful
 	*/
-	public validate( checkForRequiredFields: boolean ): boolean
+	public validate( checkForRequiredFields: boolean ): Promise<Schema>
 	{
 		var items = this._items;
-		this.error = "";
+        var that = this;
 
-		for (var i = 0, l = items.length; i < l; i++)
-		{
-            if ( checkForRequiredFields && !items[i].getModified() && items[i].getRequired() )
+        return new Promise(function( resolve, reject ) {
+
+            var error = "";
+
+            for (var i = 0, l = items.length; i < l; i++)
             {
-				this.error = `${items[i].name} is required`;
-				return false;
-			}
+                if ( checkForRequiredFields && !items[i].getModified() && items[i].getRequired() )
+                    return reject( new Error(`${items[i].name} is required`));
 
-			var validated = items[i].validate();
-			if (validated !== true)
-			{
-				this.error = <string>validated;
-				return false;
-			}
-		}
+                var validated = items[i].validate();
 
-		return true;
+                if (validated !== true)
+                    return reject( new Error(<string>validated));
+            }
+
+            return resolve(that);
+        });
 	}
 
 	/**

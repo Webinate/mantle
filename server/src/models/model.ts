@@ -435,20 +435,12 @@ export abstract class Model
                         instance.schema.set(data);
 
                     // Make sure the new updates are valid
-                    if (!instance.schema.validate(false))
-                    {
-                        if (instance.schema.error)
-                            toRet.error = true;
+                    instance.schema.validate(false).then(function() {
 
-                        toRet.tokens.push({ error: instance.schema.error, instance: instance });
-                        if (index == instances.length - 1)
-                            return resolve(toRet);
-                        else
-                            return;
-                    }
+                        // Make sure any unique fields are still being respected
+                        return that.checkUniqueness(instance);
 
-                    // Make sure any unique fields are still being respected
-                    that.checkUniqueness(instance).then(function (unique)
+                    }).then(function (unique)
                     {
                         if (!unique)
                         {
@@ -481,6 +473,15 @@ export abstract class Model
                             else
                                 return;
                         });
+
+                    }).catch(function(err: Error) {
+
+                        toRet.error = true;
+                        toRet.tokens.push({ error: err.message, instance: instance });
+                        if (index == instances.length - 1)
+                            return resolve(toRet);
+                        else
+                            return;
                     });
                 });
 
@@ -600,28 +601,25 @@ export abstract class Model
 			{
                 var instance: ModelInstance<T>;
 				var documents: Array<any> = [];
+                var promises : Array<Promise<any>> = [];
 
+                // Make sure the parameters are valid
 				for (var i = 0, l = instances.length; i < l; i++)
-				{
-					instance = instances[i];
+					promises.push( instances[i].schema.validate(true) );
 
-					// Get the schema
-					var schema = instance.schema;
+                Promise.all(promises).then(function( schemas ) {
 
-					// Make sure the parameters are valid
-					if (!schema.validate(true))
-					{
-						reject(new Error(schema.error));
-						return;
-					}
+                    // Transform the schema into a JSON ready format
+                    for (var i = 0, l = schemas.length; i < l; i++)
+                    {
+					    var json = schemas[i].serialize();
+					    documents.push(json);
+                    }
 
-					// Transform the schema into a JSON ready format
-					var json = schema.serialize();
-					documents.push(json);
-				}
+                    // Attempt to save the data to mongo collection
+				    return collection.insertMany(documents)
 
-				// Attempt to save the data to mongo collection
-				collection.insertMany(documents).then(function (insertResult) {
+                }).then(function (insertResult) {
 
                     // Assign the ID's
                     for (var i = 0, l = insertResult.ops.length; i < l; i++)

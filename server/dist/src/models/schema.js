@@ -6,7 +6,6 @@ var schema_item_1 = require("./schema-items/schema-item");
 var Schema = (function () {
     function Schema() {
         this._items = [];
-        this.error = "";
     }
     /**
     * Creates a copy of the schema
@@ -106,25 +105,24 @@ var Schema = (function () {
         });
     };
     /**
-    * Checks the value stored to see if its correct in its current form
+    * Checks the values stored in the items to see if they are correct
     * @param {boolean} checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-    * @returns {boolean} Returns true if successful
+    * @returns {Promise<bool>} Returns true if successful
     */
     Schema.prototype.validate = function (checkForRequiredFields) {
         var items = this._items;
-        this.error = "";
-        for (var i = 0, l = items.length; i < l; i++) {
-            if (checkForRequiredFields && !items[i].getModified() && items[i].getRequired()) {
-                this.error = items[i].name + " is required";
-                return false;
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            var error = "";
+            for (var i = 0, l = items.length; i < l; i++) {
+                if (checkForRequiredFields && !items[i].getModified() && items[i].getRequired())
+                    return reject(new Error(items[i].name + " is required"));
+                var validated = items[i].validate();
+                if (validated !== true)
+                    return reject(new Error(validated));
             }
-            var validated = items[i].validate();
-            if (validated !== true) {
-                this.error = validated;
-                return false;
-            }
-        }
-        return true;
+            return resolve(that);
+        });
     };
     /**
     * Gets a schema item from this schema by name

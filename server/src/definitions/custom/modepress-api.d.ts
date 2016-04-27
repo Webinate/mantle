@@ -421,8 +421,6 @@
     */
     class Schema
     {
-        public error: string;
-
         constructor();
 
         /**
@@ -466,10 +464,10 @@
         public getAsJson<T>( verbose: boolean, id: any, options? : ISchemaOptions ): Promise<T>;
 
         /**
-        * Checks the value stored to see if its correct in its current form
-        * @returns {boolean} Returns true if successful
+        * Checks the values stored in the items to see if they are correct
+        * @returns {Promise<bool>} Returns true if successful
         */
-        public validate(): boolean;
+        public validate(): Promise<boolean>;
 
         /**
         * Gets a schema item from this schema by name
