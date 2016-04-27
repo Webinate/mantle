@@ -167,7 +167,11 @@ export default class PostsController extends Controller
 
         }).then(function (instances)
        {
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData : Array<Promise<mp.IPost>> = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson<mp.IPost>(Boolean(req.query.verbose), instances[i]._id));
+
+            return Promise.all(sanitizedData);
 
        }).then(function(sanitizedData){
 
@@ -213,7 +217,11 @@ export default class PostsController extends Controller
             if (!instances[0].schema.getByName("public").getValue() && ( !user || users.hasPermission(user, 2) == false ) )
                 return Promise.reject(new Error("That post is marked private"));
 
-            return that.getSanitizedData<mp.IPost>(instances, Boolean(req.query.verbose));
+            var sanitizedData : Array<Promise<mp.IPost>> = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson<mp.IPost>(Boolean(req.query.verbose), instances[i]._id));
+
+            return Promise.all(sanitizedData);
 
         }).then(function(sanitizedData){
 
@@ -247,7 +255,11 @@ export default class PostsController extends Controller
 
         categories.findInstances<mp.ICategory>({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
         {
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData : Array<Promise<mp.ICategory>> = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson<mp.ICategory>(Boolean(req.query.verbose), instances[i]._id));
+
+            return Promise.all(sanitizedData);
 
         }).then(function(sanitizedData){
 
@@ -380,7 +392,7 @@ export default class PostsController extends Controller
 
         posts.createInstance(token).then(function (instance)
         {
-            return instance.schema.getAsJson(false, instance._id);
+            return instance.schema.getAsJson(true, instance._id);
 
         }).then(function(json){
 

@@ -471,7 +471,11 @@ export default class PageRenderer extends Controller
 
         }).then(function (instances)
         {
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData : Array<Promise<IRender>> = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson<IRender>(Boolean(req.query.verbose), instances[i]._id));
+
+            return Promise.all(sanitizedData);
 
         }).then(function(sanitizedData){
 

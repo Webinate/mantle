@@ -333,11 +333,11 @@ var Model = (function () {
                 if (items[i].getUnique()) {
                     hasUniqueField = true;
                     var searchField = {};
-                    searchField[items[i].name] = items[i].getValue();
+                    searchField[items[i].name] = items[i].getDbValue();
                     searchToken.$or.push(searchField);
                 }
                 else if (items[i].getUniqueIndexer())
-                    searchToken[items[i].name] = items[i].getValue();
+                    searchToken[items[i].name] = items[i].getDbValue();
             }
             if (!hasUniqueField)
                 return resolve(true);

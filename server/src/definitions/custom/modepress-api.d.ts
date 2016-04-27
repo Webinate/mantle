@@ -10,6 +10,18 @@
         _optionalDependencies?: Array<{ collection: string, _id : any }>
     }
 
+    /**
+     * A list of optional parameters that can be passed to schema items that determines how they are
+     * serialized
+     */
+    export interface ISchemaOptions
+    {
+        /**
+         * If true, foreign keys will serialize their values
+         */
+        expandForeignKeys? : boolean;
+    }
+
     /*
     * Describes the post model
     */
@@ -375,10 +387,17 @@
         public validate(): boolean | string;
 
         /**
-        * Gets the value of this item
-        * @returns {SchemaValue}
+        * Gets the value of this item in a database safe format
+        * @returns {T}
         */
-        public getValue(): T;
+        public getDbValue(): T
+
+        /**
+        * Gets the value of this item
+        * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
+        * @returns {T | Promise<T>}
+        */
+        public getValue(options? : ISchemaOptions ): T | Promise<T>;
 
         /**
         * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
@@ -437,13 +456,14 @@
         */
         public serialize(): any;
 
-         /**
+        /**
         * Serializes the schema items into the JSON format for mongodb
-        * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
+        * @param {boolean} verbose If true all items will be serialized, if false, only the items that are non-sensitive
         * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
+        * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
         * @returns {Promise<T>}
         */
-        public getAsJson<T>( sanitize: boolean, id: any ): Promise<T>;
+        public getAsJson<T>( verbose: boolean, id: any, options? : ISchemaOptions ): Promise<T>;
 
         /**
         * Checks the value stored to see if its correct in its current form
@@ -616,14 +636,6 @@
         * returns {models.Model}
         */
         getModel(collectionName: string): Model;
-
-        /**
-        * Transforms an array of model instances to its data ready state that can be sent to the client
-        * @param {ModelInstance} instances The instances to transform
-        * @param {boolean} verbose If true, sensitive data will not be sanitized
-        * @returns {Promise<Array<T>>}
-        */
-        getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose?: boolean): Promise<Array<T>>;
     }
 
     /**

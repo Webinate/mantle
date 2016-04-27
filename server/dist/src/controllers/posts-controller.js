@@ -134,7 +134,10 @@ var PostsController = (function (_super) {
             count = num;
             return posts.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
         }).then(function (instances) {
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+            return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
@@ -169,7 +172,10 @@ var PostsController = (function (_super) {
             // Only admins are allowed to see private posts
             if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false))
                 return Promise.reject(new Error("That post is marked private"));
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+            return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
@@ -195,7 +201,10 @@ var PostsController = (function (_super) {
         var categories = this.getModel("categories");
         var that = this;
         categories.findInstances({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances) {
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+            return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
@@ -297,7 +306,7 @@ var PostsController = (function (_super) {
         // User is passed from the authentication function
         token.author = req._user.username;
         posts.createInstance(token).then(function (instance) {
-            return instance.schema.getAsJson(false, instance._id);
+            return instance.schema.getAsJson(true, instance._id);
         }).then(function (json) {
             res.end(JSON.stringify({
                 error: false,

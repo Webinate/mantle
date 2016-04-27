@@ -2,7 +2,7 @@
 import {SchemaForeignKey} from "./schema-items/schema-foreign-key";
 import * as mongodb from "mongodb"
 import {ModelInstance, Model} from "./model"
-import {IModelEntry} from "modepress-api";
+import {IModelEntry, ISchemaOptions} from "modepress-api";
 
 /**
 * Gives an overall description of each property in a model
@@ -85,18 +85,19 @@ export class Schema
 		var items = this._items;
 
 		for (var i = 0, l = items.length; i < l; i++)
-            toReturn[items[i].name] = items[i].getValue();
+            toReturn[items[i].name] = items[i].getDbValue();
 
 		return toReturn;
     }
 
     /**
 	* Serializes the schema items into a JSON
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
+    * @param {boolean} verbose If true all items will be serialized, if false, only the items that are non-sensitive
     * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
+    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
 	* @returns {Promise<T>}
 	*/
-    public getAsJson<T>( sanitize: boolean, id: mongodb.ObjectID ): Promise<T>
+    public getAsJson<T>( verbose: boolean, id: mongodb.ObjectID, options? : ISchemaOptions ): Promise<T>
     {
         var that = this;
 
@@ -116,10 +117,10 @@ export class Schema
             {
                 // If this data is sensitive and the request must be sanitized
                 // then skip the item
-                if ( items[i].getSensitive() && sanitize )
+                if ( items[i].getSensitive() && verbose == false )
                     continue;
 
-                var itemValue = items[i].getValue();
+                var itemValue = items[i].getValue(options);
 
                 // If its a promise - then add the promise to the promise array
                 if (itemValue instanceof Promise)

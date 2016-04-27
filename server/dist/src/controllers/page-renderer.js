@@ -317,7 +317,10 @@ var PageRenderer = (function (_super) {
             count = num;
             return renders.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
         }).then(function (instances) {
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+            return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,

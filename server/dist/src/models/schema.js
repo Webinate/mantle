@@ -59,16 +59,17 @@ var Schema = (function () {
         var toReturn = {};
         var items = this._items;
         for (var i = 0, l = items.length; i < l; i++)
-            toReturn[items[i].name] = items[i].getValue();
+            toReturn[items[i].name] = items[i].getDbValue();
         return toReturn;
     };
     /**
     * Serializes the schema items into a JSON
-    * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
+    * @param {boolean} verbose If true all items will be serialized, if false, only the items that are non-sensitive
     * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
+    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<T>}
     */
-    Schema.prototype.getAsJson = function (sanitize, id) {
+    Schema.prototype.getAsJson = function (verbose, id, options) {
         var that = this;
         return new Promise(function (resolve, reject) {
             var toReturn = {};
@@ -81,9 +82,9 @@ var Schema = (function () {
             for (var i = 0, l = items.length; i < l; i++) {
                 // If this data is sensitive and the request must be sanitized
                 // then skip the item
-                if (items[i].getSensitive() && sanitize)
+                if (items[i].getSensitive() && verbose == false)
                     continue;
-                var itemValue = items[i].getValue();
+                var itemValue = items[i].getValue(options);
                 // If its a promise - then add the promise to the promise array
                 if (itemValue instanceof Promise) {
                     promises.push(itemValue);

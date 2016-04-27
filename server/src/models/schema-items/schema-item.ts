@@ -1,4 +1,6 @@
-﻿/**
+﻿import {ISchemaOptions} from "modepress-api";
+
+/**
 * A definition of each item in the model
 */
 export class SchemaItem<T>
@@ -145,10 +147,20 @@ export class SchemaItem<T>
     }
 
     /**
-	* Gets the value of this item
-    * @returns {SchemaValue}
+	* Gets the value of this item in a database safe format
+    * @returns {T}
 	*/
-    public getValue(): T
+    public getDbValue(): T
+    {
+        return this.value;
+    }
+
+    /**
+    * Gets the value of this item
+    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
+    * @returns {T | Promise<T>}
+    */
+    public getValue(options? : ISchemaOptions ): T | Promise<T>
     {
         return this.value;
     }

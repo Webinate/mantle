@@ -102,7 +102,10 @@ var CommentsController = (function (_super) {
             count = num;
             return comments.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit));
         }).then(function (instances) {
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+            return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
@@ -137,7 +140,10 @@ var CommentsController = (function (_super) {
             // Only admins are allowed to see private comments
             if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false))
                 return Promise.reject(new Error("That comment is marked private"));
-            return that.getSanitizedData(instances, Boolean(req.query.verbose));
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+            return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
@@ -246,7 +252,7 @@ var CommentsController = (function (_super) {
         token.author = req._user.username;
         token.responseTarget = req.params.target;
         comments.createInstance(token).then(function (instance) {
-            return instance.schema.getAsJson(false, instance._id);
+            return instance.schema.getAsJson(true, instance._id);
         }).then(function (json) {
             res.end(JSON.stringify({
                 error: false,

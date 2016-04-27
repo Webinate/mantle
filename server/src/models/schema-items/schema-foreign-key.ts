@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 import {Model} from "../Model";
 import {ObjectID} from "mongodb";
 import {Utils} from "../../utils"
@@ -70,18 +71,19 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Promise<any
 
     /**
 	* Gets the value of this item
+    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<any>}
 	*/
-    public getValue(): Promise<any>
+    public getValue(options? : ISchemaOptions): ObjectID | Promise<any>
     {
         var that = this;
 
-        if (!that.value)
-            return null;
+        if (!options.expandForeignKeys)
+            return <ObjectID>this.value;
         else
         {
-            return new Promise(function( resolve, reject ) {
-
+            return new Promise(function( resolve, reject )
+            {
                 var model = Model.getByName(that.targetCollection);
                 if (model)
                 {

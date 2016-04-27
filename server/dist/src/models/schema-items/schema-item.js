@@ -112,10 +112,18 @@ var SchemaItem = (function () {
         return true;
     };
     /**
-    * Gets the value of this item
-    * @returns {SchemaValue}
+    * Gets the value of this item in a database safe format
+    * @returns {T}
     */
-    SchemaItem.prototype.getValue = function () {
+    SchemaItem.prototype.getDbValue = function () {
+        return this.value;
+    };
+    /**
+    * Gets the value of this item
+    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
+    * @returns {T | Promise<T>}
+    */
+    SchemaItem.prototype.getValue = function (options) {
         return this.value;
     };
     /**

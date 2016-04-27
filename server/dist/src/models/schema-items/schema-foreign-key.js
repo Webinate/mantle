@@ -62,12 +62,13 @@ var SchemaForeignKey = (function (_super) {
     };
     /**
     * Gets the value of this item
+    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<any>}
     */
-    SchemaForeignKey.prototype.getValue = function () {
+    SchemaForeignKey.prototype.getValue = function (options) {
         var that = this;
-        if (!that.value)
-            return null;
+        if (!options.expandForeignKeys)
+            return this.value;
         else {
             return new Promise(function (resolve, reject) {
                 var model = Model_1.Model.getByName(that.targetCollection);
