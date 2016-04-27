@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 import {NumberType} from "./schema-number";
 
 /**
@@ -91,14 +92,5 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
             return `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`;
 
         return true;
-    }
-
-    /**
-	* Gets the value of this item
-    * @returns {Array<number>}
-	*/
-    public getValue(): Array<number>
-    {
-        return this.value;
     }
 }

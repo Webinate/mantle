@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 import {ObjectID} from "mongodb";
 import {Utils} from "../../utils"
 
@@ -54,17 +55,5 @@ export class SchemaId extends SchemaItem<ObjectID | string>
         }
 
         return true;
-    }
-
-    /**
-	* Gets the value of this item
-    * @returns {SchemaValue}
-	*/
-    public getValue(): ObjectID
-    {
-        if (!this.value)
-            return null;
-        else
-            return <ObjectID>this.value;
     }
 }

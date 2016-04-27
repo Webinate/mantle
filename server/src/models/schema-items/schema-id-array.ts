@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 import sanitizeHtml = require("sanitize-html");
 import {ObjectID} from "mongodb";
 import {Utils} from "../../utils"
@@ -67,14 +68,5 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID>>
             return `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`;
 
         return true;
-    }
-
-    /**
-	* Gets the value of this item
-    * @returns {Array<string|ObjectID>}
-	*/
-    public getValue(): Array<string|ObjectID>
-    {
-        return this.value;
     }
 }

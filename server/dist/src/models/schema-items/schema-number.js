@@ -72,13 +72,6 @@ var SchemaNumber = (function (_super) {
         else
             return "The value of " + this.name + " is not within the range of  " + this.min + " and " + this.max;
     };
-    /**
-    * Gets the value of this item
-    * @returns {SchemaValue}
-    */
-    SchemaNumber.prototype.getValue = function () {
-        return this.value;
-    };
     return SchemaNumber;
 }(schema_item_1.SchemaItem));
 exports.SchemaNumber = SchemaNumber;

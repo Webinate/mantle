@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 
 /**
 * Describes the type of number to store
@@ -79,14 +80,5 @@ export class SchemaNumber extends SchemaItem<number>
 			return true;
 		else
 			return `The value of ${this.name} is not within the range of  ${this.min} and ${this.max}`;
-    }
-
-    /**
-	* Gets the value of this item
-    * @returns {SchemaValue}
-	*/
-    public getValue(): number
-    {
-        return this.value;
     }
 }

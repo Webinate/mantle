@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 import sanitizeHtml = require("sanitize-html");
 
 /**
@@ -68,14 +69,5 @@ export class SchemaText extends SchemaItem<string>
             return `The character length of ${this.name} is too short, please keep it above ${minCharacters}`;
 		else
 			return true;
-    }
-
-    /**
-	* Gets the value of this item
-    * @returns {SchemaValue}
-	*/
-    public getValue(): string
-    {
-        return this.value;
     }
 }

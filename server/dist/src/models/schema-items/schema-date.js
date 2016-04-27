@@ -43,10 +43,11 @@ var SchemaDate = (function (_super) {
     };
     /**
     * Gets the value of this item
-    * @returns {SchemaValue}
+    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
+    * @returns {number}
     */
-    SchemaDate.prototype.getValue = function () {
-        return (this.value !== undefined && this.value !== null ? this.value : Date.now());
+    SchemaDate.prototype.getValue = function (options) {
+        return (this.value !== undefined && this.value !== null ? this.value : null);
     };
     return SchemaDate;
 }(schema_item_1.SchemaItem));

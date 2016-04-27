@@ -70,13 +70,6 @@ var SchemaHtml = (function (_super) {
         return true;
     };
     /**
-    * Gets the value of this item
-    * @returns {SchemaValue}
-    */
-    SchemaHtml.prototype.getValue = function () {
-        return this.value;
-    };
-    /**
     * The default tags allowed
     * includes: h3, h4, h5, h6, blockquote, p, a, ul, ol,
     *    nl, li, b, i, strong, em, strike, code, hr, br, div,

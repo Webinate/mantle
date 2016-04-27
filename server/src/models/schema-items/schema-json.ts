@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 import sanitizeHtml = require("sanitize-html");
 
 /**
@@ -38,14 +39,5 @@ export class SchemaJSON extends SchemaItem<any>
             this.value = null;
 
         return true;
-    }
-
-    /**
-	* Gets the value of this item
-    * @returns {SchemaValue}
-	*/
-    public getValue(): any
-    {
-        return this.value;
     }
 }

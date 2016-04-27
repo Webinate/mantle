@@ -33,17 +33,12 @@ var SchemaBool = (function (_super) {
     * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
     */
     SchemaBool.prototype.validate = function () {
-        var val = _super.prototype.validate.call(this);
-        if (!val)
-            return false;
+        var val = this.value;
+        if (val === undefined)
+            return this.name + " cannot be undefined";
+        if (val === null)
+            return this.name + " cannot be null";
         return true;
-    };
-    /**
-    * Gets the value of this item
-    * @returns {boolean}
-    */
-    SchemaBool.prototype.getValue = function () {
-        return this.value;
     };
     return SchemaBool;
 }(schema_item_1.SchemaItem));

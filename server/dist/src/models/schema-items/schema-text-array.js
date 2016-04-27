@@ -75,13 +75,6 @@ var SchemaTextArray = (function (_super) {
         }
         return true;
     };
-    /**
-    * Gets the value of this item
-    * @returns {Array<string>}
-    */
-    SchemaTextArray.prototype.getValue = function () {
-        return this.value;
-    };
     return SchemaTextArray;
 }(schema_item_1.SchemaItem));
 exports.SchemaTextArray = SchemaTextArray;

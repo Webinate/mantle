@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 
 /**
 * A date scheme item for use in Models
@@ -46,10 +47,11 @@ export class SchemaDate extends SchemaItem<number>
 
     /**
 	* Gets the value of this item
-    * @returns {SchemaValue}
+    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
+    * @returns {number}
 	*/
-    public getValue(): number
+    public getValue(options? : ISchemaOptions): number
     {
-        return (this.value !== undefined && this.value !== null ? this.value : Date.now() );
+        return (this.value !== undefined && this.value !== null ? this.value : null );
     }
 }

@@ -1,4 +1,5 @@
 ﻿import {SchemaItem} from "./schema-item";
+import {ISchemaOptions} from "modepress-api";
 import sanitizeHtml = require("sanitize-html");
 
 /**
@@ -93,14 +94,5 @@ export class SchemaHtml extends SchemaItem<string>
 
         this.value = sanitizedHTML;
         return true;
-    }
-
-    /**
-	* Gets the value of this item
-    * @returns {SchemaValue}
-	*/
-    public getValue(): string
-    {
-        return this.value;
     }
 }

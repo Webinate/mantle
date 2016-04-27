@@ -64,13 +64,6 @@ var SchemaText = (function (_super) {
         else
             return true;
     };
-    /**
-    * Gets the value of this item
-    * @returns {SchemaValue}
-    */
-    SchemaText.prototype.getValue = function () {
-        return this.value;
-    };
     return SchemaText;
 }(schema_item_1.SchemaItem));
 exports.SchemaText = SchemaText;

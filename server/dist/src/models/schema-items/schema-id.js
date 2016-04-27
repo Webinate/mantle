@@ -50,16 +50,6 @@ var SchemaId = (function (_super) {
         }
         return true;
     };
-    /**
-    * Gets the value of this item
-    * @returns {SchemaValue}
-    */
-    SchemaId.prototype.getValue = function () {
-        if (!this.value)
-            return null;
-        else
-            return this.value;
-    };
     return SchemaId;
 }(schema_item_1.SchemaItem));
 exports.SchemaId = SchemaId;

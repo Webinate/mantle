@@ -37,13 +37,6 @@ var SchemaJSON = (function (_super) {
             this.value = null;
         return true;
     };
-    /**
-    * Gets the value of this item
-    * @returns {SchemaValue}
-    */
-    SchemaJSON.prototype.getValue = function () {
-        return this.value;
-    };
     return SchemaJSON;
 }(schema_item_1.SchemaItem));
 exports.SchemaJSON = SchemaJSON;

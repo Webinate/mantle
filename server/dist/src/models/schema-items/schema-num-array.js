@@ -81,13 +81,6 @@ var SchemaNumArray = (function (_super) {
             return "You have selected too many items for " + this.name + ", please only use up to " + this.maxItems;
         return true;
     };
-    /**
-    * Gets the value of this item
-    * @returns {Array<number>}
-    */
-    SchemaNumArray.prototype.getValue = function () {
-        return this.value;
-    };
     return SchemaNumArray;
 }(schema_item_1.SchemaItem));
 exports.SchemaNumArray = SchemaNumArray;
