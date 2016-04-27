@@ -315,6 +315,63 @@ export abstract class Model
         });
     }
 
+    /**
+	* Deletes a instance and all its dependencies are updated or deleted accordingly
+	* @returns {Promise<any>}
+	*/
+    private deleteInstance( instance : ModelInstance<IModelEntry> ) : Promise<any>
+    {
+        var that = this;
+        var foreignModel : Model;
+        var optionalDependencies = instance.dbEntry._optionalDependencies;
+        var requiredDependencies = instance.dbEntry._requiredDependencies;
+        var promises : Array<Promise<any>> = [];
+
+        return new Promise(function( resolve, reject ) {
+
+            // Nullify all dependencies that are optional
+            if (optionalDependencies)
+                for ( var i = 0, l = optionalDependencies.length; i < l; i++ )
+                {
+                    foreignModel = Model.getByName( optionalDependencies[i].collection );
+                    if (!foreignModel)
+                        continue;
+
+                    var setToken = { $set : {} };
+                    setToken.$set[optionalDependencies[i].propertyName] = null;
+                    promises.push( foreignModel.collection.updateOne( <IModelEntry>{ _id : optionalDependencies[i]._id }, setToken ) );
+                }
+
+            // For those dependencies that are required, we delete the instances
+            if (requiredDependencies)
+                for ( var i = 0, l = requiredDependencies.length; i < l; i++ )
+                {
+                    foreignModel = Model.getByName( requiredDependencies[i].collection );
+                    if (!foreignModel)
+                        continue;
+
+                    foreignModel.findInstances<IModelEntry>( <IModelEntry>{ _id : requiredDependencies[i]._id } ).then(function( instances ){
+                        instances.forEach( function( instanceToDelete ){
+                            promises.push( that.deleteInstance( instanceToDelete ) );
+                        });
+                    });
+                }
+
+            Promise.all(promises).then(function() {
+
+                // Remove the original instance from the DB
+                that.collection.deleteMany( <IModelEntry>{ _id : instance.dbEntry._id }).then( function ( deleteResult ) {
+                    resolve();
+                }).catch(function(err: Error) {
+                    reject(err);
+                });
+
+            }).catch(function( err: Error ) {
+                reject(err);
+            });
+        });
+    }
+
 	/**
 	* Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	* @returns {Promise<number>}
@@ -322,14 +379,26 @@ export abstract class Model
 	deleteInstances(selector: any): Promise<number>
 	{
 		var model = this;
+        var that = this;
 
 		return new Promise<number>(function (resolve, reject)
 		{
-			var collection = model.collection;
-			collection.deleteMany(selector).then( function ( deleteResult ) {
-				resolve(deleteResult.deletedCount);
-			}).catch(function(err: Error){
-                reject(err);
+            that.findInstances<IModelEntry>(selector).then(function( instances )
+            {
+                if (!instances || instances.length == 0)
+                    return resolve(0);
+
+                var promises : Array<Promise<any>> = [];
+
+                instances.forEach(function(instance, index) {
+                    promises.push(that.deleteInstance(instance));
+                });
+
+                Promise.all(promises).then(function() {
+                    resolve(instances.length)
+                }).catch(function(err: Error){
+                    reject(err);
+                });
             });
 		});
     }
@@ -359,7 +428,7 @@ export abstract class Model
                 if (!instances || instances.length == 0)
                     return resolve(toRet);
 
-                instances.forEach(function (instance: ModelInstance<T>, index)
+                instances.forEach(function (instance, index)
                 {
                     // If we have data, then set the variables
                     if (data)
