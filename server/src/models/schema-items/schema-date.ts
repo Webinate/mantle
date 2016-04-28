@@ -52,6 +52,6 @@ export class SchemaDate extends SchemaItem<number>
 	*/
     public getValue(options? : ISchemaOptions): number
     {
-        return (this.value !== undefined && this.value !== null ? this.value : null );
+        return (this.value !== undefined && this.value !== null ? this.value : Date.now() );
     }
 }

@@ -47,7 +47,7 @@ var SchemaDate = (function (_super) {
     * @returns {number}
     */
     SchemaDate.prototype.getValue = function (options) {
-        return (this.value !== undefined && this.value !== null ? this.value : null);
+        return (this.value !== undefined && this.value !== null ? this.value : Date.now());
     };
     return SchemaDate;
 }(schema_item_1.SchemaItem));
