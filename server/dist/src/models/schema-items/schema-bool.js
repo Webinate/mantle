@@ -30,15 +30,15 @@ var SchemaBool = (function (_super) {
     };
     /**
     * Always true
-    * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+    * @returns {Promise<boolean>}
     */
     SchemaBool.prototype.validate = function () {
         var val = this.value;
         if (val === undefined)
-            return this.name + " cannot be undefined";
+            return Promise.reject(new Error(this.name + " cannot be undefined"));
         if (val === null)
-            return this.name + " cannot be null";
-        return true;
+            return Promise.reject(new Error(this.name + " cannot be null"));
+        return Promise.resolve(true);
     };
     return SchemaBool;
 }(schema_item_1.SchemaItem));

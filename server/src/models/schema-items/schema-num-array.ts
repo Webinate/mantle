@@ -62,9 +62,9 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+	* @returns {Promise<boolean>}
 	*/
-	public validate(): boolean | string
+	public validate():Promise<boolean>
     {
         var transformedValue = this.value;
         var max = this.max;
@@ -81,16 +81,16 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
                 temp = parseFloat((parseFloat(transformedValue.toString()).toFixed(decimalPlaces)));
 
             if (temp < min || temp > max)
-                return `The value of ${this.name} is not within the range of ${this.min} and ${this.max}`;
+                return Promise.reject( new Error(`The value of ${this.name} is not within the range of ${this.min} and ${this.max}`));
 
             transformedValue[i] = temp;
         }
 
         if (transformedValue.length < this.minItems)
-            return `You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`;
+            return Promise.reject( new Error(`You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`));
         if (transformedValue.length > this.maxItems)
-            return `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`;
+            return Promise.reject( new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`));
 
-        return true;
+        return Promise.resolve(true);
     }
 }

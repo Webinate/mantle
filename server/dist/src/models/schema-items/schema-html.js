@@ -51,23 +51,23 @@ var SchemaHtml = (function (_super) {
     };
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+    * @returns {Promise<boolean>} Returns true if successful or an error message string if unsuccessful
     */
     SchemaHtml.prototype.validate = function () {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
         var transformedValue = this.value.trim();
         if (transformedValue.length < minCharacters && minCharacters == 1)
-            return "'" + this.name + "' cannot be empty";
+            return Promise.reject(new Error("'" + this.name + "' cannot be empty"));
         else if (transformedValue.length > maxCharacters)
-            return "The character length of '" + this.name + "' is too long, please keep it below " + maxCharacters;
+            return Promise.reject(new Error("The character length of '" + this.name + "' is too long, please keep it below " + maxCharacters));
         else if (transformedValue.length < minCharacters)
-            return "The character length of '" + this.name + "' is too short, please keep it above " + minCharacters;
+            return Promise.reject(new Error("The character length of '" + this.name + "' is too short, please keep it above " + minCharacters));
         var sanitizedHTML = sanitizeHtml(this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
         if (this.errorBadHTML && transformedValue != sanitizedHTML)
-            return "'" + this.name + "' has html code that is not allowed";
+            return Promise.reject(new Error("'" + this.name + "' has html code that is not allowed"));
         this.value = sanitizedHTML;
-        return true;
+        return Promise.resolve(true);
     };
     /**
     * The default tags allowed

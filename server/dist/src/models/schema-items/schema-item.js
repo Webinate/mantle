@@ -106,10 +106,10 @@ var SchemaItem = (function () {
     };
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+    * @returns {Promise<boolean>}
     */
     SchemaItem.prototype.validate = function () {
-        return true;
+        return Promise.resolve(true);
     };
     /**
     * Gets the value of this item in a database safe format

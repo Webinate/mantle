@@ -42,7 +42,7 @@ var SchemaForeignKey = (function (_super) {
     };
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+    * @returns {Promise<boolean>}
     */
     SchemaForeignKey.prototype.validate = function () {
         var transformedValue = this.value;
@@ -50,15 +50,15 @@ var SchemaForeignKey = (function (_super) {
             if (utils_1.Utils.isValidObjectID(this.value))
                 transformedValue = this.value = new mongodb_1.ObjectID(this.value);
             else if (this.value.trim() != "")
-                return "Please use a valid ID for '" + this.name + "'";
+                return Promise.reject(new Error("Please use a valid ID for '" + this.name + "'"));
             else
                 transformedValue = null;
         }
         if (!transformedValue) {
             this.value = null;
-            return true;
+            return Promise.resolve(true);
         }
-        return true;
+        return Promise.resolve(true);
     };
     /**
     * Gets the value of this item

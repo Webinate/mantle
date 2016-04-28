@@ -34,12 +34,12 @@ var SchemaDate = (function (_super) {
     };
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+    * @returns {Promise<boolean>}
     */
     SchemaDate.prototype.validate = function () {
         if (this.useNow)
             this.value = Date.now();
-        return true;
+        return Promise.resolve(true);
     };
     /**
     * Gets the value of this item

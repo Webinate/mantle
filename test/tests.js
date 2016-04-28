@@ -93,7 +93,7 @@ describe('Testing all post related endpoints', function() {
         modepressAgent
             .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', adminCookie)
-            .send( { title: "" } )
+            .send( { title: "", slug:"" } )
             .end(function(err, res) {
                 test
                     .bool(res.body.error).isTrue()

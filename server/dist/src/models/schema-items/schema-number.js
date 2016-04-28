@@ -56,7 +56,7 @@ var SchemaNumber = (function (_super) {
     };
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+    * @returns {Promise<boolean>}
     */
     SchemaNumber.prototype.validate = function () {
         var type = this.type;
@@ -68,9 +68,9 @@ var SchemaNumber = (function (_super) {
             transformedValue = parseFloat((parseFloat(transformedValue.toString()).toFixed(decimalPlaces)));
         this.value = transformedValue;
         if (transformedValue <= this.max && transformedValue >= this.min)
-            return true;
+            return Promise.resolve(true);
         else
-            return "The value of " + this.name + " is not within the range of  " + this.min + " and " + this.max;
+            return Promise.reject(new Error("The value of " + this.name + " is not within the range of  " + this.min + " and " + this.max));
     };
     return SchemaNumber;
 }(schema_item_1.SchemaItem));

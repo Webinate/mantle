@@ -161,19 +161,21 @@ export class Schema
         return new Promise(function( resolve, reject ) {
 
             var error = "";
+            var promises : Array<Promise<any>> = [];
 
             for (var i = 0, l = items.length; i < l; i++)
             {
                 if ( checkForRequiredFields && !items[i].getModified() && items[i].getRequired() )
                     return reject( new Error(`${items[i].name} is required`));
 
-                var validated = items[i].validate();
-
-                if (validated !== true)
-                    return reject( new Error(<string>validated));
+                promises.push(items[i].validate());
             }
 
-            return resolve(that);
+            Promise.all(promises).then(function( validations ){
+                return resolve(that);
+            }).catch(function(err : Error){
+                reject(err);
+            });
         });
 	}
 

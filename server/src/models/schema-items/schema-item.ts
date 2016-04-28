@@ -139,11 +139,11 @@ export class SchemaItem<T>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+	* @returns {Promise<boolean>}
 	*/
-	public validate(): boolean | string
+	public validate(): Promise<boolean>
 	{
-		return true;
+		return Promise.resolve(true);
     }
 
     /**

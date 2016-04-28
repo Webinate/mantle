@@ -47,7 +47,7 @@ var SchemaTextArray = (function (_super) {
     };
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+    * @returns {Promise<boolean>}
     */
     SchemaTextArray.prototype.validate = function () {
         var transformedValue = this.value;
@@ -63,17 +63,17 @@ var SchemaTextArray = (function (_super) {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
         if (transformedValue.length < this.minItems)
-            return "You must select at least " + this.minItems + " item" + (this.minItems == 1 ? "" : "s") + " for " + this.name;
+            return Promise.reject(new Error("You must select at least " + this.minItems + " item" + (this.minItems == 1 ? "" : "s") + " for " + this.name));
         if (transformedValue.length > this.maxItems)
-            return "You have selected too many items for " + this.name + ", please only use up to " + this.maxItems;
+            return Promise.reject(new Error("You have selected too many items for " + this.name + ", please only use up to " + this.maxItems));
         for (var i = 0, l = transformedValue.length; i < l; i++) {
             transformedValue[i] = transformedValue[i].trim();
             if (transformedValue[i].length > maxCharacters)
-                return "The character length of '" + transformedValue[i] + "' in " + this.name + " is too long, please keep it below " + maxCharacters;
+                return Promise.reject(new Error("The character length of '" + transformedValue[i] + "' in " + this.name + " is too long, please keep it below " + maxCharacters));
             else if (transformedValue[i].length < minCharacters)
-                return "The character length of '" + transformedValue[i] + "' in " + this.name + " is too short, please keep it above " + minCharacters;
+                return Promise.reject(new Error("The character length of '" + transformedValue[i] + "' in " + this.name + " is too short, please keep it above " + minCharacters));
         }
-        return true;
+        return Promise.resolve(true);
     };
     return SchemaTextArray;
 }(schema_item_1.SchemaItem));

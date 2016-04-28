@@ -40,7 +40,7 @@ var SchemaIdArray = (function (_super) {
     };
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+    * @returns {Promise<boolean>} Returns true if successful or an error message string if unsuccessful
     */
     SchemaIdArray.prototype.validate = function () {
         var transformedValue = this.value;
@@ -49,16 +49,16 @@ var SchemaIdArray = (function (_super) {
                 if (utils_1.Utils.isValidObjectID(this.value[i]))
                     transformedValue[i] = new mongodb_1.ObjectID(this.value[i]);
                 else if (this.value[i].trim() != "")
-                    return "Please use a valid ID for '" + this.name + "'";
+                    return Promise.reject(new Error("Please use a valid ID for '" + this.name + "'"));
                 else
-                    return "Please use a valid ID for '" + this.name + "'";
+                    return Promise.reject(new Error("Please use a valid ID for '" + this.name + "'"));
             }
         }
         if (transformedValue.length < this.minItems)
-            return "You must select at least " + this.minItems + " item" + (this.minItems == 1 ? "" : "s") + " for " + this.name;
+            return Promise.reject(new Error("You must select at least " + this.minItems + " item" + (this.minItems == 1 ? "" : "s") + " for " + this.name));
         if (transformedValue.length > this.maxItems)
-            return "You have selected too many items for " + this.name + ", please only use up to " + this.maxItems;
-        return true;
+            return Promise.reject(new Error("You have selected too many items for " + this.name + ", please only use up to " + this.maxItems));
+        return Promise.resolve(true);
     };
     return SchemaIdArray;
 }(schema_item_1.SchemaItem));

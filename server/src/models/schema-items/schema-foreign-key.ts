@@ -44,9 +44,9 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Promise<any
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+	* @returns {Promise<boolean>}
 	*/
-	public validate(): boolean | string
+	public validate(): Promise<boolean>
     {
         var transformedValue = this.value;
 
@@ -55,7 +55,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Promise<any
             if (Utils.isValidObjectID(<string>this.value))
                 transformedValue = this.value = new ObjectID(<string>this.value);
             else if ((<string>this.value).trim() != "")
-                return `Please use a valid ID for '${this.name}'`;
+                return Promise.reject( new Error( `Please use a valid ID for '${this.name}'`));
             else
                 transformedValue = null;
         }
@@ -63,10 +63,10 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Promise<any
         if (!transformedValue)
         {
             this.value = null;
-            return true;
+            return Promise.resolve(true);
         }
 
-        return true;
+        return Promise.resolve(true);
     }
 
     /**
