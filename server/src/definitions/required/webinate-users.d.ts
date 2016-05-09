@@ -56,18 +56,18 @@ declare module UsersInterface
         /*
         * Interface for file added events
         */
-        export interface IFilesAddedEvent extends IEvent
+        export interface IFileAddedEvent extends IEvent
         {
             username: string;
-            files: Array<IFileEntry>;
+            file: IFileEntry;
         }
 
         /*
         * Interface for file removed events
         */
-        export interface IFilesRemovedEvent extends IEvent
+        export interface IFileRemovedEvent extends IEvent
         {
-            files: Array<IFileEntry>;
+            file: IFileEntry;
         }
 
         /*
@@ -277,7 +277,7 @@ declare module UsersInterface
     export interface IAuthenticationResponse extends IResponse
     {
         authenticated: boolean;
-        user: IUserEntry;
+        user?: IUserEntry;
     }
 
     /*
