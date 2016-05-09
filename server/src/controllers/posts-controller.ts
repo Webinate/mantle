@@ -54,7 +54,7 @@ export default class PostsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getPosts(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async getPosts(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var posts = this.getModel("posts");
         var that = this;
@@ -159,33 +159,29 @@ export default class PostsController extends Controller
         if (findToken.$or.length == 0)
             delete findToken.$or;
 
-        // First get the count
-        posts.count(findToken).then(function (num)
+        try
         {
-            count = num;
-            return posts.findInstances<mp.IPost>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
+            // First get the count
+            count = await posts.count(findToken);
 
-        }).then(function (instances)
-       {
-            var sanitizedData : Array<Promise<mp.IPost>> = [];
+            var instances = await posts.findInstances<mp.IPost>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
+
+            var jsons : Array<Promise<mp.IPost>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson<mp.IPost>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<mp.IPost>(Boolean(req.query.verbose), instances[i]._id));
 
-            return Promise.all(sanitizedData);
+            var sanitizedData = await Promise.all(jsons);
 
-       }).then(function(sanitizedData) {
-
-           okJson<mp.IGetPosts>( {
+            okJson<mp.IGetPosts>( {
                 error: false,
                 count: count,
                 message: `Found ${count} posts`,
                 data: sanitizedData
             }, res);
 
-       }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -194,31 +190,31 @@ export default class PostsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getPost(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async getPost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var posts = this.getModel("posts");
         var that = this;
         var findToken: mp.IPost = { slug: req.params.slug };
         var user: UsersInterface.IUserEntry = req._user;
 
-        posts.findInstances<mp.IPost>(findToken, [], 0, 1).then(function (instances) : Promise<Error| Array<mp.IPost> >
+        try
         {
+            var instances = await posts.findInstances<mp.IPost>(findToken, [], 0, 1);
+
             if (instances.length == 0)
-                return Promise.reject<Error>(new Error("Could not find post"));
+                throw new Error("Could not find post");
 
             var users = UsersService.getSingleton();
 
             // Only admins are allowed to see private posts
             if (!instances[0].schema.getByName("public").getValue() && ( !user || users.hasPermission(user, 2) == false ) )
-                return Promise.reject<Error>(new Error("That post is marked private"));
+                throw new Error("That post is marked private");
 
-            var sanitizedData : Array<Promise<mp.IPost>> = [];
+            var jsons : Array<Promise<mp.IPost>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson<mp.IPost>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<mp.IPost>(Boolean(req.query.verbose), instances[i]._id));
 
-            return Promise.all(sanitizedData);
-
-        }).then(function(sanitizedData : Array<mp.IPost> ){
+            var sanitizedData = await Promise.all(jsons);
 
             okJson<mp.IGetPost>( {
                 error: false,
@@ -226,10 +222,9 @@ export default class PostsController extends Controller
                 data: sanitizedData[0]
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -238,20 +233,20 @@ export default class PostsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getCategories(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async getCategories(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var categories = this.getModel("categories");
         var that = this;
 
-        categories.findInstances<mp.ICategory>({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances)
+        try
         {
-            var sanitizedData : Array<Promise<mp.ICategory>> = [];
+            var instances  = await categories.findInstances<mp.ICategory>({}, {}, parseInt(req.query.index), parseInt(req.query.limit));
+
+            var jsons : Array<Promise<mp.ICategory>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson<mp.ICategory>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<mp.ICategory>(Boolean(req.query.verbose), instances[i]._id));
 
-            return Promise.all(sanitizedData);
-
-        }).then(function(sanitizedData) {
+            var sanitizedData = await Promise.all(jsons);
 
             okJson<mp.IGetCategories>( {
                 error: false,
@@ -260,10 +255,9 @@ export default class PostsController extends Controller
                 data: sanitizedData
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -272,25 +266,26 @@ export default class PostsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private removePost(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async removePost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var posts = this.getModel("posts");
 
-        // Attempt to delete the instances
-        posts.deleteInstances(<mp.IPost>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        try
         {
+            // Attempt to delete the instances
+            var numRemoved = await posts.deleteInstances(<mp.IPost>{ _id: new mongodb.ObjectID(req.params.id) });
+
             if (numRemoved == 0)
-                return Promise.reject(new Error("Could not find a post with that ID"));
+                throw new Error("Could not find a post with that ID");
 
             okJson<mp.IResponse>( {
                 error: false,
                 message: "Post has been successfully removed"
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -299,12 +294,14 @@ export default class PostsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private removeCategory(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async removeCategory(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var categories = this.getModel("categories");
 
-        categories.deleteInstances(<mp.ICategory>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        try
         {
+            var numRemoved = await categories.deleteInstances(<mp.ICategory>{ _id: new mongodb.ObjectID(req.params.id) });
+
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a category with that ID"));
 
@@ -313,10 +310,9 @@ export default class PostsController extends Controller
                 message: "Category has been successfully removed"
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -325,28 +321,29 @@ export default class PostsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private updatePost(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async updatePost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var token: mp.IPost = req.body;
         var posts = this.getModel("posts");
 
-        posts.update(<mp.IPost>{ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance)
+        try
         {
+            var instance = await posts.update(<mp.IPost>{ _id: new mongodb.ObjectID(req.params.id) }, token);
+
             if (instance.error)
-                return Promise.reject(new Error(<string>instance.tokens[0].error));
+               throw new Error(<string>instance.tokens[0].error);
 
             if ( instance.tokens.length == 0 )
-                return Promise.reject(new Error("Could not find post with that id"));
+               throw new Error("Could not find post with that id");
 
             okJson<mp.IResponse>( {
                 error: false,
                 message: "Post Updated"
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -355,7 +352,7 @@ export default class PostsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private createPost(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async createPost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var token: mp.IPost = req.body;
         var posts = this.getModel("posts");
@@ -363,11 +360,10 @@ export default class PostsController extends Controller
         // User is passed from the authentication function
         token.author = req._user.username;
 
-        posts.createInstance(token).then(function (instance)
+        try
         {
-            return instance.schema.getAsJson(true, instance._id);
-
-        }).then(function(json){
+            var instance = await posts.createInstance(token);
+            var json = await instance.schema.getAsJson(true, instance._id);
 
             okJson<mp.IGetPost>( {
                 error: false,
@@ -375,10 +371,9 @@ export default class PostsController extends Controller
                 data: json
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -387,25 +382,23 @@ export default class PostsController extends Controller
    * @param {express.Response} res
    * @param {Function} next
    */
-    private createCategory(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async createCategory(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var token: mp.ICategory = req.body;
         var categories = this.getModel("categories");
 
-        categories.createInstance(token).then(function (instance)
+        try
         {
-            return instance.schema.getAsJson(true, instance._id);
-
-        }).then(function(json){
+            var instance = await categories.createInstance(token);
+            var json = await instance.schema.getAsJson(true, instance._id);
 
             okJson<mp.IResponse>( {
                 error: false,
                 message: "New category created"
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 }

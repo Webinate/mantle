@@ -224,7 +224,7 @@ export default class PageRenderer extends Controller
     * @param response
     * @param next
     */
-    processBotRequest(req: express.Request, res: express.Response, next: Function)
+    async processBotRequest(req: express.Request, res: express.Response, next: Function)
     {
         if (req.query.__render__request)
             return next();
@@ -236,39 +236,36 @@ export default class PageRenderer extends Controller
         var model = this.getModel("renders");
         var url = this.getUrl(req);
         var that = this;
-        var ins: ModelInstance<IRender> = null;
+        var instance: ModelInstance<IRender> = null;
         var expiration = 0;
 
-        model.findOne<IRender>({ url: url }).then(function(instance)
+        try
         {
-            ins = instance;
+            instance = await model.findOne<IRender>({ url: url });
+            var html = "";
 
             if (instance)
             {
-                expiration = ins.dbEntry.expiration;
-                var html = ins.dbEntry.html;
+                expiration = instance.dbEntry.expiration;
+                var html = instance.dbEntry.html;
 
                 if (Date.now() > expiration)
-                    return that.renderPage(url);
+                    html = await that.renderPage(url);
                 else if (!html || html.trim() == "")
-                    return that.renderPage(url);
-                else
-                    return html;
+                    html = await that.renderPage(url);
             }
             else
-                return that.renderPage(url);
+                html = await that.renderPage(url);
 
-        }).then(function (html)
-        {
-            if (!ins)
+            if (!instance)
             {
                 winston.info(`Saving render '${url}'`, { process: process.pid });
-                model.createInstance<IRender>(<IRender>{ expiration: Date.now() + that.expiration, html: html, url: url });
+                await model.createInstance<IRender>(<IRender>{ expiration: Date.now() + that.expiration, html: html, url: url });
             }
             else if (Date.now() > expiration)
             {
                 winston.info(`Updating render '${url}'`, { process: process.pid });
-                model.update<IRender>(<IRender>{ _id: ins.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
+                await model.update<IRender>(<IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
             }
 
             winston.info("Sending back render without script tags", { process: process.pid });
@@ -276,11 +273,10 @@ export default class PageRenderer extends Controller
             res.status(200);
             return res.send(html);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             res.status(404);
             return res.send("Page does not exist");
-        });
+        };
     };
 
     /**
@@ -319,34 +315,32 @@ export default class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private previewRender(req: express.Request, res: express.Response, next: Function)
+    private async previewRender(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'text/html');
         var renders = this.getModel("renders");
 
-        renders.findInstances<IRender>(<IRender>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances)
+        try
         {
+            var instances = await renders.findInstances<IRender>(<IRender>{ _id: new mongodb.ObjectID(req.params.id) });
+
             if (instances.length == 0)
-                return Promise.reject(new Error("Could not find a render with that ID"));
+                throw new Error("Could not find a render with that ID");
 
             var html : string = instances[0].schema.getByName("html").getValue();
-
             var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
             for (var i = 0; matches && i < matches.length; i++)
-            {
                 if (matches[i].indexOf('application/ld+json') === -1)
                 {
                     html = html.replace(matches[i], '');
                 }
-            }
 
             res.end(html);
 
-        }).catch(function (error: Error)
-        {
+        } catch ( error ) {
             winston.error(error.message, { process: process.pid });
             res.writeHead(404);
-        });
+        };
     }
 
     /**
@@ -355,24 +349,25 @@ export default class PageRenderer extends Controller
    * @param {express.Response} res
    * @param {Function} next
    */
-    private removeRender(req: express.Request, res: express.Response, next: Function)
+    private async removeRender(req: express.Request, res: express.Response, next: Function)
     {
         var renders = this.getModel("renders");
 
-        renders.deleteInstances(<IRender>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        try
         {
+            var numRemoved = await renders.deleteInstances(<IRender>{ _id: new mongodb.ObjectID(req.params.id) });
+
             if (numRemoved == 0)
-                return Promise.reject(new Error("Could not find a cache with that ID"));
+                throw new Error("Could not find a cache with that ID");
 
              okJson<IResponse>( {
                     error: true,
                     message: "Cache has been successfully removed"
                 }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -382,12 +377,14 @@ export default class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private authenticateAdmin(req: express.Request, res: express.Response, next: Function)
+    private async authenticateAdmin(req: express.Request, res: express.Response, next: Function)
     {
         var users = UsersService.getSingleton();
 
-        users.authenticated(req).then(function (auth)
+        try
         {
+            var auth = await users.authenticated(req);
+
             if (!auth.authenticated)
             {
                 okJson<IResponse>( {
@@ -405,10 +402,9 @@ export default class PageRenderer extends Controller
                 next();
             }
 
-        }).catch(function (error: Error)
-        {
+        } catch ( error ) {
             errJson(new Error("You do not have permission"), res);
-        });
+        };
     }
 
     /**
@@ -417,9 +413,8 @@ export default class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getRenders(req: express.Request, res: express.Response, next: Function)
+    private async getRenders(req: express.Request, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
         var that = this;
         var count = 0;
@@ -448,22 +443,17 @@ export default class PageRenderer extends Controller
             (<IRender>findToken).url = <any>new RegExp(req.query.search, "i");
 
 
-
-        // First get the count
-        renders.count(findToken).then(function(num)
+        try
         {
-            count = num;
-            return renders.findInstances<IRender>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            // First get the count
+            count = await  renders.count(findToken);
+            var instances = await renders.findInstances<IRender>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
 
-        }).then(function (instances)
-        {
-            var sanitizedData : Array<Promise<IRender>> = [];
+            var jsons : Array<Promise<IRender>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson<IRender>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<IRender>(Boolean(req.query.verbose), instances[i]._id));
 
-            return Promise.all(sanitizedData);
-
-        }).then(function(sanitizedData){
+            var sanitizedData = await Promise.all(jsons);
 
             okJson<IGetRenders>( {
                 error: false,
@@ -472,10 +462,9 @@ export default class PageRenderer extends Controller
                 data: sanitizedData
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -484,22 +473,22 @@ export default class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private clearRenders(req: express.Request, res: express.Response, next: Function)
+    private async clearRenders(req: express.Request, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
 
-        // First get the count
-        renders.deleteInstances({}).then(function(num)
+        try
         {
+            // First get the count
+            var num = await renders.deleteInstances({});
+
             okJson<IResponse>( {
                 error: false,
                 message: `${num} Instances have been removed`
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 }

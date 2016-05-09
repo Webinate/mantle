@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 const mongodb = require("mongodb");
 const winston = require("winston");
 const express = require("express");
@@ -125,45 +133,47 @@ class PageRenderer extends controller_1.Controller {
     * @param next
     */
     processBotRequest(req, res, next) {
-        if (req.query.__render__request)
-            return next();
-        // Its not a bot request - do nothing
-        if (!this.shouldShowPrerenderedPage(req))
-            return next();
-        var model = this.getModel("renders");
-        var url = this.getUrl(req);
-        var that = this;
-        var ins = null;
-        var expiration = 0;
-        model.findOne({ url: url }).then(function (instance) {
-            ins = instance;
-            if (instance) {
-                expiration = ins.dbEntry.expiration;
-                var html = ins.dbEntry.html;
-                if (Date.now() > expiration)
-                    return that.renderPage(url);
-                else if (!html || html.trim() == "")
-                    return that.renderPage(url);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.query.__render__request)
+                return next();
+            // Its not a bot request - do nothing
+            if (!this.shouldShowPrerenderedPage(req))
+                return next();
+            var model = this.getModel("renders");
+            var url = this.getUrl(req);
+            var that = this;
+            var instance = null;
+            var expiration = 0;
+            try {
+                instance = yield model.findOne({ url: url });
+                var html = "";
+                if (instance) {
+                    expiration = instance.dbEntry.expiration;
+                    var html = instance.dbEntry.html;
+                    if (Date.now() > expiration)
+                        html = yield that.renderPage(url);
+                    else if (!html || html.trim() == "")
+                        html = yield that.renderPage(url);
+                }
                 else
-                    return html;
+                    html = yield that.renderPage(url);
+                if (!instance) {
+                    winston.info(`Saving render '${url}'`, { process: process.pid });
+                    yield model.createInstance({ expiration: Date.now() + that.expiration, html: html, url: url });
+                }
+                else if (Date.now() > expiration) {
+                    winston.info(`Updating render '${url}'`, { process: process.pid });
+                    yield model.update({ _id: instance.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
+                }
+                winston.info("Sending back render without script tags", { process: process.pid });
+                res.status(200);
+                return res.send(html);
             }
-            else
-                return that.renderPage(url);
-        }).then(function (html) {
-            if (!ins) {
-                winston.info(`Saving render '${url}'`, { process: process.pid });
-                model.createInstance({ expiration: Date.now() + that.expiration, html: html, url: url });
+            catch (err) {
+                res.status(404);
+                return res.send("Page does not exist");
             }
-            else if (Date.now() > expiration) {
-                winston.info(`Updating render '${url}'`, { process: process.pid });
-                model.update({ _id: ins.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
-            }
-            winston.info("Sending back render without script tags", { process: process.pid });
-            res.status(200);
-            return res.send(html);
-        }).catch(function (err) {
-            res.status(404);
-            return res.send("Page does not exist");
+            ;
         });
     }
     ;
@@ -200,22 +210,26 @@ class PageRenderer extends controller_1.Controller {
     * @param {Function} next
     */
     previewRender(req, res, next) {
-        res.setHeader('Content-Type', 'text/html');
-        var renders = this.getModel("renders");
-        renders.findInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances) {
-            if (instances.length == 0)
-                return Promise.reject(new Error("Could not find a render with that ID"));
-            var html = instances[0].schema.getByName("html").getValue();
-            var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
-            for (var i = 0; matches && i < matches.length; i++) {
-                if (matches[i].indexOf('application/ld+json') === -1) {
-                    html = html.replace(matches[i], '');
-                }
+        return __awaiter(this, void 0, void 0, function* () {
+            res.setHeader('Content-Type', 'text/html');
+            var renders = this.getModel("renders");
+            try {
+                var instances = yield renders.findInstances({ _id: new mongodb.ObjectID(req.params.id) });
+                if (instances.length == 0)
+                    throw new Error("Could not find a render with that ID");
+                var html = instances[0].schema.getByName("html").getValue();
+                var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
+                for (var i = 0; matches && i < matches.length; i++)
+                    if (matches[i].indexOf('application/ld+json') === -1) {
+                        html = html.replace(matches[i], '');
+                    }
+                res.end(html);
             }
-            res.end(html);
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.writeHead(404);
+            catch (error) {
+                winston.error(error.message, { process: process.pid });
+                res.writeHead(404);
+            }
+            ;
         });
     }
     /**
@@ -225,16 +239,21 @@ class PageRenderer extends controller_1.Controller {
    * @param {Function} next
    */
     removeRender(req, res, next) {
-        var renders = this.getModel("renders");
-        renders.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
-            if (numRemoved == 0)
-                return Promise.reject(new Error("Could not find a cache with that ID"));
-            serializers_1.okJson({
-                error: true,
-                message: "Cache has been successfully removed"
-            }, res);
-        }).catch(function (err) {
-            serializers_1.errJson(err, res);
+        return __awaiter(this, void 0, void 0, function* () {
+            var renders = this.getModel("renders");
+            try {
+                var numRemoved = yield renders.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) });
+                if (numRemoved == 0)
+                    throw new Error("Could not find a cache with that ID");
+                serializers_1.okJson({
+                    error: true,
+                    message: "Cache has been successfully removed"
+                }, res);
+            }
+            catch (err) {
+                serializers_1.errJson(err, res);
+            }
+            ;
         });
     }
     /**
@@ -245,23 +264,28 @@ class PageRenderer extends controller_1.Controller {
     * @param {Function} next
     */
     authenticateAdmin(req, res, next) {
-        var users = users_service_1.UsersService.getSingleton();
-        users.authenticated(req).then(function (auth) {
-            if (!auth.authenticated) {
-                serializers_1.okJson({
-                    error: true,
-                    message: "You must be logged in to make this request"
-                }, res);
+        return __awaiter(this, void 0, void 0, function* () {
+            var users = users_service_1.UsersService.getSingleton();
+            try {
+                var auth = yield users.authenticated(req);
+                if (!auth.authenticated) {
+                    serializers_1.okJson({
+                        error: true,
+                        message: "You must be logged in to make this request"
+                    }, res);
+                }
+                else if (!users.hasPermission(auth.user, 2)) {
+                    serializers_1.errJson(new Error("You do not have permission"), res);
+                }
+                else {
+                    req.params.user = auth.user;
+                    next();
+                }
             }
-            else if (!users.hasPermission(auth.user, 2)) {
+            catch (error) {
                 serializers_1.errJson(new Error("You do not have permission"), res);
             }
-            else {
-                req.params.user = auth.user;
-                next();
-            }
-        }).catch(function (error) {
-            serializers_1.errJson(new Error("You do not have permission"), res);
+            ;
         });
     }
     /**
@@ -271,45 +295,46 @@ class PageRenderer extends controller_1.Controller {
     * @param {Function} next
     */
     getRenders(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
-        var renders = this.getModel("renders");
-        var that = this;
-        var count = 0;
-        var findToken = {};
-        // Set the default sort order to ascending
-        var sortOrder = -1;
-        if (req.query.sortOrder) {
-            if (req.query.sortOrder.toLowerCase() == "asc")
-                sortOrder = 1;
-            else
-                sortOrder = -1;
-        }
-        // Sort by the date created
-        var sort = { createdOn: sortOrder };
-        var getContent = true;
-        if (req.query.minimal)
-            getContent = false;
-        // Check for keywords
-        if (req.query.search)
-            findToken.url = new RegExp(req.query.search, "i");
-        // First get the count
-        renders.count(findToken).then(function (num) {
-            count = num;
-            return renders.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
-        }).then(function (instances) {
-            var sanitizedData = [];
-            for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
-            return Promise.all(sanitizedData);
-        }).then(function (sanitizedData) {
-            serializers_1.okJson({
-                error: false,
-                count: count,
-                message: `Found ${count} renders`,
-                data: sanitizedData
-            }, res);
-        }).catch(function (err) {
-            serializers_1.errJson(err, res);
+        return __awaiter(this, void 0, void 0, function* () {
+            var renders = this.getModel("renders");
+            var that = this;
+            var count = 0;
+            var findToken = {};
+            // Set the default sort order to ascending
+            var sortOrder = -1;
+            if (req.query.sortOrder) {
+                if (req.query.sortOrder.toLowerCase() == "asc")
+                    sortOrder = 1;
+                else
+                    sortOrder = -1;
+            }
+            // Sort by the date created
+            var sort = { createdOn: sortOrder };
+            var getContent = true;
+            if (req.query.minimal)
+                getContent = false;
+            // Check for keywords
+            if (req.query.search)
+                findToken.url = new RegExp(req.query.search, "i");
+            try {
+                // First get the count
+                count = yield renders.count(findToken);
+                var instances = yield renders.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+                var jsons = [];
+                for (var i = 0, l = instances.length; i < l; i++)
+                    jsons.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                var sanitizedData = yield Promise.all(jsons);
+                serializers_1.okJson({
+                    error: false,
+                    count: count,
+                    message: `Found ${count} renders`,
+                    data: sanitizedData
+                }, res);
+            }
+            catch (err) {
+                serializers_1.errJson(err, res);
+            }
+            ;
         });
     }
     /**
@@ -319,16 +344,20 @@ class PageRenderer extends controller_1.Controller {
     * @param {Function} next
     */
     clearRenders(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
-        var renders = this.getModel("renders");
-        // First get the count
-        renders.deleteInstances({}).then(function (num) {
-            serializers_1.okJson({
-                error: false,
-                message: `${num} Instances have been removed`
-            }, res);
-        }).catch(function (err) {
-            serializers_1.errJson(err, res);
+        return __awaiter(this, void 0, void 0, function* () {
+            var renders = this.getModel("renders");
+            try {
+                // First get the count
+                var num = yield renders.deleteInstances({});
+                serializers_1.okJson({
+                    error: false,
+                    message: `${num} Instances have been removed`
+                }, res);
+            }
+            catch (err) {
+                serializers_1.errJson(err, res);
+            }
+            ;
         });
     }
 }

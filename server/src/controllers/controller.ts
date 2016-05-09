@@ -39,10 +39,10 @@ export class Controller
 	* @param {mongodb.Db} db The mongo database to use
 	* @returns {Promise<Controller>}
 	*/
-	initialize(db: mongodb.Db): Promise<Controller>
+	async initialize(db: mongodb.Db): Promise<Controller>
 	{
 		if (!this._models)
-			return Promise.resolve(this);
+			return this;
 
 		// Start the initialization of all of the models
 		var promises: Array<Promise<Model>> = [];
@@ -50,18 +50,11 @@ export class Controller
 			promises.push(this._models[i].initialize(db));
 
 
-		return new Promise<Controller>((resolve, reject) =>
-		{
-			Promise.all(promises).then(function (promises)
-			{
-				resolve(this);
 
-			}).catch(function (e: Error)
-			{
-				reject(e);
-			});
-		});
-	}
+        await Promise.all(promises);
+
+        return this;
+    }
 
 	/**
 	* Gets a model by its collection name
