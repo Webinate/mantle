@@ -1,33 +1,27 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var mongodb = require("mongodb");
-var winston = require("winston");
-var express = require("express");
-var bodyParser = require("body-parser");
-var controller_1 = require("./controller");
-var users_service_1 = require("../users-service");
-var renders_model_1 = require("../models/renders-model");
-var model_1 = require("../models/model");
-var url = require("url");
-var jsdom = require("jsdom");
+const mongodb = require("mongodb");
+const winston = require("winston");
+const express = require("express");
+const bodyParser = require("body-parser");
+const controller_1 = require("./controller");
+const users_service_1 = require("../users-service");
+const renders_model_1 = require("../models/renders-model");
+const model_1 = require("../models/model");
+const url = require("url");
+const jsdom = require("jsdom");
 /**
 * Sets up a prerender server and saves the rendered html requests to mongodb.
 * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
 */
-var PageRenderer = (function (_super) {
-    __extends(PageRenderer, _super);
+class PageRenderer extends controller_1.Controller {
     /**
     * Creates a new instance of the email controller
     * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function PageRenderer(server, config, e) {
-        _super.call(this, [model_1.Model.registerModel(renders_model_1.RendersModel)]);
+    constructor(server, config, e) {
+        super([model_1.Model.registerModel(renders_model_1.RendersModel)]);
         if (!config.enableAjaxRendering)
             return;
         this.renderQueryFlag = "__render__request";
@@ -48,18 +42,18 @@ var PageRenderer = (function (_super) {
     * Strips the html page of any script tags
     * @param {string} html
     */
-    PageRenderer.prototype.stripScripts = function (html) {
+    stripScripts(html) {
         var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
         for (var i = 0; matches && i < matches.length; i++)
             if (matches[i].indexOf('application/ld+json') === -1)
                 html = html.replace(matches[i], '');
         return html;
-    };
+    }
     /**
     * Gets the URL of a request
     * @param {express.Request} req
     */
-    PageRenderer.prototype.getUrl = function (req) {
+    getUrl(req) {
         var protocol = req.protocol;
         if (req.get('CF-Visitor')) {
             var match = req.get('CF-Visitor').match(/"scheme":"(http|https)"/);
@@ -72,14 +66,14 @@ var PageRenderer = (function (_super) {
         var addQueryMark = false;
         if (!req.query || Object.keys(req.query).length === 0)
             addQueryMark = true;
-        return protocol + "://" + req.get('host') + req.url + (addQueryMark ? "?" + this.renderQueryFlag + "=true" : "&" + this.renderQueryFlag + "=true");
-    };
+        return protocol + "://" + req.get('host') + req.url + (addQueryMark ? `?${this.renderQueryFlag}=true` : `&${this.renderQueryFlag}=true`);
+    }
     /**
    * Fetches a page and strips it of all its script tags
    * @param {string} url
    * @param {Promise<string>}
    */
-    PageRenderer.prototype.renderPage = function (url) {
+    renderPage(url) {
         var that = this;
         return new Promise(function (resolve, reject) {
             var timer = null;
@@ -122,14 +116,14 @@ var PageRenderer = (function (_super) {
                 }
             });
         });
-    };
+    }
     /**
     * Determines if the request comes from a bot. If so, a prerendered page is sent back which excludes any script tags
     * @param req
     * @param response
     * @param next
     */
-    PageRenderer.prototype.processBotRequest = function (req, res, next) {
+    processBotRequest(req, res, next) {
         if (req.query.__render__request)
             return next();
         // Its not a bot request - do nothing
@@ -156,11 +150,11 @@ var PageRenderer = (function (_super) {
                 return that.renderPage(url);
         }).then(function (html) {
             if (!ins) {
-                winston.info("Saving render '" + url + "'", { process: process.pid });
+                winston.info(`Saving render '${url}'`, { process: process.pid });
                 model.createInstance({ expiration: Date.now() + that.expiration, html: html, url: url });
             }
             else if (Date.now() > expiration) {
-                winston.info("Updating render '" + url + "'", { process: process.pid });
+                winston.info(`Updating render '${url}'`, { process: process.pid });
                 model.update({ _id: ins.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
             }
             winston.info("Sending back render without script tags", { process: process.pid });
@@ -170,14 +164,14 @@ var PageRenderer = (function (_super) {
             res.status(404);
             return res.send("Page does not exist");
         });
-    };
+    }
     ;
     /**
     * Determines if the request comes from a bot
     * @param {express.Request} req
     * @returns {boolean}
     */
-    PageRenderer.prototype.shouldShowPrerenderedPage = function (req) {
+    shouldShowPrerenderedPage(req) {
         var userAgent = req.headers['user-agent'], bufferAgent = req.headers['x-bufferbot'], isRequestingPrerenderedPage = false;
         if (!userAgent)
             return false;
@@ -197,14 +191,14 @@ var PageRenderer = (function (_super) {
         if (PageRenderer.extensionsToIgnore.some(function (extension) { return req.url.indexOf(extension) !== -1; }))
             return false;
         return isRequestingPrerenderedPage;
-    };
+    }
     /**
     * Attempts to find a render by ID and then display it back to the user
     * @param {express.Request} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PageRenderer.prototype.previewRender = function (req, res, next) {
+    previewRender(req, res, next) {
         res.setHeader('Content-Type', 'text/html');
         var renders = this.getModel("renders");
         renders.findInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (instances) {
@@ -222,14 +216,14 @@ var PageRenderer = (function (_super) {
             winston.error(error.message, { process: process.pid });
             res.writeHead(404);
         });
-    };
+    }
     /**
    * Attempts to remove a render by ID
    * @param {express.Request} req
    * @param {express.Response} res
    * @param {Function} next
    */
-    PageRenderer.prototype.removeRender = function (req, res, next) {
+    removeRender(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
         renders.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
@@ -246,7 +240,7 @@ var PageRenderer = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * This funciton checks the logged in user is an admin. If not an admin it returns an error,
     * if true it passes the scope onto the next function in the queue
@@ -254,7 +248,7 @@ var PageRenderer = (function (_super) {
     * @param {express.Response} res
     * @param {Function} next
     */
-    PageRenderer.prototype.authenticateAdmin = function (req, res, next) {
+    authenticateAdmin(req, res, next) {
         var users = users_service_1.UsersService.getSingleton();
         users.authenticated(req).then(function (auth) {
             if (!auth.authenticated) {
@@ -283,14 +277,14 @@ var PageRenderer = (function (_super) {
                 message: "You do not have permission"
             }));
         });
-    };
+    }
     /**
     * Returns an array of IPost items
     * @param {express.Request} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PageRenderer.prototype.getRenders = function (req, res, next) {
+    getRenders(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
         var that = this;
@@ -325,7 +319,7 @@ var PageRenderer = (function (_super) {
             res.end(JSON.stringify({
                 error: false,
                 count: count,
-                message: "Found " + count + " renders",
+                message: `Found ${count} renders`,
                 data: sanitizedData
             }));
         }).catch(function (error) {
@@ -335,21 +329,21 @@ var PageRenderer = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Removes all cache items from the db
     * @param {express.Request} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PageRenderer.prototype.clearRenders = function (req, res, next) {
+    clearRenders(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
         // First get the count
         renders.deleteInstances({}).then(function (num) {
             res.end(JSON.stringify({
                 error: false,
-                message: num + " Instances have been removed"
+                message: `${num} Instances have been removed`
             }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });
@@ -358,70 +352,69 @@ var PageRenderer = (function (_super) {
                 message: error.message
             }));
         });
-    };
-    // googlebot, yahoo, and bingbot are not in this list because
-    // we support _escaped_fragment_ and want to ensure people aren't
-    // penalized for cloaking.
-    PageRenderer.crawlerUserAgents = [
-        // 'googlebot',
-        // 'yahoo',
-        // 'bingbot',
-        'baiduspider',
-        'facebookexternalhit',
-        'twitterbot',
-        'rogerbot',
-        'linkedinbot',
-        'embedly',
-        'quora link preview',
-        'showyoubot',
-        'outbrain',
-        'pinterest',
-        'developers.google.com/+/web/snippet',
-        'slackbot',
-        'vkShare',
-        'W3C_Validator'
-    ];
-    PageRenderer.extensionsToIgnore = [
-        '.js',
-        '.css',
-        '.xml',
-        '.less',
-        '.png',
-        '.jpg',
-        '.jpeg',
-        '.gif',
-        '.pdf',
-        '.doc',
-        '.txt',
-        '.ico',
-        '.rss',
-        '.zip',
-        '.mp3',
-        '.rar',
-        '.exe',
-        '.wmv',
-        '.doc',
-        '.avi',
-        '.ppt',
-        '.mpg',
-        '.mpeg',
-        '.tif',
-        '.wav',
-        '.mov',
-        '.psd',
-        '.ai',
-        '.xls',
-        '.mp4',
-        '.m4a',
-        '.swf',
-        '.dat',
-        '.dmg',
-        '.iso',
-        '.flv',
-        '.m4v',
-        '.torrent'
-    ];
-    return PageRenderer;
-}(controller_1.Controller));
+    }
+}
+// googlebot, yahoo, and bingbot are not in this list because
+// we support _escaped_fragment_ and want to ensure people aren't
+// penalized for cloaking.
+PageRenderer.crawlerUserAgents = [
+    // 'googlebot',
+    // 'yahoo',
+    // 'bingbot',
+    'baiduspider',
+    'facebookexternalhit',
+    'twitterbot',
+    'rogerbot',
+    'linkedinbot',
+    'embedly',
+    'quora link preview',
+    'showyoubot',
+    'outbrain',
+    'pinterest',
+    'developers.google.com/+/web/snippet',
+    'slackbot',
+    'vkShare',
+    'W3C_Validator'
+];
+PageRenderer.extensionsToIgnore = [
+    '.js',
+    '.css',
+    '.xml',
+    '.less',
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.pdf',
+    '.doc',
+    '.txt',
+    '.ico',
+    '.rss',
+    '.zip',
+    '.mp3',
+    '.rar',
+    '.exe',
+    '.wmv',
+    '.doc',
+    '.avi',
+    '.ppt',
+    '.mpg',
+    '.mpeg',
+    '.tif',
+    '.wav',
+    '.mov',
+    '.psd',
+    '.ai',
+    '.xls',
+    '.mp4',
+    '.m4a',
+    '.swf',
+    '.dat',
+    '.dmg',
+    '.iso',
+    '.flv',
+    '.m4v',
+    '.torrent'
+];
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PageRenderer;

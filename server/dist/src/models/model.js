@@ -1,15 +1,15 @@
 "use strict";
-var schema_1 = require("./schema");
-var winston = require("winston");
+const schema_1 = require("./schema");
+const winston = require("winston");
 /**
 * An instance of a model with its own unique schema and ID. The initial schema is a clone
 * the parent model's
 */
-var ModelInstance = (function () {
+class ModelInstance {
     /**
     * Creates a model instance
     */
-    function ModelInstance(model, dbEntry) {
+    constructor(model, dbEntry) {
         this.model = model;
         this.schema = model.defaultSchema.clone();
         this._id = null;
@@ -19,7 +19,7 @@ var ModelInstance = (function () {
     * Gets a string representation of all fields that are unique
     * @returns {string}
     */
-    ModelInstance.prototype.uniqueFieldNames = function () {
+    uniqueFieldNames() {
         var instance = this;
         var uniqueNames = "";
         var items = instance.schema.getItems();
@@ -29,25 +29,24 @@ var ModelInstance = (function () {
         if (uniqueNames != "")
             uniqueNames = uniqueNames.slice(0, uniqueNames.length - 2);
         return uniqueNames;
-    };
-    return ModelInstance;
-}());
+    }
+}
 exports.ModelInstance = ModelInstance;
 /**
 * Models map data in the application/client to data in the database
 */
-var Model = (function () {
+class Model {
     /**
     * Creates an instance of a Model
     * @param {string} collection The collection name associated with this model
     */
-    function Model(collection) {
+    constructor(collection) {
         this.collection = null;
         this._collectionName = collection;
         this._initialized = false;
         this.defaultSchema = new schema_1.Schema();
         if (Model._registeredModels[collection])
-            throw new Error("You cannot create model '" + collection + "' as its already been registered");
+            throw new Error(`You cannot create model '${collection}' as its already been registered`);
         // Register the model
         Model._registeredModels[collection] = this;
     }
@@ -57,27 +56,27 @@ var Model = (function () {
      * @param {any} modelConstructor The model class
      * @returns {Model} Returns the registered model
      */
-    Model.registerModel = function (modelConstructor) {
+    static registerModel(modelConstructor) {
         var models = Model._registeredModels;
         for (var i in models)
             if (modelConstructor == models[i].constructor)
                 return models[i];
         return new modelConstructor();
-    };
+    }
     /**
      * Returns a registered model by its name
      * @param {string} name The name of the model to fetch
      * @returns {Model} Returns the registered model or null if none exists
      */
-    Model.getByName = function (name) {
+    static getByName(name) {
         return Model._registeredModels[name];
-    };
+    }
     /**
      * Creates an index for a collection
      * @param {string} name The name of the field we are setting an index of
      * @param {mongodb.Collection} collection The collection we are setting the index on
      */
-    Model.prototype.createIndex = function (name, collection) {
+    createIndex(name, collection) {
         return new Promise(function (resolve, reject) {
             collection.createIndex(name, function (err, index) {
                 if (err)
@@ -86,22 +85,18 @@ var Model = (function () {
                     resolve();
             });
         });
-    };
-    Object.defineProperty(Model.prototype, "collectionName", {
-        /**
-        * Gets the name of the collection associated with this model
-        * @returns {string}
-        */
-        get: function () { return this._collectionName; },
-        enumerable: true,
-        configurable: true
-    });
+    }
+    /**
+    * Gets the name of the collection associated with this model
+    * @returns {string}
+    */
+    get collectionName() { return this._collectionName; }
     /**
     * Initializes the model by setting up the database collections
     * @param {mongodb.Db} db The database used to create this model
     * @returns {Promise<mongodb.Db>}
     */
-    Model.prototype.initialize = function (db) {
+    initialize(db) {
         var model = this;
         return new Promise(function (resolve, reject) {
             // If the collection already exists - then we do not have to create it
@@ -125,12 +120,12 @@ var Model = (function () {
                                 promises.push(model.createIndex(items[i].name, collection));
                         if (promises.length == 0) {
                             model._initialized = true;
-                            return Promise.resolve();
+                            return Promise.resolve([]);
                         }
                         return Promise.all(promises);
                     }).then(function (models) {
                         model._initialized = true;
-                        winston.info("Successfully created model '" + model._collectionName + "'", { process: process.pid });
+                        winston.info(`Successfully created model '${model._collectionName}'`, { process: process.pid });
                         return resolve(model);
                     }).catch(function (err) {
                         return reject(err);
@@ -138,13 +133,13 @@ var Model = (function () {
                 }
             });
         });
-    };
+    }
     /**
     * Gets the number of DB entries based on the selector
     * @param {any} selector The mongodb selector
     * @returns {Promise<Array<ModelInstance<T>>>}
     */
-    Model.prototype.count = function (selector) {
+    count(selector) {
         var that = this;
         var model = this;
         return new Promise(function (resolve, reject) {
@@ -160,7 +155,7 @@ var Model = (function () {
                 });
             }
         });
-    };
+    }
     /**
     * Gets an arrray of instances based on the selector search criteria
     * @param {any} selector The mongodb selector
@@ -171,9 +166,7 @@ var Model = (function () {
     * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
     * @returns {Promise<Array<ModelInstance<T>>>}
     */
-    Model.prototype.findInstances = function (selector, sort, startIndex, limit, projection) {
-        if (startIndex === void 0) { startIndex = 0; }
-        if (limit === void 0) { limit = 0; }
+    findInstances(selector, sort, startIndex = 0, limit = 0, projection) {
         var model = this;
         return new Promise(function (resolve, reject) {
             var collection = model.collection;
@@ -198,14 +191,14 @@ var Model = (function () {
                 });
             }
         });
-    };
+    }
     /**
     * Gets a model instance based on the selector criteria
     * @param {any} selector The mongodb selector
     * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
     * @returns {Promise<ModelInstance<T>>}
     */
-    Model.prototype.findOne = function (selector, projection) {
+    findOne(selector, projection) {
         var model = this;
         return new Promise(function (resolve, reject) {
             var collection = model.collection;
@@ -231,12 +224,12 @@ var Model = (function () {
                 });
             }
         });
-    };
+    }
     /**
     * Deletes a instance and all its dependencies are updated or deleted accordingly
     * @returns {Promise<any>}
     */
-    Model.prototype.deleteInstance = function (instance) {
+    deleteInstance(instance) {
         var that = this;
         var foreignModel;
         var optionalDependencies = instance.dbEntry._optionalDependencies;
@@ -276,12 +269,12 @@ var Model = (function () {
                 reject(err);
             });
         });
-    };
+    }
     /**
     * Deletes a number of instances based on the selector. The promise reports how many items were deleted
     * @returns {Promise<number>}
     */
-    Model.prototype.deleteInstances = function (selector) {
+    deleteInstances(selector) {
         var model = this;
         var that = this;
         return new Promise(function (resolve, reject) {
@@ -299,7 +292,7 @@ var Model = (function () {
                 });
             });
         });
-    };
+    }
     /**
     * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
     * unique fields are still being respected. An array is returned of each instance along with an error string if anything went wrong
@@ -309,7 +302,7 @@ var Model = (function () {
     * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
     * went wrong when updating the specific instance, and a string message if something did in fact go wrong
     */
-    Model.prototype.update = function (selector, data) {
+    update(selector, data) {
         var that = this;
         return new Promise(function (resolve, reject) {
             var toRet = {
@@ -330,7 +323,7 @@ var Model = (function () {
                     }).then(function (unique) {
                         if (!unique) {
                             toRet.error = true;
-                            toRet.tokens.push({ error: "'" + instance.uniqueFieldNames() + "' must be unique", instance: instance });
+                            toRet.tokens.push({ error: `'${instance.uniqueFieldNames()}' must be unique`, instance: instance });
                             if (index == instances.length - 1)
                                 return resolve(toRet);
                             else
@@ -367,14 +360,14 @@ var Model = (function () {
                 reject(err);
             });
         });
-    };
+    }
     /**
     * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
     * @param {any} data [Optional] You can pass a data object that will attempt to set the instance's schema variables
     * by parsing the data object and setting each schema item's value by the name/value in the data object.
     * @returns {Promise<boolean>}
     */
-    Model.prototype.checkUniqueness = function (instance) {
+    checkUniqueness(instance) {
         var that = this;
         return new Promise(function (resolve, reject) {
             var items = instance.schema.getItems();
@@ -405,14 +398,14 @@ var Model = (function () {
                 });
             }
         });
-    };
+    }
     /**
     * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
     * @param {any} data [Optional] You can pass a data object that will attempt to set the instance's schema variables
     * by parsing the data object and setting each schema item's value by the name/value in the data object.
     * @returns {Promise<ModelInstance<T>>}
     */
-    Model.prototype.createInstance = function (data) {
+    createInstance(data) {
         var that = this;
         return new Promise(function (resolve, reject) {
             var newInstance = new ModelInstance(that, null);
@@ -421,7 +414,7 @@ var Model = (function () {
                 newInstance.schema.set(data);
             that.checkUniqueness(newInstance).then(function (unique) {
                 if (!unique)
-                    return Promise.reject(new Error("'" + newInstance.uniqueFieldNames() + "' must be unique"));
+                    return Promise.reject(new Error(`'${newInstance.uniqueFieldNames()}' must be unique`));
                 // Now try to create a new instance
                 return that.insert([newInstance]);
             }).then(function (instance) {
@@ -432,13 +425,13 @@ var Model = (function () {
                 reject(err);
             });
         });
-    };
+    }
     /**
     * Attempts to insert an array of instances of this model into the database.
     * @param {Promise<Array<ModelInstance<T>>>} instances An array of instances to save
     * @returns {Promise<Array<ModelInstance<T>>>}
     */
-    Model.prototype.insert = function (instances) {
+    insert(instances) {
         var model = this;
         return new Promise(function (resolve, reject) {
             var collection = model.collection;
@@ -469,8 +462,7 @@ var Model = (function () {
                 });
             }
         });
-    };
-    Model._registeredModels = {};
-    return Model;
-}());
+    }
+}
+Model._registeredModels = {};
 exports.Model = Model;

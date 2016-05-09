@@ -1,32 +1,34 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
 };
-var bodyParser = require("body-parser");
-var mongodb = require("mongodb");
-var express = require("express");
-var compression = require("compression");
-var controller_1 = require("./controller");
-var model_1 = require("../models/model");
-var comments_model_1 = require("../models/comments-model");
-var users_service_1 = require("../users-service");
-var permission_controllers_1 = require("../permission-controllers");
-var winston = require("winston");
+const bodyParser = require("body-parser");
+const mongodb = require("mongodb");
+const express = require("express");
+const compression = require("compression");
+const controller_1 = require("./controller");
+const model_1 = require("../models/model");
+const comments_model_1 = require("../models/comments-model");
+const users_service_1 = require("../users-service");
+const permission_controllers_1 = require("../permission-controllers");
+const winston = require("winston");
 /**
 * A controller that deals with the management of comments
 */
-var CommentsController = (function (_super) {
-    __extends(CommentsController, _super);
+class CommentsController extends controller_1.Controller {
     /**
     * Creates a new instance of the controller
     * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function CommentsController(server, config, e) {
-        _super.call(this, [model_1.Model.registerModel(comments_model_1.CommentsModel)]);
+    constructor(server, config, e) {
+        super([model_1.Model.registerModel(comments_model_1.CommentsModel)]);
         var router = express.Router();
         router.use(compression());
         router.use(bodyParser.urlencoded({ 'extended': true }));
@@ -46,7 +48,7 @@ var CommentsController = (function (_super) {
     * @param {express.Response} res
     * @param {Function} next
     */
-    CommentsController.prototype.getComments = function (req, res, next) {
+    getComments(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var comments = this.getModel("comments");
         var that = this;
@@ -110,7 +112,7 @@ var CommentsController = (function (_super) {
             res.end(JSON.stringify({
                 error: false,
                 count: count,
-                message: "Found " + count + " comments",
+                message: `Found ${count} comments`,
                 data: sanitizedData
             }));
         }).catch(function (error) {
@@ -120,51 +122,54 @@ var CommentsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Returns a single comment
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    CommentsController.prototype.getComment = function (req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
-        var comments = this.getModel("comments");
-        var that = this;
-        var findToken = { _id: new mongodb.ObjectID(req.params.id) };
-        var user = req._user;
-        comments.findInstances(findToken, [], 0, 1).then(function (instances) {
-            if (instances.length == 0)
-                return Promise.reject(new Error("Could not find comment"));
-            var users = users_service_1.UsersService.getSingleton();
-            // Only admins are allowed to see private comments
-            if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false))
-                return Promise.reject(new Error("That comment is marked private"));
-            var sanitizedData = [];
-            for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
-            return Promise.all(sanitizedData);
-        }).then(function (sanitizedData) {
-            res.end(JSON.stringify({
-                error: false,
-                message: "Found " + sanitizedData.length + " comments",
-                data: sanitizedData[0]
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+    getComment(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            res.setHeader('Content-Type', 'application/json');
+            try {
+                var comments = this.getModel("comments");
+                var findToken = { _id: new mongodb.ObjectID(req.params.id) };
+                var user = req._user;
+                var instances = yield comments.findInstances(findToken, [], 0, 1);
+                if (instances.length == 0)
+                    throw new Error("Could not find comment");
+                var users = users_service_1.UsersService.getSingleton();
+                // Only admins are allowed to see private comments
+                if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false))
+                    return Promise.reject(new Error("That comment is marked private"));
+                var jsons = [];
+                for (var i = 0, l = instances.length; i < l; i++)
+                    jsons.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                var sanitizedData = yield Promise.all(jsons);
+                res.end(JSON.stringify({
+                    error: false,
+                    message: `Found ${sanitizedData.length} comments`,
+                    data: sanitizedData[0]
+                }));
+            }
+            catch (error) {
+                winston.error(error.message, { process: process.pid });
+                res.end(JSON.stringify({
+                    error: true,
+                    message: error.message
+                }));
+            }
+            ;
         });
-    };
+    }
     /**
     * Checks the request for a target ID. This will throw an error if none is found, or its invalid
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    CommentsController.prototype.verifyTarget = function (req, res, next) {
+    verifyTarget(req, res, next) {
         // Make sure the target id
         if (!req.params.target) {
             res.setHeader('Content-Type', 'application/json');
@@ -180,14 +185,14 @@ var CommentsController = (function (_super) {
                 message: "Invalid target ID format"
             }));
         }
-    };
+    }
     /**
     * Attempts to remove a comment by ID
     * @param {express.Request} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    CommentsController.prototype.remove = function (req, res, next) {
+    remove(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var comments = this.getModel("comments");
         var findToken = {
@@ -209,14 +214,14 @@ var CommentsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Attempts to update a comment by ID
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    CommentsController.prototype.update = function (req, res, next) {
+    update(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var comments = this.getModel("comments");
@@ -237,14 +242,14 @@ var CommentsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Attempts to create a new comment.
     * @param {IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    CommentsController.prototype.create = function (req, res, next) {
+    create(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var comments = this.getModel("comments");
@@ -266,8 +271,7 @@ var CommentsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
-    return CommentsController;
-}(controller_1.Controller));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CommentsController;

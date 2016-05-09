@@ -1,6 +1,6 @@
 "use strict";
-var users_service_1 = require("./users-service");
-var mongodb = require("mongodb");
+const users_service_1 = require("./users-service");
+const mongodb = require("mongodb");
 /**
 * This funciton checks if user is logged in
 * @param {express.Request} req

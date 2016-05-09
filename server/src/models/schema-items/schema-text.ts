@@ -45,9 +45,9 @@ export class SchemaText extends SchemaItem<string>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean>}
+	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean>
+	public validate(): Promise<boolean|Error>
 	{
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
@@ -62,11 +62,11 @@ export class SchemaText extends SchemaItem<string>
         this.value = transformedValue;
 
         if (transformedValue.length < minCharacters && minCharacters == 1)
-            return Promise.reject( new Error(`${this.name} cannot be empty` ));
+            return Promise.reject<Error>( new Error(`${this.name} cannot be empty` ));
 		if (transformedValue.length > maxCharacters)
-            return Promise.reject( new Error(`The character length of ${this.name} is too long, please keep it below ${maxCharacters}` ));
+            return Promise.reject<Error>( new Error(`The character length of ${this.name} is too long, please keep it below ${maxCharacters}` ));
         else if (transformedValue.length < minCharacters)
-            return Promise.reject( new Error(`The character length of ${this.name} is too short, please keep it above ${minCharacters}`));
+            return Promise.reject<Error>( new Error(`The character length of ${this.name} is too short, please keep it above ${minCharacters}`));
 		else
 			return Promise.resolve(true);
     }

@@ -73,24 +73,24 @@ export class SchemaHtml extends SchemaItem<string>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean>} Returns true if successful or an error message string if unsuccessful
+	* @returns {Promise<boolean|Error>} Returns true if successful or an error message string if unsuccessful
 	*/
-	public validate(): Promise<boolean>
+	public validate(): Promise<boolean|Error>
     {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
         var transformedValue = this.value.trim();
 
         if (transformedValue.length < minCharacters && minCharacters == 1)
-            return Promise.reject( new Error(`'${this.name}' cannot be empty`));
+            return Promise.reject<Error>( new Error(`'${this.name}' cannot be empty`));
         else if (transformedValue.length > maxCharacters)
-            return Promise.reject( new Error(`The character length of '${this.name}' is too long, please keep it below ${maxCharacters}`));
+            return Promise.reject<Error>( new Error(`The character length of '${this.name}' is too long, please keep it below ${maxCharacters}`));
         else if (transformedValue.length < minCharacters)
-            return Promise.reject( new Error(`The character length of '${this.name}' is too short, please keep it above ${minCharacters}`));
+            return Promise.reject<Error>( new Error(`The character length of '${this.name}' is too short, please keep it above ${minCharacters}`));
 
         var sanitizedHTML = sanitizeHtml(this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
         if (this.errorBadHTML && transformedValue != sanitizedHTML)
-            return Promise.reject( new Error(`'${this.name}' has html code that is not allowed`));
+            return Promise.reject<Error>( new Error(`'${this.name}' has html code that is not allowed`));
 
         this.value = sanitizedHTML;
         return Promise.resolve(true);

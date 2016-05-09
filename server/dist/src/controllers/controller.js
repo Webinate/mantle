@@ -1,6 +1,6 @@
 "use strict";
-var Controller = (function () {
-    function Controller(models) {
+class Controller {
+    constructor(models) {
         this._models = [];
         if (models) {
             for (var ii = 0, il = models.length; ii < il; ii++) {
@@ -22,33 +22,32 @@ var Controller = (function () {
     * @param {mongodb.Db} db The mongo database to use
     * @returns {Promise<Controller>}
     */
-    Controller.prototype.initialize = function (db) {
+    initialize(db) {
         if (!this._models)
             return Promise.resolve(this);
         // Start the initialization of all of the models
         var promises = [];
         for (var i = 0, l = this._models.length; i < l; i++)
             promises.push(this._models[i].initialize(db));
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             Promise.all(promises).then(function (promises) {
                 resolve(this);
             }).catch(function (e) {
                 reject(e);
             });
         });
-    };
+    }
     /**
     * Gets a model by its collection name
     * returns {models.Model}
     */
-    Controller.prototype.getModel = function (collectionName) {
+    getModel(collectionName) {
         var models = Controller._models;
         for (var i = 0, l = models.length; i < l; i++)
             if (models[i].collectionName == collectionName)
                 return models[i];
         return null;
-    };
-    Controller._models = [];
-    return Controller;
-}());
+    }
+}
+Controller._models = [];
 exports.Controller = Controller;

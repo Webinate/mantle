@@ -14,7 +14,6 @@
 /// <reference path="./definitions/required/yargs.d.ts" />
 /// <reference path="./definitions/required/request.d.ts" />
 /// <reference path="./definitions/required/sanitize-html.d.ts" />
-/// <reference path="./definitions/required/es6-promise.d.ts" />
 
 /// <reference path="./definitions/required/webinate-users.d.ts" />
 /// <reference path="./definitions/custom/modepress-api.d.ts" />

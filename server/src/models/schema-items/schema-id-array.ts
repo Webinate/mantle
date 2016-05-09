@@ -42,9 +42,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID>>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean>} Returns true if successful or an error message string if unsuccessful
+	* @returns {Promise<boolean|Error>} Returns true if successful or an error message string if unsuccessful
 	*/
-	public validate(): Promise<boolean>
+	public validate(): Promise<boolean|Error>
     {
         var transformedValue = this.value;
 
@@ -55,17 +55,17 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID>>
                 if (Utils.isValidObjectID(<string>this.value[i]))
                     transformedValue[i] = new ObjectID(<string>this.value[i]);
                 else if ((<string>this.value[i]).trim() != "")
-                    return Promise.reject( new Error(`Please use a valid ID for '${this.name}'`));
+                    return Promise.reject<Error>( new Error(`Please use a valid ID for '${this.name}'`));
                 else
-                    return Promise.reject( new Error(`Please use a valid ID for '${this.name}'`));
+                    return Promise.reject<Error>( new Error(`Please use a valid ID for '${this.name}'`));
             }
         }
 
 
         if (transformedValue.length < this.minItems)
-            return Promise.reject( new Error(`You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`));
+            return Promise.reject<Error>( new Error(`You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`));
         if (transformedValue.length > this.maxItems)
-            return Promise.reject( new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`));
+            return Promise.reject<Error>( new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`));
 
         return Promise.resolve(true);
     }

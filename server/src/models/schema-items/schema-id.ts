@@ -32,9 +32,9 @@ export class SchemaId extends SchemaItem<ObjectID | string>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean>}
+	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean>
+	public validate(): Promise<boolean|Error>
     {
         var transformedValue = this.value;
 
@@ -43,7 +43,7 @@ export class SchemaId extends SchemaItem<ObjectID | string>
             if (Utils.isValidObjectID(<string>this.value))
                 transformedValue = this.value = new ObjectID(<string>this.value);
             else if ((<string>this.value).trim() != "")
-                return Promise.reject( new Error(`Please use a valid ID for '${this.name}'`));
+                return Promise.reject<Error>( new Error(`Please use a valid ID for '${this.name}'`));
             else
                 transformedValue = null;
         }

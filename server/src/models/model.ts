@@ -166,7 +166,7 @@ export abstract class Model
                     model.collection = collection;
 
                     // First remove all existing indices
-                    collection.dropIndexes().then( function(response) {
+                    collection.dropIndexes().then( function(response)  {
 
                         // Now re-create the models who need index supports
                         var promises: Array<Promise<string>> = [];
@@ -178,7 +178,7 @@ export abstract class Model
                         if (promises.length == 0)
                         {
                             model._initialized = true;
-                            return Promise.resolve();
+                            return Promise.resolve([]);
                         }
 
                         return Promise.all(promises);
@@ -561,10 +561,10 @@ export abstract class Model
 			if (data)
                 newInstance.schema.set(data);
 
-            that.checkUniqueness(newInstance).then(function (unique)
+            that.checkUniqueness(newInstance).then(function (unique) : Promise<Error|Array<ModelInstance<T>>>
             {
                 if (!unique)
-                    return Promise.reject(new Error(`'${newInstance.uniqueFieldNames()}' must be unique`));
+                    return Promise.reject<Error>(new Error(`'${newInstance.uniqueFieldNames()}' must be unique`));
 
                 // Now try to create a new instance
                 return that.insert([newInstance]);
@@ -601,13 +601,13 @@ export abstract class Model
 			{
                 var instance: ModelInstance<T>;
 				var documents: Array<any> = [];
-                var promises : Array<Promise<any>> = [];
+                var promises : Array<Promise<Schema>> = [];
 
                 // Make sure the parameters are valid
 				for (var i = 0, l = instances.length; i < l; i++)
 					promises.push( instances[i].schema.validate(true) );
 
-                Promise.all(promises).then(function( schemas ) {
+                Promise.all(promises).then(function( schemas : Array<Schema> ) {
 
                     // Transform the schema into a JSON ready format
                     for (var i = 0, l = schemas.length; i < l; i++)
@@ -619,7 +619,7 @@ export abstract class Model
                     // Attempt to save the data to mongo collection
 				    return collection.insertMany(documents)
 
-                }).then(function (insertResult) {
+                }).then(function (insertResult: mongodb.InsertWriteOpResult) {
 
                     // Assign the ID's
                     for (var i = 0, l = insertResult.ops.length; i < l; i++)

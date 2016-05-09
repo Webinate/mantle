@@ -31,9 +31,9 @@ export class SchemaJSON extends SchemaItem<any>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean>}
+	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean>
+	public validate(): Promise<boolean|Error>
     {
         if (this.value === undefined)
             this.value = null;

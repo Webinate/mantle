@@ -1,16 +1,10 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var schema_item_1 = require("./schema-item");
-var schema_number_1 = require("./schema-number");
+const schema_item_1 = require("./schema-item");
+const schema_number_1 = require("./schema-number");
 /**
 * A number array scheme item for use in Models
 */
-var SchemaNumArray = (function (_super) {
-    __extends(SchemaNumArray, _super);
+class SchemaNumArray extends schema_item_1.SchemaItem {
     /**
     * Creates a new schema item that holds an array of number items
     * @param {string} name The name of this item
@@ -22,21 +16,15 @@ var SchemaNumArray = (function (_super) {
     * @param {NumberType} type [Optional] What type of numbers to expect
     * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
     */
-    function SchemaNumArray(name, val, minItems, maxItems, min, max, type, decimalPlaces) {
-        if (minItems === void 0) { minItems = 0; }
-        if (maxItems === void 0) { maxItems = Infinity; }
-        if (min === void 0) { min = -Infinity; }
-        if (max === void 0) { max = Infinity; }
-        if (type === void 0) { type = schema_number_1.NumberType.Integer; }
-        if (decimalPlaces === void 0) { decimalPlaces = 2; }
-        _super.call(this, name, val);
+    constructor(name, val, minItems = 0, maxItems = Infinity, min = -Infinity, max = Infinity, type = schema_number_1.NumberType.Integer, decimalPlaces = 2) {
+        super(name, val);
         this.max = max;
         this.min = min;
         this.maxItems = maxItems;
         this.minItems = minItems;
         this.type = type;
         if (decimalPlaces > 20)
-            throw new Error("Decimal palces for " + name + " cannot be more than 20");
+            throw new Error(`Decimal palces for ${name} cannot be more than 20`);
         this.decimalPlaces = decimalPlaces;
     }
     /**
@@ -44,9 +32,9 @@ var SchemaNumArray = (function (_super) {
     * @returns {SchemaNumArray} copy A sub class of the copy
     * @returns {SchemaNumArray}
     */
-    SchemaNumArray.prototype.clone = function (copy) {
+    clone(copy) {
         copy = copy === undefined ? new SchemaNumArray(this.name, this.value) : copy;
-        _super.prototype.clone.call(this, copy);
+        super.clone(copy);
         copy.max = this.max;
         copy.min = this.min;
         copy.maxItems = this.maxItems;
@@ -54,12 +42,12 @@ var SchemaNumArray = (function (_super) {
         copy.type = this.type;
         copy.decimalPlaces = this.decimalPlaces;
         return copy;
-    };
+    }
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {Promise<boolean>}
+    * @returns {Promise<boolean|Error>}
     */
-    SchemaNumArray.prototype.validate = function () {
+    validate() {
         var transformedValue = this.value;
         var max = this.max;
         var min = this.min;
@@ -72,15 +60,14 @@ var SchemaNumArray = (function (_super) {
             else
                 temp = parseFloat((parseFloat(transformedValue.toString()).toFixed(decimalPlaces)));
             if (temp < min || temp > max)
-                return Promise.reject(new Error("The value of " + this.name + " is not within the range of " + this.min + " and " + this.max));
+                return Promise.reject(new Error(`The value of ${this.name} is not within the range of ${this.min} and ${this.max}`));
             transformedValue[i] = temp;
         }
         if (transformedValue.length < this.minItems)
-            return Promise.reject(new Error("You must select at least " + this.minItems + " item" + (this.minItems == 1 ? "" : "s") + " for " + this.name));
+            return Promise.reject(new Error(`You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s")} for ${this.name}`));
         if (transformedValue.length > this.maxItems)
-            return Promise.reject(new Error("You have selected too many items for " + this.name + ", please only use up to " + this.maxItems));
+            return Promise.reject(new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`));
         return Promise.resolve(true);
-    };
-    return SchemaNumArray;
-}(schema_item_1.SchemaItem));
+    }
+}
 exports.SchemaNumArray = SchemaNumArray;

@@ -35,9 +35,9 @@ export class SchemaDate extends SchemaItem<number>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean>}
+	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean>
+	public validate(): Promise<boolean|Error>
     {
         if (this.useNow)
             this.value = Date.now();

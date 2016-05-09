@@ -1,24 +1,18 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var express = require("express");
-var controllerModule = require("./controller");
-var bodyParser = require('body-parser');
-var users_service_1 = require("../users-service");
-var winston = require("winston");
-var EmailsController = (function (_super) {
-    __extends(EmailsController, _super);
+const express = require("express");
+const controllerModule = require("./controller");
+const bodyParser = require('body-parser');
+const users_service_1 = require("../users-service");
+const winston = require("winston");
+class EmailsController extends controllerModule.Controller {
     /**
     * Creates a new instance of the email controller
     * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function EmailsController(server, config, e) {
-        _super.call(this, null);
+    constructor(server, config, e) {
+        super(null);
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
@@ -34,18 +28,24 @@ var EmailsController = (function (_super) {
     * @param {express.Response} res The response object
     * @param {Function} next
     */
-    EmailsController.prototype.onPost = function (req, res, next) {
+    onPost(req, res, next) {
         // Set the content type
         res.setHeader('Content-Type', 'application/json');
-        var message = "Hello admin,\n\t\t\tWe have received a message from " + req.body.name + ":\n\n\t\t\t" + req.body.message + "\n\n\t\t\tEmail: " + req.body.email + "\n\t\t\tPhone: " + req.body.phone + "\n\t\t\tWebsite: " + req.body.website;
+        var message = `Hello admin,
+			We have received a message from ${req.body.name}:
+
+			${req.body.message}
+
+			Email: ${req.body.email}
+			Phone: ${req.body.phone}
+			Website: ${req.body.website}`;
         users_service_1.UsersService.getSingleton().sendAdminEmail(message).then(function (body) {
             res.end(body);
         }).catch(function (err) {
             winston.error(err.message, { process: process.pid });
             return res.end(JSON.stringify({ message: err.toString(), error: true }));
         });
-    };
-    return EmailsController;
-}(controllerModule.Controller));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = EmailsController;

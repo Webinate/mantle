@@ -154,18 +154,19 @@ export default class CommentsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getComment(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async getComment(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var comments = this.getModel("comments");
-        var that = this;
-        var findToken: mp.IComment = { _id : new mongodb.ObjectID(req.params.id) };
-        var user = req._user;
-
-        comments.findInstances<mp.IComment>(findToken, [], 0, 1).then(function (instances)
+        try
         {
+            var comments = this.getModel("comments");
+            var findToken: mp.IComment = { _id : new mongodb.ObjectID(req.params.id) };
+            var user = req._user;
+
+            var instances = await comments.findInstances<mp.IComment>(findToken, [], 0, 1);
+
             if (instances.length == 0)
-                return Promise.reject(new Error("Could not find comment"));
+                throw new Error("Could not find comment");
 
             var users = UsersService.getSingleton();
 
@@ -173,28 +174,25 @@ export default class CommentsController extends Controller
             if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false ) )
                 return Promise.reject( new Error("That comment is marked private") );
 
-            var sanitizedData : Array<Promise<mp.IComment>> = [];
+            var jsons : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson<mp.IComment>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<mp.IComment>(Boolean(req.query.verbose), instances[i]._id));
 
-            return Promise.all(sanitizedData);
+            var sanitizedData = await Promise.all(jsons);
 
-        }).then(function( sanitizedData ){
-
-           res.end(JSON.stringify(<mp.IGetComment>{
+            res.end(JSON.stringify(<mp.IGetComment>{
                 error: false,
                 message: `Found ${sanitizedData.length} comments`,
                 data: sanitizedData[0]
             }));
 
-        }).catch(function (error: Error)
-        {
+        } catch ( error ) {
             winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<mp.IResponse>{
                 error: true,
                 message: error.message
             }));
-        });
+        };
     }
 
     /**

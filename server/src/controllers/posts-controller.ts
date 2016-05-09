@@ -206,16 +206,16 @@ export default class PostsController extends Controller
         var findToken: mp.IPost = { slug: req.params.slug };
         var user: UsersInterface.IUserEntry = req._user;
 
-        posts.findInstances<mp.IPost>(findToken, [], 0, 1).then(function (instances)
+        posts.findInstances<mp.IPost>(findToken, [], 0, 1).then(function (instances) : Promise<Error| Array<mp.IPost> >
         {
             if (instances.length == 0)
-                return Promise.reject(new Error("Could not find post"));
+                return Promise.reject<Error>(new Error("Could not find post"));
 
             var users = UsersService.getSingleton();
 
             // Only admins are allowed to see private posts
             if (!instances[0].schema.getByName("public").getValue() && ( !user || users.hasPermission(user, 2) == false ) )
-                return Promise.reject(new Error("That post is marked private"));
+                return Promise.reject<Error>(new Error("That post is marked private"));
 
             var sanitizedData : Array<Promise<mp.IPost>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
@@ -223,7 +223,7 @@ export default class PostsController extends Controller
 
             return Promise.all(sanitizedData);
 
-        }).then(function(sanitizedData){
+        }).then(function(sanitizedData : Array<mp.IPost> ){
 
             res.end(JSON.stringify(<mp.IGetPost>{
                 error: false,

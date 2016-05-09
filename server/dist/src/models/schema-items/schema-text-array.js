@@ -1,16 +1,10 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var schema_item_1 = require("./schema-item");
-var sanitizeHtml = require("sanitize-html");
+const schema_item_1 = require("./schema-item");
+const sanitizeHtml = require("sanitize-html");
 /**
 * A text scheme item for use in Models
 */
-var SchemaTextArray = (function (_super) {
-    __extends(SchemaTextArray, _super);
+class SchemaTextArray extends schema_item_1.SchemaItem {
     /**
     * Creates a new schema item that holds an array of text items
     * @param {string} name The name of this item
@@ -20,12 +14,8 @@ var SchemaTextArray = (function (_super) {
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
     * @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
     */
-    function SchemaTextArray(name, val, minItems, maxItems, minCharacters, maxCharacters) {
-        if (minItems === void 0) { minItems = 0; }
-        if (maxItems === void 0) { maxItems = 10000; }
-        if (minCharacters === void 0) { minCharacters = 0; }
-        if (maxCharacters === void 0) { maxCharacters = 10000; }
-        _super.call(this, name, val);
+    constructor(name, val, minItems = 0, maxItems = 10000, minCharacters = 0, maxCharacters = 10000) {
+        super(name, val);
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
         this.maxItems = maxItems;
@@ -36,20 +26,20 @@ var SchemaTextArray = (function (_super) {
     * @returns {SchemaTextArray} copy A sub class of the copy
     * @returns {SchemaTextArray}
     */
-    SchemaTextArray.prototype.clone = function (copy) {
+    clone(copy) {
         copy = copy === undefined ? new SchemaTextArray(this.name, this.value) : copy;
-        _super.prototype.clone.call(this, copy);
+        super.clone(copy);
         copy.maxCharacters = this.maxCharacters;
         copy.minCharacters = this.minCharacters;
         copy.maxItems = this.maxItems;
         copy.minItems = this.minItems;
         return copy;
-    };
+    }
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {Promise<boolean>}
+    * @returns {Promise<boolean|Error>}
     */
-    SchemaTextArray.prototype.validate = function () {
+    validate() {
         var transformedValue = this.value;
         var toRemove = [];
         for (var i = 0, l = transformedValue.length; i < l; i++) {
@@ -63,18 +53,17 @@ var SchemaTextArray = (function (_super) {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
         if (transformedValue.length < this.minItems)
-            return Promise.reject(new Error("You must select at least " + this.minItems + " item" + (this.minItems == 1 ? "" : "s") + " for " + this.name));
+            return Promise.reject(new Error(`You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s")} for ${this.name}`));
         if (transformedValue.length > this.maxItems)
-            return Promise.reject(new Error("You have selected too many items for " + this.name + ", please only use up to " + this.maxItems));
+            return Promise.reject(new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`));
         for (var i = 0, l = transformedValue.length; i < l; i++) {
             transformedValue[i] = transformedValue[i].trim();
             if (transformedValue[i].length > maxCharacters)
-                return Promise.reject(new Error("The character length of '" + transformedValue[i] + "' in " + this.name + " is too long, please keep it below " + maxCharacters));
+                return Promise.reject(new Error(`The character length of '${transformedValue[i]}' in ${this.name} is too long, please keep it below ${maxCharacters}`));
             else if (transformedValue[i].length < minCharacters)
-                return Promise.reject(new Error("The character length of '" + transformedValue[i] + "' in " + this.name + " is too short, please keep it above " + minCharacters));
+                return Promise.reject(new Error(`The character length of '${transformedValue[i]}' in ${this.name} is too short, please keep it above ${minCharacters}`));
         }
         return Promise.resolve(true);
-    };
-    return SchemaTextArray;
-}(schema_item_1.SchemaItem));
+    }
+}
 exports.SchemaTextArray = SchemaTextArray;

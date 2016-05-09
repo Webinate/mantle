@@ -1,46 +1,40 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var schema_item_1 = require("./schema-item");
-var mongodb_1 = require("mongodb");
-var utils_1 = require("../../utils");
+const schema_item_1 = require("./schema-item");
+const mongodb_1 = require("mongodb");
+const utils_1 = require("../../utils");
 /**
 * A mongodb ObjectID scheme item for use in Models
 */
-var SchemaId = (function (_super) {
-    __extends(SchemaId, _super);
+class SchemaId extends schema_item_1.SchemaItem {
     /**
     * Creates a new schema item
     * @param {string} name The name of this item
     * @param {string} val The string representation of the object ID
     */
-    function SchemaId(name, val) {
-        _super.call(this, name, val);
+    constructor(name, val) {
+        super(name, val);
     }
     /**
     * Creates a clone of this item
     * @returns {SchemaId} copy A sub class of the copy
     * @returns {SchemaId}
     */
-    SchemaId.prototype.clone = function (copy) {
+    clone(copy) {
         copy = copy === undefined ? new SchemaId(this.name, this.value) : copy;
-        _super.prototype.clone.call(this, copy);
+        super.clone(copy);
         return copy;
-    };
+    }
     /**
     * Checks the value stored to see if its correct in its current form
-    * @returns {Promise<boolean>}
+    * @returns {Promise<boolean|Error>}
     */
-    SchemaId.prototype.validate = function () {
+    validate() {
         var transformedValue = this.value;
         if (typeof this.value == "string") {
             if (utils_1.Utils.isValidObjectID(this.value))
                 transformedValue = this.value = new mongodb_1.ObjectID(this.value);
             else if (this.value.trim() != "")
-                return Promise.reject(new Error("Please use a valid ID for '" + this.name + "'"));
+                return Promise.reject(new Error(`Please use a valid ID for '${this.name}'`));
             else
                 transformedValue = null;
         }
@@ -49,7 +43,6 @@ var SchemaId = (function (_super) {
             return Promise.resolve(true);
         }
         return Promise.resolve(true);
-    };
-    return SchemaId;
-}(schema_item_1.SchemaItem));
+    }
+}
 exports.SchemaId = SchemaId;

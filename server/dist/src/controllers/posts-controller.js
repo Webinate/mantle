@@ -1,33 +1,27 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var bodyParser = require("body-parser");
-var mongodb = require("mongodb");
-var express = require("express");
-var compression = require("compression");
-var controller_1 = require("./controller");
-var model_1 = require("../models/model");
-var posts_model_1 = require("../models/posts-model");
-var categories_model_1 = require("../models/categories-model");
-var users_service_1 = require("../users-service");
-var permission_controllers_1 = require("../permission-controllers");
-var winston = require("winston");
+const bodyParser = require("body-parser");
+const mongodb = require("mongodb");
+const express = require("express");
+const compression = require("compression");
+const controller_1 = require("./controller");
+const model_1 = require("../models/model");
+const posts_model_1 = require("../models/posts-model");
+const categories_model_1 = require("../models/categories-model");
+const users_service_1 = require("../users-service");
+const permission_controllers_1 = require("../permission-controllers");
+const winston = require("winston");
 /**
 * A controller that deals with the management of posts
 */
-var PostsController = (function (_super) {
-    __extends(PostsController, _super);
+class PostsController extends controller_1.Controller {
     /**
     * Creates a new instance of the controller
     * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function PostsController(server, config, e) {
-        _super.call(this, [model_1.Model.registerModel(posts_model_1.PostsModel), model_1.Model.registerModel(categories_model_1.CategoriesModel)]);
+    constructor(server, config, e) {
+        super([model_1.Model.registerModel(posts_model_1.PostsModel), model_1.Model.registerModel(categories_model_1.CategoriesModel)]);
         var router = express.Router();
         router.use(compression());
         router.use(bodyParser.urlencoded({ 'extended': true }));
@@ -50,7 +44,7 @@ var PostsController = (function (_super) {
     * @param {express.Response} res
     * @param {Function} next
     */
-    PostsController.prototype.getPosts = function (req, res, next) {
+    getPosts(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
@@ -142,7 +136,7 @@ var PostsController = (function (_super) {
             res.end(JSON.stringify({
                 error: false,
                 count: count,
-                message: "Found " + count + " posts",
+                message: `Found ${count} posts`,
                 data: sanitizedData
             }));
         }).catch(function (error) {
@@ -152,14 +146,14 @@ var PostsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Returns a single post
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PostsController.prototype.getPost = function (req, res, next) {
+    getPost(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
@@ -179,7 +173,7 @@ var PostsController = (function (_super) {
         }).then(function (sanitizedData) {
             res.end(JSON.stringify({
                 error: false,
-                message: "Found " + sanitizedData.length + " posts",
+                message: `Found ${sanitizedData.length} posts`,
                 data: sanitizedData[0]
             }));
         }).catch(function (error) {
@@ -189,14 +183,14 @@ var PostsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Returns an array of ICategory items
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PostsController.prototype.getCategories = function (req, res, next) {
+    getCategories(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
         var that = this;
@@ -209,7 +203,7 @@ var PostsController = (function (_super) {
             res.end(JSON.stringify({
                 error: false,
                 count: sanitizedData.length,
-                message: "Found " + sanitizedData.length + " categories",
+                message: `Found ${sanitizedData.length} categories`,
                 data: sanitizedData
             }));
         }).catch(function (error) {
@@ -219,14 +213,14 @@ var PostsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Attempts to remove a post by ID
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PostsController.prototype.removePost = function (req, res, next) {
+    removePost(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         // Attempt to delete the instances
@@ -244,14 +238,14 @@ var PostsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Attempts to remove a category by ID
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PostsController.prototype.removeCategory = function (req, res, next) {
+    removeCategory(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
         categories.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
@@ -268,14 +262,14 @@ var PostsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Attempts to update a post by ID
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PostsController.prototype.updatePost = function (req, res, next) {
+    updatePost(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var posts = this.getModel("posts");
@@ -292,14 +286,14 @@ var PostsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
     * Attempts to create a new post. The
     * @param {mp.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    PostsController.prototype.createPost = function (req, res, next) {
+    createPost(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var posts = this.getModel("posts");
@@ -320,14 +314,14 @@ var PostsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
+    }
     /**
    * Attempts to create a new category item.
    * @param {mp.IAuthReq} req
    * @param {express.Response} res
    * @param {Function} next
    */
-    PostsController.prototype.createCategory = function (req, res, next) {
+    createCategory(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var categories = this.getModel("categories");
@@ -346,8 +340,7 @@ var PostsController = (function (_super) {
                 message: error.message
             }));
         });
-    };
-    return PostsController;
-}(controller_1.Controller));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PostsController;

@@ -61,9 +61,9 @@ export class SchemaNumber extends SchemaItem<number>
 
 	/**
 	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean>}
+	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean>
+	public validate(): Promise<boolean|Error>
 	{
 		var type = this.type;
 		var decimalPlaces = this.decimalPlaces;
@@ -79,6 +79,6 @@ export class SchemaNumber extends SchemaItem<number>
 		if (transformedValue <= this.max && transformedValue >= this.min)
 			return Promise.resolve(true);
 		else
-			return Promise.reject( new Error(`The value of ${this.name} is not within the range of  ${this.min} and ${this.max}`));
+			return Promise.reject<Error>( new Error(`The value of ${this.name} is not within the range of  ${this.min} and ${this.max}`));
     }
 }

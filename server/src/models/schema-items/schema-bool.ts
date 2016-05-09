@@ -30,15 +30,15 @@ export class SchemaBool extends SchemaItem<boolean>
 
 	/**
 	* Always true
-	* @returns {Promise<boolean>}
+	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean>
+	public validate(): Promise<boolean|Error>
 	{
         var val = this.value;
         if (val === undefined)
-            return Promise.reject( new Error(`${this.name} cannot be undefined` ) );
+            return Promise.reject<Error>( new Error(`${this.name} cannot be undefined` ) );
         if (val === null)
-            return Promise.reject( new Error(`${this.name} cannot be null`));
+            return Promise.reject<Error>( new Error(`${this.name} cannot be null`));
 
         return Promise.resolve(true);
     }

@@ -1,11 +1,11 @@
 "use strict";
-var _Controller = require("./src/controllers/controller");
-var _Models = require("./src/models/model");
-var _UsersService = require("./src/users-service");
-var _SchemaFactory = require("./src/models/schema-items/schema-item-factory");
-var _EventManager = require("./src/event-manager");
-var _PermissionController = require("./src/permission-controllers");
-var utils_1 = require("./src/utils");
+const _Controller = require("./src/controllers/controller");
+const _Models = require("./src/models/model");
+const _UsersService = require("./src/users-service");
+const _SchemaFactory = require("./src/models/schema-items/schema-item-factory");
+const _EventManager = require("./src/event-manager");
+const _PermissionController = require("./src/permission-controllers");
+const utils_1 = require("./src/utils");
 exports.Controller = _Controller.Controller;
 exports.Model = _Models.Model;
 exports.UsersService = _UsersService.UsersService;

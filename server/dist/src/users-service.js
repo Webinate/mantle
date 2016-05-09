@@ -1,14 +1,14 @@
 "use strict";
-var request = require("request");
+const request = require("request");
 /**
 * Singleton service for communicating with a webinate-users server
 */
-var UsersService = (function () {
+class UsersService {
     /**
     * Creates an instance of the service
     * @param {IConfig} config The config file of this server
     */
-    function UsersService(config) {
+    constructor(config) {
         UsersService.usersURL = config.usersURL;
     }
     /**
@@ -16,16 +16,16 @@ var UsersService = (function () {
     * @param {string} message The message to send
     * @returns {Promise<any>}
     */
-    UsersService.prototype.sendAdminEmail = function (message) {
+    sendAdminEmail(message) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.post(UsersService.usersURL + "/message-webmaster", { form: { message: message } }, function (error, response, body) {
+            request.post(`${UsersService.usersURL}/message-webmaster`, { form: { message: message } }, function (error, response, body) {
                 if (error)
                     return reject(error);
                 resolve(body);
             });
         });
-    };
+    }
     /**
     * Attempts to log a user in
     * @param {string} user The email or username
@@ -33,10 +33,10 @@ var UsersService = (function () {
     * @param {boolean} remember
     * @returns {Promise<UsersInterface.IAuthenticationResponse>}
     */
-    UsersService.prototype.login = function (user, password, remember) {
+    login(user, password, remember) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.post(UsersService.usersURL + "/login", { body: { username: user, password: password, rememberMe: remember } }, function (error, response, body) {
+            request.post(`${UsersService.usersURL}/login`, { body: { username: user, password: password, rememberMe: remember } }, function (error, response, body) {
                 if (error)
                     return reject(error);
                 try {
@@ -47,16 +47,16 @@ var UsersService = (function () {
                 }
             });
         });
-    };
+    }
     /**
     * Checks if a user is logged in and authenticated
     * @param {express.Request} req
     * @returns {Promise<UsersInterface.IAuthenticationResponse>}
     */
-    UsersService.prototype.authenticated = function (req) {
+    authenticated(req) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.get(UsersService.usersURL + "/authenticated", { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+            request.get(`${UsersService.usersURL}/authenticated`, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
                 if (error)
                     return reject(error);
                 var token = JSON.parse(body);
@@ -65,7 +65,7 @@ var UsersService = (function () {
                 resolve(token);
             });
         });
-    };
+    }
     /**
     * Checks a user has the desired permission
     * @param {UsersInterface.IUserEntry} user The user we are checking
@@ -73,7 +73,7 @@ var UsersService = (function () {
     * @param {string} existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
     * @returns {boolean}
     */
-    UsersService.prototype.hasPermission = function (user, level, existingUser) {
+    hasPermission(user, level, existingUser) {
         if (existingUser !== undefined) {
             if ((user.email != existingUser && user.username != existingUser) && user.privileges > level)
                 return false;
@@ -81,30 +81,29 @@ var UsersService = (function () {
         else if (user.privileges > level)
             return false;
         return true;
-    };
+    }
     /**
     * Attempts to get a user by username
     * @param {express.Request} req
     */
-    UsersService.prototype.getUser = function (user, req) {
+    getUser(user, req) {
         var that = this;
         return new Promise(function (resolve, reject) {
-            request.get(UsersService.usersURL + "/users/" + user, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
+            request.get(`${UsersService.usersURL}/users/${user}`, { headers: { cookie: req.headers.cookie } }, function (error, response, body) {
                 if (error)
                     return reject(error);
                 resolve(JSON.parse(body));
             });
         });
-    };
+    }
     /**
     * Gets the user singleton
     * @returns {UsersService}
     */
-    UsersService.getSingleton = function (config) {
+    static getSingleton(config) {
         if (!UsersService._singleton)
             UsersService._singleton = new UsersService(config);
         return UsersService._singleton;
-    };
-    return UsersService;
-}());
+    }
+}
 exports.UsersService = UsersService;
