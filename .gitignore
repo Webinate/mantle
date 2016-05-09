@@ -29,6 +29,8 @@ server/resources/admin/plugins/
 server/dist/plugins/
 third-party/
 
+changes.md
+
 # Visual Studo 2015 cache/options directory
 .vs/
 
