@@ -7,7 +7,7 @@
     "sourceMap": false,
     "preserveConstEnums": true,
     "noImplicitAny": false,
-    "target": "es5",
+    "target": "es6",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "outDir": "./dist"
@@ -24,6 +24,7 @@
       "src/path-handler.ts",
       "src/mongo-wrapper.ts",
       "src/event-manager.ts",
+      "src/serializers.ts",
       "src/controllers/controller.ts",
       "src/controllers/posts-controller.ts",
       "src/controllers/comments-controller.ts",
