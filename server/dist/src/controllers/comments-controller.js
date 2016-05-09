@@ -16,7 +16,7 @@ const model_1 = require("../models/model");
 const comments_model_1 = require("../models/comments-model");
 const users_service_1 = require("../users-service");
 const permission_controllers_1 = require("../permission-controllers");
-const winston = require("winston");
+const serializers_1 = require("../serializers");
 /**
 * A controller that deals with the management of comments
 */
@@ -49,7 +49,6 @@ class CommentsController extends controller_1.Controller {
     * @param {Function} next
     */
     getComments(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var comments = this.getModel("comments");
         var that = this;
         var count = 0;
@@ -109,18 +108,14 @@ class CommentsController extends controller_1.Controller {
                 sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
             return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 count: count,
                 message: `Found ${count} comments`,
                 data: sanitizedData
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -131,7 +126,6 @@ class CommentsController extends controller_1.Controller {
     */
     getComment(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            res.setHeader('Content-Type', 'application/json');
             try {
                 var comments = this.getModel("comments");
                 var findToken = { _id: new mongodb.ObjectID(req.params.id) };
@@ -147,18 +141,14 @@ class CommentsController extends controller_1.Controller {
                 for (var i = 0, l = instances.length; i < l; i++)
                     jsons.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
                 var sanitizedData = yield Promise.all(jsons);
-                res.end(JSON.stringify({
+                serializers_1.okJson({
                     error: false,
                     message: `Found ${sanitizedData.length} comments`,
                     data: sanitizedData[0]
-                }));
+                }, res);
             }
-            catch (error) {
-                winston.error(error.message, { process: process.pid });
-                res.end(JSON.stringify({
-                    error: true,
-                    message: error.message
-                }));
+            catch (err) {
+                serializers_1.errJson(err, res);
             }
             ;
         });
@@ -172,18 +162,13 @@ class CommentsController extends controller_1.Controller {
     verifyTarget(req, res, next) {
         // Make sure the target id
         if (!req.params.target) {
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: true,
                 message: "Please specify a target ID"
-            }));
+            }, res);
         }
         else if (!mongodb.ObjectID.isValid(req.params.target)) {
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify({
-                error: true,
-                message: "Invalid target ID format"
-            }));
+            serializers_1.errJson(new Error("Invalid target ID format"), res);
         }
     }
     /**
@@ -193,7 +178,6 @@ class CommentsController extends controller_1.Controller {
     * @param {Function} next
     */
     remove(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var comments = this.getModel("comments");
         var findToken = {
             _id: new mongodb.ObjectID(req.params.id),
@@ -203,16 +187,12 @@ class CommentsController extends controller_1.Controller {
         comments.deleteInstances(findToken).then(function (numRemoved) {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a comment with that ID"));
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 message: "Comment has been successfully removed"
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -222,7 +202,6 @@ class CommentsController extends controller_1.Controller {
     * @param {Function} next
     */
     update(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var comments = this.getModel("comments");
         var findToken = {
@@ -234,13 +213,12 @@ class CommentsController extends controller_1.Controller {
                 return Promise.reject(new Error(instance.tokens[0].error));
             if (instance.tokens.length == 0)
                 return Promise.reject(new Error("Could not find comment with that id"));
-            res.end(JSON.stringify({ error: false, message: "Comment Updated" }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            serializers_1.okJson({
+                error: false,
+                message: "Comment Updated"
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -250,7 +228,6 @@ class CommentsController extends controller_1.Controller {
     * @param {Function} next
     */
     create(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var comments = this.getModel("comments");
         // User is passed from the authentication function
@@ -259,17 +236,13 @@ class CommentsController extends controller_1.Controller {
         comments.createInstance(token).then(function (instance) {
             return instance.schema.getAsJson(true, instance._id);
         }).then(function (json) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 message: "New comment created",
                 data: json
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
 }

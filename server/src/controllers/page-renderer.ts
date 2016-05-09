@@ -11,6 +11,7 @@ import {ModelInstance, Model} from "../models/model";
 import * as net from "net";
 import * as url from "url";
 import * as jsdom from "jsdom";
+import {okJson, errJson} from "../serializers";
 
 /**
 * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -356,7 +357,6 @@ export default class PageRenderer extends Controller
    */
     private removeRender(req: express.Request, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
 
         renders.deleteInstances(<IRender>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
@@ -364,18 +364,14 @@ export default class PageRenderer extends Controller
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a cache with that ID"));
 
-            res.end(JSON.stringify(<IResponse>{
-                error: false,
-                message: "Cache has been successfully removed"
-            }));
+             okJson<IResponse>( {
+                    error: true,
+                    message: "Cache has been successfully removed"
+                }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -394,19 +390,14 @@ export default class PageRenderer extends Controller
         {
             if (!auth.authenticated)
             {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(<IResponse>{
+                okJson<IResponse>( {
                     error: true,
                     message: "You must be logged in to make this request"
-                }));
+                }, res);
             }
             else if (!users.hasPermission(auth.user, 2))
             {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(<IResponse>{
-                    error: true,
-                    message: "You do not have permission"
-                }));
+                errJson(new Error("You do not have permission"), res);
             }
             else
             {
@@ -416,12 +407,7 @@ export default class PageRenderer extends Controller
 
         }).catch(function (error: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: "You do not have permission"
-            }));
+            errJson(new Error("You do not have permission"), res);
         });
     }
 
@@ -479,19 +465,16 @@ export default class PageRenderer extends Controller
 
         }).then(function(sanitizedData){
 
-            res.end(JSON.stringify(<IGetRenders>{
+            okJson<IGetRenders>( {
                 error: false,
                 count: count,
                 message: `Found ${count} renders`,
                 data: sanitizedData
-            }));
-        }).catch(function (error: Error)
+            }, res);
+
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -509,18 +492,14 @@ export default class PageRenderer extends Controller
         // First get the count
         renders.deleteInstances({}).then(function(num)
         {
-            res.end(JSON.stringify(<IResponse>{
+            okJson<IResponse>( {
                 error: false,
                 message: `${num} Instances have been removed`
-            }));
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 }

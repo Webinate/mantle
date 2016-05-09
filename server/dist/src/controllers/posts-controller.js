@@ -9,7 +9,7 @@ const posts_model_1 = require("../models/posts-model");
 const categories_model_1 = require("../models/categories-model");
 const users_service_1 = require("../users-service");
 const permission_controllers_1 = require("../permission-controllers");
-const winston = require("winston");
+const serializers_1 = require("../serializers");
 /**
 * A controller that deals with the management of posts
 */
@@ -45,7 +45,6 @@ class PostsController extends controller_1.Controller {
     * @param {Function} next
     */
     getPosts(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
         var count = 0;
@@ -133,18 +132,14 @@ class PostsController extends controller_1.Controller {
                 sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
             return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 count: count,
                 message: `Found ${count} posts`,
                 data: sanitizedData
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -154,7 +149,6 @@ class PostsController extends controller_1.Controller {
     * @param {Function} next
     */
     getPost(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
         var findToken = { slug: req.params.slug };
@@ -171,17 +165,13 @@ class PostsController extends controller_1.Controller {
                 sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
             return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 message: `Found ${sanitizedData.length} posts`,
                 data: sanitizedData[0]
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -191,7 +181,6 @@ class PostsController extends controller_1.Controller {
     * @param {Function} next
     */
     getCategories(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
         var that = this;
         categories.findInstances({}, {}, parseInt(req.query.index), parseInt(req.query.limit)).then(function (instances) {
@@ -200,18 +189,14 @@ class PostsController extends controller_1.Controller {
                 sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
             return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 count: sanitizedData.length,
                 message: `Found ${sanitizedData.length} categories`,
                 data: sanitizedData
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -221,22 +206,17 @@ class PostsController extends controller_1.Controller {
     * @param {Function} next
     */
     removePost(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         // Attempt to delete the instances
         posts.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a post with that ID"));
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 message: "Post has been successfully removed"
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -246,21 +226,16 @@ class PostsController extends controller_1.Controller {
     * @param {Function} next
     */
     removeCategory(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
         categories.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a category with that ID"));
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 message: "Category has been successfully removed"
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -270,7 +245,6 @@ class PostsController extends controller_1.Controller {
     * @param {Function} next
     */
     updatePost(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var posts = this.getModel("posts");
         posts.update({ _id: new mongodb.ObjectID(req.params.id) }, token).then(function (instance) {
@@ -278,13 +252,12 @@ class PostsController extends controller_1.Controller {
                 return Promise.reject(new Error(instance.tokens[0].error));
             if (instance.tokens.length == 0)
                 return Promise.reject(new Error("Could not find post with that id"));
-            res.end(JSON.stringify({ error: false, message: "Post Updated" }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            serializers_1.okJson({
+                error: false,
+                message: "Post Updated"
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -294,7 +267,6 @@ class PostsController extends controller_1.Controller {
     * @param {Function} next
     */
     createPost(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var posts = this.getModel("posts");
         // User is passed from the authentication function
@@ -302,17 +274,13 @@ class PostsController extends controller_1.Controller {
         posts.createInstance(token).then(function (instance) {
             return instance.schema.getAsJson(true, instance._id);
         }).then(function (json) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 message: "New post created",
                 data: json
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -322,23 +290,17 @@ class PostsController extends controller_1.Controller {
    * @param {Function} next
    */
     createCategory(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var token = req.body;
         var categories = this.getModel("categories");
         categories.createInstance(token).then(function (instance) {
             return instance.schema.getAsJson(true, instance._id);
         }).then(function (json) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
-                message: "New category created",
-                data: json
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+                message: "New category created"
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
 }

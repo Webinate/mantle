@@ -9,6 +9,7 @@ const renders_model_1 = require("../models/renders-model");
 const model_1 = require("../models/model");
 const url = require("url");
 const jsdom = require("jsdom");
+const serializers_1 = require("../serializers");
 /**
 * Sets up a prerender server and saves the rendered html requests to mongodb.
 * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
@@ -224,21 +225,16 @@ class PageRenderer extends controller_1.Controller {
    * @param {Function} next
    */
     removeRender(req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
         var renders = this.getModel("renders");
         renders.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a cache with that ID"));
-            res.end(JSON.stringify({
-                error: false,
-                message: "Cache has been successfully removed"
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: true,
-                message: error.message
-            }));
+                message: "Cache has been successfully removed"
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -252,30 +248,20 @@ class PageRenderer extends controller_1.Controller {
         var users = users_service_1.UsersService.getSingleton();
         users.authenticated(req).then(function (auth) {
             if (!auth.authenticated) {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({
+                serializers_1.okJson({
                     error: true,
                     message: "You must be logged in to make this request"
-                }));
+                }, res);
             }
             else if (!users.hasPermission(auth.user, 2)) {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({
-                    error: true,
-                    message: "You do not have permission"
-                }));
+                serializers_1.errJson(new Error("You do not have permission"), res);
             }
             else {
                 req.params.user = auth.user;
                 next();
             }
         }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({
-                error: true,
-                message: "You do not have permission"
-            }));
+            serializers_1.errJson(new Error("You do not have permission"), res);
         });
     }
     /**
@@ -316,18 +302,14 @@ class PageRenderer extends controller_1.Controller {
                 sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
             return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 count: count,
                 message: `Found ${count} renders`,
                 data: sanitizedData
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
     /**
@@ -341,16 +323,12 @@ class PageRenderer extends controller_1.Controller {
         var renders = this.getModel("renders");
         // First get the count
         renders.deleteInstances({}).then(function (num) {
-            res.end(JSON.stringify({
+            serializers_1.okJson({
                 error: false,
                 message: `${num} Instances have been removed`
-            }));
-        }).catch(function (error) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
-                error: true,
-                message: error.message
-            }));
+            }, res);
+        }).catch(function (err) {
+            serializers_1.errJson(err, res);
         });
     }
 }

@@ -2,7 +2,8 @@
 import controllerModule = require("./controller");
 import bodyParser = require('body-parser');
 import {UsersService} from "../users-service"
-import {IConfig, IServer, IMessage} from "modepress-api"
+import {IConfig, IServer, IMessage} from "modepress-api";
+import {okJson, errJson} from "../serializers";
 import * as winston from "winston";
 
 export default class EmailsController extends controllerModule.Controller
@@ -55,8 +56,7 @@ export default class EmailsController extends controllerModule.Controller
 
         }).catch(function (err)
         {
-            winston.error(err.message, { process: process.pid });
-            return res.end(JSON.stringify(<UsersInterface.IResponse>{ message: err.toString(), error: true }));
+            errJson(err, res);
         });
 	}
 }

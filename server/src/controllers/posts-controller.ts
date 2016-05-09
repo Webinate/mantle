@@ -11,6 +11,7 @@ import {UsersService} from "../users-service";
 import {getUser, isAdmin, hasId} from "../permission-controllers";
 import * as mp from "modepress-api";
 import * as winston from "winston";
+import {okJson, errJson} from "../serializers";
 
 /**
 * A controller that deals with the management of posts
@@ -55,7 +56,6 @@ export default class PostsController extends Controller
     */
     private getPosts(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
         var count = 0;
@@ -173,22 +173,18 @@ export default class PostsController extends Controller
 
             return Promise.all(sanitizedData);
 
-       }).then(function(sanitizedData){
+       }).then(function(sanitizedData) {
 
-           res.end(JSON.stringify(<mp.IGetPosts>{
+           okJson<mp.IGetPosts>( {
                 error: false,
                 count: count,
                 message: `Found ${count} posts`,
                 data: sanitizedData
-            }));
+            }, res);
 
-       }).catch(function (error: Error)
+       }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -200,7 +196,6 @@ export default class PostsController extends Controller
     */
     private getPost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
         var that = this;
         var findToken: mp.IPost = { slug: req.params.slug };
@@ -225,19 +220,15 @@ export default class PostsController extends Controller
 
         }).then(function(sanitizedData : Array<mp.IPost> ){
 
-            res.end(JSON.stringify(<mp.IGetPost>{
+            okJson<mp.IGetPost>( {
                 error: false,
                 message: `Found ${sanitizedData.length} posts`,
                 data: sanitizedData[0]
-            }));
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -249,7 +240,6 @@ export default class PostsController extends Controller
     */
     private getCategories(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
         var that = this;
 
@@ -261,22 +251,18 @@ export default class PostsController extends Controller
 
             return Promise.all(sanitizedData);
 
-        }).then(function(sanitizedData){
+        }).then(function(sanitizedData) {
 
-          res.end(JSON.stringify(<mp.IGetCategories>{
+            okJson<mp.IGetCategories>( {
                 error: false,
                 count: sanitizedData.length,
                 message: `Found ${sanitizedData.length} categories`,
                 data: sanitizedData
-            }));
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -288,7 +274,6 @@ export default class PostsController extends Controller
     */
     private removePost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var posts = this.getModel("posts");
 
         // Attempt to delete the instances
@@ -297,18 +282,14 @@ export default class PostsController extends Controller
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a post with that ID"));
 
-            res.end(JSON.stringify(<mp.IResponse>{
+            okJson<mp.IResponse>( {
                 error: false,
                 message: "Post has been successfully removed"
-            }));
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -320,7 +301,6 @@ export default class PostsController extends Controller
     */
     private removeCategory(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var categories = this.getModel("categories");
 
         categories.deleteInstances(<mp.ICategory>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
@@ -328,18 +308,14 @@ export default class PostsController extends Controller
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a category with that ID"));
 
-            res.end(JSON.stringify(<mp.IResponse>{
+            okJson<mp.IResponse>( {
                 error: false,
                 message: "Category has been successfully removed"
-            }));
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -351,7 +327,6 @@ export default class PostsController extends Controller
     */
     private updatePost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var token: mp.IPost = req.body;
         var posts = this.getModel("posts");
 
@@ -363,15 +338,14 @@ export default class PostsController extends Controller
             if ( instance.tokens.length == 0 )
                 return Promise.reject(new Error("Could not find post with that id"));
 
-            res.end(JSON.stringify(<mp.IResponse>{ error: false, message: "Post Updated" }));
+            okJson<mp.IResponse>( {
+                error: false,
+                message: "Post Updated"
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -383,7 +357,6 @@ export default class PostsController extends Controller
     */
     private createPost(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var token: mp.IPost = req.body;
         var posts = this.getModel("posts");
 
@@ -396,19 +369,15 @@ export default class PostsController extends Controller
 
         }).then(function(json){
 
-            res.end(JSON.stringify(<mp.IGetPost>{
+            okJson<mp.IGetPost>( {
                 error: false,
                 message: "New post created",
                 data: json
-            }));
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -420,7 +389,6 @@ export default class PostsController extends Controller
    */
     private createCategory(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var token: mp.ICategory = req.body;
         var categories = this.getModel("categories");
 
@@ -430,19 +398,14 @@ export default class PostsController extends Controller
 
         }).then(function(json){
 
-            res.end(JSON.stringify(<mp.IGetCategory>{
+            okJson<mp.IResponse>( {
                 error: false,
-                message: "New category created",
-                data: json
-            }));
+                message: "New category created"
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 }

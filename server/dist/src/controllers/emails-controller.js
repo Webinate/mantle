@@ -3,7 +3,7 @@ const express = require("express");
 const controllerModule = require("./controller");
 const bodyParser = require('body-parser');
 const users_service_1 = require("../users-service");
-const winston = require("winston");
+const serializers_1 = require("../serializers");
 class EmailsController extends controllerModule.Controller {
     /**
     * Creates a new instance of the email controller
@@ -42,8 +42,7 @@ class EmailsController extends controllerModule.Controller {
         users_service_1.UsersService.getSingleton().sendAdminEmail(message).then(function (body) {
             res.end(body);
         }).catch(function (err) {
-            winston.error(err.message, { process: process.pid });
-            return res.end(JSON.stringify({ message: err.toString(), error: true }));
+            serializers_1.errJson(err, res);
         });
     }
 }

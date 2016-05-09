@@ -10,6 +10,7 @@ import {UsersService} from "../users-service";
 import {getUser, isAdmin, canEdit, hasId} from "../permission-controllers";
 import * as mp from "modepress-api";
 import * as winston from "winston";
+import {okJson, errJson} from "../serializers";
 
 /**
 * A controller that deals with the management of comments
@@ -51,7 +52,6 @@ export default class CommentsController extends Controller
     */
     private getComments(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var comments = this.getModel("comments");
         var that = this;
         var count = 0;
@@ -132,19 +132,16 @@ export default class CommentsController extends Controller
 
         }).then(function(sanitizedData){
 
-            res.end(JSON.stringify(<mp.IGetComments>{
+            okJson<mp.IGetComments>({
                 error: false,
                 count: count,
                 message: `Found ${count} comments`,
                 data: sanitizedData
-            }));
-        }).catch(function (error: Error)
+            }, res);
+
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -156,7 +153,6 @@ export default class CommentsController extends Controller
     */
     private async getComment(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         try
         {
             var comments = this.getModel("comments");
@@ -180,18 +176,14 @@ export default class CommentsController extends Controller
 
             var sanitizedData = await Promise.all(jsons);
 
-            res.end(JSON.stringify(<mp.IGetComment>{
+            okJson<mp.IGetComment>( {
                 error: false,
                 message: `Found ${sanitizedData.length} comments`,
                 data: sanitizedData[0]
-            }));
+            }, res);
 
-        } catch ( error ) {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+        } catch ( err ) {
+            errJson(err, res);
         };
     }
 
@@ -206,20 +198,15 @@ export default class CommentsController extends Controller
         // Make sure the target id
         if (!req.params.target)
         {
-            res.setHeader( 'Content-Type', 'application/json');
-            return res.end(JSON.stringify(<mp.IResponse>{
+             okJson<mp.IResponse>( {
                 error: true,
-                message: "Please specify a target ID"
-            }));
+                message:  "Please specify a target ID"
+            }, res);
         }
         // Make sure the target id format is correct
         else if ( !mongodb.ObjectID.isValid(req.params.target))
         {
-            res.setHeader( 'Content-Type', 'application/json');
-            return res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: "Invalid target ID format"
-            }));
+            errJson(new Error("Invalid target ID format"), res);
         }
     }
 
@@ -231,7 +218,6 @@ export default class CommentsController extends Controller
     */
     private remove(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var comments = this.getModel("comments");
         var findToken : mp.IComment = {
             _id: new mongodb.ObjectID(req.params.id),
@@ -244,18 +230,14 @@ export default class CommentsController extends Controller
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a comment with that ID"));
 
-            res.end(JSON.stringify(<mp.IResponse>{
+            okJson<mp.IResponse>( {
                 error: false,
                 message: "Comment has been successfully removed"
-            }));
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 
@@ -267,7 +249,6 @@ export default class CommentsController extends Controller
     */
     private update(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var token: mp.IComment = req.body;
         var comments = this.getModel("comments");
         var findToken : mp.IComment = {
@@ -283,15 +264,14 @@ export default class CommentsController extends Controller
             if ( instance.tokens.length == 0 )
                 return Promise.reject(new Error("Could not find comment with that id"));
 
-            res.end(JSON.stringify(<mp.IResponse>{ error: false, message: "Comment Updated" }));
+            okJson<mp.IResponse>( {
+                error: false,
+                message: "Comment Updated"
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+           errJson(err, res);
         });
     }
 
@@ -303,7 +283,6 @@ export default class CommentsController extends Controller
     */
     private create(req: mp.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var token: mp.IComment = req.body;
         var comments = this.getModel("comments");
 
@@ -315,21 +294,17 @@ export default class CommentsController extends Controller
         {
             return instance.schema.getAsJson(true, instance._id);
 
-        }).then(function( json ){
+        }).then(function( json ) {
 
-            res.end(JSON.stringify(<mp.IGetComment>{
+            okJson<mp.IGetComment>( {
                 error: false,
                 message: "New comment created",
                 data: json
-            }));
+            }, res);
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<mp.IResponse>{
-                error: true,
-                message: error.message
-            }));
+            errJson(err, res);
         });
     }
 }

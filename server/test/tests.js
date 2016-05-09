@@ -130,6 +130,44 @@ describe('Testing all post related endpoints', function() {
             });
     })
 
+    it('has no posts with the slug --simple--test--', function(done) {
+        modepressAgent
+            .get('/api/posts/get-post/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+
+                if (res.body.data && res.body.data._id)
+                    modepressAgent
+                        .delete('/api/posts/remove-post/' + res.body.data._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+                        .set('Cookie', adminCookie)
+                        .end(function(err, res) {
+                            done();
+                        });
+                else
+                    done();
+            });
+    })
+
+    it('has no posts with the slug --to--delete--', function(done) {
+        modepressAgent
+            .get('/api/posts/get-post/--to--delete--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+
+                if (res.body.data && res.body.data._id)
+                    modepressAgent
+                        .delete('/api/posts/remove-post/' + res.body.data._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+                        .set('Cookie', adminCookie)
+                        .end(function(err, res) {
+                            done();
+                        });
+                else
+                    done();
+            });
+    })
+
+
+
     it('Can create a post with data', function(done) {
         modepressAgent
             .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
@@ -144,6 +182,9 @@ describe('Testing all post related endpoints', function() {
                 tags : ["super-tags-1234", "supert-tags-4321"]
             } )
             .end(function(err, res) {
+
+                lastPost = res.body.data._id;
+
                 test
                     .string(res.body.message).is("New post created")
                     .bool(res.body.data.public).isFalse()
@@ -158,7 +199,7 @@ describe('Testing all post related endpoints', function() {
                     .string(res.body.data.tags[1]).is("supert-tags-4321")
                     .string(res.body.data._id)
 
-                lastPost = res.body.data._id;
+
                 done();
             });
     })
