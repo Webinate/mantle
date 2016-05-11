@@ -105,7 +105,7 @@ class CommentsController extends controller_1.Controller {
         }).then(function (instances) {
             var sanitizedData = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                sanitizedData.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
             return Promise.all(sanitizedData);
         }).then(function (sanitizedData) {
             serializers_1.okJson({
@@ -134,12 +134,13 @@ class CommentsController extends controller_1.Controller {
                 if (instances.length == 0)
                     throw new Error("Could not find comment");
                 var users = users_service_1.UsersService.getSingleton();
+                var isPublic = yield instances[0].schema.getByName("public").getValue();
                 // Only admins are allowed to see private comments
-                if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false))
+                if (!isPublic && (!user || users.hasPermission(user, 2) == false))
                     return Promise.reject(new Error("That comment is marked private"));
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,
@@ -234,7 +235,7 @@ class CommentsController extends controller_1.Controller {
         token.author = req._user.username;
         token.responseTarget = req.params.target;
         comments.createInstance(token).then(function (instance) {
-            return instance.schema.getAsJson(true, instance._id);
+            return instance.schema.getAsJson(instance._id, { verbose: true });
         }).then(function (json) {
             serializers_1.okJson({
                 error: false,

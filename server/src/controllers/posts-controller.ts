@@ -168,7 +168,7 @@ export default class PostsController extends Controller
 
             var jsons : Array<Promise<mp.IPost>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<mp.IPost>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<mp.IPost>(instances[i]._id, { verbose : Boolean(req.query.verbose) }));
 
             var sanitizedData = await Promise.all(jsons);
 
@@ -205,14 +205,14 @@ export default class PostsController extends Controller
                 throw new Error("Could not find post");
 
             var users = UsersService.getSingleton();
-
+            var isPublic =  await instances[0].schema.getByName("public").getValue();
             // Only admins are allowed to see private posts
-            if (!instances[0].schema.getByName("public").getValue() && ( !user || users.hasPermission(user, 2) == false ) )
+            if (!isPublic && ( !user || users.hasPermission(user, 2) == false ) )
                 throw new Error("That post is marked private");
 
             var jsons : Array<Promise<mp.IPost>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<mp.IPost>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<mp.IPost>(instances[i]._id, { verbose: Boolean(req.query.verbose) } ));
 
             var sanitizedData = await Promise.all(jsons);
 
@@ -244,7 +244,7 @@ export default class PostsController extends Controller
 
             var jsons : Array<Promise<mp.ICategory>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<mp.ICategory>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<mp.ICategory>(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
 
             var sanitizedData = await Promise.all(jsons);
 
@@ -363,7 +363,7 @@ export default class PostsController extends Controller
         try
         {
             var instance = await posts.createInstance(token);
-            var json = await instance.schema.getAsJson(true, instance._id);
+            var json = await instance.schema.getAsJson(instance._id, { verbose: true });
 
             okJson<mp.IGetPost>( {
                 error: false,
@@ -390,7 +390,7 @@ export default class PostsController extends Controller
         try
         {
             var instance = await categories.createInstance(token);
-            var json = await instance.schema.getAsJson(true, instance._id);
+            var json = await instance.schema.getAsJson(instance._id, { verbose: true });
 
             okJson<mp.IResponse>( {
                 error: false,

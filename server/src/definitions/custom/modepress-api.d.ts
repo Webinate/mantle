@@ -20,6 +20,12 @@
          * If true, foreign keys will serialize their values
          */
         expandForeignKeys? : boolean;
+
+        /**
+         * When fetching schema data, we need to define if the query is verbose or not.
+         * If true, then all data is returned and is not stripped of sensitive items
+         */
+        verbose : boolean
     }
 
     /*

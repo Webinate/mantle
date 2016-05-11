@@ -137,7 +137,7 @@ class PostsController extends controller_1.Controller {
                 var instances = yield posts.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { content: 0 } : undefined));
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,
@@ -169,12 +169,13 @@ class PostsController extends controller_1.Controller {
                 if (instances.length == 0)
                     throw new Error("Could not find post");
                 var users = users_service_1.UsersService.getSingleton();
+                var isPublic = yield instances[0].schema.getByName("public").getValue();
                 // Only admins are allowed to see private posts
-                if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false))
+                if (!isPublic && (!user || users.hasPermission(user, 2) == false))
                     throw new Error("That post is marked private");
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,
@@ -202,7 +203,7 @@ class PostsController extends controller_1.Controller {
                 var instances = yield categories.findInstances({}, {}, parseInt(req.query.index), parseInt(req.query.limit));
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,
@@ -307,7 +308,7 @@ class PostsController extends controller_1.Controller {
             token.author = req._user.username;
             try {
                 var instance = yield posts.createInstance(token);
-                var json = yield instance.schema.getAsJson(true, instance._id);
+                var json = yield instance.schema.getAsJson(instance._id, { verbose: true });
                 serializers_1.okJson({
                     error: false,
                     message: "New post created",
@@ -332,7 +333,7 @@ class PostsController extends controller_1.Controller {
             var categories = this.getModel("categories");
             try {
                 var instance = yield categories.createInstance(token);
-                var json = yield instance.schema.getAsJson(true, instance._id);
+                var json = yield instance.schema.getAsJson(instance._id, { verbose: true });
                 serializers_1.okJson({
                     error: false,
                     message: "New category created"

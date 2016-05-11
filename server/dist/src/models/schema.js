@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 const schema_item_1 = require("./schema-items/schema-item");
 /**
 * Gives an overall description of each property in a model
@@ -63,45 +71,30 @@ class Schema {
     }
     /**
     * Serializes the schema items into a JSON
-    * @param {boolean} verbose If true all items will be serialized, if false, only the items that are non-sensitive
     * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<T>}
     */
-    getAsJson(verbose, id, options) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
-            var toReturn = {};
-            var items = that._items;
+    getAsJson(id, options) {
+        return __awaiter(this, void 0, Promise, function* () {
+            var toReturn = { _id: id };
+            var items = this._items;
             var fKey;
             var model;
             var promises = [];
-            var promiseOrder = [];
-            toReturn._id = id;
             for (var i = 0, l = items.length; i < l; i++) {
                 // If this data is sensitive and the request must be sanitized
                 // then skip the item
-                if (items[i].getSensitive() && verbose == false)
+                if (items[i].getSensitive() && options.verbose == false)
                     continue;
-                var itemValue = items[i].getValue(options);
-                // If its a promise - then add the promise to the promise array
-                if (itemValue instanceof Promise) {
-                    promises.push(itemValue);
-                    // Keep track of the item name in an array so we can fetch it later
-                    promiseOrder.push(items[i].name);
-                }
-                else
-                    toReturn[items[i].name] = itemValue;
+                promises.push(items[i].getValue(options));
             }
             // Wait for all the promises to resolve
-            Promise.all(promises).then(function (returns) {
-                // Assign the promise values
-                for (var i = 0, l = returns.length; i < l; l++)
-                    toReturn[promiseOrder[i]] = returns[i];
-                resolve(toReturn);
-            }).catch(function (err) {
-                reject(err);
-            });
+            var returns = yield Promise.all(promises);
+            // Assign the promise values
+            for (var i = 0, l = returns.length; i < l; i++)
+                toReturn[items[i].name] = returns[i];
+            return Promise.resolve(toReturn);
         });
     }
     /**
@@ -110,21 +103,17 @@ class Schema {
     * @returns {Promise<bool>} Returns true if successful
     */
     validate(checkForRequiredFields) {
-        var items = this._items;
-        var that = this;
-        return new Promise(function (resolve, reject) {
+        return __awaiter(this, void 0, Promise, function* () {
+            var items = this._items;
             var error = "";
             var promises = [];
             for (var i = 0, l = items.length; i < l; i++) {
                 if (checkForRequiredFields && !items[i].getModified() && items[i].getRequired())
-                    return reject(new Error(`${items[i].name} is required`));
+                    throw new Error(`${items[i].name} is required`);
                 promises.push(items[i].validate());
             }
-            Promise.all(promises).then(function (validations) {
-                return resolve(that);
-            }).catch(function (err) {
-                reject(err);
-            });
+            var validations = yield Promise.all(promises);
+            return this;
         });
     }
     /**

@@ -90,62 +90,36 @@ export class Schema
 
     /**
 	* Serializes the schema items into a JSON
-    * @param {boolean} verbose If true all items will be serialized, if false, only the items that are non-sensitive
     * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
 	* @returns {Promise<T>}
 	*/
-    public getAsJson<T>( verbose: boolean, id: mongodb.ObjectID, options? : ISchemaOptions ): Promise<T>
+    public async getAsJson<T extends Modepress.IModelEntry>( id: mongodb.ObjectID, options : ISchemaOptions ): Promise<T>
     {
-        var that = this;
+        var toReturn : T = <T><Modepress.IModelEntry>{ _id : id };
+        var items = this._items;
+        var fKey : SchemaForeignKey;
+        var model : Model;
+        var promises: Array<Promise<any>> = [];
 
-        return  new Promise<T>(function( resolve, reject ) {
+        for (var i = 0, l = items.length; i < l; i++)
+        {
+            // If this data is sensitive and the request must be sanitized
+            // then skip the item
+            if ( items[i].getSensitive() && options.verbose == false )
+                continue;
 
-            var toReturn : T = <any>{};
-            var items = that._items;
-            var fKey : SchemaForeignKey;
-            var model : Model;
+            promises.push( items[i].getValue(options) );
+        }
 
-            var promises: Array<Promise<any>> = [];
-            var promiseOrder: Array<string> = [];
+        // Wait for all the promises to resolve
+        var returns = await Promise.all<any>(promises);
 
-            (<IModelEntry>toReturn)._id = id;
+        // Assign the promise values
+        for ( var i = 0, l = returns.length; i < l; i++ )
+            toReturn[ items[i].name ] = returns[i];
 
-            for (var i = 0, l = items.length; i < l; i++)
-            {
-                // If this data is sensitive and the request must be sanitized
-                // then skip the item
-                if ( items[i].getSensitive() && verbose == false )
-                    continue;
-
-                var itemValue = items[i].getValue(options);
-
-                // If its a promise - then add the promise to the promise array
-                if (itemValue instanceof Promise)
-                {
-                    promises.push(itemValue);
-
-                    // Keep track of the item name in an array so we can fetch it later
-                    promiseOrder.push(items[i].name);
-                }
-                else
-                    toReturn[items[i].name] = itemValue;
-            }
-
-            // Wait for all the promises to resolve
-            Promise.all(promises).then(function(returns) {
-
-                // Assign the promise values
-                for ( var i = 0, l = returns.length; i < l; l++ )
-                    toReturn[ promiseOrder[i] ] = returns[i];
-
-                resolve(toReturn);
-
-            }).catch(function(err: Error) {
-
-                reject(err);
-            });
-        });
+        return Promise.resolve(toReturn);
     }
 
 	/**
@@ -153,30 +127,22 @@ export class Schema
 	* @param {boolean} checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
     * @returns {Promise<bool>} Returns true if successful
 	*/
-	public validate( checkForRequiredFields: boolean ): Promise<Schema>
+	public async validate( checkForRequiredFields: boolean ): Promise<Schema>
 	{
 		var items = this._items;
-        var that = this;
+        var error = "";
+        var promises : Array<Promise<any>> = [];
 
-        return new Promise(function( resolve, reject ) {
+        for (var i = 0, l = items.length; i < l; i++)
+        {
+            if ( checkForRequiredFields && !items[i].getModified() && items[i].getRequired() )
+                throw new Error(`${items[i].name} is required`);
 
-            var error = "";
-            var promises : Array<Promise<any>> = [];
+            promises.push(items[i].validate());
+        }
 
-            for (var i = 0, l = items.length; i < l; i++)
-            {
-                if ( checkForRequiredFields && !items[i].getModified() && items[i].getRequired() )
-                    return reject( new Error(`${items[i].name} is required`));
-
-                promises.push(items[i].validate());
-            }
-
-            Promise.all(promises).then(function( validations ){
-                return resolve(that);
-            }).catch(function(err : Error){
-                reject(err);
-            });
-        });
+        var validations = await Promise.all(promises);
+        return this;
 	}
 
 	/**

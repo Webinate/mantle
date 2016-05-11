@@ -217,7 +217,7 @@ class PageRenderer extends controller_1.Controller {
                 var instances = yield renders.findInstances({ _id: new mongodb.ObjectID(req.params.id) });
                 if (instances.length == 0)
                     throw new Error("Could not find a render with that ID");
-                var html = instances[0].schema.getByName("html").getValue();
+                var html = yield instances[0].schema.getByName("html").getValue();
                 var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
                 for (var i = 0; matches && i < matches.length; i++)
                     if (matches[i].indexOf('application/ld+json') === -1) {
@@ -322,7 +322,7 @@ class PageRenderer extends controller_1.Controller {
                 var instances = yield renders.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,

@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 const schema_1 = require("./schema");
 const winston = require("winston");
 /**
@@ -77,13 +85,9 @@ class Model {
      * @param {mongodb.Collection} collection The collection we are setting the index on
      */
     createIndex(name, collection) {
-        return new Promise(function (resolve, reject) {
-            collection.createIndex(name, function (err, index) {
-                if (err)
-                    reject(err);
-                else
-                    resolve();
-            });
+        return __awaiter(this, void 0, Promise, function* () {
+            var index = yield collection.createIndex(name);
+            return index;
         });
     }
     /**
@@ -97,41 +101,28 @@ class Model {
     * @returns {Promise<mongodb.Db>}
     */
     initialize(db) {
-        var model = this;
-        return new Promise(function (resolve, reject) {
+        return __awaiter(this, void 0, Promise, function* () {
             // If the collection already exists - then we do not have to create it
-            if (model._initialized) {
-                resolve(model);
-                return;
-            }
+            if (this._initialized)
+                return this;
             // The collection does not exist - so create it
-            db.createCollection(model._collectionName, function (err, collection) {
-                if (err || !collection)
-                    return reject(new Error("Error creating collection: " + err.message));
-                else {
-                    model.collection = collection;
-                    // First remove all existing indices
-                    collection.dropIndexes().then(function (response) {
-                        // Now re-create the models who need index supports
-                        var promises = [];
-                        var items = model.defaultSchema.getItems();
-                        for (var i = 0, l = items.length; i < l; i++)
-                            if (items[i].getIndexable())
-                                promises.push(model.createIndex(items[i].name, collection));
-                        if (promises.length == 0) {
-                            model._initialized = true;
-                            return Promise.resolve([]);
-                        }
-                        return Promise.all(promises);
-                    }).then(function (models) {
-                        model._initialized = true;
-                        winston.info(`Successfully created model '${model._collectionName}'`, { process: process.pid });
-                        return resolve(model);
-                    }).catch(function (err) {
-                        return reject(err);
-                    });
-                }
-            });
+            this.collection = yield db.createCollection(this._collectionName);
+            if (!this.collection)
+                throw new Error("Error creating collection: " + this._collectionName);
+            // First remove all existing indices
+            var response = yield this.collection.dropIndexes();
+            // Now re-create the models who need index supports
+            var promises = [];
+            var items = this.defaultSchema.getItems();
+            for (var i = 0, l = items.length; i < l; i++)
+                if (items[i].getIndexable())
+                    promises.push(this.createIndex(items[i].name, this.collection));
+            if (promises.length == 0)
+                this._initialized = true;
+            var models = yield Promise.all(promises);
+            this._initialized = true;
+            winston.info(`Successfully created model '${this._collectionName}'`, { process: process.pid });
+            return this;
         });
     }
     /**
@@ -140,20 +131,11 @@ class Model {
     * @returns {Promise<Array<ModelInstance<T>>>}
     */
     count(selector) {
-        var that = this;
-        var model = this;
-        return new Promise(function (resolve, reject) {
-            var collection = model.collection;
-            if (!collection || !model._initialized)
-                reject(new Error("The model has not been initialized"));
-            else {
-                collection.count(selector, function (err, result) {
-                    if (err)
-                        reject(err);
-                    else
-                        resolve(result);
-                });
-            }
+        return __awaiter(this, void 0, Promise, function* () {
+            var collection = this.collection;
+            if (!collection || !this._initialized)
+                throw new Error("The model has not been initialized");
+            return yield collection.count(selector);
         });
     }
     /**
@@ -167,29 +149,23 @@ class Model {
     * @returns {Promise<Array<ModelInstance<T>>>}
     */
     findInstances(selector, sort, startIndex = 0, limit = 0, projection) {
-        var model = this;
-        return new Promise(function (resolve, reject) {
-            var collection = model.collection;
-            if (!collection || !model._initialized)
-                reject(new Error("The model has not been initialized"));
-            else {
-                // Attempt to save the data to mongo collection
-                collection.find(selector).limit(limit).skip(startIndex).project(projection || {}).sort(sort).toArray().then(function (result) {
-                    // Create the instance array
-                    var instances = [], instance;
-                    // For each data entry, create a new instance
-                    for (var i = 0, l = result.length; i < l; i++) {
-                        instance = new ModelInstance(model, result[i]);
-                        instance.schema.deserialize(result[i]);
-                        instance._id = result[i]._id;
-                        instances.push(instance);
-                    }
-                    // Complete
-                    resolve(instances);
-                }).catch(function (err) {
-                    reject(err);
-                });
+        return __awaiter(this, void 0, Promise, function* () {
+            var collection = this.collection;
+            if (!collection || !this._initialized)
+                throw new Error("The model has not been initialized");
+            // Attempt to save the data to mongo collection
+            var result = yield collection.find(selector).limit(limit).skip(startIndex).project(projection || {}).sort(sort).toArray();
+            // Create the instance array
+            var instances = [], instance;
+            // For each data entry, create a new instance
+            for (var i = 0, l = result.length; i < l; i++) {
+                instance = new ModelInstance(this, result[i]);
+                instance.schema.deserialize(result[i]);
+                instance._id = result[i]._id;
+                instances.push(instance);
             }
+            // Complete
+            return instances;
         });
     }
     /**
@@ -199,43 +175,36 @@ class Model {
     * @returns {Promise<ModelInstance<T>>}
     */
     findOne(selector, projection) {
-        var model = this;
-        return new Promise(function (resolve, reject) {
-            var collection = model.collection;
-            if (!collection || !model._initialized)
-                reject(new Error("The model has not been initialized"));
+        return __awaiter(this, void 0, Promise, function* () {
+            var collection = this.collection;
+            if (!collection || !this._initialized)
+                throw new Error("The model has not been initialized");
+            // Attempt to save the data to mongo collection
+            var result = yield collection.find(selector).limit(1).project(projection || {}).next();
+            // Check for errors
+            if (!result)
+                return null;
             else {
-                // Attempt to save the data to mongo collection
-                collection.find(selector).limit(1).project(projection || {}).next().then(function (result) {
-                    // Check for errors
-                    if (!result)
-                        return resolve(null);
-                    else {
-                        // Create the instance array
-                        var instance;
-                        instance = new ModelInstance(model, result);
-                        instance.schema.deserialize(result);
-                        instance._id = result._id;
-                        // Complete
-                        return resolve(instance);
-                    }
-                }).catch(function (err) {
-                    reject(err);
-                });
+                // Create the instance array
+                var instance;
+                instance = new ModelInstance(this, result);
+                instance.schema.deserialize(result);
+                instance._id = result._id;
+                // Complete
+                return instance;
             }
         });
     }
     /**
     * Deletes a instance and all its dependencies are updated or deleted accordingly
-    * @returns {Promise<any>}
+    * @returns {Promise<number>}
     */
     deleteInstance(instance) {
-        var that = this;
-        var foreignModel;
-        var optionalDependencies = instance.dbEntry._optionalDependencies;
-        var requiredDependencies = instance.dbEntry._requiredDependencies;
-        var promises = [];
-        return new Promise(function (resolve, reject) {
+        return __awaiter(this, void 0, Promise, function* () {
+            var foreignModel;
+            var optionalDependencies = instance.dbEntry._optionalDependencies;
+            var requiredDependencies = instance.dbEntry._requiredDependencies;
+            var promises = [];
             // Nullify all dependencies that are optional
             if (optionalDependencies)
                 for (var i = 0, l = optionalDependencies.length; i < l; i++) {
@@ -252,22 +221,14 @@ class Model {
                     foreignModel = Model.getByName(requiredDependencies[i].collection);
                     if (!foreignModel)
                         continue;
-                    foreignModel.findInstances({ _id: requiredDependencies[i]._id }).then(function (instances) {
-                        instances.forEach(function (instanceToDelete) {
-                            promises.push(that.deleteInstance(instanceToDelete));
-                        });
-                    });
+                    var instances = yield foreignModel.findInstances({ _id: requiredDependencies[i]._id });
+                    for (var ii = 0, il = instances.length; ii < il; ii++)
+                        promises.push(this.deleteInstance(instances[ii]));
                 }
-            Promise.all(promises).then(function () {
-                // Remove the original instance from the DB
-                that.collection.deleteMany({ _id: instance.dbEntry._id }).then(function (deleteResult) {
-                    resolve();
-                }).catch(function (err) {
-                    reject(err);
-                });
-            }).catch(function (err) {
-                reject(err);
-            });
+            yield Promise.all(promises);
+            // Remove the original instance from the DB
+            var deleteResult = yield this.collection.deleteMany({ _id: instance.dbEntry._id });
+            return deleteResult.deletedCount;
         });
     }
     /**
@@ -275,22 +236,17 @@ class Model {
     * @returns {Promise<number>}
     */
     deleteInstances(selector) {
-        var model = this;
-        var that = this;
-        return new Promise(function (resolve, reject) {
-            that.findInstances(selector).then(function (instances) {
-                if (!instances || instances.length == 0)
-                    return resolve(0);
-                var promises = [];
-                instances.forEach(function (instance, index) {
-                    promises.push(that.deleteInstance(instance));
-                });
-                Promise.all(promises).then(function () {
-                    resolve(instances.length);
-                }).catch(function (err) {
-                    reject(err);
-                });
-            });
+        return __awaiter(this, void 0, Promise, function* () {
+            var model = this;
+            var instances = yield this.findInstances(selector);
+            if (!instances || instances.length == 0)
+                return 0;
+            var promises = [];
+            for (var i = 0, l = instances.length; i < l; i++) {
+                promises.push(this.deleteInstance(instances[i]));
+            }
+            ;
+            yield Promise.all(promises);
         });
     }
     /**
@@ -303,62 +259,43 @@ class Model {
     * went wrong when updating the specific instance, and a string message if something did in fact go wrong
     */
     update(selector, data) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
+        return __awaiter(this, void 0, Promise, function* () {
             var toRet = {
                 error: false,
                 tokens: []
             };
-            that.findInstances(selector).then(function (instances) {
-                if (!instances || instances.length == 0)
-                    return resolve(toRet);
-                instances.forEach(function (instance, index) {
-                    // If we have data, then set the variables
-                    if (data)
-                        instance.schema.set(data);
+            var instances = yield this.findInstances(selector);
+            if (!instances || instances.length == 0)
+                return toRet;
+            for (var i = 0, l = instances.length; i < l; i++) {
+                var instance = instances[i];
+                // If we have data, then set the variables
+                if (data)
+                    instance.schema.set(data);
+                try {
                     // Make sure the new updates are valid
-                    instance.schema.validate(false).then(function () {
-                        // Make sure any unique fields are still being respected
-                        return that.checkUniqueness(instance);
-                    }).then(function (unique) {
-                        if (!unique) {
-                            toRet.error = true;
-                            toRet.tokens.push({ error: `'${instance.uniqueFieldNames()}' must be unique`, instance: instance });
-                            if (index == instances.length - 1)
-                                return resolve(toRet);
-                            else
-                                return;
-                        }
-                        // Transform the schema into a JSON ready format
-                        var json = instance.schema.serialize();
-                        var collection = that.collection;
-                        collection.updateOne({ _id: instance._id }, { $set: json }).then(function (updateResult) {
-                            toRet.tokens.push({ error: false, instance: instance });
-                            if (index == instances.length - 1)
-                                return resolve(toRet);
-                            else
-                                return;
-                        }).catch(function (err) {
-                            toRet.error = true;
-                            toRet.tokens.push({ error: err.message, instance: instance });
-                            if (index == instances.length - 1)
-                                return resolve(toRet);
-                            else
-                                return;
-                        });
-                    }).catch(function (err) {
+                    yield instance.schema.validate(false);
+                    // Make sure any unique fields are still being respected
+                    var unique = yield this.checkUniqueness(instance);
+                    if (!unique) {
                         toRet.error = true;
-                        toRet.tokens.push({ error: err.message, instance: instance });
-                        if (index == instances.length - 1)
-                            return resolve(toRet);
-                        else
-                            return;
-                    });
-                });
-            }).catch(function (err) {
-                // Report what happened
-                reject(err);
-            });
+                        toRet.tokens.push({ error: `'${instance.uniqueFieldNames()}' must be unique`, instance: instance });
+                        continue;
+                    }
+                    // Transform the schema into a JSON ready format
+                    var json = instance.schema.serialize();
+                    var collection = this.collection;
+                    var updateResult = yield collection.updateOne({ _id: instance._id }, { $set: json });
+                    toRet.tokens.push({ error: false, instance: instance });
+                }
+                catch (err) {
+                    toRet.error = true;
+                    toRet.tokens.push({ error: err.message, instance: instance });
+                }
+                ;
+            }
+            ;
+            return toRet;
         });
     }
     /**
@@ -368,8 +305,7 @@ class Model {
     * @returns {Promise<boolean>}
     */
     checkUniqueness(instance) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
+        return __awaiter(this, void 0, Promise, function* () {
             var items = instance.schema.getItems();
             var hasUniqueField = false;
             var searchToken = { $or: [] };
@@ -386,16 +322,13 @@ class Model {
                     searchToken[items[i].name] = items[i].getDbValue();
             }
             if (!hasUniqueField)
-                return resolve(true);
+                return true;
             else {
-                that.collection.count(searchToken, function (error, result) {
-                    if (error)
-                        return reject(error);
-                    if (result == 0)
-                        resolve(true);
-                    else
-                        resolve(false);
-                });
+                var result = yield this.collection.count(searchToken);
+                if (result == 0)
+                    return true;
+                else
+                    return false;
             }
         });
     }
@@ -406,24 +339,18 @@ class Model {
     * @returns {Promise<ModelInstance<T>>}
     */
     createInstance(data) {
-        var that = this;
-        return new Promise(function (resolve, reject) {
-            var newInstance = new ModelInstance(that, null);
+        return __awaiter(this, void 0, Promise, function* () {
+            var newInstance = new ModelInstance(this, null);
             // If we have data, then set the variables
             if (data)
                 newInstance.schema.set(data);
-            that.checkUniqueness(newInstance).then(function (unique) {
-                if (!unique)
-                    return Promise.reject(new Error(`'${newInstance.uniqueFieldNames()}' must be unique`));
-                // Now try to create a new instance
-                return that.insert([newInstance]);
-            }).then(function (instance) {
-                // All ok
-                resolve(instance[0]);
-            }).catch(function (err) {
-                // Report what happened
-                reject(err);
-            });
+            var unique = yield this.checkUniqueness(newInstance);
+            if (!unique)
+                throw new Error(`'${newInstance.uniqueFieldNames()}' must be unique`);
+            // Now try to create a new instance
+            var instance = yield this.insert([newInstance]);
+            // All ok
+            return instance[0];
         });
     }
     /**
@@ -432,35 +359,29 @@ class Model {
     * @returns {Promise<Array<ModelInstance<T>>>}
     */
     insert(instances) {
-        var model = this;
-        return new Promise(function (resolve, reject) {
+        return __awaiter(this, void 0, Promise, function* () {
+            var model = this;
             var collection = model.collection;
             if (!collection || !model._initialized)
-                reject(new Error("The model has not been initialized"));
-            else {
-                var instance;
-                var documents = [];
-                var promises = [];
-                // Make sure the parameters are valid
-                for (var i = 0, l = instances.length; i < l; i++)
-                    promises.push(instances[i].schema.validate(true));
-                Promise.all(promises).then(function (schemas) {
-                    // Transform the schema into a JSON ready format
-                    for (var i = 0, l = schemas.length; i < l; i++) {
-                        var json = schemas[i].serialize();
-                        documents.push(json);
-                    }
-                    // Attempt to save the data to mongo collection
-                    return collection.insertMany(documents);
-                }).then(function (insertResult) {
-                    // Assign the ID's
-                    for (var i = 0, l = insertResult.ops.length; i < l; i++)
-                        instances[i]._id = insertResult.ops[i]._id;
-                    resolve(instances);
-                }).catch(function (err) {
-                    reject(err);
-                });
+                throw new Error("The model has not been initialized");
+            var instance;
+            var documents = [];
+            var promises = [];
+            // Make sure the parameters are valid
+            for (var i = 0, l = instances.length; i < l; i++)
+                promises.push(instances[i].schema.validate(true));
+            var schemas = yield Promise.all(promises);
+            // Transform the schema into a JSON ready format
+            for (var i = 0, l = schemas.length; i < l; i++) {
+                var json = schemas[i].serialize();
+                documents.push(json);
             }
+            // Attempt to save the data to mongo collection
+            var insertResult = yield collection.insertMany(documents);
+            // Assign the ID's
+            for (var i = 0, l = insertResult.ops.length; i < l; i++)
+                instances[i]._id = insertResult.ops[i]._id;
+            return instances;
         });
     }
 }

@@ -126,7 +126,7 @@ export default class CommentsController extends Controller
        {
             var sanitizedData : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson<mp.IComment>(Boolean(req.query.verbose), instances[i]._id));
+                sanitizedData.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose) } ));
 
             return Promise.all(sanitizedData);
 
@@ -166,13 +166,15 @@ export default class CommentsController extends Controller
 
             var users = UsersService.getSingleton();
 
+            var isPublic = await instances[0].schema.getByName("public").getValue()
+
             // Only admins are allowed to see private comments
-            if (!instances[0].schema.getByName("public").getValue() && (!user || users.hasPermission(user, 2) == false ) )
+            if ( !isPublic  && (!user || users.hasPermission(user, 2) == false ) )
                 return Promise.reject( new Error("That comment is marked private") );
 
             var jsons : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<mp.IComment>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose) }));
 
             var sanitizedData = await Promise.all(jsons);
 
@@ -292,7 +294,7 @@ export default class CommentsController extends Controller
 
         comments.createInstance(token).then(function (instance)
         {
-            return instance.schema.getAsJson(true, instance._id);
+            return instance.schema.getAsJson(instance._id, { verbose: true });
 
         }).then(function( json ) {
 

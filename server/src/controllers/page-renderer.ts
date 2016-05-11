@@ -327,7 +327,7 @@ export default class PageRenderer extends Controller
             if (instances.length == 0)
                 throw new Error("Could not find a render with that ID");
 
-            var html : string = instances[0].schema.getByName("html").getValue();
+            var html : string = await instances[0].schema.getByName("html").getValue();
             var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
             for (var i = 0; matches && i < matches.length; i++)
                 if (matches[i].indexOf('application/ld+json') === -1)
@@ -451,7 +451,7 @@ export default class PageRenderer extends Controller
 
             var jsons : Array<Promise<IRender>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<IRender>(Boolean(req.query.verbose), instances[i]._id));
+                jsons.push(instances[i].schema.getAsJson<IRender>(instances[i]._id, { verbose : Boolean(req.query.verbose) }));
 
             var sanitizedData = await Promise.all(jsons);
 
