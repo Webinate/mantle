@@ -10,7 +10,7 @@ import {Utils} from "../../utils"
  * Required keys will mean that the current document cannot exist if the target does not. Optional keys
  * will simply be nullified if the target no longer exists.
  */
-export class SchemaForeignKey extends SchemaItem<ObjectID | string | Promise<any>>
+export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.IModelEntry>
 {
     public targetCollection : string;
     public optionalKey : boolean;
@@ -72,34 +72,22 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Promise<any
     /**
 	* Gets the value of this item
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
-    * @returns {Promise<any>}
+    * @returns {Promise<ObjectID | Modepress.IModelEntry>}
 	*/
-    public getValue(options? : ISchemaOptions): ObjectID | Promise<any>
+    public async getValue(options? : ISchemaOptions): Promise<ObjectID | Modepress.IModelEntry>
     {
-        var that = this;
-
         if (!options.expandForeignKeys)
             return <ObjectID>this.value;
         else
         {
-            return new Promise(function( resolve, reject )
+            var model = Model.getByName(this.targetCollection);
+            if (model)
             {
-                var model = Model.getByName(that.targetCollection);
-                if (model)
-                {
-                    model.collection.find({ _id : <ObjectID>that.value }).limit(1).next().then(function( result ) {
-                        model.createInstance(result).then(function( instance ){
-
-                            resolve(instance);
-
-                        }).catch(function( err : Error ) {
-                            reject(`An error occurred fetching the foreign key for ${that.name} : '${err.message}'`);
-                        })
-                    });
-                }
-                else
-                    reject(new Error(`${that.name} references a foreign key '${that.targetCollection}' which doesn't seem to exist`));
-            });
+                var result = await model.findOne<Modepress.IModelEntry>( { _id : <ObjectID>this.value } );
+                return await result.schema.getAsJson<Modepress.IModelEntry>( result.dbEntry._id, options);
+            }
+            else
+                throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
         }
     }
 }

@@ -158,9 +158,9 @@ export class SchemaItem<T>
     /**
     * Gets the value of this item
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
-    * @returns {T | Promise<T>}
+    * @returns {Promise<T>}
     */
-    public getValue(options? : ISchemaOptions ): T | Promise<T>
+    public async getValue(options? : ISchemaOptions ): Promise<T>
     {
         return this.value;
     }

@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 const schema_item_1 = require("./schema-item");
 const Model_1 = require("../Model");
 const mongodb_1 = require("mongodb");
@@ -56,28 +64,22 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
     /**
     * Gets the value of this item
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
-    * @returns {Promise<any>}
+    * @returns {Promise<ObjectID | Modepress.IModelEntry>}
     */
     getValue(options) {
-        var that = this;
-        if (!options.expandForeignKeys)
-            return this.value;
-        else {
-            return new Promise(function (resolve, reject) {
-                var model = Model_1.Model.getByName(that.targetCollection);
+        return __awaiter(this, void 0, Promise, function* () {
+            if (!options.expandForeignKeys)
+                return this.value;
+            else {
+                var model = Model_1.Model.getByName(this.targetCollection);
                 if (model) {
-                    model.collection.find({ _id: that.value }).limit(1).next().then(function (result) {
-                        model.createInstance(result).then(function (instance) {
-                            resolve(instance);
-                        }).catch(function (err) {
-                            reject(`An error occurred fetching the foreign key for ${that.name} : '${err.message}'`);
-                        });
-                    });
+                    var result = yield model.findOne({ _id: this.value });
+                    return yield result.schema.getAsJson(result.dbEntry._id, options);
                 }
                 else
-                    reject(new Error(`${that.name} references a foreign key '${that.targetCollection}' which doesn't seem to exist`));
-            });
-        }
+                    throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
+            }
+        });
     }
 }
 exports.SchemaForeignKey = SchemaForeignKey;

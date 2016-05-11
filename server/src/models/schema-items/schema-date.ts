@@ -48,9 +48,9 @@ export class SchemaDate extends SchemaItem<number>
     /**
 	* Gets the value of this item
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
-    * @returns {number}
+    * @returns {Promise<number>}
 	*/
-    public getValue(options? : ISchemaOptions): number
+    public async getValue(options? : ISchemaOptions): Promise<number>
     {
         return (this.value !== undefined && this.value !== null ? this.value : Date.now() );
     }
