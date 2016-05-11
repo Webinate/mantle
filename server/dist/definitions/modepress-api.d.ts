@@ -729,6 +729,28 @@ declare module Modepress
     }
 
     /**
+     * Represents a mongodb ObjectID of a document in separate collection.
+     * Foreign keys are used as a way of relating models to one another. They can be required or optional.
+     * Required keys will mean that the current document cannot exist if the target does not. Optional keys
+     * will simply be nullified if the target no longer exists.
+     */
+    export class SchemaForeignKey extends SchemaItem<any | string | Modepress.IModelEntry>
+    {
+        public targetCollection : string;
+        public optionalKey : boolean;
+
+        /**
+        * Creates a new schema item
+        * @param {string} name The name of this item
+        * @param {string} val The string representation of the foreign key's _id
+        * @param {string} targetCollection The name of the collection to which the target exists
+        * @param {boolean} optionalKey If true, then this key will only be nullified if the target is removed
+        */
+        constructor(name: string, val: string, targetCollection : string, optionalKey?: boolean );
+    }
+
+
+    /**
     * A text scheme item for use in Models
     */
     class SchemaText extends SchemaItem<string>
@@ -900,6 +922,7 @@ declare module Modepress
         export var bool: typeof SchemaBool;
         export var id: typeof SchemaId;
         export var html: typeof SchemaHtml;
+        export var foreignKey: typeof SchemaForeignKey;
     }
 
     /**

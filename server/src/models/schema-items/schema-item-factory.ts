@@ -8,6 +8,7 @@ import {SchemaIdArray} from "./schema-id-array";
 import {SchemaNumArray} from "./schema-num-array";
 import {SchemaId} from "./schema-id";
 import {SchemaHtml} from "./schema-html";
+import {SchemaForeignKey} from "./schema-foreign-key";
 
 export var NumberType = numbers.NumberType;
 export var num = numbers.SchemaNumber;
@@ -20,3 +21,4 @@ export var date = SchemaDate;
 export var bool = SchemaBool;
 export var id = SchemaId;
 export var html = SchemaHtml;
+export var foreignKey = SchemaForeignKey;
