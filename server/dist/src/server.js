@@ -50,7 +50,6 @@ class Server {
             try {
                 for (var i = 0, l = server.controllers.length; i < l; i++) {
                     var func = require(server.controllers[i].path);
-                    console.log(func + " " + typeof func + "  ---- " + server.controllers[i].path);
                     controllers.push(new func.default(server, config, app));
                 }
             }
