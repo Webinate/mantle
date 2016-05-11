@@ -39,6 +39,7 @@ var usersAgent = test.httpAgent("http://"+ uconfig.host +":" + uconfig.portHTTP)
 var modepressAgent = test.httpAgent("http://"+ config.host +":" + config.portHTTP);
 var adminCookie = "";
 var numPosts = 0;
+var numComments = 0;
 var lastPost = null;
 var tempPost = null;
 
@@ -96,9 +97,8 @@ describe('Testing all post related endpoints', function() {
             .send( { title: "", slug:"" } )
             .end(function(err, res) {
                 test
-                    .bool(res.body.error).isTrue()
                     .string(res.body.message).is("title cannot be empty")
-
+                    .bool(res.body.error).isTrue()
                 done();
             });
     })
@@ -165,8 +165,6 @@ describe('Testing all post related endpoints', function() {
                     done();
             });
     })
-
-
 
     it('Can create a post with data', function(done) {
         modepressAgent
@@ -554,4 +552,70 @@ describe('Testing all post related endpoints', function() {
                         });
             });
     })
+
+    it('should have the same number of posts as before the tests started', function(done){
+        modepressAgent
+            .get('/api/posts/get-posts').expect(200).expect('Content-Type', /json/)
+            .end(function(err, res) {
+                test.bool(res.body.error).isNotTrue()
+                    .number(res.body.count)
+
+                    .bool(numPosts == res.body.count).isTrue()
+                done();
+            });
+    })
 })
+
+/**
+ * Tests all comment related endpoints
+ */
+describe('Testing all comment related endpoints', function() {
+
+    it('Fetched all comments', function(done){
+        modepressAgent
+            .get('/api/comments').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.bool(res.body.error).isNotTrue()
+                    .number(res.body.count)
+
+                numComments = res.body.count;
+                done();
+            });
+    })
+
+    it('Cannot create a comment when not logged in', function(done) {
+        modepressAgent
+            .post('/api/comments/target').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .send( {  } )
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.bool(res.body.error).isTrue()
+                    .string(res.body.message).is("You must be logged in to make this request")
+
+                done();
+            });
+    })
+
+     it('should have the same number of comments as before the tests started', function(done){
+        modepressAgent
+            .get('/api/comments').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.bool(res.body.error).isNotTrue()
+                    .number(res.body.count)
+
+                    .bool(numComments == res.body.count).isTrue();
+                done();
+            });
+    })
+
+});
