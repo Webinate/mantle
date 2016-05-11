@@ -50,7 +50,7 @@ export default class CommentsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getComments(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async getComments(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var comments = this.getModel("comments");
         var that = this;
@@ -112,25 +112,21 @@ export default class CommentsController extends Controller
                 sort = { lastUpdated: sortOrder };
         }
 
-        // Stephen is lovely
         if (findToken.$or.length == 0)
             delete findToken.$or;
 
-        // First get the count
-        comments.count(findToken).then(function (num)
+        try
         {
-            count = num;
-            return comments.findInstances<mp.IComment>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit));
+            // First get the count
+            count = await comments.count(findToken);
 
-        }).then(function (instances)
-       {
-            var sanitizedData : Array<Promise<mp.IComment>> = [];
+            var instances = await comments.findInstances<mp.IComment>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit));
+
+            var jsons : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose) } ));
+                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose) } ));
 
-            return Promise.all(sanitizedData);
-
-        }).then(function(sanitizedData){
+            var sanitizedData = await Promise.all(jsons);
 
             okJson<mp.IGetComments>({
                 error: false,
@@ -139,10 +135,9 @@ export default class CommentsController extends Controller
                 data: sanitizedData
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch (err) {
             errJson(err, res);
-        });
+        };
     }
 
     /**

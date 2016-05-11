@@ -49,73 +49,75 @@ class CommentsController extends controller_1.Controller {
     * @param {Function} next
     */
     getComments(req, res, next) {
-        var comments = this.getModel("comments");
-        var that = this;
-        var count = 0;
-        var visibility = "public";
-        var user = req._user;
-        var findToken = { $or: [] };
-        if (req.query.author)
-            findToken.author = new RegExp(req.query.author, "i");
-        // Check for keywords
-        if (req.query.keyword)
-            findToken.$or.push({ content: new RegExp(req.query.keyword, "i") });
-        // Check for visibility
-        if (req.query.visibility) {
-            if (req.query.visibility.toLowerCase() == "all")
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("GETTTTTINNG COMMMENTS");
+            var comments = this.getModel("comments");
+            var that = this;
+            var count = 0;
+            var visibility = "public";
+            var user = req._user;
+            var findToken = { $or: [] };
+            if (req.query.author)
+                findToken.author = new RegExp(req.query.author, "i");
+            // Check for keywords
+            if (req.query.keyword)
+                findToken.$or.push({ content: new RegExp(req.query.keyword, "i") });
+            // Check for visibility
+            if (req.query.visibility) {
+                if (req.query.visibility.toLowerCase() == "all")
+                    visibility = "all";
+                else if (req.query.visibility.toLowerCase() == "private")
+                    visibility = "private";
+            }
+            else
                 visibility = "all";
-            else if (req.query.visibility.toLowerCase() == "private")
-                visibility = "private";
-        }
-        else
-            visibility = "all";
-        var users = users_service_1.UsersService.getSingleton();
-        // Only admins are allowed to see private comments
-        if (!user || ((visibility == "all" || visibility == "private") && users.hasPermission(user, 2) == false))
-            visibility = "public";
-        // Add the or conditions for visibility
-        if (visibility != "all") {
-            if (visibility == "public")
-                findToken.public = true;
-            else
-                findToken.public = false;
-        }
-        // Set the default sort order to ascending
-        var sortOrder = -1;
-        if (req.query.sortOrder) {
-            if (req.query.sortOrder.toLowerCase() == "asc")
-                sortOrder = 1;
-            else
-                sortOrder = -1;
-        }
-        // Sort by the date created
-        var sort = { createdOn: sortOrder };
-        // Optionally sort by the last updated
-        if (req.query.sort) {
-            if (req.query.sort == "updated")
-                sort = { lastUpdated: sortOrder };
-        }
-        // Stephen is lovely
-        if (findToken.$or.length == 0)
-            delete findToken.$or;
-        // First get the count
-        comments.count(findToken).then(function (num) {
-            count = num;
-            return comments.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit));
-        }).then(function (instances) {
-            var sanitizedData = [];
-            for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
-            return Promise.all(sanitizedData);
-        }).then(function (sanitizedData) {
-            serializers_1.okJson({
-                error: false,
-                count: count,
-                message: `Found ${count} comments`,
-                data: sanitizedData
-            }, res);
-        }).catch(function (err) {
-            serializers_1.errJson(err, res);
+            var users = users_service_1.UsersService.getSingleton();
+            // Only admins are allowed to see private comments
+            if (!user || ((visibility == "all" || visibility == "private") && users.hasPermission(user, 2) == false))
+                visibility = "public";
+            // Add the or conditions for visibility
+            if (visibility != "all") {
+                if (visibility == "public")
+                    findToken.public = true;
+                else
+                    findToken.public = false;
+            }
+            // Set the default sort order to ascending
+            var sortOrder = -1;
+            if (req.query.sortOrder) {
+                if (req.query.sortOrder.toLowerCase() == "asc")
+                    sortOrder = 1;
+                else
+                    sortOrder = -1;
+            }
+            // Sort by the date created
+            var sort = { createdOn: sortOrder };
+            // Optionally sort by the last updated
+            if (req.query.sort) {
+                if (req.query.sort == "updated")
+                    sort = { lastUpdated: sortOrder };
+            }
+            if (findToken.$or.length == 0)
+                delete findToken.$or;
+            try {
+                // First get the count
+                count = yield comments.count(findToken);
+                var instances = yield comments.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit));
+                var jsons = [];
+                for (var i = 0, l = instances.length; i < l; i++)
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
+                var sanitizedData = yield Promise.all(jsons);
+                serializers_1.okJson({
+                    error: false,
+                    count: count,
+                    message: `Found ${count} comments`,
+                    data: sanitizedData
+                }, res);
+            }
+            catch (err) {
+                serializers_1.errJson(err, res);
+            }
+            ;
         });
     }
     /**
