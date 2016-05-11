@@ -1,6 +1,7 @@
 ﻿import * as mongodb from "mongodb";
 import * as http from "http";
 import {IServer} from "modepress-api";
+import * as winston from "winston";
 import {Controller} from "./controller";
 import {okJson, errJson} from "../serializers";
 import express = require("express");
@@ -42,7 +43,7 @@ export default class CORSController extends Controller
                     }
 
                 if (!matched)
-                    console.log(`${(<http.ServerRequest>req).headers.origin} Does not have permission. Add it to the allowed `);
+                    winston.error(`${(<http.ServerRequest>req).headers.origin} Does not have permission. Add it to the allowed `, { process: process.pid } );
             }
 
             if (req.method === 'OPTIONS')

@@ -1,4 +1,5 @@
 "use strict";
+const winston = require("winston");
 const controller_1 = require("./controller");
 /**
 * Checks all incomming requests to see if they are CORS approved
@@ -29,7 +30,7 @@ class CORSController extends controller_1.Controller {
                         break;
                     }
                 if (!matched)
-                    console.log(`${req.headers.origin} Does not have permission. Add it to the allowed `);
+                    winston.error(`${req.headers.origin} Does not have permission. Add it to the allowed `, { process: process.pid });
             }
             if (req.method === 'OPTIONS') {
                 res.status(200);
