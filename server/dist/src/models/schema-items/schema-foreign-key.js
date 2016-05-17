@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const schema_item_1 = require("./schema-item");
-const Model_1 = require("../Model");
+const model_1 = require("../model");
 const mongodb_1 = require("mongodb");
 const utils_1 = require("../../utils");
 /**
@@ -46,20 +46,33 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
     * @returns {Promise<boolean|Error>}
     */
     validate() {
-        var transformedValue = this.value;
-        if (typeof this.value == "string") {
-            if (utils_1.Utils.isValidObjectID(this.value))
-                transformedValue = this.value = new mongodb_1.ObjectID(this.value);
-            else if (this.value.trim() != "")
-                return Promise.reject(new Error(`Please use a valid ID for '${this.name}'`));
-            else
-                transformedValue = null;
-        }
-        if (!transformedValue) {
-            this.value = null;
-            return Promise.resolve(true);
-        }
-        return Promise.resolve(true);
+        return __awaiter(this, void 0, Promise, function* () {
+            var transformedValue = this.value;
+            if (typeof this.value == "string") {
+                if (utils_1.Utils.isValidObjectID(this.value))
+                    transformedValue = this.value = new mongodb_1.ObjectID(this.value);
+                else if (this.value.trim() != "")
+                    return Promise.reject(new Error(`Please use a valid ID for '${this.name}'`));
+                else
+                    transformedValue = null;
+            }
+            if (!transformedValue) {
+                this.value = null;
+                return Promise.resolve(true);
+            }
+            else if (!this.optionalKey) {
+                // If they key is required then it must exist
+                var model = model_1.Model.getByName(this.targetCollection);
+                if (model) {
+                    var result = yield model.findOne({ _id: this.value });
+                    if (!result)
+                        throw new Error(`${this.name} does not exist`);
+                }
+                else
+                    throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
+            }
+            return true;
+        });
     }
     /**
     * Gets the value of this item
@@ -71,7 +84,7 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
             if (!options.expandForeignKeys)
                 return this.value;
             else {
-                var model = Model_1.Model.getByName(this.targetCollection);
+                var model = model_1.Model.getByName(this.targetCollection);
                 if (model) {
                     var result = yield model.findOne({ _id: this.value });
                     return yield result.schema.getAsJson(result.dbEntry._id, options);

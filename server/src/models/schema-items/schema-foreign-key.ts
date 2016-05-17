@@ -1,6 +1,6 @@
 ﻿import {SchemaItem} from "./schema-item";
 import {ISchemaOptions} from "modepress-api";
-import {Model} from "../Model";
+import {Model} from "../model";
 import {ObjectID} from "mongodb";
 import {Utils} from "../../utils"
 
@@ -46,7 +46,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 	* Checks the value stored to see if its correct in its current form
 	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean|Error>
+	public async validate(): Promise<boolean|Error>
     {
         var transformedValue = this.value;
 
@@ -65,8 +65,21 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             this.value = null;
             return Promise.resolve(true);
         }
+        else if (!this.optionalKey)
+        {
+            // If they key is required then it must exist
+            var model = Model.getByName(this.targetCollection);
+            if (model)
+            {
+                var result = await model.findOne<Modepress.IModelEntry>( { _id : <ObjectID>this.value } );
+                if (!result)
+                    throw new Error(`${this.name} does not exist`);
+            }
+            else
+                throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
+        }
 
-        return Promise.resolve(true);
+        return true;
     }
 
     /**
