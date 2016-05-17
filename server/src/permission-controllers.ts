@@ -48,32 +48,34 @@ export function getUser(req: express.Request, res: express.Response, next: Funct
 
 /**
 * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
-* @param {express.Request} req
-* @param {express.Response} res
-* @param {Function} next
+* @param {string} idName The name of the ID to check for
+* @param {string} rejectName The textual name of the ID when its rejected
 */
-export function hasId( req: express.Request, res: express.Response, next: Function )
+export function hasId( idName : string, rejectName : string )
 {
-    // Make sure the id
-    if (!req.params.id)
+    return function( req: express.Request, res: express.Response, next: Function )
     {
-        res.setHeader( 'Content-Type', 'application/json');
-        return res.end(JSON.stringify(<IResponse>{
-            error: true,
-            message: "Please specify an ID"
-        }));
-    }
-    // Make sure the id format is correct
-    else if ( !mongodb.ObjectID.isValid(req.params.id))
-    {
-        res.setHeader( 'Content-Type', 'application/json');
-        return res.end(JSON.stringify(<IResponse>{
-            error: true,
-            message: "Invalid ID format"
-        }));
-    }
+        // Make sure the id
+        if (!req.params[idName])
+        {
+            res.setHeader( 'Content-Type', 'application/json');
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: "Please specify an " + idName
+            }));
+        }
+        // Make sure the id format is correct
+        else if ( !mongodb.ObjectID.isValid(req.params[idName]))
+        {
+            res.setHeader( 'Content-Type', 'application/json');
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: "Invalid ID format"
+            }));
+        }
 
-    next();
+        next();
+    }
 }
 
 /**
