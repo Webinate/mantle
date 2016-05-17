@@ -52,8 +52,8 @@ declare module Modepress
     export interface IComment extends IModelEntry
     {
         author?: string;
-        target?: string;
-        responseTarget?: string;
+        post?: string;
+        parent?: string;
         public?: boolean;
         content?: string;
         createdOn?: number;

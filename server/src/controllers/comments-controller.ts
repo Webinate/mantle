@@ -38,7 +38,7 @@ export default class CommentsController extends Controller
         router.get("/users/:user/comments/:id", <any>[hasId("id", "ID"), this.getComment.bind(this)]);
         router.delete("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.remove.bind(this)]);
         router.put("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.update.bind(this)]);
-        router.post("/posts/:postId/comments/:target?", <any>[canEdit, hasId("postId", "Post ID"), hasId("target", "Target ID"), this.create.bind(this)]);
+        router.post("/posts/:postId/comments/:parent?", <any>[canEdit, hasId("postId", "parent ID"), hasId("parent", "Parent ID", true), this.create.bind(this)]);
 
 		// Register the path
 		e.use( "/api", router );
@@ -262,7 +262,8 @@ export default class CommentsController extends Controller
 
         // User is passed from the authentication function
         token.author = req._user.username;
-        token.responseTarget = req.params.target;
+        token.post = req.params.postId;
+        token.parent = req.params.parent;
 
         comments.createInstance(token).then(function (instance)
         {

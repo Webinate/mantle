@@ -38,7 +38,7 @@ class CommentsController extends controller_1.Controller {
         router.get("/users/:user/comments/:id", [permission_controllers_1.hasId("id", "ID"), this.getComment.bind(this)]);
         router.delete("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId("id", "ID"), this.remove.bind(this)]);
         router.put("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId("id", "ID"), this.update.bind(this)]);
-        router.post("/posts/:postId/comments/:target?", [permission_controllers_1.canEdit, permission_controllers_1.hasId("postId", "Post ID"), permission_controllers_1.hasId("target", "Target ID"), this.create.bind(this)]);
+        router.post("/posts/:postId/comments/:parent?", [permission_controllers_1.canEdit, permission_controllers_1.hasId("postId", "parent ID"), permission_controllers_1.hasId("parent", "Parent ID", true), this.create.bind(this)]);
         // Register the path
         e.use("/api", router);
     }
@@ -216,7 +216,8 @@ class CommentsController extends controller_1.Controller {
         var comments = this.getModel("comments");
         // User is passed from the authentication function
         token.author = req._user.username;
-        token.responseTarget = req.params.target;
+        token.post = req.params.postId;
+        token.parent = req.params.parent;
         comments.createInstance(token).then(function (instance) {
             return instance.schema.getAsJson(instance._id, { verbose: true });
         }).then(function (json) {
