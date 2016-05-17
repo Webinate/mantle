@@ -37,18 +37,19 @@ exports.getUser = getUser;
 * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
 * @param {string} idName The name of the ID to check for
 * @param {string} rejectName The textual name of the ID when its rejected
+* @param {boolean} optional If true, then an error wont be thrown if it doesnt exist
 */
-function hasId(idName, rejectName) {
+function hasId(idName, rejectName, optional = false) {
     return function (req, res, next) {
         // Make sure the id
-        if (!req.params[idName]) {
+        if (!req.params[idName] && !optional) {
             res.setHeader('Content-Type', 'application/json');
             return res.end(JSON.stringify({
                 error: true,
                 message: "Please specify an " + idName
             }));
         }
-        else if (!mongodb.ObjectID.isValid(req.params[idName])) {
+        else if (req.params[idName] && !mongodb.ObjectID.isValid(req.params[idName])) {
             res.setHeader('Content-Type', 'application/json');
             return res.end(JSON.stringify({
                 error: true,

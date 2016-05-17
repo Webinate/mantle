@@ -50,13 +50,14 @@ export function getUser(req: express.Request, res: express.Response, next: Funct
 * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
 * @param {string} idName The name of the ID to check for
 * @param {string} rejectName The textual name of the ID when its rejected
+* @param {boolean} optional If true, then an error wont be thrown if it doesnt exist
 */
-export function hasId( idName : string, rejectName : string )
+export function hasId( idName : string, rejectName : string, optional: boolean = false )
 {
     return function( req: express.Request, res: express.Response, next: Function )
     {
         // Make sure the id
-        if (!req.params[idName])
+        if (!req.params[idName] && !optional)
         {
             res.setHeader( 'Content-Type', 'application/json');
             return res.end(JSON.stringify(<IResponse>{
@@ -65,7 +66,7 @@ export function hasId( idName : string, rejectName : string )
             }));
         }
         // Make sure the id format is correct
-        else if ( !mongodb.ObjectID.isValid(req.params[idName]))
+        else if ( req.params[idName] && !mongodb.ObjectID.isValid(req.params[idName]))
         {
             res.setHeader( 'Content-Type', 'application/json');
             return res.end(JSON.stringify(<IResponse>{
