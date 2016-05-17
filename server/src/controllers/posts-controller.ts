@@ -35,17 +35,17 @@ export default class PostsController extends Controller
 		router.use(bodyParser.json());
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-        router.get("/get-posts", <any>[getUser, this.getPosts.bind(this)]);
-        router.get("/get-post/:slug", <any>[getUser, this.getPost.bind(this)]);
-        router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", <any>[isAdmin, hasId, this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", <any>[isAdmin, hasId, this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", <any>[isAdmin, hasId, this.updatePost.bind(this)]);
-        router.post("/create-post", <any>[isAdmin, this.createPost.bind(this)]);
-        router.post("/create-category", <any>[isAdmin, this.createCategory.bind(this)]);
+        router.get("posts/get-posts", <any>[getUser, this.getPosts.bind(this)]);
+        router.get("posts/get-post/:slug", <any>[getUser, this.getPost.bind(this)]);
+        router.get("posts/get-categories", this.getCategories.bind(this));
+        router.delete("posts/remove-post/:id", <any>[isAdmin, hasId("id", "ID"), this.removePost.bind(this)]);
+        router.delete("posts/remove-category/:id", <any>[isAdmin, hasId("id", "ID"), this.removeCategory.bind(this)]);
+        router.put("posts/update-post/:id", <any>[isAdmin, hasId("id", "ID"), this.updatePost.bind(this)]);
+        router.post("posts/create-post", <any>[isAdmin, this.createPost.bind(this)]);
+        router.post("posts/create-category", <any>[isAdmin, this.createCategory.bind(this)]);
 
 		// Register the path
-		e.use( "/api/posts", router );
+		e.use( "/api", router );
     }
 
     /**

@@ -35,10 +35,10 @@ export default class CommentsController extends Controller
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         router.get("/comments", <any>[isAdmin, this.getComments.bind(this)]);
-        router.get("/users/:user/comments/:id", <any>[hasId, this.getComment.bind(this)]);
-        router.delete("/users/:user/comments/:id", <any>[canEdit, hasId, this.remove.bind(this)]);
-        router.put("/users/:user/comments/:id", <any>[canEdit, hasId, this.update.bind(this)]);
-        router.post("/comments/:target", <any>[canEdit, this.verifyTarget, this.create.bind(this)]);
+        router.get("/users/:user/comments/:id", <any>[hasId("id", "ID"), this.getComment.bind(this)]);
+        router.delete("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.remove.bind(this)]);
+        router.put("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.update.bind(this)]);
+        router.post("/posts/:postId/comments/:target?", <any>[canEdit, hasId("postId", "Post ID"), hasId("target", "Target ID"), this.create.bind(this)]);
 
 		// Register the path
 		e.use( "/api", router );
@@ -182,29 +182,6 @@ export default class CommentsController extends Controller
         } catch ( err ) {
             errJson(err, res);
         };
-    }
-
-    /**
-    * Checks the request for a target ID. This will throw an error if none is found, or its invalid
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    private verifyTarget(req: mp.IAuthReq, res: express.Response, next: Function)
-    {
-        // Make sure the target id
-        if (!req.params.target)
-        {
-             okJson<mp.IResponse>( {
-                error: true,
-                message:  "Please specify a target ID"
-            }, res);
-        }
-        // Make sure the target id format is correct
-        else if ( !mongodb.ObjectID.isValid(req.params.target))
-        {
-            errJson(new Error("Invalid target ID format"), res);
-        }
     }
 
     /**
