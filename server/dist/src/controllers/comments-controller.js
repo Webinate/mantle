@@ -35,10 +35,10 @@ class CommentsController extends controller_1.Controller {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/comments", [permission_controllers_1.isAdmin, this.getComments.bind(this)]);
-        router.get("/users/:user/comments/:id", [permission_controllers_1.hasId, this.getComment.bind(this)]);
-        router.delete("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId, this.remove.bind(this)]);
-        router.put("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId, this.update.bind(this)]);
-        router.post("/comments/:target", [permission_controllers_1.canEdit, this.verifyTarget, this.create.bind(this)]);
+        router.get("/users/:user/comments/:id", [permission_controllers_1.hasId("id", "ID"), this.getComment.bind(this)]);
+        router.delete("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId("id", "ID"), this.remove.bind(this)]);
+        router.put("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId("id", "ID"), this.update.bind(this)]);
+        router.post("/posts/:postId/comments/:target?", [permission_controllers_1.canEdit, permission_controllers_1.hasId("postId", "Post ID"), permission_controllers_1.hasId("target", "Target ID"), this.create.bind(this)]);
         // Register the path
         e.use("/api", router);
     }
@@ -50,7 +50,6 @@ class CommentsController extends controller_1.Controller {
     */
     getComments(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("GETTTTTINNG COMMMENTS");
             var comments = this.getModel("comments");
             var that = this;
             var count = 0;
@@ -155,24 +154,6 @@ class CommentsController extends controller_1.Controller {
             }
             ;
         });
-    }
-    /**
-    * Checks the request for a target ID. This will throw an error if none is found, or its invalid
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    verifyTarget(req, res, next) {
-        // Make sure the target id
-        if (!req.params.target) {
-            serializers_1.okJson({
-                error: true,
-                message: "Please specify a target ID"
-            }, res);
-        }
-        else if (!mongodb.ObjectID.isValid(req.params.target)) {
-            serializers_1.errJson(new Error("Invalid target ID format"), res);
-        }
     }
     /**
     * Attempts to remove a comment by ID

@@ -35,16 +35,16 @@ class PostsController extends controller_1.Controller {
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/get-posts", [permission_controllers_1.getUser, this.getPosts.bind(this)]);
-        router.get("/get-post/:slug", [permission_controllers_1.getUser, this.getPost.bind(this)]);
-        router.get("/get-categories", this.getCategories.bind(this));
-        router.delete("/remove-post/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId, this.removePost.bind(this)]);
-        router.delete("/remove-category/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId, this.removeCategory.bind(this)]);
-        router.put("/update-post/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId, this.updatePost.bind(this)]);
-        router.post("/create-post", [permission_controllers_1.isAdmin, this.createPost.bind(this)]);
-        router.post("/create-category", [permission_controllers_1.isAdmin, this.createCategory.bind(this)]);
+        router.get("posts/get-posts", [permission_controllers_1.getUser, this.getPosts.bind(this)]);
+        router.get("posts/get-post/:slug", [permission_controllers_1.getUser, this.getPost.bind(this)]);
+        router.get("posts/get-categories", this.getCategories.bind(this));
+        router.delete("posts/remove-post/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.removePost.bind(this)]);
+        router.delete("posts/remove-category/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.removeCategory.bind(this)]);
+        router.put("posts/update-post/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.updatePost.bind(this)]);
+        router.post("posts/create-post", [permission_controllers_1.isAdmin, this.createPost.bind(this)]);
+        router.post("posts/create-category", [permission_controllers_1.isAdmin, this.createCategory.bind(this)]);
         // Register the path
-        e.use("/api/posts", router);
+        e.use("/api", router);
     }
     /**
     * Returns an array of IPost items
