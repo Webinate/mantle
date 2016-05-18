@@ -116,7 +116,87 @@ describe('Testing all comment related endpoints', function() {
             });
     })
 
-     it('should have the same number of comments as before the tests started', function(done){
+    it('Can create a comment on a valid post', function(done) {
+        header.modepressAgent
+            .post(`/api/posts/${lastPost._id}/comments`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .send( { content: "Hello world!", public: false } )
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                lastComment = res.body.data;
+                test.string(res.body.message).is("New comment created")
+                test.string(res.body.data._id)
+                test.string(res.body.data.author)
+                test.value(res.body.data.parent).isNull()
+                test.string(res.body.data.post).is(lastPost._id)
+                test.string(res.body.data.content).is("Hello world!")
+                test.bool(res.body.data.public).isFalse()
+                test.number(res.body.data.createdOn)
+                test.number(res.body.data.lastUpdated)
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('cannot delete a comment with a bad id', function(done){
+        header.modepressAgent
+            .delete(`/api/users/${header.uconfig.adminUser.username}/comments/abc`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Invalid ID format")
+                test.bool(res.body.error).isTrue()
+                done();
+            });
+    })
+
+    it('cannot delete a comment with a valid id but doesn\'t exist', function(done){
+        header.modepressAgent
+            .delete(`/api/users/${header.uconfig.adminUser.username}/comments/123456789012345678901234`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Could not find a comment with that ID")
+                test.bool(res.body.error).isTrue()
+                done();
+            });
+    })
+
+    it('cannot delete a comment with an invalid user', function(done){
+        header.modepressAgent
+            .delete(`/api/users/BADUSER/comments/123456789012345678901234`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("User BADUSER does not exist")
+                test.bool(res.body.error).isTrue()
+                done();
+            });
+    })
+
+    it('Can delete an existing comment', function(done) {
+        header.modepressAgent
+            .delete(`/api/users/${header.uconfig.adminUser.username}/comments/${lastComment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Comment has been successfully removed")
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('should have the same number of comments as before the tests started', function(done){
         header.modepressAgent
             .get('/api/comments').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
@@ -132,8 +212,6 @@ describe('Testing all comment related endpoints', function() {
     })
 
     it('Can delete the temp post', function(done) {
-
-
         header.modepressAgent
             .delete('/api/posts/remove-post/' + lastPost._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
