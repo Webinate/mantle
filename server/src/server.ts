@@ -58,6 +58,7 @@ export class Server
         // Create each of your controllers here
         var controllerPromises: Array<Promise<any>> = [];
         var controllers: Array<Controller> = [];
+        var lastAddedController: string;
 
         controllers.push(new PageRenderer(server, config, app));
 
@@ -66,6 +67,7 @@ export class Server
         {
             for (var i = 0, l: number = server.controllers.length; i < l; i++)
             {
+                lastAddedController = server.controllers[i].path;
                 var func = require(server.controllers[i].path);
                 controllers.push(new func.default(server, config, app));
             }
@@ -73,6 +75,7 @@ export class Server
         catch(err)
         {
                 winston.error(`An error occurred while creating one of the controllers: '${err.message}'`, { process: process.pid });
+                winston.error(`The controller that failed was: '${lastAddedController}'`, { process: process.pid });
                 process.exit();
         }
 

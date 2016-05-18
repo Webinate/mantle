@@ -45,16 +45,19 @@ class Server {
             // Create each of your controllers here
             var controllerPromises = [];
             var controllers = [];
+            var lastAddedController;
             controllers.push(new page_renderer_1.default(server, config, app));
             // Load the controllers
             try {
                 for (var i = 0, l = server.controllers.length; i < l; i++) {
+                    lastAddedController = server.controllers[i].path;
                     var func = require(server.controllers[i].path);
                     controllers.push(new func.default(server, config, app));
                 }
             }
             catch (err) {
                 winston.error(`An error occurred while creating one of the controllers: '${err.message}'`, { process: process.pid });
+                winston.error(`The controller that failed was: '${lastAddedController}'`, { process: process.pid });
                 process.exit();
             }
             // Maps the path specified to an HTML or template
