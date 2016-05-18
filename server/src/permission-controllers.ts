@@ -120,33 +120,44 @@ export function isAdmin(req: express.Request, res: express.Response, next: Funct
 * @param {express.Response} res
 * @param {Function} next
 */
-export function canEdit(req: express.Request, res: express.Response, next: Function)
+export async function canEdit(req: express.Request, res: express.Response, next: Function)
 {
     var users = UsersService.getSingleton();
     var targetUser : string = req.params.user;
 
-    users.authenticated(req).then(function (auth)
+    try
     {
+        var auth = await users.authenticated(req);
+        var target : UsersInterface.IGetUser = null;
+
+        // Check if the target user exists
+        if (targetUser !== undefined)
+        {
+            target = await users.getUser(targetUser, req);
+            if (!target || target.error || !target.data)
+                throw new Error(`User ${targetUser} does not exist`);
+        }
+
         if (!auth.authenticated)
-            return Promise.reject(new Error("You must be logged in to make this request"));
+            throw new Error("You must be logged in to make this request");
         else if (!users.hasPermission(auth.user, 2, targetUser))
-            return Promise.reject(new Error("You do not have permission"));
+            throw new Error("You do not have permission");
         else
         {
             (<IAuthReq><Express.Request>req)._user = auth.user;
             (<IAuthReq><Express.Request>req)._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
             (<IAuthReq><Express.Request>req)._verbose = (req.query.verbose ? true : false);
             next();
+            return;
         }
 
-    }).catch(function (error: Error)
-    {
+    } catch ( error ) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(<IResponse>{
             error: true,
             message: error.message
         }));
-    });
+    };
 }
 
 /**

@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 const users_service_1 = require("./users-service");
 const mongodb = require("mongodb");
 /**
@@ -96,25 +104,38 @@ exports.isAdmin = isAdmin;
 * @param {Function} next
 */
 function canEdit(req, res, next) {
-    var users = users_service_1.UsersService.getSingleton();
-    var targetUser = req.params.user;
-    users.authenticated(req).then(function (auth) {
-        if (!auth.authenticated)
-            return Promise.reject(new Error("You must be logged in to make this request"));
-        else if (!users.hasPermission(auth.user, 2, targetUser))
-            return Promise.reject(new Error("You do not have permission"));
-        else {
-            req._user = auth.user;
-            req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
-            req._verbose = (req.query.verbose ? true : false);
-            next();
+    return __awaiter(this, void 0, void 0, function* () {
+        var users = users_service_1.UsersService.getSingleton();
+        var targetUser = req.params.user;
+        try {
+            var auth = yield users.authenticated(req);
+            var target = null;
+            // Check if the target user exists
+            if (targetUser !== undefined) {
+                target = yield users.getUser(targetUser, req);
+                if (!target || target.error || !target.data)
+                    throw new Error(`User ${targetUser} does not exist`);
+            }
+            if (!auth.authenticated)
+                throw new Error("You must be logged in to make this request");
+            else if (!users.hasPermission(auth.user, 2, targetUser))
+                throw new Error("You do not have permission");
+            else {
+                req._user = auth.user;
+                req._isAdmin = (auth.user.privileges == 1 || auth.user.privileges == 2 ? true : false);
+                req._verbose = (req.query.verbose ? true : false);
+                next();
+                return;
+            }
         }
-    }).catch(function (error) {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({
-            error: true,
-            message: error.message
-        }));
+        catch (error) {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
+        }
+        ;
     });
 }
 exports.canEdit = canEdit;
