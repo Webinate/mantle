@@ -284,13 +284,10 @@ export abstract class Model
                 if (!foreignModel)
                     continue;
 
-                var instances = await foreignModel.findInstances<IModelEntry>( <IModelEntry>{ _id : requiredDependencies[i]._id } );
-
-                for (var ii = 0, il = instances.length; ii < il; ii++)
-                    promises.push( this.deleteInstance( instances[ii] ) );
+                promises.push( foreignModel.deleteInstances( <IModelEntry>{ _id : requiredDependencies[i]._id } ) );
             }
 
-        await Promise.all(promises);
+        var dependenciesResults = await Promise.all(promises);
 
         // Remove the original instance from the DB
         var deleteResult = await this.collection.deleteMany( <IModelEntry>{ _id : instance.dbEntry._id });
@@ -368,6 +365,10 @@ export abstract class Model
                 var json = instance.schema.serialize();
                 var collection = this.collection;
                 var updateResult = await collection.updateOne({ _id: (<IModelEntry>instance)._id }, { $set: json });
+
+                // Now that everything has been added, we can do some post insert/update validation
+                await instance.schema.postValidation<T>( instance, this._collectionName );
+
                 toRet.tokens.push({ error: false, instance: instance });
 
             } catch ( err ) {
@@ -480,8 +481,17 @@ export abstract class Model
         var insertResult = await collection.insertMany(documents);
 
         // Assign the ID's
-        for (var i = 0, l = insertResult.ops.length; i < l; i++)
+        for (var i = 0, l = insertResult.ops.length; i < l; i++) {
             instances[i]._id = insertResult.ops[i]._id;
+            instances[i].dbEntry = insertResult.ops[i];
+        }
+
+        // Now that everything has been added, we can do some post insert/update validation
+        var postValidationPromises : Array<Promise<Schema>> = [];
+        for (var i = 0, l = instances.length; i < l; i++)
+            postValidationPromises.push( instances[i].schema.postValidation<T>(instances[i], this._collectionName ) );
+
+        await Promise.all<Schema>(postValidationPromises);
 
         return instances;
 	}
