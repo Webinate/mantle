@@ -35,7 +35,8 @@ export default class CommentsController extends Controller
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         router.get("/comments", <any>[isAdmin, this.getComments.bind(this)]);
-        router.get("/users/:user/comments/:id", <any>[hasId("id", "ID"), this.getComment.bind(this)]);
+        router.get("/comments/:id", <any>[hasId("id", "ID"), getUser, this.getComment.bind(this)]);
+        router.get("/users/:user/comments", <any>[hasId("user", "user ID"), this.getComments.bind(this)]);
         router.delete("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.remove.bind(this)]);
         router.put("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.update.bind(this)]);
         router.post("/posts/:postId/comments/:parent?", <any>[canEdit, hasId("postId", "parent ID"), hasId("parent", "Parent ID", true), this.create.bind(this)]);
@@ -57,10 +58,11 @@ export default class CommentsController extends Controller
         var count = 0;
         var visibility = "public";
         var user = req._user;
-
         var findToken = { $or : [] };
-        if (req.query.author)
-            (<mp.IComment>findToken).author = <any>new RegExp(req.query.author, "i");
+
+        // Set the user property if its provided
+        if (req.query.user)
+            (<mp.IComment>findToken).author = <any>new RegExp(req.query.user, "i");
 
         // Check for keywords
         if (req.query.keyword)
@@ -160,12 +162,11 @@ export default class CommentsController extends Controller
                 throw new Error("Could not find comment");
 
             var users = UsersService.getSingleton();
-
             var isPublic = await instances[0].schema.getByName("public").getValue()
 
             // Only admins are allowed to see private comments
             if ( !isPublic  && (!user || users.hasPermission(user, 2) == false ) )
-                return Promise.reject( new Error("That comment is marked private") );
+                throw new Error("That comment is marked private");
 
             var jsons : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
