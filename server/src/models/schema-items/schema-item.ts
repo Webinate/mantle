@@ -1,4 +1,5 @@
 ﻿import {ISchemaOptions} from "modepress-api";
+import {ModelInstance} from "../model";
 
 /**
 * A definition of each item in the model
@@ -144,6 +145,17 @@ export class SchemaItem<T>
 	public validate(): Promise<boolean|Error>
 	{
 		return Promise.resolve(true);
+    }
+
+    /**
+	 * Called once a schema has been validated and inserted into the database. Useful for
+     * doing any post update/insert operations
+     * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
+     * @param {string} collection The DB collection that the model was inserted into
+	 */
+	public async postValidation<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>
+	{
+        return Promise.resolve();
     }
 
     /**

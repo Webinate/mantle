@@ -125,12 +125,11 @@ export class Schema
 	/**
 	* Checks the values stored in the items to see if they are correct
 	* @param {boolean} checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-    * @returns {Promise<bool>} Returns true if successful
+    * @returns {Promise<Schema>} Returns true if successful
 	*/
 	public async validate( checkForRequiredFields: boolean ): Promise<Schema>
 	{
 		var items = this._items;
-        var error = "";
         var promises : Array<Promise<any>> = [];
 
         for (var i = 0, l = items.length; i < l; i++)
@@ -140,6 +139,24 @@ export class Schema
 
             promises.push(items[i].validate());
         }
+
+        var validations = await Promise.all(promises);
+        return this;
+	}
+
+    /**
+	 * Called once a schema has been validated and inserted into the database. Useful for
+     * doing any post update/insert operations
+     * @param {ModelInstance<T>} instance The model instance that was inserted or updated
+     * @param {string} collection The DB collection that the model was inserted into
+	 */
+	public async postValidation<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<Schema>
+	{
+		var items = this._items;
+        var promises : Array<Promise<any>> = [];
+
+        for (var i = 0, l = items.length; i < l; i++)
+            promises.push(items[i].postValidation(instance, collection));
 
         var validations = await Promise.all(promises);
         return this;
