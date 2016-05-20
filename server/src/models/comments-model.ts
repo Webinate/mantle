@@ -11,7 +11,7 @@ export class CommentsModel extends Model
 
         this.defaultSchema.add(new text("author", "")).setRequired(true)
         this.defaultSchema.add(new foreignKey("post", "", "posts", false)).setRequired(true)
-        this.defaultSchema.add(new foreignKey("parent", "", "comments"))
+        this.defaultSchema.add(new foreignKey("parent", "", "comments", true))
         this.defaultSchema.add(new html( "content", "", SchemaHtml.defaultTags.concat("img"), undefined, true));
         this.defaultSchema.add(new bool("public", true));
         this.defaultSchema.add(new date("createdOn")).setIndexable(true);
