@@ -35,7 +35,8 @@ class CommentsController extends controller_1.Controller {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/comments", [permission_controllers_1.isAdmin, this.getComments.bind(this)]);
-        router.get("/users/:user/comments/:id", [permission_controllers_1.hasId("id", "ID"), this.getComment.bind(this)]);
+        router.get("/comments/:id", [permission_controllers_1.hasId("id", "ID"), permission_controllers_1.getUser, this.getComment.bind(this)]);
+        router.get("/users/:user/comments", [permission_controllers_1.hasId("user", "user ID"), this.getComments.bind(this)]);
         router.delete("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId("id", "ID"), this.remove.bind(this)]);
         router.put("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId("id", "ID"), this.update.bind(this)]);
         router.post("/posts/:postId/comments/:parent?", [permission_controllers_1.canEdit, permission_controllers_1.hasId("postId", "parent ID"), permission_controllers_1.hasId("parent", "Parent ID", true), this.create.bind(this)]);
@@ -56,8 +57,9 @@ class CommentsController extends controller_1.Controller {
             var visibility = "public";
             var user = req._user;
             var findToken = { $or: [] };
-            if (req.query.author)
-                findToken.author = new RegExp(req.query.author, "i");
+            // Set the user property if its provided
+            if (req.query.user)
+                findToken.author = new RegExp(req.query.user, "i");
             // Check for keywords
             if (req.query.keyword)
                 findToken.$or.push({ content: new RegExp(req.query.keyword, "i") });
@@ -138,7 +140,7 @@ class CommentsController extends controller_1.Controller {
                 var isPublic = yield instances[0].schema.getByName("public").getValue();
                 // Only admins are allowed to see private comments
                 if (!isPublic && (!user || users.hasPermission(user, 2) == false))
-                    return Promise.reject(new Error("That comment is marked private"));
+                    throw new Error("That comment is marked private");
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
                     jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));

@@ -100,18 +100,33 @@ class Schema {
     /**
     * Checks the values stored in the items to see if they are correct
     * @param {boolean} checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-    * @returns {Promise<bool>} Returns true if successful
+    * @returns {Promise<Schema>} Returns true if successful
     */
     validate(checkForRequiredFields) {
         return __awaiter(this, void 0, Promise, function* () {
             var items = this._items;
-            var error = "";
             var promises = [];
             for (var i = 0, l = items.length; i < l; i++) {
                 if (checkForRequiredFields && !items[i].getModified() && items[i].getRequired())
                     throw new Error(`${items[i].name} is required`);
                 promises.push(items[i].validate());
             }
+            var validations = yield Promise.all(promises);
+            return this;
+        });
+    }
+    /**
+     * Called once a schema has been validated and inserted into the database. Useful for
+     * doing any post update/insert operations
+     * @param {ModelInstance<T>} instance The model instance that was inserted or updated
+     * @param {string} collection The DB collection that the model was inserted into
+     */
+    postValidation(instance, collection) {
+        return __awaiter(this, void 0, Promise, function* () {
+            var items = this._items;
+            var promises = [];
+            for (var i = 0, l = items.length; i < l; i++)
+                promises.push(items[i].postValidation(instance, collection));
             var validations = yield Promise.all(promises);
             return this;
         });

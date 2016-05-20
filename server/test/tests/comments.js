@@ -2,6 +2,8 @@ var test = require('unit.js');
 var header = require('./header.js').singleton();
 var numComments = 0;
 var lastPost = null;
+var comment = null;
+var comment2 = null;
 
 /**
  * Tests all comment related endpoints
@@ -92,7 +94,7 @@ describe('Testing all comment related endpoints', function() {
             .send( {
                 title: "Simple Test",
                 slug: "--simple--test--",
-                content: "Hello world"
+                content: "Hello world __filter__"
             })
             .end(function(err, res) {
                 test.string(res.body.data._id)
@@ -105,7 +107,7 @@ describe('Testing all comment related endpoints', function() {
         header.modepressAgent
             .post(`/api/posts/${lastPost._id}/comments`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
-            .send( { content: "Hello world! <script type='text/javascript'>alert(\"BOOO\")</script>" } )
+            .send( { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } )
             .end(function(err, res) {
                 if (err)
                     return done(err);
@@ -120,21 +122,147 @@ describe('Testing all comment related endpoints', function() {
         header.modepressAgent
             .post(`/api/posts/${lastPost._id}/comments`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
-            .send( { content: "Hello world!", public: false } )
+            .send( { content: "Hello world! __filter__", public: false } )
             .end(function(err, res) {
                 if (err)
                     return done(err);
 
-                lastComment = res.body.data;
+                comment = res.body.data;
                 test.string(res.body.message).is("New comment created")
                 test.string(res.body.data._id)
                 test.string(res.body.data.author)
                 test.value(res.body.data.parent).isNull()
                 test.string(res.body.data.post).is(lastPost._id)
-                test.string(res.body.data.content).is("Hello world!")
+                test.string(res.body.data.content).is("Hello world! __filter__")
                 test.bool(res.body.data.public).isFalse()
                 test.number(res.body.data.createdOn)
                 test.number(res.body.data.lastUpdated)
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Cannot get a comment with an invalid id', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/BADID`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+                test.string(res.body.message).is("Invalid ID format")
+                test.bool(res.body.error).isTrue()
+                done();
+            });
+    })
+
+    it('Cannot get a comment that does not exist', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/123456789012345678901234`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+                test.string(res.body.message).is("Could not find comment")
+                test.bool(res.body.error).isTrue()
+                done();
+            });
+    })
+
+    it('Can get a valid comment by ID', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/${comment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+                test.string(res.body.message).is("Found 1 comments")
+                test.string(res.body.data._id).is(comment._id)
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Cannot get a private comment without being logged in', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/${comment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+                test.string(res.body.message).is("That comment is marked private")
+                test.bool(res.body.error).isTrue()
+                done();
+            });
+    })
+
+    it('Can create a second public comment on the same post', function(done) {
+        header.modepressAgent
+            .post(`/api/posts/${lastPost._id}/comments`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .send( { content: "Hello world 2! __filter__", public: true } )
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                comment2 = res.body.data;
+                test.string(res.body.message).is("New comment created")
+                done();
+            });
+    })
+
+    it('Can get a public comment without being logged in', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/${comment2._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Found 1 comments")
+                test.string(res.body.data._id).is(comment2._id)
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Can get comments by user & there are more than 1', function(done) {
+        header.modepressAgent
+            .get(`/api/users/${header.uconfig.adminUser.username}/comments`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.number(res.body.count)
+                test.bool(res.body.count >= 2).isTrue()
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Can get comments by user & there should be 2 if we filter by keyword', function(done) {
+        header.modepressAgent
+            .get(`/api/users/${header.uconfig.adminUser.username}/comments?keyword=__filter__`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.number(res.body.count)
+                test.bool(res.body.count == 2).isTrue()
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Can get comments by user & should limit whats returned to 1', function(done) {
+        header.modepressAgent
+            .get(`/api/users/${header.uconfig.adminUser.username}/comments?keyword=__filter__&limit=1`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.number(res.body.count)
+                test.bool(res.body.count == 1).isTrue()
                 test.bool(res.body.error).isFalse()
                 done();
             });
@@ -184,7 +312,7 @@ describe('Testing all comment related endpoints', function() {
 
     it('Can delete an existing comment', function(done) {
         header.modepressAgent
-            .delete(`/api/users/${header.uconfig.adminUser.username}/comments/${lastComment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .delete(`/api/users/${header.uconfig.adminUser.username}/comments/${comment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 if (err)
@@ -192,6 +320,30 @@ describe('Testing all comment related endpoints', function() {
 
                 test.string(res.body.message).is("Comment has been successfully removed")
                 test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Can delete the temp post', function(done) {
+        header.modepressAgent
+            .delete('/api/posts/remove-post/' + lastPost._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                test.string(res.body.message).is("Post has been successfully removed")
+                done();
+            });
+    })
+
+    it('Cannot get the second comment as it should have been deleted when the post was', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/${comment2._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Could not find comment")
+                test.bool(res.body.error).isTrue()
                 done();
             });
     })
@@ -211,14 +363,6 @@ describe('Testing all comment related endpoints', function() {
             });
     })
 
-    it('Can delete the temp post', function(done) {
-        header.modepressAgent
-            .delete('/api/posts/remove-post/' + lastPost._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
-            .set('Cookie', header.adminCookie)
-            .end(function(err, res) {
-                test.string(res.body.message).is("Post has been successfully removed")
-                done();
-            });
-    })
+
 
 });

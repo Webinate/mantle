@@ -221,11 +221,9 @@ class Model {
                     foreignModel = Model.getByName(requiredDependencies[i].collection);
                     if (!foreignModel)
                         continue;
-                    var instances = yield foreignModel.findInstances({ _id: requiredDependencies[i]._id });
-                    for (var ii = 0, il = instances.length; ii < il; ii++)
-                        promises.push(this.deleteInstance(instances[ii]));
+                    promises.push(foreignModel.deleteInstances({ _id: requiredDependencies[i]._id }));
                 }
-            yield Promise.all(promises);
+            var dependenciesResults = yield Promise.all(promises);
             // Remove the original instance from the DB
             var deleteResult = yield this.collection.deleteMany({ _id: instance.dbEntry._id });
             return deleteResult.deletedCount;
@@ -286,6 +284,8 @@ class Model {
                     var json = instance.schema.serialize();
                     var collection = this.collection;
                     var updateResult = yield collection.updateOne({ _id: instance._id }, { $set: json });
+                    // Now that everything has been added, we can do some post insert/update validation
+                    yield instance.schema.postValidation(instance, this._collectionName);
                     toRet.tokens.push({ error: false, instance: instance });
                 }
                 catch (err) {
@@ -379,8 +379,15 @@ class Model {
             // Attempt to save the data to mongo collection
             var insertResult = yield collection.insertMany(documents);
             // Assign the ID's
-            for (var i = 0, l = insertResult.ops.length; i < l; i++)
+            for (var i = 0, l = insertResult.ops.length; i < l; i++) {
                 instances[i]._id = insertResult.ops[i]._id;
+                instances[i].dbEntry = insertResult.ops[i];
+            }
+            // Now that everything has been added, we can do some post insert/update validation
+            var postValidationPromises = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                postValidationPromises.push(instances[i].schema.postValidation(instances[i], this._collectionName));
+            yield Promise.all(postValidationPromises);
             return instances;
         });
     }

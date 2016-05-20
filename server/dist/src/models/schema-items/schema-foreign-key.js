@@ -48,30 +48,64 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
     validate() {
         return __awaiter(this, void 0, Promise, function* () {
             var transformedValue = this.value;
+            // If they key is required then it must exist
+            var model = model_1.Model.getByName(this.targetCollection);
+            if (!model)
+                throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
             if (typeof this.value == "string") {
                 if (utils_1.Utils.isValidObjectID(this.value))
                     transformedValue = this.value = new mongodb_1.ObjectID(this.value);
                 else if (this.value.trim() != "")
-                    return Promise.reject(new Error(`Please use a valid ID for '${this.name}'`));
+                    throw new Error(`Please use a valid ID for '${this.name}'`);
                 else
                     transformedValue = null;
             }
-            if (!transformedValue) {
+            if (!transformedValue)
                 this.value = null;
-                return Promise.resolve(true);
-            }
-            else if (!this.optionalKey) {
-                // If they key is required then it must exist
-                var model = model_1.Model.getByName(this.targetCollection);
-                if (model) {
-                    var result = yield model.findOne({ _id: this.value });
-                    if (!result)
-                        throw new Error(`${this.name} does not exist`);
-                }
-                else
-                    throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
-            }
+            if (!this.optionalKey && !this.value)
+                throw new Error(`${this.name} does not exist`);
+            // We can assume the value is object id by this point
+            var result = yield model.findOne({ _id: this.value });
+            if (!this.optionalKey && !result)
+                throw new Error(`${this.name} does not exist`);
+            this._targetDoc = result;
             return true;
+        });
+    }
+    /**
+    * Called once a schema has been validated and inserted into the database. Useful for
+    * doing any post update/insert operations
+    * @param {ModelInstance<T extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
+    * @param {string} collection The DB collection that the model was inserted into
+    */
+    postValidation(instance, collection) {
+        return __awaiter(this, void 0, Promise, function* () {
+            if (!this._targetDoc)
+                return;
+            // If they key is required then it must exist
+            var model = model_1.Model.getByName(this.targetCollection);
+            var optionalDeps = this._targetDoc.dbEntry._optionalDependencies;
+            var requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
+            // Now we need to register the schemas source with the target model
+            if (this.optionalKey) {
+                if (!optionalDeps)
+                    optionalDeps = [];
+                optionalDeps.push({ _id: instance.dbEntry._id, collection: collection, propertyName: this.name });
+            }
+            else {
+                if (!requiredDeps)
+                    requiredDeps = [];
+                requiredDeps.push({ _id: instance.dbEntry._id, collection: collection });
+            }
+            yield model.collection.updateOne({ _id: this._targetDoc.dbEntry._id }, {
+                $set: {
+                    _optionalDependencies: optionalDeps,
+                    _requiredDependencies: requiredDeps
+                }
+            });
+            // Nullify the target doc cache
+            this._targetDoc = null;
+            return;
         });
     }
     /**
