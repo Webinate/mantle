@@ -10,6 +10,8 @@ var comment2 = null;
  */
 describe('Testing all comment related endpoints', function() {
 
+    this.timeout(20000);
+
     it('Fetched all comments', function(done){
         header.modepressAgent
             .get('/api/comments').expect(200).expect('Content-Type', /json/)
