@@ -106,7 +106,7 @@ class CommentsController extends controller_1.Controller {
                 var instances = yield comments.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit));
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose), expandForeignKeys: Boolean(req.query.expanded) }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,
@@ -143,7 +143,7 @@ class CommentsController extends controller_1.Controller {
                     throw new Error("That comment is marked private");
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose) }));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose), expandForeignKeys: Boolean(req.query.expanded) }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,

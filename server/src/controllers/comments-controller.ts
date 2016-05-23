@@ -126,7 +126,7 @@ export default class CommentsController extends Controller
 
             var jsons : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose) } ));
+                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose), expandForeignKeys: Boolean(req.query.expanded) } ));
 
             var sanitizedData = await Promise.all(jsons);
 
@@ -170,7 +170,7 @@ export default class CommentsController extends Controller
 
             var jsons : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose) }));
+                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose), expandForeignKeys: Boolean(req.query.expanded) }));
 
             var sanitizedData = await Promise.all(jsons);
 
