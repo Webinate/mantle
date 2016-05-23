@@ -144,6 +144,9 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             var model = Model.getByName(this.targetCollection);
             if (model)
             {
+                if (!this.value)
+                    return null;
+
                 var result = await model.findOne<Modepress.IModelEntry>( { _id : <ObjectID>this.value } );
                 return await result.schema.getAsJson<Modepress.IModelEntry>( result.dbEntry._id, options);
             }

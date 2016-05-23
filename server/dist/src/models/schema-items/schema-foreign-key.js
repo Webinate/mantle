@@ -120,6 +120,8 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
             else {
                 var model = model_1.Model.getByName(this.targetCollection);
                 if (model) {
+                    if (!this.value)
+                        return null;
                     var result = yield model.findOne({ _id: this.value });
                     return yield result.schema.getAsJson(result.dbEntry._id, options);
                 }
