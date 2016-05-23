@@ -14,6 +14,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 {
     public targetCollection : string;
     public optionalKey : boolean;
+    public curLevel: number;
 
     private _targetDoc : ModelInstance<Modepress.IModelEntry>;
 
@@ -29,6 +30,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         super(name, val);
         this.targetCollection = targetCollection;
         this.optionalKey = optionalKey;
+        this.curLevel = 1;
     }
 
 	/**
@@ -147,8 +149,26 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
                 if (!this.value)
                     return null;
 
+                // Make sure the current level is not beyond the max depth
+                if (options.expandMaxDepth !== undefined)
+                {
+                    if ( this.curLevel > options.expandMaxDepth )
+                        return this.value;
+                }
+                else
+                    options.expandMaxDepth = 1;
+
                 var result = await model.findOne<Modepress.IModelEntry>( { _id : <ObjectID>this.value } );
-                return await result.schema.getAsJson<Modepress.IModelEntry>( result.dbEntry._id, options);
+
+                // Get the models items are increase their level - this ensures we dont go too deep
+                var items = result.schema.getItems();
+                var nextLevel = this.curLevel + 1;
+
+                for (var i = 0, l = items.length; i < l; i++)
+                    if ( items[i] instanceof SchemaForeignKey )
+                        (<SchemaForeignKey>items[i]).curLevel = nextLevel;
+
+                return await result.schema.getAsJson<Modepress.IModelEntry>( result.dbEntry._id, options );
             }
             else
                 throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);

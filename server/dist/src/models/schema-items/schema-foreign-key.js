@@ -29,6 +29,7 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
         super(name, val);
         this.targetCollection = targetCollection;
         this.optionalKey = optionalKey;
+        this.curLevel = 1;
     }
     /**
     * Creates a clone of this item
@@ -122,7 +123,20 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
                 if (model) {
                     if (!this.value)
                         return null;
+                    // Make sure the current level is not beyond the max depth
+                    if (options.expandMaxDepth !== undefined) {
+                        if (this.curLevel > options.expandMaxDepth)
+                            return this.value;
+                    }
+                    else
+                        options.expandMaxDepth = 1;
                     var result = yield model.findOne({ _id: this.value });
+                    // Get the models items are increase their level - this ensures we dont go too deep
+                    var items = result.schema.getItems();
+                    var nextLevel = this.curLevel + 1;
+                    for (var i = 0, l = items.length; i < l; i++)
+                        if (items[i] instanceof SchemaForeignKey)
+                            items[i].curLevel = nextLevel;
                     return yield result.schema.getAsJson(result.dbEntry._id, options);
                 }
                 else
