@@ -249,6 +249,7 @@ describe('Testing all comment related endpoints', function() {
                     return done(err);
 
                 test.number(res.body.count)
+                test.array(res.body.data).hasLength(2)
                 test.bool(res.body.count == 2).isTrue()
                 test.bool(res.body.error).isFalse()
                 done();
@@ -264,7 +265,8 @@ describe('Testing all comment related endpoints', function() {
                     return done(err);
 
                 test.number(res.body.count)
-                test.bool(res.body.count == 1).isTrue()
+                test.array(res.body.data).hasLength(1)
+                test.bool(res.body.count == 2).isTrue() // Count is still 2 as
                 test.bool(res.body.error).isFalse()
                 done();
             });
