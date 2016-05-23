@@ -69,6 +69,31 @@ function hasId(idName, rejectName, optional = false) {
 }
 exports.hasId = hasId;
 /**
+* Checks for if a user with the username or email of the queryName exists. Throws an error if they don't
+* @param {string} queryName The name of the ID to check for
+* @param {string} rejectName The textual name of the ID when its rejected
+*/
+function userExists(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            var users = users_service_1.UsersService.getSingleton();
+            var user = yield users.getUser(req.params.user, req);
+            // Make sure the id format is correct
+            if (!user)
+                throw new Error("User does not exist");
+            next();
+        }
+        catch (err) {
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify({
+                error: true,
+                message: err.message
+            }));
+        }
+    });
+}
+exports.userExists = userExists;
+/**
 * This funciton checks the logged in user is an admin. If not an admin it returns an error,
 * if true it passes the scope onto the next function in the queue
 * @param {express.Request} req

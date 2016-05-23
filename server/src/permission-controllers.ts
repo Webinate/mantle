@@ -80,6 +80,33 @@ export function hasId( idName : string, rejectName : string, optional: boolean =
 }
 
 /**
+* Checks for if a user with the username or email of the queryName exists. Throws an error if they don't
+* @param {string} queryName The name of the ID to check for
+* @param {string} rejectName The textual name of the ID when its rejected
+*/
+export async function userExists( req: express.Request, res: express.Response, next: Function )
+{
+    try
+    {
+        var users = UsersService.getSingleton();
+        var user = await users.getUser( req.params.user, req )
+
+        // Make sure the id format is correct
+        if ( !user )
+            throw new Error("User does not exist");
+        next()
+    }
+    catch(err)
+    {
+        res.setHeader( 'Content-Type', 'application/json');
+        return res.end(JSON.stringify(<IResponse>{
+            error: true,
+            message: err.message
+        }));
+    }
+}
+
+/**
 * This funciton checks the logged in user is an admin. If not an admin it returns an error,
 * if true it passes the scope onto the next function in the queue
 * @param {express.Request} req
