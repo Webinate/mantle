@@ -36,6 +36,7 @@ class CommentsController extends controller_1.Controller {
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/comments", [permission_controllers_1.isAdmin, this.getComments.bind(this)]);
         router.get("/comments/:id", [permission_controllers_1.hasId("id", "ID"), permission_controllers_1.getUser, this.getComment.bind(this)]);
+        router.get("/nested-comments/:parentId", [permission_controllers_1.hasId("parentId", "parent ID"), permission_controllers_1.getUser, this.getComments.bind(this)]);
         router.get("/users/:user/comments", [permission_controllers_1.userExists, permission_controllers_1.getUser, this.getComments.bind(this)]);
         router.delete("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId("id", "ID"), this.remove.bind(this)]);
         router.put("/users/:user/comments/:id", [permission_controllers_1.canEdit, permission_controllers_1.hasId("id", "ID"), this.update.bind(this)]);
@@ -57,6 +58,9 @@ class CommentsController extends controller_1.Controller {
             var visibility = "public";
             var user = req._user;
             var findToken = { $or: [] };
+            // Set the parent filter
+            if (req.query.parentId)
+                findToken.parent = req.query.parentId;
             // Set the user property if its provided
             if (req.query.user)
                 findToken.author = new RegExp(req.query.user, "i");

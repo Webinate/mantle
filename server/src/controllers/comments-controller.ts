@@ -36,6 +36,7 @@ export default class CommentsController extends Controller
 
         router.get("/comments", <any>[isAdmin, this.getComments.bind(this)]);
         router.get("/comments/:id", <any>[hasId("id", "ID"), getUser, this.getComment.bind(this)]);
+        router.get("/nested-comments/:parentId", <any>[hasId("parentId", "parent ID"), getUser, this.getComments.bind(this)]);
         router.get("/users/:user/comments", <any>[userExists, getUser, this.getComments.bind(this)]);
         router.delete("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.remove.bind(this)]);
         router.put("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.update.bind(this)]);
@@ -59,6 +60,10 @@ export default class CommentsController extends Controller
         var visibility = "public";
         var user = req._user;
         var findToken = { $or : [] };
+
+        // Set the parent filter
+        if (req.query.parentId)
+            (<mp.IComment>findToken).parent = req.query.parentId;
 
         // Set the user property if its provided
         if (req.query.user)
