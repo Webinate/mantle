@@ -272,6 +272,71 @@ describe('Testing all comment related endpoints', function() {
             });
     })
 
+    it('Can get comments by user & should limit whats returned to 1 if not admin', function(done) {
+        header.modepressAgent
+            .get(`/api/users/${header.uconfig.adminUser.username}/comments?keyword=__filter__`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.number(res.body.count)
+                test.array(res.body.data).hasLength(1)
+                test.bool(res.body.count == 1).isTrue() // Count is still 2 as
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Can create a third public comment on the same post, with a parent comment', function(done) {
+        header.modepressAgent
+            .post(`/api/posts/${lastPost._id}/comments/${comment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .send( { content: "Hello world 3! __filter__", public: true } )
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                comment3 = res.body.data;
+                test.string(res.body.message).is("New comment created")
+                done();
+            });
+    })
+
+    it('Can get a comment with parent & post, and both properties are ids', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/${comment3._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Found 1 comments")
+                test.string(res.body.data._id).is(comment3._id)
+                test.string(res.body.data.parent).is(comment._id)
+                test.string(res.body.data.post).is(lastPost._id)
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Can get a comment with parent & post, and both properties are the respective objects', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/${comment3._id}?expanded=true`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Found 1 comments")
+                test.string(res.body.data._id).is(comment3._id)
+                test.string(res.body.data.parent._id).is(comment._id)
+                test.string(res.body.data.parent.post).is(lastPost._id)
+                test.string(res.body.data.post._id).is(lastPost._id)
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
     it('cannot delete a comment with a bad id', function(done){
         header.modepressAgent
             .delete(`/api/users/${header.uconfig.adminUser.username}/comments/abc`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
