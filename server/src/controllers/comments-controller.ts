@@ -7,7 +7,7 @@ import {Controller} from "./controller";
 import {Model} from "../models/model";
 import {CommentsModel} from "../models/comments-model";
 import {UsersService} from "../users-service";
-import {getUser, isAdmin, canEdit, hasId} from "../permission-controllers";
+import {getUser, isAdmin, canEdit, hasId, userExists} from "../permission-controllers";
 import * as mp from "modepress-api";
 import * as winston from "winston";
 import {okJson, errJson} from "../serializers";
@@ -36,7 +36,7 @@ export default class CommentsController extends Controller
 
         router.get("/comments", <any>[isAdmin, this.getComments.bind(this)]);
         router.get("/comments/:id", <any>[hasId("id", "ID"), getUser, this.getComment.bind(this)]);
-        router.get("/users/:user/comments", <any>[hasId("user", "user ID"), this.getComments.bind(this)]);
+        router.get("/users/:user/comments", <any>[userExists, getUser, this.getComments.bind(this)]);
         router.delete("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.remove.bind(this)]);
         router.put("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.update.bind(this)]);
         router.post("/posts/:postId/comments/:parent?", <any>[canEdit, hasId("postId", "parent ID"), hasId("parent", "Parent ID", true), this.create.bind(this)]);
