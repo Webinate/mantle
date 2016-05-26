@@ -110,7 +110,12 @@ class CommentsController extends controller_1.Controller {
                 var instances = yield comments.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit));
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose), expandForeignKeys: Boolean(req.query.expanded) }));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, {
+                        verbose: Boolean(req.query.verbose),
+                        expandForeignKeys: Boolean(req.query.expanded),
+                        expandMaxDepth: parseInt(req.query.depth || 1),
+                        expandSchemaBlacklist: ["parent"]
+                    }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,
@@ -147,7 +152,12 @@ class CommentsController extends controller_1.Controller {
                     throw new Error("That comment is marked private");
                 var jsons = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, { verbose: Boolean(req.query.verbose), expandForeignKeys: Boolean(req.query.expanded) }));
+                    jsons.push(instances[i].schema.getAsJson(instances[i]._id, {
+                        verbose: Boolean(req.query.verbose),
+                        expandForeignKeys: Boolean(req.query.expanded),
+                        expandMaxDepth: parseInt(req.query.depth || 1),
+                        expandSchemaBlacklist: ["parent"]
+                    }));
                 var sanitizedData = yield Promise.all(jsons);
                 serializers_1.okJson({
                     error: false,
@@ -168,21 +178,26 @@ class CommentsController extends controller_1.Controller {
     * @param {Function} next
     */
     remove(req, res, next) {
-        var comments = this.getModel("comments");
-        var findToken = {
-            _id: new mongodb.ObjectID(req.params.id),
-            author: req._user.username
-        };
-        // Attempt to delete the instances
-        comments.deleteInstances(findToken).then(function (numRemoved) {
-            if (numRemoved == 0)
-                return Promise.reject(new Error("Could not find a comment with that ID"));
-            serializers_1.okJson({
-                error: false,
-                message: "Comment has been successfully removed"
-            }, res);
-        }).catch(function (err) {
-            serializers_1.errJson(err, res);
+        return __awaiter(this, void 0, void 0, function* () {
+            var comments = this.getModel("comments");
+            var findToken = {
+                _id: new mongodb.ObjectID(req.params.id),
+                author: req._user.username
+            };
+            try {
+                // Attempt to delete the instances
+                var numRemoved = yield comments.deleteInstances(findToken);
+                if (numRemoved == 0)
+                    throw new Error("Could not find a comment with that ID");
+                serializers_1.okJson({
+                    error: false,
+                    message: "Comment has been successfully removed"
+                }, res);
+            }
+            catch (err) {
+                serializers_1.errJson(err, res);
+            }
+            ;
         });
     }
     /**
@@ -192,23 +207,28 @@ class CommentsController extends controller_1.Controller {
     * @param {Function} next
     */
     update(req, res, next) {
-        var token = req.body;
-        var comments = this.getModel("comments");
-        var findToken = {
-            _id: new mongodb.ObjectID(req.params.id),
-            author: req._user.username
-        };
-        comments.update(findToken, token).then(function (instance) {
-            if (instance.error)
-                return Promise.reject(new Error(instance.tokens[0].error));
-            if (instance.tokens.length == 0)
-                return Promise.reject(new Error("Could not find comment with that id"));
-            serializers_1.okJson({
-                error: false,
-                message: "Comment Updated"
-            }, res);
-        }).catch(function (err) {
-            serializers_1.errJson(err, res);
+        return __awaiter(this, void 0, void 0, function* () {
+            var token = req.body;
+            var comments = this.getModel("comments");
+            var findToken = {
+                _id: new mongodb.ObjectID(req.params.id),
+                author: req._user.username
+            };
+            try {
+                var instance = yield comments.update(findToken, token);
+                if (instance.error)
+                    throw new Error(instance.tokens[0].error);
+                if (instance.tokens.length == 0)
+                    throw new Error("Could not find comment with that id");
+                serializers_1.okJson({
+                    error: false,
+                    message: "Comment Updated"
+                }, res);
+            }
+            catch (err) {
+                serializers_1.errJson(err, res);
+            }
+            ;
         });
     }
     /**
@@ -218,22 +238,38 @@ class CommentsController extends controller_1.Controller {
     * @param {Function} next
     */
     create(req, res, next) {
-        var token = req.body;
-        var comments = this.getModel("comments");
-        // User is passed from the authentication function
-        token.author = req._user.username;
-        token.post = req.params.postId;
-        token.parent = req.params.parent;
-        comments.createInstance(token).then(function (instance) {
-            return instance.schema.getAsJson(instance._id, { verbose: true });
-        }).then(function (json) {
-            serializers_1.okJson({
-                error: false,
-                message: "New comment created",
-                data: json
-            }, res);
-        }).catch(function (err) {
-            serializers_1.errJson(err, res);
+        return __awaiter(this, void 0, void 0, function* () {
+            var token = req.body;
+            var comments = this.getModel("comments");
+            // User is passed from the authentication function
+            token.author = req._user.username;
+            token.post = req.params.postId;
+            token.parent = req.params.parent;
+            var parent;
+            try {
+                if (token.parent) {
+                    parent = yield comments.findOne({ _id: new mongodb.ObjectID(token.parent) });
+                    if (!parent)
+                        throw new Error(`No comment exists with the id ${token.parent}`);
+                }
+                var instance = yield comments.createInstance(token);
+                var json = yield instance.schema.getAsJson(instance._id, { verbose: true });
+                // Assign this comment as a child to its parent comment if it exists
+                if (parent) {
+                    var children = parent.schema.getByName("children").value;
+                    children.push(instance.dbEntry._id);
+                    yield parent.model.update({ _id: parent.dbEntry._id }, { children: children });
+                }
+                serializers_1.okJson({
+                    error: false,
+                    message: "New comment created",
+                    data: json
+                }, res);
+            }
+            catch (err) {
+                serializers_1.errJson(err, res);
+            }
+            ;
         });
     }
 }

@@ -4,7 +4,7 @@ import * as entities from "entities";
 import * as express from "express";
 import * as compression from "compression";
 import {Controller} from "./controller";
-import {Model} from "../models/model";
+import {Model, ModelInstance} from "../models/model";
 import {CommentsModel} from "../models/comments-model";
 import {UsersService} from "../users-service";
 import {getUser, isAdmin, canEdit, hasId, userExists} from "../permission-controllers";
@@ -131,7 +131,12 @@ export default class CommentsController extends Controller
 
             var jsons : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose), expandForeignKeys: Boolean(req.query.expanded) } ));
+                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, {
+                    verbose : Boolean(req.query.verbose),
+                    expandForeignKeys: Boolean(req.query.expanded),
+                    expandMaxDepth : parseInt(req.query.depth || 1),
+                    expandSchemaBlacklist: ["parent"]
+                } ));
 
             var sanitizedData = await Promise.all(jsons);
 
@@ -175,7 +180,12 @@ export default class CommentsController extends Controller
 
             var jsons : Array<Promise<mp.IComment>> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, { verbose : Boolean(req.query.verbose), expandForeignKeys: Boolean(req.query.expanded) }));
+                jsons.push(instances[i].schema.getAsJson<mp.IComment>(instances[i]._id, {
+                    verbose : Boolean(req.query.verbose),
+                    expandForeignKeys: Boolean(req.query.expanded),
+                    expandMaxDepth : parseInt(req.query.depth || 1),
+                    expandSchemaBlacklist: ["parent"]
+            }));
 
             var sanitizedData = await Promise.all(jsons);
 
@@ -196,7 +206,7 @@ export default class CommentsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private remove(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async remove(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var comments = this.getModel("comments");
         var findToken : mp.IComment = {
@@ -204,21 +214,22 @@ export default class CommentsController extends Controller
             author: req._user.username
         }
 
-        // Attempt to delete the instances
-        comments.deleteInstances(findToken).then(function (numRemoved)
+        try
         {
+            // Attempt to delete the instances
+            var numRemoved = await comments.deleteInstances(findToken);
+
             if (numRemoved == 0)
-                return Promise.reject(new Error("Could not find a comment with that ID"));
+                throw new Error("Could not find a comment with that ID");
 
             okJson<mp.IResponse>( {
                 error: false,
                 message: "Comment has been successfully removed"
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -227,7 +238,7 @@ export default class CommentsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private update(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async update(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var token: mp.IComment = req.body;
         var comments = this.getModel("comments");
@@ -236,23 +247,24 @@ export default class CommentsController extends Controller
             author: req._user.username
         }
 
-        comments.update(findToken, token).then(function (instance)
+        try
         {
+            var instance = await comments.update(findToken, token);
+
             if (instance.error)
-                return Promise.reject(new Error(<string>instance.tokens[0].error));
+                throw new Error(<string>instance.tokens[0].error);
 
             if ( instance.tokens.length == 0 )
-                return Promise.reject(new Error("Could not find comment with that id"));
+                throw new Error("Could not find comment with that id");
 
             okJson<mp.IResponse>( {
                 error: false,
                 message: "Comment Updated"
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
            errJson(err, res);
-        });
+        };
     }
 
     /**
@@ -261,7 +273,7 @@ export default class CommentsController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private create(req: mp.IAuthReq, res: express.Response, next: Function)
+    private async create(req: mp.IAuthReq, res: express.Response, next: Function)
     {
         var token: mp.IComment = req.body;
         var comments = this.getModel("comments");
@@ -270,12 +282,28 @@ export default class CommentsController extends Controller
         token.author = req._user.username;
         token.post = req.params.postId;
         token.parent = req.params.parent;
+        var parent : ModelInstance<mp.IComment>;
 
-        comments.createInstance(token).then(function (instance)
+        try
         {
-            return instance.schema.getAsJson(instance._id, { verbose: true });
+            if (token.parent)
+            {
+                parent = await comments.findOne<mp.IComment>( <mp.IModelEntry>{ _id : new mongodb.ObjectID(token.parent) } );
+                if ( !parent )
+                    throw new Error(`No comment exists with the id ${token.parent}`);
+            }
 
-        }).then(function( json ) {
+            var instance = await comments.createInstance(token);
+            var json = await instance.schema.getAsJson(instance._id, { verbose: true });
+
+
+            // Assign this comment as a child to its parent comment if it exists
+            if (parent)
+            {
+                var children : Array<string> = parent.schema.getByName("children").value;
+                children.push(instance.dbEntry._id);
+                await parent.model.update<mp.IComment>( <mp.IComment>{ _id : parent.dbEntry._id }, { children : children } )
+            }
 
             okJson<mp.IGetComment>( {
                 error: false,
@@ -283,9 +311,8 @@ export default class CommentsController extends Controller
                 data: json
             }, res);
 
-        }).catch(function (err: Error)
-        {
+        } catch ( err ) {
             errJson(err, res);
-        });
+        };
     }
 }
