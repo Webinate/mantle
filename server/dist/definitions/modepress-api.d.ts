@@ -8,6 +8,7 @@ declare module Modepress
         _id?: any;
         _requiredDependencies?: Array<{ collection: string, _id : any }>
         _optionalDependencies?: Array<{ collection: string, propertyName: string, _id : any }>
+        _arrayDependencies?: Array<{ collection: string, propertyName: string, _id : any }>
     }
 
     /**
@@ -34,6 +35,11 @@ declare module Modepress
          * Only read if expandForeignKeys is true.
          */
         expandMaxDepth? : number;
+
+        /**
+         * Defines an array of schema names that must not be expanded when expandForeignKeys is true.
+         */
+        expandSchemaBlacklist?: Array<string>;
     }
 
     /*
@@ -64,6 +70,7 @@ declare module Modepress
         parent?: string;
         public?: boolean;
         content?: string;
+        children?: Array<string>;
         createdOn?: number;
         lastUpdated?: number;
     }
