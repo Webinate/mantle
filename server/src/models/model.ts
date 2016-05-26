@@ -261,6 +261,8 @@ export abstract class Model
         var foreignModel : Model;
         var optionalDependencies = instance.dbEntry._optionalDependencies;
         var requiredDependencies = instance.dbEntry._requiredDependencies;
+        var arrayDependencies = instance.dbEntry._arrayDependencies;
+
         var promises : Array<Promise<any>> = [];
 
         // Nullify all dependencies that are optional
@@ -271,9 +273,22 @@ export abstract class Model
                 if (!foreignModel)
                     continue;
 
-                var setToken = { $set : {} };
+                let setToken = { $set : {} };
                 setToken.$set[optionalDependencies[i].propertyName] = null;
                 promises.push( foreignModel.collection.updateOne( <IModelEntry>{ _id : optionalDependencies[i]._id }, setToken ) );
+            }
+
+        // Remove any dependencies that are in arrays
+        if (arrayDependencies)
+            for ( var i = 0, l = arrayDependencies.length; i < l; i++ )
+            {
+                foreignModel = Model.getByName( arrayDependencies[i].collection );
+                if (!foreignModel)
+                    continue;
+
+                let pullToken = { $pull : {} };
+                pullToken.$pull[arrayDependencies[i].propertyName] = instance._id;
+                promises.push( foreignModel.collection.updateMany( <IModelEntry>{ _id : arrayDependencies[i]._id }, pullToken ) );
             }
 
         // For those dependencies that are required, we delete the instances
@@ -286,6 +301,8 @@ export abstract class Model
 
                 promises.push( foreignModel.deleteInstances( <IModelEntry>{ _id : requiredDependencies[i]._id } ) );
             }
+
+
 
         var dependenciesResults = await Promise.all(promises);
 

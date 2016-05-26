@@ -11,6 +11,7 @@ const schema_item_1 = require("./schema-item");
 const model_1 = require("../model");
 const mongodb_1 = require("mongodb");
 const utils_1 = require("../../utils");
+const schema_id_array_1 = require("./schema-id-array");
 /**
  * Represents a mongodb ObjectID of a document in separate collection.
  * Foreign keys are used as a way of relating models to one another. They can be required or optional.
@@ -116,32 +117,30 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
     */
     getValue(options) {
         return __awaiter(this, void 0, Promise, function* () {
+            if (options.expandForeignKeys && options.expandMaxDepth === undefined)
+                throw new Error("You cannot set expandForeignKeys and not specify the expandMaxDepth");
             if (!options.expandForeignKeys)
                 return this.value;
-            else {
-                var model = model_1.Model.getByName(this.targetCollection);
-                if (model) {
-                    if (!this.value)
-                        return null;
-                    // Make sure the current level is not beyond the max depth
-                    if (options.expandMaxDepth !== undefined) {
-                        if (this.curLevel > options.expandMaxDepth)
-                            return this.value;
-                    }
-                    else
-                        options.expandMaxDepth = 1;
-                    var result = yield model.findOne({ _id: this.value });
-                    // Get the models items are increase their level - this ensures we dont go too deep
-                    var items = result.schema.getItems();
-                    var nextLevel = this.curLevel + 1;
-                    for (var i = 0, l = items.length; i < l; i++)
-                        if (items[i] instanceof SchemaForeignKey)
-                            items[i].curLevel = nextLevel;
-                    return yield result.schema.getAsJson(result.dbEntry._id, options);
-                }
-                else
-                    throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
+            if (options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf(this.name) != -1)
+                return this.value;
+            var model = model_1.Model.getByName(this.targetCollection);
+            if (!model)
+                throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
+            if (!this.value)
+                return null;
+            // Make sure the current level is not beyond the max depth
+            if (options.expandMaxDepth !== undefined) {
+                if (this.curLevel > options.expandMaxDepth)
+                    return this.value;
             }
+            var result = yield model.findOne({ _id: this.value });
+            // Get the models items are increase their level - this ensures we dont go too deep
+            var items = result.schema.getItems();
+            var nextLevel = this.curLevel + 1;
+            for (var i = 0, l = items.length; i < l; i++)
+                if (items[i] instanceof SchemaForeignKey || items[i] instanceof schema_id_array_1.SchemaIdArray)
+                    items[i].curLevel = nextLevel;
+            return yield result.schema.getAsJson(result.dbEntry._id, options);
         });
     }
 }

@@ -204,6 +204,7 @@ class Model {
             var foreignModel;
             var optionalDependencies = instance.dbEntry._optionalDependencies;
             var requiredDependencies = instance.dbEntry._requiredDependencies;
+            var arrayDependencies = instance.dbEntry._arrayDependencies;
             var promises = [];
             // Nullify all dependencies that are optional
             if (optionalDependencies)
@@ -211,9 +212,19 @@ class Model {
                     foreignModel = Model.getByName(optionalDependencies[i].collection);
                     if (!foreignModel)
                         continue;
-                    var setToken = { $set: {} };
+                    let setToken = { $set: {} };
                     setToken.$set[optionalDependencies[i].propertyName] = null;
                     promises.push(foreignModel.collection.updateOne({ _id: optionalDependencies[i]._id }, setToken));
+                }
+            // Remove any dependencies that are in arrays
+            if (arrayDependencies)
+                for (var i = 0, l = arrayDependencies.length; i < l; i++) {
+                    foreignModel = Model.getByName(arrayDependencies[i].collection);
+                    if (!foreignModel)
+                        continue;
+                    let pullToken = { $pull: {} };
+                    pullToken.$pull[arrayDependencies[i].propertyName] = instance._id;
+                    promises.push(foreignModel.collection.updateMany({ _id: arrayDependencies[i]._id }, pullToken));
                 }
             // For those dependencies that are required, we delete the instances
             if (requiredDependencies)
