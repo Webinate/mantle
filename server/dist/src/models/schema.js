@@ -116,17 +116,32 @@ class Schema {
         });
     }
     /**
-     * Called once a schema has been validated and inserted into the database. Useful for
+     * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
      * doing any post update/insert operations
      * @param {ModelInstance<T>} instance The model instance that was inserted or updated
      * @param {string} collection The DB collection that the model was inserted into
      */
-    postValidation(instance, collection) {
+    postUpsert(instance, collection) {
         return __awaiter(this, void 0, Promise, function* () {
             var items = this._items;
             var promises = [];
             for (var i = 0, l = items.length; i < l; i++)
-                promises.push(items[i].postValidation(instance, collection));
+                promises.push(items[i].postUpsert(instance, collection));
+            var validations = yield Promise.all(promises);
+            return this;
+        });
+    }
+    /**
+     * Called after a model instance is deleted. Useful for any schema item cleanups.
+     * @param {ModelInstance<T>} instance The model instance that was deleted
+     * @param {string} collection The DB collection that the model was deleted from
+     */
+    postDelete(instance, collection) {
+        return __awaiter(this, void 0, Promise, function* () {
+            var items = this._items;
+            var promises = [];
+            for (var i = 0, l = items.length; i < l; i++)
+                promises.push(items[i].postUpsert(instance, collection));
             var validations = yield Promise.all(promises);
             return this;
         });

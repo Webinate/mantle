@@ -120,12 +120,22 @@ class SchemaItem {
         return Promise.resolve(true);
     }
     /**
-     * Called once a schema has been validated and inserted into the database. Useful for
+     * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
      * doing any post update/insert operations
      * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
      * @param {string} collection The DB collection that the model was inserted into
      */
-    postValidation(instance, collection) {
+    postUpsert(instance, collection) {
+        return __awaiter(this, void 0, Promise, function* () {
+            return Promise.resolve();
+        });
+    }
+    /**
+    * Called after a model instance is deleted. Useful for any schema item cleanups.
+    * @param {ModelInstance<T>} instance The model instance that was deleted
+    * @param {string} collection The DB collection that the model was deleted from
+    */
+    postDelete(instance, collection) {
         return __awaiter(this, void 0, Promise, function* () {
             return Promise.resolve();
         });

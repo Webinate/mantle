@@ -302,7 +302,8 @@ export abstract class Model
                 promises.push( foreignModel.deleteInstances( <IModelEntry>{ _id : requiredDependencies[i]._id } ) );
             }
 
-
+        // Added the schema item post deletion promises
+        promises.push(instance.schema.postDelete(instance, this._collectionName));
 
         var dependenciesResults = await Promise.all(promises);
 
@@ -384,7 +385,7 @@ export abstract class Model
                 var updateResult = await collection.updateOne({ _id: (<IModelEntry>instance)._id }, { $set: json });
 
                 // Now that everything has been added, we can do some post insert/update validation
-                await instance.schema.postValidation<T>( instance, this._collectionName );
+                await instance.schema.postUpsert<T>( instance, this._collectionName );
 
                 toRet.tokens.push({ error: false, instance: instance });
 
@@ -506,7 +507,7 @@ export abstract class Model
         // Now that everything has been added, we can do some post insert/update validation
         var postValidationPromises : Array<Promise<Schema>> = [];
         for (var i = 0, l = instances.length; i < l; i++)
-            postValidationPromises.push( instances[i].schema.postValidation<T>(instances[i], this._collectionName ) );
+            postValidationPromises.push( instances[i].schema.postUpsert<T>(instances[i], this._collectionName ) );
 
         await Promise.all<Schema>(postValidationPromises);
 

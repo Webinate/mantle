@@ -234,6 +234,8 @@ class Model {
                         continue;
                     promises.push(foreignModel.deleteInstances({ _id: requiredDependencies[i]._id }));
                 }
+            // Added the schema item post deletion promises
+            promises.push(instance.schema.postDelete(instance, this._collectionName));
             var dependenciesResults = yield Promise.all(promises);
             // Remove the original instance from the DB
             var deleteResult = yield this.collection.deleteMany({ _id: instance.dbEntry._id });
@@ -296,7 +298,7 @@ class Model {
                     var collection = this.collection;
                     var updateResult = yield collection.updateOne({ _id: instance._id }, { $set: json });
                     // Now that everything has been added, we can do some post insert/update validation
-                    yield instance.schema.postValidation(instance, this._collectionName);
+                    yield instance.schema.postUpsert(instance, this._collectionName);
                     toRet.tokens.push({ error: false, instance: instance });
                 }
                 catch (err) {
@@ -397,7 +399,7 @@ class Model {
             // Now that everything has been added, we can do some post insert/update validation
             var postValidationPromises = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                postValidationPromises.push(instances[i].schema.postValidation(instances[i], this._collectionName));
+                postValidationPromises.push(instances[i].schema.postUpsert(instances[i], this._collectionName));
             yield Promise.all(postValidationPromises);
             return instances;
         });

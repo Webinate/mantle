@@ -107,12 +107,12 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
     }
 
     /**
-	 * Called once a schema has been validated and inserted into the database. Useful for
+	 * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
      * doing any post update/insert operations
-     * @param {ModelInstance<T extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
+     * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
      * @param {string} collection The DB collection that the model was inserted into
 	 */
-	public async postValidation<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>
+	public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>
 	{
         if (!this._targetDocs)
             return;

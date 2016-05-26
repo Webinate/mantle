@@ -421,6 +421,21 @@
         public getValue(options? : ISchemaOptions ): T | Promise<T>;
 
         /**
+         * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+         * doing any post update/insert operations
+         * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
+         * @param {string} collection The DB collection that the model was inserted into
+         */
+        public postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>;
+
+        /**
+         * Called after a model instance is deleted. Useful for any schema item cleanups.
+         * @param {ModelInstance<T>} instance The model instance that was deleted
+         * @param {string} collection The DB collection that the model was deleted from
+         */
+        public postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<Schema>;
+
+        /**
         * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
         * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
         * a given project. In this case the project item is set as a uniqueIndexer
