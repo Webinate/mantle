@@ -76,7 +76,7 @@ describe('Testing all comment related endpoints', function() {
 
     it('Cannot create a comment without a post that actually exists', function(done) {
         header.modepressAgent
-            .post('/api/posts/123456789012345678901234/comments/123456789012345678901234').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts/123456789012345678901234/comments').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( {  } )
             .end(function(err, res) {
@@ -84,6 +84,21 @@ describe('Testing all comment related endpoints', function() {
                     return done(err);
 
                 test.string(res.body.message).is("post does not exist")
+                test.bool(res.body.error).isTrue()
+                done();
+            });
+    })
+
+    it('Cannot create a comment without a post that actually exists', function(done) {
+        header.modepressAgent
+            .post('/api/posts/123456789012345678901234/comments/123456789012345678901234').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .send( {  } )
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("No comment exists with the id 123456789012345678901234")
                 test.bool(res.body.error).isTrue()
                 done();
             });
@@ -136,6 +151,7 @@ describe('Testing all comment related endpoints', function() {
                 test.value(res.body.data.parent).isNull()
                 test.string(res.body.data.post).is(lastPost._id)
                 test.string(res.body.data.content).is("Hello world! __filter__")
+                test.array(res.body.data.children).hasLength(0)
                 test.bool(res.body.data.public).isFalse()
                 test.number(res.body.data.createdOn)
                 test.number(res.body.data.lastUpdated)
@@ -302,7 +318,39 @@ describe('Testing all comment related endpoints', function() {
             });
     })
 
-    it('Can get a comment with parent & post, and both properties are ids', function(done) {
+    it('Can create a fourth public comment on the same post, with a parent comment', function(done) {
+        header.modepressAgent
+            .post(`/api/posts/${lastPost._id}/comments/${comment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .send( { content: "Hello world 4! __filter__", public: true } )
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                comment4 = res.body.data;
+                test.string(res.body.message).is("New comment created")
+                done();
+            });
+    })
+
+    it('Can get the parent comment and has previously created comment as child', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/${comment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Found 1 comments")
+                test.string(res.body.data._id).is(comment._id)
+                test.array(res.body.data.children).contains([comment3._id, comment4._id])
+                //test.array(res.body.data.children).contains(comment4._id)
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Can get a comment with parent & post, and both properties are just ids (not expanded)', function(done) {
         header.modepressAgent
             .get(`/api/comments/${comment3._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
@@ -319,7 +367,7 @@ describe('Testing all comment related endpoints', function() {
             });
     })
 
-    it('Can get a comment with parent & post, and both properties are the respective objects', function(done) {
+    it('Can get a comment with parent & post, and both properties are the respective objects (expanded)', function(done) {
         header.modepressAgent
             .get(`/api/comments/${comment3._id}?expanded=true`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
@@ -329,8 +377,7 @@ describe('Testing all comment related endpoints', function() {
 
                 test.string(res.body.message).is("Found 1 comments")
                 test.string(res.body.data._id).is(comment3._id)
-                test.string(res.body.data.parent._id).is(comment._id)
-                test.string(res.body.data.parent.post).is(lastPost._id)
+                test.string(res.body.data.parent).is(comment._id)
                 test.string(res.body.data.post._id).is(lastPost._id)
                 test.bool(res.body.error).isFalse()
                 done();
@@ -375,6 +422,37 @@ describe('Testing all comment related endpoints', function() {
 
                 test.string(res.body.message).is("User BADUSER does not exist")
                 test.bool(res.body.error).isTrue()
+                done();
+            });
+    })
+
+    it('Can delete the fourth comment', function(done) {
+        header.modepressAgent
+            .delete(`/api/users/${header.uconfig.adminUser.username}/comments/${comment4._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Comment has been successfully removed")
+                test.bool(res.body.error).isFalse()
+                done();
+            });
+    })
+
+    it('Can get parent comment and comment 4 has been removed', function(done) {
+        header.modepressAgent
+            .get(`/api/comments/${comment._id}`).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .set('Cookie', header.adminCookie)
+            .end(function(err, res) {
+                if (err)
+                    return done(err);
+
+                test.string(res.body.message).is("Found 1 comments")
+                test.string(res.body.data._id).is(comment._id)
+                test.array(res.body.data.children).contains([comment3._id])
+                test.array(res.body.data.children).notContains([comment4._id])
+                test.bool(res.body.error).isFalse()
                 done();
             });
     })
