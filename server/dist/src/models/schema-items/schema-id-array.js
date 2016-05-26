@@ -29,7 +29,7 @@ class SchemaIdArray extends schema_item_1.SchemaItem {
      * @param {string} targetCollection [Optional] Specify the model name to which all the ids belong. If set
      * the item can expand objects on retreival.
      */
-    constructor(name, val, minItems = 0, maxItems = 10000, targetCollection = "") {
+    constructor(name, val, minItems = 0, maxItems = 10000, targetCollection = null) {
         super(name, val);
         this.maxItems = maxItems;
         this.minItems = minItems;
@@ -71,7 +71,7 @@ class SchemaIdArray extends schema_item_1.SchemaItem {
             if (transformedValue.length > this.maxItems)
                 throw new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`);
             // If no collection - then return
-            if (this.targetCollection == "")
+            if (!this.targetCollection)
                 return true;
             if (this.value.length == 0)
                 return true;
@@ -116,6 +116,37 @@ class SchemaIdArray extends schema_item_1.SchemaItem {
         });
     }
     /**
+     * Called after a model instance is deleted. Useful for any schema item cleanups.
+     * @param {ModelInstance<T>} instance The model instance that was deleted
+     * @param {string} collection The DB collection that the model was deleted from
+     */
+    postDelete(instance, collection) {
+        return __awaiter(this, void 0, Promise, function* () {
+            if (!this.targetCollection)
+                return;
+            // If they key is required then it must exist
+            var model = model_1.Model.getByName(this.targetCollection);
+            if (!model)
+                return;
+            if (!this.value || this.value.length == 0)
+                return;
+            // Get all the instances
+            var promises = [];
+            var query = { $or: [] };
+            var arr = this.value;
+            for (var i = 0, l = arr.length; i < l; i++)
+                query.$or.push({ _id: arr[i] });
+            var results = yield model.findInstances(query);
+            if (!results || results.length == 0)
+                return;
+            var pullQueries = [];
+            for (var i = 0, l = results.length; i < l; i++)
+                pullQueries.push(model.collection.updateOne({ _id: results[i].dbEntry._id }, { $pull: { _arrayDependencies: { _id: instance.dbEntry._id } } }));
+            yield Promise.all(pullQueries);
+            return;
+        });
+    }
+    /**
     * Gets the value of this item
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<Array<string | ObjectID | Modepress.IModelEntry>>}
@@ -128,7 +159,7 @@ class SchemaIdArray extends schema_item_1.SchemaItem {
                 return this.value;
             if (options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf(this.name) != -1)
                 return this.value;
-            if (this.targetCollection == "")
+            if (!this.targetCollection)
                 return this.value;
             var model = model_1.Model.getByName(this.targetCollection);
             if (!model)

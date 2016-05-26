@@ -111,6 +111,32 @@ class SchemaForeignKey extends schema_item_1.SchemaItem {
         });
     }
     /**
+     * Called after a model instance is deleted. Useful for any schema item cleanups.
+     * @param {ModelInstance<T>} instance The model instance that was deleted
+     * @param {string} collection The DB collection that the model was deleted from
+     */
+    postDelete(instance, collection) {
+        return __awaiter(this, void 0, Promise, function* () {
+            // If they key is required then it must exist
+            var model = model_1.Model.getByName(this.targetCollection);
+            if (!model)
+                return;
+            if (!this.value || this.value == "")
+                return;
+            // We can assume the value is object id by this point
+            var result = yield model.findOne({ _id: this.value });
+            if (!result)
+                return;
+            var query;
+            if (this.optionalKey)
+                query = { $pull: { _optionalDependencies: { _id: instance.dbEntry._id } } };
+            else
+                query = { $pull: { _requiredDependencies: { _id: instance.dbEntry._id } } };
+            yield model.collection.updateOne({ _id: this._targetDoc.dbEntry._id }, query);
+            return;
+        });
+    }
+    /**
     * Gets the value of this item
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<ObjectID | Modepress.IModelEntry>}

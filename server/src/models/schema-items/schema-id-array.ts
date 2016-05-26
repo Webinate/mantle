@@ -30,7 +30,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
      * @param {string} targetCollection [Optional] Specify the model name to which all the ids belong. If set
      * the item can expand objects on retreival.
 	 */
-    constructor(name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, targetCollection: string = "")
+    constructor(name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, targetCollection: string = null)
     {
         super(name, val);
         this.maxItems = maxItems;
@@ -81,7 +81,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             throw new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`);
 
         // If no collection - then return
-        if (this.targetCollection == "")
+        if (!this.targetCollection)
             return true;
 
         if (this.value.length == 0)
@@ -138,6 +138,48 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
     }
 
     /**
+     * Called after a model instance is deleted. Useful for any schema item cleanups.
+     * @param {ModelInstance<T>} instance The model instance that was deleted
+     * @param {string} collection The DB collection that the model was deleted from
+     */
+    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>
+	{
+        if (!this.targetCollection)
+            return;
+
+        // If they key is required then it must exist
+        var model = Model.getByName(this.targetCollection);
+        if (!model)
+            return;
+
+        if (!this.value || this.value.length == 0)
+            return;
+
+        // Get all the instances
+        var promises : Array<Promise<UpdateWriteOpResult>> = [];
+        var query = { $or : [] };
+        var arr = this.value;
+
+        for (var i = 0, l = arr.length; i < l; i++)
+            query.$or.push( <Modepress.IModelEntry>{ _id :<ObjectID>arr[i] } );
+
+        var results = await model.findInstances<Modepress.IModelEntry>( query );
+        if (!results || results.length == 0)
+            return;
+
+        var pullQueries : Array<Promise<any>> = [];
+
+        for (var i = 0, l = results.length; i < l; i++)
+            pullQueries.push( model.collection.updateOne(
+                <Modepress.IModelEntry>{ _id : results[i].dbEntry._id  },
+                { $pull: { _arrayDependencies: { _id : instance.dbEntry._id } } }
+            ));
+
+        await Promise.all(pullQueries);
+        return;
+    }
+
+    /**
 	* Gets the value of this item
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<Array<string | ObjectID | Modepress.IModelEntry>>}
@@ -153,7 +195,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         if (options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf(this.name)  != -1)
             return this.value;
 
-        if (this.targetCollection == "")
+        if (!this.targetCollection)
             return this.value;
 
         var model = Model.getByName(this.targetCollection);
