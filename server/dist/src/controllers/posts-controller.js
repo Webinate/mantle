@@ -35,14 +35,15 @@ class PostsController extends controller_1.Controller {
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/posts/get-posts", [permission_controllers_1.getUser, this.getPosts.bind(this)]);
-        router.get("/posts/get-post/:slug", [permission_controllers_1.getUser, this.getPost.bind(this)]);
-        router.get("/posts/get-categories", this.getCategories.bind(this));
-        router.delete("/posts/remove-post/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.removePost.bind(this)]);
-        router.delete("/posts/remove-category/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.removeCategory.bind(this)]);
-        router.put("/posts/update-post/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.updatePost.bind(this)]);
-        router.post("/posts/create-post", [permission_controllers_1.isAdmin, this.createPost.bind(this)]);
-        router.post("/posts/create-category", [permission_controllers_1.isAdmin, this.createCategory.bind(this)]);
+        router.get("/posts", [permission_controllers_1.getUser, this.getPosts.bind(this)]);
+        router.get("/posts/slug/:slug", [permission_controllers_1.getUser, this.getPost.bind(this)]);
+        router.get("/posts/:id", [permission_controllers_1.getUser, permission_controllers_1.hasId("id", "ID"), this.getPost.bind(this)]);
+        router.delete("/posts/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.removePost.bind(this)]);
+        router.put("/posts/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.updatePost.bind(this)]);
+        router.post("/posts", [permission_controllers_1.isAdmin, this.createPost.bind(this)]);
+        router.get("/categories", this.getCategories.bind(this));
+        router.post("/categories", [permission_controllers_1.isAdmin, this.createCategory.bind(this)]);
+        router.delete("/categories/:id", [permission_controllers_1.isAdmin, permission_controllers_1.hasId("id", "ID"), this.removeCategory.bind(this)]);
         // Register the path
         e.use("/api", router);
     }
@@ -162,9 +163,13 @@ class PostsController extends controller_1.Controller {
         return __awaiter(this, void 0, void 0, function* () {
             var posts = this.getModel("posts");
             var that = this;
-            var findToken = { slug: req.params.slug };
+            var findToken;
             var user = req._user;
             try {
+                if (req.params.id)
+                    findToken = { _id: new mongodb.ObjectID(req.params.id) };
+                else
+                    findToken = { slug: req.params.slug };
                 var instances = yield posts.findInstances(findToken, [], 0, 1);
                 if (instances.length == 0)
                     throw new Error("Could not find post");

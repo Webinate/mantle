@@ -10,7 +10,7 @@ var numPosts = 0;
 describe('Testing all post related endpoints', function() {
     it('Fetched all posts', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts').expect(200).expect('Content-Type', /json/)
             .end(function(err, res) {
                 test.bool(res.body.error).isNotTrue()
                     .number(res.body.count);
@@ -22,7 +22,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot create post when not logged in', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .send( { name: "" } )
             .end(function(err, res) {
                 test.bool(res.body.error).isTrue()
@@ -34,7 +34,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot create a post without title', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( { title: "", slug:"" } )
             .end(function(err, res) {
@@ -47,7 +47,7 @@ describe('Testing all post related endpoints', function() {
 
 	 it('Cannot create a post without a slug field', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( { title: "test" } )
             .end(function(err, res) {
@@ -60,7 +60,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot create a post without slug', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( { title: "test", slug: "" } )
             .end(function(err, res) {
@@ -74,13 +74,13 @@ describe('Testing all post related endpoints', function() {
 
     it('has no posts with the slug --simple--test--', function(done) {
         header.modepressAgent
-            .get('/api/posts/get-post/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts/slug/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
 
                 if (res.body.data && res.body.data._id)
                     header.modepressAgent
-                        .delete('/api/posts/remove-post/' + res.body.data._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+                        .delete('/api/posts/' + res.body.data._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
                         .set('Cookie', header.adminCookie)
                         .end(function(err, res) {
                             done();
@@ -92,13 +92,13 @@ describe('Testing all post related endpoints', function() {
 
     it('has no posts with the slug --to--delete--', function(done) {
         header.modepressAgent
-            .get('/api/posts/get-post/--to--delete--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts/slug/--to--delete--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
 
                 if (res.body.data && res.body.data._id)
                     header.modepressAgent
-                        .delete('/api/posts/remove-post/' + res.body.data._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+                        .delete('/api/posts/' + res.body.data._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
                         .set('Cookie', header.adminCookie)
                         .end(function(err, res) {
                             done();
@@ -110,7 +110,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can create a post with data', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( {
                 title: "Simple Test",
@@ -146,7 +146,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can fetch posts and impose a limit off 1 on them', function(done) {
         header.modepressAgent
-            .get('/api/posts/get-posts?limit=1').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?limit=1').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.array(res.body.data).hasLength(1);
@@ -156,7 +156,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can fetch posts and impose a limit off 0 on them', function(done) {
         header.modepressAgent
-            .get('/api/posts/get-posts?index=1&limit=1').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?index=1&limit=1').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.array(res.body.data).hasLength(1);
@@ -166,7 +166,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Fetched 1 post with category specified', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts?categories=super-tests').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?categories=super-tests').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.number(res.body.count).is(1);
@@ -176,7 +176,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Fetched 1 post with tag specified', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts?tags=super-tags-1234').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?tags=super-tags-1234').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.number(res.body.count).is(1);
@@ -186,7 +186,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Fetched 1 post with 2 tags specified', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts?tags=super-tags-1234,supert-tags-4321').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?tags=super-tags-1234,supert-tags-4321').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.number(res.body.count).is(1);
@@ -196,7 +196,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Fetched 1 post with 2 known tags specified & 1 optional', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts?tags=super-tags-1234,supert-tags-4321,dinos').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?tags=super-tags-1234,supert-tags-4321,dinos').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.number(res.body.count).is(1);
@@ -206,7 +206,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Fetched 1 post with 1 known tag & 1 category', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts?tags=super-tags-1234&categories=super-tests').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?tags=super-tags-1234&categories=super-tests').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.number(res.body.count).is(1);
@@ -216,7 +216,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Fetched 0 posts with 1 known tag & 1 unknown category', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts?tags=super-tags-1234&categories=super-tests-wrong').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?tags=super-tags-1234&categories=super-tests-wrong').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.number(res.body.count).is(0);
@@ -226,7 +226,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Fetched 0 posts when not logged in as admin as post is not public', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts?tags=super-tags-1234&categories=super-tests').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?tags=super-tags-1234&categories=super-tests').expect(200).expect('Content-Type', /json/)
             .end(function(err, res) {
                 test.number(res.body.count).is(0);
                 done();
@@ -235,7 +235,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Should not fetch with a tag that is not associated with any posts', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts?tags=nononononononoonononono').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts?tags=nononononononoonononono').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.number(res.body.count).is(0);
@@ -245,7 +245,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot create a post with the same slug', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( {
                 title: "Simple Test 2",
@@ -261,7 +261,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot edit a post with an invalid ID', function(done) {
         header.modepressAgent
-            .put('/api/posts/update-post/woohoo').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .put('/api/posts/woohoo').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( {
                 title: "Simple Test 3"
@@ -276,7 +276,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot edit a post with an valid ID but doesnt exist', function(done) {
         header.modepressAgent
-            .put('/api/posts/update-post/123456789012345678901234').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .put('/api/posts/123456789012345678901234').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( {
                 title: "Simple Test 3"
@@ -291,7 +291,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot edit a post without permission', function(done) {
         header.modepressAgent
-            .put('/api/posts/update-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .put('/api/posts/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .send( {
                 title: "Simple Test 3"
             } )
@@ -305,7 +305,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Should create a new temp post', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( {
                 title: "To Delete",
@@ -322,7 +322,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot edit a post with the same slug', function(done) {
         header.modepressAgent
-            .put('/api/posts/update-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .put('/api/posts/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send({
                 slug: "--to--delete--"
@@ -337,7 +337,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can edit a post with valid details', function(done) {
         header.modepressAgent
-            .put('/api/posts/update-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .put('/api/posts/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send({
                 content: "Updated"
@@ -352,7 +352,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot fetch single post by invalid slug', function(done) {
         header.modepressAgent
-            .get('/api/posts/get-post/WRONGWRONGWRONG').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts/slug/WRONGWRONGWRONG').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test
@@ -364,7 +364,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can fetch single post by slug', function(done) {
         header.modepressAgent
-            .get('/api/posts/get-post/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts/slug/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test
@@ -376,7 +376,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot fetch single post by slug when its private and not logged in', function(done) {
         header.modepressAgent
-            .get('/api/posts/get-post/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts/slug/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .end(function(err, res) {
                 test
                     .string(res.body.message).is("That post is marked private")
@@ -387,7 +387,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can set a post to public', function(done) {
         header.modepressAgent
-            .put('/api/posts/update-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .put('/api/posts/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send({
                 public: true
@@ -402,7 +402,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can fetch single post by slug when its public and not logged in', function(done) {
         header.modepressAgent
-            .get('/api/posts/get-post/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts/slug/--simple--test--').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .end(function(err, res) {
                 test
                     .string(res.body.message).is("Found 1 posts")
@@ -413,7 +413,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot delete a post with invalid ID format', function(done) {
         header.modepressAgent
-            .delete('/api/posts/remove-post/WRONGWRONGWRONG').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .delete('/api/posts/WRONGWRONGWRONG').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test
@@ -425,7 +425,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot delete a post with invalid ID', function(done) {
         header.modepressAgent
-            .delete('/api/posts/remove-post/123456789012345678901234').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .delete('/api/posts/123456789012345678901234').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test
@@ -437,7 +437,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Cannot delete a post without permission', function(done) {
         header.modepressAgent
-            .delete('/api/posts/remove-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .delete('/api/posts/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .end(function(err, res) {
                 test
                     .string(res.body.message).is("You must be logged in to make this request")
@@ -448,7 +448,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can delete a post with valid ID', function(done) {
         header.modepressAgent
-            .delete('/api/posts/remove-post/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .delete('/api/posts/' + lastPost).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test
@@ -460,7 +460,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Can delete temp post with valid ID', function(done) {
         header.modepressAgent
-            .delete('/api/posts/remove-post/' + tempPost ).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .delete('/api/posts/' + tempPost ).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test
@@ -472,7 +472,7 @@ describe('Testing all post related endpoints', function() {
 
     it('Should create a post & strip HTML from title', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( {
                 title: "Simple Test <h2>NO</h2>",
@@ -486,7 +486,7 @@ describe('Testing all post related endpoints', function() {
 
                     // Clean up
                     header.modepressAgent
-                        .delete('/api/posts/remove-post/' + res.body.data._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+                        .delete('/api/posts/' + res.body.data._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
                         .set('Cookie', header.adminCookie)
                         .end(function(err, res) {
                             test.string(res.body.message).is("Post has been successfully removed")
@@ -497,7 +497,7 @@ describe('Testing all post related endpoints', function() {
 
     it('should have the same number of posts as before the tests started', function(done){
         header.modepressAgent
-            .get('/api/posts/get-posts').expect(200).expect('Content-Type', /json/)
+            .get('/api/posts').expect(200).expect('Content-Type', /json/)
             .end(function(err, res) {
                 test.bool(res.body.error).isNotTrue()
                     .number(res.body.count)

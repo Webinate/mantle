@@ -35,14 +35,16 @@ export default class PostsController extends Controller
 		router.use(bodyParser.json());
 		router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-        router.get("/posts/get-posts", <any>[getUser, this.getPosts.bind(this)]);
-        router.get("/posts/get-post/:slug", <any>[getUser, this.getPost.bind(this)]);
-        router.get("/posts/get-categories", this.getCategories.bind(this));
-        router.delete("/posts/remove-post/:id", <any>[isAdmin, hasId("id", "ID"), this.removePost.bind(this)]);
-        router.delete("/posts/remove-category/:id", <any>[isAdmin, hasId("id", "ID"), this.removeCategory.bind(this)]);
-        router.put("/posts/update-post/:id", <any>[isAdmin, hasId("id", "ID"), this.updatePost.bind(this)]);
-        router.post("/posts/create-post", <any>[isAdmin, this.createPost.bind(this)]);
-        router.post("/posts/create-category", <any>[isAdmin, this.createCategory.bind(this)]);
+        router.get("/posts", <any>[getUser, this.getPosts.bind(this)]);
+        router.get("/posts/slug/:slug", <any>[getUser, this.getPost.bind(this)]);
+        router.get("/posts/:id", <any>[getUser, hasId("id", "ID"), this.getPost.bind(this)]);
+        router.delete("/posts/:id", <any>[isAdmin, hasId("id", "ID"), this.removePost.bind(this)]);
+        router.put("/posts/:id", <any>[isAdmin, hasId("id", "ID"), this.updatePost.bind(this)]);
+        router.post("/posts", <any>[isAdmin, this.createPost.bind(this)]);
+
+        router.get("/categories", this.getCategories.bind(this));
+        router.post("/categories", <any>[isAdmin, this.createCategory.bind(this)]);
+        router.delete("/categories/:id", <any>[isAdmin, hasId("id", "ID"), this.removeCategory.bind(this)]);
 
 		// Register the path
 		e.use( "/api", router );
@@ -194,11 +196,16 @@ export default class PostsController extends Controller
     {
         var posts = this.getModel("posts");
         var that = this;
-        var findToken: mp.IPost = { slug: req.params.slug };
+        var findToken: mp.IPost;
         var user: UsersInterface.IUserEntry = req._user;
 
         try
         {
+            if (req.params.id)
+                findToken = { _id: new mongodb.ObjectID(req.params.id) };
+            else
+                findToken = { slug: req.params.slug };
+
             var instances = await posts.findInstances<mp.IPost>(findToken, [], 0, 1);
 
             if (instances.length == 0)

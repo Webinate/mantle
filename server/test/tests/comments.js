@@ -106,7 +106,7 @@ describe('Testing all comment related endpoints', function() {
 
     it('Can create a temp post', function(done) {
         header.modepressAgent
-            .post('/api/posts/create-post').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .post('/api/posts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .send( {
                 title: "Simple Test",
@@ -473,7 +473,7 @@ describe('Testing all comment related endpoints', function() {
 
     it('Can delete the temp post', function(done) {
         header.modepressAgent
-            .delete('/api/posts/remove-post/' + lastPost._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+            .delete('/api/posts/' + lastPost._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
             .set('Cookie', header.adminCookie)
             .end(function(err, res) {
                 test.string(res.body.message).is("Post has been successfully removed")
