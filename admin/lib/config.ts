@@ -74,24 +74,28 @@
                 })
                 .state('default.seo', <CustomState>{
                     templateUrl: 'states/seo/dash-seo.html',
+                    url: 'seo',
                     authenticate: true,
                     controller: "seoCtrl",
                     controllerAs: "controller"
                 })
                 .state('default.media', <CustomState>{
                     templateUrl: 'states/media/dash-media.html',
+                    url: 'media',
                     authenticate: true,
                     controller: "mediaCtrl",
                     controllerAs: "mediaController"
                 })
                 .state('default.users', <CustomState>{
                     templateUrl: 'states/users/dash-users.html',
+                    url: 'users',
                     authenticate: true,
                     controller: "usersCtrl",
                     controllerAs: "controller"
                 })
                 .state('default.posts', <CustomState>{
                     templateUrl: 'states/posts/dash-posts.html',
+                    url: 'posts',
                     authenticate: true,
                     controller: "postsCtrl",
                     controllerAs: "controller",
@@ -102,7 +106,7 @@
                     resolve: {
                         categories: ["$http", "apiURL", function ($http: ng.IHttpService, apiURL: string)
                         {
-                            return $http.get<Modepress.IGetCategories>(`${apiURL}/posts/get-categories`).then(function (categories)
+                            return $http.get<Modepress.IGetCategories>(`${apiURL}/categories`).then(function (categories)
                             {
                                 return categories.data.data;
                             });
@@ -161,14 +165,6 @@
                                 templateUrl: "states/password-reset/password-reset.html",
                                 controllerAs: "controller",
                                 controller: "passwordCtrl"
-                                //controller: ["$scope", "$stateParams", function ($scope, $stateParams)
-                                //{
-                                //    // Decodes the html
-                                //    var txtbox = document.createElement("textarea");
-                                //    txtbox.innerHTML = $stateParams.user;
-                                //    $scope.user = txtbox.value;
-                                //    $scope.key = $stateParams.key;
-                                //}]
                             }
                         },
                         url: "/password-reset-form?key&user&origin"
