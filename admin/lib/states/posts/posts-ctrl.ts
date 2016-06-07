@@ -162,7 +162,7 @@
         getCategories()
         {
             var that = this;
-            that.http.get<Modepress.IGetCategories>(`${that.apiURL}/posts/get-categories`).then(function (categories)
+            that.http.get<Modepress.IGetCategories>(`${that.apiURL}/categories`).then(function (categories)
             {
                 that.categories = categories.data.data;
             });
@@ -193,7 +193,7 @@
             this.showNewPostForm = true;
 
             var that = this;
-            that.http.get<Modepress.IGetPost>(`${that.apiURL}/posts/get-post/${post.slug}?verbose=true`).then(function (post)
+            that.http.get<Modepress.IGetPost>(`${that.apiURL}/posts/slug/${post.slug}?verbose=true`).then(function (post)
             {
                 that.postToken = post.data.data;
                 that.loading = false;
@@ -217,7 +217,7 @@
 
                     return new that._q<number>(function(resolve, reject)
                     {
-                        that.http.get<Modepress.IGetPosts>(`${that.apiURL}/posts/get-posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
+                        that.http.get<Modepress.IGetPosts>(`${that.apiURL}/posts?visibility=all&verbose=true&sort=${sortType}&sortOrder=${order}&categories=${searchCategory}&index=${index}&limit=${limit}&keyword=${keyword}`).then(function (token)
                         {
                             if (token.data.error) {
                                 that.error = true;
@@ -278,7 +278,7 @@
             this.errorMsg = "";
             this.loading = true;
 
-            that.http.delete<Modepress.IResponse>(`${that.apiURL}/posts/remove-post/${post._id}`).then(function (token)
+            that.http.delete<Modepress.IResponse>(`${that.apiURL}/posts/${post._id}`).then(function (token)
             {
                 if (token.data.error) {
                     that.error = true;
@@ -303,7 +303,7 @@
             this.errorMsg = "";
             this.loading = true;
 
-            that.http.delete<Modepress.IResponse>(`${that.apiURL}/posts/remove-category/${category._id}`).then(function (token)
+            that.http.delete<Modepress.IResponse>(`${that.apiURL}/categories/${category._id}`).then(function (token)
             {
                 if (token.data.error)
                 {
@@ -341,7 +341,7 @@
 
             if (this.editMode)
             {
-                that.http.put<Modepress.IGetPost>(`${that.apiURL}/posts/update-post/${postToken._id}`, postToken).then(function (token)
+                that.http.put<Modepress.IGetPost>(`${that.apiURL}/posts/${postToken._id}`, postToken).then(function (token)
                 {
                     if (token.data.error)
                     {
@@ -364,7 +364,7 @@
             }
             else
             {
-                that.http.post<Modepress.IGetPost>(`${that.apiURL}/posts/create-post`, postToken).then(function (token)
+                that.http.post<Modepress.IGetPost>(`${that.apiURL}/posts`, postToken).then(function (token)
                 {
                     if (token.data.error)
                     {
@@ -397,7 +397,7 @@
             this.errorMsg = "";
             this.loading = true;
             var categoryToken = this.categoryToken;
-            that.http.post<Modepress.IGetCategory>(`${that.apiURL}/posts/create-category`, categoryToken).then(function (token)
+            that.http.post<Modepress.IGetCategory>(`${that.apiURL}/categories`, categoryToken).then(function (token)
             {
                 if (token.data.error)
                 {
