@@ -1,5 +1,24 @@
 @import "temp-css/sprites.scss"; // Generated in the build process
 
+$background-light : #FAFAFA;
+$border-light: #CFCFCF;
+$primary-background: #fff;
+$highlighted-text: #fff;
+$util-background: #74A2E0;
+$confirm-background: #84D86C;
+$warning-background: #ea6363;
+$subtle-background: #E0E0E0;
+$util-text: $util-background;
+
+@function shade($color, $percentage) {
+    @return mix(#000000, $color, $percentage);
+}
+
+@function tint($color, $percentage) {
+    @return mix(#ffffff, $color, $percentage);
+}
+
+
 /**
 ======================================================
 			CSS BASE DEFINITIONS
@@ -338,7 +357,8 @@ Overrides for the TinyMCE editor
 				IMPORTS
 ======================================================
 **/
-@import 'directives/style';
+@import 'directives/error-modal/style.scss';
+@import 'directives/pager/style.scss';
 
 
 
@@ -613,7 +633,7 @@ max-height: 0;
     margin: 0 8px 0 0;
 }
 .tag-header, .category-header, .new-post-form .label {
-    color: #74A2E0;
+    color: $util-text;
     font-weight: bold;
 }
 .nav-button {
@@ -663,25 +683,7 @@ max-height: 0;
     width:300px;
     margin:10px 0;
 }
-.navigation {
-    padding:10px;
-}
-.navigation .nav-button {
-    display:inline-block;
-}
-.navigation .column {
-    float:left;
-    width:33.33333%;
-    box-sizing:border-box;
-    text-align: center;
-    min-height: 1px;
-}
-.navigation .back {
-    text-align: left;
-}
-.navigation .forward  {
-    text-align: right;
-}
+
 .console .search {
     height: 30px;
     float: right;
@@ -870,7 +872,7 @@ form .category-buttons .nav-button {
 }
 .file-info {
     height:100%;
-    background: #fff;
+    background: $primary-background;
     box-sizing:border-box;
     padding:20px;
     overflow: auto;
@@ -943,7 +945,7 @@ Please only put css rules in here for generalized modules.
     -ms-user-select: none;
 }
 .folder, .file-preview {
-    background:#fff;
+    background: $primary-background;
     box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
 }
 .file.selected .file-preview {
@@ -951,8 +953,8 @@ Please only put css rules in here for generalized modules.
 }
 
 .folder.selected, .file.selected {
-    background:#74A2E0;
-    color:#fff;
+    background:$util-text;
+    color:$highlighted-text;
     box-shadow: 0 3px 3px 0 rgba(0,0,0,.3);
 }
 .folder.selected .icon {
@@ -966,7 +968,7 @@ form input[type="text"], form input[type="password"], form input[type="email"] {
     padding:10px;
     line-height: 1;
     border: 1px solid #eee;
-    background: #FAFAFA;
+    background: $background-light;
     outline: 0;
 }
 form input[type="text"].ng-invalid.ng-dirty, form input[type="password"].ng-invalid.ng-dirty, form input[type="email"].ng-invalid.ng-dirty {
@@ -984,45 +986,48 @@ form input[type="text"].ng-valid.ng-dirty, form input[type="password"].ng-valid.
 .tick-box:active {
     background: #ccc;
 }
+
+
+
 .button.blue {
-	color: #fff;
-	background: #74A2E0;
+	color: $highlighted-text;
+	background: $util-background;
 }
 .button.blue:hover {
-	background: #6e98d1;
+	background: shade($util-background, 10);
 }
 .button.blue:active {
-	background: #668bbd;
+	background: shade($util-background, 20);
 }
 .button.green {
-	color: #fff;
-	background: #84D86C;
+	color: $highlighted-text;
+	background: $confirm-background;
 }
 .button.green:hover {
-	background: #75c25f;
+	background: shade($confirm-background, 10);
 }
 .button.green:active {
-	background: #609f4e;
+	background: shade($confirm-background, 20);
 }
 .button.red {
-	color: #fff;
-	background: #ea6363;
+	color: $highlighted-text;
+	background: $warning-background;
 }
 .button.red:hover {
-	background: #d15c5c;
+	background: shade($warning-background, 10);
 }
 .button.red:active {
-	background: #b44848;
+	background: shade($warning-background, 20);
 }
 .button.gray {
-  background: #E0E0E0;
+  background: $subtle-background;
   border: 1px solid #D5D5D5;
 }
 .button.gray:hover {
-  background: #d0d0d0;
+  background: shade($subtle-background, 10);
 }
 .button.gray:active {
-  background: #bbbbbb;
+  background: shade($subtle-background, 20);
 }
 .nav-button {
 	text-decoration: none;
@@ -1036,7 +1041,7 @@ form input[type="text"].ng-valid.ng-dirty, form input[type="password"].ng-valid.
 	cursor:pointer;
 }
 .nav-button a:hover {
-	border-bottom: 1px solid #74A2E0;
+	border-bottom: 1px solid $util-background;
 }
 .nav-button.red-highlight a:hover {
     color:red;
@@ -1074,8 +1079,8 @@ form label {
 .view-item-label.date {
     float:right;
 }
-.sub-menu, .view-item-label, .navigation {
-    background:#FAFAFA;
+.sub-menu, .view-item-label {
+    background: $background-light;
 }
 .admin-nav a {
     text-decoration:none;
@@ -1091,7 +1096,7 @@ form label {
     border-left:10px solid #9bea5d;
 }
 .admin-section.active {
-    background:#74a2e0;
+    background:$util-background;
 }
 .admin-sub-section {
     background:#F9F9F9;
@@ -1104,17 +1109,15 @@ form label {
     color:inherit;
 }
 .admin-section.active .inner {
-    color:#fff;
+    color:$highlighted-text;
 }
 .content-view-item{
-    background:#fff;
+    background:$primary-background;
 }
 .big-dialog-box {
     background:#DDDDDD;
 }
-.navigation .center {
-    color: #ccc;
-}
+
 .content-view-detail .textbox {
     color: #999;
 }
@@ -1130,14 +1133,14 @@ form label {
     margin:0 0 0 5px;
 }
 .content-view-detail .preview {
-    background: #FAFAFA;
+    background: $background-light;
     padding: 10px;
 }
 .category .cross:hover:before, .category .cross:hover:after, .tag .cross:hover:before, .tag .cross:hover:after {
   background: red;
 }
 .console-buttons .cross::before, .console-buttons .cross::after {
-    background:white;
+    background: $primary-background;
 }
 
 .new-category {
@@ -1147,7 +1150,7 @@ form label {
     font-weight:bold;
 }
 .filter-group {
-    background:#fff;
+    background: $primary-background;
 }
 .password-reset-form-label {
     font-weight: bold;
@@ -1247,7 +1250,7 @@ form label {
 
     border-top: 10px solid transparent;
 	border-bottom: 10px solid transparent;
-	border-left: 20px solid #74A2E0;
+	border-left: 20px solid $util-background;
 }
 .arrow.active {
     -ms-transform: rotate(90deg);
@@ -1255,28 +1258,7 @@ form label {
     transform: rotate(90deg);
 }
 
-.navigation .back .nav-button a::before {
-    content:"";
-    width: 0;
-    height: 0;
-    float: left;
-    cursor: pointer;
-    margin: 5px 10px;
-    border-top: 10px solid transparent;
-	border-bottom: 10px solid transparent;
-	border-right: 20px solid #CFCFCF;
-}
-.navigation .forward .nav-button a::before {
-    content:"";
-    width: 0;
-    height: 0;
-    float: left;
-    cursor: pointer;
-    margin: 5px 10px;
-    border-top: 10px solid transparent;
-	border-bottom: 10px solid transparent;
-	border-left: 20px solid #CFCFCF;
-}
+
 /**
 ======================================================
 				MEDIA QUERIES
