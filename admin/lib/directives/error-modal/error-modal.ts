@@ -5,7 +5,7 @@ module clientAdmin
 	*/
     export class ErrorModal implements ng.IDirective
 	{
-        restrict = 'A';
+        restrict = 'E';
         templateUrl = 'directives/error-modal/error-modal.html';
         scope = {
             visible: '=',

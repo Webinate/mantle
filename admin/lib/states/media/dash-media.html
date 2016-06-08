@@ -1,9 +1,4 @@
-<div class="dialog-modal" ng-show="mediaController.error">
-    <div class="dialog-box">
-        <p>{{mediaController.errorMsg}}</p>
-        <div class="button red" ng-click="mediaController.error=false">Ok</div>
-    </div>
-</div>
+<error-modal message="mediaController.errorMsg" visible="mediaController.error"></error-modal>
 
 <div class="sub-menu">
     <h>Media<img ng-show="mediaController.loading" src="/media/images/loader.gif" /></h>
