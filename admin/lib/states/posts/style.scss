@@ -1,0 +1,105 @@
+.new-post-form {
+    .content-view-detail .label{
+        width: auto;
+        float:none;
+        line-height: 36px;
+        margin:0;
+    }
+
+    .label {
+        color: $util-text;
+        font-weight: bold;
+        margin: 0 0 10px 0;
+    }
+}
+
+.categories {
+    padding: 10px;
+    box-sizing: border-box;
+    margin: 15px 0;
+    overflow:hidden;
+
+    .button {
+        margin: 20px 0 0 0;
+    }
+}
+
+.category-buttons {
+    margin:10px 0 0 0;
+}
+
+form .category-buttons .nav-button {
+    margin: 0px 0 5px 10px;
+    padding-bottom: 0px;
+}
+
+.post-categories, .all-categories {
+    height:100%;
+    overflow:auto;
+}
+
+.post-categories {
+    padding: 10px;
+    min-height: 45px;
+    border-radius: 5px;
+    margin: 10px 0 20px 0;
+}
+
+.category-header {
+    display: inline-block;
+    color: $util-text;
+    font-weight: bold;
+}
+.new-category {
+    max-height:375px;
+    margin: 10px 10px;
+    padding: 20px;
+    border-radius: 5px;
+    border: 2px dashed #ccc;
+
+    .label {
+        margin:0;
+    }
+}
+
+.category .cross, .tag .cross, .red .cross {
+    -ms-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+    cursor:pointer;
+}
+
+.tags  {
+    padding: 10px;
+    box-sizing: border-box;
+    margin: 15px 0;
+
+    .button {
+        margin:5px 0 0 0;
+    }
+}
+.tag {
+    float:left;
+    margin: 0 10px 0 0;
+}
+.tag-header, .category-header {
+    margin:0 0 5px 0;
+}
+
+.category .cross:hover:before, .category .cross:hover:after, .tag .cross:hover:before, .tag .cross:hover:after {
+  background: red;
+}
+
+.tag-header {
+    color: $util-text;
+    font-weight: bold;
+}
+.tag-content {
+    padding:10px;
+    box-sizing:border-box;
+}
+
+.filter-options {
+    padding:20px 20px 10px 20px;
+    max-height:200px;
+}

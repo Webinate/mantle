@@ -1,0 +1,140 @@
+.admin-toolbar {
+    height:5%;
+    height:50px;
+    overflow:hidden;
+
+    .nav-button a {
+        font-size:20px;
+        line-height:45px;
+    }
+}
+
+.toolbar-item {
+    float:left;
+
+    .sprite {
+        margin: 5px 0 0 20px;
+    }
+
+    &:nth-last-child(2) {
+        float:right;
+        margin: 0 10px 0 0;
+    }
+}
+
+.admin-nav {
+    width:20%;
+    cursor:pointer;
+
+    a {
+        text-decoration:none;
+    }
+}
+
+.admin-nav, .admin-view {
+    float:left;
+    height:95%;
+    height:calc(100% - 50px);
+}
+
+.admin-view {
+    width:80%;
+    background:#ddd;
+}
+
+.admin-main-view {
+    position:relative;
+    height: 100%;
+    overflow: auto;
+}
+
+.admin-section {
+
+    padding:10px 10px;
+
+    .icon {
+        background-repeat:no-repeat;
+        width:32px;
+        height:32px;
+        display:inline-block;
+        vertical-align:middle;
+    }
+
+    .sprite {
+        &.sprite-posts{
+            @include sprite-position($posts);
+        }
+        &.sprite-users{
+            @include sprite-position($users);
+        }
+        &.sprite-media{
+            @include sprite-position($media);
+        }
+        &.sprite-seo{
+            @include sprite-position($seo);
+        }
+    }
+
+    &.active .icon {
+        &.sprite-posts {
+            background-position-y: (nth($posts, 2) - (sprite-height($posts) / 2));
+        }
+        &.sprite-users {
+            background-position-y: (nth($users, 2) - (sprite-height($users) / 2));
+        }
+        &.sprite-media {
+            background-position-y: (nth($media, 2) - (sprite-height($media) / 2));
+        }
+        &.sprite-seo {
+            background-position-y: (nth($seo, 2) - (sprite-height($seo) / 2));
+        }
+    }
+}
+
+.admin-sub-section {
+    max-height:0;
+    overflow-y:hidden;
+    transition-property: all;
+	transition-duration: .5s;
+	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+    background:#F9F9F9;
+
+    &.open {
+        max-height:500px;
+    }
+
+    .admin-section{
+        padding-left: 25px;
+    }
+}
+
+.sprite-logo-home-small{
+    @include sprite-position($logo-home-small);
+    @include sprite-width($logo-home-small);
+    @include sprite-height($logo-home-small);
+}
+
+.admin-section {
+    .inner {
+        -webkit-transition: all linear 0.15s;
+        transition: all linear 0.15s;
+        color:#aaa;
+    }
+
+    &.active:hover {
+        border:none;
+    }
+    &:hover {
+        border-left:10px solid #9bea5d;
+    }
+    &.active {
+        background:$util-background;
+    }
+
+    &:hover .inner {
+        color:inherit;
+    }
+    &.active .inner {
+        color:$highlighted-text;
+    }
+}

@@ -1,0 +1,178 @@
+.media {
+
+    .panel-view {
+        height:100%;
+        overflow:auto;
+
+        &.left {
+            width:100%;
+
+            &.expanded{
+                width:75%;
+            }
+        }
+
+        &.right.expanded{
+            width:25%;
+        }
+    }
+}
+
+.folder-options {
+    padding: 10px;
+    max-height:200px;
+}
+
+.new-folder {
+    .button {
+        margin: 0 10px 10px 10px;
+    }
+
+    input {
+        padding:8px;
+    }
+}
+
+.folder, .file {
+    float:left;
+    margin:10px;
+    cursor:pointer;
+}
+.folder {
+    padding:10px;
+
+    .icon {
+        width:nth($folder, 3);
+        height:nth($folder, 4) / 2;
+        float:left;
+        @include sprite-position($folder);
+        margin:0 5px 0 0;
+    }
+}
+.file {
+    width:150px;
+    height:150px;
+    overflow: hidden;
+}
+.file-name {
+    color:inherit;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding:10px;
+    font-size:16px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.file-preview {
+    padding-top: 75%;
+    position: relative;
+
+    .inner {
+        top: 0;
+        left: 0;
+        overflow: hidden;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+
+        .sprite-standard-file{
+            @include sprite($standard-file);
+            display: inline-block;
+            vertical-align: middle;
+        }
+    }
+}
+.inner .div-center {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+.inner img {
+    display: inline-block;
+    max-height: 100%;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+.file-info {
+    height:100%;
+    background: $primary-background;
+    box-sizing:border-box;
+    padding:20px;
+    overflow: auto;
+
+    h2 {
+        margin: 0 0 20px 0;
+    }
+
+    .file-edit {
+        overflow: initial;
+        margin: 10px 0;
+    }
+    input {
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .button {
+        vertical-align:middle;
+    }
+
+    div {
+        font-size:20px;
+        margin: 10px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inherit;
+
+        .sprite {
+            vertical-align:middle;
+            margin: 0 10px 0 0;
+        }
+
+        .sprite-file-info-clock{
+            @include sprite($file-info-clock, inline-block);
+        }
+
+        .sprite-file-info-downloads{
+            @include sprite($file-info-downloads, inline-block);
+        }
+
+        .sprite-file-info-id{
+            @include sprite($file-info-id, inline-block);
+        }
+
+        .sprite-file-info-mime{
+            @include sprite($file-info-mime, inline-block);
+        }
+
+        .sprite-file-info-size{
+            @include sprite($file-info-size, inline-block);
+        }
+    }
+}
+
+.view-details {
+    margin: 0 15px 0 0;
+}
+
+
+.folder, .file-preview {
+    background: $primary-background;
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
+}
+.file.selected .file-preview {
+    box-shadow: none;
+}
+
+.folder.selected, .file.selected {
+    background:$util-text;
+    color:$highlighted-text;
+    box-shadow: 0 3px 3px 0 rgba(0,0,0,.3);
+}
+.folder.selected .icon {
+    background-position-y: (nth($folder, 2) - (sprite-height($folder) / 2));
+}

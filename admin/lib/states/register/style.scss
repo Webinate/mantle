@@ -1,0 +1,21 @@
+.register {
+	width:30%;
+	margin:30px auto;
+	padding:30px;
+    min-width: 320px;
+
+    .button {
+        margin: 10px 0 0 0;
+    }
+
+    img {
+        margin: 20px 0;
+    }
+}
+
+@media screen and (max-width:655px) {
+	.register {
+		width:auto;
+		padding:10px 50px 50px 50px;
+	}
+}
