@@ -330,6 +330,72 @@ declare module clientAdmin {
 }
 declare module clientAdmin {
     /**
+    * Creates a blue add button
+    */
+    class SimpleButton implements ng.IDirective {
+        restrict: string;
+        template: string;
+        scope: {
+            text: string;
+            noIcon: string;
+        };
+        constructor(color?: string, template?: string);
+        link(scope: any, elem: JQuery, attributes: angular.IAttributes, ngModel: angular.INgModelController): void;
+        /**
+         * Creates an intance of the directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+    /**
+    * Creates a blue add button
+    */
+    class AddButton extends SimpleButton {
+        constructor();
+        /**
+         * Creates an intance of the directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+    /**
+    * Creates a red remove button
+    */
+    class RemoveButton extends SimpleButton {
+        constructor();
+        /**
+         * Creates an intance of the directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+    /**
+    * Creates a green approve button
+    */
+    class ApproveButton extends SimpleButton {
+        constructor();
+        /**
+         * Creates an intance of the directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+    /**
+    * Creates a blue button that toggles from an expanded to contracted state (+ -)
+    */
+    class ToggleButton implements ng.IDirective {
+        restrict: string;
+        template: string;
+        scope: {
+            text: string;
+            expanded: string;
+        };
+        constructor();
+        link(scope: any, elem: JQuery, attributes: angular.IAttributes, ngModel: angular.INgModelController): void;
+        /**
+         * Creates an intance of the directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+}
+declare module clientAdmin {
+    /**
     * Controller for the modal window that shows up when an error occurs
     */
     class ErrorModal implements ng.IDirective {

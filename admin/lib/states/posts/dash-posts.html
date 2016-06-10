@@ -10,15 +10,15 @@
 <div class="sub-menu">
     <h>Posts<img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
     <div class="console" ng-show="!controller.showNewPostForm">
-        <div class="button blue" ng-click="controller.newPostMode()"><div class="cross"></div>New Post</div>
-        <div class="button blue" ng-click="controller.showFilters = !controller.showFilters"><div class="cross" ng-show="!controller.showFilters"></div><div class="minus" ng-show="controller.showFilters"></div>Filters</div>
+        <add-button ng-click="controller.newPostMode()" text="'New Post'"></add-button>
+        <toggle-button ng-click="controller.showFilters = !controller.showFilters" text="'Filters'"><toggle-button/>
         <div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button sprite sprite-search" ng-click="controller.pager.invalidate()"></div></div>
         <div class="fix"></div>
     </div>
 
     <div class="console-buttons" ng-show="controller.showNewPostForm">
-        <div class="button green" ng-click="controller.createPost()" ng-class="{'hidden': controller.loading}"><div class="cross"></div>{{ !controller.editMode ? 'New Post' : 'Update' }}</div>
-        <div class="button red" ng-class="{'hidden': controller.loading}" ng-click="controller.showNewPostForm = false"><div class="cross"></div>Close</div>
+        <approve-button ng-click="controller.createPost()" ng-class="{'hidden': controller.loading}" text="!controller.editMode ? 'New Post' : 'Update'"></approve-button>
+        <remove-button ng-class="{'hidden': controller.loading}" ng-click="controller.showNewPostForm = false" text="'Close'"></remove-button>
         <div class="success">{{controller.successMessage}}</div>
     </div>
 </div>
@@ -99,7 +99,7 @@
 				</div>
 				<div class="content-view-detail">
 					<div class="label">
-						<div class="button blue feature-img-button img-selector" ng-click="controller.openMediaBrowser('featured-image')">...</div>
+                        <add-button class="feature-img-button img-selector" ng-click="controller.newPostMode()" text="'...'"></add-button>
 						Featured Image: <span class="info">The main image for this post</span>
 					</div>
 
@@ -163,7 +163,7 @@
 						<form name="tagForm">
 							<input ng-model="controller.tagString" type="text" name="nTags" ng-minlength="1" />
 						</form>
-						<div ng-click="controller.processTags()" class="button blue"><div class="cross"></div>Add Tags</div>
+                        <add-button ng-click="controller.processTags()" ng-click="controller.newPostMode()" text="'Add Tags'"></add-button>
 					</div>
 				</div>
             </div>
@@ -246,14 +246,14 @@
                     <div class="content-view-detail">
                         <div class="buttons">
                             <div class="nav-button red-highlight" ng-click="post.confirmDelete=true"><a href="">Remove Post</a></div>
-                            <div class="button blue" ng-click="controller.editPostMode(post)">Edit Post</div>
+                            <add-button ng-click="controller.editPostMode(post)" no-icon="true" text="'Edit Post'"></add-button>
                         </div>
                     </div>
                 </div>
                 <div class="user-confirmation animated-panel animate-show" ng-show="post.confirmDelete">
                     <div> you sure you want to delete this post? </div>
-                    <div class="button red" ng-click="controller.removePost(post)">Yes</div>
-                    <div class="button red" ng-click="post.confirmDelete=false">No</div>
+                    <remove-button ng-click="controller.removePost(post)" no-icon="true" text="'Yes'"></remove-button>
+                    <remove-button ng-click="post.confirmDelete=false" no-icon="true" text="'No'"></remove-button>
                 </div>
             </div>
         </div>

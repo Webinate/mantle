@@ -37,6 +37,7 @@ Overrides for the TinyMCE editor
 **/
 @import 'directives/error-modal/style.scss';
 @import 'directives/pager/style.scss';
+@import 'directives/buttons/style.scss';
 @import 'states/default/style.scss';
 @import 'states/login/style.scss';
 @import 'states/register/style.scss';
@@ -224,7 +225,7 @@ max-height: 0;
 .console {
     margin: 10px 0 0 0;
 }
-.console .button {
+.console-buttons .button, .console .button {
     margin: 0 5px 0 0;
 }
 .content-view form input[type="submit"]{
@@ -342,46 +343,7 @@ form input[type="text"].ng-valid.ng-dirty, form input[type="password"].ng-valid.
 
 
 
-.button.blue {
-	color: $highlighted-text;
-	background: $util-background;
-}
-.button.blue:hover {
-	background: shade($util-background, 10);
-}
-.button.blue:active {
-	background: shade($util-background, 20);
-}
-.button.green {
-	color: $highlighted-text;
-	background: $confirm-background;
-}
-.button.green:hover {
-	background: shade($confirm-background, 10);
-}
-.button.green:active {
-	background: shade($confirm-background, 20);
-}
-.button.red {
-	color: $highlighted-text;
-	background: $warning-background;
-}
-.button.red:hover {
-	background: shade($warning-background, 10);
-}
-.button.red:active {
-	background: shade($warning-background, 20);
-}
-.button.gray {
-  background: $subtle-background;
-  border: 1px solid #D5D5D5;
-}
-.button.gray:hover {
-  background: shade($subtle-background, 10);
-}
-.button.gray:active {
-  background: shade($subtle-background, 20);
-}
+
 .nav-button {
 	text-decoration: none;
     -moz-user-select: none;

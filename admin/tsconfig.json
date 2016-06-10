@@ -9,7 +9,8 @@
     "target": "es5",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "outFile": "./dist/main.js"
+    "outFile": "./dist/main.js",
+    "noImplicitAny" : false
   },
   "files": [
         "../server/src/definitions/custom/modepress-api.d.ts",
@@ -22,6 +23,7 @@
         "lib/states/users/users-ctrl.ts",
         "lib/states/posts/posts-ctrl.ts",
         "lib/directives/pager/pager.ts",
+        "lib/directives/buttons/buttons.ts",
         "lib/directives/error-modal/error-modal.ts",
         "lib/authenticator.ts",
         "lib/config.ts",

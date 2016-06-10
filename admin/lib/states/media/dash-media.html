@@ -4,10 +4,9 @@
     <h>Media<img ng-show="mediaController.loading" src="/media/images/loader.gif" /></h>
 	<div class="nav-button right" ng-if="controller"><a ng-click="controller.closeMediaBrowser()">Close X</a></div>
 	<div class="console">
-
-		<div class="button blue" ng-click="mediaController.folderFormVisible = !mediaController.folderFormVisible" ng-show="!mediaController.selectedFolder">New Folder</div>
-		<div class="button blue" ngf-select ngf-multiple="true" ngf-change="mediaController.upload($files)" ng-show="mediaController.selectedFolder"><div class="cross"></div>Upload File</div>
-		<div ng-if="controller" ng-show="mediaController.selectedFolder && mediaController.selectedEntity" class="button green" ng-click="controller.selectFile(mediaController.selectedEntity)">Select File</div>
+        <toggle-button ng-click="mediaController.folderFormVisible = !mediaController.folderFormVisible" ng-show="!mediaController.selectedFolder" text="'New Folder'"></toggle-button>
+        <add-button ng-click="controller.editPostMode(post)" ngf-select ngf-multiple="true" ngf-change="mediaController.upload($files)" ng-show="mediaController.selectedFolder" text="'Upload File'"></add-button>
+        <approve-button ng-click="controller.selectFile(mediaController.selectedEntity)" ng-if="controller" ng-show="mediaController.selectedFolder && mediaController.selectedEntity" text="'Select File'"></approve-button>
 		<div class="nav-button right red-highlight" ng-show="mediaController.selectedEntity && !mediaController.loading"><a ng-click="mediaController.confirmDelete = !mediaController.confirmDelete">Remove</a></div>
 		<div class="nav-button right view-details" ng-show="mediaController.selectedEntity && !mediaController.loading && mediaController.selectedFolder"><a ng-click="mediaController.editMode = !mediaController.editMode">View Details</a></div>
 		<div class="fix"></div>
@@ -28,15 +27,15 @@
                     <div title="Size"><div class="sprite sprite-file-info-size"></div>{{mediaController.selectedEntity.size | bytes}}</div>
                     <div title="Mime Type"><div class="sprite sprite-file-info-mime"></div>{{mediaController.selectedEntity.mimeType}}</div>
                     <div title="Num Downloads"><div class="sprite sprite-file-info-downloads"></div>{{mediaController.selectedEntity.numDownloads}}</div>
-                    <div ng-if="mediaController.editFileMode && !mediaController.loading" class="button green" ng-click="mediaController.renameFile(mediaController.selectedEntity)">Update</div>
+                    <approve-button ng-click="mediaController.renameFile(mediaController.selectedEntity)" ng-if="mediaController.editFileMode && !mediaController.loading" text="'Update'"></approve-button>
                     <div class="nav-button file-edit"><a ng-click="mediaController.editFileMode = !mediaController.editFileMode">{{ (!mediaController.editFileMode ? "Edit" : "Cancel") }}</a></div>
                 </div>
             </div>
             <div class="left panel-view" ng-class="{ expanded : mediaController.editMode && mediaController.selectedFolder }">
                 <div class="user-confirmation animated-panel animate-show" ng-show="mediaController.confirmDelete">
                     <div>Are you sure you want to delete these {{mediaController.selectedFolder ? "file": "folder" }}s</div>
-                    <div class="button red" ng-click="mediaController.removeEntities()">Yes</div>
-                    <div class="button red" ng-click="mediaController.confirmDelete=false">No</div>
+                    <remove-button ng-click="mediaController.removeEntities()" text="'Yes'" no-icon="true" ></remove-button>
+                    <remove-button ng-click="mediaController.confirmDelete=false" text="'No'" no-icon="true" ></remove-button>
                 </div>
 
                 <div class="folder-options animated-panel" ng-show="mediaController.folderFormVisible">
@@ -44,7 +43,7 @@
                         <div class="label">Folder Name:</div>
                         <div class="new-folder">
                             <input id="new-folder" type="text" />
-                            <div class="button green" ng-click="mediaController.newFolder()" ng-show="!mediaController.loading"><div class="cross"></div>Add</div>
+                            <approve-button ng-click="mediaController.newFolder()" ng-show="!mediaController.loading" text="'Add'"></approve-button>
                         </div>
                     </div>
                     <div class="fix"></div>
