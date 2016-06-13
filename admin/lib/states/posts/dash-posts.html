@@ -11,8 +11,8 @@
     <h>Posts<img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
     <div class="console" ng-show="!controller.showNewPostForm">
         <add-button ng-click="controller.newPostMode()" text="'New Post'"></add-button>
-        <toggle-button ng-click="controller.showFilters = !controller.showFilters" text="'Filters'"><toggle-button/>
-        <div class="search"><input type="text" ng-model="controller.searchKeyword" /><div class="search-button sprite sprite-search" ng-click="controller.pager.invalidate()"></div></div>
+        <toggle-button ng-click="controller.showFilters = !controller.showFilters" text="'Filters'"></toggle-button>
+        <search-bar value="controller.searchKeyword" on-click="controller.pager.invalidate"></search-bar>
         <div class="fix"></div>
     </div>
 

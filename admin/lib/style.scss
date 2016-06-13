@@ -38,6 +38,7 @@ Overrides for the TinyMCE editor
 @import 'directives/error-modal/style.scss';
 @import 'directives/pager/style.scss';
 @import 'directives/buttons/style.scss';
+@import 'directives/search-bar/style.scss';
 @import 'states/default/style.scss';
 @import 'states/login/style.scss';
 @import 'states/register/style.scss';
@@ -47,6 +48,7 @@ Overrides for the TinyMCE editor
 @import 'states/posts/style.scss';
 @import 'states/seo/style.scss';
 @import 'states/users/style.scss';
+
 
 
 
@@ -173,9 +175,6 @@ max-height: 0;
 .content-view-details .content-view-detail .textbox, .content-view-detail .preview {
     overflow: auto;
 }
-.content-view-detail .search {
-    float: left;
-}
 .div-list .left {
     float: left;
 }
@@ -236,26 +235,7 @@ max-height: 0;
     margin:10px 0;
 }
 
-.console .search {
-    height: 30px;
-    float: right;
-}
-.console .search input {
-    box-sizing: border-box;
-    float: left;
-    padding:5px;
-}
-.search-button {
-    @include sprite-position($search);
-    @include sprite-width($search);
-    height: sprite-height($search) / 2;
-    display:inline-block;
-    cursor:pointer;
-    margin:5px 10px 0 10px;
-}
-.search-button:hover {
-    background-position-y: (nth($search, 2) - (sprite-height($search) / 2));
-}
+
 .red .cross {
     -ms-transform: rotate(45deg);
     -webkit-transform: rotate(45deg);

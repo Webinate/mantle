@@ -330,6 +330,24 @@ declare module clientAdmin {
 }
 declare module clientAdmin {
     /**
+    * Controller for the dashboard media section
+    */
+    class SearchBar implements ng.IDirective {
+        restrict: string;
+        template: string;
+        scope: {
+            onClick: string;
+            value: string;
+        };
+        constructor();
+        /**
+         * Creates an intance of the pager directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+}
+declare module clientAdmin {
+    /**
     * Creates a blue add button
     */
     class SimpleButton implements ng.IDirective {

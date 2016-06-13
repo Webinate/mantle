@@ -1,0 +1,23 @@
+.search {
+
+    height: 30px;
+    float: right;
+
+    .search-button {
+        @include sprite-position($search);
+        @include sprite-width($search);
+        height: sprite-height($search) / 2;
+        display:inline-block;
+        cursor:pointer;
+        margin:5px 10px 0 10px;
+    }
+    .search-button:hover {
+        background-position-y: (nth($search, 2) - (sprite-height($search) / 2));
+    }
+
+    input {
+        box-sizing: border-box;
+        float: left;
+        padding:5px;
+    }
+}

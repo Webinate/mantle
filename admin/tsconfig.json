@@ -23,6 +23,7 @@
         "lib/states/users/users-ctrl.ts",
         "lib/states/posts/posts-ctrl.ts",
         "lib/directives/pager/pager.ts",
+        "lib/directives/search-bar/search-bar.ts",
         "lib/directives/buttons/buttons.ts",
         "lib/directives/error-modal/error-modal.ts",
         "lib/authenticator.ts",

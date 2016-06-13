@@ -4,7 +4,7 @@
     <h>User Management <img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
     <div class="console" ng-show="!controller.showUserForm">
         <add-button ng-click="controller.newUserMode()" text="'New User'"></add-button>
-        <div class="search"><input type="text" ng-model="controller.searchTerm" /><div class="search-button sprite sprite-search" ng-click="controller.pager.invalidate()"></div></div>
+        <search-bar value="controller.searchTerm" on-click="controller.pager.invalidate"></search-bar>
     </div>
     <div class="console-buttons" ng-show="controller.showUserForm">
         <approve-button ng-class="{'hidden': controller.loading}" ng-click="controller.createNewUser()" text="'Create New User'"></approve-button>
