@@ -361,7 +361,7 @@ export default class PageRenderer extends Controller
                 throw new Error("Could not find a cache with that ID");
 
              okJson<IResponse>( {
-                    error: true,
+                    error: false,
                     message: "Cache has been successfully removed"
                 }, res);
 

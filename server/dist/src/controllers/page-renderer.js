@@ -246,7 +246,7 @@ class PageRenderer extends controller_1.Controller {
                 if (numRemoved == 0)
                     throw new Error("Could not find a cache with that ID");
                 serializers_1.okJson({
-                    error: true,
+                    error: false,
                     message: "Cache has been successfully removed"
                 }, res);
             }
