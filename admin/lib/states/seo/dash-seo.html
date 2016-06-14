@@ -1,32 +1,30 @@
 <div class="seo">
     <error-modal message="controller.errorMsg" visible="controller.error"></error-modal>
-    <div class="sub-menu only-header">
+    <div class="sub-menu">
         <h>SEO<img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
-        <search-bar value="controller.searchTerm" on-click="controller.pager.invalidate"></search-bar>
-        <div class="fix"></div>
+        <div>
+             <div class="nav-button red-highlight clear" ng-click="controller.clearRenders()">
+                <a href="">Clear Cache</a>
+            </div>
+            <search-bar value="controller.searchTerm" on-click="controller.pager.invalidate"></search-bar>
+            <div class="fix"></div>
+        </div>
     </div>
 
-    <div class="content-view only-header">
-        <div class="content-view-item">
-            <div class="arrow animate-fast" ng-click="controller.showRenders = (controller.showRenders === undefined ? true : !controller.showRenders )" ng-class="{ active : controller.showRenders }"></div>
-            <div class="view-item-label">Renders</div>
-            <div class="content-view-details animated-panel animate-show" ng-show="controller.showRenders">
-                <div class="content-view-detail">
-                    <div pager interface="controller.pager" limit="10">
-                        <div class="div-list" ng-repeat="render in controller.renders">
-                            <div class="name left">
-                                <a target="_blank" ng-href="{{controller.apiURL}}/renders/preview-render/{{render._id}}">{{render.url}}</a>
-                            </div>
-                            <div class="right">
-                                <div class="nav-button red-highlight" ng-click="controller.removeRender(render)">
-                                    <a href="">Remove</a>
-                                </div>
-                            </div>
-                            <div class="right">{{render.createdOn | date:"MM/dd/yyyy"}}</div>
-                            <div class="fix"></div>
+    <div class="content-view">
+        <div class="content-view-item-list">
+            <div pager interface="controller.pager" limit="10">
+                <div class="div-list" ng-repeat="render in controller.renders">
+                    <div class="name left">
+                        <a target="_blank" ng-href="{{controller.apiURL}}/renders/preview-render/{{render._id}}">{{render.url}}</a>
+                    </div>
+                    <div class="right">
+                        <div class="nav-button red-highlight" ng-click="controller.removeRender(render)">
+                            <a href="">Remove</a>
                         </div>
                     </div>
-                    <div class="nav-button red-highlight" ng-click="controller.clearRenders()"><a href="">Clear Cache</a></div>
+                    <div class="right">{{render.createdOn | date:"MM/dd/yyyy"}}</div>
+                    <div class="fix"></div>
                 </div>
             </div>
         </div>

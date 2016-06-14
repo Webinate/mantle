@@ -1,9 +1,17 @@
 .seo {
 
+    .sub-menu {
+        .nav-button {
+            margin: 15px 0 0 0;
+        }
+    }
+
     .div-list {
-        margin:20px 0;
-        font-size:20px;
+        margin: 10px;
+        font-size: 20px;
         text-decoration: none;
+        background: #fff;
+        padding: 5px;
 
         a {
             text-decoration: none;
