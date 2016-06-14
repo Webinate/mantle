@@ -36,6 +36,8 @@
             this.errorMsg = "";
             this.searchTerm = "";
             this.pager = this.createPagerRemote();
+
+            scope.removeUser = this.removeUser.bind(this);
         }
 
         /**

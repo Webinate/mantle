@@ -46,6 +46,7 @@ module clientAdmin
         .directive('approveButton', ApproveButton.factory())
         .directive('removeButton', RemoveButton.factory())
         .directive('toggleButton', ToggleButton.factory())
+        .directive('itemPanel', ItemPanel.factory())
         .directive('searchBar', SearchBar.factory())
         .config(Config)
         .run(["$rootScope", "$location", "$state", "Authenticator", function ($rootScope, $location, $state: ng.ui.IStateService, auth: Authenticator)

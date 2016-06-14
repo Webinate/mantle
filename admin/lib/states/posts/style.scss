@@ -1,4 +1,10 @@
 .new-post-form {
+
+    overflow: auto;
+    background: $primary-background;
+    margin: 10px;
+    padding: 10px;
+
     .content-view-detail .label{
         width: auto;
         float:none;

@@ -55,6 +55,8 @@
             this.showMediaBrowser = false;
             this.targetImgReciever = "";
 
+
+
             this.http = http;
             this.loading = false;
             this.error = false;
@@ -89,6 +91,8 @@
 
             // Fetches the categories
             this.categories = categories;
+
+            scope.removePost = this.removePost.bind(this);
         }
 
         /**

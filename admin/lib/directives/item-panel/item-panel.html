@@ -1,0 +1,17 @@
+<div class="item-panel">
+
+    <div class="item-panel-delete animated-panel animated-panel-small" ng-show="confirmDelete">
+        <div>Are you sure you want to delete this item? </div>
+        <remove-button ng-click="onDelete(model)" no-icon="true" text="'Yes'"></remove-button>
+        <remove-button ng-click="confirmDelete=false" no-icon="true" text="'No'"></remove-button>
+    </div>
+
+    <div class="arrow animate-fast" ng-click="more = (more === undefined ? true : !more )" ng-class="{ active : more }"></div>
+    <div class="cross" ng-if="onDelete" ng-style="{ visibility : ($parent.confirmDelete ? 'hidden' : '' ) }" ng-click="$parent.confirmDelete = true"></div>
+    <div class="item-panel-preview" ng-transclude="preview"></div>
+
+
+    <div class="item-panel-content animated-panel animated-panel-large" ng-show="more" ng-transclude="content"></div>
+
+
+</div>

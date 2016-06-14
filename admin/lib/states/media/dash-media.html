@@ -32,7 +32,7 @@
                 </div>
             </div>
             <div class="left panel-view" ng-class="{ expanded : mediaController.editMode && mediaController.selectedFolder }">
-                <div class="user-confirmation animated-panel animate-show" ng-show="mediaController.confirmDelete">
+                <div class="user-confirmation animated-panel" ng-show="mediaController.confirmDelete">
                     <div>Are you sure you want to delete these {{mediaController.selectedFolder ? "file": "folder" }}s</div>
                     <remove-button ng-click="mediaController.removeEntities()" text="'Yes'" no-icon="true" ></remove-button>
                     <remove-button ng-click="mediaController.confirmDelete=false" text="'No'" no-icon="true" ></remove-button>

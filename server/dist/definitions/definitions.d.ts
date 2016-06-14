@@ -432,6 +432,30 @@ declare module clientAdmin {
 }
 declare module clientAdmin {
     /**
+     * Small directive that represents an div item that has a preview, content and delete section.
+     * Ideal for database entries displayed in a list.
+     */
+    class ItemPanel implements ng.IDirective {
+        restrict: string;
+        transclude: {
+            'preview': string;
+            'content': string;
+        };
+        templateUrl: string;
+        scope: {
+            onDelete: string;
+            model: string;
+            confirmDelete: string;
+        };
+        link(scope: any): void;
+        /**
+         * Creates an intance of the pager directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+}
+declare module clientAdmin {
+    /**
     * An authentication service for checking if the user is logged in
     */
     class Authenticator {

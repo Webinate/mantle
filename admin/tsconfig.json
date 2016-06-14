@@ -26,6 +26,7 @@
         "lib/directives/search-bar/search-bar.ts",
         "lib/directives/buttons/buttons.ts",
         "lib/directives/error-modal/error-modal.ts",
+        "lib/directives/item-panel/item-panel.ts",
         "lib/authenticator.ts",
         "lib/config.ts",
         "lib/application.ts"

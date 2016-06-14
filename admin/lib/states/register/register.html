@@ -2,16 +2,16 @@
 	<form name="registerForm" ng-submit="registerForm.$valid && controller.register()" novalidate>
 		<div>
 			<label>Username <br><input type="text" name="registerUsername" ng-model="controller.registerToken.username" ng-minlength="3" required /></label>
-			<div class="error animate-show" ng-show="registerForm.registerUsername.$error.required && (registerForm.$submitted || registerForm.registerUsername.$touched)">Please enter a valid username</div>
+			<div class="error" ng-show="registerForm.registerUsername.$error.required && (registerForm.$submitted || registerForm.registerUsername.$touched)">Please enter a valid username</div>
 		</div>
 		<div>
 			<label>Password <br><input type="password" name="registerPassword" ng-model="controller.registerToken.password" ng-minlength="3" required /></label>
-			<div class="error animate-show" ng-show="registerForm.registerPassword.$error.required && (registerForm.$submitted || registerForm.registerPassword.$touched)">Please enter a valid password</div>
+			<div class="error" ng-show="registerForm.registerPassword.$error.required && (registerForm.$submitted || registerForm.registerPassword.$touched)">Please enter a valid password</div>
 		</div>
 		<div>
 			<label>Email<br><input type="email" name="registerEmail" ng-model="controller.registerToken.email" required /></label>
-			<div class="error animate-show" ng-show="registerForm.registerEmail.$error.required && (registerForm.$submitted || registerForm.registerEmail.$touched)">Please enter an email</div>
-			<div class="error animate-show" ng-show="registerForm.registerEmail.$error.email && (registerForm.$submitted || registerForm.registerEmail.$touched)">Please enter a valid email</div>
+			<div class="error" ng-show="registerForm.registerEmail.$error.required && (registerForm.$submitted || registerForm.registerEmail.$touched)">Please enter an email</div>
+			<div class="error" ng-show="registerForm.registerEmail.$error.email && (registerForm.$submitted || registerForm.registerEmail.$touched)">Please enter a valid email</div>
 		</div>
 
 		<div id="google-captcha"></div>
