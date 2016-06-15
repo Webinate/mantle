@@ -1,6 +1,6 @@
 <div class="item-panel">
 
-    <div class="item-panel-delete animated-panel animated-panel-small" ng-show="confirmDelete">
+    <div class="item-panel-delete animated-panel animated-panel-small ng-hide" ng-show="confirmDelete">
         <div>Are you sure you want to delete this item? </div>
         <remove-button ng-click="onDelete(model)" no-icon="true" text="'Yes'"></remove-button>
         <remove-button ng-click="confirmDelete=false" no-icon="true" text="'No'"></remove-button>
@@ -11,7 +11,7 @@
     <div class="item-panel-preview" ng-transclude="preview"></div>
 
 
-    <div class="item-panel-content animated-panel animated-panel-large" ng-show="more" ng-transclude="content"></div>
+    <div class="item-panel-content animated-panel animated-panel-large ng-hide" ng-show="more" ng-transclude="content"></div>
 
 
 </div>

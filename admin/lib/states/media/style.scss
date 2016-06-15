@@ -120,38 +120,41 @@
         vertical-align:middle;
     }
 
-    div {
+    .detail {
         font-size:20px;
         margin: 10px 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        display: inherit;
+    }
 
-        .sprite {
-            vertical-align:middle;
-            margin: 0 10px 0 0;
-        }
+    .cancel {
+        margin: 0 0 0 15px;
+    }
 
-        .sprite-file-info-clock{
-            @include sprite($file-info-clock, inline-block);
-        }
+    .sprite {
+        vertical-align:middle;
+        margin: 0 10px 0 0;
+    }
 
-        .sprite-file-info-downloads{
-            @include sprite($file-info-downloads, inline-block);
-        }
+    .sprite-file-info-clock{
+        @include sprite($file-info-clock, inline-block);
+    }
 
-        .sprite-file-info-id{
-            @include sprite($file-info-id, inline-block);
-        }
+    .sprite-file-info-downloads{
+        @include sprite($file-info-downloads, inline-block);
+    }
 
-        .sprite-file-info-mime{
-            @include sprite($file-info-mime, inline-block);
-        }
+    .sprite-file-info-id{
+        @include sprite($file-info-id, inline-block);
+    }
 
-        .sprite-file-info-size{
-            @include sprite($file-info-size, inline-block);
-        }
+    .sprite-file-info-mime{
+        @include sprite($file-info-mime, inline-block);
+    }
+
+    .sprite-file-info-size{
+        @include sprite($file-info-size, inline-block);
     }
 }
 

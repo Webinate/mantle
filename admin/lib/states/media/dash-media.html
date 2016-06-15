@@ -22,13 +22,13 @@
                     <h2 ng-if="!mediaController.editFileMode">{{mediaController.selectedEntity.name}}</h2>
                     <input ng-if="mediaController.editFileMode" type="text" id="file-name" value="{{mediaController.selectedEntity.name}}" />
                     <input ng-if="!mediaController.editFileMode" type="text" value="{{mediaController.selectedEntity.publicURL}}" />
-                    <div title="ID"><div class="sprite sprite-file-info-id"></div>{{mediaController.selectedEntity.identifier}}</div>
-                    <div title="Created On"><div class="sprite sprite-file-info-clock"></div>{{mediaController.selectedEntity.created | date:"MM/dd/yyyy 'at' h:mma"}}</div>
-                    <div title="Size"><div class="sprite sprite-file-info-size"></div>{{mediaController.selectedEntity.size | bytes}}</div>
-                    <div title="Mime Type"><div class="sprite sprite-file-info-mime"></div>{{mediaController.selectedEntity.mimeType}}</div>
-                    <div title="Num Downloads"><div class="sprite sprite-file-info-downloads"></div>{{mediaController.selectedEntity.numDownloads}}</div>
+                    <div title="ID" class="detail"><div class="sprite sprite-file-info-id"></div>{{mediaController.selectedEntity.identifier}}</div>
+                    <div title="Created On" class="detail"><div class="sprite sprite-file-info-clock"></div>{{mediaController.selectedEntity.created | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+                    <div title="Size" class="detail"><div class="sprite sprite-file-info-size"></div>{{mediaController.selectedEntity.size | bytes}}</div>
+                    <div title="Mime Type" class="detail"><div class="sprite sprite-file-info-mime"></div>{{mediaController.selectedEntity.mimeType}}</div>
+                    <div title="Num Downloads" class="detail"><div class="sprite sprite-file-info-downloads"></div>{{mediaController.selectedEntity.numDownloads}}</div>
                     <approve-button ng-click="mediaController.renameFile(mediaController.selectedEntity)" ng-if="mediaController.editFileMode && !mediaController.loading" text="'Update'"></approve-button>
-                    <div class="nav-button file-edit"><a ng-click="mediaController.editFileMode = !mediaController.editFileMode">{{ (!mediaController.editFileMode ? "Edit" : "Cancel") }}</a></div>
+                    <div class="cancel nav-button file-edit"><a ng-click="mediaController.editFileMode = !mediaController.editFileMode">{{ (!mediaController.editFileMode ? "Edit" : "Cancel") }}</a></div>
                 </div>
             </div>
             <div class="left panel-view" ng-class="{ expanded : mediaController.editMode && mediaController.selectedFolder }">
