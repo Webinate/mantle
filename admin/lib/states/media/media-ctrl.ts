@@ -205,7 +205,7 @@
 
             if (entity.selected)
             {
-                if (this.multiSelect == false)
+                if (this.multiSelect == false || !(<MouseEvent>event).ctrlKey )
                 {
                     for (var i = 0, l = ents.length; i < l; i++)
                         (<any>ents[i]).selected = false;
