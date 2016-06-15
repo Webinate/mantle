@@ -1,9 +1,8 @@
 <error-modal message="mediaController.errorMsg" visible="mediaController.error"></error-modal>
 
-<div class="sub-menu">
-    <h>Media<img ng-show="mediaController.loading" src="/media/images/loader.gif" /></h>
-	<div class="nav-button right" ng-if="controller"><a ng-click="controller.closeMediaBrowser()">Close X</a></div>
-	<div class="console">
+<state-header text="'Media'" loading="mediaController.loading">
+    <div class="nav-button right" ng-if="controller"><a ng-click="controller.closeMediaBrowser()">Close X</a></div>
+	<div>
         <toggle-button ng-click="mediaController.folderFormVisible = !mediaController.folderFormVisible" ng-show="!mediaController.selectedFolder" text="'New Folder'"></toggle-button>
         <add-button ng-click="controller.editPostMode(post)" ngf-select ngf-multiple="true" ngf-change="mediaController.upload($files)" ng-show="mediaController.selectedFolder" text="'Upload File'"></add-button>
         <approve-button ng-click="controller.selectFile(mediaController.selectedEntity)" ng-if="controller" ng-show="mediaController.selectedFolder && mediaController.selectedEntity" text="'Select File'"></approve-button>
@@ -11,10 +10,9 @@
 		<div class="nav-button right view-details" ng-show="mediaController.selectedEntity && !mediaController.loading && mediaController.selectedFolder"><a ng-click="mediaController.editMode = !mediaController.editMode">View Details</a></div>
 		<div class="fix"></div>
 	</div>
-</div>
+</state-header>
 
 <div class="media content-view">
-
     <div pager interface="mediaController.pager" limit="10">
         <div class="content-page">
             <div class="right panel-view expanded" ng-if="mediaController.editMode && mediaController.selectedFolder">

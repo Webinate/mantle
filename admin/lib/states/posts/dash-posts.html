@@ -6,21 +6,20 @@
 	</div>
 </div>
 
-<div class="sub-menu">
-    <h>Posts<img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
-    <div class="console" ng-show="!controller.showNewPostForm">
+<state-header text="'Posts'" loading="controller.loading">
+    <div ng-show="!controller.showNewPostForm">
         <add-button ng-click="controller.newPostMode()" text="'New Post'"></add-button>
         <toggle-button ng-click="controller.showFilters = !controller.showFilters" text="'Filters'"></toggle-button>
         <search-bar value="controller.searchKeyword" on-click="controller.pager.invalidate"></search-bar>
         <div class="fix"></div>
     </div>
 
-    <div class="console-buttons" ng-show="controller.showNewPostForm">
+    <div ng-show="controller.showNewPostForm">
         <approve-button ng-click="controller.createPost()" ng-class="{'hidden': controller.loading}" text="!controller.editMode ? 'New Post' : 'Update'"></approve-button>
         <remove-button ng-class="{'hidden': controller.loading}" ng-click="controller.showNewPostForm = false" text="'Close'"></remove-button>
         <div class="success">{{controller.successMessage}}</div>
     </div>
-</div>
+</state-header>
 
 <div class="content-view">
     <div class="filter-options animated-panel" ng-show="controller.showFilters && !controller.showNewPostForm">

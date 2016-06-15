@@ -456,6 +456,24 @@ declare module clientAdmin {
 }
 declare module clientAdmin {
     /**
+    * Simple directive for each state header
+    */
+    class StateHeader implements ng.IDirective {
+        transclude: boolean;
+        restrict: string;
+        template: string;
+        scope: {
+            text: string;
+            loading: string;
+        };
+        /**
+         * Creates an intance of the pager directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+}
+declare module clientAdmin {
+    /**
     * An authentication service for checking if the user is logged in
     */
     class Authenticator {

@@ -1,0 +1,27 @@
+.sub-menu {
+    padding:20px;
+    box-sizing: border-box;
+    overflow: hidden;
+    height: 15%;
+    height: 130px;
+    background: $background-light;
+
+    img {
+        margin: 0px 0 0 10px;
+        vertical-align: middle;
+    }
+
+    h {
+        font-size:30px;
+        vertical-align: middle;
+    }
+
+
+    .console {
+        margin: 10px 0 0 0;
+
+        .button {
+            margin: 0 5px 0 0;
+        }
+    }
+}

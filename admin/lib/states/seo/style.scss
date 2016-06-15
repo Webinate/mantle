@@ -13,6 +13,19 @@
         background: #fff;
         padding: 5px;
 
+        .left {
+            float: left;
+        }
+
+        .right {
+            float: right;
+            margin: 0 10px 0 0;
+        }
+
+        div {
+            font-size: inherit;
+        }
+
         a {
             text-decoration: none;
             margin:20px 0;

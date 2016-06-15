@@ -1,15 +1,13 @@
 <div class="seo">
     <error-modal message="controller.errorMsg" visible="controller.error"></error-modal>
-    <div class="sub-menu">
-        <h>SEO<img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
-        <div>
-             <div class="nav-button red-highlight clear" ng-click="controller.clearRenders()">
-                <a href="">Clear Cache</a>
-            </div>
-            <search-bar value="controller.searchTerm" on-click="controller.pager.invalidate"></search-bar>
-            <div class="fix"></div>
+
+    <state-header text="'SEO'" loading="controller.loading">
+        <div class="nav-button red-highlight clear" ng-click="controller.clearRenders()">
+            <a href="">Clear Cache</a>
         </div>
-    </div>
+        <search-bar value="controller.searchTerm" on-click="controller.pager.invalidate"></search-bar>
+        <div class="fix"></div>
+    </state-header>
 
     <div class="content-view">
         <div class="content-view-item-list">

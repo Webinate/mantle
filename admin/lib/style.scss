@@ -41,6 +41,7 @@ Overrides for the TinyMCE editor
 @import 'directives/buttons/style.scss';
 @import 'directives/search-bar/style.scss';
 @import 'directives/item-panel/style.scss';
+@import 'directives/state-header/style.scss';
 @import 'states/default/style.scss';
 @import 'states/login/style.scss';
 @import 'states/register/style.scss';
@@ -110,20 +111,8 @@ form .nav-button {
     height:100%;
     min-width:800px;
 }
-.sub-menu {
-    padding:20px;
-    box-sizing: border-box;
-    overflow: hidden;
-    height: 15%;
-    height: 130px;
-}
-.sub-menu.only-header {
-    height: 10%;
-    height: 75px;
-}
-.console-buttons {
-  margin: 10px 0;
-}
+
+
 .content-view {
     box-sizing: border-box;
     overflow: auto;
@@ -133,10 +122,6 @@ form .nav-button {
 .content-page {
     height: calc(100% - 50px);
     overflow: auto;
-}
-.content-view.only-header {
-    height: 90%;
-    height: calc(100% - 75px);
 }
 
 
@@ -156,16 +141,7 @@ form .nav-button {
     white-space: nowrap;
 }
 
-.div-list .left {
-    float: left;
-}
-.div-list .right {
-    float: right;
-    margin: 0 10px 0 0;
-}
-.div-list div {
-    font-size: inherit;
-}
+
 .content-view-detail .mce-tinymce {
     margin:10px 0 0 0;
 }
@@ -186,24 +162,8 @@ form .nav-button {
       margin:0 10px 0 0;
       display: inline-block;
 }
-.big-dialog-box {
-    position:absolute;
-    top: 5%;
-    left: 5%;
-    width: 90%;
-    height: 90%;
-    z-index:2;
-}
-.sub-menu img {
-  margin: 0px 0 0 10px;
-  vertical-align: middle;
-}
-.console {
-    margin: 10px 0 0 0;
-}
-.console-buttons .button, .console .button {
-    margin: 0 5px 0 0;
-}
+
+
 .content-view form input[type="submit"]{
     margin: 20px 0 20px 10px;
 }
@@ -245,9 +205,7 @@ form .nav-button {
 .filter-group .label {
     margin: 0 0 10px 0;
 }
-.console-buttons .success {
-    display:inline-block;
-}
+
 
 /**
 ======================================================
@@ -329,22 +287,17 @@ form label {
   font-style: italic;
   font-weight: normal;
 }
-.sub-menu h {
-    font-size:30px;
-}
+
 
 .view-item-label.date {
     float:right;
 }
-.sub-menu, .view-item-label {
+
+.view-item-label {
     background: $background-light;
 }
 
 
-
-.big-dialog-box {
-    background:#DDDDDD;
-}
 
 .content-view-detail .textbox {
     color: #999;
@@ -363,9 +316,7 @@ form label {
     padding: 10px;
 }
 
-.console-buttons .cross::before, .console-buttons .cross::after {
-    background: $primary-background;
-}
+
 
 
 .filter-group .label {

@@ -1,17 +1,18 @@
 <error-modal message="controller.errorMsg" visible="controller.error"></error-modal>
 
-<div class="sub-menu">
-    <h>User Management <img ng-show="controller.loading" src="/media/images/loader.gif" /></h>
-    <div class="console" ng-show="!controller.showUserForm">
+<state-header text="'User Management'">
+    <img ng-show="controller.loading" src="/media/images/loader.gif" />
+    <div ng-show="!controller.showUserForm">
         <add-button ng-click="controller.newUserMode()" text="'New User'"></add-button>
         <search-bar value="controller.searchTerm" on-click="controller.pager.invalidate"></search-bar>
     </div>
-    <div class="console-buttons" ng-show="controller.showUserForm">
+    <div ng-show="controller.showUserForm">
         <approve-button ng-class="{'hidden': controller.loading}" ng-click="controller.createNewUser()" text="'Create New User'"></approve-button>
         <remove-button ng-class="{'hidden': controller.loading}" ng-click="controller.showUserForm = false" text="'Close'"></remove-button>
         <div class="success">{{controller.successMessage}}</div>
     </div>
-</div>
+</state-header>
+
 
 <div class="content-view">
     <div class="content-view-item new-user-form" ng-show="controller.showUserForm">
