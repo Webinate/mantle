@@ -1,0 +1,20 @@
+.tick-box {
+    width:20px;
+    height:20px;
+    cursor:pointer;
+    display:inline-block;
+    background: #F0F0F0;
+
+    &:hover {
+        background: #dbdbdb;
+    }
+    &:active {
+        background: #ccc;
+    }
+
+    .tick {
+        top: -25%;
+        width:120%;
+        height:120%;
+    }
+}

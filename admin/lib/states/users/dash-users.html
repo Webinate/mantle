@@ -1,104 +1,106 @@
-<error-modal message="controller.errorMsg" visible="controller.error"></error-modal>
+<div class="users">
+    <error-modal message="controller.errorMsg" visible="controller.error"></error-modal>
 
-<state-header text="'User Management'">
-    <img ng-show="controller.loading" src="/media/images/loader.gif" />
-    <div ng-show="!controller.showUserForm">
-        <add-button ng-click="controller.newUserMode()" text="'New User'"></add-button>
-        <search-bar value="controller.searchTerm" on-click="controller.pager.invalidate"></search-bar>
-    </div>
-    <div ng-show="controller.showUserForm">
-        <approve-button ng-class="{'hidden': controller.loading}" ng-click="controller.createNewUser()" text="'Create New User'"></approve-button>
-        <remove-button ng-class="{'hidden': controller.loading}" ng-click="controller.showUserForm = false" text="'Close'"></remove-button>
-        <div class="success">{{controller.successMessage}}</div>
-    </div>
-</state-header>
+    <state-header text="'User Management'">
+        <img ng-show="controller.loading" src="/media/images/loader.gif" />
+        <div ng-show="!controller.showUserForm">
+            <add-button ng-click="controller.newUserMode()" text="'New User'"></add-button>
+            <search-bar value="controller.searchTerm" on-click="controller.pager.invalidate"></search-bar>
+        </div>
+        <div ng-show="controller.showUserForm">
+            <approve-button ng-class="{'hidden': controller.loading}" ng-click="controller.createNewUser()" text="'Create New User'"></approve-button>
+            <remove-button ng-class="{'hidden': controller.loading}" ng-click="controller.showUserForm = false" text="'Close'"></remove-button>
+            <div class="success">{{controller.successMessage}}</div>
+        </div>
+    </state-header>
 
 
-<div class="content-view">
-    <div class="content-view-item new-user-form" ng-show="controller.showUserForm">
-        <form name="newUserForm" ng-submit="newUserForm.$valid && controller.createNewUser()" novalidate>
-            <div class="content-view-detail">
-                <div class="label">Username:</div>
-                <input type="text" name="nUsername" ng-model="controller.newUser.username" ng-minlength="3" required />
-                <div class="error" ng-show="newUserForm.nUsername.$error.required && (newUserForm.$submitted || newUserForm.nUsername.$touched)">Please enter a valid username</div>
-                <div class="fix"></div>
-            </div>
-            <div class="content-view-detail">
-                <div class="label">Email:</div>
-                <input type="email" name="nEmail" ng-model="controller.newUser.email" required />
-                <div class="error" ng-show="newUserForm.nEmail.$error.required && (newUserForm.$submitted || newUserForm.nEmail.$touched)">Please enter an email</div>
-                <div class="error" ng-show="newUserForm.nEmail.$error.email && (newUserForm.$submitted || newUserForm.nEmail.$touched)">Please enter a valid email</div>
-                <div class="fix"></div>
-            </div>
-            <div class="content-view-detail">
-                <div class="label">Password: </div>
-                <input type="password" name="nPassword" ng-model="controller.newUser.password" ng-minlength="3" required />
-                <div class="error" ng-show="newUserForm.nPassword.$error.required && (newUserForm.$submitted || newUserForm.nPassword.$touched)">Please enter a valid password</div>
-                <div class="fix"></div>
-            </div>
-            <div class="content-view-detail">
-                <div class="label">User Type: </div>
-                <div class="dropdown">
-                    <select name="nType" ng-model="controller.newUser.type" required>
-                        <option value="2">Admin</option>
-                        <option value="3">Regular User</option>
-                    </select>
+    <div class="content-view">
+        <div class="content-view-item new-user-form" ng-show="controller.showUserForm">
+            <form name="newUserForm" ng-submit="newUserForm.$valid && controller.createNewUser()" novalidate>
+                <div class="content-view-detail">
+                    <div class="label">Username:</div>
+                    <input type="text" name="nUsername" ng-model="controller.newUser.username" ng-minlength="3" required />
+                    <div class="error" ng-show="newUserForm.nUsername.$error.required && (newUserForm.$submitted || newUserForm.nUsername.$touched)">Please enter a valid username</div>
+                    <div class="fix"></div>
                 </div>
-                <div class="fix"></div>
+                <div class="content-view-detail">
+                    <div class="label">Email:</div>
+                    <input type="email" name="nEmail" ng-model="controller.newUser.email" required />
+                    <div class="error" ng-show="newUserForm.nEmail.$error.required && (newUserForm.$submitted || newUserForm.nEmail.$touched)">Please enter an email</div>
+                    <div class="error" ng-show="newUserForm.nEmail.$error.email && (newUserForm.$submitted || newUserForm.nEmail.$touched)">Please enter a valid email</div>
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">Password: </div>
+                    <input type="password" name="nPassword" ng-model="controller.newUser.password" ng-minlength="3" required />
+                    <div class="error" ng-show="newUserForm.nPassword.$error.required && (newUserForm.$submitted || newUserForm.nPassword.$touched)">Please enter a valid password</div>
+                    <div class="fix"></div>
+                </div>
+                <div class="content-view-detail">
+                    <div class="label">User Type: </div>
+                    <div class="dropdown">
+                        <select name="nType" ng-model="controller.newUser.type" required>
+                            <option value="2">Admin</option>
+                            <option value="3">Regular User</option>
+                        </select>
+                    </div>
+                    <div class="fix"></div>
+                </div>
+            </form>
+        </div>
+
+        <div class="content-view-item-list" ng-show="!controller.showUserForm">
+            <div pager interface="controller.pager" limit="10">
+
+                <item-panel ng-repeat="user in controller.users" model="user" on-delete="removeUser">
+                    <panel-preview>
+                        <div class="view-item-label">{{user.username}}</div>
+                    </panel-preview>
+                    <panel-content>
+                        <div class="content-view-detail">
+                            <div class="label">ID: </div>
+                            <div class="textbox">{{user._id}}</div>
+                            <div class="fix"></div>
+                        </div>
+                        <div class="content-view-detail">
+                            <div class="label">Email</div>
+                            <div class="textbox">{{user.email}}</div>
+                            <div class="fix"></div>
+                        </div>
+                        <div class="content-view-detail">
+                            <div class="label">User Type</div>
+                            <div class="textbox">{{(user.privileges == 1 ? "Super Admin" : ( user.privileges == 2 ? "Admin" : "Regular User") )}}</div>
+                            <div class="fix"></div>
+                        </div>
+                        <div class="content-view-detail">
+                            <div class="label">Password: </div>
+                            <div class="textbox">{{user.password}}</div>
+                            <div class="fix"></div>
+                        </div>
+                        <div class="content-view-detail">
+                            <div class="label">Password Tag: </div>
+                            <div class="textbox">{{user.passwordTag}}</div>
+                            <div class="fix"></div>
+                        </div>
+                        <div class="content-view-detail">
+                            <div class="label">Register Key: </div>
+                            <div class="textbox">{{user.registerKey}}</div>
+                            <div class="fix"></div>
+                            </div>
+                        <div class="content-view-detail">
+                            <div class="label">Last Logged In: </div>
+                            <div class="textbox">{{user.lastLoggedIn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
+                            <div class="fix"></div>
+                        </div>
+                        <div class="content-view-detail">
+                            <div class="buttons">
+                                <div class="nav-button red-highlight" ng-hide="$parent.confirmDelete" ng-click="$parent.confirmDelete=true"><a href="">Remove User</a></div>
+                            </div>
+                        </div>
+                    </panel-content>
+                </item-panel>
             </div>
-        </form>
-    </div>
-
-    <div class="content-view-item-list" ng-show="!controller.showUserForm">
-        <div pager interface="controller.pager" limit="10">
-
-            <item-panel ng-repeat="user in controller.users" model="user" on-delete="removeUser">
-                <panel-preview>
-                    <div class="view-item-label">{{user.username}}</div>
-                </panel-preview>
-                <panel-content>
-                    <div class="content-view-detail">
-                        <div class="label">ID: </div>
-                        <div class="textbox">{{user._id}}</div>
-                        <div class="fix"></div>
-                    </div>
-                    <div class="content-view-detail">
-                        <div class="label">Email</div>
-                        <div class="textbox">{{user.email}}</div>
-                        <div class="fix"></div>
-                    </div>
-                    <div class="content-view-detail">
-                        <div class="label">User Type</div>
-                        <div class="textbox">{{(user.privileges == 1 ? "Super Admin" : ( user.privileges == 2 ? "Admin" : "Regular User") )}}</div>
-                        <div class="fix"></div>
-                    </div>
-                    <div class="content-view-detail">
-                        <div class="label">Password: </div>
-                        <div class="textbox">{{user.password}}</div>
-                        <div class="fix"></div>
-                    </div>
-                    <div class="content-view-detail">
-                        <div class="label">Password Tag: </div>
-                        <div class="textbox">{{user.passwordTag}}</div>
-                        <div class="fix"></div>
-                    </div>
-                    <div class="content-view-detail">
-                        <div class="label">Register Key: </div>
-                        <div class="textbox">{{user.registerKey}}</div>
-                        <div class="fix"></div>
-                        </div>
-                    <div class="content-view-detail">
-                        <div class="label">Last Logged In: </div>
-                        <div class="textbox">{{user.lastLoggedIn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
-                        <div class="fix"></div>
-                    </div>
-                    <div class="content-view-detail">
-                        <div class="buttons">
-                            <div class="nav-button red-highlight" ng-hide="$parent.confirmDelete" ng-click="$parent.confirmDelete=true"><a href="">Remove User</a></div>
-                        </div>
-                    </div>
-                </panel-content>
-            </item-panel>
         </div>
     </div>
 </div>

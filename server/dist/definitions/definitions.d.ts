@@ -474,6 +474,26 @@ declare module clientAdmin {
 }
 declare module clientAdmin {
     /**
+    * Simple directive a checkbox
+    */
+    class TickBox implements ng.IDirective {
+        transclude: boolean;
+        restrict: string;
+        template: string;
+        scope: {
+            text: string;
+            checked: string;
+            onTicked: string;
+        };
+        link(scope: any): void;
+        /**
+         * Creates an intance of the pager directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+}
+declare module clientAdmin {
+    /**
     * An authentication service for checking if the user is logged in
     */
     class Authenticator {

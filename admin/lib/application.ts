@@ -49,6 +49,7 @@ module clientAdmin
         .directive('itemPanel', ItemPanel.factory())
         .directive('searchBar', SearchBar.factory())
         .directive('stateHeader', StateHeader.factory())
+        .directive('tickBox', TickBox.factory())
         .config(Config)
         .run(["$rootScope", "$location", "$state", "Authenticator", function ($rootScope, $location, $state: ng.ui.IStateService, auth: Authenticator)
         {

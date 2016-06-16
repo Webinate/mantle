@@ -42,6 +42,7 @@ Overrides for the TinyMCE editor
 @import 'directives/search-bar/style.scss';
 @import 'directives/item-panel/style.scss';
 @import 'directives/state-header/style.scss';
+@import 'directives/tick-box/style.scss';
 @import 'states/default/style.scss';
 @import 'states/login/style.scss';
 @import 'states/register/style.scss';
@@ -180,21 +181,7 @@ form .nav-button {
     cursor:pointer;
 }
 
-.tick-box {
-    width:20px;
-    height:20px;
-    cursor:pointer;
-}
-.tick {
-    width:120%;
-    height:120%;
-}
-.tick-box .tick {
-    top: -25%;
-}
-.tick-box{
-    display:inline-block;
-}
+
 
 .filter-group {
     float: left;
@@ -246,15 +233,7 @@ form input[type="text"].ng-invalid.ng-dirty, form input[type="password"].ng-inva
 form input[type="text"].ng-valid.ng-dirty, form input[type="password"].ng-valid.ng-dirty, form input[type="email"].ng-valid.ng-dirty {
 	background:#d6ffd6;
 }
-.tick-box {
-    background: #F0F0F0;
-}
-.tick-box:hover {
-    background: #dbdbdb;
-}
-.tick-box:active {
-    background: #ccc;
-}
+
 
 
 

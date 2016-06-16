@@ -6,7 +6,11 @@ module clientAdmin
     export class SearchBar implements ng.IDirective
 	{
         restrict = 'E';
-        template = '<div class="search"><input type="text" ng-model="value" /><div class="search-button sprite sprite-search" ng-click="onClick(value)"></div></div>';
+        template = `
+            <div class="search">
+                <input type="text" ng-model="value" />
+                <div class="search-button sprite sprite-search" ng-click="onClick(value)"></div>
+            </div>`;
         scope = {
             onClick: '=',
             value: '='
