@@ -2,7 +2,7 @@
     overflow:hidden;
 }
 .animated-panel.ng-hide {
-max-height: 0;
+    max-height: 0 !important;
 }
 .animated-panel.ng-hide-add.ng-hide-add-active,
 .animated-panel.ng-hide-remove.ng-hide-remove-active {

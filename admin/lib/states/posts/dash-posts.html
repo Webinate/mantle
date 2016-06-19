@@ -1,4 +1,4 @@
-<div class="posts">
+<div class="posts state">
     <error-modal message="controller.errorMsg" visible="controller.error"></error-modal>
 
     <div class="dialog-modal" ng-if="controller.showMediaBrowser">
@@ -77,7 +77,7 @@
                 </div>
                 <div class="content-view-detail">
                     <div class="label">
-                        <add-button class="feature-img-button img-selector" ng-click="controller.newPostMode()" text="'...'"></add-button>
+                        <add-button no-icon="true" class="feature-img-button img-selector" ng-click="controller.openMediaBrowser('featured-image')" text="'...'"></add-button>
                         Featured Image: <span class="info">The main image for this post</span>
                     </div>
 
@@ -91,11 +91,17 @@
                     <div class="category-header">Categories:</div>
                     <div class="post-categories" ng-show="controller.categories.length != 0">
                         <div class="category" ng-repeat="category in controller.categories">
-                            <div class="tick-box" ng-show="!controller.showCategoryDelete" ng-click="controller.selectCategory(category)">
-                                <div class="tick" ng-show="controller.postToken.categories.indexOf(category.slug) != -1"></div>
-                            </div>
-                            <div ng-show="controller.showCategoryDelete" class="cross" ng-click="controller.removeCategory(category)"></div>
-                            {{category.title}} - {{category.slug}}
+
+                            <tick-box on-ticked="controller.selectCategory(category)"
+                                ng-show="!controller.showCategoryDelete"
+                                checked="controller.postToken.categories.indexOf(category.slug) != -1"
+                                text="category.title + '-' + category.slug"></tick-box>
+
+                            <tick-box on-ticked="controller.removeCategory(category)"
+                                ng-show="controller.showCategoryDelete"
+                                checked="true"
+                                tick-type="'cross'"
+                                text="category.title + '-' + category.slug"></tick-box>
                         </div>
                     </div>
                     <div class="category-buttons">
@@ -133,9 +139,12 @@
             <div class="tags">
                 <div class="tag-header">Tags:</div>
                 <div class="tag-content">
-                    <div class="tag" ng-repeat="tag in controller.postToken.tags">
-                        <div class="cross" ng-click="controller.removeTag(tag)"></div>{{tag}}
-                    </div>
+                    <tick-box ng-repeat="tag in controller.postToken.tags"
+                        class="tag"
+                        on-ticked="controller.removeTag(tag)"
+                        checked="true"
+                        tick-type="'cross'"
+                        text="tag"></tick-box>
                     <div class="fix"></div>
                     <div class="new-tag">
                         <form name="tagForm">
@@ -148,29 +157,15 @@
 
             <div class="tags">
                 <div class="tag-header">Visibility:</div>
-
                 <tick-box on-ticked="controller.postToken.public = true" checked="controller.postToken.public" text="'Public'"></tick-box>
                 <tick-box on-ticked="controller.postToken.public = false" checked="!controller.postToken.public" text="'Private'"></tick-box>
-
-                <!--<div class="checkbox">
-                    <div class="tick-box" ng-click="controller.postToken.public = true">
-                        <div class="tick" ng-show="controller.postToken.public"></div>
-                    </div>
-                    Public
-                </div>
-                <div class="checkbox">
-                    <div class="tick-box" ng-click="controller.postToken.public = false">
-                        <div class="tick" ng-show="!controller.postToken.public"></div>
-                    </div>
-                    Private
-                </div>-->
             </div>
 
             <div class="fix"></div>
         </div>
 
         <div class="content-view-item-list" ng-show="!controller.showNewPostForm">
-            <div pager interface="controller.pager" limit="2">
+            <div pager interface="controller.pager" limit="10">
                 <item-panel ng-repeat="post in controller.posts" model="post" on-delete="removePost">
                     <panel-preview>
                         <div class="view-item-label date">Created: {{post.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>

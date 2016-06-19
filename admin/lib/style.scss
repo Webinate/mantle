@@ -10,14 +10,8 @@ $warning-background: #ea6363;
 $subtle-background: #E0E0E0;
 $util-text: $util-background;
 
-@function shade($color, $percentage) {
-    @return mix(#000000, $color, $percentage);
-}
 
-@function tint($color, $percentage) {
-    @return mix(#ffffff, $color, $percentage);
-}
-
+@import 'css/utils.scss';
 @import 'css/bootstrap.scss';
 @import 'css/animations.scss';
 
@@ -73,6 +67,10 @@ Please only put css rules in here for layout related requirements.
 .fix {
 	clear: both;
 	height:0;
+}
+.state {
+    position: relative;
+    height: 100%;
 }
 form .error {
 	margin:5px 0 25px 0;

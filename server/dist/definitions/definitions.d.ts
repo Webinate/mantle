@@ -484,6 +484,7 @@ declare module clientAdmin {
             text: string;
             checked: string;
             onTicked: string;
+            tickType: string;
         };
         link(scope: any): void;
         /**

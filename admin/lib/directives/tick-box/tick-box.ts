@@ -9,8 +9,8 @@ module clientAdmin
         restrict = 'E';
         template = `
         <div class="checkbox" ng-click="onClick()">
-            <div class="tick-box">
-                <div class="tick" ng-show="checked"></div>
+            <div class="tick-box" ng-class="getBgType()">
+                <div ng-class="getTickType()" ng-show="checked"></div>
             </div>
             {{text}}
         </div>
@@ -18,11 +18,32 @@ module clientAdmin
         scope = {
             text: '=',
             checked: '=',
-            onTicked: '&?'
+            onTicked: '&?',
+            tickType : '=?'
         }
 
         link( scope )
         {
+            scope.tickType = scope.tickType ? scope.tickType : 'tick';
+
+            /**
+             * Gets the tick box background type
+             */
+            scope.getBgType = function(): any {
+                if (scope.tickType == 'tick')
+                    return { opaque : true };
+            }
+
+            /**
+             * Gets the tick box type
+             */
+            scope.getTickType = function(): any {
+                if (scope.tickType == 'tick')
+                    return { tick : true };
+                else
+                    return { cross : true };
+            }
+
             /**
              * When we click the tick box, we toggle the checked state
              */

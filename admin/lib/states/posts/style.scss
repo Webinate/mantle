@@ -10,7 +10,6 @@
     }
 
     .new-post-form {
-
         overflow: auto;
         background: $primary-background;
         margin: 10px;
@@ -27,6 +26,14 @@
             color: $util-text;
             font-weight: bold;
             margin: 0 0 10px 0;
+        }
+    }
+
+    .img-selector {
+        margin: 0 5px 0 0;
+
+        .button {
+            line-height: 15px;
         }
     }
 
@@ -79,13 +86,6 @@
         }
     }
 
-    .category .cross, .tag .cross, .red .cross {
-        -ms-transform: rotate(45deg);
-        -webkit-transform: rotate(45deg);
-        transform: rotate(45deg);
-        cursor:pointer;
-    }
-
     .tags  {
         padding: 10px;
         box-sizing: border-box;
@@ -103,9 +103,7 @@
         margin:0 0 5px 0;
     }
 
-    .category .cross:hover:before, .category .cross:hover:after, .tag .cross:hover:before, .tag .cross:hover:after {
-    background: red;
-    }
+
 
     .tag-header {
         color: $util-text;

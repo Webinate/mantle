@@ -19,5 +19,14 @@
         box-sizing: border-box;
         float: left;
         padding:5px;
+        width: 180px;
+
+        -webkit-transition: background-color linear 0.25s, width linear 0.25s;
+        transition: background-color linear 0.25s, width linear 0.25s;
+
+        &:active, &:focus {
+            background-color: #fff;
+            width: 200px;
+        }
     }
 }

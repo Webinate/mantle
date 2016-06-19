@@ -1,20 +1,39 @@
+.checkbox{
+    cursor:pointer;
+    &:hover .cross {
+        &:before, &:after {
+            background: red;
+        }
+    }
+
+    .opaque{
+        background: #F0F0F0;
+
+        &:hover {
+            background: #dbdbdb;
+        }
+        &:active {
+            background: #ccc;
+        }
+    }
+}
 .tick-box {
     width:20px;
     height:20px;
-    cursor:pointer;
     display:inline-block;
-    background: #F0F0F0;
-
-    &:hover {
-        background: #dbdbdb;
-    }
-    &:active {
-        background: #ccc;
-    }
 
     .tick {
         top: -25%;
         width:120%;
         height:120%;
+    }
+
+    .cross {
+        top: -5%;
+        left: -25%;
+
+        -ms-transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+        transform: rotate(45deg);
     }
 }
