@@ -37,6 +37,7 @@ Overrides for the TinyMCE editor
 @import 'directives/item-panel/style.scss';
 @import 'directives/state-header/style.scss';
 @import 'directives/tick-box/style.scss';
+@import 'directives/detail/style.scss';
 @import 'states/default/style.scss';
 @import 'states/login/style.scss';
 @import 'states/register/style.scss';
@@ -46,9 +47,6 @@ Overrides for the TinyMCE editor
 @import 'states/posts/style.scss';
 @import 'states/seo/style.scss';
 @import 'states/users/style.scss';
-
-
-
 
 /**
 ======================================================
@@ -88,7 +86,6 @@ form .error.ng-hide-remove.ng-hide-remove-active {
   -webkit-transition: all linear 0.25s;
   transition: all linear 0.25s;
 }
-
 form input[type="text"], form input[type="password"], form input[type="email"] {
   width: 100%;
   padding: 3px;
@@ -96,7 +93,6 @@ form input[type="text"], form input[type="password"], form input[type="email"] {
   box-sizing: border-box;
   float: none;
 }
-
 form .nav-button {
 	margin:15px 0 0 0;
     padding-bottom:10px;
@@ -110,8 +106,6 @@ form .nav-button {
     height:100%;
     min-width:800px;
 }
-
-
 .content-view {
     box-sizing: border-box;
     overflow: auto;
@@ -122,47 +116,13 @@ form .nav-button {
     height: calc(100% - 50px);
     overflow: auto;
 }
-
-
-
-.content-view-detail {
-    margin:20px 10px 0px 10px;
-}
-
 .label span.info {
   margin: 0 0 0 4px;
   float: right;
 }
-.content-view-detail .label {
-    width: 20%;
-    float: left;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-
-.content-view-detail .mce-tinymce {
-    margin:10px 0 0 0;
-}
-.content-view-detail .mce-tinymce.mce-fullscreen {
-    margin:0 0 0 0;
-}
-
-
-
 .nav-button {
     display:inline-block;
 }
-.content-view-detail .buttons {
-    margin:40px 0 0 0;
-    text-align: right;
-}
-.content-view-detail .buttons .nav-button {
-      margin:0 10px 0 0;
-      display: inline-block;
-}
-
-
 .content-view form input[type="submit"]{
     margin: 20px 0 20px 10px;
 }
@@ -170,17 +130,12 @@ form .nav-button {
     width:300px;
     margin:10px 0;
 }
-
-
 .red .cross {
     -ms-transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
     cursor:pointer;
 }
-
-
-
 .filter-group {
     float: left;
     margin: 0 20px 0 0;
@@ -213,8 +168,6 @@ Please only put css rules in here for generalized modules.
     -webkit-user-select: none;
     -ms-user-select: none;
 }
-
-
 form input[type="text"], form input[type="password"], form input[type="email"] {
     color: #555;
     font-weight: 200;
@@ -231,11 +184,6 @@ form input[type="text"].ng-invalid.ng-dirty, form input[type="password"].ng-inva
 form input[type="text"].ng-valid.ng-dirty, form input[type="password"].ng-valid.ng-dirty, form input[type="email"].ng-valid.ng-dirty {
 	background:#d6ffd6;
 }
-
-
-
-
-
 .nav-button {
 	text-decoration: none;
     -moz-user-select: none;
@@ -264,45 +212,21 @@ form label {
   font-style: italic;
   font-weight: normal;
 }
-
-
 .view-item-label.date {
     float:right;
 }
-
 .view-item-label {
     background: $background-light;
-}
-
-
-
-.content-view-detail .textbox {
-    color: #999;
-}
-
-.content-view-detail .label {
-    font-weight:bold;
 }
 .view-item-label.date, .slug {
     font-size: 20px;
     color: #aaa;
     margin:0 0 0 5px;
 }
-.content-view-detail .preview {
-    background: $background-light;
-    padding: 10px;
-}
-
-
-
-
 .filter-group .label {
     font-weight:bold;
 }
 .filter-group {
     background: $primary-background;
 }
-
 @import 'css/shapes.scss';
-
-

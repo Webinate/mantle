@@ -25,6 +25,7 @@
         "lib/directives/pager/pager.ts",
         "lib/directives/search-bar/search-bar.ts",
         "lib/directives/buttons/buttons.ts",
+        "lib/directives/detail/detail.ts",
         "lib/directives/error-modal/error-modal.ts",
         "lib/directives/item-panel/item-panel.ts",
         "lib/directives/state-header/state-header.ts",

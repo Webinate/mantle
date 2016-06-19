@@ -222,6 +222,7 @@ declare module clientAdmin {
         showMediaBrowser: boolean;
         defaultSlug: string;
         targetImgReciever: string;
+        private _scope;
         private _q;
         private http;
         private error;
@@ -230,6 +231,7 @@ declare module clientAdmin {
         private pager;
         static $inject: string[];
         constructor(scope: any, http: ng.IHttpService, apiURL: string, categories: Array<Modepress.ICategory>, $q: ng.IQService);
+        initializeTiny(): void;
         /**
         * Opens the media browser
         */
@@ -408,6 +410,26 @@ declare module clientAdmin {
         link(scope: any, elem: JQuery, attributes: angular.IAttributes, ngModel: angular.INgModelController): void;
         /**
          * Creates an intance of the directive
+         */
+        static factory(): ng.IDirectiveFactory;
+    }
+}
+declare module clientAdmin {
+    /**
+    * Small directive for a detail section
+    */
+    class Detail implements ng.IDirective {
+        restrict: string;
+        template: string;
+        transclude: boolean;
+        scope: {
+            text: string;
+            info: string;
+            onRender: string;
+        };
+        link(scope: any): void;
+        /**
+         * Creates an intance of the pager directive
          */
         static factory(): ng.IDirectiveFactory;
     }

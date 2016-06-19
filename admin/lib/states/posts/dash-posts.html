@@ -50,37 +50,26 @@
         </div>
 
         <div class="content-view-item new-post-form" ng-show="controller.showNewPostForm">
-
             <form name="newPostForm" ng-submit="newPostForm.$valid && controller.createPost()" novalidate>
-                <div class="content-view-detail">
-                    <div class="label">Title: <span class="info">The title of this new post</span></div>
+                <detail text="'Title'" info="'The title of this new post'">
                     <input type="text" name="nTitle" ng-model="controller.postToken.title" ng-minlength="1" required ng-change="controller.updateDefaultSlug(newPostForm)" />
                     <div class="error" ng-show="newPostForm.nTitle.$error.required && (newPostForm.$submitted || newPostForm.nTitle.$touched)">Please enter a valid title</div>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Content: <span class="info">The main content of the post</span></div>
-                    <div class="fix"></div>
+                </detail>
+                <detail text="'Content'" info="'The main content of the post'" on-render="controller.initializeTiny()">
                     <textarea class="newPostText" name="nContent"></textarea>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Slug: <span class="info">The url tag for this post</span></div>
+                </detail>
+                <detail text="'Slug'" info="'The url tag for this post'">
                     <input type="text" name="nSlug" ng-model="controller.postToken.slug" ng-minlength="1" required ng-change="controller.checkSlug()" />
                     <div class="error" ng-show="newPostForm.nSlug.$error.required && (newPostForm.$submitted || newPostForm.nSlug.$touched)">Please enter a valid slug</div>
-                    <div class="fix"></div>
-                </div>
-                <div class="content-view-detail">
-                    <div class="label">Brief: <span class="info">Optional, a small bit of text to describe the post</span></div>
+                </detail>
+                <detail text="'Brief'" info="'Optional, a small bit of text to describe the post'">
                     <input type="text" name="nBrief" ng-model="controller.postToken.brief" ng-minlength="1" required" />
-                    <div class="fix"></div>
-                </div>
+                </detail>
                 <div class="content-view-detail">
                     <div class="label">
                         <add-button no-icon="true" class="feature-img-button img-selector" ng-click="controller.openMediaBrowser('featured-image')" text="'...'"></add-button>
                         Featured Image: <span class="info">The main image for this post</span>
                     </div>
-
                     <input type="text" name="nFeaturedImage" ng-model="controller.postToken.featuredImage" />
                     <div class="fix"></div>
                 </div>
@@ -173,52 +162,33 @@
                         <div class="view-item-label"><b>{{post.title}}</b> : <span class="slug">{{post.slug}}</span></div>
                     </panel-preview>
                     <panel-content>
-                        <div class="content-view-detail">
-                            <div class="label">ID: </div>
+                         <detail text="'ID'">
                             <div class="textbox">{{post._id}}</div>
-                            <div class="fix"></div>
-                        </div>
-                        <div class="content-view-detail">
-                            <div class="label">Brief: </div>
+                        </detail>
+                        <detail text="'Brief'">
                             <div class="textbox">{{post.brief}}</div>
-                            <div class="fix"></div>
-                        </div>
-                        <div class="content-view-detail">
-                            <div class="label">Created on: </div>
+                        </detail>
+                        <detail text="'Created on'">
                             <div class="textbox">{{post.createdOn | date:"MM/dd/yyyy 'at' h:mma"}}</div>
-                            <div class="fix"></div>
-                        </div>
-                        <div class="content-view-detail">
-                            <div class="label">Last Updated: </div>
+                        </detail>
+                        <detail text="'Last Updated'">
                             <div class="textbox">{{post.lastUpdated | date:"MM/dd/yyyy 'at' h:mma"}}</div>
-                            <div class="fix"></div>
-                        </div>
-                        <div class="content-view-detail">
-                            <div class="label">Visibility: </div>
+                        </detail>
+                        <detail text="'Visibility'">
                             <div class="textbox">{{post.public ? "public" : "private"}}</div>
-                            <div class="fix"></div>
-                        </div>
-                        <div class="content-view-detail">
-                            <div class="label">Tags: </div>
+                        </detail>
+                        <detail text="'Tags'">
                             <div class="textbox">{{post.tags.join(", ")}}</div>
-                            <div class="fix"></div>
-                        </div>
-                        <div class="content-view-detail">
-                            <div class="label">Categories: </div>
+                        </detail>
+                        <detail text="'Categories'">
                             <div class="textbox">{{post.categories.join(", ")}}</div>
-                            <div class="fix"></div>
-                        </div>
-                        <div class="content-view-detail">
-                            <div class="label">Content</div>
+                        </detail>
+                        <detail text="'Content'">
                             <div class="preview" ng-bind-html="post.content"></div>
-                            <div class="fix"></div>
-                        </div>
-                        <div class="content-view-detail">
-                            <div class="label">Featured Image</div>
+                        </detail>
+                        <detail text="'Featured Image'">
                             <div ng-bind-html="post.featuredImage"></div>
-                            <div class="fix"></div>
-                        </div>
-
+                        </detail>
                         <div class="content-view-detail">
                             <div class="buttons">
                                 <div class="nav-button red-highlight" ng-hide="$parent.confirmDelete" ng-click="$parent.confirmDelete=true"><a href="">Remove Post</a></div>

@@ -26,6 +26,7 @@
         public defaultSlug: string;
         public targetImgReciever: string;
 
+        private _scope: any;
         private _q: ng.IQService;
         private http: ng.IHttpService;
         private error: boolean;
@@ -54,7 +55,7 @@
             this.defaultSlug = "";
             this.showMediaBrowser = false;
             this.targetImgReciever = "";
-
+            this._scope = scope;
 
 
             this.http = http;
@@ -67,6 +68,20 @@
             this.postToken = { title: "", content: "", slug: "", tags: [], categories: [], public: true, brief: "" };
             var that = this;
 
+
+
+            // The category token
+            this.categoryToken = { title: "", description: "", slug: "" };
+
+            // Fetches the categories
+            this.categories = categories;
+
+            scope.removePost = this.removePost.bind(this);
+        }
+
+        initializeTiny()
+        {
+            var that = this;
             tinymce.init({
                 height: 350,
                 setup: function (editor)
@@ -77,7 +92,7 @@
                         onclick: function ()
                         {
                             that.openMediaBrowser();
-                            scope.$apply();
+                            that._scope.$apply();
                         }
                     });
                 },
@@ -85,14 +100,6 @@
                 toolbar1: "insertfile undo redo | styleselect | bold italic charmap | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link drive | print preview media | forecolor backcolor emoticons",
                 toolbar2: "pagebreak | spellchecker searchreplace | fullpage fullscreen"
             });
-
-            // The category token
-            this.categoryToken = { title: "", description: "", slug: "" };
-
-            // Fetches the categories
-            this.categories = categories;
-
-            scope.removePost = this.removePost.bind(this);
         }
 
         /**
