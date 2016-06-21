@@ -28,6 +28,7 @@ admin/lib/temp-css/
 server/resources/admin/plugins/
 server/dist/plugins/
 third-party/
+server/dist/
 
 changes.md
 

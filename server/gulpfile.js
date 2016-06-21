@@ -25,7 +25,7 @@ gulp.task('check-files', function(){
 // Builds each of the ts files into JS files in the output folder
 gulp.task('ts-code', ['check-files'], function() {
 
-    var src = tsConfig.files.concat('src/**/*.json');
+    var src = tsConfig.files;
 
     return gulp.src(src, { base: "." })
         .pipe(ts({
@@ -71,11 +71,11 @@ gulp.task('install', function () {
          ]);
 });
 
-// Builds each of the ts files into JS files in the output folder
-gulp.task('ts-code-definitions', function() {
+// Copies the distribution files from src to the dist folder
+gulp.task('dist-files', function() {
 
-    return gulp.src(['src/definitions/custom/modepress-api.d.ts'], { base: "src/definitions/custom/" })
-        .pipe(gulp.dest(tsConfig.compilerOptions.outDir + "/definitions"));
+    return gulp.src(['src/dist/*.json', 'src/dist/modepress-api/*.json'], { base: "src/dist/" })
+        .pipe(gulp.dest(tsConfig.compilerOptions.outDir));
 });
 
-gulp.task('build-all', ['ts-code', 'ts-code-definitions']);
+gulp.task('build-all', ['ts-code', 'dist-files']);
