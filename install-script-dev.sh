@@ -11,7 +11,7 @@ wget https://github.com/MKHenson/modepress/archive/dev.zip
 unzip -o "dev.zip" "modepress-dev/*"
 
 # Moves the server folder to the current directory
-cp -r modepress-dev/server/dist/* .
+cp -r modepress-dev/* .
 
 # Remove modepress folder
 if [ -d "modepress-dev" ]; then
@@ -29,7 +29,6 @@ fi
 
 
 # All done
-echo "Modepress DEV successfully installed"
-echo "Please run an NPM update and edit the config.json"
+echo "Modepress successfully downloaded"
 exit
 } # this ensures the entire script is downloaded #
