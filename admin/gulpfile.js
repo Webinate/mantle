@@ -259,4 +259,5 @@ gulp.task('ts-code-declaration', function() {
         .pipe(gulp.dest(outDirDefinitions));
 });
 
+gulp.task('install', [ 'install-definitions', 'install-third-parties']);
 gulp.task('build-all', [ 'sass', 'copy-index', 'deploy-third-party', 'html-to-ng', 'ts-code', 'ts-code-declaration']);
