@@ -21,12 +21,6 @@ fi
 # Remove the zip file
 rm "dev.zip"
 
-# Copy the example config into config.json as long as it doesnt already exist
-if [ ! -f "config.json" ]; then
-	# Copy the example config to a config.json
-	cp "example-config.json" "config.json"
-fi
-
 
 # All done
 echo "Modepress successfully downloaded"
