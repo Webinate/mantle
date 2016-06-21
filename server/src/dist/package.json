@@ -1,0 +1,25 @@
+{
+  "name": "modepress",
+  "version": "0.3.1",
+  "description": "A simple Mongo-Node CMS server. The server can be accessed via an admin panel and content can be requested via its RESTful API",
+  "main": "main.js",
+  "author": "Mathew Henson",
+  "dependencies": {
+    "winston": "^2.2.0",
+    "entities": "^1.1.1",
+    "express": "^4.13.4",
+    "mongodb": "^2.1.12",
+    "morgan": "^1.5.1",
+    "body-parser": "^1.12.0",
+    "method-override": "^2.3.1",
+    "node-inspector": "^0.12.7",
+    "request": "^2.69.0",
+    "jade": "^1.10.0",
+    "yargs": "^3.12.0",
+    "compression": "^1.5.1",
+    "modepress-api": "./modepress-api",
+    "ws": "^1.0.1",
+    "sanitize-html": "^1.11.4",
+    "jsdom": "^8.2.0"
+  }
+}

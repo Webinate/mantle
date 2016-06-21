@@ -1,0 +1,37 @@
+{
+  "enableAjaxRendering": true,
+  "ajaxRenderExpiration": 86400,
+  "cacheLifetime": 2592000000,
+  "databaseHost": "127.0.0.1",
+  "databasePort": 27017,
+  "databaseName": "test",
+  "usersURL": "",
+  "servers": [
+    {
+      "host": "localhost",
+      "portHTTP": 80,
+      "staticFilesFolder": [ "../../admin/dist" ],
+      "ssl": false,
+      "sslKey": "",
+      "sslCert": "",
+      "sslRoot": "",
+      "sslIntermediate": "",
+      "controllers": [
+        { "path" : "./controllers/emails-controller.js" },
+        { "path" : "./controllers/posts-controller.js" }
+      ],
+      "approvedDomains": [ "webinate\\.net", "127.0.0.1:80", "http:\/\/127.0.0.1" ],
+      "paths": [
+        {
+          "name": "default",
+          "path": "*",
+          "index": "../../admin/dist/index.jade",
+          "plugins": [ ],
+		      "variables": { "hello" : "world" }
+        }
+      ]
+    }
+  ],
+  "usersSocketURL": "ws://www.webinate.net:123",
+  "usersSocketOrigin": "webinate.net"
+}
