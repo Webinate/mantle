@@ -6,19 +6,25 @@
   "databasePort": 27017,
   "databaseName": "test",
   "usersURL": "",
+  "usersSocketURL": "ws://www.webinate.net:8063",
+  "usersSocketOrigin": "webinate.net",
   "servers": [
     {
       "host": "localhost",
       "portHTTP": 80,
+      "portHTTPS" : 443,
       "staticFilesFolder": [ "../../admin/dist" ],
       "ssl": false,
       "sslKey": "",
       "sslCert": "",
       "sslRoot": "",
       "sslIntermediate": "",
+      "sslPassPhrase" : "",
       "controllers": [
         { "path" : "./controllers/emails-controller.js" },
-        { "path" : "./controllers/posts-controller.js" }
+        { "path" : "./controllers/posts-controller.js" },
+        { "path" : "./controllers/posts-controller.js" },
+        { "path" : "./controllers/comments-controller.js" }
       ],
       "approvedDomains": [ "webinate\\.net", "127.0.0.1:80", "http:\/\/127.0.0.1" ],
       "paths": [
@@ -31,7 +37,5 @@
         }
       ]
     }
-  ],
-  "usersSocketURL": "ws://www.webinate.net:123",
-  "usersSocketOrigin": "webinate.net"
+  ]
 }
