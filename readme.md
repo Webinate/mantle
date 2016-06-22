@@ -46,11 +46,11 @@ curl -o- https://raw.githubusercontent.com/MKHenson/modepress/dev/install-script
 This downloads the latest modepress project into the current folder. There are two sub-folders, one named server and one named admin.
 The server folder holds the modepress server code and the admin holds a front-end app to administrate the server.
 
-5) Install the server and its dependencies
+5) Install the server dependencies, and build the server source code
 
 ```
 cd server
-npm update
+npm install
 gulp install
 gulp build-all
 ```
@@ -60,7 +60,7 @@ You still need to install the dependencies for this folder, so go into it and do
 
  ```
 cd dist
-npm update
+npm install
 ```
 
 
