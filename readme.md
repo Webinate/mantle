@@ -76,7 +76,7 @@ Now edit the config.json to suite your needs.
 7) To run the modepress server
 
 ```
-node main.js --config="config.json" --logFile="logs.log" --logging="true"
+node main.js --config="config.json" --logFile="logs.log" --logging="true" --numThreads="max"
 ```
 
 By default modepress will run using all threads available to your application. If however memory is in short supply you
