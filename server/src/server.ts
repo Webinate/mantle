@@ -87,7 +87,7 @@ export class Server
 
         // Start app with node server.js
         var httpServer = http.createServer(app);
-        httpServer.listen(server.portHTTP);
+        httpServer.listen({port: server.portHTTP, host: "localhost"});
         winston.info(`Listening on HTTP port ${server.portHTTP}`, { process: process.pid });
 
         // If we use SSL then start listening for that as well
@@ -125,7 +125,7 @@ export class Server
             winston.info(`Attempting to start SSL server...`, { process: process.pid });
 
             var httpsServer = https.createServer({ key: privkey, cert: theCert, passphrase: server.sslPassPhrase, ca: caChain }, app);
-            httpsServer.listen(port);
+            httpsServer.listen({port: port, host: "localhost"});
 
             winston.info(`Listening on HTTPS port ${port}`, { process: process.pid });
         }
