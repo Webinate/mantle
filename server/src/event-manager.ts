@@ -49,6 +49,9 @@ export class EventManager extends events.EventEmitter
         {
             var reconnectInterval = 3 * 1000;
             var _client;
+
+            winston.info(`Attempting to connect to web-socket at '${cfg.usersSocketURL}' with origin set to '${cfg.usersSocketOrigin}'`, { process: process.pid });
+
             var connect = function ()
             {
                 var _client = new ws(cfg.usersSocketURL, { headers: { origin: cfg.usersSocketOrigin } });
