@@ -246,11 +246,6 @@
     export interface IPath
     {
         /**
-        * The name of this path
-        */
-        name: string;
-
-        /**
         * The express end point route to use. E.g. "*" or "/some-route"
         */
         path: string;
