@@ -1,4 +1,4 @@
-declare module UsersInterface
+﻿declare module UsersInterface
 {
     export class User
     {
@@ -56,18 +56,18 @@ declare module UsersInterface
         /*
         * Interface for file added events
         */
-        export interface IFilesAddedEvent extends IEvent
+        export interface IFileAddedEvent extends IEvent
         {
             username: string;
-            files: Array<IFileEntry>;
+            file: IFileEntry;
         }
 
         /*
         * Interface for file removed events
         */
-        export interface IFilesRemovedEvent extends IEvent
+        export interface IFileRemovedEvent extends IEvent
         {
-            files: Array<IFileEntry>;
+            file: IFileEntry;
         }
 
         /*
@@ -277,7 +277,7 @@ declare module UsersInterface
     export interface IAuthenticationResponse extends IResponse
     {
         authenticated: boolean;
-        user: IUserEntry;
+        user?: IUserEntry;
     }
 
     /*
@@ -374,10 +374,23 @@ declare module UsersInterface
     export interface IConfig
     {
         /**
-        * The domain or host of the site.
-        * eg: "127.0.0.1" or "webinate.net"
+        * If true, then the server runs in debug mode. When running tests you should have the application
+        * run in debug mode. You can set this via the config or else use the --debug=true command in the console.
+        * eg: true / false. The default is true.
+        */
+        debugMode: boolean;
+
+        /**
+        * The host to use when listening
+        * eg: "localhost" or "192.168.0.1" or "0.0.0.0"
         */
         host: string;
+
+        /**
+        * The domain or host name of the site. This is the external URL to use for connecting to users.
+        * eg: "webinate.net"
+        */
+        hostName: string;
 
         /**
         * The RESTful path of this service.
