@@ -1,4 +1,4 @@
-declare module UsersInterface
+﻿declare module UsersInterface
 {
     export class User
     {
@@ -381,10 +381,16 @@ declare module UsersInterface
         debugMode: boolean;
 
         /**
-        * The domain or host of the site.
-        * eg: "127.0.0.1" or "webinate.net"
+        * The host to use when listening
+        * eg: "localhost" or "192.168.0.1" or "0.0.0.0"
         */
         host: string;
+
+        /**
+        * The domain or host name of the site. This is the external URL to use for connecting to users.
+        * eg: "webinate.net"
+        */
+        hostName: string;
 
         /**
         * The RESTful path of this service.
