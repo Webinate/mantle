@@ -1,0 +1,27 @@
+doctype html
+html(lang="en")
+	head
+		meta(charset="utf-8")
+		meta(name="viewport", content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0")
+		title Webinate
+
+		link(rel="stylesheet",type="text/css",href=url + "/css/style.css")
+		link(rel="stylesheet",type="text/css",href=url + "/third-party/third-party.min.css")
+		link(href="https://fonts.googleapis.com/css?family=Lily+Script+One", rel="stylesheet", type="text/css")
+		link(href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300italic,300", rel="stylesheet", type="text/css")
+		script(type="text/javascript").
+			var _users = "#{usersURL}"
+			var _cache = "#{cacheURL}"
+			var _plugins = [];
+			var _variables = !{ JSON.stringify(variables) };
+		script(type="text/javascript", src=url + "/third-party/third-party.min.js")
+		script(type="text/javascript", src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js")
+		script(type="text/javascript", src=url + "/third-party/tinymce/tinymce.js")
+		each plugin, index in plugins
+			script(type="text/javascript", src=url + plugin)
+		script(type="text/javascript", src=url + "/templates/partials.min.js")
+		script(type="text/javascript", src=url + "/main.js")
+		base(href="/")
+
+	body(ng-app="admin")
+		div(class="main-view", ui-view="main-view")

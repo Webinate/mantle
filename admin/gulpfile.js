@@ -19,7 +19,7 @@ var spritySass = require('sprity-sass');
 var rimraf = require('rimraf');
 var download = require('gulp-download');
 var rename = require("gulp-rename");
-
+var cleanCss = require('gulp-clean-css');
 
 // CONFIG
 // ==============================
@@ -27,6 +27,16 @@ var outDir = "./dist";
 var outDirDefinitions = "../server/dist/definitions";
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 var tsFiles = tsConfig.files;
+var thirdPartyFiles =  [
+    './third-party/jquery/dist/jquery.js',
+    './third-party/angular/angular.js',
+    './third-party/angular-ui-router/release/angular-ui-router.js',
+    './third-party/angular-sanitize/angular-sanitize.js',
+    './third-party/angular-animate/angular-animate.js',
+    './third-party/angular-loading-bar/build/loading-bar.js',
+    './third-party/angular-loading-bar/build/loading-bar.css',
+    './third-party/angular-file-upload/dist/ng-file-upload.js'
+];
 
 /**
  * Checks to see that all TS files listed exist
@@ -45,8 +55,17 @@ gulp.task('check-files', function(){
 gulp.task('sass', ['sprites'], function(){
 
     // Compile all sass files into temp/css
-    var sassFiles = gulp.src('./lib/style.scss', { base: "./lib" })
+    return gulp.src('./lib/style.scss', { base: "./lib" })
         .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest(outDir + '/css'))
+})
+
+gulp.task('sass-release', ['sprites'], function() {
+
+    // Compile all sass files into temp/css
+    return gulp.src('./lib/style.scss', { base: "./lib" })
+        .pipe(sass().on('error', sass.logError))
+        .pipe(cleanCss())
         .pipe(gulp.dest(outDir + '/css'))
 })
 
@@ -91,14 +110,57 @@ gulp.task('ts-code', ['check-files'], function() {
 });
 
 /**
+ * Builds each of the ts files into JS files in the output folder
+ */
+gulp.task('ts-code-release', ['check-files'], function() {
+
+    return gulp.src(tsFiles, { base: "." })
+        .pipe(ts({
+            "module": tsConfig.compilerOptions.module,
+            "removeComments": tsConfig.compilerOptions.removeComments,
+            "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
+            "declaration": tsConfig.compilerOptions.declaration,
+            "sourceMap": tsConfig.compilerOptions.sourceMap,
+            "preserveConstEnums": tsConfig.compilerOptions.preserveConstEnums,
+            "target": tsConfig.compilerOptions.target,
+            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
+            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
+            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels,
+            "out":"main.js",
+            }))
+        .pipe(uglify())
+        .pipe(gulp.dest(outDir));
+});
+
+/**
  * Copies the html source to its output directory
  */
 gulp.task('copy-index', function() {
 
-    return gulp.src(["lib/index.jade", "lib/media/images/**.*"], { base: "lib" })
+    return gulp.src(["lib/index.jade", "lib/css/mce-style.css", "lib/media/images/**.*"], { base: "lib" })
         .pipe(gulp.dest(outDir));
 
 });
+
+/**
+ * Copies the html source to its output directory
+ */
+gulp.task('copy-index-release', function() {
+
+    return Promise.all([
+
+        gulp.src( "lib/index-prod.jade", { base: "lib" })
+            .pipe(rename("index.jade"))
+            .pipe(gulp.dest(outDir)),
+
+        gulp.src([
+            "lib/media/images/**/*.*",
+            "lib/css/mce-style.css"
+            ], { base: "lib" })
+        .pipe(gulp.dest(outDir))
+    ]);
+});
+
 
 
 /**
@@ -198,25 +260,42 @@ gulp.task('install-third-parties', function () {
  */
 gulp.task('deploy-third-party', function() {
 
-    var sources = gulp.src([
-        './third-party/jquery/dist/jquery.js',
-        './third-party/angular/angular.js',
-        './third-party/angular-ui-router/release/angular-ui-router.js',
-        './third-party/angular-sanitize/angular-sanitize.js',
-        './third-party/angular-animate/angular-animate.js',
-        './third-party/angular-loading-bar/build/loading-bar.js',
-        './third-party/angular-loading-bar/build/loading-bar.css',
-        './third-party/angular-file-upload/dist/ng-file-upload.js',
-        './third-party/tinymce/**'
-    ], { base: "third-party" } )
+    var thirdParties = thirdPartyFiles.concat(['./third-party/tinymce/**']);
+
+    return gulp.src(thirdParties, { base: "third-party" } )
         .pipe(gulp.dest(outDir + "/third-party"));
+});
+
+/**
+ * Copies the required third party files to the index file. Also concatenates the files into 1, compressed, JS file
+ */
+gulp.task('deploy-third-party-release', function() {
+
+    const jsFilter = filter('**/*.js', {restore: true});
+    const cssFilter = filter('**/*.css', {restore: true});
+
+    return Promise.all( [
+        gulp.src( thirdPartyFiles, { base: "third-party" } )
+            .pipe(jsFilter)
+            .pipe(concat("third-party.min.js"))
+            .pipe(uglify())
+            .pipe(jsFilter.restore)
+            .pipe(cssFilter)
+            .pipe(cleanCss())
+            .pipe(concat("third-party.min.css"))
+            .pipe(cssFilter.restore)
+            .pipe(gulp.dest(outDir + "/third-party")),
+
+        gulp.src(['./third-party/tinymce/**'], { base: "third-party" } )
+            .pipe(gulp.dest(outDir + "/third-party"))
+    ]);
 });
 
 /**
  * Builds the definition
  */
 gulp.task('html-to-ng', function() {
-    gulp.src("./lib/**/*.html")
+    return gulp.src("./lib/**/*.html")
         .pipe(minifyHtml({
             empty: true,
             spare: true,
@@ -255,9 +334,10 @@ gulp.task('ts-code-declaration', function() {
 
 
      // Merge the streams
-     merge(requiredDeclarationFiles, tsDefinition)
+     return merge(requiredDeclarationFiles, tsDefinition)
         .pipe(gulp.dest(outDirDefinitions));
 });
 
 gulp.task('install', [ 'install-definitions', 'install-third-parties']);
 gulp.task('build-all', [ 'sass', 'copy-index', 'deploy-third-party', 'html-to-ng', 'ts-code', 'ts-code-declaration']);
+gulp.task('build-all-release', [ 'sass-release', 'copy-index-release', 'deploy-third-party-release', 'html-to-ng', 'ts-code-release', 'ts-code-declaration']);
