@@ -18,6 +18,18 @@
     }
 }
 
+.user-confirmation {
+    margin: 10px;
+    padding: 10px;
+    max-height:200px;
+    background:  $primary-background;
+    display: inline-block;
+
+    .button {
+        margin: 10px 10px 0 0;
+    }
+}
+
 .folder-options {
     padding: 10px;
     max-height:200px;
