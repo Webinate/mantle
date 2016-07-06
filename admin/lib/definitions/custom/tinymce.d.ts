@@ -33,6 +33,8 @@ interface TinyMceOptions
     /** Selector option, allows you to use CSS selector syntax for determining what areas should be editable, this is the recommended way of selecting what elements should be editable. **/
     selector?: string;
 
+    content_css?: string;
+
     toolbar1?: string;
     toolbar2?: string;
 

@@ -96,6 +96,7 @@
                         }
                     });
                 },
+                content_css: '/css/mce-style.css',
                 selector: "textarea", plugins: ["media", "image", "link", "code", "textcolor", "colorpicker", "table", "wordcount", "lists", "contextmenu", "charmap", "fullpage", "pagebreak", "print", "spellchecker", "fullscreen", "searchreplace"],
                 toolbar1: "insertfile undo redo | styleselect | bold italic charmap | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link drive | print preview media | forecolor backcolor emoticons",
                 toolbar2: "pagebreak | spellchecker searchreplace | fullpage fullscreen"

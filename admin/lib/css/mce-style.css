@@ -1,0 +1,14 @@
+/**
+======================================================
+				TINY OVERRIDES
+======================================================
+Overrides for the TinyMCE editor
+**/
+.mce-container .mce-panel{
+    border: 0 solid #efefef;
+}
+
+.mce-content-body {
+    font-size: inherit;
+    color: #444;
+}
