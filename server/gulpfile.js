@@ -67,7 +67,7 @@ function getDefinition(url, dest, name) {
  */
 gulp.task('install', function () {
      return Promise.all([
-            getDefinition("https://raw.githubusercontent.com/MKHenson/users/dev/dist/definitions/definitions.d.ts", "src/definitions/required/", "webinate-users.d.ts")
+            getDefinition("https://raw.githubusercontent.com/MKHenson/users/dev/src/definitions/custom/definitions.d.ts", "src/definitions/required/", "webinate-users.d.ts")
          ]);
 });
 
