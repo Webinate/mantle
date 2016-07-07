@@ -1,9 +1,5 @@
 # Modepress
-A simple Mongo-Node CMS server. The server content can be accessed via an admin
-panel and content can be requested via its RESTful API.
-Modepress is written in Typescript using (at the least) mongodb v3 and nodejs 0.0.12.
-Both mongo and node must be setup and running before you can run modepress.
-Modepress also requires an instance of webinate-users to be running.
+A simple Mongo-Node CMS server. The server is accessed via a RESTful API.
 
 ## Current stable version
 * v0.4.0
@@ -43,19 +39,17 @@ OR if you want the dev build
 curl -o- https://raw.githubusercontent.com/MKHenson/modepress/dev/install-script-dev.sh | bash
 ```
 
-This downloads the latest modepress project into the current folder. There are two sub-folders, one named server and one named admin.
-The server folder holds the modepress server code and the admin holds a front-end app to administrate the server.
+This downloads the latest modepress project into the current folder.
 
-5) Install the server dependencies, and build the server source code
+5) Install the dependencies, and build the source code
 
 ```
-cd server
 npm install
 gulp install
-gulp build-all
+gulp build
 ```
 
-After you call the build-all task, a dist folder is created within the server folder. This represents your distribution folder.
+After you call the build task, a dist folder is created. This represents your distribution folder.
 You still need to install the dependencies for this folder, so go into it and do an npm install
 
  ```
@@ -86,14 +80,3 @@ can set the number of threads in the command line
 node main.js --config="config.json" --numThreads="max"
 node main.js --config="config.json" --numThreads="4"
 ```
-
-8) Install the client and its dependencies.
-
-```
-cd ../../admin
-npm install
-gulp install
-gulp build-all
-```
-
-Like with the server this creates a dist folder within the admin directory. Tbc...
