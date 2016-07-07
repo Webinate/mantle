@@ -74,7 +74,7 @@ gulp.task('install', function () {
 // Copies the distribution files from src to the dist folder
 gulp.task('dist-files', function() {
 
-    return gulp.src(['src/dist/*.json', 'src/dist/modepress-api/*.json'], { base: "src/dist/" })
+    return gulp.src(['src/dist-src/*.json', 'src/dist-src/modepress-api/*.json'], { base: "src/dist-src/" })
         .pipe(gulp.dest(tsConfig.compilerOptions.outDir));
 });
 
