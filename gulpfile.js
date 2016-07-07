@@ -78,4 +78,4 @@ gulp.task('dist-files', function() {
         .pipe(gulp.dest(tsConfig.compilerOptions.outDir));
 });
 
-gulp.task('build-all', ['ts-code', 'dist-files']);
+gulp.task('build', ['ts-code', 'dist-files']);
