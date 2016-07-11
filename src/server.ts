@@ -130,8 +130,6 @@ export class Server
             winston.info(`Listening on HTTPS port ${port}`, { process: process.pid });
         }
 
-
-
         // Initialize all the controllers
         for (var i = 0, l: number = controllers.length; i < l; i++)
             controllerPromises.push(controllers[i].initialize(db));
@@ -139,11 +137,11 @@ export class Server
         // Return a promise once all the controllers are complete
         try {
             await Promise.all(controllerPromises);
-            winston.info(`All controllers are now setup successfully!`, { process: process.pid });
+            winston.info(`All controllers are now setup successfully for ${this._server.host}!`, { process: process.pid });
             return this;
 
         } catch ( e ) {
-            throw new Error(`ERROR: An error has occurred while setting up the controllers "${e.message}"`);
+            throw new Error(`ERROR An error has occurred while setting up the controllers for ${this._server.host}: "${e.message}"`);
         };
     }
 }
