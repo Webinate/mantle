@@ -399,9 +399,10 @@ export default class PostsController extends Controller
             var instance = await categories.createInstance(token);
             var json = await instance.schema.getAsJson(instance._id, { verbose: true });
 
-            okJson<mp.IResponse>( {
+            okJson<mp.IGetCategory>( {
                 error: false,
-                message: "New category created"
+                message: "New category created",
+                data: json
             }, res);
 
         } catch ( err ) {
