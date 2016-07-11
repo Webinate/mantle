@@ -108,10 +108,10 @@ export default class PageRenderer extends Controller
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-        router.get("/get-renders", <any>[this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
-        router.get("/preview-render/:id", <any>[this.previewRender.bind(this)]);
-        router.delete("/remove-render/:id", <any>[this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
-        router.delete("/clear-renders", <any>[this.authenticateAdmin.bind(this), this.clearRenders.bind(this)]);
+        router.get("/", <any>[this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
+        router.get("/preview/:id", <any>[this.previewRender.bind(this)]);
+        router.delete("/:id", <any>[this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
+        router.delete("/clear", <any>[this.authenticateAdmin.bind(this), this.clearRenders.bind(this)]);
 
         // Register the path
         e.use("/api/renders", router);
@@ -418,7 +418,6 @@ export default class PageRenderer extends Controller
         var renders = this.getModel("renders");
         var that = this;
         var count = 0;
-
         var findToken = {};
 
         // Set the default sort order to ascending
@@ -441,7 +440,6 @@ export default class PageRenderer extends Controller
         // Check for keywords
         if (req.query.search)
             (<IRender>findToken).url = <any>new RegExp(req.query.search, "i");
-
 
         try
         {
