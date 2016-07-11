@@ -148,7 +148,7 @@ export default class PostsController extends Controller
         // Optionally sort by the last updated
         if (req.query.sort)
         {
-            if (req.query.sort == "updated")
+            if (req.query.sort == 'true')
                 sort = { lastUpdated: sortOrder };
         }
 
