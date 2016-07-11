@@ -110,8 +110,8 @@ export default class PageRenderer extends Controller
 
         router.get("/", <any>[this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
         router.get("/preview/:id", <any>[this.previewRender.bind(this)]);
-        router.delete("/:id", <any>[this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
         router.delete("/clear", <any>[this.authenticateAdmin.bind(this), this.clearRenders.bind(this)]);
+        router.delete("/:id", <any>[this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
 
         // Register the path
         e.use("/api/renders", router);
