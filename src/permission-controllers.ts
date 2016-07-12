@@ -121,7 +121,7 @@ export function isAdmin(req: express.Request, res: express.Response, next: Funct
     {
         if (!auth.authenticated)
             return Promise.reject(new Error("You must be logged in to make this request"));
-        else if (!users.hasPermission(auth.user, 2))
+        else if (!users.isAdmin(auth.user))
             return Promise.reject(new Error("You do not have permission"));
         else
         {

@@ -96,6 +96,19 @@ export class UsersService
     }
 
     /**
+	* Checks if a user has admin priviledges
+	* @param {UsersInterface.IUserEntry} user The user we are checking
+	* @returns {boolean}
+	*/
+    isAdmin( user: UsersInterface.IUserEntry ): boolean
+    {
+        if (user.privileges > 2)
+            return false;
+
+        return true;
+    }
+
+    /**
 	* Checks a user has the desired permission
 	* @param {UsersInterface.IUserEntry} user The user we are checking
     * @param {UsersInterface.UserPrivileges} level The level we are checking against

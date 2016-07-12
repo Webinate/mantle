@@ -90,7 +90,7 @@ export default class PostsController extends Controller
         var users = UsersService.getSingleton();
 
         // Only admins are allowed to see private posts
-        if ( !user || ( ( visibility == "all" || visibility == "private" ) && users.hasPermission(user, 2) == false ) )
+        if ( !user || ( ( visibility == "all" || visibility == "private" ) && users.isAdmin(user) == false ) )
             visibility = "public";
 
         // Add the or conditions for visibility
@@ -214,7 +214,7 @@ export default class PostsController extends Controller
             var users = UsersService.getSingleton();
             var isPublic =  await instances[0].schema.getByName("public").getValue();
             // Only admins are allowed to see private posts
-            if (!isPublic && ( !user || users.hasPermission(user, 2) == false ) )
+            if (!isPublic && ( !user || users.isAdmin(user) == false ) )
                 throw new Error("That post is marked private");
 
             var jsons : Array<Promise<mp.IPost>> = [];

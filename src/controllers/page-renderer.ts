@@ -392,7 +392,7 @@ export default class PageRenderer extends Controller
                     message: "You must be logged in to make this request"
                 }, res);
             }
-            else if (!users.hasPermission(auth.user, 2))
+            else if (!users.isAdmin(auth.user))
             {
                 errJson(new Error("You do not have permission"), res);
             }
