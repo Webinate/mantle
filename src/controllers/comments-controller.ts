@@ -38,8 +38,8 @@ export default class CommentsController extends Controller
         router.get("/comments/:id", <any>[hasId("id", "ID"), getUser, this.getComment.bind(this)]);
         router.get("/nested-comments/:parentId", <any>[hasId("parentId", "parent ID"), getUser, this.getComments.bind(this)]);
         router.get("/users/:user/comments", <any>[userExists, getUser, this.getComments.bind(this)]);
-        router.delete("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.remove.bind(this)]);
-        router.put("/users/:user/comments/:id", <any>[canEdit, hasId("id", "ID"), this.update.bind(this)]);
+        router.delete("/comments/:id", <any>[getUser, hasId("id", "ID"), this.remove.bind(this)]);
+        router.put("/comments/:id", <any>[getUser, hasId("id", "ID"), this.update.bind(this)]);
         router.post("/posts/:postId/comments/:parent?", <any>[canEdit, hasId("postId", "parent ID"), hasId("parent", "Parent ID", true), this.create.bind(this)]);
 
 		// Register the path
@@ -87,7 +87,7 @@ export default class CommentsController extends Controller
         var users = UsersService.getSingleton();
 
         // Only admins are allowed to see private comments
-        if ( !user || ( ( visibility == "all" || visibility == "private" ) && users.hasPermission(user, 2) == false ) )
+        if ( !user || ( ( visibility == "all" || visibility == "private" ) && users.isAdmin(user) == false ) )
             visibility = "public";
 
         // Add the or conditions for visibility
@@ -175,7 +175,7 @@ export default class CommentsController extends Controller
             var isPublic = await instances[0].schema.getByName("public").getValue()
 
             // Only admins are allowed to see private comments
-            if ( !isPublic  && (!user || users.hasPermission(user, 2) == false ) )
+            if ( !isPublic  && (!user || users.isAdmin(user) == false ) )
                 throw new Error("That comment is marked private");
 
             var jsons : Array<Promise<mp.IComment>> = [];
@@ -210,18 +210,28 @@ export default class CommentsController extends Controller
     {
         var comments = this.getModel("comments");
         var findToken : mp.IComment = {
-            _id: new mongodb.ObjectID(req.params.id),
-            author: req._user.username
+            _id: new mongodb.ObjectID(req.params.id)
         }
 
         try
         {
+            var user = req._user;
+            var users = UsersService.getSingleton();
+            var instances = await comments.findInstances<mp.IComment>(findToken, [], 0, 1);
+
+            if (instances.length == 0)
+                throw new Error("Could not find a comment with that ID");
+            else
+            {
+                var author = await instances[0].schema.getByName("author").getValue();
+
+                // Only admins are allowed to see private comments
+                if ( !user || ( !users.isAdmin(user) && user.username != author ) )
+                    throw new Error("You do not have permission");
+            }
+
             // Attempt to delete the instances
             var numRemoved = await comments.deleteInstances(findToken);
-
-            if (numRemoved == 0)
-                throw new Error("Could not find a comment with that ID");
-
             okJson<mp.IResponse>( {
                 error: false,
                 message: "Comment has been successfully removed"
@@ -243,19 +253,30 @@ export default class CommentsController extends Controller
         var token: mp.IComment = req.body;
         var comments = this.getModel("comments");
         var findToken : mp.IComment = {
-            _id: new mongodb.ObjectID(req.params.id),
-            author: req._user.username
+            _id: new mongodb.ObjectID(req.params.id)
         }
 
         try
         {
+            var user = req._user;
+            var users = UsersService.getSingleton();
+            var instances = await comments.findInstances<mp.IComment>(findToken, [], 0, 1);
+
+            if (instances.length == 0)
+                throw new Error("Could not find comment with that id");
+            else
+            {
+                var author = await instances[0].schema.getByName("author").getValue();
+
+                // Only admins are allowed to see private comments
+                if ( !user || ( !users.isAdmin(user) && user.username != author ) )
+                    throw new Error("You do not have permission");
+            }
+
             var instance = await comments.update(findToken, token);
 
             if (instance.error)
                 throw new Error(<string>instance.tokens[0].error);
-
-            if ( instance.tokens.length == 0 )
-                throw new Error("Could not find comment with that id");
 
             okJson<mp.IResponse>( {
                 error: false,
