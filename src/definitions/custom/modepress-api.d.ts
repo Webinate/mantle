@@ -487,12 +487,11 @@
 
         /**
         * Serializes the schema items into the JSON format for mongodb
-        * @param {boolean} verbose If true all items will be serialized, if false, only the items that are non-sensitive
         * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
         * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
         * @returns {Promise<T>}
         */
-        public getAsJson<T>( verbose: boolean, id: any, options? : ISchemaOptions ): Promise<T>;
+        public getAsJson<T>( id: any, options? : ISchemaOptions ): Promise<T>;
 
         /**
         * Checks the values stored in the items to see if they are correct
