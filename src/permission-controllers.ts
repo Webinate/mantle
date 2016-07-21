@@ -161,8 +161,10 @@ export async function canEdit(req: express.Request, res: express.Response, next:
         if (targetUser !== undefined)
         {
             target = await users.getUser(targetUser, req);
-            if (!target || target.error || !target.data)
+            if (!target)
                 throw new Error(`User ${targetUser} does not exist`);
+            if (target && target.error )
+                throw new Error(target.message);
         }
 
         if (!auth.authenticated)
