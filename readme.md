@@ -7,7 +7,7 @@ A simple Mongo-Node CMS server. The server is accessed via a RESTful API.
 ## Requirements
 * MongoDB v3
 * Node 6.2
-* [Webinate-Users](https://github.com/MKHenson/webinate-users)
+* [Webinate-Users](https://github.com/Webinate/users)
 * **Tested Ubuntu v14**
 * [Gulp](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)
 
@@ -30,13 +30,13 @@ sudo su
 If you want the latest stable version:
 
 ```
-curl -o- https://raw.githubusercontent.com/MKHenson/modepress/master/install-script.sh | bash
+curl -o- https://raw.githubusercontent.com/Webinate/modepress/master/install-script.sh | bash
 ```
 
 OR if you want the dev build
 
 ```
-curl -o- https://raw.githubusercontent.com/MKHenson/modepress/dev/install-script-dev.sh | bash
+curl -o- https://raw.githubusercontent.com/Webinate/modepress/dev/install-script-dev.sh | bash
 ```
 
 This downloads the latest modepress project into the current folder.
