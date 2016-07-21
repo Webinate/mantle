@@ -333,6 +333,8 @@ export abstract class Model
         };
 
         await Promise.all(promises);
+
+        return Promise.resolve(instances.length);
     }
 
     /**
