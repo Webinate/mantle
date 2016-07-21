@@ -4,7 +4,7 @@ var exec = require('child_process').exec;
 var child;
 
 var prevTag = "v0.4.0";
-var nextTag = "v0.4.1";
+var nextTag = "v0.4.2";
 
 
 // Executes the git log command
