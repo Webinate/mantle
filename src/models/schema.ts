@@ -101,6 +101,7 @@ export class Schema
         var fKey : SchemaForeignKey;
         var model : Model;
         var promises: Array<Promise<any>> = [];
+        var itemsInUse = [];
 
         for (var i = 0, l = items.length; i < l; i++)
         {
@@ -109,7 +110,8 @@ export class Schema
             if ( items[i].getSensitive() && options.verbose == false )
                 continue;
 
-            promises.push( items[i].getValue(options) );
+            itemsInUse.push(items[i]);
+            promises.push( items[i].getValue( options ) );
         }
 
         // Wait for all the promises to resolve
@@ -117,7 +119,7 @@ export class Schema
 
         // Assign the promise values
         for ( var i = 0, l = returns.length; i < l; i++ )
-            toReturn[ items[i].name ] = returns[i];
+            toReturn[ itemsInUse[i].name ] = returns[i];
 
         return Promise.resolve(toReturn);
     }
