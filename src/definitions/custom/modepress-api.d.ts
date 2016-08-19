@@ -329,6 +329,13 @@
         * eg: 'webinate.net'
         */
         usersSocketOrigin: string;
+
+        /**
+         * Specifies the User's socket API key. This is used for receiving events & instructions from the Users socket API.
+         * This key must be the same as the one that's stored in the User's' config JSON.
+         * eg: 'this-is-my-key'
+         */
+        usersSocketApiKey : string;
     }
 
     /**
@@ -954,28 +961,6 @@
         export var id: typeof SchemaId;
         export var html: typeof SchemaHtml;
         export var foreignKey: typeof SchemaForeignKey;
-    }
-
-    /**
-    * The type of user event
-    */
-    export enum UserEventType
-    {
-        Login,
-        Logout,
-        Activated,
-        Removed,
-        FilesUploaded,
-        FilesRemoved
-    }
-
-    /**
-    * Describes the user event sent to plugins
-    */
-    export interface UserEvent
-    {
-        username: string;
-        eventType: UserEventType;
     }
 
     /**

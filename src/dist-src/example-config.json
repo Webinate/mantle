@@ -8,6 +8,7 @@
   "usersURL": "",
   "usersSocketURL": "ws://www.webinate.net:8063",
   "usersSocketOrigin": "webinate.net",
+  "usersSocketApiKey": "my-secret-key",
   "servers": [
     {
       "host": "localhost",

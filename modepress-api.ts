@@ -13,7 +13,6 @@ export var UsersService = _UsersService.UsersService;
 export var SchemaFactory = _SchemaFactory;
 export var NumberType = _SchemaFactory.NumberType;
 export var EventManager = _EventManager.EventManager;
-export var UserEventType = _EventManager.UserEventType;
 
 export var isAdmin = _PermissionController.isAdmin;
 export var isAuthenticated = _PermissionController.isAuthenticated;
