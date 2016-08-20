@@ -8,29 +8,32 @@
     /*
     * Describes the different types of event interfaces we can use to interact with the system via web sockets
     */
-    export module SocketEvents
+    export module SocketTokens
     {
-        /*
-        * The base interface for all socket events
-        */
-        export interface IEvent
-        {
-            eventType: number;
+        export type ClientInstructionType =  (
+            'Login' |
+            'Logout' |
+            'Activated' |
+            'Removed' |
+            'FileUploaded' |
+            'FileRemoved' |
+            'BucketUploaded' |
+            'BucketRemoved' |
+            'MetaRequest'
+        );
 
-            /*
-            * Will be null if no error, or a string if there is
-            */
-            error: string;
-        }
+        export type ServerInstructionType =  (
+            'MetaRequest'
+        );
 
-        /*
-        * A very simple echo event. This simply pings the server with a message, which then returns with the same message
-        * either to the client or, if broadcast is true, to all clients.
-        */
-        export interface IEchoEvent extends IEvent
+        /**
+         * The base interface for all data that is serialized & sent to clients or server.
+         * The type property describes to the reciever what kind of data to expect.
+         */
+        export interface IToken
         {
-            message: string;
-            broadcast?: boolean;
+            error? : string;
+            type: ClientInstructionType | ServerInstructionType | string;
         }
 
         /*
@@ -38,17 +41,17 @@
         * if you provide a property value, then only that specific meta property is edited.
         * If not provided, then the entire meta data is set.
         */
-        export interface IMetaEvent extends IEvent
+        export interface IMetaToken extends IToken
         {
             username?: string;
-            property: string;
-            val: any;
+            property?: string;
+            val?: any;
         }
 
         /*
         * The socket user event
         */
-        export interface IUserEvent extends IEvent
+        export interface IUserToken extends IToken
         {
             username: string;
         }
@@ -56,34 +59,18 @@
         /*
         * Interface for file added events
         */
-        export interface IFileAddedEvent extends IEvent
+        export interface IFileToken extends IToken
         {
             username: string;
-            file: IFileEntry;
-        }
-
-        /*
-        * Interface for file removed events
-        */
-        export interface IFileRemovedEvent extends IEvent
-        {
             file: IFileEntry;
         }
 
         /*
         * Interface for a bucket being added
         */
-        export interface IBucketAddedEvent extends IEvent
+        export interface IBucketToken extends IToken
         {
             username: string;
-            bucket: IBucketEntry
-        }
-
-        /*
-        * Interface for a bucket being removed
-        */
-        export interface IBucketRemovedEvent extends IEvent
-        {
             bucket: IBucketEntry
         }
     }
@@ -170,10 +157,10 @@
     */
     export interface ISessionEntry
     {
-        _id: any;
-        sessionId: string;
-        data: any;
-        expiration: number;
+        _id?: any;
+        sessionId?: string;
+        data?: any;
+        expiration?: number;
     }
 
     /*
@@ -181,6 +168,12 @@
     */
     export interface IWebsocket
     {
+        /**
+         * A key that must be provided in the headers of socket client connections. If the connection headers
+         * contain 'users-api-key', and it matches this key, then the connection is considered an authorized connection.
+         */
+        socketApiKey: string;
+
         /**
         * The port number to use for web socket communication. You can use this port to send and receive events or messages
         * to the server.
@@ -199,6 +192,57 @@
         approvedSocketDomains: Array<string>;
     }
 
+    export interface IMailer
+    {
+        /**
+         * Attempts to initialize the mailer
+         * @param {IMailOptions} options
+         * @returns {Promise<boolean>}
+         */
+        initialize(options: IMailOptions) : Promise<boolean>
+
+        /**
+         * Sends an email
+         * @param {stirng} to The email address to send the message to
+         * @param {stirng} from The email we're sending from
+         * @param {stirng} subject The message subject
+         * @param {stirng} msg The message to be sent
+         * @returns {Promise<boolean>}
+         */
+        sendMail( to : string, from : string, subject : string, msg : string ): Promise<boolean>
+    }
+
+    export interface IMailOptions { }
+
+    /**
+     * Options for a gmail mailer
+     */
+    export interface IGMail extends IMailOptions
+    {
+        /*
+        * The email account to use the gmail API through. This account must be authorized to
+        * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
+        */
+        apiEmail: string;
+
+        /*
+        * Path to the key file
+        */
+        keyFile: string;
+    }
+
+    /**
+     * Options for a mailgun mailer
+     */
+    export interface IMailgun extends IMailOptions
+    {
+        /** The domain for associated with the mailgun account */
+        domain: string;
+
+        /** The api key for your mailgun account */
+        apiKey: string;
+    }
+
     /*
     * Users stores data on an external cloud bucket with Google
     */
@@ -208,23 +252,6 @@
         * Path to the key file
         */
         keyFile: string;
-
-        /*
-        * Mail settings
-        */
-        mail: {
-
-            /*
-            * The email account to use the gmail API through. This account must be authorized to
-            * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
-            */
-            apiEmail: string;
-
-            /*
-            * The email to use as the from field when sending mail. This can be different from the apiEmail.
-            */
-            from: string;
-        };
 
         /*
         * Describes the bucket details
@@ -353,7 +380,6 @@
         password: string;
         email: string;
         captcha?: string;
-        challenge?: string;
         meta?: any;
         privileges?: number;
     }
@@ -528,6 +554,12 @@
         sessionLifetime?: number;
 
         /**
+        * The longer period length of user sessions in seconds (Typically when a user clicks a 'remember me' type of button)
+        * e.g (60 * 60 * 24 * 2) = 2 days
+        */
+        sessionLifetimeExtended?: number;
+
+        /**
         * The private key to use for Google captcha
         * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
         */
@@ -551,6 +583,28 @@
             }
         */
         adminUser: IAdminUser;
+
+        /**
+         * Settings related to sending emails
+         */
+        mail: {
+
+            /**
+             * The from field sent to recipients
+             */
+            from: string;
+
+            /**
+             * Specify the type of mailer to use.
+             * Currently we support either 'gmail' or 'mailgun'
+             */
+            type: "gmail" | "mailgun";
+
+             /**
+             * Options to be sent to the desired mailer
+             */
+            options: IGMail | IMailgun;
+        }
 
         /**
         * Information relating to the Google storage platform
