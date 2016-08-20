@@ -4,21 +4,6 @@ import * as winston from "winston";
 import * as events from "events";
 import * as users from "webinate-users";
 
-
-export enum UserEventType
-{
-    Login = 1,
-    Logout = 2,
-    Activated = 3,
-    Removed = 4,
-    FilesUploaded = 5,
-    FilesRemoved = 6,
-    BucketUploaded = 7,
-    BucketRemoved = 8,
-    MetaRequest = 9,
-    Echo = 10
-}
-
 /**
 * A class for handling events sent from a webinate user server
 */
@@ -52,7 +37,10 @@ export class EventManager extends events.EventEmitter
 
             var connect = function ()
             {
-                var _client = new ws(cfg.usersSocketURL, { headers: { origin: cfg.usersSocketOrigin } });
+                let options : any = { headers : {} };
+                options.headers['users-api-key'] = cfg.usersSocketApiKey;
+
+                var _client = new ws(cfg.usersSocketURL, options );
 
                 // Opens a stream to the users socket events
                 _client.on('open', function ()
@@ -92,8 +80,8 @@ export class EventManager extends events.EventEmitter
         {
             try
             {
-                var event = <users.SocketEvents.IEvent>JSON.parse(data);
-                this.emit(UserEventType[event.eventType], event);
+                var event = <users.SocketTokens.IToken>JSON.parse(data);
+                this.emit(event.type, event);
             }
             catch (err)
             {
