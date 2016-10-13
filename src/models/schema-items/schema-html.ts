@@ -14,7 +14,7 @@ export class SchemaHtml extends SchemaItem<string>
     *    table, thead, caption, tbody, tr, th, td, pre
     */
     public static defaultTags: Array<string> = ['h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
-        'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div',
+        'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'iframe',
         'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre'];
 
     /**
