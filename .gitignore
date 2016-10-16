@@ -24,6 +24,7 @@ bld/
 [Oo]bj/
 node_modules/
 dist/
+.gitignore/
 
 changes.md
 
