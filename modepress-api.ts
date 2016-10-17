@@ -5,7 +5,7 @@ import * as _UsersService from "./src/users-service";
 import * as _SchemaFactory from "./src/models/schema-items/schema-item-factory";
 import * as _EventManager from "./src/event-manager";
 import * as _PermissionController from "./src/permission-controllers";
-import {Utils} from "./src/utils";
+import { Utils } from "./src/utils";
 
 export var Controller = _Controller.Controller;
 export var Model = _Models.Model;

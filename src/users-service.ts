@@ -1,13 +1,12 @@
 ﻿import * as express from "express"
 import * as http from "http"
 import * as request from "request"
-import {IConfig} from "modepress-api";
+import { IConfig } from "modepress-api";
 
 /**
 * Singleton service for communicating with a webinate-users server
 */
-export class UsersService
-{
+export class UsersService {
     private static _singleton: UsersService;
 
     public static usersURL: string;
@@ -16,8 +15,7 @@ export class UsersService
 	* Creates an instance of the service
 	* @param {IConfig} config The config file of this server
 	*/
-    constructor(config: IConfig )
-    {
+    constructor( config: IConfig ) {
         UsersService.usersURL = config.usersURL;
     }
 
@@ -26,17 +24,14 @@ export class UsersService
 	* @param {string} message The message to send
 	* @returns {Promise<any>}
 	*/
-    sendAdminEmail(message: string): Promise<any>
-    {
+    sendAdminEmail( message: string ): Promise<any> {
         var that = this;
-        return new Promise(function(resolve, reject)
-        {
-            request.post(`${UsersService.usersURL}/message-webmaster`, { form: { message: message } }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
+        return new Promise( function( resolve, reject ) {
+            request.post( `${UsersService.usersURL}/message-webmaster`, { form: { message: message } }, function( error, response, body ) {
+                if ( error )
+                    return reject( error );
 
-                resolve(body);
+                resolve( body );
             });
         });
     }
@@ -48,23 +43,18 @@ export class UsersService
     * @param {boolean} remember
 	* @returns {Promise<UsersInterface.IAuthenticationResponse>}
 	*/
-    login(user: string, password: string, remember: boolean): Promise<UsersInterface.IAuthenticationResponse>
-    {
+    login( user: string, password: string, remember: boolean ): Promise<UsersInterface.IAuthenticationResponse> {
         var that = this;
-        return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject)
-        {
-            request.post(`${UsersService.usersURL}/login`, { body: <UsersInterface.ILoginToken>{ username: user, password: password, rememberMe: remember } }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
+        return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
+            request.post( `${UsersService.usersURL}/login`, { body: <UsersInterface.ILoginToken>{ username: user, password: password, rememberMe: remember } }, function( error, response, body ) {
+                if ( error )
+                    return reject( error );
 
-                try
-                {
-                    resolve(<UsersInterface.IAuthenticationResponse>JSON.parse(body));
+                try {
+                    resolve( <UsersInterface.IAuthenticationResponse>JSON.parse( body ) );
                 }
-                catch (err)
-                {
-                    return reject(err);
+                catch ( err ) {
+                    return reject( err );
                 }
             });
         });
@@ -75,22 +65,19 @@ export class UsersService
 	* @param {express.Request} req
     * @returns {Promise<UsersInterface.IAuthenticationResponse>}
 	*/
-    authenticated(req: express.Request): Promise<UsersInterface.IAuthenticationResponse>
-    {
+    authenticated( req: express.Request ): Promise<UsersInterface.IAuthenticationResponse> {
         var that = this;
-        return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject)
-        {
-            request.get(`${UsersService.usersURL}/authenticated`, { headers: { cookie : (<any>req).headers.cookie } }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
+        return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
+            request.get( `${UsersService.usersURL}/authenticated`, { headers: { cookie: ( <any>req ).headers.cookie } }, function( error, response, body ) {
+                if ( error )
+                    return reject( error );
 
-                var token: UsersInterface.IAuthenticationResponse = JSON.parse(body);
+                var token: UsersInterface.IAuthenticationResponse = JSON.parse( body );
 
-                if (token.error)
-                    return reject(new Error(token.message));
+                if ( token.error )
+                    return reject( new Error( token.message ) );
 
-                resolve(token);
+                resolve( token );
             });
         });
     }
@@ -100,9 +87,8 @@ export class UsersService
 	* @param {UsersInterface.IUserEntry} user The user we are checking
 	* @returns {boolean}
 	*/
-    isAdmin( user: UsersInterface.IUserEntry ): boolean
-    {
-        if (user.privileges > 2)
+    isAdmin( user: UsersInterface.IUserEntry ): boolean {
+        if ( user.privileges > 2 )
             return false;
 
         return true;
@@ -115,14 +101,12 @@ export class UsersService
 	* @param {string} existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
 	* @returns {boolean}
 	*/
-    hasPermission(user: UsersInterface.IUserEntry, level: number, existingUser?: string): boolean
-    {
-        if (existingUser !== undefined)
-        {
-            if ((user.email != existingUser && user.username != existingUser) && user.privileges > level)
+    hasPermission( user: UsersInterface.IUserEntry, level: number, existingUser?: string ): boolean {
+        if ( existingUser !== undefined ) {
+            if ( ( user.email != existingUser && user.username != existingUser ) && user.privileges > level )
                 return false;
         }
-        else if (user.privileges > level)
+        else if ( user.privileges > level )
             return false;
 
         return true;
@@ -132,17 +116,14 @@ export class UsersService
     * Attempts to get a user by username
     * @param {express.Request} req
     */
-    getUser(user: string, req: express.Request): Promise<UsersInterface.IGetUser>
-    {
+    getUser( user: string, req: express.Request ): Promise<UsersInterface.IGetUser> {
         var that = this;
-        return new Promise<UsersInterface.IGetUser>(function (resolve, reject)
-        {
-            request.get(`${UsersService.usersURL}/users/${user}`, { headers: { cookie: (<any>req).headers.cookie } }, function (error, response, body)
-            {
-                if (error)
-                    return reject(error);
+        return new Promise<UsersInterface.IGetUser>( function( resolve, reject ) {
+            request.get( `${UsersService.usersURL}/users/${user}`, { headers: { cookie: ( <any>req ).headers.cookie } }, function( error, response, body ) {
+                if ( error )
+                    return reject( error );
 
-                resolve(JSON.parse(body));
+                resolve( JSON.parse( body ) );
             });
         });
     }
@@ -152,10 +133,9 @@ export class UsersService
 	* Gets the user singleton
 	* @returns {UsersService}
 	*/
-    public static getSingleton(config?: IConfig)
-    {
-        if (!UsersService._singleton)
-            UsersService._singleton = new UsersService(config);
+    public static getSingleton( config?: IConfig ) {
+        if ( !UsersService._singleton )
+            UsersService._singleton = new UsersService( config );
 
         return UsersService._singleton;
     }

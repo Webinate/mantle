@@ -1,5 +1,5 @@
-﻿import {SchemaItem} from "./schema-item";
-import {ISchemaOptions} from "modepress-api";
+﻿import { SchemaItem } from "./schema-item";
+import { ISchemaOptions } from "modepress-api";
 
 /**
 * A bool scheme item for use in Models
@@ -11,35 +11,32 @@ export class SchemaBool extends SchemaItem<boolean>
 	* @param {string} name The name of this item
 	* @param {boolean} val The value of this item
 	*/
-    constructor(name: string, val: boolean)
-    {
-        super(name, val);
-	}
+    constructor( name: string, val: boolean ) {
+        super( name, val );
+    }
 
 	/**
 	* Creates a clone of this item
 	* @returns {SchemaBool} copy A sub class of the copy
 	* @returns {SchemaBool}
 	*/
-    public clone(copy?: SchemaBool): SchemaBool
-    {
-        copy = copy === undefined ? new SchemaBool(this.name, <boolean>this.value) : copy;
-		super.clone(copy);
-		return copy;
-	}
+    public clone( copy?: SchemaBool ): SchemaBool {
+        copy = copy === undefined ? new SchemaBool( this.name, <boolean>this.value ) : copy;
+        super.clone( copy );
+        return copy;
+    }
 
 	/**
 	* Always true
 	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean|Error>
-	{
+    public validate(): Promise<boolean | Error> {
         var val = this.value;
-        if (val === undefined)
-            return Promise.reject<Error>( new Error(`${this.name} cannot be undefined` ) );
-        if (val === null)
-            return Promise.reject<Error>( new Error(`${this.name} cannot be null`));
+        if ( val === undefined )
+            return Promise.reject<Error>( new Error( `${this.name} cannot be undefined` ) );
+        if ( val === null )
+            return Promise.reject<Error>( new Error( `${this.name} cannot be null` ) );
 
-        return Promise.resolve(true);
+        return Promise.resolve( true );
     }
 }

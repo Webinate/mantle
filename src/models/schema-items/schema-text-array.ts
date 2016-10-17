@@ -1,6 +1,6 @@
-﻿import {SchemaItem} from "./schema-item";
-import {ISchemaOptions} from "modepress-api";
-import sanitizeHtml = require("sanitize-html");
+﻿import { SchemaItem } from "./schema-item";
+import { ISchemaOptions } from "modepress-api";
+import sanitizeHtml = require( "sanitize-html" );
 
 /**
 * A text scheme item for use in Models
@@ -21,68 +21,63 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
     * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
 	* @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
 	*/
-    constructor(name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, minCharacters: number = 0, maxCharacters: number = 10000)
-    {
-        super(name, val);
+    constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, minCharacters: number = 0, maxCharacters: number = 10000 ) {
+        super( name, val );
         this.maxCharacters = maxCharacters;
         this.minCharacters = minCharacters;
         this.maxItems = maxItems;
         this.minItems = minItems;
-	}
+    }
 
 	/**
 	* Creates a clone of this item
 	* @returns {SchemaTextArray} copy A sub class of the copy
 	* @returns {SchemaTextArray}
 	*/
-    public clone(copy?: SchemaTextArray): SchemaTextArray
-	{
-        copy = copy === undefined ? new SchemaTextArray(this.name, this.value) : copy;
-		super.clone(copy);
+    public clone( copy?: SchemaTextArray ): SchemaTextArray {
+        copy = copy === undefined ? new SchemaTextArray( this.name, this.value ) : copy;
+        super.clone( copy );
 
         copy.maxCharacters = this.maxCharacters;
         copy.minCharacters = this.minCharacters;
         copy.maxItems = this.maxItems;
         copy.minItems = this.minItems;
-		return copy;
-	}
+        return copy;
+    }
 
 	/**
 	* Checks the value stored to see if its correct in its current form
 	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean|Error>
-    {
+    public validate(): Promise<boolean | Error> {
         var transformedValue = this.value;
         var toRemove = [];
-        for (var i = 0, l = transformedValue.length; i < l; i++)
-        {
-            transformedValue[i] = sanitizeHtml(transformedValue[i].trim(), { allowedTags: [] });
+        for ( var i = 0, l = transformedValue.length; i < l; i++ ) {
+            transformedValue[ i ] = sanitizeHtml( transformedValue[ i ].trim(), { allowedTags: [] });
 
-            if (transformedValue[i].trim() == "")
-                toRemove.push(i);
+            if ( transformedValue[ i ].trim() == "" )
+                toRemove.push( i );
         }
 
         // Remove any "" cells
-        for (var i = toRemove.length - 1; i >= 0; i--)
-            transformedValue.splice(toRemove[i], 1);
+        for ( var i = toRemove.length - 1; i >= 0; i-- )
+            transformedValue.splice( toRemove[ i ], 1 );
 
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;
 
 
-        if (transformedValue.length < this.minItems)
-            return Promise.reject<Error>( new Error(`You must select at least ${this.minItems} item${(this.minItems == 1 ? "" : "s") } for ${this.name}`));
-        if (transformedValue.length > this.maxItems)
-            return Promise.reject<Error>( new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`));
+        if ( transformedValue.length < this.minItems )
+            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? "" : "s" )} for ${this.name}` ) );
+        if ( transformedValue.length > this.maxItems )
+            return Promise.reject<Error>( new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` ) );
 
-        for (var i = 0, l = transformedValue.length; i < l; i++)
-        {
-            transformedValue[i] = transformedValue[i].trim();
-            if (transformedValue[i].length > maxCharacters)
-                return Promise.reject<Error>( new Error( `The character length of '${transformedValue[i]}' in ${this.name} is too long, please keep it below ${maxCharacters}`));
-            else if (transformedValue[i].length < minCharacters)
-                return Promise.reject<Error>( new Error(`The character length of '${transformedValue[i]}' in ${this.name} is too short, please keep it above ${minCharacters}`));
+        for ( var i = 0, l = transformedValue.length; i < l; i++ ) {
+            transformedValue[ i ] = transformedValue[ i ].trim();
+            if ( transformedValue[ i ].length > maxCharacters )
+                return Promise.reject<Error>( new Error( `The character length of '${transformedValue[ i ]}' in ${this.name} is too long, please keep it below ${maxCharacters}` ) );
+            else if ( transformedValue[ i ].length < minCharacters )
+                return Promise.reject<Error>( new Error( `The character length of '${transformedValue[ i ]}' in ${this.name} is too short, please keep it above ${minCharacters}` ) );
         }
 
         return Promise.resolve( true );

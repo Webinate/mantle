@@ -1,12 +1,12 @@
-﻿import {ISchemaOptions} from "modepress-api";
-import {ModelInstance} from "../model";
+﻿import { ISchemaOptions } from "modepress-api";
+import { ModelInstance } from "../model";
 
 /**
 * A definition of each item in the model
 */
 export class SchemaItem<T>
 {
-	public name: string;
+    public name: string;
     public value: T;
     private _sensitive: boolean;
     private _unique: boolean;
@@ -15,9 +15,8 @@ export class SchemaItem<T>
     private _required: boolean;
     private _modified: boolean;
 
-    constructor(name: string, value: T)
-	{
-		this.name = name;
+    constructor( name: string, value: T ) {
+        this.name = name;
         this.value = value;
         this._sensitive = false;
         this._unique = false;
@@ -25,21 +24,20 @@ export class SchemaItem<T>
         this._indexable = false;
         this._required = false;
         this._modified = false;
-	}
+    }
 
 	/**
 	* Creates a clone of this item
 	* @returns {SchemaItem} copy A sub class of the copy
 	* @returns {SchemaItem}
 	*/
-    public clone(copy?: SchemaItem<T>): SchemaItem<T>
-    {
-        copy = copy === undefined ? new SchemaItem(this.name, this.value) : copy;
+    public clone( copy?: SchemaItem<T> ): SchemaItem<T> {
+        copy = copy === undefined ? new SchemaItem( this.name, this.value ) : copy;
         copy._unique = this._unique;
         copy._uniqueIndexer = this._uniqueIndexer;
         copy._required = this._required;
         copy._sensitive = this._sensitive;
-		return copy;
+        return copy;
     }
 
     /**
@@ -52,8 +50,7 @@ export class SchemaItem<T>
     * Sets if this item is indexable by mongodb
     * @returns {SchemaItem}
     */
-    public setIndexable(val?: boolean): SchemaItem<T>
-    {
+    public setIndexable( val?: boolean ): SchemaItem<T> {
         this._indexable = val;
         return this;
     }
@@ -68,8 +65,7 @@ export class SchemaItem<T>
     * Sets if this item is required. If true, then validations will fail if they are not specified
     * @returns {SchemaItem}
     */
-    public setRequired(val?: boolean): SchemaItem<T>
-    {
+    public setRequired( val?: boolean ): SchemaItem<T> {
         this._required = val;
         return this;
     }
@@ -84,8 +80,7 @@ export class SchemaItem<T>
 	* Sets if this item represents a unique value in the database. An example might be a username
 	* @returns {SchemaItem}
 	*/
-    public setUnique(val?: boolean): SchemaItem<T>
-    {
+    public setUnique( val?: boolean ): SchemaItem<T> {
         this._unique = val;
         return this;
     }
@@ -104,8 +99,7 @@ export class SchemaItem<T>
     * a given project. In this case the project item is set as a uniqueIndexer
 	* @returns {SchemaItem}
 	*/
-    public setUniqueIndexer(val?: boolean): SchemaItem<T>
-    {
+    public setUniqueIndexer( val?: boolean ): SchemaItem<T> {
         this._uniqueIndexer = val;
         return this;
     }
@@ -114,8 +108,7 @@ export class SchemaItem<T>
     * Gets if this item is sensitive
     * @returns {boolean}
     */
-    public getSensitive(): boolean
-    {
+    public getSensitive(): boolean {
         return this._sensitive;
     }
 
@@ -123,8 +116,7 @@ export class SchemaItem<T>
     * Gets if this item has been edited since its creation
     * @returns {boolean}
     */
-    public getModified(): boolean
-    {
+    public getModified(): boolean {
         return this._modified;
     }
 
@@ -132,8 +124,7 @@ export class SchemaItem<T>
     * Sets if this item is sensitive
     * @returns {SchemaItem<T>}
     */
-    public setSensitive(val: boolean): SchemaItem<T>
-    {
+    public setSensitive( val: boolean ): SchemaItem<T> {
         this._sensitive = val;
         return this;
     }
@@ -142,9 +133,8 @@ export class SchemaItem<T>
 	* Checks the value stored to see if its correct in its current form
 	* @returns {Promise<boolean|Error>}
 	*/
-	public validate(): Promise<boolean|Error>
-	{
-		return Promise.resolve(true);
+    public validate(): Promise<boolean | Error> {
+        return Promise.resolve( true );
     }
 
     /**
@@ -153,18 +143,16 @@ export class SchemaItem<T>
      * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
      * @param {string} collection The DB collection that the model was inserted into
 	 */
-	public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>
-	{
+    public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         return Promise.resolve();
     }
 
-     /**
-     * Called after a model instance is deleted. Useful for any schema item cleanups.
-     * @param {ModelInstance<T>} instance The model instance that was deleted
-     * @param {string} collection The DB collection that the model was deleted from
-     */
-    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>
-	{
+    /**
+    * Called after a model instance is deleted. Useful for any schema item cleanups.
+    * @param {ModelInstance<T>} instance The model instance that was deleted
+    * @param {string} collection The DB collection that the model was deleted from
+    */
+    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         return Promise.resolve();
     }
 
@@ -172,8 +160,7 @@ export class SchemaItem<T>
 	* Gets the value of this item in a database safe format
     * @returns {T}
 	*/
-    public getDbValue(): T
-    {
+    public getDbValue(): T {
         return this.value;
     }
 
@@ -182,8 +169,7 @@ export class SchemaItem<T>
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<T>}
     */
-    public async getValue(options? : ISchemaOptions ): Promise<T>
-    {
+    public async getValue( options?: ISchemaOptions ): Promise<T> {
         return this.value;
     }
 
@@ -192,8 +178,7 @@ export class SchemaItem<T>
     * @param {T} val The value to set
     * @returns {SchemaValue}
 	*/
-    public setValue(val : T): T
-    {
+    public setValue( val: T ): T {
         this._modified = true;
         return this.value = val;
     }

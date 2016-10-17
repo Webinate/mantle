@@ -1,32 +1,29 @@
-﻿declare module Modepress
-{
+﻿declare module Modepress {
     /*
     * Base interface for all models
     */
-    export interface IModelEntry
-    {
+    export interface IModelEntry {
         _id?: any;
-        _requiredDependencies?: Array<{ collection: string, _id : any }>
-        _optionalDependencies?: Array<{ collection: string, propertyName: string, _id : any }>
-        _arrayDependencies?: Array<{ collection: string, propertyName: string, _id : any }>
+        _requiredDependencies?: Array<{ collection: string, _id: any }>
+        _optionalDependencies?: Array<{ collection: string, propertyName: string, _id: any }>
+        _arrayDependencies?: Array<{ collection: string, propertyName: string, _id: any }>
     }
 
     /**
      * A list of optional parameters that can be passed to schema items that determines how they are
      * serialized
      */
-    export interface ISchemaOptions
-    {
+    export interface ISchemaOptions {
         /**
          * If true, foreign keys will serialize their values
          */
-        expandForeignKeys? : boolean;
+        expandForeignKeys?: boolean;
 
         /**
          * When fetching schema data, we need to define if the query is verbose or not.
          * If true, then all data is returned and is not stripped of sensitive items
          */
-        verbose : boolean
+        verbose: boolean
 
         /**
          * Defines how many levels deep foreign key traversal iterates. If 1, then only the immediate foreign keys
@@ -34,7 +31,7 @@
          * only model X and its model Y instance are returned (Model Y's reference to any X is ignored)
          * Only read if expandForeignKeys is true.
          */
-        expandMaxDepth? : number;
+        expandMaxDepth?: number;
 
         /**
          * Defines an array of schema names that must not be expanded when expandForeignKeys is true.
@@ -45,8 +42,7 @@
     /*
     * Describes the post model
     */
-    export interface IPost extends IModelEntry
-    {
+    export interface IPost extends IModelEntry {
         author?: string;
         title?: string;
         slug?: string;
@@ -63,8 +59,7 @@
     /*
     * Describes the comment model
     */
-    export interface IComment extends IModelEntry
-    {
+    export interface IComment extends IModelEntry {
         author?: string;
         post?: string;
         parent?: string;
@@ -78,8 +73,7 @@
     /*
     * Describes the category model
     */
-    export interface ICategory extends IModelEntry
-    {
+    export interface ICategory extends IModelEntry {
         title?: string;
         slug?: string;
         parent?: string;
@@ -89,8 +83,7 @@
     /*
     * The most basic response from the server. The base type of all responses.
     */
-    export interface IResponse
-    {
+    export interface IResponse {
         message: string;
         error: boolean;
     }
@@ -98,8 +91,7 @@
     /*
     * A response for when bulk items are deleted
     */
-    export interface IRemoveResponse extends IResponse
-    {
+    export interface IRemoveResponse extends IResponse {
         itemsRemoved: Array<{ id: string; error: boolean; errorMsg: string; }>;
     }
 
@@ -113,8 +105,7 @@
     /*
     * Describes the cache renders model
     */
-    export interface IRender extends IModelEntry
-    {
+    export interface IRender extends IModelEntry {
         url?: string;
         expiration?: number;
         createdOn?: number;
@@ -125,22 +116,19 @@
     /*
     * A GET request that returns a data item
     */
-    export interface IGetResponse<T> extends IResponse
-    {
+    export interface IGetResponse<T> extends IResponse {
         data: T;
     }
 
     /*
     * A GET request that returns an array of data items
     */
-    export interface IGetArrayResponse<T> extends IResponse
-    {
+    export interface IGetArrayResponse<T> extends IResponse {
         count: number;
         data: Array<T>;
     }
 
-    export interface IMessage
-    {
+    export interface IMessage {
         name: string;
         email: string;
         message: string;
@@ -159,16 +147,14 @@
     /**
     * Describes the controller structure of plugins in the config file
     */
-    export interface IControllerPlugin
-    {
+    export interface IControllerPlugin {
         path: string;
     }
 
     /**
     * Defines routes and the paths of a host / port
     */
-    export interface IServer
-    {
+    export interface IServer {
         /**
        * The host we listening for
        */
@@ -243,8 +229,7 @@
     /**
     * Defines routes and the paths they take
     */
-    export interface IPath
-    {
+    export interface IPath {
         /**
         * The express end point route to use. E.g. "*" or "/some-route"
         */
@@ -265,14 +250,13 @@
         /**
         * An array of javascript variables that will be sent to any jade templates for a given path
         */
-        variables: { [name: string]: string };
+        variables: { [ name: string ]: string };
     }
 
     /**
     * A server configuration
     */
-    export interface IConfig
-    {
+    export interface IConfig {
         /**
         * The length of time the assets should be cached on a user's browser. The default is 30 days.
         */
@@ -335,7 +319,7 @@
          * This key must be the same as the one that's stored in the User's' config JSON.
          * eg: 'this-is-my-key'
          */
-        usersSocketApiKey : string;
+        usersSocketApiKey: string;
     }
 
     /**
@@ -346,14 +330,14 @@
         public name: string;
         public value: T;
 
-        constructor(name: string, value: T);
+        constructor( name: string, value: T );
 
         /**
         * Creates a clone of this item
         * @returns {SchemaItem} copy A sub class of the copy
         * @returns {SchemaItem}
         */
-        public clone(copy?: SchemaItem<T>): SchemaItem<T>;
+        public clone( copy?: SchemaItem<T> ): SchemaItem<T>;
 
         /**
         * Gets if this item is sensitive
@@ -365,7 +349,7 @@
         * Sets if this item is sensitive
         * @returns {SchemaItem<T>}
         */
-        public setSensitive(val: boolean) : SchemaItem<T>;
+        public setSensitive( val: boolean ): SchemaItem<T>;
 
         /**
         * Gets if this item is required. This will throw an error on the item if the value is not set before validation.
@@ -377,7 +361,7 @@
         * Sets if this item is required. This will throw an error on the item if the value is not set before validation.
         * @returns {SchemaItem<T>}
         */
-        public setRequired(val: boolean);
+        public setRequired( val: boolean );
 
         /**
         * Gets if this item is indexable by mongodb
@@ -395,13 +379,13 @@
         * Sets if this item is indexable by mongodb
         * @returns {SchemaItem}
         */
-        public setIndexable(val?: boolean): SchemaItem<T>;
+        public setIndexable( val?: boolean ): SchemaItem<T>;
 
         /**
         * Sets if this item represents a unique value in the database. An example might be a username
         * @returns {SchemaItem}
         */
-        public setUnique(val?: boolean): SchemaItem<T>;
+        public setUnique( val?: boolean ): SchemaItem<T>;
 
         /**
         * Checks the value stored to see if its correct in its current form
@@ -420,7 +404,7 @@
         * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
         * @returns {T | Promise<T>}
         */
-        public getValue(options? : ISchemaOptions ): T | Promise<T>;
+        public getValue( options?: ISchemaOptions ): T | Promise<T>;
 
         /**
          * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
@@ -428,14 +412,14 @@
          * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
          * @param {string} collection The DB collection that the model was inserted into
          */
-        public postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>;
+        public postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void>;
 
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
          * @param {ModelInstance<T>} instance The model instance that was deleted
          * @param {string} collection The DB collection that the model was deleted from
          */
-        public postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<Schema>;
+        public postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema>;
 
         /**
         * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
@@ -451,14 +435,13 @@
         * a given project. In this case the project item is set as a uniqueIndexer
         * @returns {SchemaItem}
         */
-        public setUniqueIndexer(val?: boolean): SchemaItem<T>;
+        public setUniqueIndexer( val?: boolean ): SchemaItem<T>;
     }
 
     /**
     * Gives an overall description of each property in a model
     */
-    class Schema
-    {
+    class Schema {
         constructor();
 
         /**
@@ -478,13 +461,13 @@
         * @param {string} name The name of the schema item
         * @param {any} val The new value of the item
         */
-        set(name: string, val: any);
+        set( name: string, val: any );
 
         /**
         * De-serializes the schema items from the mongodb data entry
         * @param {any} data
         */
-        public deserialize(data: any): any;
+        public deserialize( data: any ): any;
 
         /**
         * Serializes the schema items into the JSON format for mongodb
@@ -498,7 +481,7 @@
         * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
         * @returns {Promise<T>}
         */
-        public getAsJson<T>( id: any, options? : ISchemaOptions ): Promise<T>;
+        public getAsJson<T>( id: any, options?: ISchemaOptions ): Promise<T>;
 
         /**
         * Checks the values stored in the items to see if they are correct
@@ -511,20 +494,20 @@
         * @param {string} val The name of the item
         * @param {SchemaItem}
         */
-        public getByName(val: string): SchemaItem<any>;
+        public getByName( val: string ): SchemaItem<any>;
 
         /**
         * Adds a schema item to this schema
         * @param {SchemaItem} val The new item to add
         * @returns {SchemaItem}
         */
-        public add(val: SchemaItem<any>): SchemaItem<any>;
+        public add( val: SchemaItem<any> ): SchemaItem<any>;
 
         /**
         * Removes a schema item from this schema
         * @param {SchemaItem|string} val The name of the item or the item itself
         */
-        public remove(val: SchemaItem<any>|string);
+        public remove( val: SchemaItem<any> | string );
     }
 
     /**
@@ -541,14 +524,13 @@
         /**
         * Creates a model instance
         */
-        constructor(model: Model, dbEntry: T);
+        constructor( model: Model, dbEntry: T );
     }
 
     /**
     * Models map data in the application/client to data in the database
     */
-    export class Model
-    {
+    export class Model {
         public collection: any;
         public defaultSchema: Schema;
 
@@ -556,14 +538,14 @@
         * Creates an instance of a Model
         * @param {string} collection The collection name associated with this model
         */
-        constructor(collection: string);
+        constructor( collection: string );
 
         /**
          * Returns a registered model by its name
          * @param {string} name The name of the model to fetch
          * @returns {Model} Returns the registered model or null if none exists
          */
-        static getByName(name : string) : Model;
+        static getByName( name: string ): Model;
 
         /**
          * Returns a new model of a given type. However if the model was already registered before,
@@ -571,7 +553,7 @@
          * @param {any} modelConstructor The model class
          * @returns {Model} Returns the registered model
          */
-        static registerModel<T extends Model>( modelConstructor : any ) : T;
+        static registerModel<T extends Model>( modelConstructor: any ): T;
 
         /**
         * Gets the name of the collection associated with this model
@@ -584,14 +566,14 @@
         * @param {mongodb.Db} db The database used to create this model
         * @returns {Promise<mongodb.Db>}
         */
-        initialize(db: any): Promise<Model>;
+        initialize( db: any ): Promise<Model>;
 
         /**
         * Gets the number of DB entries based on the selector
         * @param {any} selector The mongodb selector
         * @returns {Promise<Array<ModelInstance>>}
         */
-        count(selector: any): Promise<number>;
+        count( selector: any ): Promise<number>;
 
         /**
         * Gets an arrray of instances based on the selector search criteria
@@ -603,7 +585,7 @@
         * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
         * @returns {Promise<Array<ModelInstance>>}
         */
-        findInstances<T>(selector: any, sort?: any, startIndex?: number, limit?: number, projection?: any): Promise<Array<ModelInstance<T>>>;
+        findInstances<T>( selector: any, sort?: any, startIndex?: number, limit?: number, projection?: any ): Promise<Array<ModelInstance<T>>>;
 
         /**
         * Gets a model instance based on the selector criteria
@@ -611,13 +593,13 @@
         * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
         * @returns {Promise<ModelInstance<T>>}
         */
-        findOne<T>(selector: any, projection?: any): Promise<ModelInstance<T>>;
+        findOne<T>( selector: any, projection?: any ): Promise<ModelInstance<T>>;
 
         /**
         * Deletes a number of instances based on the selector. The promise reports how many items were deleted
         * @returns {Promise<number>}
         */
-        deleteInstances(selector: any): Promise<number>;
+        deleteInstances( selector: any ): Promise<number>;
 
         /**
         * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
@@ -628,7 +610,7 @@
         * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
         * went wrong when updating the specific instance, and a string message if something did in fact go wrong
         */
-        update<T>(selector: any, data: T): Promise<UpdateRequest<T>>
+        update<T>( selector: any, data: T ): Promise<UpdateRequest<T>>
 
         /**
         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
@@ -636,7 +618,7 @@
         * by parsing the data object and setting each schema item's value by the name/value in the data object.
         * @returns {Promise<boolean>}
         */
-        checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>;
+        checkUniqueness<T>( instance: ModelInstance<T> ): Promise<boolean>;
 
         /**
         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
@@ -644,54 +626,52 @@
         * by parsing the data object and setting each schema item's value by the name/value in the data object.
         * @returns {Promise<ModelInstance>}
         */
-        createInstance<T>(data?: any): Promise<ModelInstance<T>>;
+        createInstance<T>( data?: any ): Promise<ModelInstance<T>>;
 
         /**
         * Attempts to insert an array of instances of this model into the database.
         * @param {Promise<Array<ModelInstance>>} instances An array of instances to save
         * @returns {Promise<Array<ModelInstance>>}
         */
-        insert<T>(instances: Array<ModelInstance<T>>): Promise<Array<ModelInstance<T>>>;
+        insert<T>( instances: Array<ModelInstance<T>> ): Promise<Array<ModelInstance<T>>>;
 
     }
 
-    export class Controller
-    {
-        constructor(models: Array<Model>);
+    export class Controller {
+        constructor( models: Array<Model> );
 
         /**
         * Called to initialize this controller and its related database objects
         * @param {mongodb.Db} db The mongo database to use
         * @returns {Promise<Controller>}
         */
-        initialize(db: any): Promise<Controller>;
+        initialize( db: any ): Promise<Controller>;
 
         /**
         * Gets a model by its collection name
         * returns {models.Model}
         */
-        getModel(collectionName: string): Model;
+        getModel( collectionName: string ): Model;
     }
 
     /**
     * Singleton service for communicating with a webinate-users server
     */
-    export class UsersService
-    {
+    export class UsersService {
         public static usersURL: string;
 
         /**
         * Creates an instance of the service
         * @param {string} usersURL The URL of the user management service
         */
-        constructor(usersURL: string);
+        constructor( usersURL: string );
 
         /**
         * Sends an email to the admin account
         * @param {string} message The message to send
         * @returns {Promise<any>}
         */
-        sendAdminEmail(message: string): Promise<any>;
+        sendAdminEmail( message: string ): Promise<any>;
 
         /**
         * Checks if a user is logged in and authenticated
@@ -699,14 +679,14 @@
         * @param {express.Request} res
         * @returns {Promise<UsersInterface.IAuthenticationResponse>}
         */
-        authenticated(req: any, res: any): Promise<UsersInterface.IAuthenticationResponse>;
+        authenticated( req: any, res: any ): Promise<UsersInterface.IAuthenticationResponse>;
 
         /**
         * Checks a user has admin rights
         * @param {UsersInterface.IUserEntry} user The user we are checking
         * @returns {boolean}
         */
-        isAdmin(user: UsersInterface.IUserEntry): boolean;
+        isAdmin( user: UsersInterface.IUserEntry ): boolean;
 
         /**
         * Checks a user has the desired permission
@@ -715,7 +695,7 @@
         * @param {string} existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
         * @returns {boolean}
         */
-        hasPermission(user: UsersInterface.IUserEntry, level: number, existingUser?: string): boolean;
+        hasPermission( user: UsersInterface.IUserEntry, level: number, existingUser?: string ): boolean;
 
         /**
 	    * Attempts to log a user in
@@ -724,27 +704,26 @@
         * @param {boolean} remember
 	    * @returns {Promise<UsersInterface.IAuthenticationResponse>}
 	    */
-        login(user: string, password: string, remember: boolean): Promise<UsersInterface.IAuthenticationResponse>;
+        login( user: string, password: string, remember: boolean ): Promise<UsersInterface.IAuthenticationResponse>;
 
         /**
         * Attempts to get a user by username or email
         * @param {string} user The username or email
         * @param {Request} req
         */
-        getUser(user: string, req: Express.Request): Promise<UsersInterface.IGetUser>;
+        getUser( user: string, req: Express.Request ): Promise<UsersInterface.IGetUser>;
 
         /**
         * Gets the user singleton
         * @returns {UsersService}
         */
-        public static getSingleton(usersURL?: string): UsersService;
+        public static getSingleton( usersURL?: string ): UsersService;
     }
 
     /**
     * Describes the type of number to store
     */
-    enum NumberType
-    {
+    enum NumberType {
         Integer,
         Float
     }
@@ -763,7 +742,7 @@
         * @param {NumberType} type [Optional] The type of number the schema represents
         * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
         */
-        constructor(name: string, val: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number)
+        constructor( name: string, val: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number )
     }
 
     /**
@@ -774,8 +753,8 @@
      */
     export class SchemaForeignKey extends SchemaItem<any | string | Modepress.IModelEntry>
     {
-        public targetCollection : string;
-        public optionalKey : boolean;
+        public targetCollection: string;
+        public optionalKey: boolean;
 
         /**
         * Creates a new schema item
@@ -784,7 +763,7 @@
         * @param {string} targetCollection The name of the collection to which the target exists
         * @param {boolean} optionalKey If true, then this key will only be nullified if the target is removed
         */
-        constructor(name: string, val: string, targetCollection : string, optionalKey?: boolean );
+        constructor( name: string, val: string, targetCollection: string, optionalKey?: boolean );
     }
 
 
@@ -800,7 +779,7 @@
         * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
         * @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
         */
-        constructor(name: string, val: string, minCharacters?: number, maxCharacters?: number);
+        constructor( name: string, val: string, minCharacters?: number, maxCharacters?: number );
     }
 
     /**
@@ -815,7 +794,7 @@
         * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
         * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
         */
-        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number);
+        constructor( name: string, val: Array<string>, minItems?: number, maxItems?: number );
     }
 
     /**
@@ -834,7 +813,7 @@
         * @param {NumberType} type [Optional] What type of numbers to expect
         * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
         */
-        constructor(name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?)
+        constructor( name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?)
     }
 
     /**
@@ -851,7 +830,7 @@
         * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
         * @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
         */
-        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number);
+        constructor( name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number );
     }
 
     /**
@@ -864,7 +843,7 @@
         * @param {string} name The name of this item
         * @param {boolean} val The value of this item
         */
-        constructor(name: string, val: boolean);
+        constructor( name: string, val: boolean );
     }
 
     /**
@@ -877,7 +856,7 @@
         * @param {string} name The name of this item
         * @param {any} val The text of this item
         */
-        constructor(name: string, val: any);
+        constructor( name: string, val: any );
     }
 
     /**
@@ -893,7 +872,7 @@
         * @param {number} val The date of this item. If none is specified the Date.now() number is used.
         * @param {boolean} useNow [Optional] If true, the date will always be updated to use the current date
         */
-        constructor(name: string, val?: number, useNow?: boolean);
+        constructor( name: string, val?: number, useNow?: boolean );
     }
 
     /**
@@ -908,7 +887,7 @@
         * @param {string} name The name of this item
         * @param {string} val The string representation of the object ID
         */
-        constructor(name: string, val: string );
+        constructor( name: string, val: string );
     }
 
     /**
@@ -927,7 +906,7 @@
         /**
         * The default allowed attributes for each tag
         */
-        public static defaultAllowedAttributes: { [name: string]: Array<string> };
+        public static defaultAllowedAttributes: { [ name: string ]: Array<string> };
 
         /**
         * Creates a new schema item
@@ -940,16 +919,15 @@
         * @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
         * @param {boolean} htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
         */
-        constructor(name: string, val: string, allowedTags?: Array<string>,
-            allowedAttributes?: { [name: string]: Array<string> },
-            errorBadHTML?: boolean, minCharacters?: number, maxCharacters?: number, htmlClean?: boolean);
+        constructor( name: string, val: string, allowedTags?: Array<string>,
+            allowedAttributes?: { [ name: string ]: Array<string> },
+            errorBadHTML?: boolean, minCharacters?: number, maxCharacters?: number, htmlClean?: boolean );
     }
 
     /**
     * A list of helper functions for creating schema items
     */
-    export module SchemaFactory
-    {
+    export module SchemaFactory {
         export var num: typeof SchemaNumber;
         export var text: typeof SchemaText;
         export var textArray: typeof SchemaTextArray;
@@ -966,24 +944,22 @@
     /**
     * A class for handling events sent from a webinate user server
     */
-    export class EventManager implements NodeJS.EventEmitter
-    {
+    export class EventManager implements NodeJS.EventEmitter {
         static singleton: EventManager;
 
-        addListener(event: string, listener: Function): this;
-        on(event: string, listener: Function): this;
-        once(event: string, listener: Function): this;
-        removeListener(event: string, listener: Function): this;
-        removeAllListeners(event?: string): this;
-        setMaxListeners(n: number): this;
+        addListener( event: string, listener: Function ): this;
+        on( event: string, listener: Function ): this;
+        once( event: string, listener: Function ): this;
+        removeListener( event: string, listener: Function ): this;
+        removeAllListeners( event?: string ): this;
+        setMaxListeners( n: number ): this;
         getMaxListeners(): number;
-        listeners(event: string): Function[];
-        emit(event: string, ...args: any[]): boolean;
-        listenerCount(type: string): number;
+        listeners( event: string ): Function[];
+        emit( event: string, ...args: any[] ): boolean;
+        listenerCount( type: string ): number;
     }
 
-    export interface IAuthReq extends Express.Request
-    {
+    export interface IAuthReq extends Express.Request {
         _isAdmin: boolean;
         _verbose: boolean;
         _user: UsersInterface.IUserEntry;
@@ -1007,7 +983,7 @@
     * @param {express.Response} res
     * @param {Function} next
     */
-    export function isAdmin(req: IAuthReq, res: Express.Response, next: Function);
+    export function isAdmin( req: IAuthReq, res: Express.Response, next: Function );
 
     /**
     * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
@@ -1015,7 +991,7 @@
     * @param {express.Response} res
     * @param {Function} next
     */
-    export function canEdit(req: IAuthReq, res: Express.Response, next: Function);
+    export function canEdit( req: IAuthReq, res: Express.Response, next: Function );
 
     /**
     * This funciton checks if user is logged in
@@ -1023,7 +999,7 @@
     * @param {express.Response} res
     * @param {Function} next
     */
-    export function getUser(req: IAuthReq, res: Express.Response, next: Function);
+    export function getUser( req: IAuthReq, res: Express.Response, next: Function );
 
     /**
     * This funciton checks the logged in user is an admin. If not an error is thrown
@@ -1031,14 +1007,14 @@
     * @param {express.Response} res
     * @param {Function} next
     */
-    export function isAuthenticated(req: IAuthReq, res: Express.Response, next: Function);
+    export function isAuthenticated( req: IAuthReq, res: Express.Response, next: Function );
 
     /**
     * Checks a string to see if its a valid mongo id
     * @param {string} str
     * @returns {boolean} True if the string is valid
     */
-    export function isValidID(str: string): boolean;
+    export function isValidID( str: string ): boolean;
 }
 
 declare module "modepress-api"

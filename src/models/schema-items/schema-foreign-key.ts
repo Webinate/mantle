@@ -1,9 +1,9 @@
-﻿import {SchemaItem} from "./schema-item";
-import {ISchemaOptions} from "modepress-api";
-import {Model, ModelInstance} from "../model";
-import {ObjectID} from "mongodb";
-import {Utils} from "../../utils";
-import {SchemaIdArray} from "./schema-id-array";
+﻿import { SchemaItem } from "./schema-item";
+import { ISchemaOptions } from "modepress-api";
+import { Model, ModelInstance } from "../model";
+import { ObjectID } from "mongodb";
+import { Utils } from "../../utils";
+import { SchemaIdArray } from "./schema-id-array";
 
 /**
  * Represents a mongodb ObjectID of a document in separate collection.
@@ -13,11 +13,11 @@ import {SchemaIdArray} from "./schema-id-array";
  */
 export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.IModelEntry>
 {
-    public targetCollection : string;
-    public optionalKey : boolean;
+    public targetCollection: string;
+    public optionalKey: boolean;
     public curLevel: number;
 
-    private _targetDoc : ModelInstance<Modepress.IModelEntry>;
+    private _targetDoc: ModelInstance<Modepress.IModelEntry>;
 
 	/**
 	* Creates a new schema item
@@ -26,9 +26,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     * @param {string} targetCollection The name of the collection to which the target exists
     * @param {boolean} optionalKey If true, then this key will only be nullified if the target is removed
 	*/
-    constructor(name: string, val: string, targetCollection : string, optionalKey: boolean = false )
-    {
-        super(name, val);
+    constructor( name: string, val: string, targetCollection: string, optionalKey: boolean = false ) {
+        super( name, val );
         this.targetCollection = targetCollection;
         this.optionalKey = optionalKey;
         this.curLevel = 1;
@@ -39,49 +38,46 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 	* @returns {SchemaForeignKey} copy A sub class of the copy
 	* @returns {SchemaForeignKey}
 	*/
-    public clone(copy?: SchemaForeignKey): SchemaForeignKey
-    {
-        copy = copy === undefined ? new SchemaForeignKey(this.name, <string>this.value, this.targetCollection) : copy;
-        super.clone(copy);
+    public clone( copy?: SchemaForeignKey ): SchemaForeignKey {
+        copy = copy === undefined ? new SchemaForeignKey( this.name, <string>this.value, this.targetCollection ) : copy;
+        super.clone( copy );
         copy.optionalKey = this.optionalKey;
-		return copy;
-	}
+        return copy;
+    }
 
 	/**
 	* Checks the value stored to see if its correct in its current form
 	* @returns {Promise<boolean|Error>}
 	*/
-	public async validate(): Promise<boolean|Error>
-    {
+    public async validate(): Promise<boolean | Error> {
         var transformedValue = this.value;
 
         // If they key is required then it must exist
-        var model = Model.getByName(this.targetCollection);
+        var model = Model.getByName( this.targetCollection );
 
-        if (!model)
-            throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
+        if ( !model )
+            throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
-        if (typeof this.value == "string")
-        {
-            if (Utils.isValidObjectID(<string>this.value))
-                transformedValue = this.value = new ObjectID(<string>this.value);
-            else if ((<string>this.value).trim() != "")
-                throw new Error( `Please use a valid ID for '${this.name}'`);
+        if ( typeof this.value == "string" ) {
+            if ( Utils.isValidObjectID( <string>this.value ) )
+                transformedValue = this.value = new ObjectID( <string>this.value );
+            else if ( ( <string>this.value ).trim() != "" )
+                throw new Error( `Please use a valid ID for '${this.name}'` );
             else
                 transformedValue = null;
         }
 
-        if (!transformedValue)
+        if ( !transformedValue )
             this.value = null;
 
-        if (!this.optionalKey && !this.value)
-            throw new Error(`${this.name} does not exist`);
+        if ( !this.optionalKey && !this.value )
+            throw new Error( `${this.name} does not exist` );
 
         // We can assume the value is object id by this point
-        var result = await model.findOne<Modepress.IModelEntry>( { _id : <ObjectID>this.value } );
+        var result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
 
-        if (!this.optionalKey && !result)
-            throw new Error(`${this.name} does not exist`);
+        if ( !this.optionalKey && !result )
+            throw new Error( `${this.name} does not exist` );
 
         this._targetDoc = result;
 
@@ -94,38 +90,35 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
      * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
      * @param {string} collection The DB collection that the model was inserted into
 	 */
-	public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>
-	{
-        if (!this._targetDoc)
+    public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+        if ( !this._targetDoc )
             return;
 
         // If they key is required then it must exist
-        var model = Model.getByName(this.targetCollection);
+        var model = Model.getByName( this.targetCollection );
 
         var optionalDeps = this._targetDoc.dbEntry._optionalDependencies;
         var requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
 
         // Now we need to register the schemas source with the target model
-        if (this.optionalKey)
-        {
+        if ( this.optionalKey ) {
             if ( !optionalDeps )
                 optionalDeps = [];
 
-            optionalDeps.push( { _id : instance.dbEntry._id, collection: collection, propertyName: this.name } );
+            optionalDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name });
         }
-        else
-        {
+        else {
             if ( !requiredDeps )
                 requiredDeps = [];
 
-            requiredDeps.push( { _id : instance.dbEntry._id, collection: collection } )
+            requiredDeps.push( { _id: instance.dbEntry._id, collection: collection })
         }
 
-        await model.collection.updateOne( <Modepress.IModelEntry>{ _id : this._targetDoc.dbEntry._id  }, {
-            $set : <Modepress.IModelEntry>{
-                _optionalDependencies : optionalDeps,
-                _requiredDependencies : requiredDeps
-             }
+        await model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDoc.dbEntry._id }, {
+            $set: <Modepress.IModelEntry>{
+                _optionalDependencies: optionalDeps,
+                _requiredDependencies: requiredDeps
+            }
         });
 
         // Nullify the target doc cache
@@ -138,29 +131,28 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
      * @param {ModelInstance<T>} instance The model instance that was deleted
      * @param {string} collection The DB collection that the model was deleted from
      */
-    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>
-	{
+    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         // If they key is required then it must exist
-        var model = Model.getByName(this.targetCollection);
-        if (!model)
+        var model = Model.getByName( this.targetCollection );
+        if ( !model )
             return;
 
-        if (!this.value || this.value == "")
+        if ( !this.value || this.value == "" )
             return;
 
         // We can assume the value is object id by this point
-        var result = await model.findOne<Modepress.IModelEntry>( { _id : <ObjectID>this.value } );
-        if (!result)
+        var result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
+        if ( !result )
             return;
 
         var query;
 
-        if (this.optionalKey)
-            query = { $pull: { _optionalDependencies: { _id : instance.dbEntry._id } } };
+        if ( this.optionalKey )
+            query = { $pull: { _optionalDependencies: { _id: instance.dbEntry._id } } };
         else
-            query = { $pull: { _requiredDependencies: { _id : instance.dbEntry._id } } };
+            query = { $pull: { _requiredDependencies: { _id: instance.dbEntry._id } } };
 
-        await model.collection.updateOne( <Modepress.IModelEntry>{ _id : this._targetDoc.dbEntry._id  }, query );
+        await model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDoc.dbEntry._id }, query );
         return;
     }
 
@@ -169,40 +161,38 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
     * @returns {Promise<ObjectID | Modepress.IModelEntry>}
 	*/
-    public async getValue(options? : ISchemaOptions): Promise<ObjectID | Modepress.IModelEntry>
-    {
-        if (options.expandForeignKeys && options.expandMaxDepth === undefined)
-            throw new Error("You cannot set expandForeignKeys and not specify the expandMaxDepth");
+    public async getValue( options?: ISchemaOptions ): Promise<ObjectID | Modepress.IModelEntry> {
+        if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
+            throw new Error( "You cannot set expandForeignKeys and not specify the expandMaxDepth" );
 
-        if (!options.expandForeignKeys)
+        if ( !options.expandForeignKeys )
             return <ObjectID>this.value;
 
-        if (options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf(this.name) != -1)
+        if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) != -1 )
             return <ObjectID>this.value;
 
-        var model = Model.getByName(this.targetCollection);
-        if (!model)
-            throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
+        var model = Model.getByName( this.targetCollection );
+        if ( !model )
+            throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
-        if (!this.value)
+        if ( !this.value )
             return null;
 
         // Make sure the current level is not beyond the max depth
-        if (options.expandMaxDepth !== undefined)
-        {
+        if ( options.expandMaxDepth !== undefined ) {
             if ( this.curLevel > options.expandMaxDepth )
                 return this.value;
         }
 
-        var result = await model.findOne<Modepress.IModelEntry>( { _id : <ObjectID>this.value } );
+        var result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
 
         // Get the models items are increase their level - this ensures we dont go too deep
         var items = result.schema.getItems();
         var nextLevel = this.curLevel + 1;
 
-        for (var i = 0, l = items.length; i < l; i++)
-            if ( items[i] instanceof SchemaForeignKey || items[i] instanceof SchemaIdArray )
-                (<SchemaForeignKey | SchemaIdArray>items[i]).curLevel = nextLevel;
+        for ( var i = 0, l = items.length; i < l; i++ )
+            if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
+                ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
 
         return await result.schema.getAsJson<Modepress.IModelEntry>( result.dbEntry._id, options );
     }

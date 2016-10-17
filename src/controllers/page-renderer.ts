@@ -1,31 +1,30 @@
 ﻿import * as mongodb from "mongodb";
 import * as http from "http";
-import {IConfig, IServer, IResponse, IRender, IGetRenders} from "modepress-api";
+import { IConfig, IServer, IResponse, IRender, IGetRenders } from "modepress-api";
 import * as winston from "winston";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller} from "./controller";
-import {UsersService} from "../users-service"
-import {RendersModel} from "../models/renders-model";
-import {ModelInstance, Model} from "../models/model";
+import { Controller } from "./controller";
+import { UsersService } from "../users-service"
+import { RendersModel } from "../models/renders-model";
+import { ModelInstance, Model } from "../models/model";
 import * as net from "net";
 import * as url from "url";
 import * as jsdom from "jsdom";
-import {okJson, errJson} from "../serializers";
+import { okJson, errJson } from "../serializers";
 
 /**
 * Sets up a prerender server and saves the rendered html requests to mongodb.
 * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
 */
-export default class PageRenderer extends Controller
-{
+export default class PageRenderer extends Controller {
     private renderQueryFlag: string;
     private expiration: number;
 
     // googlebot, yahoo, and bingbot are not in this list because
     // we support _escaped_fragment_ and want to ensure people aren't
     // penalized for cloaking.
-    private static crawlerUserAgents : Array<string> = [
+    private static crawlerUserAgents: Array<string> = [
         // 'googlebot',
         // 'yahoo',
         // 'bingbot',
@@ -92,41 +91,39 @@ export default class PageRenderer extends Controller
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
 	*/
-    constructor(server: IServer, config: IConfig, e: express.Express)
-    {
-        super([ Model.registerModel( RendersModel) ]);
+    constructor( server: IServer, config: IConfig, e: express.Express ) {
+        super( [ Model.registerModel( RendersModel ) ] );
 
-        if (!config.enableAjaxRendering)
+        if ( !config.enableAjaxRendering )
             return;
 
         this.renderQueryFlag = "__render__request";
-        e.use(this.processBotRequest.bind(this));
+        e.use( this.processBotRequest.bind( this ) );
         this.expiration = config.ajaxRenderExpiration * 1000;
 
         var router = express.Router();
-        router.use(bodyParser.urlencoded({ 'extended': true }));
-        router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+        router.use( bodyParser.urlencoded( { 'extended': true }) );
+        router.use( bodyParser.json() );
+        router.use( bodyParser.json( { type: 'application/vnd.api+json' }) );
 
-        router.get("/", <any>[this.authenticateAdmin.bind(this), this.getRenders.bind(this)]);
-        router.get("/preview/:id", <any>[this.previewRender.bind(this)]);
-        router.delete("/clear", <any>[this.authenticateAdmin.bind(this), this.clearRenders.bind(this)]);
-        router.delete("/:id", <any>[this.authenticateAdmin.bind(this), this.removeRender.bind(this)]);
+        router.get( "/", <any>[ this.authenticateAdmin.bind( this ), this.getRenders.bind( this ) ] );
+        router.get( "/preview/:id", <any>[ this.previewRender.bind( this ) ] );
+        router.delete( "/clear", <any>[ this.authenticateAdmin.bind( this ), this.clearRenders.bind( this ) ] );
+        router.delete( "/:id", <any>[ this.authenticateAdmin.bind( this ), this.removeRender.bind( this ) ] );
 
         // Register the path
-        e.use("/api/renders", router);
+        e.use( "/api/renders", router );
     }
 
     /**
     * Strips the html page of any script tags
     * @param {string} html
     */
-    private stripScripts(html : string) : string
-    {
-        var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
-        for (var i = 0; matches && i < matches.length; i++)
-            if (matches[i].indexOf('application/ld+json') === -1)
-                html = html.replace(matches[i], '');
+    private stripScripts( html: string ): string {
+        var matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
+        for ( var i = 0; matches && i < matches.length; i++ )
+            if ( matches[ i ].indexOf( 'application/ld+json' ) === -1 )
+                html = html.replace( matches[ i ], '' );
 
         return html;
     }
@@ -135,81 +132,72 @@ export default class PageRenderer extends Controller
     * Gets the URL of a request
     * @param {express.Request} req
     */
-    getUrl(req: express.Request) : string
-    {
+    getUrl( req: express.Request ): string {
         var protocol = req.protocol;
-        if (req.get('CF-Visitor'))
-        {
-            var match = req.get('CF-Visitor').match(/"scheme":"(http|https)"/);
-            if (match) protocol = match[1];
+        if ( req.get( 'CF-Visitor' ) ) {
+            var match = req.get( 'CF-Visitor' ).match( /"scheme":"(http|https)"/ );
+            if ( match ) protocol = match[ 1 ];
         }
-        if (req.get('X-Forwarded-Proto'))
-        {
-            protocol = req.get('X-Forwarded-Proto').split(',')[0];
+        if ( req.get( 'X-Forwarded-Proto' ) ) {
+            protocol = req.get( 'X-Forwarded-Proto' ).split( ',' )[ 0 ];
         }
 
         var addQueryMark: boolean = false;
-        if (!req.query || Object.keys(req.query).length === 0)
+        if ( !req.query || Object.keys( req.query ).length === 0 )
             addQueryMark = true;
 
-        return protocol + "://" + req.get('host') + req.url + (addQueryMark ? `?${this.renderQueryFlag}=true` : `&${this.renderQueryFlag}=true`);
+        return protocol + "://" + req.get( 'host' ) + req.url + ( addQueryMark ? `?${this.renderQueryFlag}=true` : `&${this.renderQueryFlag}=true` );
     }
 
-     /**
-    * Fetches a page and strips it of all its script tags
-    * @param {string} url
-    * @param {Promise<string>}
-    */
-    private renderPage(url: string): Promise<string>
-    {
+    /**
+   * Fetches a page and strips it of all its script tags
+   * @param {string} url
+   * @param {Promise<string>}
+   */
+    private renderPage( url: string ): Promise<string> {
         var that = this;
 
-        return new Promise<string>(function (resolve, reject)
-        {
+        return new Promise<string>( function( resolve, reject ) {
             var timer = null;
             var win;
             var maxTries = 50;
             var curTries = 0;
 
-            var checkComplete = function ()
-            {
-                if (!win)
-                {
+            var checkComplete = function() {
+                if ( !win ) {
                     // Cleanup
-                    clearTimeout(timer);
+                    clearTimeout( timer );
                     win.close();
                     win = null;
                     checkComplete = null;
-                    return reject(new Error("Page does not exist"));
+                    return reject( new Error( "Page does not exist" ) );
                 }
 
                 curTries++;
-                if (win.prerenderReady === undefined || win.prerenderReady || curTries > maxTries)
-                {
-                    var html = that.stripScripts(win.document.documentElement.outerHTML);
+                if ( win.prerenderReady === undefined || win.prerenderReady || curTries > maxTries ) {
+                    var html = that.stripScripts( win.document.documentElement.outerHTML );
 
                     // Cleanup
-                    clearTimeout(timer);
+                    clearTimeout( timer );
                     win.close();
                     win = null;
                     checkComplete = null;
-                    return resolve(html);
+                    return resolve( html );
                 }
 
-                timer = setTimeout(checkComplete, 300);
+                timer = setTimeout( checkComplete, 300 );
             }
 
-            jsdom.env({
+            jsdom.env( {
                 url: url,
                 features: {
-                    FetchExternalResources: ['script'],
-                    ProcessExternalResources: ['script'],
+                    FetchExternalResources: [ 'script' ],
+                    ProcessExternalResources: [ 'script' ],
                     SkipExternalResources: false
                 },
-                done: function (errors, window)
-                {
-                    if (errors && errors.length > 0)
-                        return reject(errors[0]);
+                done: function( errors, window ) {
+                    if ( errors && errors.length > 0 )
+                        return reject( errors[ 0 ] );
 
                     win = window;
                     checkComplete();
@@ -224,58 +212,53 @@ export default class PageRenderer extends Controller
     * @param response
     * @param next
     */
-    async processBotRequest(req: express.Request, res: express.Response, next: Function)
-    {
-        if (req.query.__render__request)
+    async processBotRequest( req: express.Request, res: express.Response, next: Function ) {
+        if ( req.query.__render__request )
             return next();
 
         // Its not a bot request - do nothing
-        if (!this.shouldShowPrerenderedPage(req))
+        if ( !this.shouldShowPrerenderedPage( req ) )
             return next();
 
-        var model = this.getModel("renders");
-        var url = this.getUrl(req);
+        var model = this.getModel( "renders" );
+        var url = this.getUrl( req );
         var that = this;
         var instance: ModelInstance<IRender> = null;
         var expiration = 0;
 
-        try
-        {
-            instance = await model.findOne<IRender>({ url: url });
+        try {
+            instance = await model.findOne<IRender>( { url: url });
             var html = "";
 
-            if (instance)
-            {
+            if ( instance ) {
                 expiration = instance.dbEntry.expiration;
                 var html = instance.dbEntry.html;
 
-                if (Date.now() > expiration)
-                    html = await that.renderPage(url);
-                else if (!html || html.trim() == "")
-                    html = await that.renderPage(url);
+                if ( Date.now() > expiration )
+                    html = await that.renderPage( url );
+                else if ( !html || html.trim() == "" )
+                    html = await that.renderPage( url );
             }
             else
-                html = await that.renderPage(url);
+                html = await that.renderPage( url );
 
-            if (!instance)
-            {
-                winston.info(`Saving render '${url}'`, { process: process.pid });
-                await model.createInstance<IRender>(<IRender>{ expiration: Date.now() + that.expiration, html: html, url: url });
+            if ( !instance ) {
+                winston.info( `Saving render '${url}'`, { process: process.pid });
+                await model.createInstance<IRender>( <IRender>{ expiration: Date.now() + that.expiration, html: html, url: url });
             }
-            else if (Date.now() > expiration)
-            {
-                winston.info(`Updating render '${url}'`, { process: process.pid });
-                await model.update<IRender>(<IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
+            else if ( Date.now() > expiration ) {
+                winston.info( `Updating render '${url}'`, { process: process.pid });
+                await model.update<IRender>( <IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
             }
 
-            winston.info("Sending back render without script tags", { process: process.pid });
+            winston.info( "Sending back render without script tags", { process: process.pid });
 
-            res.status(200);
-            return res.send(html);
+            res.status( 200 );
+            return res.send( html );
 
         } catch ( err ) {
-            res.status(404);
-            return res.send("Page does not exist");
+            res.status( 404 );
+            return res.send( "Page does not exist" );
         };
     };
 
@@ -284,27 +267,26 @@ export default class PageRenderer extends Controller
     * @param {express.Request} req
     * @returns {boolean}
     */
-    private shouldShowPrerenderedPage(req: express.Request): boolean
-    {
-        var userAgent = req.headers['user-agent']
-            , bufferAgent = req.headers['x-bufferbot']
+    private shouldShowPrerenderedPage( req: express.Request ): boolean {
+        var userAgent = req.headers[ 'user-agent' ]
+            , bufferAgent = req.headers[ 'x-bufferbot' ]
             , isRequestingPrerenderedPage = false;
 
-        if (!userAgent) return false;
-        if (req.method != 'GET' && req.method != 'HEAD') return false;
+        if ( !userAgent ) return false;
+        if ( req.method != 'GET' && req.method != 'HEAD' ) return false;
 
         //if it contains _escaped_fragment_, show prerendered page
-        var parsedQuery = url.parse(req.url, true).query;
-        if (parsedQuery && parsedQuery['_escaped_fragment_'] !== undefined ) isRequestingPrerenderedPage = true;
+        var parsedQuery = url.parse( req.url, true ).query;
+        if ( parsedQuery && parsedQuery[ '_escaped_fragment_' ] !== undefined ) isRequestingPrerenderedPage = true;
 
         //if it is a bot...show prerendered page
-        if (PageRenderer.crawlerUserAgents.some(function (crawlerUserAgent) { return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) !== -1; })) isRequestingPrerenderedPage = true;
+        if ( PageRenderer.crawlerUserAgents.some( function( crawlerUserAgent ) { return userAgent.toLowerCase().indexOf( crawlerUserAgent.toLowerCase() ) !== -1; }) ) isRequestingPrerenderedPage = true;
 
         //if it is BufferBot...show prerendered page
-        if (bufferAgent) isRequestingPrerenderedPage = true;
+        if ( bufferAgent ) isRequestingPrerenderedPage = true;
 
         //if it is a bot and is requesting a resource...dont prerender
-        if (PageRenderer.extensionsToIgnore.some(function (extension) { return req.url.indexOf(extension) !== -1; })) return false;
+        if ( PageRenderer.extensionsToIgnore.some( function( extension ) { return req.url.indexOf( extension ) !== -1; }) ) return false;
 
         return isRequestingPrerenderedPage;
     }
@@ -315,31 +297,28 @@ export default class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private async previewRender(req: express.Request, res: express.Response, next: Function)
-    {
-        res.setHeader('Content-Type', 'text/html');
-        var renders = this.getModel("renders");
+    private async previewRender( req: express.Request, res: express.Response, next: Function ) {
+        res.setHeader( 'Content-Type', 'text/html' );
+        var renders = this.getModel( "renders" );
 
-        try
-        {
-            var instances = await renders.findInstances<IRender>(<IRender>{ _id: new mongodb.ObjectID(req.params.id) });
+        try {
+            var instances = await renders.findInstances<IRender>( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
-            if (instances.length == 0)
-                throw new Error("Could not find a render with that ID");
+            if ( instances.length == 0 )
+                throw new Error( "Could not find a render with that ID" );
 
-            var html : string = await instances[0].schema.getByName("html").getValue();
-            var matches = html.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi);
-            for (var i = 0; matches && i < matches.length; i++)
-                if (matches[i].indexOf('application/ld+json') === -1)
-                {
-                    html = html.replace(matches[i], '');
+            var html: string = await instances[ 0 ].schema.getByName( "html" ).getValue();
+            var matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
+            for ( var i = 0; matches && i < matches.length; i++ )
+                if ( matches[ i ].indexOf( 'application/ld+json' ) === -1 ) {
+                    html = html.replace( matches[ i ], '' );
                 }
 
-            res.end(html);
+            res.end( html );
 
         } catch ( error ) {
-            winston.error(error.message, { process: process.pid });
-            res.writeHead(404);
+            winston.error( error.message, { process: process.pid });
+            res.writeHead( 404 );
         };
     }
 
@@ -349,24 +328,22 @@ export default class PageRenderer extends Controller
    * @param {express.Response} res
    * @param {Function} next
    */
-    private async removeRender(req: express.Request, res: express.Response, next: Function)
-    {
-        var renders = this.getModel("renders");
+    private async removeRender( req: express.Request, res: express.Response, next: Function ) {
+        var renders = this.getModel( "renders" );
 
-        try
-        {
-            var numRemoved = await renders.deleteInstances(<IRender>{ _id: new mongodb.ObjectID(req.params.id) });
+        try {
+            var numRemoved = await renders.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
-            if (numRemoved == 0)
-                throw new Error("Could not find a cache with that ID");
+            if ( numRemoved == 0 )
+                throw new Error( "Could not find a cache with that ID" );
 
-             okJson<IResponse>( {
-                    error: false,
-                    message: "Cache has been successfully removed"
-                }, res);
+            okJson<IResponse>( {
+                error: false,
+                message: "Cache has been successfully removed"
+            }, res );
 
         } catch ( err ) {
-            errJson(err, res);
+            errJson( err, res );
         };
     }
 
@@ -377,33 +354,28 @@ export default class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private async authenticateAdmin(req: express.Request, res: express.Response, next: Function)
-    {
+    private async authenticateAdmin( req: express.Request, res: express.Response, next: Function ) {
         var users = UsersService.getSingleton();
 
-        try
-        {
-            var auth = await users.authenticated(req);
+        try {
+            var auth = await users.authenticated( req );
 
-            if (!auth.authenticated)
-            {
+            if ( !auth.authenticated ) {
                 okJson<IResponse>( {
                     error: true,
                     message: "You must be logged in to make this request"
-                }, res);
+                }, res );
             }
-            else if (!users.isAdmin(auth.user))
-            {
-                errJson(new Error("You do not have permission"), res);
+            else if ( !users.isAdmin( auth.user ) ) {
+                errJson( new Error( "You do not have permission" ), res );
             }
-            else
-            {
+            else {
                 req.params.user = auth.user;
                 next();
             }
 
         } catch ( error ) {
-            errJson(new Error("You do not have permission"), res);
+            errJson( new Error( "You do not have permission" ), res );
         };
     }
 
@@ -413,18 +385,16 @@ export default class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private async getRenders(req: express.Request, res: express.Response, next: Function)
-    {
-        var renders = this.getModel("renders");
+    private async getRenders( req: express.Request, res: express.Response, next: Function ) {
+        var renders = this.getModel( "renders" );
         var that = this;
         var count = 0;
         var findToken = {};
 
         // Set the default sort order to ascending
         var sortOrder = -1;
-        if (req.query.sortOrder)
-        {
-            if ((<string>req.query.sortOrder).toLowerCase() == "asc")
+        if ( req.query.sortOrder ) {
+            if ( ( <string>req.query.sortOrder ).toLowerCase() == "asc" )
                 sortOrder = 1;
             else
                 sortOrder = -1;
@@ -434,34 +404,33 @@ export default class PageRenderer extends Controller
         var sort: IRender = { createdOn: sortOrder };
 
         var getContent: boolean = true;
-        if (req.query.minimal)
+        if ( req.query.minimal )
             getContent = false;
 
         // Check for keywords
-        if (req.query.search)
-            (<IRender>findToken).url = <any>new RegExp(req.query.search, "i");
+        if ( req.query.search )
+            ( <IRender>findToken ).url = <any>new RegExp( req.query.search, "i" );
 
-        try
-        {
+        try {
             // First get the count
-            count = await  renders.count(findToken);
-            var instances = await renders.findInstances<IRender>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            count = await renders.count( findToken );
+            var instances = await renders.findInstances<IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { html: 0 } : undefined ) );
 
-            var jsons : Array<Promise<IRender>> = [];
-            for (var i = 0, l = instances.length; i < l; i++)
-                jsons.push(instances[i].schema.getAsJson<IRender>(instances[i]._id, { verbose : Boolean(req.query.verbose) }));
+            var jsons: Array<Promise<IRender>> = [];
+            for ( var i = 0, l = instances.length; i < l; i++ )
+                jsons.push( instances[ i ].schema.getAsJson<IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
 
-            var sanitizedData = await Promise.all(jsons);
+            var sanitizedData = await Promise.all( jsons );
 
             okJson<IGetRenders>( {
                 error: false,
                 count: count,
                 message: `Found ${count} renders`,
                 data: sanitizedData
-            }, res);
+            }, res );
 
         } catch ( err ) {
-            errJson(err, res);
+            errJson( err, res );
         };
     }
 
@@ -471,22 +440,20 @@ export default class PageRenderer extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private async clearRenders(req: express.Request, res: express.Response, next: Function)
-    {
-        var renders = this.getModel("renders");
+    private async clearRenders( req: express.Request, res: express.Response, next: Function ) {
+        var renders = this.getModel( "renders" );
 
-        try
-        {
+        try {
             // First get the count
-            var num = await renders.deleteInstances({});
+            var num = await renders.deleteInstances( {});
 
             okJson<IResponse>( {
                 error: false,
                 message: `${num} Instances have been removed`
-            }, res);
+            }, res );
 
         } catch ( err ) {
-            errJson(err, res);
+            errJson( err, res );
         };
     }
 }
