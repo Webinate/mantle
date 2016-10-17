@@ -26,17 +26,17 @@ winston.remove( winston.transports.Console );
 winston.add( winston.transports.Console, <any>{ level: 'debug', colorize: true });
 
 // Saves logs to file
-if ( args.logFile && args.logFile.trim() != '' )
+if ( args.logFile && args.logFile.trim() !== '' )
     winston.add( winston.transports.File, <winston.TransportOptions>{ filename: args.logFile, maxsize: 50000000, maxFiles: 1, tailable: true });
 
 
 // If no logging - remove all transports
-if ( args.logging && args.logging.toLowerCase().trim() == 'false' ) {
+if ( args.logging && args.logging.toLowerCase().trim() === 'false' ) {
     winston.clear();
 }
 
 // Make sure the config path argument is there
-if ( !args.config || args.config.trim() == '' ) {
+if ( !args.config || args.config.trim() === '' ) {
     winston.error( 'No config file specified. Please start modepress with the config path in the argument list. Eg: node main.js --config="./config.js"', { process: process.pid });
     process.exit();
 }
@@ -58,7 +58,7 @@ catch ( err ) {
 
 
 // Attempt to connect to Users
-if ( config!.usersSocketURL != '' ) {
+if ( config!.usersSocketURL !== '' ) {
     winston.info( `Attempting to connect to users socket at: '${config!.usersSocketURL}'`, { process: process.pid });
     new EventManager( config! ).init().catch( function() {
         winston.error( `Could not connect to user socket even though it was specified at: '${config!.usersSocketURL}'`, { process: process.pid });

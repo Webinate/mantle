@@ -38,14 +38,13 @@ export default class EmailsController extends controllerModule.Controller {
         // Set the content type
         res.setHeader( 'Content-Type', 'application/json' );
 
-        const message: string = `Hello admin,
-			We have received a message from ${( <IMessage>req.body ).name}:
-
-			${( <IMessage>req.body ).message}
-
-			Email: ${( <IMessage>req.body ).email}
-			Phone: ${( <IMessage>req.body ).phone}
-			Website: ${( <IMessage>req.body ).website}`;
+        const message: string = [ `Hello admin,`,
+            `We have received a message from ${( <IMessage>req.body ).name}:`,
+            `${( <IMessage>req.body ).message}`,
+            ``,
+            `Email: ${( <IMessage>req.body ).email}`,
+            `Phone: ${( <IMessage>req.body ).phone}`,
+            `Website: ${( <IMessage>req.body ).website}` ].join( '\r\n' );
 
         UsersService.getSingleton().sendAdminEmail( message ).then( function( body ) {
             res.end( body );

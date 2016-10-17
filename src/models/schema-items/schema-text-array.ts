@@ -5,8 +5,7 @@ import sanitizeHtml = require( 'sanitize-html' );
 /**
  * A text scheme item for use in Models
  */
-export class SchemaTextArray extends SchemaItem<Array<string>>
-{
+export class SchemaTextArray extends SchemaItem<Array<string>> {
     public minItems: number;
     public maxItems: number;
     public minCharacters: number;
@@ -54,7 +53,7 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
         for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
             transformedValue[ i ] = sanitizeHtml( transformedValue[ i ].trim(), { allowedTags: [] });
 
-            if ( transformedValue[ i ].trim() == '' )
+            if ( transformedValue[ i ].trim() === '' )
                 toRemove.push( i );
         }
 
@@ -67,7 +66,7 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
 
 
         if ( transformedValue.length < this.minItems )
-            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? '' : 's' )} for ${this.name}` ) );
+            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems === 1 ? '' : 's' )} for ${this.name}` ) );
         if ( transformedValue.length > this.maxItems )
             return Promise.reject<Error>( new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` ) );
 

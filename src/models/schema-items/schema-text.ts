@@ -5,8 +5,7 @@ import sanitizeHtml = require( 'sanitize-html' );
 /**
  * A text scheme item for use in Models
  */
-export class SchemaText extends SchemaItem<string>
-{
+export class SchemaText extends SchemaItem<string> {
     public minCharacters: number;
     public maxCharacters: number;
     public htmlClean: boolean;
@@ -57,7 +56,7 @@ export class SchemaText extends SchemaItem<string>
 
         this.value = transformedValue;
 
-        if ( transformedValue.length < minCharacters && minCharacters == 1 )
+        if ( transformedValue.length < minCharacters && minCharacters === 1 )
             return Promise.reject<Error>( new Error( `${this.name} cannot be empty` ) );
         if ( transformedValue.length > maxCharacters )
             return Promise.reject<Error>( new Error( `The character length of ${this.name} is too long, please keep it below ${maxCharacters}` ) );

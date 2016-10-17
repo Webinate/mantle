@@ -37,7 +37,7 @@ export class Schema {
 
         for ( const i in data ) {
             for ( let ii = 0; ii < l; ii++ )
-                if ( items[ ii ].name == i )
+                if ( items[ ii ].name === i )
                     items[ ii ].setValue( data[ i ] );
         }
     }
@@ -51,7 +51,7 @@ export class Schema {
         const items = this._items;
 
         for ( let i = 0, l = items.length; i < l; i++ )
-            if ( items[ i ].name == name )
+            if ( items[ i ].name === name )
                 items[ i ].setValue( val );
     }
 
@@ -93,7 +93,7 @@ export class Schema {
         for ( let i = 0, l = items.length; i < l; i++ ) {
             // If this data is sensitive and the request must be sanitized
             // then skip the item
-            if ( items[ i ].getSensitive() && options.verbose == false )
+            if ( items[ i ].getSensitive() && options.verbose === false )
                 continue;
 
             itemsInUse.push( items[ i ] );
@@ -170,7 +170,7 @@ export class Schema {
     public getByName( val: string ): SchemaItem<any> | null {
         const items = this._items;
         for ( let i = 0, l = items.length; i < l; i++ )
-            if ( items[ i ].name == val )
+            if ( items[ i ].name === val )
                 return items[ i ];
 
         return null;
@@ -181,11 +181,11 @@ export class Schema {
 	 * @param val The new item to add
 	 */
     public add( val: SchemaItem<any> ): SchemaItem<any> {
-        if ( val.name == '_id' )
+        if ( val.name === '_id' )
             throw new Error( `You cannot use the schema item name _id as its a reserved keyword` );
-        else if ( val.name == '_requiredDependencies' )
+        else if ( val.name === '_requiredDependencies' )
             throw new Error( `You cannot use the schema item name _requiredDependencies as its a reserved keyword` );
-        else if ( val.name == '_optionalDependencies' )
+        else if ( val.name === '_optionalDependencies' )
             throw new Error( `You cannot use the schema item name _optionalDependencies as its a reserved keyword` );
         else if ( this.getByName( val.name ) )
             throw new Error( `An item with the name ${val.name} already exists.` );
@@ -205,7 +205,7 @@ export class Schema {
             name = ( <SchemaItem<any>>val ).name;
 
         for ( let i = 0, l = items.length; i < l; i++ )
-            if ( items[ i ].name == name ) {
+            if ( items[ i ].name === name ) {
                 items.splice( i, 1 );
                 return;
             }

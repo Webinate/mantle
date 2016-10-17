@@ -11,8 +11,7 @@ import { SchemaIdArray } from './schema-id-array';
  * Required keys will mean that the current document cannot exist if the target does not. Optional keys
  * will simply be nullified if the target no longer exists.
  */
-export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.IModelEntry | null>
-{
+export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.IModelEntry | null> {
     public targetCollection: string;
     public optionalKey: boolean;
     public curLevel: number;
@@ -55,10 +54,10 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         if ( !model )
             throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
-        if ( typeof this.value == 'string' ) {
+        if ( typeof this.value === 'string' ) {
             if ( Utils.isValidObjectID( <string>this.value ) )
                 transformedValue = this.value = new ObjectID( <string>this.value );
-            else if ( ( <string>this.value ).trim() != '' )
+            else if ( ( <string>this.value ).trim() !== '' )
                 throw new Error( `Please use a valid ID for '${this.name}'` );
             else
                 transformedValue = null;
@@ -133,7 +132,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         if ( !model )
             return;
 
-        if ( !this.value || this.value == '' )
+        if ( !this.value || this.value === '' )
             return;
 
         // We can assume the value is object id by this point
@@ -164,7 +163,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         if ( !options.expandForeignKeys )
             return <ObjectID>this.value;
 
-        if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) != -1 )
+        if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
             return <ObjectID>this.value;
 
         const model = Model.getByName( this.targetCollection );

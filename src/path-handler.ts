@@ -35,7 +35,7 @@ export class PathHandler {
         const config = this._config;
         const path = this._path;
 
-        const requestIsSecure = ( ( <any>req.connection ).encrypted || req.headers[ 'x-forwarded-proto' ] == 'https' ? true : false );
+        const requestIsSecure = ( ( <any>req.connection ).encrypted || req.headers[ 'x-forwarded-proto' ] === 'https' ? true : false );
         const url = `${( requestIsSecure ? 'https' : 'http' )}://${config.host}`;
         const options: any = { usersURL: `${UsersService.usersURL}`, url: url };
 
@@ -50,7 +50,7 @@ export class PathHandler {
 
         // Give priority to template routes
         if ( fs.existsSync( path.index ) ) {
-            if ( path.index.indexOf( '.jade' ) != -1 )
+            if ( path.index.indexOf( '.jade' ) !== -1 )
                 res.render( path.index, options );
             else
                 res.sendfile( path.index );

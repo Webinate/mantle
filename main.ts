@@ -9,7 +9,7 @@ var numCPUs = os.cpus().length;
 
 // Check for the threads argument
 if ( args.numThreads ) {
-    if ( args.numThreads == "max" ) {
+    if ( args.numThreads === "max" ) {
         console.log( `Setting the number of clusters to  ${numCPUs}` );
     }
     else if ( isNaN( parseInt( args.numThreads ) ) ) {
@@ -26,7 +26,7 @@ if ( args.numThreads ) {
 }
 
 // Run as a single cluster
-if ( numCPUs == 1 ) {
+if ( numCPUs === 1 ) {
     console.log( `Running as single cluster` );
     require( "./src/startup.js" );
 }

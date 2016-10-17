@@ -85,22 +85,22 @@ export class Server {
 
         // If we use SSL then start listening for that as well
         if ( server.ssl ) {
-            if ( server.sslIntermediate != '' && !fs.existsSync( server.sslIntermediate ) ) {
+            if ( server.sslIntermediate !== '' && !fs.existsSync( server.sslIntermediate ) ) {
                 winston.error( `Could not find sslIntermediate: '${server.sslIntermediate}'`, { process: process.pid });
                 process.exit();
             }
 
-            if ( server.sslCert != '' && !fs.existsSync( server.sslCert ) ) {
+            if ( server.sslCert !== '' && !fs.existsSync( server.sslCert ) ) {
                 winston.error( `Could not find sslIntermediate: '${server.sslCert}'`, { process: process.pid });
                 process.exit();
             }
 
-            if ( server.sslRoot != '' && !fs.existsSync( server.sslRoot ) ) {
+            if ( server.sslRoot !== '' && !fs.existsSync( server.sslRoot ) ) {
                 winston.error( `Could not find sslIntermediate: '${server.sslRoot}'`, { process: process.pid });
                 process.exit();
             }
 
-            if ( server.sslKey != '' && !fs.existsSync( server.sslKey ) ) {
+            if ( server.sslKey !== '' && !fs.existsSync( server.sslKey ) ) {
                 winston.error( `Could not find sslIntermediate: '${server.sslKey}'`, { process: process.pid });
                 process.exit();
             }

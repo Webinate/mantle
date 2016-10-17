@@ -4,8 +4,7 @@ import { ModelInstance } from '../model';
 /**
  * A definition of each item in the model
  */
-export class SchemaItem<T>
-{
+export class SchemaItem<T> {
     public name: string;
     public value: T;
     private _sensitive: boolean;

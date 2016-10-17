@@ -5,8 +5,7 @@ import sanitizeHtml = require( 'sanitize-html' );
 /**
 * An html scheme item for use in Models
 */
-export class SchemaHtml extends SchemaItem<string>
-{
+export class SchemaHtml extends SchemaItem<string> {
     /**
      * The default tags allowed
      * includes: h3, h4, h5, h6, blockquote, p, a, ul, ol,
@@ -77,7 +76,7 @@ export class SchemaHtml extends SchemaItem<string>
         const minCharacters = this.minCharacters;
         const transformedValue = this.value.trim();
 
-        if ( transformedValue.length < minCharacters && minCharacters == 1 )
+        if ( transformedValue.length < minCharacters && minCharacters === 1 )
             return Promise.reject<Error>( new Error( `'${this.name}' cannot be empty` ) );
         else if ( transformedValue.length > maxCharacters )
             return Promise.reject<Error>( new Error( `The character length of '${this.name}' is too long, please keep it below ${maxCharacters}` ) );
@@ -85,7 +84,7 @@ export class SchemaHtml extends SchemaItem<string>
             return Promise.reject<Error>( new Error( `The character length of '${this.name}' is too short, please keep it above ${minCharacters}` ) );
 
         const sanitizedHTML = sanitizeHtml( this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
-        if ( this.errorBadHTML && transformedValue != sanitizedHTML )
+        if ( this.errorBadHTML && transformedValue !== sanitizedHTML )
             return Promise.reject<Error>( new Error( `'${this.name}' has html code that is not allowed` ) );
 
         this.value = sanitizedHTML;

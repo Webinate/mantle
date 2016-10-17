@@ -73,9 +73,9 @@ export default class PostsController extends Controller {
 
         // Check for visibility
         if ( req.query.visibility ) {
-            if ( ( <string>req.query.visibility ).toLowerCase() == 'all' )
+            if ( ( <string>req.query.visibility ).toLowerCase() === 'all' )
                 visibility = 'all';
-            else if ( ( <string>req.query.visibility ).toLowerCase() == 'private' )
+            else if ( ( <string>req.query.visibility ).toLowerCase() === 'private' )
                 visibility = 'private';
         }
         else
@@ -84,12 +84,12 @@ export default class PostsController extends Controller {
         const users = UsersService.getSingleton();
 
         // Only admins are allowed to see private posts
-        if ( !user || ( ( visibility == 'all' || visibility == 'private' ) && users.isAdmin( user ) == false ) )
+        if ( !user || ( ( visibility === 'all' || visibility === 'private' ) && users.isAdmin( user ) === false ) )
             visibility = 'public';
 
         // Add the or conditions for visibility
-        if ( visibility != 'all' ) {
-            if ( visibility == 'public' )
+        if ( visibility !== 'all' ) {
+            if ( visibility === 'public' )
                 ( <mp.IPost>findToken ).public = true;
             else
                 ( <mp.IPost>findToken ).public = false;
@@ -124,7 +124,7 @@ export default class PostsController extends Controller {
         let sortOrder = -1;
 
         if ( req.query.sortOrder ) {
-            if ( ( <string>req.query.sortOrder ).toLowerCase() == 'asc' )
+            if ( ( <string>req.query.sortOrder ).toLowerCase() === 'asc' )
                 sortOrder = 1;
             else
                 sortOrder = -1;
@@ -135,7 +135,7 @@ export default class PostsController extends Controller {
 
         // Optionally sort by the last updated
         if ( req.query.sort ) {
-            if ( req.query.sort == 'true' )
+            if ( req.query.sort === 'true' )
                 sort = { lastUpdated: sortOrder };
         }
 
@@ -145,14 +145,14 @@ export default class PostsController extends Controller {
 
 
         // Stephen is lovely
-        if ( findToken.$or.length == 0 )
+        if ( findToken.$or.length === 0 )
             delete findToken.$or;
 
         try {
             // First get the count
             count = await posts!.count( findToken );
 
-            const instances = await posts!.findInstances<mp.IPost>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { content: 0 } : undefined ) );
+            const instances = await posts!.findInstances<mp.IPost>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { content: 0 } : undefined ) );
 
             const jsons: Array<Promise<mp.IPost>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
@@ -188,13 +188,13 @@ export default class PostsController extends Controller {
 
             const instances = await posts!.findInstances<mp.IPost>( findToken, [], 0, 1 );
 
-            if ( instances.length == 0 )
+            if ( instances.length === 0 )
                 throw new Error( 'Could not find post' );
 
             const users = UsersService.getSingleton();
             const isPublic = await instances[ 0 ].schema.getByName( 'public' ) !.getValue();
             // Only admins are allowed to see private posts
-            if ( !isPublic && ( !user || users.isAdmin( user ) == false ) )
+            if ( !isPublic && ( !user || users.isAdmin( user ) === false ) )
                 throw new Error( 'That post is marked private' );
 
             const jsons: Array<Promise<mp.IPost>> = [];
@@ -251,7 +251,7 @@ export default class PostsController extends Controller {
             // Attempt to delete the instances
             const numRemoved = await posts.deleteInstances( <mp.IPost>{ _id: new mongodb.ObjectID( req.params.id ) });
 
-            if ( numRemoved == 0 )
+            if ( numRemoved === 0 )
                 throw new Error( 'Could not find a post with that ID' );
 
             okJson<mp.IResponse>( {
@@ -273,7 +273,7 @@ export default class PostsController extends Controller {
         try {
             const numRemoved = await categories.deleteInstances( <mp.ICategory>{ _id: new mongodb.ObjectID( req.params.id ) });
 
-            if ( numRemoved == 0 )
+            if ( numRemoved === 0 )
                 return Promise.reject( new Error( 'Could not find a category with that ID' ) );
 
             okJson<mp.IResponse>( {
@@ -299,7 +299,7 @@ export default class PostsController extends Controller {
             if ( instance.error )
                 throw new Error( <string>instance.tokens[ 0 ].error );
 
-            if ( instance.tokens.length == 0 )
+            if ( instance.tokens.length === 0 )
                 throw new Error( 'Could not find post with that id' );
 
             okJson<mp.IResponse>( {

@@ -15,7 +15,7 @@ export class Controller {
                 let modelAlreadyAdded = false;
 
                 for ( let i = 0, l = Controller._models.length; i < l; i++ )
-                    if ( Controller._models[ i ].collectionName == models[ ii ].collectionName ) {
+                    if ( Controller._models[ i ].collectionName === models[ ii ].collectionName ) {
                         modelAlreadyAdded = true;
                         break;
                     }
@@ -54,7 +54,7 @@ export class Controller {
     getModel( collectionName: string ): Model | null {
         const models = Controller._models;
         for ( let i = 0, l = models.length; i < l; i++ )
-            if ( models[ i ].collectionName == collectionName )
+            if ( models[ i ].collectionName === collectionName )
                 return models[ i ];
 
         return null;

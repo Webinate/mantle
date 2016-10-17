@@ -4,8 +4,7 @@ import { ISchemaOptions } from 'modepress-api';
 /**
  * A date scheme item for use in Models
  */
-export class SchemaDate extends SchemaItem<number>
-{
+export class SchemaDate extends SchemaItem<number> {
     public useNow: boolean;
 
 	/**

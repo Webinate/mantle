@@ -12,8 +12,7 @@ export enum NumberType {
 /**
  * A numeric schema item for use in Models
  */
-export class SchemaNumber extends SchemaItem<number>
-{
+export class SchemaNumber extends SchemaItem<number> {
     public min: number;
     public max: number;
     public type: NumberType;
@@ -63,7 +62,7 @@ export class SchemaNumber extends SchemaItem<number>
         const decimalPlaces = this.decimalPlaces;
         let transformedValue: number = <number>this.value;
 
-        if ( type == NumberType.Integer )
+        if ( type === NumberType.Integer )
             transformedValue = parseInt( transformedValue.toString() );
         else
             transformedValue = parseFloat(( parseFloat( transformedValue.toString() ).toFixed( decimalPlaces ) ) );

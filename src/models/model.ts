@@ -16,8 +16,7 @@ export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>
  * An instance of a model with its own unique schema and ID. The initial schema is a clone
  * the parent model's
  */
-export class ModelInstance<T extends Modepress.IModelEntry | null>
-{
+export class ModelInstance<T extends Modepress.IModelEntry | null> {
     public model: Model;
     public schema: Schema;
     public _id: mongodb.ObjectID;
@@ -43,7 +42,7 @@ export class ModelInstance<T extends Modepress.IModelEntry | null>
             if ( items[ i ].getUnique() )
                 uniqueNames += items[ i ].name + ', ';
 
-        if ( uniqueNames != '' )
+        if ( uniqueNames !== '' )
             uniqueNames = uniqueNames.slice( 0, uniqueNames.length - 2 );
 
         return uniqueNames;
@@ -87,7 +86,7 @@ export abstract class Model {
     static registerModel<T extends Model>( modelConstructor: any ): T {
         const models = Model._registeredModels;
         for ( const i in models )
-            if ( modelConstructor == models[ i ].constructor )
+            if ( modelConstructor === models[ i ].constructor )
                 return <T>models[ i ];
 
         return new modelConstructor();
@@ -143,7 +142,7 @@ export abstract class Model {
             if ( items[ i ].getIndexable() )
                 promises.push( this.createIndex( items[ i ].name, this.collection ) );
 
-        if ( promises.length == 0 )
+        if ( promises.length === 0 )
             this._initialized = true;
 
         const models = await Promise.all( promises );
@@ -294,7 +293,7 @@ export abstract class Model {
 
         const instances = await this.findInstances<IModelEntry>( selector );
 
-        if ( !instances || instances.length == 0 )
+        if ( !instances || instances.length === 0 )
             return 0;
 
         const promises: Array<Promise<any>> = [];
@@ -325,7 +324,7 @@ export abstract class Model {
 
         const instances = await this.findInstances<T>( selector );
 
-        if ( !instances || instances.length == 0 )
+        if ( !instances || instances.length === 0 )
             return toRet;
 
         for ( let i = 0, l = instances.length; i < l; i++ ) {
@@ -383,7 +382,7 @@ export abstract class Model {
         for ( let i = 0, l = items.length; i < l; i++ ) {
             if ( items[ i ].getUnique() ) {
                 hasUniqueField = true;
-                var searchField = {};
+                const searchField = {};
                 searchField[ items[ i ].name ] = items[ i ].getDbValue();
                 searchToken.$or.push( searchField );
             }
@@ -395,7 +394,7 @@ export abstract class Model {
             return true;
         else {
             const result = await this.collection.count( searchToken );
-            if ( result == 0 )
+            if ( result === 0 )
                 return true;
             else
                 return false;

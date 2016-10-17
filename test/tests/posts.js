@@ -502,7 +502,7 @@ describe( 'Testing all post related endpoints', function() {
                 test.bool( res.body.error ).isNotTrue()
                     .number( res.body.count )
 
-                    .bool( numPosts == res.body.count ).isTrue()
+                    .bool( numPosts === res.body.count ).isTrue()
                 done();
             });
     })

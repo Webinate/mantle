@@ -18,14 +18,14 @@ export function getUser( req: express.Request, res: express.Response, next: Func
         }
         else {
             ( <IAuthReq><Express.Request>req )._user = auth.user!;
-            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges == 1 || auth.user!.privileges == 2 ? true : false );
+            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
 
 
             // Check if this must be cleaned or not
             let verbose = ( req.query.verbose ? true : false );
             if ( verbose )
                 if ( !( <IAuthReq><Express.Request>req )._isAdmin )
-                    if ( req.params.user !== undefined && req.params.user != auth.user!.username )
+                    if ( req.params.user !== undefined && req.params.user !== auth.user!.username )
                         verbose = false;
 
             ( <IAuthReq><Express.Request>req )._verbose = verbose;
@@ -106,7 +106,7 @@ export function isAdmin( req: express.Request, res: express.Response, next: Func
             throw new Error( 'You do not have permission' );
         else {
             ( <IAuthReq><Express.Request>req )._user = auth.user!;
-            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges == 1 || auth.user!.privileges == 2 ? true : false );
+            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
             ( <IAuthReq><Express.Request>req )._verbose = true;
             next();
         }
@@ -146,7 +146,7 @@ export async function canEdit( req: express.Request, res: express.Response, next
             throw new Error( 'You do not have permission' );
         else {
             ( <IAuthReq><Express.Request>req )._user = auth.user!;
-            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges == 1 || auth.user!.privileges == 2 ? true : false );
+            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
             ( <IAuthReq><Express.Request>req )._verbose = ( req.query.verbose ? true : false );
             next();
             return;
@@ -171,13 +171,13 @@ export function isAuthenticated( req: express.Request, res: express.Response, ne
             throw new Error( auth.message );
 
         ( <IAuthReq><Express.Request>req )._user = auth.user!;
-        ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges == 1 || auth.user!.privileges == 2 ? true : false );
+        ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
 
         // Check if this must be cleaned or not
         let verbose = ( req.query.verbose ? true : false );
         if ( verbose )
             if ( !( <IAuthReq><Express.Request>req )._isAdmin )
-                if ( req.params.user !== undefined && req.params.user != auth.user!.username )
+                if ( req.params.user !== undefined && req.params.user !== auth.user!.username )
                     verbose = false;
 
         ( <IAuthReq><Express.Request>req )._verbose = verbose;

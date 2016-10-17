@@ -71,9 +71,9 @@ export default class CommentsController extends Controller {
 
         // Check for visibility
         if ( req.query.visibility ) {
-            if ( ( <string>req.query.visibility ).toLowerCase() == 'all' )
+            if ( ( <string>req.query.visibility ).toLowerCase() === 'all' )
                 visibility = 'all';
-            else if ( ( <string>req.query.visibility ).toLowerCase() == 'private' )
+            else if ( ( <string>req.query.visibility ).toLowerCase() === 'private' )
                 visibility = 'private';
         }
         else
@@ -82,12 +82,12 @@ export default class CommentsController extends Controller {
         const users = UsersService.getSingleton();
 
         // Only admins are allowed to see private comments
-        if ( !user || ( ( visibility == 'all' || visibility == 'private' ) && users.isAdmin( user ) == false ) )
+        if ( !user || ( ( visibility === 'all' || visibility === 'private' ) && users.isAdmin( user ) === false ) )
             visibility = 'public';
 
         // Add the or conditions for visibility
-        if ( visibility != 'all' ) {
-            if ( visibility == 'public' )
+        if ( visibility !== 'all' ) {
+            if ( visibility === 'public' )
                 ( <mp.IComment>findToken ).public = true;
             else
                 ( <mp.IComment>findToken ).public = false;
@@ -96,7 +96,7 @@ export default class CommentsController extends Controller {
         // Set the default sort order to ascending
         let sortOrder = -1;
         if ( req.query.sortOrder ) {
-            if ( ( <string>req.query.sortOrder ).toLowerCase() == 'asc' )
+            if ( ( <string>req.query.sortOrder ).toLowerCase() === 'asc' )
                 sortOrder = 1;
             else
                 sortOrder = -1;
@@ -107,11 +107,11 @@ export default class CommentsController extends Controller {
 
         // Optionally sort by the last updated
         if ( req.query.sort ) {
-            if ( req.query.sort == 'updated' )
+            if ( req.query.sort === 'updated' )
                 sort = { lastUpdated: sortOrder };
         }
 
-        if ( findToken.$or.length == 0 )
+        if ( findToken.$or.length === 0 )
             delete findToken.$or;
 
         try {
@@ -154,14 +154,14 @@ export default class CommentsController extends Controller {
 
             const instances = await comments.findInstances<mp.IComment>( findToken, [], 0, 1 );
 
-            if ( instances.length == 0 )
+            if ( instances.length === 0 )
                 throw new Error( 'Could not find comment' );
 
             const users = UsersService.getSingleton();
             const isPublic = await instances[ 0 ].schema.getByName( 'public' ) !.getValue()
 
             // Only admins are allowed to see private comments
-            if ( !isPublic && ( !user || users.isAdmin( user ) == false ) )
+            if ( !isPublic && ( !user || users.isAdmin( user ) === false ) )
                 throw new Error( 'That comment is marked private' );
 
             const jsons: Array<Promise<mp.IComment>> = [];
@@ -200,13 +200,13 @@ export default class CommentsController extends Controller {
             const users = UsersService.getSingleton();
             const instances = await comments.findInstances<mp.IComment>( findToken, [], 0, 1 );
 
-            if ( instances.length == 0 )
+            if ( instances.length === 0 )
                 throw new Error( 'Could not find a comment with that ID' );
             else {
                 const author = await instances[ 0 ].schema.getByName( 'author' ) !.getValue();
 
                 // Only admins are allowed to see private comments
-                if ( !user || ( !users.isAdmin( user ) && user.username != author ) )
+                if ( !user || ( !users.isAdmin( user ) && user.username !== author ) )
                     throw new Error( 'You do not have permission' );
             }
 
@@ -237,13 +237,13 @@ export default class CommentsController extends Controller {
             const users = UsersService.getSingleton();
             const instances = await comments.findInstances<mp.IComment>( findToken, [], 0, 1 );
 
-            if ( instances.length == 0 )
+            if ( instances.length === 0 )
                 throw new Error( 'Could not find comment with that id' );
             else {
                 const author = await instances[ 0 ].schema.getByName( 'author' ) !.getValue();
 
                 // Only admins are allowed to see private comments
-                if ( !user || ( !users.isAdmin( user ) && user.username != author ) )
+                if ( !user || ( !users.isAdmin( user ) && user.username !== author ) )
                     throw new Error( 'You do not have permission' );
             }
 

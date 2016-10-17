@@ -13,8 +13,7 @@ import { Utils } from '../../utils';
  * Currently we only support Id lookups that exist in the same model - i.e. if the ids are of objects
  * in different models we cannot get the object values.
  */
-export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepress.IModelEntry>>
-{
+export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepress.IModelEntry>> {
     public targetCollection: string;
     public minItems: number;
     public maxItems: number;
@@ -59,10 +58,10 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         const transformedValue = this.value;
 
         for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
-            if ( typeof this.value[ i ] == 'string' ) {
+            if ( typeof this.value[ i ] === 'string' ) {
                 if ( Utils.isValidObjectID( <string>this.value[ i ] ) )
                     transformedValue[ i ] = new ObjectID( <string>this.value[ i ] );
-                else if ( ( <string>this.value[ i ] ).trim() != '' )
+                else if ( ( <string>this.value[ i ] ).trim() !== '' )
                     throw new Error( `Please use a valid ID for '${this.name}'` );
                 else
                     throw new Error( `Please use a valid ID for '${this.name}'` );
@@ -70,7 +69,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         }
 
         if ( transformedValue.length < this.minItems )
-            throw new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? '' : 's' )} for ${this.name}` );
+            throw new Error( `You must select at least ${this.minItems} item${( this.minItems === 1 ? '' : 's' )} for ${this.name}` );
         if ( transformedValue.length > this.maxItems )
             throw new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` );
 
@@ -78,7 +77,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         if ( !this.targetCollection )
             return true;
 
-        if ( this.value.length == 0 )
+        if ( this.value.length === 0 )
             return true;
 
         // If they collection is not empty, then it must exist
@@ -142,7 +141,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         if ( !model )
             return;
 
-        if ( !this.value || this.value.length == 0 )
+        if ( !this.value || this.value.length === 0 )
             return;
 
         // Get all the instances
@@ -154,7 +153,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] });
 
         const results = await model.findInstances<Modepress.IModelEntry>( query );
-        if ( !results || results.length == 0 )
+        if ( !results || results.length === 0 )
             return;
 
         const pullQueries: Array<Promise<any>> = [];
@@ -180,7 +179,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         if ( !options.expandForeignKeys )
             return this.value;
 
-        if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) != -1 )
+        if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
             return this.value;
 
         if ( !this.targetCollection )
@@ -196,7 +195,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
                 return this.value;
         }
 
-        if ( this.value.length == 0 )
+        if ( this.value.length === 0 )
             return this.value;
 
         // Create the query for fetching the instances

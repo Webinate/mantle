@@ -99,7 +99,7 @@ export class UsersService {
 	 */
     hasPermission( user: UsersInterface.IUserEntry, level: number, existingUser?: string ): boolean {
         if ( existingUser !== undefined ) {
-            if ( ( user.email != existingUser && user.username != existingUser ) && user.privileges > level )
+            if ( ( user.email !== existingUser && user.username !== existingUser ) && user.privileges > level )
                 return false;
         }
         else if ( user.privileges > level )

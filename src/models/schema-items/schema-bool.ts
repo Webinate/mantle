@@ -4,8 +4,7 @@ import { ISchemaOptions } from 'modepress-api';
 /**
  * A bool scheme item for use in Models
  */
-export class SchemaBool extends SchemaItem<boolean>
-{
+export class SchemaBool extends SchemaItem<boolean> {
 	/**
 	 * Creates a new schema item
 	 * @param name The name of this item

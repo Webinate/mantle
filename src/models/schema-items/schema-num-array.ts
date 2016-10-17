@@ -5,8 +5,7 @@ import { NumberType } from './schema-number';
 /**
  * A number array scheme item for use in Models
  */
-export class SchemaNumArray extends SchemaItem<Array<number>>
-{
+export class SchemaNumArray extends SchemaItem<Array<number>> {
     public minItems: number;
     public maxItems: number;
     public min: number;
@@ -69,7 +68,7 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
         const decimalPlaces = this.decimalPlaces;
 
         for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
-            if ( type == NumberType.Integer )
+            if ( type === NumberType.Integer )
                 temp = parseInt( transformedValue.toString() );
             else
                 temp = parseFloat(( parseFloat( transformedValue.toString() ).toFixed( decimalPlaces ) ) );
@@ -81,7 +80,7 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
         }
 
         if ( transformedValue.length < this.minItems )
-            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? '' : 's' )} for ${this.name}` ) );
+            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems === 1 ? '' : 's' )} for ${this.name}` ) );
         if ( transformedValue.length > this.maxItems )
             return Promise.reject<Error>( new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` ) );
 

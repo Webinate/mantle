@@ -5,8 +5,7 @@ import sanitizeHtml = require( 'sanitize-html' );
 /**
  * A json scheme item for use in Models
  */
-export class SchemaJSON extends SchemaItem<any>
-{
+export class SchemaJSON extends SchemaItem<any> {
 	/**
 	 * Creates a new schema item
 	 * @param name The name of this item

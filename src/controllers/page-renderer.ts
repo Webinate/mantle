@@ -227,7 +227,7 @@ export default class PageRenderer extends Controller {
 
                 if ( Date.now() > expiration )
                     html = await this.renderPage( url );
-                else if ( !html || html.trim() == '' )
+                else if ( !html || html.trim() === '' )
                     html = await this.renderPage( url );
             }
             else
@@ -262,19 +262,19 @@ export default class PageRenderer extends Controller {
         let isRequestingPrerenderedPage = false;
 
         if ( !userAgent ) return false;
-        if ( req.method != 'GET' && req.method != 'HEAD' ) return false;
+        if ( req.method !== 'GET' && req.method !== 'HEAD' ) return false;
 
-        //if it contains _escaped_fragment_, show prerendered page
+        // if it contains _escaped_fragment_, show prerendered page
         const parsedQuery = url.parse( req.url, true ).query;
         if ( parsedQuery && parsedQuery[ '_escaped_fragment_' ] !== undefined ) isRequestingPrerenderedPage = true;
 
-        //if it is a bot...show prerendered page
+        // if it is a bot...show prerendered page
         if ( PageRenderer.crawlerUserAgents.some( function( crawlerUserAgent ) { return userAgent.toLowerCase().indexOf( crawlerUserAgent.toLowerCase() ) !== -1; }) ) isRequestingPrerenderedPage = true;
 
-        //if it is BufferBot...show prerendered page
+        // if it is BufferBot...show prerendered page
         if ( bufferAgent ) isRequestingPrerenderedPage = true;
 
-        //if it is a bot and is requesting a resource...dont prerender
+        // if it is a bot and is requesting a resource...dont prerender
         if ( PageRenderer.extensionsToIgnore.some( function( extension ) { return req.url.indexOf( extension ) !== -1; }) ) return false;
 
         return isRequestingPrerenderedPage;
@@ -290,7 +290,7 @@ export default class PageRenderer extends Controller {
         try {
             const instances = await renders!.findInstances<IRender>( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
-            if ( instances.length == 0 )
+            if ( instances.length === 0 )
                 throw new Error( 'Could not find a render with that ID' );
 
             let html: string = await instances[ 0 ].schema.getByName( 'html' ) !.getValue();
@@ -317,7 +317,7 @@ export default class PageRenderer extends Controller {
         try {
             const numRemoved = await renders!.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
-            if ( numRemoved == 0 )
+            if ( numRemoved === 0 )
                 throw new Error( 'Could not find a cache with that ID' );
 
             okJson<IResponse>( {
@@ -370,7 +370,7 @@ export default class PageRenderer extends Controller {
         // Set the default sort order to ascending
         let sortOrder = -1;
         if ( req.query.sortOrder ) {
-            if ( ( <string>req.query.sortOrder ).toLowerCase() == 'asc' )
+            if ( ( <string>req.query.sortOrder ).toLowerCase() === 'asc' )
                 sortOrder = 1;
             else
                 sortOrder = -1;
@@ -390,7 +390,7 @@ export default class PageRenderer extends Controller {
         try {
             // First get the count
             count = await renders!.count( findToken );
-            const instances = await renders!.findInstances<IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { html: 0 } : undefined ) );
+            const instances = await renders!.findInstances<IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { html: 0 } : undefined ) );
 
             const jsons: Array<Promise<IRender>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )

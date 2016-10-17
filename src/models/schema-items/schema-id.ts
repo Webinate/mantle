@@ -6,8 +6,7 @@ import { Utils } from '../../utils'
 /**
  * A mongodb ObjectID scheme item for use in Models
  */
-export class SchemaId extends SchemaItem<ObjectID | string | null>
-{
+export class SchemaId extends SchemaItem<ObjectID | string | null> {
 	/**
 	 * Creates a new schema item
 	 * @param name The name of this item
@@ -33,10 +32,10 @@ export class SchemaId extends SchemaItem<ObjectID | string | null>
     public validate(): Promise<boolean | Error> {
         let transformedValue: string | ObjectID | null = this.value;
 
-        if ( typeof this.value == 'string' ) {
+        if ( typeof this.value === 'string' ) {
             if ( Utils.isValidObjectID( <string>this.value ) )
                 transformedValue = this.value = new ObjectID( <string>this.value );
-            else if ( ( <string>this.value ).trim() != '' )
+            else if ( ( <string>this.value ).trim() !== '' )
                 return Promise.reject<Error>( new Error( `Please use a valid ID for '${this.name}'` ) );
             else
                 transformedValue = null;

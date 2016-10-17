@@ -1,4 +1,4 @@
-declare module Modepress {
+declare namespace Modepress {
     /*
      * Base interface for all models
      */
@@ -325,8 +325,7 @@ declare module Modepress {
     /**
      * A definition of each item in the model
      */
-    class SchemaItem<T>
-    {
+    class SchemaItem<T> {
         public name: string;
         public value: T;
 
@@ -494,8 +493,7 @@ declare module Modepress {
      * An instance of a model with its own unique schema and ID. The initial schema is a clone
      * the parent model's
      */
-    class ModelInstance<T>
-    {
+    class ModelInstance<T> {
         public model: Model;
         public schema: Schema;
         public dbEntry: T;
@@ -690,8 +688,7 @@ declare module Modepress {
     /**
      * A numeric schema item for use in Models
      */
-    class SchemaNumber extends SchemaItem<number>
-    {
+    class SchemaNumber extends SchemaItem<number> {
         /**
          * Creates a new schema item
          * @param name The name of this item
@@ -710,8 +707,7 @@ declare module Modepress {
      * Required keys will mean that the current document cannot exist if the target does not. Optional keys
      * will simply be nullified if the target no longer exists.
      */
-    export class SchemaForeignKey extends SchemaItem<any | string | Modepress.IModelEntry>
-    {
+    export class SchemaForeignKey extends SchemaItem<any | string | Modepress.IModelEntry> {
         public targetCollection: string;
         public optionalKey: boolean;
 
@@ -729,8 +725,7 @@ declare module Modepress {
     /**
      * A text scheme item for use in Models
      */
-    class SchemaText extends SchemaItem<string>
-    {
+    class SchemaText extends SchemaItem<string> {
         /**
          * Creates a new schema item
          * @param name The name of this item
@@ -744,8 +739,7 @@ declare module Modepress {
     /**
      * A n ID array scheme item for use in Models
      */
-    export class SchemaIdArray extends SchemaItem<Array<any>>
-    {
+    export class SchemaIdArray extends SchemaItem<Array<any>> {
         /**
          * Creates a new schema item that holds an array of id items
          * @param name The name of this item
@@ -759,8 +753,7 @@ declare module Modepress {
     /**
      * A number array scheme item for use in Models
      */
-    export class SchemaNumArray extends SchemaItem<Array<number>>
-    {
+    export class SchemaNumArray extends SchemaItem<Array<number>> {
         /**
          * Creates a new schema item that holds an array of number items
          * @param name The name of this item
@@ -778,8 +771,7 @@ declare module Modepress {
     /**
      * A text scheme item for use in Models
      */
-    class SchemaTextArray extends SchemaItem<Array<string>>
-    {
+    class SchemaTextArray extends SchemaItem<Array<string>> {
         /**
          * Creates a new schema item that holds an array of text items
          * @param name The name of this item
@@ -795,8 +787,7 @@ declare module Modepress {
     /**
      * A bool scheme item for use in Models
      */
-    class SchemaBool extends SchemaItem<boolean>
-    {
+    class SchemaBool extends SchemaItem<boolean> {
         /**
          * Creates a new schema item
          * @param name The name of this item
@@ -808,8 +799,7 @@ declare module Modepress {
     /**
      * A json scheme item for use in Models
      */
-    class SchemaJSON extends SchemaItem<any>
-    {
+    class SchemaJSON extends SchemaItem<any> {
         /**
          * Creates a new schema item
          * @param name The name of this item
@@ -821,8 +811,7 @@ declare module Modepress {
     /**
     * A date scheme item for use in Models
      */
-    class SchemaDate extends SchemaItem<number>
-    {
+    class SchemaDate extends SchemaItem<number> {
         public useNow: boolean;
 
         /**
@@ -837,8 +826,7 @@ declare module Modepress {
     /**
      * A mongodb ObjectID scheme item for use in Models
      */
-    export class SchemaId extends SchemaItem<any>
-    {
+    export class SchemaId extends SchemaItem<any> {
         private _str: string;
 
         /**
@@ -852,8 +840,7 @@ declare module Modepress {
     /**
      * An html scheme item for use in Models
      */
-    export class SchemaHtml extends SchemaItem<string>
-    {
+    export class SchemaHtml extends SchemaItem<string> {
         /**
          * The default tags allowed
          * includes: h3, h4, h5, h6, blockquote, p, a, ul, ol,
@@ -886,7 +873,7 @@ declare module Modepress {
     /**
      * A list of helper functions for creating schema items
      */
-    export module SchemaFactory {
+    export namespace SchemaFactory {
         export var num: typeof SchemaNumber;
         export var text: typeof SchemaText;
         export var textArray: typeof SchemaTextArray;
@@ -959,7 +946,6 @@ declare module Modepress {
     export function isValidID( str: string ): boolean;
 }
 
-declare module 'modepress-api'
-{
+declare module 'modepress-api' {
     export = Modepress;
 }
