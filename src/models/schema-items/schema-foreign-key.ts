@@ -126,9 +126,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     /**
      * Called after a model instance is deleted. Useful for any schema item cleanups.
      * @param instance The model instance that was deleted
-     * @param collection The DB collection that the model was deleted from
      */
-    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
         // If they key is required then it must exist
         var model = Model.getByName( this.targetCollection );
         if ( !model )

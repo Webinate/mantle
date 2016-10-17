@@ -94,6 +94,9 @@ export default class PageRenderer extends Controller {
     constructor( server: IServer, config: IConfig, e: express.Express ) {
         super( [ Model.registerModel( RendersModel ) ] );
 
+        server; // Supress empty param warning
+        config; // Supress empty param warning
+
         if ( !config.enableAjaxRendering )
             return;
 
@@ -285,7 +288,7 @@ export default class PageRenderer extends Controller {
     /**
      * Attempts to find a render by ID and then display it back to the user
      */
-    private async previewRender( req: express.Request, res: express.Response, next: Function ) {
+    private async previewRender( req: express.Request, res: express.Response ) {
         res.setHeader( 'Content-Type', 'text/html' );
         var renders = this.getModel( "renders" );
 
@@ -313,7 +316,7 @@ export default class PageRenderer extends Controller {
     /**
      * Attempts to remove a render by ID
      */
-    private async removeRender( req: express.Request, res: express.Response, next: Function ) {
+    private async removeRender( req: express.Request, res: express.Response ) {
         var renders = this.getModel( "renders" );
 
         try {
@@ -364,7 +367,7 @@ export default class PageRenderer extends Controller {
     /**
      * Returns an array of IPost items
      */
-    private async getRenders( req: express.Request, res: express.Response, next: Function ) {
+    private async getRenders( req: express.Request, res: express.Response ) {
         var renders = this.getModel( "renders" );
         var that = this;
         var count = 0;
@@ -416,7 +419,8 @@ export default class PageRenderer extends Controller {
     /**
      * Removes all cache items from the db
      */
-    private async clearRenders( req: express.Request, res: express.Response, next: Function ) {
+    private async clearRenders( req: express.Request, res: express.Response ) {
+        req; // Supress empty param warning
         var renders = this.getModel( "renders" );
 
         try {

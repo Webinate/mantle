@@ -7,6 +7,8 @@ import * as mongodb from "mongodb";
  * This funciton checks if user is logged in
  */
 export function getUser( req: express.Request, res: express.Response, next: Function ) {
+    res;   // Supress empty param warning
+
     var users = UsersService.getSingleton();
     users.authenticated( req ).then( function( auth ) {
         if ( !auth.authenticated ) {
@@ -32,7 +34,7 @@ export function getUser( req: express.Request, res: express.Response, next: Func
 
         next();
 
-    }).catch( function( error: Error ) {
+    }).catch( function() {
         req.params.user = null;
         next();
     });
@@ -41,17 +43,16 @@ export function getUser( req: express.Request, res: express.Response, next: Func
 /**
  * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
  * @param idName The name of the ID to check for
- * @param rejectName The textual name of the ID when its rejected
  * @param optional If true, then an error wont be thrown if it doesnt exist
  */
-export function hasId( idName: string, rejectName: string, optional: boolean = false ) {
+export function hasId( idName: string, idLabel: string = '', optional: boolean = false ) {
     return function( req: express.Request, res: express.Response, next: Function ) {
         // Make sure the id
         if ( !req.params[ idName ] && !optional ) {
             res.setHeader( 'Content-Type', 'application/json' );
             return res.end( JSON.stringify( <IResponse>{
                 error: true,
-                message: "Please specify an " + idName
+                message: "Please specify an " + ( !idLabel || idLabel === '' ? idLabel : idName )
             }) );
         }
         // Make sure the id format is correct

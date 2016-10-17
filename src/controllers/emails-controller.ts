@@ -16,6 +16,9 @@ export default class EmailsController extends controllerModule.Controller {
     constructor( server: IServer, config: IConfig, e: express.Express ) {
         super( null );
 
+        server; // Supress empty param warning
+        config; // Supress empty param warning
+
         var router = express.Router();
         router.use( bodyParser.urlencoded( { 'extended': true }) );
         router.use( bodyParser.json() );
@@ -31,7 +34,7 @@ export default class EmailsController extends controllerModule.Controller {
 	/**
 	 * Called whenever a post request is caught by this controller
 	 */
-    protected onPost( req: express.Request, res: express.Response, next: Function ): any {
+    protected onPost( req: express.Request, res: express.Response ): any {
         // Set the content type
         res.setHeader( 'Content-Type', 'application/json' );
 

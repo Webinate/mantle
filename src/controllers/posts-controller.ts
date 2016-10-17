@@ -26,6 +26,9 @@ export default class PostsController extends Controller {
     constructor( server: mp.IServer, config: mp.IConfig, e: express.Express ) {
         super( [ Model.registerModel( PostsModel ), Model.registerModel( CategoriesModel ) ] );
 
+        server; // Supress empty param warning
+        config; // Supress empty param warning
+
         var router = express.Router();
 
         router.use( compression() );
@@ -51,7 +54,7 @@ export default class PostsController extends Controller {
     /**
      * Returns an array of IPost items
      */
-    private async getPosts( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async getPosts( req: mp.IAuthReq, res: express.Response ) {
         var posts = this.getModel( "posts" );
         var that = this;
         var count = 0;
@@ -173,7 +176,7 @@ export default class PostsController extends Controller {
     /**
      * Returns a single post
      */
-    private async getPost( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async getPost( req: mp.IAuthReq, res: express.Response ) {
         var posts = this.getModel( "posts" );
         var that = this;
         var findToken: mp.IPost;
@@ -216,7 +219,7 @@ export default class PostsController extends Controller {
     /**
      * Returns an array of ICategory items
      */
-    private async getCategories( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async getCategories( req: mp.IAuthReq, res: express.Response ) {
         var categories = this.getModel( "categories" );
         var that = this;
 
@@ -244,7 +247,7 @@ export default class PostsController extends Controller {
     /**
      * Attempts to remove a post by ID
      */
-    private async removePost( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async removePost( req: mp.IAuthReq, res: express.Response ) {
         var posts = this.getModel( "posts" );
 
         try {
@@ -267,7 +270,7 @@ export default class PostsController extends Controller {
     /**
      * Attempts to remove a category by ID
      */
-    private async removeCategory( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async removeCategory( req: mp.IAuthReq, res: express.Response ) {
         var categories = this.getModel( "categories" );
 
         try {
@@ -289,7 +292,7 @@ export default class PostsController extends Controller {
     /**
      * Attempts to update a post by ID
      */
-    private async updatePost( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async updatePost( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.IPost = req.body;
         var posts = this.getModel( "posts" );
 
@@ -315,7 +318,7 @@ export default class PostsController extends Controller {
     /**
      * Attempts to create a new post
      */
-    private async createPost( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async createPost( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.IPost = req.body;
         var posts = this.getModel( "posts" );
 
@@ -340,7 +343,7 @@ export default class PostsController extends Controller {
     /**
      * Attempts to create a new category item
      */
-    private async createCategory( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async createCategory( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.ICategory = req.body;
         var categories = this.getModel( "categories" );
 

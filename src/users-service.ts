@@ -27,6 +27,8 @@ export class UsersService {
         var that = this;
         return new Promise( function( resolve, reject ) {
             request.post( `${UsersService.usersURL}/message-webmaster`, { form: { message: message } }, function( error, response, body ) {
+                response; // Supress empty param warning
+
                 if ( error )
                     return reject( error );
 
@@ -43,6 +45,8 @@ export class UsersService {
         var that = this;
         return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
             request.post( `${UsersService.usersURL}/login`, { body: <UsersInterface.ILoginToken>{ username: user, password: password, rememberMe: remember } }, function( error, response, body ) {
+                response; // Supress empty param warning
+
                 if ( error )
                     return reject( error );
 
@@ -63,6 +67,8 @@ export class UsersService {
         var that = this;
         return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
             request.get( `${UsersService.usersURL}/authenticated`, { headers: { cookie: ( <any>req ).headers.cookie } }, function( error, response, body ) {
+                response; // Supress empty param warning
+
                 if ( error )
                     return reject( error );
 
@@ -112,6 +118,7 @@ export class UsersService {
         var that = this;
         return new Promise<UsersInterface.IGetUser>( function( resolve, reject ) {
             request.get( `${UsersService.usersURL}/users/${user}`, { headers: { cookie: ( <any>req ).headers.cookie } }, function( error, response, body ) {
+                response; // Supress empty param warning
                 if ( error )
                     return reject( error );
 

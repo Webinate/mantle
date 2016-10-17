@@ -132,9 +132,8 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
     /**
      * Called after a model instance is deleted. Useful for any schema item cleanups.
      * @param instance The model instance that was deleted
-     * @param collection The DB collection that the model was deleted from
      */
-    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
         if ( !this.targetCollection )
             return;
 

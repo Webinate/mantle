@@ -60,7 +60,7 @@ catch ( err ) {
 // Attempt to connect to Users
 if ( config.usersSocketURL != "" ) {
     winston.info( `Attempting to connect to users socket at: '${config.usersSocketURL}'`, { process: process.pid });
-    new EventManager( config ).init().catch( function( err: Error ) {
+    new EventManager( config ).init().catch( function() {
         winston.error( `Could not connect to user socket even though it was specified at: '${config.usersSocketURL}'`, { process: process.pid });
         process.exit();
     });
@@ -84,7 +84,7 @@ MongoWrapper.connect( config.databaseHost, config.databasePort, config.databaseN
     }
 
     // Return a promise once all the controllers are complete
-    Promise.all( promises ).then( function( e ) {
+    Promise.all( promises ).then( function() {
         winston.info( `Servers up and runnning`, { process: process.pid });
 
         // Create the readline interface

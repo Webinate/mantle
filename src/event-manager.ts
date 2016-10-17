@@ -27,7 +27,7 @@ export class EventManager extends events.EventEmitter {
         var cfg = this._cfg;
         var that = this;
 
-        return new Promise( function( resolve, reject ) {
+        return new Promise( function( resolve ) {
             var reconnectInterval = 3 * 1000;
             var _client;
 

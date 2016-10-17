@@ -25,6 +25,9 @@ export default class CommentsController extends Controller {
     constructor( server: mp.IServer, config: mp.IConfig, e: express.Express ) {
         super( [ Model.registerModel( CommentsModel ) ] );
 
+        server; // Supress empty param warning
+        config; // Supress empty param warning
+
         var router = express.Router();
 
         router.use( compression() );
@@ -47,7 +50,7 @@ export default class CommentsController extends Controller {
     /**
      * Returns an array of IComment items
      */
-    private async getComments( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async getComments( req: mp.IAuthReq, res: express.Response ) {
         var comments = this.getModel( "comments" );
         var that = this;
         var count = 0;
@@ -144,7 +147,7 @@ export default class CommentsController extends Controller {
     /**
      * Returns a single comment
      */
-    private async getComment( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async getComment( req: mp.IAuthReq, res: express.Response ) {
         try {
             var comments = this.getModel( "comments" );
             var findToken: mp.IComment = { _id: new mongodb.ObjectID( req.params.id ) };
@@ -187,7 +190,7 @@ export default class CommentsController extends Controller {
     /**
      * Attempts to remove a comment by ID
      */
-    private async remove( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async remove( req: mp.IAuthReq, res: express.Response ) {
         var comments = this.getModel( "comments" );
         var findToken: mp.IComment = {
             _id: new mongodb.ObjectID( req.params.id )
@@ -223,7 +226,7 @@ export default class CommentsController extends Controller {
     /**
      * Attempts to update a comment by ID
      */
-    private async update( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async update( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.IComment = req.body;
         var comments = this.getModel( "comments" );
         var findToken: mp.IComment = {
@@ -263,7 +266,7 @@ export default class CommentsController extends Controller {
     /**
      * Attempts to create a new comment
      */
-    private async create( req: mp.IAuthReq, res: express.Response, next: Function ) {
+    private async create( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.IComment = req.body;
         var comments = this.getModel( "comments" );
 

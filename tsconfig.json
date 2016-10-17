@@ -10,7 +10,8 @@
         "target": "es6",
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "noUnusedParameters": true
     },
     "include": [
         "src/references.d.ts",
