@@ -1,7 +1,5 @@
-﻿import { Model, ModelInstance } from '../models/model';
+﻿import { Model } from '../models/model';
 import * as mongodb from 'mongodb';
-import { IControllerPlugin } from 'modepress-api';
-import { okJson, errJson } from '../serializers';
 
 export class Controller {
     private static _models: Array<Model> = [];

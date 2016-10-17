@@ -1,7 +1,6 @@
 'use strict';
 
 import express = require( 'express' );
-import * as http from 'http';
 import * as mp from 'modepress-api';
 import * as winston from 'winston';
 

@@ -1,5 +1,4 @@
 ﻿import { SchemaItem } from './schema-item';
-import { ISchemaOptions } from 'modepress-api';
 import { ObjectID } from 'mongodb';
 import { Utils } from '../../utils'
 

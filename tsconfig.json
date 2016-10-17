@@ -12,6 +12,7 @@
         "allowUnusedLabels": false,
         "outDir": "./dist",
         "noUnusedParameters": true,
+        "noUnusedLocals": true,
         "strictNullChecks": true
     },
     "include": [

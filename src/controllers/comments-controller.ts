@@ -1,6 +1,5 @@
 ﻿import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
-import * as entities from 'entities';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Controller } from './controller';
@@ -9,7 +8,6 @@ import { CommentsModel } from '../models/comments-model';
 import { UsersService } from '../users-service';
 import { getUser, isAdmin, canEdit, hasId, userExists } from '../permission-controllers';
 import * as mp from 'modepress-api';
-import * as winston from 'winston';
 import { okJson, errJson } from '../serializers';
 
 /**
@@ -211,7 +209,7 @@ export default class CommentsController extends Controller {
             }
 
             // Attempt to delete the instances
-            const numRemoved = await comments.deleteInstances( findToken );
+            await comments.deleteInstances( findToken );
             okJson<mp.IResponse>( {
                 error: false,
                 message: 'Comment has been successfully removed'

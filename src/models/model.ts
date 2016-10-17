@@ -133,7 +133,7 @@ export abstract class Model {
             throw new Error( 'Error creating collection: ' + this._collectionName );
 
         // First remove all existing indices
-        const response = await this.collection.dropIndexes();
+        await this.collection.dropIndexes();
 
         // Now re-create the models who need index supports
         const promises: Array<Promise<string>> = [];
@@ -145,7 +145,7 @@ export abstract class Model {
         if ( promises.length === 0 )
             this._initialized = true;
 
-        const models = await Promise.all( promises );
+        await Promise.all( promises );
 
         this._initialized = true;
         winston.info( `Successfully created model '${this._collectionName}'`, { process: process.pid });
@@ -277,7 +277,7 @@ export abstract class Model {
         // Added the schema item post deletion promises
         promises.push( instance.schema.postDelete( instance, this._collectionName ) );
 
-        const dependenciesResults = await Promise.all( promises );
+        await Promise.all( promises );
 
         // Remove the original instance from the DB
         const deleteResult = await this.collection.deleteMany( <IModelEntry>{ _id: instance.dbEntry._id });
@@ -289,8 +289,6 @@ export abstract class Model {
 	 * Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	 */
     async deleteInstances( selector: any ): Promise<number> {
-        const model = this;
-
         const instances = await this.findInstances<IModelEntry>( selector );
 
         if ( !instances || instances.length === 0 )
@@ -350,7 +348,7 @@ export abstract class Model {
                 // Transform the schema into a JSON ready format
                 const json = instance.schema.serialize();
                 const collection = this.collection;
-                const updateResult = await collection.updateOne( { _id: ( <IModelEntry>instance )._id }, { $set: json });
+                await collection.updateOne( { _id: ( <IModelEntry>instance )._id }, { $set: json });
 
                 // Now that everything has been added, we can do some post insert/update validation
                 await instance.schema.postUpsert<T>( instance, this._collectionName );
@@ -437,7 +435,6 @@ export abstract class Model {
         if ( !collection || !model._initialized )
             throw new Error( 'The model has not been initialized' );
 
-        let instance: ModelInstance<T>;
         const documents: Array<any> = [];
         const promises: Array<Promise<Schema>> = [];
 

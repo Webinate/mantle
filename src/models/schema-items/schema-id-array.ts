@@ -2,7 +2,6 @@
 import { SchemaForeignKey } from './schema-foreign-key';
 import { Model, ModelInstance } from '../model';
 import { ISchemaOptions } from 'modepress-api';
-import sanitizeHtml = require( 'sanitize-html' );
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
 import { Utils } from '../../utils';
 
@@ -145,7 +144,6 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return;
 
         // Get all the instances
-        const promises: Array<Promise<UpdateWriteOpResult>> = [];
         const query = { $or: [] as Modepress.IModelEntry[] };
         const arr = this.value;
 
@@ -205,8 +203,6 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 
         const instances = await model.findInstances<Modepress.IModelEntry>( query );
         let instance: ModelInstance<Modepress.IModelEntry>;
-
-        const toReturn: Array<Modepress.IModelEntry> = [];
         const promises: Array<Promise<Modepress.IModelEntry>> = [];
 
         // Get the models items are increase their level - this ensures we dont go too deep

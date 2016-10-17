@@ -1,6 +1,5 @@
 ﻿import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
-import * as entities from 'entities';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Controller } from './controller';
@@ -10,7 +9,6 @@ import { CategoriesModel } from '../models/categories-model';
 import { UsersService } from '../users-service';
 import { getUser, isAdmin, hasId } from '../permission-controllers';
 import * as mp from 'modepress-api';
-import * as winston from 'winston';
 import { okJson, errJson } from '../serializers';
 
 /**

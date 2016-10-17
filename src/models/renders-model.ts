@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { text, date, html } from './schema-items/schema-item-factory';
+import { text, date } from './schema-items/schema-item-factory';
 
 export class RendersModel extends Model {
     constructor() {

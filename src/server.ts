@@ -1,21 +1,16 @@
 ﻿import * as express from 'express';
-const app = express();									// create our app with express
-import * as morgan from 'morgan';						// log requests to the console
+import * as morgan from 'morgan';
 import * as mongodb from 'mongodb';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as winston from 'winston';
-import * as yargs from 'yargs';
-import * as readline from 'readline';
 import * as compression from 'compression';
-import { MongoWrapper } from './mongo-wrapper';
 import { IConfig, IServer } from 'modepress-api';
 import { Controller } from './controllers/controller'
 import PageRenderer from './controllers/page-renderer'
 import CORSController from './controllers/cors-controller';
 import { PathHandler } from './path-handler';
-import * as UsersService from './users-service';
 
 export class Server {
     private _config: IConfig;

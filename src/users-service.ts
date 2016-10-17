@@ -1,6 +1,5 @@
-﻿import * as express from 'express'
-import * as http from 'http'
-import * as request from 'request'
+﻿import * as express from 'express';
+import * as request from 'request';
 import { IConfig } from 'modepress-api';
 
 /**

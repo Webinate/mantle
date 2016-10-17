@@ -1,9 +1,7 @@
-﻿import * as mongodb from 'mongodb';
-import * as http from 'http';
+﻿import * as http from 'http';
 import { IServer } from 'modepress-api';
 import * as winston from 'winston';
 import { Controller } from './controller';
-import { okJson, errJson } from '../serializers';
 import express = require( 'express' );
 
 /**

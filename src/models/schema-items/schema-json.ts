@@ -1,6 +1,4 @@
 ﻿import { SchemaItem } from './schema-item';
-import { ISchemaOptions } from 'modepress-api';
-import sanitizeHtml = require( 'sanitize-html' );
 
 /**
  * A json scheme item for use in Models

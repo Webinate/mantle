@@ -1,8 +1,7 @@
 ﻿import { SchemaItem } from './schema-items/schema-item';
-import { SchemaForeignKey } from './schema-items/schema-foreign-key';
 import * as mongodb from 'mongodb'
-import { ModelInstance, Model } from './model'
-import { IModelEntry, ISchemaOptions } from 'modepress-api';
+import { ModelInstance } from './model'
+import { ISchemaOptions } from 'modepress-api';
 
 /**
  * Gives an overall description of each property in a model
@@ -85,8 +84,6 @@ export class Schema {
     public async getAsJson<T extends Modepress.IModelEntry>( id: mongodb.ObjectID, options: ISchemaOptions ): Promise<T> {
         const toReturn: T = <T><Modepress.IModelEntry>{ _id: id };
         const items = this._items;
-        let fKey: SchemaForeignKey;
-        let model: Model;
         const promises: Array<Promise<any>> = [];
         const itemsInUse: SchemaItem<any>[] = [];
 
@@ -126,7 +123,7 @@ export class Schema {
             promises.push( items[ i ].validate() );
         }
 
-        const validations = await Promise.all( promises );
+        await Promise.all( promises );
         return this;
     }
 
@@ -143,7 +140,7 @@ export class Schema {
         for ( let i = 0, l = items.length; i < l; i++ )
             promises.push( items[ i ].postUpsert( instance, collection ) );
 
-        const validations = await Promise.all( promises );
+        await Promise.all( promises );
         return this;
     }
 
@@ -159,7 +156,7 @@ export class Schema {
         for ( let i = 0, l = items.length; i < l; i++ )
             promises.push( items[ i ].postUpsert( instance, collection ) );
 
-        const validations = await Promise.all( promises );
+        await Promise.all( promises );
         return this;
     }
 

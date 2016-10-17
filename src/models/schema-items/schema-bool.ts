@@ -1,5 +1,4 @@
 ﻿import { SchemaItem } from './schema-item';
-import { ISchemaOptions } from 'modepress-api';
 
 /**
  * A bool scheme item for use in Models

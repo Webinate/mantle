@@ -1,5 +1,4 @@
 ﻿import { SchemaItem } from './schema-item';
-import { ISchemaOptions } from 'modepress-api';
 
 /**
  * Describes the type of number to store

@@ -28,8 +28,6 @@ export class EventManager extends events.EventEmitter {
 
         return new Promise(( resolve ) => {
             const reconnectInterval = 3 * 1000;
-            let _client;
-
             const connect = () => {
                 let options: any = { headers: {} };
                 options.headers[ 'users-api-key' ] = cfg.usersSocketApiKey;

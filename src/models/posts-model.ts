@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { num, text, bool, textArray, date, html } from './schema-items/schema-item-factory';
+import { text, bool, textArray, date, html } from './schema-items/schema-item-factory';
 import { SchemaHtml } from './schema-items/schema-html';
 
 
