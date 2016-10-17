@@ -8,18 +8,18 @@ import sanitizeHtml = require( "sanitize-html" );
 export class SchemaHtml extends SchemaItem<string>
 {
     /**
-    * The default tags allowed
-    * includes: h3, h4, h5, h6, blockquote, p, a, ul, ol,
-    *    nl, li, b, i, strong, em, strike, code, hr, br, div,
-    *    table, thead, caption, tbody, tr, th, td, pre
-    */
+     * The default tags allowed
+     * includes: h3, h4, h5, h6, blockquote, p, a, ul, ol,
+     *    nl, li, b, i, strong, em, strike, code, hr, br, div,
+     *    table, thead, caption, tbody, tr, th, td, pre
+     */
     public static defaultTags: Array<string> = [ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
         'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'iframe',
         'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre' ];
 
     /**
-    * The default allowed attributes for each tag
-    */
+     * The default allowed attributes for each tag
+     */
     public static defaultAllowedAttributes: { [ name: string ]: Array<string> } = {
         a: [ 'href', 'name', 'target' ],
         img: [ 'src' ]
@@ -32,15 +32,15 @@ export class SchemaHtml extends SchemaItem<string>
     public maxCharacters: number;
 
 	/**
-	* Creates a new schema item
-	* @param {string} name The name of this item
-	* @param {string} val The text of this item
-    * @param {Array<string>} allowedTags The tags allowed by the html parser
-    * @param {[name: string] : Array<string>} allowedAttributes The attributes allowed by each attribute
-    * @param {boolean} errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
-    * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
-	* @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-	*/
+ 	 * Creates a new schema item
+ 	 * @param name The name of this item
+	 * @param val The text of this item
+     * @param allowedTags The tags allowed by the html parser
+     * @param allowedAttributes The attributes allowed by each attribute
+     * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
+     * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
+	 * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
+	 */
     constructor( name: string, val: string, allowedTags: Array<string> = SchemaHtml.defaultTags,
         allowedAttributes: { [ name: string ]: Array<string> } = SchemaHtml.defaultAllowedAttributes,
         errorBadHTML: boolean = true, minCharacters: number = 0, maxCharacters: number = 10000 ) {
@@ -54,10 +54,9 @@ export class SchemaHtml extends SchemaItem<string>
     }
 
 	/**
-	* Creates a clone of this item
-	* @returns {SchemaHtml} copy A sub class of the copy
-	* @returns {SchemaHtml}
-	*/
+	 * Creates a clone of this item
+	 * @returns copy A sub class of the copy
+	 */
     public clone( copy?: SchemaHtml ): SchemaHtml {
         copy = copy === undefined ? new SchemaHtml( this.name, <string>this.value ) : copy;
         super.clone( copy );
@@ -70,9 +69,9 @@ export class SchemaHtml extends SchemaItem<string>
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean|Error>} Returns true if successful or an error message string if unsuccessful
-	*/
+	 * Checks the value stored to see if its correct in its current form
+	 * @returns Returns true if successful or an error message string if unsuccessful
+	 */
     public validate(): Promise<boolean | Error> {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;

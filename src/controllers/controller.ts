@@ -29,10 +29,9 @@ export class Controller {
     }
 
 	/**
-	* Called to initialize this controller and its related database objects
-	* @param {mongodb.Db} db The mongo database to use
-	* @returns {Promise<Controller>}
-	*/
+	 * Called to initialize this controller and its related database objects
+	 * @param db The mongo database to use
+	 */
     async initialize( db: mongodb.Db ): Promise<Controller> {
         if ( !this._models )
             return this;
@@ -50,9 +49,8 @@ export class Controller {
     }
 
 	/**
-	* Gets a model by its collection name
-	* returns {models.Model}
-	*/
+	 * Gets a model by its collection name
+	 */
     getModel( collectionName: string ): Model {
         var models = Controller._models;
         for ( var i = 0, l = models.length; i < l; i++ )

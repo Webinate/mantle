@@ -13,15 +13,15 @@ import * as winston from "winston";
 import { okJson, errJson } from "../serializers";
 
 /**
-* A controller that deals with the management of comments
-*/
+ * A controller that deals with the management of comments
+ */
 export default class CommentsController extends Controller {
 	/**
-	* Creates a new instance of the controller
-	* @param {IServer} server The server configuration options
-    * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server
-	*/
+	 * Creates a new instance of the controller
+	 * @param server The server configuration options
+     * @param config The configuration options
+     * @param e The express instance of this server
+	 */
     constructor( server: mp.IServer, config: mp.IConfig, e: express.Express ) {
         super( [ Model.registerModel( CommentsModel ) ] );
 
@@ -45,11 +45,8 @@ export default class CommentsController extends Controller {
     }
 
     /**
-    * Returns an array of IComment items
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Returns an array of IComment items
+     */
     private async getComments( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var comments = this.getModel( "comments" );
         var that = this;
@@ -145,11 +142,8 @@ export default class CommentsController extends Controller {
     }
 
     /**
-    * Returns a single comment
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Returns a single comment
+     */
     private async getComment( req: mp.IAuthReq, res: express.Response, next: Function ) {
         try {
             var comments = this.getModel( "comments" );
@@ -191,11 +185,8 @@ export default class CommentsController extends Controller {
     }
 
     /**
-    * Attempts to remove a comment by ID
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Attempts to remove a comment by ID
+     */
     private async remove( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var comments = this.getModel( "comments" );
         var findToken: mp.IComment = {
@@ -230,11 +221,8 @@ export default class CommentsController extends Controller {
     }
 
     /**
-    * Attempts to update a comment by ID
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Attempts to update a comment by ID
+     */
     private async update( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var token: mp.IComment = req.body;
         var comments = this.getModel( "comments" );
@@ -273,11 +261,8 @@ export default class CommentsController extends Controller {
     }
 
     /**
-    * Attempts to create a new comment.
-    * @param {IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Attempts to create a new comment
+     */
     private async create( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var token: mp.IComment = req.body;
         var comments = this.getModel( "comments" );

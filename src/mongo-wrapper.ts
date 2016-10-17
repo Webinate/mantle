@@ -2,12 +2,11 @@
 
 export class MongoWrapper {
 	/**
-	* Connects to the mongo database
-	* @param {string} host The host URI
-	* @param {number} port The port number
-	* @param {mongodb.ServerOptions} opts Any additional options
-	* @returns {Promise<mongodb.Db>}
-	*/
+	 * Connects to the mongo database
+	 * @param host The host URI
+	 * @param port The port number
+	 * @param opts Any additional options
+	 */
     static connect( host: string, port: number, database: string, opts?: mongodb.ServerOptions ): Promise<mongodb.Db> {
         return new Promise<mongodb.Db>( function( resolve, reject ) {
             if ( !host )
@@ -29,12 +28,11 @@ export class MongoWrapper {
     }
 
 	/**
-	* Connects to the mongo database
-	* @param {string} host The host URI
-	* @param {number} port The port number
-	* @param {mongodb.ServerOptions} opts Any additional options
-	* @returns {Promise<mongodb.Db>}
-	*/
+	 * Connects to the mongo database
+	 * @param host The host URI
+	 * @param port The port number
+	 * @param opts Any additional options
+	 */
     static find( host: string, port: number, opts?: mongodb.ServerOptions ): Promise<mongodb.Db> {
         return new Promise<mongodb.Db>( function( resolve, reject ) {
             var mongoServer: mongodb.Server = new mongodb.Server( host, port, opts );

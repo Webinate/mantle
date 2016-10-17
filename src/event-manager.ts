@@ -5,15 +5,15 @@ import * as events from "events";
 import * as users from "webinate-users";
 
 /**
-* A class for handling events sent from a webinate user server
-*/
+ * A class for handling events sent from a webinate user server
+ */
 export class EventManager extends events.EventEmitter {
     public static singleton: EventManager;
     public _cfg: IConfig;
 
     /**
-    * Creates an instance of the plugin manager
-    */
+     * Creates an instance of the plugin manager
+     */
     constructor( cfg: IConfig ) {
         super();
         EventManager.singleton = this;
@@ -21,8 +21,8 @@ export class EventManager extends events.EventEmitter {
     }
 
     /**
-    * Intiailizes the manager
-    */
+     * Intiailizes the manager
+     */
     init(): Promise<any> {
         var cfg = this._cfg;
         var that = this;
@@ -64,8 +64,8 @@ export class EventManager extends events.EventEmitter {
     }
 
     /**
-    * Called whenever we get a message from the user socket events
-    */
+     * Called whenever we get a message from the user socket events
+     */
     private onMessage( data: any, flags: { mask: boolean; binary: boolean; compress: boolean; }) {
         if ( !flags.binary ) {
             try {

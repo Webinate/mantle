@@ -7,15 +7,15 @@ import { IModelEntry } from "modepress-api";
 export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
 
 /*
-* Describes a token returned from updating instances
-*/
+ * Describes a token returned from updating instances
+ */
 export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>> }
 
 
 /**
-* An instance of a model with its own unique schema and ID. The initial schema is a clone
-* the parent model's
-*/
+ * An instance of a model with its own unique schema and ID. The initial schema is a clone
+ * the parent model's
+ */
 export class ModelInstance<T extends Modepress.IModelEntry>
 {
     public model: Model;
@@ -24,8 +24,8 @@ export class ModelInstance<T extends Modepress.IModelEntry>
     public dbEntry: T;
 
 	/**
-	* Creates a model instance
-	*/
+	 * Creates a model instance
+	 */
     constructor( model: Model, dbEntry: T ) {
         this.model = model;
         this.schema = model.defaultSchema.clone();
@@ -34,9 +34,8 @@ export class ModelInstance<T extends Modepress.IModelEntry>
     }
 
     /**
-    * Gets a string representation of all fields that are unique
-    * @returns {string}
-    */
+     * Gets a string representation of all fields that are unique
+     */
     uniqueFieldNames(): string {
         var instance = this;
         var uniqueNames = "";
@@ -54,8 +53,8 @@ export class ModelInstance<T extends Modepress.IModelEntry>
 }
 
 /**
-* Models map data in the application/client to data in the database
-*/
+ * Models map data in the application/client to data in the database
+ */
 export abstract class Model {
     public collection: mongodb.Collection;
     public defaultSchema: Schema;
@@ -65,9 +64,9 @@ export abstract class Model {
     private static _registeredModels: { [ name: string ]: Model } = {};
 
 	/**
-	* Creates an instance of a Model
-	* @param {string} collection The collection name associated with this model
-	*/
+	 * Creates an instance of a Model
+	 * @param collection The collection name associated with this model
+	 */
     constructor( collection: string ) {
         this.collection = null;
         this._collectionName = collection;
@@ -85,8 +84,8 @@ export abstract class Model {
     /**
      * Returns a new model of a given type. However if the model was already registered before,
      * then the previously created model is returned.
-     * @param {any} modelConstructor The model class
-     * @returns {Model} Returns the registered model
+     * @param modelConstructor The model class
+     * @returns Returns the registered model
      */
     static registerModel<T extends Model>( modelConstructor: any ): T {
         var models = Model._registeredModels;
@@ -100,8 +99,8 @@ export abstract class Model {
 
     /**
      * Returns a registered model by its name
-     * @param {string} name The name of the model to fetch
-     * @returns {Model} Returns the registered model or null if none exists
+     * @param name The name of the model to fetch
+     * @returns Returns the registered model or null if none exists
      */
     static getByName( name: string ): Model {
         return Model._registeredModels[ name ];
@@ -109,8 +108,8 @@ export abstract class Model {
 
     /**
      * Creates an index for a collection
-     * @param {string} name The name of the field we are setting an index of
-     * @param {mongodb.Collection} collection The collection we are setting the index on
+     * @param name The name of the field we are setting an index of
+     * @param collection The collection we are setting the index on
      */
     private async createIndex( name: string, collection: mongodb.Collection ): Promise<string> {
         var index = await collection.createIndex( name );
@@ -118,16 +117,14 @@ export abstract class Model {
     }
 
 	/**
-	* Gets the name of the collection associated with this model
-	* @returns {string}
-	*/
+	 * Gets the name of the collection associated with this model
+	 */
     get collectionName(): string { return this._collectionName; }
 
 	/**
-	* Initializes the model by setting up the database collections
-	* @param {mongodb.Db} db The database used to create this model
-	* @returns {Promise<mongodb.Db>}
-	*/
+	 * Initializes the model by setting up the database collections
+	 * @param db The database used to create this model
+	 */
     async initialize( db: mongodb.Db ): Promise<Model> {
         // If the collection already exists - then we do not have to create it
         if ( this._initialized )
@@ -160,10 +157,9 @@ export abstract class Model {
     }
 
     /**
-	* Gets the number of DB entries based on the selector
-	* @param {any} selector The mongodb selector
-	* @returns {Promise<Array<ModelInstance<T>>>}
-	*/
+	 * Gets the number of DB entries based on the selector
+	 * @param selector The mongodb selector
+	 */
     async count( selector: any ): Promise<number> {
         var collection = this.collection;
 
@@ -174,15 +170,14 @@ export abstract class Model {
     }
 
 	/**
-	* Gets an arrray of instances based on the selector search criteria
-	* @param {any} selector The mongodb selector
-	* @param {any} sort Specify an array of items to sort.
-    * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
-    * @param {number} startIndex The start index of where to select from
-	* @param {number} limit The number of results to fetch
-    * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
-	* @returns {Promise<Array<ModelInstance<T>>>}
-	*/
+	 * Gets an arrray of instances based on the selector search criteria
+ 	 * @param selector The mongodb selector
+ 	 * @param sort Specify an array of items to sort.
+     * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
+     * @param startIndex The start index of where to select from
+	 * @param limit The number of results to fetch
+     * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
+	 */
     async findInstances<T>( selector: any, sort?: any, startIndex: number = 0, limit: number = 0, projection?: any ): Promise<Array<ModelInstance<T>>> {
         var collection = this.collection;
 
@@ -209,11 +204,10 @@ export abstract class Model {
     }
 
     /**
-	* Gets a model instance based on the selector criteria
-	* @param {any} selector The mongodb selector
-    * @param {any} projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
-	* @returns {Promise<ModelInstance<T>>}
-	*/
+	 * Gets a model instance based on the selector criteria
+	 * @param selector The mongodb selector
+     * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
+	 */
     async findOne<T>( selector: any, projection?: any ): Promise<ModelInstance<T>> {
         var collection = this.collection;
 
@@ -240,9 +234,8 @@ export abstract class Model {
     }
 
     /**
-	* Deletes a instance and all its dependencies are updated or deleted accordingly
-	* @returns {Promise<number>}
-	*/
+	 * Deletes a instance and all its dependencies are updated or deleted accordingly
+	 */
     private async deleteInstance( instance: ModelInstance<IModelEntry> ): Promise<number> {
         var foreignModel: Model;
         var optionalDependencies = instance.dbEntry._optionalDependencies;
@@ -297,9 +290,8 @@ export abstract class Model {
     }
 
 	/**
-	* Deletes a number of instances based on the selector. The promise reports how many items were deleted
-	* @returns {Promise<number>}
-	*/
+	 * Deletes a number of instances based on the selector. The promise reports how many items were deleted
+	 */
     async deleteInstances( selector: any ): Promise<number> {
         var model = this;
 
@@ -320,14 +312,14 @@ export abstract class Model {
     }
 
     /**
-	* Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
-    * unique fields are still being respected. An array is returned of each instance along with an error string if anything went wrong
-    * with updating the specific instance.
-	* @param {any} selector The selector for updating instances
-    * @param {any} data The data object that will attempt to set the instance's schema variables
-	* @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
-    * went wrong when updating the specific instance, and a string message if something did in fact go wrong
-	*/
+	 * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
+     * unique fields are still being respected. An array is returned of each instance along with an error string if anything went wrong
+     * with updating the specific instance.
+	 * @param selector The selector for updating instances
+     * @param data The data object that will attempt to set the instance's schema variables
+	 * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
+     * went wrong when updating the specific instance, and a string message if something did in fact go wrong
+	 */
     async update<T>( selector: any, data: T ): Promise<UpdateRequest<T>> {
         var toRet: UpdateRequest<T> = {
             error: false,
@@ -379,11 +371,10 @@ export abstract class Model {
     }
 
     /**
-	* Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
-	* @param {any} data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-	* by parsing the data object and setting each schema item's value by the name/value in the data object.
-	* @returns {Promise<boolean>}
-	*/
+	 * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
+	 * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
+	 * by parsing the data object and setting each schema item's value by the name/value in the data object.
+	 */
     async checkUniqueness<T>( instance: ModelInstance<T> ): Promise<boolean> {
         var items = instance.schema.getItems();
         var hasUniqueField: boolean = false;
@@ -416,11 +407,10 @@ export abstract class Model {
 
 
 	/**
-	* Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
-	* @param {any} data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-	* by parsing the data object and setting each schema item's value by the name/value in the data object.
-	* @returns {Promise<ModelInstance<T>>}
-	*/
+	 * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
+	 * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
+	 * by parsing the data object and setting each schema item's value by the name/value in the data object
+	 */
     async createInstance<T>( data?: T ): Promise<ModelInstance<T>> {
         var newInstance = new ModelInstance<T>( this, null );
 
@@ -441,10 +431,9 @@ export abstract class Model {
     }
 
 	/**
-	* Attempts to insert an array of instances of this model into the database.
-	* @param {Promise<Array<ModelInstance<T>>>} instances An array of instances to save
-	* @returns {Promise<Array<ModelInstance<T>>>}
-	*/
+	 * Attempts to insert an array of instances of this model into the database.
+	 * @param instances An array of instances to save
+	 */
     async insert<T>( instances: Array<ModelInstance<T>> ): Promise<Array<ModelInstance<T>>> {
         var model = this;
         var collection = model.collection;

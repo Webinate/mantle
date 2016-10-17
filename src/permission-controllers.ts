@@ -4,11 +4,8 @@ import { IResponse, IAuthReq } from "modepress-api";
 import * as mongodb from "mongodb";
 
 /**
-* This funciton checks if user is logged in
-* @param {express.Request} req
-* @param {express.Response} res
-* @param {Function} next
-*/
+ * This funciton checks if user is logged in
+ */
 export function getUser( req: express.Request, res: express.Response, next: Function ) {
     var users = UsersService.getSingleton();
     users.authenticated( req ).then( function( auth ) {
@@ -42,11 +39,11 @@ export function getUser( req: express.Request, res: express.Response, next: Func
 }
 
 /**
-* Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
-* @param {string} idName The name of the ID to check for
-* @param {string} rejectName The textual name of the ID when its rejected
-* @param {boolean} optional If true, then an error wont be thrown if it doesnt exist
-*/
+ * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
+ * @param idName The name of the ID to check for
+ * @param rejectName The textual name of the ID when its rejected
+ * @param optional If true, then an error wont be thrown if it doesnt exist
+ */
 export function hasId( idName: string, rejectName: string, optional: boolean = false ) {
     return function( req: express.Request, res: express.Response, next: Function ) {
         // Make sure the id
@@ -71,10 +68,10 @@ export function hasId( idName: string, rejectName: string, optional: boolean = f
 }
 
 /**
-* Checks for if a user with the username or email of the queryName exists. Throws an error if they don't
-* @param {string} queryName The name of the ID to check for
-* @param {string} rejectName The textual name of the ID when its rejected
-*/
+ * Checks for if a user with the username or email of the queryName exists. Throws an error if they don't
+ * @param queryName The name of the ID to check for
+ * @param rejectName The textual name of the ID when its rejected
+ */
 export async function userExists( req: express.Request, res: express.Response, next: Function ) {
     try {
         var users = UsersService.getSingleton();
@@ -95,12 +92,9 @@ export async function userExists( req: express.Request, res: express.Response, n
 }
 
 /**
-* This funciton checks the logged in user is an admin. If not an admin it returns an error,
-* if true it passes the scope onto the next function in the queue
-* @param {express.Request} req
-* @param {express.Response} res
-* @param {Function} next
-*/
+ * This funciton checks the logged in user is an admin. If not an admin it returns an error,
+ * if true it passes the scope onto the next function in the queue
+ */
 export function isAdmin( req: express.Request, res: express.Response, next: Function ) {
     var users = UsersService.getSingleton();
 
@@ -126,11 +120,8 @@ export function isAdmin( req: express.Request, res: express.Response, next: Func
 }
 
 /**
-* This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
-* @param {express.Request} req
-* @param {express.Response} res
-* @param {Function} next
-*/
+ * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
+ */
 export async function canEdit( req: express.Request, res: express.Response, next: Function ) {
     var users = UsersService.getSingleton();
     var targetUser: string = req.params.user;
@@ -170,11 +161,8 @@ export async function canEdit( req: express.Request, res: express.Response, next
 }
 
 /**
-* This funciton checks if user is logged in and throws an error if not
-* @param {express.Request} req
-* @param {express.Response} res
-* @param {Function} next
-*/
+ * This funciton checks if user is logged in and throws an error if not
+ */
 export function isAuthenticated( req: express.Request, res: express.Response, next: Function ) {
     var users = UsersService.getSingleton();
     users.authenticated( req ).then( function( auth ) {

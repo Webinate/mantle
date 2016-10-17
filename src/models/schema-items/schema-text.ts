@@ -3,8 +3,8 @@ import { ISchemaOptions } from "modepress-api";
 import sanitizeHtml = require( "sanitize-html" );
 
 /**
-* A text scheme item for use in Models
-*/
+ * A text scheme item for use in Models
+ */
 export class SchemaText extends SchemaItem<string>
 {
     public minCharacters: number;
@@ -12,13 +12,13 @@ export class SchemaText extends SchemaItem<string>
     public htmlClean: boolean;
 
 	/**
-	* Creates a new schema item
-	* @param {string} name The name of this item
-	* @param {string} val The text of this item
-    * @param {number} minCharacters [Optional] Specify the minimum number of characters for use with this text item
-	* @param {number} maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-    * @param {boolean} htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
-	*/
+	 * Creates a new schema item
+	 * @param name The name of this item
+	 * @param val The text of this item
+     * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
+	 * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
+     * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
+	 */
     constructor( name: string, val: string, minCharacters: number = 0, maxCharacters: number = 10000, htmlClean: boolean = true ) {
         super( name, val );
         this.maxCharacters = maxCharacters;
@@ -27,10 +27,10 @@ export class SchemaText extends SchemaItem<string>
     }
 
 	/**
-	* Creates a clone of this item
-	* @returns {SchemaText} copy A sub class of the copy
-	* @returns {SchemaText}
-	*/
+	 * Creates a clone of this item
+	 * @returns copy A sub class of the copy
+	 * @returns
+	 */
     public clone( copy?: SchemaText ): SchemaText {
         copy = copy === undefined ? new SchemaText( this.name, <string>this.value ) : copy;
         super.clone( copy );
@@ -42,9 +42,8 @@ export class SchemaText extends SchemaItem<string>
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean|Error>}
-	*/
+	 * Checks the value stored to see if its correct in its current form
+	 */
     public validate(): Promise<boolean | Error> {
         var maxCharacters = this.maxCharacters;
         var minCharacters = this.minCharacters;

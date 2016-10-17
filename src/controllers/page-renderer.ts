@@ -14,9 +14,9 @@ import * as jsdom from "jsdom";
 import { okJson, errJson } from "../serializers";
 
 /**
-* Sets up a prerender server and saves the rendered html requests to mongodb.
-* These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
-*/
+ * Sets up a prerender server and saves the rendered html requests to mongodb.
+ * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
+ */
 export default class PageRenderer extends Controller {
     private renderQueryFlag: string;
     private expiration: number;
@@ -86,11 +86,11 @@ export default class PageRenderer extends Controller {
     ];
 
     /**
-	* Creates a new instance of the email controller
-	* @param {IServer} server The server configuration options
-    * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server
-	*/
+	 * Creates a new instance of the email controller
+	 * @param server The server configuration options
+     * @param config The configuration options
+     * @param e The express instance of this server
+	 */
     constructor( server: IServer, config: IConfig, e: express.Express ) {
         super( [ Model.registerModel( RendersModel ) ] );
 
@@ -116,9 +116,8 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-    * Strips the html page of any script tags
-    * @param {string} html
-    */
+     * Strips the html page of any script tags
+     */
     private stripScripts( html: string ): string {
         var matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
         for ( var i = 0; matches && i < matches.length; i++ )
@@ -129,9 +128,8 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-    * Gets the URL of a request
-    * @param {express.Request} req
-    */
+     * Gets the URL of a request
+     */
     getUrl( req: express.Request ): string {
         var protocol = req.protocol;
         if ( req.get( 'CF-Visitor' ) ) {
@@ -150,10 +148,8 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-   * Fetches a page and strips it of all its script tags
-   * @param {string} url
-   * @param {Promise<string>}
-   */
+     * Fetches a page and strips it of all its script tags
+     */
     private renderPage( url: string ): Promise<string> {
         var that = this;
 
@@ -207,11 +203,8 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-    * Determines if the request comes from a bot. If so, a prerendered page is sent back which excludes any script tags
-    * @param req
-    * @param response
-    * @param next
-    */
+     * Determines if the request comes from a bot. If so, a prerendered page is sent back which excludes any script tags
+     */
     async processBotRequest( req: express.Request, res: express.Response, next: Function ) {
         if ( req.query.__render__request )
             return next();
@@ -263,10 +256,8 @@ export default class PageRenderer extends Controller {
     };
 
     /**
-    * Determines if the request comes from a bot
-    * @param {express.Request} req
-    * @returns {boolean}
-    */
+     * Determines if the request comes from a bot
+     */
     private shouldShowPrerenderedPage( req: express.Request ): boolean {
         var userAgent = req.headers[ 'user-agent' ]
             , bufferAgent = req.headers[ 'x-bufferbot' ]
@@ -292,11 +283,8 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-    * Attempts to find a render by ID and then display it back to the user
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Attempts to find a render by ID and then display it back to the user
+     */
     private async previewRender( req: express.Request, res: express.Response, next: Function ) {
         res.setHeader( 'Content-Type', 'text/html' );
         var renders = this.getModel( "renders" );
@@ -323,11 +311,8 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-   * Attempts to remove a render by ID
-   * @param {express.Request} req
-   * @param {express.Response} res
-   * @param {Function} next
-   */
+     * Attempts to remove a render by ID
+     */
     private async removeRender( req: express.Request, res: express.Response, next: Function ) {
         var renders = this.getModel( "renders" );
 
@@ -348,12 +333,9 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-    * This funciton checks the logged in user is an admin. If not an admin it returns an error,
-    * if true it passes the scope onto the next function in the queue
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * This funciton checks the logged in user is an admin. If not an admin it returns an error,
+     * if true it passes the scope onto the next function in the queue
+     */
     private async authenticateAdmin( req: express.Request, res: express.Response, next: Function ) {
         var users = UsersService.getSingleton();
 
@@ -380,11 +362,8 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-    * Returns an array of IPost items
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Returns an array of IPost items
+     */
     private async getRenders( req: express.Request, res: express.Response, next: Function ) {
         var renders = this.getModel( "renders" );
         var that = this;
@@ -435,11 +414,8 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-    * Removes all cache items from the db
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Removes all cache items from the db
+     */
     private async clearRenders( req: express.Request, res: express.Response, next: Function ) {
         var renders = this.getModel( "renders" );
 

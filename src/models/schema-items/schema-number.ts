@@ -2,16 +2,16 @@
 import { ISchemaOptions } from "modepress-api";
 
 /**
-* Describes the type of number to store
-*/
+ * Describes the type of number to store
+ */
 export enum NumberType {
     Integer,
     Float
 }
 
 /**
-* A numeric schema item for use in Models
-*/
+ * A numeric schema item for use in Models
+ */
 export class SchemaNumber extends SchemaItem<number>
 {
     public min: number;
@@ -20,14 +20,14 @@ export class SchemaNumber extends SchemaItem<number>
     public decimalPlaces: number;
 
 	/**
-	* Creates a new schema item
-	* @param {string} name The name of this item
-	* @param {number} val The default value of this item
-	* @param {number} min [Optional] The minimum value the value can be
-	* @param {number} max [Optional] The maximum value the value can be
-	* @param {NumberType} type [Optional] The type of number the schema represents
-	* @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-	*/
+	 * Creates a new schema item
+	 * @param name The name of this item
+	 * @param val The default value of this item
+	 * @param min [Optional] The minimum value the value can be
+	 * @param max [Optional] The maximum value the value can be
+	 * @param type [Optional] The type of number the schema represents
+	 * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
+	 */
     constructor( name: string, val: number, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2 ) {
         super( name, val );
         this.min = min;
@@ -41,10 +41,9 @@ export class SchemaNumber extends SchemaItem<number>
     }
 
 	/**
-	* Creates a clone of this item
-	* @returns {SchemaNumber} copy A sub class of the copy
-	* @returns {SchemaNumber}
-	*/
+	 * Creates a clone of this item
+	 * @returns copy A sub class of the copy
+	 */
     public clone( copy?: SchemaNumber ): SchemaNumber {
         copy = copy === undefined ? new SchemaNumber( this.name, <number>this.value ) : copy;
         super.clone( copy );
@@ -57,9 +56,8 @@ export class SchemaNumber extends SchemaItem<number>
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean|Error>}
-	*/
+	 * Checks the value stored to see if its correct in its current form
+	 */
     public validate(): Promise<boolean | Error> {
         var type = this.type;
         var decimalPlaces = this.decimalPlaces;

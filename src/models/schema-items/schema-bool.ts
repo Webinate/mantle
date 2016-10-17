@@ -2,24 +2,23 @@
 import { ISchemaOptions } from "modepress-api";
 
 /**
-* A bool scheme item for use in Models
-*/
+ * A bool scheme item for use in Models
+ */
 export class SchemaBool extends SchemaItem<boolean>
 {
 	/**
-	* Creates a new schema item
-	* @param {string} name The name of this item
-	* @param {boolean} val The value of this item
-	*/
+	 * Creates a new schema item
+	 * @param name The name of this item
+	 * @param val The value of this item
+	 */
     constructor( name: string, val: boolean ) {
         super( name, val );
     }
 
 	/**
-	* Creates a clone of this item
-	* @returns {SchemaBool} copy A sub class of the copy
-	* @returns {SchemaBool}
-	*/
+	 * Creates a clone of this item
+	 * @returns copy A sub class of the copy
+ 	 */
     public clone( copy?: SchemaBool ): SchemaBool {
         copy = copy === undefined ? new SchemaBool( this.name, <boolean>this.value ) : copy;
         super.clone( copy );
@@ -27,9 +26,8 @@ export class SchemaBool extends SchemaItem<boolean>
     }
 
 	/**
-	* Always true
-	* @returns {Promise<boolean|Error>}
-	*/
+	 * Always true
+	 */
     public validate(): Promise<boolean | Error> {
         var val = this.value;
         if ( val === undefined )

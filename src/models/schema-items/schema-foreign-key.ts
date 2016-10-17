@@ -20,12 +20,12 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     private _targetDoc: ModelInstance<Modepress.IModelEntry>;
 
 	/**
-	* Creates a new schema item
-	* @param {string} name The name of this item
-	* @param {string} val The string representation of the foreign key's _id
-    * @param {string} targetCollection The name of the collection to which the target exists
-    * @param {boolean} optionalKey If true, then this key will only be nullified if the target is removed
-	*/
+	 * Creates a new schema item
+	 * @param name The name of this item
+	 * @param val The string representation of the foreign key's _id
+     * @param targetCollection The name of the collection to which the target exists
+     * @param optionalKey If true, then this key will only be nullified if the target is removed
+	 */
     constructor( name: string, val: string, targetCollection: string, optionalKey: boolean = false ) {
         super( name, val );
         this.targetCollection = targetCollection;
@@ -34,10 +34,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     }
 
 	/**
-	* Creates a clone of this item
-	* @returns {SchemaForeignKey} copy A sub class of the copy
-	* @returns {SchemaForeignKey}
-	*/
+	 * Creates a clone of this item
+	 */
     public clone( copy?: SchemaForeignKey ): SchemaForeignKey {
         copy = copy === undefined ? new SchemaForeignKey( this.name, <string>this.value, this.targetCollection ) : copy;
         super.clone( copy );
@@ -46,9 +44,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean|Error>}
-	*/
+	 * Checks the value stored to see if its correct in its current form
+	 */
     public async validate(): Promise<boolean | Error> {
         var transformedValue = this.value;
 
@@ -87,8 +84,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     /**
 	 * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
      * doing any post update/insert operations
-     * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
-     * @param {string} collection The DB collection that the model was inserted into
+     * @param instance The model instance that was inserted or updated
+     * @param collection The DB collection that the model was inserted into
 	 */
     public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         if ( !this._targetDoc )
@@ -128,8 +125,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 
     /**
      * Called after a model instance is deleted. Useful for any schema item cleanups.
-     * @param {ModelInstance<T>} instance The model instance that was deleted
-     * @param {string} collection The DB collection that the model was deleted from
+     * @param instance The model instance that was deleted
+     * @param collection The DB collection that the model was deleted from
      */
     public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         // If they key is required then it must exist
@@ -157,10 +154,9 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     }
 
     /**
-	* Gets the value of this item
-    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
-    * @returns {Promise<ObjectID | Modepress.IModelEntry>}
-	*/
+	 * Gets the value of this item
+     * @param options [Optional] A set of options that can be passed to control how the data must be returned
+	 */
     public async getValue( options?: ISchemaOptions ): Promise<ObjectID | Modepress.IModelEntry> {
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
             throw new Error( "You cannot set expandForeignKeys and not specify the expandMaxDepth" );

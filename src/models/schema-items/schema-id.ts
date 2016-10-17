@@ -4,23 +4,22 @@ import { ObjectID } from "mongodb";
 import { Utils } from "../../utils"
 
 /**
-* A mongodb ObjectID scheme item for use in Models
-*/
+ * A mongodb ObjectID scheme item for use in Models
+ */
 export class SchemaId extends SchemaItem<ObjectID | string>
 {
 	/**
-	* Creates a new schema item
-	* @param {string} name The name of this item
-	* @param {string} val The string representation of the object ID
-	*/
+	 * Creates a new schema item
+	 * @param name The name of this item
+	 * @param val The string representation of the object ID
+	 */
     constructor( name: string, val: string ) {
         super( name, val );
     }
 
 	/**
 	* Creates a clone of this item
-	* @returns {SchemaId} copy A sub class of the copy
-	* @returns {SchemaId}
+	* @returns copy A sub class of the copy
 	*/
     public clone( copy?: SchemaId ): SchemaId {
         copy = copy === undefined ? new SchemaId( this.name, <string>this.value ) : copy;
@@ -29,9 +28,8 @@ export class SchemaId extends SchemaItem<ObjectID | string>
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean|Error>}
-	*/
+	 * Checks the value stored to see if its correct in its current form
+	 */
     public validate(): Promise<boolean | Error> {
         var transformedValue = this.value;
 

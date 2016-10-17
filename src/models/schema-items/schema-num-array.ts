@@ -3,8 +3,8 @@ import { ISchemaOptions } from "modepress-api";
 import { NumberType } from "./schema-number";
 
 /**
-* A number array scheme item for use in Models
-*/
+ * A number array scheme item for use in Models
+ */
 export class SchemaNumArray extends SchemaItem<Array<number>>
 {
     public minItems: number;
@@ -15,16 +15,16 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
     public decimalPlaces: number;
 
 	/**
-	* Creates a new schema item that holds an array of number items
-	* @param {string} name The name of this item
-	* @param {Array<number>} val The number array of this schema item
-    * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
-    * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
-    * @param {number} min [Optional] Specify the minimum a number can be
-	* @param {number} max [Optional] Specify the maximum a number can be
-    * @param {NumberType} type [Optional] What type of numbers to expect
-    * @param {number} decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-	*/
+	 * Creates a new schema item that holds an array of number items
+	 * @param name The name of this item
+	 * @param val The number array of this schema item
+     * @param minItems [Optional] Specify the minimum number of items that can be allowed
+     * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+     * @param min [Optional] Specify the minimum a number can be
+	 * @param max [Optional] Specify the maximum a number can be
+     * @param type [Optional] What type of numbers to expect
+     * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
+	 */
     constructor( name: string, val: Array<number>, minItems: number = 0, maxItems: number = Infinity, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2 ) {
         super( name, val );
         this.max = max;
@@ -41,10 +41,9 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
     }
 
 	/**
-	* Creates a clone of this item
-	* @returns {SchemaNumArray} copy A sub class of the copy
-	* @returns {SchemaNumArray}
-	*/
+	 * Creates a clone of this item
+	 * @returns copy A sub class of the copy
+	 */
     public clone( copy?: SchemaNumArray ): SchemaNumArray {
         copy = copy === undefined ? new SchemaNumArray( this.name, this.value ) : copy;
         super.clone( copy );
@@ -59,9 +58,8 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean|Error>}
-	*/
+	 * Checks the value stored to see if its correct in its current form
+	 */
     public validate(): Promise<boolean | Error> {
         var transformedValue = this.value;
         var max = this.max;

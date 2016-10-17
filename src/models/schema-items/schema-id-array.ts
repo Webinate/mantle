@@ -23,11 +23,11 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 
 	/**
 	 * Creates a new schema item that holds an array of id items
-	 * @param {string} name The name of this item
-	 * @param {Array<string|ObjectID>} val The array of ids for this schema item
-     * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
-     * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
-     * @param {string} targetCollection [Optional] Specify the model name to which all the ids belong. If set
+	 * @param name The name of this item
+	 * @param val The array of ids for this schema item
+     * @param minItems [Optional] Specify the minimum number of items that can be allowed
+     * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+     * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
      * the item can expand objects on retreival.
 	 */
     constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, targetCollection: string = null ) {
@@ -39,10 +39,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
     }
 
 	/**
-	* Creates a clone of this item
-	* @returns {SchemaIdArray} copy A sub class of the copy
-	* @returns {SchemaIdArray}
-	*/
+	 * Creates a clone of this item
+	 * @returns copy A sub class of the copy
+	 */
     public clone( copy?: SchemaIdArray ): SchemaIdArray {
         copy = copy === undefined ? new SchemaIdArray( this.name, <Array<string>>this.value ) : copy;
         super.clone( copy );
@@ -53,9 +52,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean|Error>} Returns true if successful or an error message string if unsuccessful
-	*/
+	 * Checks the value stored to see if its correct in its current form
+	 * @returns Returns true if successful or an error message string if unsuccessful
+	 */
     public async validate(): Promise<boolean | Error> {
         var transformedValue = this.value;
 
@@ -104,8 +103,8 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
     /**
 	 * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
      * doing any post update/insert operations
-     * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
-     * @param {string} collection The DB collection that the model was inserted into
+     * @param instance The model instance that was inserted or updated
+     * @param collection The DB collection that the model was inserted into
 	 */
     public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         if ( !this._targetDocs )
@@ -132,8 +131,8 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 
     /**
      * Called after a model instance is deleted. Useful for any schema item cleanups.
-     * @param {ModelInstance<T>} instance The model instance that was deleted
-     * @param {string} collection The DB collection that the model was deleted from
+     * @param instance The model instance that was deleted
+     * @param collection The DB collection that the model was deleted from
      */
     public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         if ( !this.targetCollection )
@@ -172,10 +171,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
     }
 
     /**
-	* Gets the value of this item
-    * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
-    * @returns {Promise<Array<string | ObjectID | Modepress.IModelEntry>>}
-	*/
+	 * Gets the value of this item
+     * @param options [Optional] A set of options that can be passed to control how the data must be returned
+	 */
     public async getValue( options?: ISchemaOptions ): Promise<Array<string | ObjectID | Modepress.IModelEntry>> {
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
             throw new Error( "You cannot set expandForeignKeys and not specify the expandMaxDepth" );

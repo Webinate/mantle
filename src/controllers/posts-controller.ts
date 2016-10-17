@@ -14,15 +14,15 @@ import * as winston from "winston";
 import { okJson, errJson } from "../serializers";
 
 /**
-* A controller that deals with the management of posts
-*/
+ * A controller that deals with the management of posts
+ */
 export default class PostsController extends Controller {
 	/**
-	* Creates a new instance of the controller
-	* @param {IServer} server The server configuration options
-    * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server
-	*/
+	 * Creates a new instance of the controller
+	 * @param server The server configuration options
+     * @param config The configuration options
+     * @param e The express instance of this server
+	 */
     constructor( server: mp.IServer, config: mp.IConfig, e: express.Express ) {
         super( [ Model.registerModel( PostsModel ), Model.registerModel( CategoriesModel ) ] );
 
@@ -49,11 +49,8 @@ export default class PostsController extends Controller {
     }
 
     /**
-    * Returns an array of IPost items
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Returns an array of IPost items
+     */
     private async getPosts( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var posts = this.getModel( "posts" );
         var that = this;
@@ -174,11 +171,8 @@ export default class PostsController extends Controller {
     }
 
     /**
-    * Returns a single post
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Returns a single post
+     */
     private async getPost( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var posts = this.getModel( "posts" );
         var that = this;
@@ -220,11 +214,8 @@ export default class PostsController extends Controller {
     }
 
     /**
-    * Returns an array of ICategory items
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Returns an array of ICategory items
+     */
     private async getCategories( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var categories = this.getModel( "categories" );
         var that = this;
@@ -251,11 +242,8 @@ export default class PostsController extends Controller {
     }
 
     /**
-    * Attempts to remove a post by ID
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Attempts to remove a post by ID
+     */
     private async removePost( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var posts = this.getModel( "posts" );
 
@@ -277,11 +265,8 @@ export default class PostsController extends Controller {
     }
 
     /**
-    * Attempts to remove a category by ID
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Attempts to remove a category by ID
+     */
     private async removeCategory( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var categories = this.getModel( "categories" );
 
@@ -302,11 +287,8 @@ export default class PostsController extends Controller {
     }
 
     /**
-    * Attempts to update a post by ID
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Attempts to update a post by ID
+     */
     private async updatePost( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var token: mp.IPost = req.body;
         var posts = this.getModel( "posts" );
@@ -331,11 +313,8 @@ export default class PostsController extends Controller {
     }
 
     /**
-    * Attempts to create a new post. The
-    * @param {mp.IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
+     * Attempts to create a new post
+     */
     private async createPost( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var token: mp.IPost = req.body;
         var posts = this.getModel( "posts" );
@@ -359,11 +338,8 @@ export default class PostsController extends Controller {
     }
 
     /**
-   * Attempts to create a new category item.
-   * @param {mp.IAuthReq} req
-   * @param {express.Response} res
-   * @param {Function} next
-   */
+     * Attempts to create a new category item
+     */
     private async createCategory( req: mp.IAuthReq, res: express.Response, next: Function ) {
         var token: mp.ICategory = req.body;
         var categories = this.getModel( "categories" );

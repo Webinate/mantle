@@ -4,26 +4,25 @@ import * as request from "request"
 import { IConfig } from "modepress-api";
 
 /**
-* Singleton service for communicating with a webinate-users server
-*/
+ * Singleton service for communicating with a webinate-users server
+ */
 export class UsersService {
     private static _singleton: UsersService;
 
     public static usersURL: string;
 
     /**
-	* Creates an instance of the service
-	* @param {IConfig} config The config file of this server
-	*/
+	 * Creates an instance of the service
+	 * @param config The config file of this server
+	 */
     constructor( config: IConfig ) {
         UsersService.usersURL = config.usersURL;
     }
 
     /**
-	* Sends an email to the admin account
-	* @param {string} message The message to send
-	* @returns {Promise<any>}
-	*/
+	 * Sends an email to the admin account
+	 * @param message The message to send
+	 */
     sendAdminEmail( message: string ): Promise<any> {
         var that = this;
         return new Promise( function( resolve, reject ) {
@@ -37,12 +36,9 @@ export class UsersService {
     }
 
     /**
-	* Attempts to log a user in
-    * @param {string} user The email or username
-    * @param {string} password The users password
-    * @param {boolean} remember
-	* @returns {Promise<UsersInterface.IAuthenticationResponse>}
-	*/
+	 * Attempts to log a user in
+     * @param user The email or username
+	 */
     login( user: string, password: string, remember: boolean ): Promise<UsersInterface.IAuthenticationResponse> {
         var that = this;
         return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
@@ -61,10 +57,8 @@ export class UsersService {
     }
 
     /**
-	* Checks if a user is logged in and authenticated
-	* @param {express.Request} req
-    * @returns {Promise<UsersInterface.IAuthenticationResponse>}
-	*/
+	 * Checks if a user is logged in and authenticated
+	 */
     authenticated( req: express.Request ): Promise<UsersInterface.IAuthenticationResponse> {
         var that = this;
         return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
@@ -83,10 +77,9 @@ export class UsersService {
     }
 
     /**
-	* Checks if a user has admin priviledges
-	* @param {UsersInterface.IUserEntry} user The user we are checking
-	* @returns {boolean}
-	*/
+	 * Checks if a user has admin priviledges
+	 * @param user The user we are checking
+	 */
     isAdmin( user: UsersInterface.IUserEntry ): boolean {
         if ( user.privileges > 2 )
             return false;
@@ -95,12 +88,12 @@ export class UsersService {
     }
 
     /**
-	* Checks a user has the desired permission
-	* @param {UsersInterface.IUserEntry} user The user we are checking
-    * @param {UsersInterface.UserPrivileges} level The level we are checking against
-	* @param {string} existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
-	* @returns {boolean}
-	*/
+ 	 * Checks a user has the desired permission
+	 * @param user The user we are checking
+     * @param level The level we are checking against
+	 * @param existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
+	 * @returns
+	 */
     hasPermission( user: UsersInterface.IUserEntry, level: number, existingUser?: string ): boolean {
         if ( existingUser !== undefined ) {
             if ( ( user.email != existingUser && user.username != existingUser ) && user.privileges > level )
@@ -113,9 +106,8 @@ export class UsersService {
     }
 
     /**
-    * Attempts to get a user by username
-    * @param {express.Request} req
-    */
+     * Attempts to get a user by username
+     */
     getUser( user: string, req: express.Request ): Promise<UsersInterface.IGetUser> {
         var that = this;
         return new Promise<UsersInterface.IGetUser>( function( resolve, reject ) {
@@ -130,9 +122,8 @@ export class UsersService {
 
 
     /**
-	* Gets the user singleton
-	* @returns {UsersService}
-	*/
+	 * Gets the user singleton
+	 */
     public static getSingleton( config?: IConfig ) {
         if ( !UsersService._singleton )
             UsersService._singleton = new UsersService( config );

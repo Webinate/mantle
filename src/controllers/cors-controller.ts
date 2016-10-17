@@ -7,15 +7,12 @@ import { okJson, errJson } from "../serializers";
 import express = require( "express" );
 
 /**
-* Checks all incomming requests to see if they are CORS approved
-*/
+ * Checks all incomming requests to see if they are CORS approved
+ */
 export default class CORSController extends Controller {
     /**
-	* Creates an instance of the user manager
-	* @param {mongodb.Collection} userCollection The mongo collection that stores the users
-	* @param {mongodb.Collection} sessionCollection The mongo collection that stores the session data
-	* @param {def.IConfig} The config options of this manager
-	*/
+	 * Creates an instance of the user manager
+	 */
     constructor( e: express.Express, config: IServer ) {
         super( null );
 

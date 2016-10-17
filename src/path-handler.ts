@@ -4,19 +4,17 @@ import * as fs from "fs";
 import { UsersService } from "./users-service";
 
 /**
-* A simple wrapper that holds information on each path the server can respond to.
-* If the server detects a template route is possible it uses that as a preference
-* to a static one.
-*/
+ * A simple wrapper that holds information on each path the server can respond to.
+ * If the server detects a template route is possible it uses that as a preference
+ * to a static one.
+ */
 export class PathHandler {
     private _path: IPath;
     private _config: IServer;
 
     /**
-    * Creates a new path handler
-    * @param {IPath}
-    * @param {IServer}
-    */
+     * Creates a new path handler
+     */
     constructor( path: IPath, cfg: IServer ) {
         this._path = path;
         this._config = cfg;
@@ -24,15 +22,15 @@ export class PathHandler {
 
     /**
      * Creates a new endpoint route based on the path
-     * @param {express.Express} app The express instance for this application
+     * @param app The express instance for this application
      */
     route( app: express.Express ) {
         app.get( this._path.path, this.handle.bind( this ) );
     }
 
     /**
-    * Function used to handle a request from express
-    */
+     * Function used to handle a request from express
+     */
     handle( req: express.Request, res: express.Response ) {
         var config = this._config;
         var path = this._path;

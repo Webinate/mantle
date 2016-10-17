@@ -8,11 +8,11 @@ import * as winston from "winston";
 
 export default class EmailsController extends controllerModule.Controller {
 	/**
-	* Creates a new instance of the email controller
-	* @param {IServer} server The server configuration options
-    * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server
-	*/
+	 * Creates a new instance of the email controller
+	 * @param server The server configuration options
+     * @param config The configuration options
+     * @param e The express instance of this server
+	 */
     constructor( server: IServer, config: IConfig, e: express.Express ) {
         super( null );
 
@@ -29,11 +29,8 @@ export default class EmailsController extends controllerModule.Controller {
     }
 
 	/**
-	* Called whenever a post request is caught by this controller
-	* @param {express.Request} req The request object
-	* @param {express.Response} res The response object
-	* @param {Function} next
-	*/
+	 * Called whenever a post request is caught by this controller
+	 */
     protected onPost( req: express.Request, res: express.Response, next: Function ): any {
         // Set the content type
         res.setHeader( 'Content-Type', 'application/json' );

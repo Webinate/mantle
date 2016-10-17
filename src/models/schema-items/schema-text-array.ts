@@ -3,8 +3,8 @@ import { ISchemaOptions } from "modepress-api";
 import sanitizeHtml = require( "sanitize-html" );
 
 /**
-* A text scheme item for use in Models
-*/
+ * A text scheme item for use in Models
+ */
 export class SchemaTextArray extends SchemaItem<Array<string>>
 {
     public minItems: number;
@@ -13,14 +13,14 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
     public maxCharacters: number;
 
 	/**
-	* Creates a new schema item that holds an array of text items
-	* @param {string} name The name of this item
-	* @param {Array<string>} val The text array of this schema item
-    * @param {number} minItems [Optional] Specify the minimum number of items that can be allowed
-    * @param {number} maxItems [Optional] Specify the maximum number of items that can be allowed
-    * @param {number} minCharacters [Optional] Specify the minimum number of characters for each text item
-	* @param {number} maxCharacters [Optional] Specify the maximum number of characters for each text item
-	*/
+	 * Creates a new schema item that holds an array of text items
+	 * @param name The name of this item
+	 * @param val The text array of this schema item
+     * @param minItems [Optional] Specify the minimum number of items that can be allowed
+     * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+     * @param minCharacters [Optional] Specify the minimum number of characters for each text item
+	 * @param maxCharacters [Optional] Specify the maximum number of characters for each text item
+	 */
     constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, minCharacters: number = 0, maxCharacters: number = 10000 ) {
         super( name, val );
         this.maxCharacters = maxCharacters;
@@ -30,10 +30,10 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
     }
 
 	/**
-	* Creates a clone of this item
-	* @returns {SchemaTextArray} copy A sub class of the copy
-	* @returns {SchemaTextArray}
-	*/
+	 * Creates a clone of this item
+	 * @returns copy A sub class of the copy
+	 * @returns
+	 */
     public clone( copy?: SchemaTextArray ): SchemaTextArray {
         copy = copy === undefined ? new SchemaTextArray( this.name, this.value ) : copy;
         super.clone( copy );
@@ -46,9 +46,8 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
     }
 
 	/**
-	* Checks the value stored to see if its correct in its current form
-	* @returns {Promise<boolean|Error>}
-	*/
+	 * Checks the value stored to see if its correct in its current form
+	 */
     public validate(): Promise<boolean | Error> {
         var transformedValue = this.value;
         var toRemove = [];
