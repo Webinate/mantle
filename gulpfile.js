@@ -10,7 +10,7 @@ const configFiles = [
     './readme.md',
     './install-script.sh',
     './test/package.json',
-    './src/dist-files/package.json',
+    './src/dist-src/package.json',
     './package.json'
 ];
 
