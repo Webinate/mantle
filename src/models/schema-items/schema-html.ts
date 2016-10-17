@@ -1,4 +1,4 @@
-﻿import { SchemaItem } from './schema-item';
+import { SchemaItem } from './schema-item';
 import sanitizeHtml = require( 'sanitize-html' );
 
 /**

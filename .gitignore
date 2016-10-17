@@ -24,11 +24,13 @@ bld/
 [Oo]bj/
 node_modules/
 dist/
+.gitignore/
 
 changes.md
 
 # Visual Studo 2015 cache/options directory
 .vs/
+.vscode/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
