@@ -1,17 +1,17 @@
-﻿import * as mongodb from "mongodb";
-import * as http from "http";
-import { IConfig, IServer, IResponse, IRender, IGetRenders } from "modepress-api";
-import * as winston from "winston";
-import * as express from "express";
-import * as bodyParser from "body-parser";
-import { Controller } from "./controller";
-import { UsersService } from "../users-service"
-import { RendersModel } from "../models/renders-model";
-import { ModelInstance, Model } from "../models/model";
-import * as net from "net";
-import * as url from "url";
-import * as jsdom from "jsdom";
-import { okJson, errJson } from "../serializers";
+﻿import * as mongodb from 'mongodb';
+import * as http from 'http';
+import { IConfig, IServer, IResponse, IRender, IGetRenders } from 'modepress-api';
+import * as winston from 'winston';
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
+import { Controller } from './controller';
+import { UsersService } from '../users-service'
+import { RendersModel } from '../models/renders-model';
+import { ModelInstance, Model } from '../models/model';
+import * as net from 'net';
+import * as url from 'url';
+import * as jsdom from 'jsdom';
+import { okJson, errJson } from '../serializers';
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -100,30 +100,30 @@ export default class PageRenderer extends Controller {
         if ( !config.enableAjaxRendering )
             return;
 
-        this.renderQueryFlag = "__render__request";
+        this.renderQueryFlag = '__render__request';
         e.use( this.processBotRequest.bind( this ) );
         this.expiration = config.ajaxRenderExpiration * 1000;
 
-        var router = express.Router();
+        const router = express.Router();
         router.use( bodyParser.urlencoded( { 'extended': true }) );
         router.use( bodyParser.json() );
         router.use( bodyParser.json( { type: 'application/vnd.api+json' }) );
 
-        router.get( "/", <any>[ this.authenticateAdmin.bind( this ), this.getRenders.bind( this ) ] );
-        router.get( "/preview/:id", <any>[ this.previewRender.bind( this ) ] );
-        router.delete( "/clear", <any>[ this.authenticateAdmin.bind( this ), this.clearRenders.bind( this ) ] );
-        router.delete( "/:id", <any>[ this.authenticateAdmin.bind( this ), this.removeRender.bind( this ) ] );
+        router.get( '/', <any>[ this.authenticateAdmin.bind( this ), this.getRenders.bind( this ) ] );
+        router.get( '/preview/:id', <any>[ this.previewRender.bind( this ) ] );
+        router.delete( '/clear', <any>[ this.authenticateAdmin.bind( this ), this.clearRenders.bind( this ) ] );
+        router.delete( '/:id', <any>[ this.authenticateAdmin.bind( this ), this.removeRender.bind( this ) ] );
 
         // Register the path
-        e.use( "/api/renders", router );
+        e.use( '/api/renders', router );
     }
 
     /**
      * Strips the html page of any script tags
      */
     private stripScripts( html: string ): string {
-        var matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
-        for ( var i = 0; matches && i < matches.length; i++ )
+        const matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
+        for ( let i = 0; matches && i < matches.length; i++ )
             if ( matches[ i ].indexOf( 'application/ld+json' ) === -1 )
                 html = html.replace( matches[ i ], '' );
 
@@ -134,46 +134,44 @@ export default class PageRenderer extends Controller {
      * Gets the URL of a request
      */
     getUrl( req: express.Request ): string {
-        var protocol = req.protocol;
+        let protocol = req.protocol;
         if ( req.get( 'CF-Visitor' ) ) {
-            var match = req.get( 'CF-Visitor' ).match( /"scheme":"(http|https)"/ );
+            const match = req.get( 'CF-Visitor' ).match( /'scheme':'(http|https)'/ );
             if ( match ) protocol = match[ 1 ];
         }
         if ( req.get( 'X-Forwarded-Proto' ) ) {
             protocol = req.get( 'X-Forwarded-Proto' ).split( ',' )[ 0 ];
         }
 
-        var addQueryMark: boolean = false;
+        let addQueryMark: boolean = false;
         if ( !req.query || Object.keys( req.query ).length === 0 )
             addQueryMark = true;
 
-        return protocol + "://" + req.get( 'host' ) + req.url + ( addQueryMark ? `?${this.renderQueryFlag}=true` : `&${this.renderQueryFlag}=true` );
+        return protocol + '://' + req.get( 'host' ) + req.url + ( addQueryMark ? `?${this.renderQueryFlag}=true` : `&${this.renderQueryFlag}=true` );
     }
 
     /**
      * Fetches a page and strips it of all its script tags
      */
     private renderPage( url: string ): Promise<string> {
-        var that = this;
+        return new Promise<string>(( resolve, reject ) => {
+            let timer: NodeJS.Timer;
+            let win;
+            const maxTries = 50;
+            let curTries = 0;
 
-        return new Promise<string>( function( resolve, reject ) {
-            var timer: NodeJS.Timer;
-            var win;
-            var maxTries = 50;
-            var curTries = 0;
-
-            var checkComplete = function() {
+            const checkComplete = () => {
                 if ( !win ) {
                     // Cleanup
                     clearTimeout( timer );
                     win.close();
                     win = null;
-                    throw new Error( "Page does not exist" );
+                    throw new Error( 'Page does not exist' );
                 }
 
                 curTries++;
                 if ( win.prerenderReady === undefined || win.prerenderReady || curTries > maxTries ) {
-                    var html = that.stripScripts( win.document.documentElement.outerHTML );
+                    const html = this.stripScripts( win.document.documentElement.outerHTML );
 
                     // Cleanup
                     clearTimeout( timer );
@@ -214,45 +212,44 @@ export default class PageRenderer extends Controller {
         if ( !this.shouldShowPrerenderedPage( req ) )
             return next();
 
-        var model = this.getModel( "renders" ) !;
-        var url = this.getUrl( req );
-        var that = this;
-        var instance: ModelInstance<IRender> | null = null;
-        var expiration = 0;
+        const model = this.getModel( 'renders' ) !;
+        const url = this.getUrl( req );
+        let instance: ModelInstance<IRender> | null = null;
+        let expiration = 0;
 
         try {
             instance = await model.findOne<IRender>( { url: url });
-            var html = "";
+            let html = '';
 
             if ( instance ) {
                 expiration = instance.dbEntry.expiration!;
-                var html = instance.dbEntry.html!;
+                let html = instance.dbEntry.html!;
 
                 if ( Date.now() > expiration )
-                    html = await that.renderPage( url );
-                else if ( !html || html.trim() == "" )
-                    html = await that.renderPage( url );
+                    html = await this.renderPage( url );
+                else if ( !html || html.trim() == '' )
+                    html = await this.renderPage( url );
             }
             else
-                html = await that.renderPage( url );
+                html = await this.renderPage( url );
 
             if ( !instance ) {
                 winston.info( `Saving render '${url}'`, { process: process.pid });
-                await model.createInstance<IRender>( <IRender>{ expiration: Date.now() + that.expiration, html: html, url: url });
+                await model.createInstance<IRender>( <IRender>{ expiration: Date.now() + this.expiration, html: html, url: url });
             }
             else if ( Date.now() > expiration ) {
                 winston.info( `Updating render '${url}'`, { process: process.pid });
-                await model.update<IRender>( <IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + that.expiration, html: html });
+                await model.update<IRender>( <IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html });
             }
 
-            winston.info( "Sending back render without script tags", { process: process.pid });
+            winston.info( 'Sending back render without script tags', { process: process.pid });
 
             res.status( 200 );
             return res.send( html );
 
         } catch ( err ) {
             res.status( 404 );
-            return res.send( "Page does not exist" );
+            return res.send( 'Page does not exist' );
         };
     };
 
@@ -260,15 +257,15 @@ export default class PageRenderer extends Controller {
      * Determines if the request comes from a bot
      */
     private shouldShowPrerenderedPage( req: express.Request ): boolean {
-        var userAgent = req.headers[ 'user-agent' ]
-            , bufferAgent = req.headers[ 'x-bufferbot' ]
-            , isRequestingPrerenderedPage = false;
+        const userAgent = req.headers[ 'user-agent' ]
+            , bufferAgent = req.headers[ 'x-bufferbot' ];
+        let isRequestingPrerenderedPage = false;
 
         if ( !userAgent ) return false;
         if ( req.method != 'GET' && req.method != 'HEAD' ) return false;
 
         //if it contains _escaped_fragment_, show prerendered page
-        var parsedQuery = url.parse( req.url, true ).query;
+        const parsedQuery = url.parse( req.url, true ).query;
         if ( parsedQuery && parsedQuery[ '_escaped_fragment_' ] !== undefined ) isRequestingPrerenderedPage = true;
 
         //if it is a bot...show prerendered page
@@ -288,17 +285,17 @@ export default class PageRenderer extends Controller {
      */
     private async previewRender( req: express.Request, res: express.Response ) {
         res.setHeader( 'Content-Type', 'text/html' );
-        var renders = this.getModel( "renders" );
+        const renders = this.getModel( 'renders' );
 
         try {
-            var instances = await renders!.findInstances<IRender>( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const instances = await renders!.findInstances<IRender>( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
             if ( instances.length == 0 )
-                throw new Error( "Could not find a render with that ID" );
+                throw new Error( 'Could not find a render with that ID' );
 
-            var html: string = await instances[ 0 ].schema.getByName( "html" ) !.getValue();
-            var matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
-            for ( var i = 0; matches && i < matches.length; i++ )
+            let html: string = await instances[ 0 ].schema.getByName( 'html' ) !.getValue();
+            const matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
+            for ( let i = 0; matches && i < matches.length; i++ )
                 if ( matches[ i ].indexOf( 'application/ld+json' ) === -1 ) {
                     html = html.replace( matches[ i ], '' );
                 }
@@ -315,17 +312,17 @@ export default class PageRenderer extends Controller {
      * Attempts to remove a render by ID
      */
     private async removeRender( req: express.Request, res: express.Response ) {
-        var renders = this.getModel( "renders" );
+        const renders = this.getModel( 'renders' );
 
         try {
-            var numRemoved = await renders!.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const numRemoved = await renders!.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
             if ( numRemoved == 0 )
-                throw new Error( "Could not find a cache with that ID" );
+                throw new Error( 'Could not find a cache with that ID' );
 
             okJson<IResponse>( {
                 error: false,
-                message: "Cache has been successfully removed"
+                message: 'Cache has been successfully removed'
             }, res );
 
         } catch ( err ) {
@@ -338,19 +335,19 @@ export default class PageRenderer extends Controller {
      * if true it passes the scope onto the next function in the queue
      */
     private async authenticateAdmin( req: express.Request, res: express.Response, next: Function ) {
-        var users = UsersService.getSingleton();
+        const users = UsersService.getSingleton();
 
         try {
-            var auth = await users.authenticated( req );
+            const auth = await users.authenticated( req );
 
             if ( !auth.authenticated ) {
                 okJson<IResponse>( {
                     error: true,
-                    message: "You must be logged in to make this request"
+                    message: 'You must be logged in to make this request'
                 }, res );
             }
             else if ( !users.isAdmin( auth.user! ) ) {
-                errJson( new Error( "You do not have permission" ), res );
+                errJson( new Error( 'You do not have permission' ), res );
             }
             else {
                 req.params.user = auth.user;
@@ -358,7 +355,7 @@ export default class PageRenderer extends Controller {
             }
 
         } catch ( error ) {
-            errJson( new Error( "You do not have permission" ), res );
+            errJson( new Error( 'You do not have permission' ), res );
         };
     }
 
@@ -366,41 +363,40 @@ export default class PageRenderer extends Controller {
      * Returns an array of IPost items
      */
     private async getRenders( req: express.Request, res: express.Response ) {
-        var renders = this.getModel( "renders" );
-        var that = this;
-        var count = 0;
-        var findToken = {};
+        const renders = this.getModel( 'renders' );
+        let count = 0;
+        const findToken = {};
 
         // Set the default sort order to ascending
-        var sortOrder = -1;
+        let sortOrder = -1;
         if ( req.query.sortOrder ) {
-            if ( ( <string>req.query.sortOrder ).toLowerCase() == "asc" )
+            if ( ( <string>req.query.sortOrder ).toLowerCase() == 'asc' )
                 sortOrder = 1;
             else
                 sortOrder = -1;
         }
 
         // Sort by the date created
-        var sort: IRender = { createdOn: sortOrder };
+        const sort: IRender = { createdOn: sortOrder };
 
-        var getContent: boolean = true;
+        let getContent: boolean = true;
         if ( req.query.minimal )
             getContent = false;
 
         // Check for keywords
         if ( req.query.search )
-            ( <IRender>findToken ).url = <any>new RegExp( req.query.search, "i" );
+            ( <IRender>findToken ).url = <any>new RegExp( req.query.search, 'i' );
 
         try {
             // First get the count
             count = await renders!.count( findToken );
-            var instances = await renders!.findInstances<IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { html: 0 } : undefined ) );
+            const instances = await renders!.findInstances<IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { html: 0 } : undefined ) );
 
-            var jsons: Array<Promise<IRender>> = [];
-            for ( var i = 0, l = instances.length; i < l; i++ )
+            const jsons: Array<Promise<IRender>> = [];
+            for ( let i = 0, l = instances.length; i < l; i++ )
                 jsons.push( instances[ i ].schema.getAsJson<IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
 
-            var sanitizedData = await Promise.all( jsons );
+            const sanitizedData = await Promise.all( jsons );
 
             okJson<IGetRenders>( {
                 error: false,
@@ -419,11 +415,11 @@ export default class PageRenderer extends Controller {
      */
     private async clearRenders( req: express.Request, res: express.Response ) {
         req; // Supress empty param warning
-        var renders = this.getModel( "renders" );
+        const renders = this.getModel( 'renders' );
 
         try {
             // First get the count
-            var num = await renders!.deleteInstances( {});
+            const num = await renders!.deleteInstances( {});
 
             okJson<IResponse>( {
                 error: false,

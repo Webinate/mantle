@@ -1,7 +1,7 @@
-﻿import * as mongodb from "mongodb";
-import { Schema } from "./schema";
-import * as winston from "winston";
-import { IModelEntry } from "modepress-api";
+﻿import * as mongodb from 'mongodb';
+import { Schema } from './schema';
+import * as winston from 'winston';
+import { IModelEntry } from 'modepress-api';
 
 
 export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
@@ -36,15 +36,14 @@ export class ModelInstance<T extends Modepress.IModelEntry | null>
      * Gets a string representation of all fields that are unique
      */
     uniqueFieldNames(): string {
-        var instance = this;
-        var uniqueNames = "";
-        var items = instance.schema.getItems();
+        let uniqueNames = '';
+        const items = this.schema.getItems();
 
-        for ( var i = 0, l = items.length; i < l; i++ )
+        for ( let i = 0, l = items.length; i < l; i++ )
             if ( items[ i ].getUnique() )
-                uniqueNames += items[ i ].name + ", ";
+                uniqueNames += items[ i ].name + ', ';
 
-        if ( uniqueNames != "" )
+        if ( uniqueNames != '' )
             uniqueNames = uniqueNames.slice( 0, uniqueNames.length - 2 );
 
         return uniqueNames;
@@ -86,8 +85,8 @@ export abstract class Model {
      * @returns Returns the registered model
      */
     static registerModel<T extends Model>( modelConstructor: any ): T {
-        var models = Model._registeredModels;
-        for ( var i in models )
+        const models = Model._registeredModels;
+        for ( const i in models )
             if ( modelConstructor == models[ i ].constructor )
                 return <T>models[ i ];
 
@@ -110,7 +109,7 @@ export abstract class Model {
      * @param collection The collection we are setting the index on
      */
     private async createIndex( name: string, collection: mongodb.Collection ): Promise<string> {
-        var index = await collection.createIndex( name );
+        const index = await collection.createIndex( name );
         return index;
     }
 
@@ -132,22 +131,22 @@ export abstract class Model {
         this.collection = await db.createCollection( this._collectionName );
 
         if ( !this.collection )
-            throw new Error( "Error creating collection: " + this._collectionName );
+            throw new Error( 'Error creating collection: ' + this._collectionName );
 
         // First remove all existing indices
-        var response = await this.collection.dropIndexes();
+        const response = await this.collection.dropIndexes();
 
         // Now re-create the models who need index supports
-        var promises: Array<Promise<string>> = [];
-        var items = this.defaultSchema.getItems();
-        for ( var i = 0, l = items.length; i < l; i++ )
+        const promises: Array<Promise<string>> = [];
+        const items = this.defaultSchema.getItems();
+        for ( let i = 0, l = items.length; i < l; i++ )
             if ( items[ i ].getIndexable() )
                 promises.push( this.createIndex( items[ i ].name, this.collection ) );
 
         if ( promises.length == 0 )
             this._initialized = true;
 
-        var models = await Promise.all( promises );
+        const models = await Promise.all( promises );
 
         this._initialized = true;
         winston.info( `Successfully created model '${this._collectionName}'`, { process: process.pid });
@@ -159,10 +158,10 @@ export abstract class Model {
 	 * @param selector The mongodb selector
 	 */
     async count( selector: any ): Promise<number> {
-        var collection = this.collection;
+        const collection = this.collection;
 
         if ( !collection || !this._initialized )
-            throw new Error( "The model has not been initialized" );
+            throw new Error( 'The model has not been initialized' );
 
         return await collection.count( selector );
     }
@@ -177,20 +176,20 @@ export abstract class Model {
      * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	 */
     async findInstances<T>( selector: any, sort?: any, startIndex: number = 0, limit: number = 0, projection?: any ): Promise<Array<ModelInstance<T>>> {
-        var collection = this.collection;
+        const collection = this.collection;
 
         if ( !collection || !this._initialized )
-            throw new Error( "The model has not been initialized" );
+            throw new Error( 'The model has not been initialized' );
 
         // Attempt to save the data to mongo collection
-        var result = await collection.find( selector ).limit( limit ).skip( startIndex ).project( projection || {}).sort( sort ).toArray();
+        const result = await collection.find( selector ).limit( limit ).skip( startIndex ).project( projection || {}).sort( sort ).toArray();
 
         // Create the instance array
-        var instances: Array<ModelInstance<T>> = [],
-            instance: ModelInstance<T>;
+        const instances: Array<ModelInstance<T>> = [];
+        let instance: ModelInstance<T>;
 
         // For each data entry, create a new instance
-        for ( var i = 0, l = result.length; i < l; i++ ) {
+        for ( let i = 0, l = result.length; i < l; i++ ) {
             instance = new ModelInstance<T>( this, result[ i ] );
             instance.schema.deserialize( result[ i ] );
             instance._id = result[ i ]._id;
@@ -207,20 +206,20 @@ export abstract class Model {
      * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	 */
     async findOne<T>( selector: any, projection?: any ): Promise<ModelInstance<T> | null> {
-        var collection = this.collection;
+        const collection = this.collection;
 
         if ( !collection || !this._initialized )
-            throw new Error( "The model has not been initialized" );
+            throw new Error( 'The model has not been initialized' );
 
         // Attempt to save the data to mongo collection
-        var result = await collection.find( selector ).limit( 1 ).project( projection || {}).next();
+        const result = await collection.find( selector ).limit( 1 ).project( projection || {}).next();
 
         // Check for errors
         if ( !result )
             return null;
         else {
             // Create the instance array
-            var instance: ModelInstance<T>;
+            let instance: ModelInstance<T>;
 
             instance = new ModelInstance<T>( this, result );
             instance.schema.deserialize( result );
@@ -235,16 +234,16 @@ export abstract class Model {
 	 * Deletes a instance and all its dependencies are updated or deleted accordingly
 	 */
     private async deleteInstance( instance: ModelInstance<IModelEntry> ): Promise<number> {
-        var foreignModel: Model;
-        var optionalDependencies = instance.dbEntry._optionalDependencies;
-        var requiredDependencies = instance.dbEntry._requiredDependencies;
-        var arrayDependencies = instance.dbEntry._arrayDependencies;
+        let foreignModel: Model;
+        const optionalDependencies = instance.dbEntry._optionalDependencies;
+        const requiredDependencies = instance.dbEntry._requiredDependencies;
+        const arrayDependencies = instance.dbEntry._arrayDependencies;
 
-        var promises: Array<Promise<any>> = [];
+        const promises: Array<Promise<any>> = [];
 
         // Nullify all dependencies that are optional
         if ( optionalDependencies )
-            for ( var i = 0, l = optionalDependencies.length; i < l; i++ ) {
+            for ( let i = 0, l = optionalDependencies.length; i < l; i++ ) {
                 foreignModel = Model.getByName( optionalDependencies[ i ].collection );
                 if ( !foreignModel )
                     continue;
@@ -256,7 +255,7 @@ export abstract class Model {
 
         // Remove any dependencies that are in arrays
         if ( arrayDependencies )
-            for ( var i = 0, l = arrayDependencies.length; i < l; i++ ) {
+            for ( let i = 0, l = arrayDependencies.length; i < l; i++ ) {
                 foreignModel = Model.getByName( arrayDependencies[ i ].collection );
                 if ( !foreignModel )
                     continue;
@@ -268,7 +267,7 @@ export abstract class Model {
 
         // For those dependencies that are required, we delete the instances
         if ( requiredDependencies )
-            for ( var i = 0, l = requiredDependencies.length; i < l; i++ ) {
+            for ( let i = 0, l = requiredDependencies.length; i < l; i++ ) {
                 foreignModel = Model.getByName( requiredDependencies[ i ].collection );
                 if ( !foreignModel )
                     continue;
@@ -279,10 +278,10 @@ export abstract class Model {
         // Added the schema item post deletion promises
         promises.push( instance.schema.postDelete( instance, this._collectionName ) );
 
-        var dependenciesResults = await Promise.all( promises );
+        const dependenciesResults = await Promise.all( promises );
 
         // Remove the original instance from the DB
-        var deleteResult = await this.collection.deleteMany( <IModelEntry>{ _id: instance.dbEntry._id });
+        const deleteResult = await this.collection.deleteMany( <IModelEntry>{ _id: instance.dbEntry._id });
 
         return deleteResult.deletedCount!;
     }
@@ -291,16 +290,16 @@ export abstract class Model {
 	 * Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	 */
     async deleteInstances( selector: any ): Promise<number> {
-        var model = this;
+        const model = this;
 
-        var instances = await this.findInstances<IModelEntry>( selector );
+        const instances = await this.findInstances<IModelEntry>( selector );
 
         if ( !instances || instances.length == 0 )
             return 0;
 
-        var promises: Array<Promise<any>> = [];
+        const promises: Array<Promise<any>> = [];
 
-        for ( var i = 0, l = instances.length; i < l; i++ ) {
+        for ( let i = 0, l = instances.length; i < l; i++ ) {
             promises.push( this.deleteInstance( instances[ i ] ) );
         };
 
@@ -319,18 +318,18 @@ export abstract class Model {
      * went wrong when updating the specific instance, and a string message if something did in fact go wrong
 	 */
     async update<T>( selector: any, data: T ): Promise<UpdateRequest<T>> {
-        var toRet: UpdateRequest<T> = {
+        const toRet: UpdateRequest<T> = {
             error: false,
             tokens: []
         };
 
-        var instances = await this.findInstances<T>( selector );
+        const instances = await this.findInstances<T>( selector );
 
         if ( !instances || instances.length == 0 )
             return toRet;
 
-        for ( var i = 0, l = instances.length; i < l; i++ ) {
-            var instance = instances[ i ];
+        for ( let i = 0, l = instances.length; i < l; i++ ) {
+            const instance = instances[ i ];
 
             // If we have data, then set the variables
             if ( data )
@@ -341,7 +340,7 @@ export abstract class Model {
                 await instance.schema.validate( false );
 
                 // Make sure any unique fields are still being respected
-                var unique = await this.checkUniqueness( instance );
+                const unique = await this.checkUniqueness( instance );
 
                 if ( !unique ) {
                     toRet.error = true;
@@ -350,9 +349,9 @@ export abstract class Model {
                 }
 
                 // Transform the schema into a JSON ready format
-                var json = instance.schema.serialize();
-                var collection = this.collection;
-                var updateResult = await collection.updateOne( { _id: ( <IModelEntry>instance )._id }, { $set: json });
+                const json = instance.schema.serialize();
+                const collection = this.collection;
+                const updateResult = await collection.updateOne( { _id: ( <IModelEntry>instance )._id }, { $set: json });
 
                 // Now that everything has been added, we can do some post insert/update validation
                 await instance.schema.postUpsert<T>( instance, this._collectionName );
@@ -374,14 +373,14 @@ export abstract class Model {
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object.
 	 */
     async checkUniqueness<T>( instance: ModelInstance<T> ): Promise<boolean> {
-        var items = instance.schema.getItems();
-        var hasUniqueField: boolean = false;
-        var searchToken = { $or: [] as any[] };
+        const items = instance.schema.getItems();
+        let hasUniqueField: boolean = false;
+        const searchToken = { $or: [] as any[] };
 
         if ( instance._id )
-            searchToken[ "_id" ] = { $ne: instance._id };
+            searchToken[ '_id' ] = { $ne: instance._id };
 
-        for ( var i = 0, l = items.length; i < l; i++ ) {
+        for ( let i = 0, l = items.length; i < l; i++ ) {
             if ( items[ i ].getUnique() ) {
                 hasUniqueField = true;
                 var searchField = {};
@@ -395,7 +394,7 @@ export abstract class Model {
         if ( !hasUniqueField )
             return true;
         else {
-            var result = await this.collection.count( searchToken );
+            const result = await this.collection.count( searchToken );
             if ( result == 0 )
                 return true;
             else
@@ -410,19 +409,19 @@ export abstract class Model {
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object
 	 */
     async createInstance<T>( data?: T ): Promise<ModelInstance<T | null>> {
-        var newInstance = new ModelInstance<T | null>( this, null );
+        const newInstance = new ModelInstance<T | null>( this, null );
 
         // If we have data, then set the variables
         if ( data )
             newInstance.schema.set( data );
 
-        var unique = await this.checkUniqueness( newInstance );
+        const unique = await this.checkUniqueness( newInstance );
 
         if ( !unique )
             throw new Error( `'${newInstance.uniqueFieldNames()}' must be unique` );
 
         // Now try to create a new instance
-        var instance = await this.insert( [ newInstance ] );
+        const instance = await this.insert( [ newInstance ] );
 
         // All ok
         return instance[ 0 ];
@@ -433,40 +432,40 @@ export abstract class Model {
 	 * @param instances An array of instances to save
 	 */
     async insert<T>( instances: Array<ModelInstance<T>> ): Promise<Array<ModelInstance<T>>> {
-        var model = this;
-        var collection = model.collection;
+        const model = this;
+        const collection = model.collection;
 
         if ( !collection || !model._initialized )
-            throw new Error( "The model has not been initialized" );
+            throw new Error( 'The model has not been initialized' );
 
-        var instance: ModelInstance<T>;
-        var documents: Array<any> = [];
-        var promises: Array<Promise<Schema>> = [];
+        let instance: ModelInstance<T>;
+        const documents: Array<any> = [];
+        const promises: Array<Promise<Schema>> = [];
 
         // Make sure the parameters are valid
-        for ( var i = 0, l = instances.length; i < l; i++ )
+        for ( let i = 0, l = instances.length; i < l; i++ )
             promises.push( instances[ i ].schema.validate( true ) );
 
-        var schemas = await Promise.all<Schema>( promises );
+        const schemas = await Promise.all<Schema>( promises );
 
         // Transform the schema into a JSON ready format
-        for ( var i = 0, l = schemas.length; i < l; i++ ) {
-            var json = schemas[ i ].serialize();
+        for ( let i = 0, l = schemas.length; i < l; i++ ) {
+            const json = schemas[ i ].serialize();
             documents.push( json );
         }
 
         // Attempt to save the data to mongo collection
-        var insertResult = await collection.insertMany( documents );
+        const insertResult = await collection.insertMany( documents );
 
         // Assign the ID's
-        for ( var i = 0, l = insertResult.ops.length; i < l; i++ ) {
+        for ( let i = 0, l = insertResult.ops.length; i < l; i++ ) {
             instances[ i ]._id = insertResult.ops[ i ]._id;
             instances[ i ].dbEntry = insertResult.ops[ i ];
         }
 
         // Now that everything has been added, we can do some post insert/update validation
-        var postValidationPromises: Array<Promise<Schema>> = [];
-        for ( var i = 0, l = instances.length; i < l; i++ )
+        const postValidationPromises: Array<Promise<Schema>> = [];
+        for ( let i = 0, l = instances.length; i < l; i++ )
             postValidationPromises.push( instances[ i ].schema.postUpsert<T>( instances[ i ], this._collectionName ) );
 
         await Promise.all<Schema>( postValidationPromises );

@@ -1,5 +1,5 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
 
 /**
  * A bool scheme item for use in Models
@@ -29,7 +29,7 @@ export class SchemaBool extends SchemaItem<boolean>
 	 * Always true
 	 */
     public validate(): Promise<boolean | Error> {
-        var val = this.value;
+        const val = this.value;
         if ( val === undefined )
             return Promise.reject<Error>( new Error( `${this.name} cannot be undefined` ) );
         if ( val === null )

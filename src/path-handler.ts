@@ -1,7 +1,7 @@
-﻿import { IServer, IPath } from "modepress-api";
-import * as express from "express";
-import * as fs from "fs";
-import { UsersService } from "./users-service";
+﻿import { IServer, IPath } from 'modepress-api';
+import * as express from 'express';
+import * as fs from 'fs';
+import { UsersService } from './users-service';
 
 /**
  * A simple wrapper that holds information on each path the server can respond to.
@@ -32,30 +32,30 @@ export class PathHandler {
      * Function used to handle a request from express
      */
     handle( req: express.Request, res: express.Response ) {
-        var config = this._config;
-        var path = this._path;
+        const config = this._config;
+        const path = this._path;
 
-        var requestIsSecure = ( ( <any>req.connection ).encrypted || req.headers[ "x-forwarded-proto" ] == "https" ? true : false );
-        var url = `${( requestIsSecure ? "https" : "http" )}://${config.host}`;
-        var options: any = { usersURL: `${UsersService.usersURL}`, url: url };
+        const requestIsSecure = ( ( <any>req.connection ).encrypted || req.headers[ 'x-forwarded-proto' ] == 'https' ? true : false );
+        const url = `${( requestIsSecure ? 'https' : 'http' )}://${config.host}`;
+        const options: any = { usersURL: `${UsersService.usersURL}`, url: url };
 
         options.plugins = path.plugins || [];
         options.variables = {};
 
         // Add any custom variables
         if ( path.variables ) {
-            for ( var i in path.variables )
+            for ( const i in path.variables )
                 options.variables[ i ] = path.variables[ i ];
         }
 
         // Give priority to template routes
         if ( fs.existsSync( path.index ) ) {
-            if ( path.index.indexOf( ".jade" ) != -1 )
+            if ( path.index.indexOf( '.jade' ) != -1 )
                 res.render( path.index, options );
             else
                 res.sendfile( path.index );
         }
         else
-            res.send( 404, "File not found" );
+            res.send( 404, 'File not found' );
     };
 }

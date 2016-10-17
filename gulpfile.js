@@ -67,4 +67,4 @@ gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchN
 gulp.task( 'bump-minor', function() { return setup.bumpVersion( setup.bumpMidNum, configFiles ) });
 gulp.task( 'bump-major', function() { return setup.bumpVersion( setup.bumpMajorNum, configFiles ) });
 gulp.task( 'install', [ 'install-definitions' ] );
-gulp.task( 'build', [ 'ts-code', 'dist-files', 'ts-code-definitions' ] );
+gulp.task( 'build', [ 'tslint', 'dist-files', 'ts-code-definitions' ] );

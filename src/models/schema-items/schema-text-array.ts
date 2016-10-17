@@ -1,6 +1,6 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
-import sanitizeHtml = require( "sanitize-html" );
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
+import sanitizeHtml = require( 'sanitize-html' );
 
 /**
  * A text scheme item for use in Models
@@ -49,29 +49,29 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
 	 * Checks the value stored to see if its correct in its current form
 	 */
     public validate(): Promise<boolean | Error> {
-        var transformedValue = this.value;
-        var toRemove: number[] = [];
-        for ( var i = 0, l = transformedValue.length; i < l; i++ ) {
+        const transformedValue = this.value;
+        const toRemove: number[] = [];
+        for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
             transformedValue[ i ] = sanitizeHtml( transformedValue[ i ].trim(), { allowedTags: [] });
 
-            if ( transformedValue[ i ].trim() == "" )
+            if ( transformedValue[ i ].trim() == '' )
                 toRemove.push( i );
         }
 
-        // Remove any "" cells
-        for ( var i = toRemove.length - 1; i >= 0; i-- )
+        // Remove any '' cells
+        for ( let i = toRemove.length - 1; i >= 0; i-- )
             transformedValue.splice( toRemove[ i ], 1 );
 
-        var maxCharacters = this.maxCharacters;
-        var minCharacters = this.minCharacters;
+        const maxCharacters = this.maxCharacters;
+        const minCharacters = this.minCharacters;
 
 
         if ( transformedValue.length < this.minItems )
-            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? "" : "s" )} for ${this.name}` ) );
+            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? '' : 's' )} for ${this.name}` ) );
         if ( transformedValue.length > this.maxItems )
             return Promise.reject<Error>( new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` ) );
 
-        for ( var i = 0, l = transformedValue.length; i < l; i++ ) {
+        for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
             transformedValue[ i ] = transformedValue[ i ].trim();
             if ( transformedValue[ i ].length > maxCharacters )
                 return Promise.reject<Error>( new Error( `The character length of '${transformedValue[ i ]}' in ${this.name} is too long, please keep it below ${maxCharacters}` ) );

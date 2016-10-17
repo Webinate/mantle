@@ -1,6 +1,6 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
-import sanitizeHtml = require( "sanitize-html" );
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
+import sanitizeHtml = require( 'sanitize-html' );
 
 /**
  * A text scheme item for use in Models
@@ -45,10 +45,10 @@ export class SchemaText extends SchemaItem<string>
 	 * Checks the value stored to see if its correct in its current form
 	 */
     public validate(): Promise<boolean | Error> {
-        var maxCharacters = this.maxCharacters;
-        var minCharacters = this.minCharacters;
-        this.value = this.value || "";
-        var transformedValue = "";
+        const maxCharacters = this.maxCharacters;
+        const minCharacters = this.minCharacters;
+        this.value = this.value || '';
+        let transformedValue = '';
 
         if ( this.htmlClean )
             transformedValue = sanitizeHtml( this.value.trim(), { allowedTags: [] });

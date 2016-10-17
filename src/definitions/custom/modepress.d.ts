@@ -231,7 +231,7 @@
      */
     export interface IPath {
         /**
-         * The express end point route to use. E.g. "*" or "/some-route"
+         * The express end point route to use. E.g. '*' or '/some-route'
          */
         path: string;
 
@@ -243,7 +243,7 @@
 
         /**
          * An array of javascript file paths that should be added to the page when it loads
-         * e.g. ["./plugins/my-plugin/index.js"]
+         * e.g. ['./plugins/my-plugin/index.js']
          */
         plugins: Array<string>;
 
@@ -267,7 +267,7 @@
          * is accomplished by sending a headless browser request to the page and waiting for it to fully load. Once loaded the page is saved
          * and stripped of scripts. Any subsequent calls to the page will result in the saved page being presented as long as the expiration
          * has not been exceeded - if it has then a new render is done.
-         * e.g. "127.0.0.1:3000"
+         * e.g. '127.0.0.1:3000'
          */
         enableAjaxRendering: boolean;
 
@@ -959,7 +959,7 @@
     export function isValidID( str: string ): boolean;
 }
 
-declare module "modepress-api"
+declare module 'modepress-api'
 {
     export = Modepress;
 }

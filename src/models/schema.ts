@@ -1,8 +1,8 @@
-﻿import { SchemaItem } from "./schema-items/schema-item";
-import { SchemaForeignKey } from "./schema-items/schema-foreign-key";
-import * as mongodb from "mongodb"
-import { ModelInstance, Model } from "./model"
-import { IModelEntry, ISchemaOptions } from "modepress-api";
+﻿import { SchemaItem } from './schema-items/schema-item';
+import { SchemaForeignKey } from './schema-items/schema-foreign-key';
+import * as mongodb from 'mongodb'
+import { ModelInstance, Model } from './model'
+import { IModelEntry, ISchemaOptions } from 'modepress-api';
 
 /**
  * Gives an overall description of each property in a model
@@ -18,10 +18,10 @@ export class Schema {
 	 * Creates a copy of the schema
 	 */
     public clone(): Schema {
-        var items = this._items;
-        var copy = new Schema();
+        const items = this._items;
+        const copy = new Schema();
 
-        for ( var i = 0, l = items.length; i < l; i++ )
+        for ( let i = 0, l = items.length; i < l; i++ )
             copy._items.push( items[ i ].clone() );
 
         return copy;
@@ -32,11 +32,11 @@ export class Schema {
 	 * @param data The data object we are setting
 	 */
     set( data: any ) {
-        var items = this._items,
+        const items = this._items,
             l = items.length;
 
-        for ( var i in data ) {
-            for ( var ii = 0; ii < l; ii++ )
+        for ( const i in data ) {
+            for ( let ii = 0; ii < l; ii++ )
                 if ( items[ ii ].name == i )
                     items[ ii ].setValue( data[ i ] );
         }
@@ -48,9 +48,9 @@ export class Schema {
 	 * @param val The new value of the item
 	 */
     setVal( name: string, val: any ) {
-        var items = this._items;
+        const items = this._items;
 
-        for ( var i = 0, l = items.length; i < l; i++ )
+        for ( let i = 0, l = items.length; i < l; i++ )
             if ( items[ i ].name == name )
                 items[ i ].setValue( val );
     }
@@ -60,7 +60,7 @@ export class Schema {
      * I.e. the data is the document from the DB and the schema item sets its values from the document
 	 */
     public deserialize( data: any ): any {
-        for ( var i in data )
+        for ( let i in data )
             this.setVal( i, data[ i ] );
     }
 
@@ -68,10 +68,10 @@ export class Schema {
 	 * Serializes the schema items into the JSON format for mongodb
 	 */
     public serialize(): any {
-        var toReturn = {};
-        var items = this._items;
+        const toReturn = {};
+        const items = this._items;
 
-        for ( var i = 0, l = items.length; i < l; i++ )
+        for ( let i = 0, l = items.length; i < l; i++ )
             toReturn[ items[ i ].name ] = items[ i ].getDbValue();
 
         return toReturn;
@@ -83,14 +83,14 @@ export class Schema {
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
 	 */
     public async getAsJson<T extends Modepress.IModelEntry>( id: mongodb.ObjectID, options: ISchemaOptions ): Promise<T> {
-        var toReturn: T = <T><Modepress.IModelEntry>{ _id: id };
-        var items = this._items;
-        var fKey: SchemaForeignKey;
-        var model: Model;
-        var promises: Array<Promise<any>> = [];
-        var itemsInUse: SchemaItem<any>[] = [];
+        const toReturn: T = <T><Modepress.IModelEntry>{ _id: id };
+        const items = this._items;
+        let fKey: SchemaForeignKey;
+        let model: Model;
+        const promises: Array<Promise<any>> = [];
+        const itemsInUse: SchemaItem<any>[] = [];
 
-        for ( var i = 0, l = items.length; i < l; i++ ) {
+        for ( let i = 0, l = items.length; i < l; i++ ) {
             // If this data is sensitive and the request must be sanitized
             // then skip the item
             if ( items[ i ].getSensitive() && options.verbose == false )
@@ -101,10 +101,10 @@ export class Schema {
         }
 
         // Wait for all the promises to resolve
-        var returns = await Promise.all<any>( promises );
+        const returns = await Promise.all<any>( promises );
 
         // Assign the promise values
-        for ( var i = 0, l = returns.length; i < l; i++ )
+        for ( let i = 0, l = returns.length; i < l; i++ )
             toReturn[ itemsInUse[ i ].name ] = returns[ i ];
 
         return Promise.resolve( toReturn );
@@ -116,17 +116,17 @@ export class Schema {
      * @returns Returns true if successful
 	 */
     public async validate( checkForRequiredFields: boolean ): Promise<Schema> {
-        var items = this._items;
-        var promises: Array<Promise<any>> = [];
+        const items = this._items;
+        const promises: Array<Promise<any>> = [];
 
-        for ( var i = 0, l = items.length; i < l; i++ ) {
+        for ( let i = 0, l = items.length; i < l; i++ ) {
             if ( checkForRequiredFields && !items[ i ].getModified() && items[ i ].getRequired() )
                 throw new Error( `${items[ i ].name} is required` );
 
             promises.push( items[ i ].validate() );
         }
 
-        var validations = await Promise.all( promises );
+        const validations = await Promise.all( promises );
         return this;
     }
 
@@ -137,13 +137,13 @@ export class Schema {
      * @param collection The DB collection that the model was inserted into
 	 */
     public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
-        var items = this._items;
-        var promises: Array<Promise<any>> = [];
+        const items = this._items;
+        const promises: Array<Promise<any>> = [];
 
-        for ( var i = 0, l = items.length; i < l; i++ )
+        for ( let i = 0, l = items.length; i < l; i++ )
             promises.push( items[ i ].postUpsert( instance, collection ) );
 
-        var validations = await Promise.all( promises );
+        const validations = await Promise.all( promises );
         return this;
     }
 
@@ -153,13 +153,13 @@ export class Schema {
      * @param collection The DB collection that the model was deleted from
      */
     public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
-        var items = this._items;
-        var promises: Array<Promise<any>> = [];
+        const items = this._items;
+        const promises: Array<Promise<any>> = [];
 
-        for ( var i = 0, l = items.length; i < l; i++ )
+        for ( let i = 0, l = items.length; i < l; i++ )
             promises.push( items[ i ].postUpsert( instance, collection ) );
 
-        var validations = await Promise.all( promises );
+        const validations = await Promise.all( promises );
         return this;
     }
 
@@ -168,8 +168,8 @@ export class Schema {
 	 * @param val The name of the item
 	 */
     public getByName( val: string ): SchemaItem<any> | null {
-        var items = this._items;
-        for ( var i = 0, l = items.length; i < l; i++ )
+        const items = this._items;
+        for ( let i = 0, l = items.length; i < l; i++ )
             if ( items[ i ].name == val )
                 return items[ i ];
 
@@ -181,11 +181,11 @@ export class Schema {
 	 * @param val The new item to add
 	 */
     public add( val: SchemaItem<any> ): SchemaItem<any> {
-        if ( val.name == "_id" )
+        if ( val.name == '_id' )
             throw new Error( `You cannot use the schema item name _id as its a reserved keyword` );
-        else if ( val.name == "_requiredDependencies" )
+        else if ( val.name == '_requiredDependencies' )
             throw new Error( `You cannot use the schema item name _requiredDependencies as its a reserved keyword` );
-        else if ( val.name == "_optionalDependencies" )
+        else if ( val.name == '_optionalDependencies' )
             throw new Error( `You cannot use the schema item name _optionalDependencies as its a reserved keyword` );
         else if ( this.getByName( val.name ) )
             throw new Error( `An item with the name ${val.name} already exists.` );
@@ -199,12 +199,12 @@ export class Schema {
 	 * @param val The name of the item or the item itself
 	 */
     public remove( val: SchemaItem<any> | string ) {
-        var items = this._items;
-        var name = "";
+        const items = this._items;
+        let name = '';
         if ( <SchemaItem<any>>val instanceof SchemaItem )
             name = ( <SchemaItem<any>>val ).name;
 
-        for ( var i = 0, l = items.length; i < l; i++ )
+        for ( let i = 0, l = items.length; i < l; i++ )
             if ( items[ i ].name == name ) {
                 items.splice( i, 1 );
                 return;

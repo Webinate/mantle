@@ -1,9 +1,9 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
-import { Model, ModelInstance } from "../model";
-import { ObjectID } from "mongodb";
-import { Utils } from "../../utils";
-import { SchemaIdArray } from "./schema-id-array";
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
+import { Model, ModelInstance } from '../model';
+import { ObjectID } from 'mongodb';
+import { Utils } from '../../utils';
+import { SchemaIdArray } from './schema-id-array';
 
 /**
  * Represents a mongodb ObjectID of a document in separate collection.
@@ -47,18 +47,18 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 	 * Checks the value stored to see if its correct in its current form
 	 */
     public async validate(): Promise<boolean | Error | null> {
-        var transformedValue = this.value;
+        let transformedValue = this.value;
 
         // If they key is required then it must exist
-        var model = Model.getByName( this.targetCollection );
+        const model = Model.getByName( this.targetCollection );
 
         if ( !model )
             throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
-        if ( typeof this.value == "string" ) {
+        if ( typeof this.value == 'string' ) {
             if ( Utils.isValidObjectID( <string>this.value ) )
                 transformedValue = this.value = new ObjectID( <string>this.value );
-            else if ( ( <string>this.value ).trim() != "" )
+            else if ( ( <string>this.value ).trim() != '' )
                 throw new Error( `Please use a valid ID for '${this.name}'` );
             else
                 transformedValue = null;
@@ -71,7 +71,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             throw new Error( `${this.name} does not exist` );
 
         // We can assume the value is object id by this point
-        var result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
+        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
 
         if ( !this.optionalKey && !result )
             throw new Error( `${this.name} does not exist` );
@@ -92,10 +92,10 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             return;
 
         // If they key is required then it must exist
-        var model = Model.getByName( this.targetCollection );
+        const model = Model.getByName( this.targetCollection );
 
-        var optionalDeps = this._targetDoc.dbEntry._optionalDependencies;
-        var requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
+        let optionalDeps = this._targetDoc.dbEntry._optionalDependencies;
+        let requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
 
         // Now we need to register the schemas source with the target model
         if ( this.optionalKey ) {
@@ -129,19 +129,19 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
      */
     public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
         // If they key is required then it must exist
-        var model = Model.getByName( this.targetCollection );
+        const model = Model.getByName( this.targetCollection );
         if ( !model )
             return;
 
-        if ( !this.value || this.value == "" )
+        if ( !this.value || this.value == '' )
             return;
 
         // We can assume the value is object id by this point
-        var result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
+        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
         if ( !result )
             return;
 
-        var query;
+        let query;
 
         if ( this.optionalKey )
             query = { $pull: { _optionalDependencies: { _id: instance.dbEntry._id } } };
@@ -159,7 +159,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
     public async getValue( options: ISchemaOptions ): Promise<ObjectID | Modepress.IModelEntry | null> {
 
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
-            throw new Error( "You cannot set expandForeignKeys and not specify the expandMaxDepth" );
+            throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
 
         if ( !options.expandForeignKeys )
             return <ObjectID>this.value;
@@ -167,7 +167,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) != -1 )
             return <ObjectID>this.value;
 
-        var model = Model.getByName( this.targetCollection );
+        const model = Model.getByName( this.targetCollection );
         if ( !model )
             throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
@@ -180,16 +180,16 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
                 return this.value;
         }
 
-        var result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
+        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
 
         if ( !result )
             throw new Error( `Could not find instance of ${this.name} references with foreign key '${this.targetCollection}'` );
 
         // Get the models items are increase their level - this ensures we dont go too deep
-        var items = result.schema.getItems() !;
-        var nextLevel = this.curLevel + 1;
+        const items = result.schema.getItems() !;
+        const nextLevel = this.curLevel + 1;
 
-        for ( var i = 0, l = items.length; i < l; i++ )
+        for ( let i = 0, l = items.length; i < l; i++ )
             if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
                 ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
 

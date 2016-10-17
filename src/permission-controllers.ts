@@ -1,7 +1,7 @@
-﻿import express = require( "express" );
-import { UsersService } from "./users-service";
-import { IResponse, IAuthReq } from "modepress-api";
-import * as mongodb from "mongodb";
+﻿import express = require( 'express' );
+import { UsersService } from './users-service';
+import { IResponse, IAuthReq } from 'modepress-api';
+import * as mongodb from 'mongodb';
 
 /**
  * This funciton checks if user is logged in
@@ -9,7 +9,7 @@ import * as mongodb from "mongodb";
 export function getUser( req: express.Request, res: express.Response, next: Function ) {
     res;   // Supress empty param warning
 
-    var users = UsersService.getSingleton();
+    const users = UsersService.getSingleton();
     users.authenticated( req ).then( function( auth ) {
         if ( !auth.authenticated ) {
             ( <IAuthReq><Express.Request>req )._user = null;
@@ -22,7 +22,7 @@ export function getUser( req: express.Request, res: express.Response, next: Func
 
 
             // Check if this must be cleaned or not
-            var verbose = ( req.query.verbose ? true : false );
+            let verbose = ( req.query.verbose ? true : false );
             if ( verbose )
                 if ( !( <IAuthReq><Express.Request>req )._isAdmin )
                     if ( req.params.user !== undefined && req.params.user != auth.user!.username )
@@ -52,7 +52,7 @@ export function hasId( idName: string, idLabel: string = '', optional: boolean =
             res.setHeader( 'Content-Type', 'application/json' );
             return res.end( JSON.stringify( <IResponse>{
                 error: true,
-                message: "Please specify an " + ( !idLabel || idLabel === '' ? idLabel : idName )
+                message: 'Please specify an ' + ( !idLabel || idLabel === '' ? idLabel : idName )
             }) );
         }
         // Make sure the id format is correct
@@ -60,7 +60,7 @@ export function hasId( idName: string, idLabel: string = '', optional: boolean =
             res.setHeader( 'Content-Type', 'application/json' );
             return res.end( JSON.stringify( <IResponse>{
                 error: true,
-                message: "Invalid ID format"
+                message: 'Invalid ID format'
             }) );
         }
 
@@ -75,12 +75,12 @@ export function hasId( idName: string, idLabel: string = '', optional: boolean =
  */
 export async function userExists( req: express.Request, res: express.Response, next: Function ) {
     try {
-        var users = UsersService.getSingleton();
-        var user = await users.getUser( req.params.user, req )
+        const users = UsersService.getSingleton();
+        const user = await users.getUser( req.params.user, req )
 
         // Make sure the id format is correct
         if ( !user )
-            throw new Error( "User does not exist" );
+            throw new Error( 'User does not exist' );
         next()
     }
     catch ( err ) {
@@ -97,13 +97,13 @@ export async function userExists( req: express.Request, res: express.Response, n
  * if true it passes the scope onto the next function in the queue
  */
 export function isAdmin( req: express.Request, res: express.Response, next: Function ) {
-    var users = UsersService.getSingleton();
+    const users = UsersService.getSingleton();
 
     users.authenticated( req ).then( function( auth ) {
         if ( !auth.authenticated )
-            throw new Error( "You must be logged in to make this request" );
+            throw new Error( 'You must be logged in to make this request' );
         else if ( !users.isAdmin( auth.user! ) )
-            throw new Error( "You do not have permission" );
+            throw new Error( 'You do not have permission' );
         else {
             ( <IAuthReq><Express.Request>req )._user = auth.user!;
             ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges == 1 || auth.user!.privileges == 2 ? true : false );
@@ -124,12 +124,12 @@ export function isAdmin( req: express.Request, res: express.Response, next: Func
  * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
  */
 export async function canEdit( req: express.Request, res: express.Response, next: Function ) {
-    var users = UsersService.getSingleton();
-    var targetUser: string = req.params.user;
+    const users = UsersService.getSingleton();
+    const targetUser: string = req.params.user;
 
     try {
-        var auth = await users.authenticated( req );
-        var target: UsersInterface.IGetUser | null = null;
+        const auth = await users.authenticated( req );
+        let target: UsersInterface.IGetUser | null = null;
 
         // Check if the target user exists
         if ( targetUser !== undefined ) {
@@ -141,9 +141,9 @@ export async function canEdit( req: express.Request, res: express.Response, next
         }
 
         if ( !auth.authenticated )
-            throw new Error( "You must be logged in to make this request" );
+            throw new Error( 'You must be logged in to make this request' );
         else if ( !users.hasPermission( auth.user!, 2, targetUser ) )
-            throw new Error( "You do not have permission" );
+            throw new Error( 'You do not have permission' );
         else {
             ( <IAuthReq><Express.Request>req )._user = auth.user!;
             ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges == 1 || auth.user!.privileges == 2 ? true : false );
@@ -165,7 +165,7 @@ export async function canEdit( req: express.Request, res: express.Response, next
  * This funciton checks if user is logged in and throws an error if not
  */
 export function isAuthenticated( req: express.Request, res: express.Response, next: Function ) {
-    var users = UsersService.getSingleton();
+    const users = UsersService.getSingleton();
     users.authenticated( req ).then( function( auth ) {
         if ( !auth.authenticated )
             throw new Error( auth.message );
@@ -174,7 +174,7 @@ export function isAuthenticated( req: express.Request, res: express.Response, ne
         ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges == 1 || auth.user!.privileges == 2 ? true : false );
 
         // Check if this must be cleaned or not
-        var verbose = ( req.query.verbose ? true : false );
+        let verbose = ( req.query.verbose ? true : false );
         if ( verbose )
             if ( !( <IAuthReq><Express.Request>req )._isAdmin )
                 if ( req.params.user !== undefined && req.params.user != auth.user!.username )

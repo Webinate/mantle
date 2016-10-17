@@ -1,6 +1,6 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
-import { NumberType } from "./schema-number";
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
+import { NumberType } from './schema-number';
 
 /**
  * A number array scheme item for use in Models
@@ -61,14 +61,14 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
 	 * Checks the value stored to see if its correct in its current form
 	 */
     public validate(): Promise<boolean | Error> {
-        var transformedValue = this.value;
-        var max = this.max;
-        var min = this.min;
-        var type = this.type;
-        var temp: number;
-        var decimalPlaces = this.decimalPlaces;
+        const transformedValue = this.value;
+        const max = this.max;
+        const min = this.min;
+        const type = this.type;
+        let temp: number;
+        const decimalPlaces = this.decimalPlaces;
 
-        for ( var i = 0, l = transformedValue.length; i < l; i++ ) {
+        for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
             if ( type == NumberType.Integer )
                 temp = parseInt( transformedValue.toString() );
             else
@@ -81,7 +81,7 @@ export class SchemaNumArray extends SchemaItem<Array<number>>
         }
 
         if ( transformedValue.length < this.minItems )
-            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? "" : "s" )} for ${this.name}` ) );
+            return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? '' : 's' )} for ${this.name}` ) );
         if ( transformedValue.length > this.maxItems )
             return Promise.reject<Error>( new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` ) );
 

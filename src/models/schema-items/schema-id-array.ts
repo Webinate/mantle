@@ -1,10 +1,10 @@
-﻿import { SchemaItem } from "./schema-item";
-import { SchemaForeignKey } from "./schema-foreign-key";
-import { Model, ModelInstance } from "../model";
-import { ISchemaOptions } from "modepress-api";
-import sanitizeHtml = require( "sanitize-html" );
-import { ObjectID, UpdateWriteOpResult } from "mongodb";
-import { Utils } from "../../utils";
+﻿import { SchemaItem } from './schema-item';
+import { SchemaForeignKey } from './schema-foreign-key';
+import { Model, ModelInstance } from '../model';
+import { ISchemaOptions } from 'modepress-api';
+import sanitizeHtml = require( 'sanitize-html' );
+import { ObjectID, UpdateWriteOpResult } from 'mongodb';
+import { Utils } from '../../utils';
 
 /**
  * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
@@ -56,13 +56,13 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 	 * @returns Returns true if successful or an error message string if unsuccessful
 	 */
     public async validate(): Promise<boolean | Error> {
-        var transformedValue = this.value;
+        const transformedValue = this.value;
 
-        for ( var i = 0, l = transformedValue.length; i < l; i++ ) {
-            if ( typeof this.value[ i ] == "string" ) {
+        for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
+            if ( typeof this.value[ i ] == 'string' ) {
                 if ( Utils.isValidObjectID( <string>this.value[ i ] ) )
                     transformedValue[ i ] = new ObjectID( <string>this.value[ i ] );
-                else if ( ( <string>this.value[ i ] ).trim() != "" )
+                else if ( ( <string>this.value[ i ] ).trim() != '' )
                     throw new Error( `Please use a valid ID for '${this.name}'` );
                 else
                     throw new Error( `Please use a valid ID for '${this.name}'` );
@@ -70,7 +70,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         }
 
         if ( transformedValue.length < this.minItems )
-            throw new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? "" : "s" )} for ${this.name}` );
+            throw new Error( `You must select at least ${this.minItems} item${( this.minItems == 1 ? '' : 's' )} for ${this.name}` );
         if ( transformedValue.length > this.maxItems )
             throw new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` );
 
@@ -82,19 +82,19 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return true;
 
         // If they collection is not empty, then it must exist
-        var model = Model.getByName( this.targetCollection );
+        const model = Model.getByName( this.targetCollection );
 
         if ( !model )
             throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
         // We can assume the value is object id by this point
-        var query = { $or: [] as Modepress.IModelEntry[] };
-        var arr = this.value;
+        const query = { $or: [] as Modepress.IModelEntry[] };
+        const arr = this.value;
 
-        for ( var i = 0, l = arr.length; i < l; i++ )
+        for ( let i = 0, l = arr.length; i < l; i++ )
             query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] });
 
-        var result = await model.findInstances<Modepress.IModelEntry>( query );
+        const result = await model.findInstances<Modepress.IModelEntry>( query );
         this._targetDocs = result;
 
         return true;
@@ -111,10 +111,10 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return;
 
         // If they key is required then it must exist
-        var model = Model.getByName( this.targetCollection );
-        var promises: Array<Promise<UpdateWriteOpResult>> = [];
+        const model = Model.getByName( this.targetCollection );
+        const promises: Array<Promise<UpdateWriteOpResult>> = [];
 
-        for ( var i = 0, l = this._targetDocs.length; i < l; i++ ) {
+        for ( let i = 0, l = this._targetDocs.length; i < l; i++ ) {
             let arrDeps = this._targetDocs[ i ].dbEntry._arrayDependencies || [];
             arrDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name });
             promises.push( model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDocs[ i ].dbEntry._id }, {
@@ -138,7 +138,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return;
 
         // If they key is required then it must exist
-        var model = Model.getByName( this.targetCollection );
+        const model = Model.getByName( this.targetCollection );
         if ( !model )
             return;
 
@@ -146,20 +146,20 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return;
 
         // Get all the instances
-        var promises: Array<Promise<UpdateWriteOpResult>> = [];
-        var query = { $or: [] as Modepress.IModelEntry[] };
-        var arr = this.value;
+        const promises: Array<Promise<UpdateWriteOpResult>> = [];
+        const query = { $or: [] as Modepress.IModelEntry[] };
+        const arr = this.value;
 
-        for ( var i = 0, l = arr.length; i < l; i++ )
+        for ( let i = 0, l = arr.length; i < l; i++ )
             query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] });
 
-        var results = await model.findInstances<Modepress.IModelEntry>( query );
+        const results = await model.findInstances<Modepress.IModelEntry>( query );
         if ( !results || results.length == 0 )
             return;
 
-        var pullQueries: Array<Promise<any>> = [];
+        const pullQueries: Array<Promise<any>> = [];
 
-        for ( var i = 0, l = results.length; i < l; i++ )
+        for ( let i = 0, l = results.length; i < l; i++ )
             pullQueries.push( model.collection.updateOne(
                 <Modepress.IModelEntry>{ _id: results[ i ].dbEntry._id },
                 { $pull: { _arrayDependencies: { _id: instance.dbEntry._id } } }
@@ -175,7 +175,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 	 */
     public async getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | Modepress.IModelEntry>> {
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
-            throw new Error( "You cannot set expandForeignKeys and not specify the expandMaxDepth" );
+            throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
 
         if ( !options.expandForeignKeys )
             return this.value;
@@ -186,7 +186,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         if ( !this.targetCollection )
             return this.value;
 
-        var model = Model.getByName( this.targetCollection );
+        const model = Model.getByName( this.targetCollection );
         if ( !model )
             throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
@@ -200,23 +200,23 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return this.value;
 
         // Create the query for fetching the instances
-        var query = { $or: [] as Modepress.IModelEntry[] };
-        for ( var i = 0, l = this.value.length; i < l; i++ )
+        const query = { $or: [] as Modepress.IModelEntry[] };
+        for ( let i = 0, l = this.value.length; i < l; i++ )
             query.$or.push( <Modepress.IModelEntry>{ _id: this.value[ i ] });
 
-        var instances = await model.findInstances<Modepress.IModelEntry>( query );
-        var instance: ModelInstance<Modepress.IModelEntry>;
+        const instances = await model.findInstances<Modepress.IModelEntry>( query );
+        let instance: ModelInstance<Modepress.IModelEntry>;
 
-        var toReturn: Array<Modepress.IModelEntry> = [];
-        var promises: Array<Promise<Modepress.IModelEntry>> = [];
+        const toReturn: Array<Modepress.IModelEntry> = [];
+        const promises: Array<Promise<Modepress.IModelEntry>> = [];
 
         // Get the models items are increase their level - this ensures we dont go too deep
-        for ( var i = 0, l = instances.length; i < l; i++ ) {
+        for ( let i = 0, l = instances.length; i < l; i++ ) {
             instance = instances[ i ];
-            var items = instance.schema.getItems();
-            var nextLevel = this.curLevel + 1;
+            const items = instance.schema.getItems();
+            const nextLevel = this.curLevel + 1;
 
-            for ( var ii = 0, il = items.length; ii < il; ii++ )
+            for ( let ii = 0, il = items.length; ii < il; ii++ )
                 if ( items[ ii ] instanceof SchemaForeignKey || items[ ii ] instanceof SchemaIdArray )
                     ( <SchemaForeignKey | SchemaIdArray>items[ ii ] ).curLevel = nextLevel;
 

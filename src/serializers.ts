@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import express = require( "express" );
-import * as http from "http";
-import * as mp from "modepress-api";
-import * as winston from "winston";
+import express = require( 'express' );
+import * as http from 'http';
+import * as mp from 'modepress-api';
+import * as winston from 'winston';
 
 /**
  * Helper function to return a status 200 json object of type T

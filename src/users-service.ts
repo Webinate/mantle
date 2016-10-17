@@ -1,7 +1,7 @@
-﻿import * as express from "express"
-import * as http from "http"
-import * as request from "request"
-import { IConfig } from "modepress-api";
+﻿import * as express from 'express'
+import * as http from 'http'
+import * as request from 'request'
+import { IConfig } from 'modepress-api';
 
 /**
  * Singleton service for communicating with a webinate-users server
@@ -24,7 +24,6 @@ export class UsersService {
 	 * @param message The message to send
 	 */
     sendAdminEmail( message: string ): Promise<any> {
-        var that = this;
         return new Promise( function( resolve, reject ) {
             request.post( `${UsersService.usersURL}/message-webmaster`, { form: { message: message } }, function( error, response, body ) {
                 response; // Supress empty param warning
@@ -42,7 +41,6 @@ export class UsersService {
      * @param user The email or username
 	 */
     login( user: string, password: string, remember: boolean ): Promise<UsersInterface.IAuthenticationResponse> {
-        var that = this;
         return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
             request.post( `${UsersService.usersURL}/login`, { body: <UsersInterface.ILoginToken>{ username: user, password: password, rememberMe: remember } }, function( error, response, body ) {
                 response; // Supress empty param warning
@@ -64,7 +62,6 @@ export class UsersService {
 	 * Checks if a user is logged in and authenticated
 	 */
     authenticated( req: express.Request ): Promise<UsersInterface.IAuthenticationResponse> {
-        var that = this;
         return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
             request.get( `${UsersService.usersURL}/authenticated`, { headers: { cookie: ( <any>req ).headers.cookie } }, function( error, response, body ) {
                 response; // Supress empty param warning
@@ -72,7 +69,7 @@ export class UsersService {
                 if ( error )
                     return reject( error );
 
-                var token: UsersInterface.IAuthenticationResponse = JSON.parse( body );
+                const token: UsersInterface.IAuthenticationResponse = JSON.parse( body );
 
                 if ( token.error )
                     return reject( new Error( token.message ) );
@@ -115,7 +112,6 @@ export class UsersService {
      * Attempts to get a user by username
      */
     getUser( user: string, req: express.Request ): Promise<UsersInterface.IGetUser> {
-        var that = this;
         return new Promise<UsersInterface.IGetUser>( function( resolve, reject ) {
             request.get( `${UsersService.usersURL}/users/${user}`, { headers: { cookie: ( <any>req ).headers.cookie } }, function( error, response, body ) {
                 response; // Supress empty param warning

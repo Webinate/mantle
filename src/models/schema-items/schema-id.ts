@@ -1,7 +1,7 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
-import { ObjectID } from "mongodb";
-import { Utils } from "../../utils"
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
+import { ObjectID } from 'mongodb';
+import { Utils } from '../../utils'
 
 /**
  * A mongodb ObjectID scheme item for use in Models
@@ -31,12 +31,12 @@ export class SchemaId extends SchemaItem<ObjectID | string | null>
 	 * Checks the value stored to see if its correct in its current form
 	 */
     public validate(): Promise<boolean | Error> {
-        var transformedValue: string | ObjectID | null = this.value;
+        let transformedValue: string | ObjectID | null = this.value;
 
-        if ( typeof this.value == "string" ) {
+        if ( typeof this.value == 'string' ) {
             if ( Utils.isValidObjectID( <string>this.value ) )
                 transformedValue = this.value = new ObjectID( <string>this.value );
-            else if ( ( <string>this.value ).trim() != "" )
+            else if ( ( <string>this.value ).trim() != '' )
                 return Promise.reject<Error>( new Error( `Please use a valid ID for '${this.name}'` ) );
             else
                 transformedValue = null;

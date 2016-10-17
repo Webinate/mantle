@@ -1,10 +1,10 @@
-﻿import express = require( "express" );
-import controllerModule = require( "./controller" );
+﻿import express = require( 'express' );
+import controllerModule = require( './controller' );
 import bodyParser = require( 'body-parser' );
-import { UsersService } from "../users-service"
-import { IConfig, IServer, IMessage } from "modepress-api";
-import { okJson, errJson } from "../serializers";
-import * as winston from "winston";
+import { UsersService } from '../users-service'
+import { IConfig, IServer, IMessage } from 'modepress-api';
+import { okJson, errJson } from '../serializers';
+import * as winston from 'winston';
 
 export default class EmailsController extends controllerModule.Controller {
 	/**
@@ -19,16 +19,16 @@ export default class EmailsController extends controllerModule.Controller {
         server; // Supress empty param warning
         config; // Supress empty param warning
 
-        var router = express.Router();
+        const router = express.Router();
         router.use( bodyParser.urlencoded( { 'extended': true }) );
         router.use( bodyParser.json() );
         router.use( bodyParser.json( { type: 'application/vnd.api+json' }) );
 
         // Filter the post requests
-        router.post( "/", this.onPost.bind( this ) );
+        router.post( '/', this.onPost.bind( this ) );
 
         // Register the path
-        e.use( "/api/message-admin", router );
+        e.use( '/api/message-admin', router );
     }
 
 	/**
@@ -38,7 +38,7 @@ export default class EmailsController extends controllerModule.Controller {
         // Set the content type
         res.setHeader( 'Content-Type', 'application/json' );
 
-        var message: string = `Hello admin,
+        const message: string = `Hello admin,
 			We have received a message from ${( <IMessage>req.body ).name}:
 
 			${( <IMessage>req.body ).message}

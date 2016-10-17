@@ -1,5 +1,5 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
 
 /**
  * A date scheme item for use in Models

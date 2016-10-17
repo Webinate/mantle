@@ -1,5 +1,5 @@
-﻿import { ISchemaOptions } from "modepress-api";
-import { ModelInstance } from "../model";
+﻿import { ISchemaOptions } from 'modepress-api';
+import { ModelInstance } from '../model';
 
 /**
  * A definition of each item in the model

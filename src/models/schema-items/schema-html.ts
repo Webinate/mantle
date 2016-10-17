@@ -1,6 +1,6 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
-import sanitizeHtml = require( "sanitize-html" );
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
+import sanitizeHtml = require( 'sanitize-html' );
 
 /**
 * An html scheme item for use in Models
@@ -73,9 +73,9 @@ export class SchemaHtml extends SchemaItem<string>
 	 * @returns Returns true if successful or an error message string if unsuccessful
 	 */
     public validate(): Promise<boolean | Error> {
-        var maxCharacters = this.maxCharacters;
-        var minCharacters = this.minCharacters;
-        var transformedValue = this.value.trim();
+        const maxCharacters = this.maxCharacters;
+        const minCharacters = this.minCharacters;
+        const transformedValue = this.value.trim();
 
         if ( transformedValue.length < minCharacters && minCharacters == 1 )
             return Promise.reject<Error>( new Error( `'${this.name}' cannot be empty` ) );
@@ -84,7 +84,7 @@ export class SchemaHtml extends SchemaItem<string>
         else if ( transformedValue.length < minCharacters )
             return Promise.reject<Error>( new Error( `The character length of '${this.name}' is too short, please keep it above ${minCharacters}` ) );
 
-        var sanitizedHTML = sanitizeHtml( this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
+        const sanitizedHTML = sanitizeHtml( this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
         if ( this.errorBadHTML && transformedValue != sanitizedHTML )
             return Promise.reject<Error>( new Error( `'${this.name}' has html code that is not allowed` ) );
 

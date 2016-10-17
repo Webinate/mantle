@@ -1,5 +1,5 @@
-﻿import { SchemaItem } from "./schema-item";
-import { ISchemaOptions } from "modepress-api";
+﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from 'modepress-api';
 
 /**
  * Describes the type of number to store
@@ -59,9 +59,9 @@ export class SchemaNumber extends SchemaItem<number>
 	 * Checks the value stored to see if its correct in its current form
 	 */
     public validate(): Promise<boolean | Error> {
-        var type = this.type;
-        var decimalPlaces = this.decimalPlaces;
-        var transformedValue: number = <number>this.value;
+        const type = this.type;
+        const decimalPlaces = this.decimalPlaces;
+        let transformedValue: number = <number>this.value;
 
         if ( type == NumberType.Integer )
             transformedValue = parseInt( transformedValue.toString() );

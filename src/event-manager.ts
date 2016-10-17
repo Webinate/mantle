@@ -1,8 +1,8 @@
-﻿import { IConfig } from "modepress-api";
-import * as ws from "ws";
-import * as winston from "winston";
-import * as events from "events";
-import * as users from "webinate-users";
+﻿import { IConfig } from 'modepress-api';
+import * as ws from 'ws';
+import * as winston from 'winston';
+import * as events from 'events';
+import * as users from 'webinate-users';
 
 /**
  * A class for handling events sent from a webinate user server
@@ -24,18 +24,17 @@ export class EventManager extends events.EventEmitter {
      * Intiailizes the manager
      */
     init(): Promise<any> {
-        var cfg = this._cfg;
-        var that = this;
+        const cfg = this._cfg;
 
-        return new Promise( function( resolve ) {
-            var reconnectInterval = 3 * 1000;
-            var _client;
+        return new Promise(( resolve ) => {
+            const reconnectInterval = 3 * 1000;
+            let _client;
 
-            var connect = function() {
+            const connect = () => {
                 let options: any = { headers: {} };
                 options.headers[ 'users-api-key' ] = cfg.usersSocketApiKey;
 
-                var _client = new ws( cfg.usersSocketURL, options );
+                const _client = new ws( cfg.usersSocketURL, options );
 
                 // Opens a stream to the users socket events
                 _client.on( 'open', function() {
@@ -56,7 +55,7 @@ export class EventManager extends events.EventEmitter {
                 });
 
                 // We have recieved a message from the user socket
-                _client.on( 'message', that.onMessage.bind( that ) );
+                _client.on( 'message', this.onMessage.bind( this ) );
 
             };
             connect();
@@ -69,7 +68,7 @@ export class EventManager extends events.EventEmitter {
     private onMessage( data: any, flags: { mask: boolean; binary: boolean; compress: boolean; }) {
         if ( !flags.binary ) {
             try {
-                var event = <users.SocketTokens.IToken>JSON.parse( data );
+                const event = <users.SocketTokens.IToken>JSON.parse( data );
                 this.emit( event.type, event );
             }
             catch ( err ) {
