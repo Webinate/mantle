@@ -16,4 +16,4 @@
 /// <reference path="./definitions/required/sanitize-html.d.ts" />
 
 /// <reference path="./definitions/required/webinate-users.d.ts" />
-/// <reference path="./definitions/custom/modepress-api.d.ts" />
+/// <reference path="./definitions/custom/modepress.d.ts" />
