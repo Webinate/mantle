@@ -2,7 +2,7 @@
 A simple Mongo-Node CMS server. The server is accessed via a RESTful API.
 
 ## Current stable version
-* v0.4.3
+* v0.5.0
 
 ## Requirements
 * MongoDB v3
