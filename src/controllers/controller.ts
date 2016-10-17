@@ -7,7 +7,7 @@ export class Controller {
     private static _models: Array<Model> = [];
     private _models: Array<Model>;
 
-    constructor( models: Array<Model> ) {
+    constructor( models: Array<Model> | null ) {
         this._models = [];
 
         if ( models ) {
@@ -51,7 +51,7 @@ export class Controller {
 	/**
 	 * Gets a model by its collection name
 	 */
-    getModel( collectionName: string ): Model {
+    getModel( collectionName: string ): Model | null {
         var models = Controller._models;
         for ( var i = 0, l = models.length; i < l; i++ )
             if ( models[ i ].collectionName == collectionName )

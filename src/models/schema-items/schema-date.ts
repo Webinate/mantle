@@ -14,7 +14,7 @@ export class SchemaDate extends SchemaItem<number>
 	 * @param val The date of this item. If none is specified the Date.now() number is used.
      * @param useNow [Optional] If true, the date will always be updated to use the current date
 	 */
-    constructor( name: string, val?: number, useNow: boolean = false ) {
+    constructor( name: string, val: number = 0, useNow: boolean = false ) {
         super( name, val );
         this.useNow = useNow;
     }

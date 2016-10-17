@@ -17,7 +17,7 @@ import { PathHandler } from "./path-handler";
 import { Server } from "./server";
 import { EventManager } from "./event-manager";
 
-var config: IConfig = null;
+var config: IConfig | null = null;
 var args = yargs.argv;
 
 // Add the console colours
@@ -58,28 +58,28 @@ catch ( err ) {
 
 
 // Attempt to connect to Users
-if ( config.usersSocketURL != "" ) {
-    winston.info( `Attempting to connect to users socket at: '${config.usersSocketURL}'`, { process: process.pid });
-    new EventManager( config ).init().catch( function() {
-        winston.error( `Could not connect to user socket even though it was specified at: '${config.usersSocketURL}'`, { process: process.pid });
+if ( config!.usersSocketURL != "" ) {
+    winston.info( `Attempting to connect to users socket at: '${config!.usersSocketURL}'`, { process: process.pid });
+    new EventManager( config! ).init().catch( function() {
+        winston.error( `Could not connect to user socket even though it was specified at: '${config!.usersSocketURL}'`, { process: process.pid });
         process.exit();
     });
 }
 
 winston.info( `Attempting to connect to mongodb...`, { process: process.pid });
-MongoWrapper.connect( config.databaseHost, config.databasePort, config.databaseName ).then( function( db ) {
+MongoWrapper.connect( config!.databaseHost, config!.databasePort, config!.databaseName ).then( function( db ) {
     // Database loaded
-    winston.info( `Successfully connected to '${config.databaseName}' at ${config.databaseHost}:${config.databasePort}`, { process: process.pid });
+    winston.info( `Successfully connected to '${config!.databaseName}' at ${config!.databaseHost}:${config!.databasePort}`, { process: process.pid });
     winston.info( `Starting up HTTP servers...`, { process: process.pid });
 
     // Create each of your controllers here
     var promises: Array<Promise<any>> = [];
 
-    UsersService.getSingleton( config );
+    UsersService.getSingleton( config! );
 
     // Load the controllers
-    for ( var i = 0, l = config.servers.length; i < l; i++ ) {
-        var server = new Server( config.servers[ i ], config, db );
+    for ( var i = 0, l = config!.servers.length; i < l; i++ ) {
+        var server = new Server( config!.servers[ i ], config!, db );
         promises.push( server.initialize( db ) );
     }
 
@@ -96,7 +96,7 @@ MongoWrapper.connect( config.databaseHost, config.databasePort, config.databaseN
         // Set the prompt to be a >
         rl.setPrompt( '> ' );
         rl.prompt();
-        var heapdump = null;
+        var heapdump: any | null = null;
 
         // Now each time the user hits enter
         rl.on( "line", function( line: string ) {
@@ -111,7 +111,7 @@ MongoWrapper.connect( config.databaseHost, config.databasePort, config.databaseN
                             console.log( `Created folder snapshots` );
                         }
 
-                        heapdump.writeSnapshot( `./snapshots/${Date.now()}.heapsnapshot`, function( err: Error, filename: string ) {
+                        heapdump!.writeSnapshot( `./snapshots/${Date.now()}.heapsnapshot`, function( err: Error, filename: string ) {
                             if ( err )
                                 console.log( `An error occurred while writing to heapdump ${err.toString()}` );
                             else

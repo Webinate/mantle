@@ -16,7 +16,7 @@ export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>
  * An instance of a model with its own unique schema and ID. The initial schema is a clone
  * the parent model's
  */
-export class ModelInstance<T extends Modepress.IModelEntry>
+export class ModelInstance<T extends Modepress.IModelEntry | null>
 {
     public model: Model;
     public schema: Schema;
@@ -29,7 +29,6 @@ export class ModelInstance<T extends Modepress.IModelEntry>
     constructor( model: Model, dbEntry: T ) {
         this.model = model;
         this.schema = model.defaultSchema.clone();
-        this._id = null;
         this.dbEntry = dbEntry;
     }
 
@@ -68,7 +67,6 @@ export abstract class Model {
 	 * @param collection The collection name associated with this model
 	 */
     constructor( collection: string ) {
-        this.collection = null;
         this._collectionName = collection;
         this._initialized = false;
         this.defaultSchema = new Schema();
@@ -208,7 +206,7 @@ export abstract class Model {
 	 * @param selector The mongodb selector
      * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	 */
-    async findOne<T>( selector: any, projection?: any ): Promise<ModelInstance<T>> {
+    async findOne<T>( selector: any, projection?: any ): Promise<ModelInstance<T> | null> {
         var collection = this.collection;
 
         if ( !collection || !this._initialized )
@@ -286,7 +284,7 @@ export abstract class Model {
         // Remove the original instance from the DB
         var deleteResult = await this.collection.deleteMany( <IModelEntry>{ _id: instance.dbEntry._id });
 
-        return deleteResult.deletedCount;
+        return deleteResult.deletedCount!;
     }
 
 	/**
@@ -378,7 +376,7 @@ export abstract class Model {
     async checkUniqueness<T>( instance: ModelInstance<T> ): Promise<boolean> {
         var items = instance.schema.getItems();
         var hasUniqueField: boolean = false;
-        var searchToken = { $or: [] };
+        var searchToken = { $or: [] as any[] };
 
         if ( instance._id )
             searchToken[ "_id" ] = { $ne: instance._id };
@@ -411,8 +409,8 @@ export abstract class Model {
 	 * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object
 	 */
-    async createInstance<T>( data?: T ): Promise<ModelInstance<T>> {
-        var newInstance = new ModelInstance<T>( this, null );
+    async createInstance<T>( data?: T ): Promise<ModelInstance<T | null>> {
+        var newInstance = new ModelInstance<T | null>( this, null );
 
         // If we have data, then set the variables
         if ( data )

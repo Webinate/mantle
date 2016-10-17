@@ -6,7 +6,7 @@ import { Utils } from "../../utils"
 /**
  * A mongodb ObjectID scheme item for use in Models
  */
-export class SchemaId extends SchemaItem<ObjectID | string>
+export class SchemaId extends SchemaItem<ObjectID | string | null>
 {
 	/**
 	 * Creates a new schema item
@@ -31,7 +31,7 @@ export class SchemaId extends SchemaItem<ObjectID | string>
 	 * Checks the value stored to see if its correct in its current form
 	 */
     public validate(): Promise<boolean | Error> {
-        var transformedValue = this.value;
+        var transformedValue: string | ObjectID | null = this.value;
 
         if ( typeof this.value == "string" ) {
             if ( Utils.isValidObjectID( <string>this.value ) )

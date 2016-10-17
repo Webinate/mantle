@@ -157,7 +157,7 @@ export default class PageRenderer extends Controller {
         var that = this;
 
         return new Promise<string>( function( resolve, reject ) {
-            var timer = null;
+            var timer: NodeJS.Timer;
             var win;
             var maxTries = 50;
             var curTries = 0;
@@ -168,8 +168,7 @@ export default class PageRenderer extends Controller {
                     clearTimeout( timer );
                     win.close();
                     win = null;
-                    checkComplete = null;
-                    return reject( new Error( "Page does not exist" ) );
+                    throw new Error( "Page does not exist" );
                 }
 
                 curTries++;
@@ -180,7 +179,6 @@ export default class PageRenderer extends Controller {
                     clearTimeout( timer );
                     win.close();
                     win = null;
-                    checkComplete = null;
                     return resolve( html );
                 }
 
@@ -216,10 +214,10 @@ export default class PageRenderer extends Controller {
         if ( !this.shouldShowPrerenderedPage( req ) )
             return next();
 
-        var model = this.getModel( "renders" );
+        var model = this.getModel( "renders" ) !;
         var url = this.getUrl( req );
         var that = this;
-        var instance: ModelInstance<IRender> = null;
+        var instance: ModelInstance<IRender> | null = null;
         var expiration = 0;
 
         try {
@@ -227,8 +225,8 @@ export default class PageRenderer extends Controller {
             var html = "";
 
             if ( instance ) {
-                expiration = instance.dbEntry.expiration;
-                var html = instance.dbEntry.html;
+                expiration = instance.dbEntry.expiration!;
+                var html = instance.dbEntry.html!;
 
                 if ( Date.now() > expiration )
                     html = await that.renderPage( url );
@@ -293,12 +291,12 @@ export default class PageRenderer extends Controller {
         var renders = this.getModel( "renders" );
 
         try {
-            var instances = await renders.findInstances<IRender>( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
+            var instances = await renders!.findInstances<IRender>( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
             if ( instances.length == 0 )
                 throw new Error( "Could not find a render with that ID" );
 
-            var html: string = await instances[ 0 ].schema.getByName( "html" ).getValue();
+            var html: string = await instances[ 0 ].schema.getByName( "html" ) !.getValue();
             var matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
             for ( var i = 0; matches && i < matches.length; i++ )
                 if ( matches[ i ].indexOf( 'application/ld+json' ) === -1 ) {
@@ -320,7 +318,7 @@ export default class PageRenderer extends Controller {
         var renders = this.getModel( "renders" );
 
         try {
-            var numRemoved = await renders.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
+            var numRemoved = await renders!.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
             if ( numRemoved == 0 )
                 throw new Error( "Could not find a cache with that ID" );
@@ -351,7 +349,7 @@ export default class PageRenderer extends Controller {
                     message: "You must be logged in to make this request"
                 }, res );
             }
-            else if ( !users.isAdmin( auth.user ) ) {
+            else if ( !users.isAdmin( auth.user! ) ) {
                 errJson( new Error( "You do not have permission" ), res );
             }
             else {
@@ -395,8 +393,8 @@ export default class PageRenderer extends Controller {
 
         try {
             // First get the count
-            count = await renders.count( findToken );
-            var instances = await renders.findInstances<IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { html: 0 } : undefined ) );
+            count = await renders!.count( findToken );
+            var instances = await renders!.findInstances<IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { html: 0 } : undefined ) );
 
             var jsons: Array<Promise<IRender>> = [];
             for ( var i = 0, l = instances.length; i < l; i++ )
@@ -425,7 +423,7 @@ export default class PageRenderer extends Controller {
 
         try {
             // First get the count
-            var num = await renders.deleteInstances( {});
+            var num = await renders!.deleteInstances( {});
 
             okJson<IResponse>( {
                 error: false,

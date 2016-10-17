@@ -47,7 +47,7 @@ export class SchemaItem<T>
     /**
      * Sets if this item is indexable by mongodb
      */
-    public setIndexable( val?: boolean ): SchemaItem<T> {
+    public setIndexable( val: boolean ): SchemaItem<T> {
         this._indexable = val;
         return this;
     }
@@ -60,7 +60,7 @@ export class SchemaItem<T>
     /**
      * Sets if this item is required. If true, then validations will fail if they are not specified
      */
-    public setRequired( val?: boolean ): SchemaItem<T> {
+    public setRequired( val: boolean ): SchemaItem<T> {
         this._required = val;
         return this;
     }
@@ -73,7 +73,7 @@ export class SchemaItem<T>
     /**
 	 * Sets if this item represents a unique value in the database. An example might be a username
 	 */
-    public setUnique( val?: boolean ): SchemaItem<T> {
+    public setUnique( val: boolean ): SchemaItem<T> {
         this._unique = val;
         return this;
     }
@@ -90,7 +90,7 @@ export class SchemaItem<T>
      * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
      * a given project. In this case the project item is set as a uniqueIndexer
 	 */
-    public setUniqueIndexer( val?: boolean ): SchemaItem<T> {
+    public setUniqueIndexer( val: boolean ): SchemaItem<T> {
         this._uniqueIndexer = val;
         return this;
     }

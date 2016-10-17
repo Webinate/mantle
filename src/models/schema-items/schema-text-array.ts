@@ -50,7 +50,7 @@ export class SchemaTextArray extends SchemaItem<Array<string>>
 	 */
     public validate(): Promise<boolean | Error> {
         var transformedValue = this.value;
-        var toRemove = [];
+        var toRemove: number[] = [];
         for ( var i = 0, l = transformedValue.length; i < l; i++ ) {
             transformedValue[ i ] = sanitizeHtml( transformedValue[ i ].trim(), { allowedTags: [] });
 

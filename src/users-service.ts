@@ -133,7 +133,7 @@ export class UsersService {
 	 */
     public static getSingleton( config?: IConfig ) {
         if ( !UsersService._singleton )
-            UsersService._singleton = new UsersService( config );
+            UsersService._singleton = new UsersService( config! );
 
         return UsersService._singleton;
     }

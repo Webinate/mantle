@@ -19,7 +19,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
     public minItems: number;
     public maxItems: number;
     public curLevel: number;
-    private _targetDocs: Array<ModelInstance<Modepress.IModelEntry>>;
+    private _targetDocs: Array<ModelInstance<Modepress.IModelEntry>> | null;
 
 	/**
 	 * Creates a new schema item that holds an array of id items
@@ -30,7 +30,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
      * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
      * the item can expand objects on retreival.
 	 */
-    constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, targetCollection: string = null ) {
+    constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, targetCollection: string ) {
         super( name, val );
         this.maxItems = maxItems;
         this.minItems = minItems;
@@ -43,7 +43,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 	 * @returns copy A sub class of the copy
 	 */
     public clone( copy?: SchemaIdArray ): SchemaIdArray {
-        copy = copy === undefined ? new SchemaIdArray( this.name, <Array<string>>this.value ) : copy;
+        copy = copy === undefined ? new SchemaIdArray( this.name, <Array<string>>this.value, undefined, undefined, this.targetCollection ) : copy;
         super.clone( copy );
         copy.maxItems = this.maxItems;
         copy.minItems = this.minItems;
@@ -88,7 +88,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
         // We can assume the value is object id by this point
-        var query = { $or: [] };
+        var query = { $or: [] as Modepress.IModelEntry[] };
         var arr = this.value;
 
         for ( var i = 0, l = arr.length; i < l; i++ )
@@ -147,7 +147,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 
         // Get all the instances
         var promises: Array<Promise<UpdateWriteOpResult>> = [];
-        var query = { $or: [] };
+        var query = { $or: [] as Modepress.IModelEntry[] };
         var arr = this.value;
 
         for ( var i = 0, l = arr.length; i < l; i++ )
@@ -173,7 +173,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 	 * Gets the value of this item
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
 	 */
-    public async getValue( options?: ISchemaOptions ): Promise<Array<string | ObjectID | Modepress.IModelEntry>> {
+    public async getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | Modepress.IModelEntry>> {
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
             throw new Error( "You cannot set expandForeignKeys and not specify the expandMaxDepth" );
 
@@ -200,7 +200,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return this.value;
 
         // Create the query for fetching the instances
-        var query = { $or: [] };
+        var query = { $or: [] as Modepress.IModelEntry[] };
         for ( var i = 0, l = this.value.length; i < l; i++ )
             query.$or.push( <Modepress.IModelEntry>{ _id: this.value[ i ] });
 

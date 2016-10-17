@@ -51,12 +51,12 @@ export default class CommentsController extends Controller {
      * Returns an array of IComment items
      */
     private async getComments( req: mp.IAuthReq, res: express.Response ) {
-        var comments = this.getModel( "comments" );
+        var comments = this.getModel( "comments" ) !;
         var that = this;
         var count = 0;
         var visibility = "public";
         var user = req._user;
-        var findToken = { $or: [] };
+        var findToken = { $or: [] as mp.IComment[] };
 
         // Set the parent filter
         if ( req.query.parentId )
@@ -149,7 +149,7 @@ export default class CommentsController extends Controller {
      */
     private async getComment( req: mp.IAuthReq, res: express.Response ) {
         try {
-            var comments = this.getModel( "comments" );
+            var comments = this.getModel( "comments" ) !;
             var findToken: mp.IComment = { _id: new mongodb.ObjectID( req.params.id ) };
             var user = req._user;
 
@@ -159,7 +159,7 @@ export default class CommentsController extends Controller {
                 throw new Error( "Could not find comment" );
 
             var users = UsersService.getSingleton();
-            var isPublic = await instances[ 0 ].schema.getByName( "public" ).getValue()
+            var isPublic = await instances[ 0 ].schema.getByName( "public" ) !.getValue()
 
             // Only admins are allowed to see private comments
             if ( !isPublic && ( !user || users.isAdmin( user ) == false ) )
@@ -191,7 +191,7 @@ export default class CommentsController extends Controller {
      * Attempts to remove a comment by ID
      */
     private async remove( req: mp.IAuthReq, res: express.Response ) {
-        var comments = this.getModel( "comments" );
+        var comments = this.getModel( "comments" ) !;
         var findToken: mp.IComment = {
             _id: new mongodb.ObjectID( req.params.id )
         }
@@ -204,7 +204,7 @@ export default class CommentsController extends Controller {
             if ( instances.length == 0 )
                 throw new Error( "Could not find a comment with that ID" );
             else {
-                var author = await instances[ 0 ].schema.getByName( "author" ).getValue();
+                var author = await instances[ 0 ].schema.getByName( "author" ) !.getValue();
 
                 // Only admins are allowed to see private comments
                 if ( !user || ( !users.isAdmin( user ) && user.username != author ) )
@@ -228,7 +228,7 @@ export default class CommentsController extends Controller {
      */
     private async update( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.IComment = req.body;
-        var comments = this.getModel( "comments" );
+        var comments = this.getModel( "comments" ) !;
         var findToken: mp.IComment = {
             _id: new mongodb.ObjectID( req.params.id )
         }
@@ -241,7 +241,7 @@ export default class CommentsController extends Controller {
             if ( instances.length == 0 )
                 throw new Error( "Could not find comment with that id" );
             else {
-                var author = await instances[ 0 ].schema.getByName( "author" ).getValue();
+                var author = await instances[ 0 ].schema.getByName( "author" ) !.getValue();
 
                 // Only admins are allowed to see private comments
                 if ( !user || ( !users.isAdmin( user ) && user.username != author ) )
@@ -268,13 +268,13 @@ export default class CommentsController extends Controller {
      */
     private async create( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.IComment = req.body;
-        var comments = this.getModel( "comments" );
+        var comments = this.getModel( "comments" ) !;
 
         // User is passed from the authentication function
-        token.author = req._user.username;
+        token.author = req._user!.username;
         token.post = req.params.postId;
         token.parent = req.params.parent;
-        var parent: ModelInstance<mp.IComment>;
+        var parent: ModelInstance<mp.IComment> | null = null;
 
         try {
             if ( token.parent ) {
@@ -289,8 +289,8 @@ export default class CommentsController extends Controller {
 
             // Assign this comment as a child to its parent comment if it exists
             if ( parent ) {
-                var children: Array<string> = parent.schema.getByName( "children" ).value;
-                children.push( instance.dbEntry._id );
+                var children: Array<string> = parent.schema.getByName( "children" ) !.value;
+                children.push( instance.dbEntry!._id );
                 await parent.model.update<mp.IComment>( <mp.IComment>{ _id: parent.dbEntry._id }, { children: children })
             }
 

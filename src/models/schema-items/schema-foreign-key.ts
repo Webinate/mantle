@@ -11,13 +11,13 @@ import { SchemaIdArray } from "./schema-id-array";
  * Required keys will mean that the current document cannot exist if the target does not. Optional keys
  * will simply be nullified if the target no longer exists.
  */
-export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.IModelEntry>
+export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.IModelEntry | null>
 {
     public targetCollection: string;
     public optionalKey: boolean;
     public curLevel: number;
 
-    private _targetDoc: ModelInstance<Modepress.IModelEntry>;
+    private _targetDoc: ModelInstance<Modepress.IModelEntry> | null;
 
 	/**
 	 * Creates a new schema item
@@ -46,7 +46,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 	/**
 	 * Checks the value stored to see if its correct in its current form
 	 */
-    public async validate(): Promise<boolean | Error> {
+    public async validate(): Promise<boolean | Error | null> {
         var transformedValue = this.value;
 
         // If they key is required then it must exist
@@ -76,7 +76,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         if ( !this.optionalKey && !result )
             throw new Error( `${this.name} does not exist` );
 
-        this._targetDoc = result;
+        this._targetDoc = result!;
 
         return true;
     }
@@ -148,7 +148,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         else
             query = { $pull: { _requiredDependencies: { _id: instance.dbEntry._id } } };
 
-        await model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDoc.dbEntry._id }, query );
+        await model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDoc!.dbEntry._id }, query );
         return;
     }
 
@@ -156,7 +156,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 	 * Gets the value of this item
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
 	 */
-    public async getValue( options?: ISchemaOptions ): Promise<ObjectID | Modepress.IModelEntry> {
+    public async getValue( options: ISchemaOptions ): Promise<ObjectID | Modepress.IModelEntry | null> {
+
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
             throw new Error( "You cannot set expandForeignKeys and not specify the expandMaxDepth" );
 
@@ -181,8 +182,11 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 
         var result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
 
+        if ( !result )
+            throw new Error( `Could not find instance of ${this.name} references with foreign key '${this.targetCollection}'` );
+
         // Get the models items are increase their level - this ensures we dont go too deep
-        var items = result.schema.getItems();
+        var items = result.schema.getItems() !;
         var nextLevel = this.curLevel + 1;
 
         for ( var i = 0, l = items.length; i < l; i++ )

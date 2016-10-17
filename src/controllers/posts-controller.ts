@@ -59,9 +59,9 @@ export default class PostsController extends Controller {
         var that = this;
         var count = 0;
         var visibility = "public";
-        var user: UsersInterface.IUserEntry = req._user;
+        var user: UsersInterface.IUserEntry = req._user!;
 
-        var findToken = { $or: [] };
+        var findToken = { $or: [] as mp.IPost[] };
         if ( req.query.author )
             ( <any>findToken ).author = new RegExp( req.query.author, "i" );
 
@@ -151,9 +151,9 @@ export default class PostsController extends Controller {
 
         try {
             // First get the count
-            count = await posts.count( findToken );
+            count = await posts!.count( findToken );
 
-            var instances = await posts.findInstances<mp.IPost>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { content: 0 } : undefined ) );
+            var instances = await posts!.findInstances<mp.IPost>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent == false ? { content: 0 } : undefined ) );
 
             var jsons: Array<Promise<mp.IPost>> = [];
             for ( var i = 0, l = instances.length; i < l; i++ )
@@ -180,7 +180,7 @@ export default class PostsController extends Controller {
         var posts = this.getModel( "posts" );
         var that = this;
         var findToken: mp.IPost;
-        var user: UsersInterface.IUserEntry = req._user;
+        var user: UsersInterface.IUserEntry = req._user!;
 
         try {
             if ( req.params.id )
@@ -188,13 +188,13 @@ export default class PostsController extends Controller {
             else
                 findToken = { slug: req.params.slug };
 
-            var instances = await posts.findInstances<mp.IPost>( findToken, [], 0, 1 );
+            var instances = await posts!.findInstances<mp.IPost>( findToken, [], 0, 1 );
 
             if ( instances.length == 0 )
                 throw new Error( "Could not find post" );
 
             var users = UsersService.getSingleton();
-            var isPublic = await instances[ 0 ].schema.getByName( "public" ).getValue();
+            var isPublic = await instances[ 0 ].schema.getByName( "public" ) !.getValue();
             // Only admins are allowed to see private posts
             if ( !isPublic && ( !user || users.isAdmin( user ) == false ) )
                 throw new Error( "That post is marked private" );
@@ -220,7 +220,7 @@ export default class PostsController extends Controller {
      * Returns an array of ICategory items
      */
     private async getCategories( req: mp.IAuthReq, res: express.Response ) {
-        var categories = this.getModel( "categories" );
+        var categories = this.getModel( "categories" ) !;
         var that = this;
 
         try {
@@ -248,7 +248,7 @@ export default class PostsController extends Controller {
      * Attempts to remove a post by ID
      */
     private async removePost( req: mp.IAuthReq, res: express.Response ) {
-        var posts = this.getModel( "posts" );
+        var posts = this.getModel( "posts" ) !;
 
         try {
             // Attempt to delete the instances
@@ -271,7 +271,7 @@ export default class PostsController extends Controller {
      * Attempts to remove a category by ID
      */
     private async removeCategory( req: mp.IAuthReq, res: express.Response ) {
-        var categories = this.getModel( "categories" );
+        var categories = this.getModel( "categories" ) !;
 
         try {
             var numRemoved = await categories.deleteInstances( <mp.ICategory>{ _id: new mongodb.ObjectID( req.params.id ) });
@@ -294,7 +294,7 @@ export default class PostsController extends Controller {
      */
     private async updatePost( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.IPost = req.body;
-        var posts = this.getModel( "posts" );
+        var posts = this.getModel( "posts" ) !;
 
         try {
             var instance = await posts.update( <mp.IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
@@ -320,10 +320,10 @@ export default class PostsController extends Controller {
      */
     private async createPost( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.IPost = req.body;
-        var posts = this.getModel( "posts" );
+        var posts = this.getModel( "posts" ) !;
 
         // User is passed from the authentication function
-        token.author = req._user.username;
+        token.author = req._user!.username;
 
         try {
             var instance = await posts.createInstance( token );
@@ -345,7 +345,7 @@ export default class PostsController extends Controller {
      */
     private async createCategory( req: mp.IAuthReq, res: express.Response ) {
         var token: mp.ICategory = req.body;
-        var categories = this.getModel( "categories" );
+        var categories = this.getModel( "categories" ) !;
 
         try {
             var instance = await categories.createInstance( token );

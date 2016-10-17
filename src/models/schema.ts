@@ -88,7 +88,7 @@ export class Schema {
         var fKey: SchemaForeignKey;
         var model: Model;
         var promises: Array<Promise<any>> = [];
-        var itemsInUse = [];
+        var itemsInUse: SchemaItem<any>[] = [];
 
         for ( var i = 0, l = items.length; i < l; i++ ) {
             // If this data is sensitive and the request must be sanitized
@@ -167,7 +167,7 @@ export class Schema {
 	 * Gets a schema item from this schema by name
 	 * @param val The name of the item
 	 */
-    public getByName( val: string ): SchemaItem<any> {
+    public getByName( val: string ): SchemaItem<any> | null {
         var items = this._items;
         for ( var i = 0, l = items.length; i < l; i++ )
             if ( items[ i ].name == val )

@@ -921,7 +921,7 @@
     export interface IAuthReq extends Express.Request {
         _isAdmin: boolean;
         _verbose: boolean;
-        _user: UsersInterface.IUserEntry;
+        _user: UsersInterface.IUserEntry | null;
         body: any;
         headers: any;
         params: any;
