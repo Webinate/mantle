@@ -1,6 +1,6 @@
 {
     "name": "modepress-tests",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "main": "tests.js",
     "author": "Mathew Henson",
     "dependencies": {
