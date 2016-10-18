@@ -21,7 +21,7 @@ export class SchemaHtml extends SchemaItem<string> {
     public static defaultAllowedAttributes: { [ name: string ]: Array<string> } = {
         a: [ 'href', 'name', 'target' ],
         img: [ 'src' ],
-        iframe: [ 'src' ]
+        iframe: [ 'src', 'width', 'height', 'frameborder', 'allowfullscreen' ]
     };
 
     public allowedTags: Array<string>;
