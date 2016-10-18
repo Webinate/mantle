@@ -3,8 +3,8 @@ var fs = require( 'fs' )
 var exec = require( 'child_process' ).exec;
 var child;
 
-var prevTag = "v0.4.2";
-var nextTag = "v0.4.3";
+var prevTag = "v0.4.3";
+var nextTag = "v0.5.0";
 
 
 // Executes the git log command
