@@ -20,7 +20,7 @@ export class SchemaHtml extends SchemaItem<string> {
      */
     public static defaultAllowedAttributes: { [ name: string ]: Array<string> } = {
         a: [ 'href', 'name', 'target' ],
-        img: [ 'src' ],
+        img: [ 'src', 'style', 'width', 'height', 'id', 'class' ],
         iframe: [ 'src', 'width', 'height', 'frameborder', 'allowfullscreen' ]
     };
 
