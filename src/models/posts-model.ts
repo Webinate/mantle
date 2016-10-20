@@ -2,7 +2,9 @@
 import { text, bool, textArray, date, html } from './schema-items/schema-item-factory';
 import { SchemaHtml } from './schema-items/schema-html';
 
-
+/**
+ * A model for describing posts
+ */
 export class PostsModel extends Model {
     constructor() {
         super( 'posts' );

@@ -1,6 +1,9 @@
 ﻿import { Model } from './model';
 import { text } from './schema-items/schema-item-factory';
 
+/**
+ * A model for describing post categories
+ */
 export class CategoriesModel extends Model {
     constructor() {
         super( 'categories' );

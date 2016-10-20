@@ -2,7 +2,9 @@
 import { text, bool, idArray, date, html, foreignKey } from './schema-items/schema-item-factory';
 import { SchemaHtml } from './schema-items/schema-html';
 
-
+/**
+ * A model for describing comments
+ */
 export class CommentsModel extends Model {
     constructor() {
         super( 'comments' );

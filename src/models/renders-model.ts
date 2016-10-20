@@ -1,6 +1,9 @@
 ﻿import { Model } from './model';
 import { text, date } from './schema-items/schema-item-factory';
 
+/**
+ * Describes a model for page renders that can be served to bots or crawlers
+ */
 export class RendersModel extends Model {
     constructor() {
         super( 'renders' );
