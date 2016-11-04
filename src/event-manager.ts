@@ -1,5 +1,4 @@
-﻿import { IConfig } from 'modepress-api';
-import * as ws from 'ws';
+﻿import * as ws from 'ws';
 import * as winston from 'winston';
 import * as events from 'events';
 import * as users from 'webinate-users';
@@ -9,12 +8,12 @@ import * as users from 'webinate-users';
  */
 export class EventManager extends events.EventEmitter {
     public static singleton: EventManager;
-    public _cfg: IConfig;
+    public _cfg: Modepress.IConfig;
 
     /**
      * Creates an instance of the plugin manager
      */
-    constructor( cfg: IConfig ) {
+    constructor( cfg: Modepress.IConfig ) {
         super();
         EventManager.singleton = this;
         this._cfg = cfg;

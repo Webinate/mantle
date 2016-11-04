@@ -1,8 +1,7 @@
 ﻿import * as http from 'http';
-import { IServer } from 'modepress-api';
 import * as winston from 'winston';
 import { Controller } from './controller';
-import express = require( 'express' );
+import * as express from 'express';
 
 /**
  * Checks all incomming requests to see if they are CORS approved
@@ -11,7 +10,7 @@ export default class CORSController extends Controller {
     /**
 	 * Creates an instance of the user manager
 	 */
-    constructor( e: express.Express, config: IServer ) {
+    constructor( e: express.Express, config: Modepress.IServer ) {
         super( null );
 
         const matches: Array<RegExp> = [];

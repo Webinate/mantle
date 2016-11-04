@@ -1,7 +1,6 @@
 ﻿import { SchemaItem } from './schema-item';
 import { SchemaForeignKey } from './schema-foreign-key';
 import { Model, ModelInstance } from '../model';
-import { ISchemaOptions } from 'modepress-api';
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
 import { Utils } from '../../utils';
 
@@ -170,7 +169,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 	 * Gets the value of this item
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
 	 */
-    public async getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | Modepress.IModelEntry>> {
+    public async getValue( options: Modepress.ISchemaOptions ): Promise<Array<string | ObjectID | Modepress.IModelEntry>> {
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
             throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
 

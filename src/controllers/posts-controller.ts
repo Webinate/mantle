@@ -8,7 +8,6 @@ import { PostsModel } from '../models/posts-model';
 import { CategoriesModel } from '../models/categories-model';
 import { UsersService } from '../users-service';
 import { getUser, isAdmin, hasId } from '../permission-controllers';
-import * as mp from 'modepress-api';
 import { okJson, errJson } from '../serializers';
 
 /**
@@ -21,7 +20,7 @@ export default class PostsController extends Controller {
      * @param config The configuration options
      * @param e The express instance of this server
 	 */
-    constructor( server: mp.IServer, config: mp.IConfig, e: express.Express ) {
+    constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
         super( [ Model.registerModel( PostsModel ), Model.registerModel( CategoriesModel ) ] );
 
         server; // Supress empty param warning
@@ -52,21 +51,21 @@ export default class PostsController extends Controller {
     /**
      * Returns an array of IPost items
      */
-    private async getPosts( req: mp.IAuthReq, res: express.Response ) {
+    private async getPosts( req: Modepress.IAuthReq, res: express.Response ) {
         const posts = this.getModel( 'posts' );
         let count = 0;
         let visibility = 'public';
         const user: UsersInterface.IUserEntry = req._user!;
 
-        const findToken = { $or: [] as mp.IPost[] };
+        const findToken = { $or: [] as Modepress.IPost[] };
         if ( req.query.author )
             ( <any>findToken ).author = new RegExp( req.query.author, 'i' );
 
         // Check for keywords
         if ( req.query.keyword ) {
-            findToken.$or.push( <mp.IPost>{ title: <any>new RegExp( req.query.keyword, 'i' ) });
-            findToken.$or.push( <mp.IPost>{ content: <any>new RegExp( req.query.keyword, 'i' ) });
-            findToken.$or.push( <mp.IPost>{ brief: <any>new RegExp( req.query.keyword, 'i' ) });
+            findToken.$or.push( <Modepress.IPost>{ title: <any>new RegExp( req.query.keyword, 'i' ) });
+            findToken.$or.push( <Modepress.IPost>{ content: <any>new RegExp( req.query.keyword, 'i' ) });
+            findToken.$or.push( <Modepress.IPost>{ brief: <any>new RegExp( req.query.keyword, 'i' ) });
         }
 
         // Check for visibility
@@ -88,9 +87,9 @@ export default class PostsController extends Controller {
         // Add the or conditions for visibility
         if ( visibility !== 'all' ) {
             if ( visibility === 'public' )
-                ( <mp.IPost>findToken ).public = true;
+                ( <Modepress.IPost>findToken ).public = true;
             else
-                ( <mp.IPost>findToken ).public = false;
+                ( <Modepress.IPost>findToken ).public = false;
         }
 
         // Check for tags (an OR request with tags)
@@ -129,7 +128,7 @@ export default class PostsController extends Controller {
         }
 
         // Sort by the date created
-        let sort: mp.IPost = { createdOn: sortOrder };
+        let sort: Modepress.IPost = { createdOn: sortOrder };
 
         // Optionally sort by the last updated
         if ( req.query.sort ) {
@@ -150,15 +149,15 @@ export default class PostsController extends Controller {
             // First get the count
             count = await posts!.count( findToken );
 
-            const instances = await posts!.findInstances<mp.IPost>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { content: 0 } : undefined ) );
+            const instances = await posts!.findInstances<Modepress.IPost>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { content: 0 } : undefined ) );
 
-            const jsons: Array<Promise<mp.IPost>> = [];
+            const jsons: Array<Promise<Modepress.IPost>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<mp.IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
 
             const sanitizedData = await Promise.all( jsons );
 
-            okJson<mp.IGetPosts>( {
+            okJson<Modepress.IGetPosts>( {
                 error: false,
                 count: count,
                 message: `Found ${count} posts`,
@@ -173,9 +172,9 @@ export default class PostsController extends Controller {
     /**
      * Returns a single post
      */
-    private async getPost( req: mp.IAuthReq, res: express.Response ) {
+    private async getPost( req: Modepress.IAuthReq, res: express.Response ) {
         const posts = this.getModel( 'posts' );
-        let findToken: mp.IPost;
+        let findToken: Modepress.IPost;
         const user: UsersInterface.IUserEntry = req._user!;
 
         try {
@@ -184,7 +183,7 @@ export default class PostsController extends Controller {
             else
                 findToken = { slug: req.params.slug };
 
-            const instances = await posts!.findInstances<mp.IPost>( findToken, [], 0, 1 );
+            const instances = await posts!.findInstances<Modepress.IPost>( findToken, [], 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find post' );
@@ -195,13 +194,13 @@ export default class PostsController extends Controller {
             if ( !isPublic && ( !user || users.isAdmin( user ) === false ) )
                 throw new Error( 'That post is marked private' );
 
-            const jsons: Array<Promise<mp.IPost>> = [];
+            const jsons: Array<Promise<Modepress.IPost>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<mp.IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
 
             const sanitizedData = await Promise.all( jsons );
 
-            okJson<mp.IGetPost>( {
+            okJson<Modepress.IGetPost>( {
                 error: false,
                 message: `Found ${sanitizedData.length} posts`,
                 data: sanitizedData[ 0 ]
@@ -215,19 +214,19 @@ export default class PostsController extends Controller {
     /**
      * Returns an array of ICategory items
      */
-    private async getCategories( req: mp.IAuthReq, res: express.Response ) {
+    private async getCategories( req: Modepress.IAuthReq, res: express.Response ) {
         const categories = this.getModel( 'categories' ) !;
 
         try {
-            const instances = await categories.findInstances<mp.ICategory>( {}, {}, parseInt( req.query.index ), parseInt( req.query.limit ) );
+            const instances = await categories.findInstances<Modepress.ICategory>( {}, {}, parseInt( req.query.index ), parseInt( req.query.limit ) );
 
-            const jsons: Array<Promise<mp.ICategory>> = [];
+            const jsons: Array<Promise<Modepress.ICategory>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<mp.ICategory>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.ICategory>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
 
             const sanitizedData = await Promise.all( jsons );
 
-            okJson<mp.IGetCategories>( {
+            okJson<Modepress.IGetCategories>( {
                 error: false,
                 count: sanitizedData.length,
                 message: `Found ${sanitizedData.length} categories`,
@@ -242,17 +241,17 @@ export default class PostsController extends Controller {
     /**
      * Attempts to remove a post by ID
      */
-    private async removePost( req: mp.IAuthReq, res: express.Response ) {
+    private async removePost( req: Modepress.IAuthReq, res: express.Response ) {
         const posts = this.getModel( 'posts' ) !;
 
         try {
             // Attempt to delete the instances
-            const numRemoved = await posts.deleteInstances( <mp.IPost>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const numRemoved = await posts.deleteInstances( <Modepress.IPost>{ _id: new mongodb.ObjectID( req.params.id ) });
 
             if ( numRemoved === 0 )
                 throw new Error( 'Could not find a post with that ID' );
 
-            okJson<mp.IResponse>( {
+            okJson<Modepress.IResponse>( {
                 error: false,
                 message: 'Post has been successfully removed'
             }, res );
@@ -265,16 +264,16 @@ export default class PostsController extends Controller {
     /**
      * Attempts to remove a category by ID
      */
-    private async removeCategory( req: mp.IAuthReq, res: express.Response ) {
+    private async removeCategory( req: Modepress.IAuthReq, res: express.Response ) {
         const categories = this.getModel( 'categories' ) !;
 
         try {
-            const numRemoved = await categories.deleteInstances( <mp.ICategory>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const numRemoved = await categories.deleteInstances( <Modepress.ICategory>{ _id: new mongodb.ObjectID( req.params.id ) });
 
             if ( numRemoved === 0 )
                 return Promise.reject( new Error( 'Could not find a category with that ID' ) );
 
-            okJson<mp.IResponse>( {
+            okJson<Modepress.IResponse>( {
                 error: false,
                 message: 'Category has been successfully removed'
             }, res );
@@ -287,12 +286,12 @@ export default class PostsController extends Controller {
     /**
      * Attempts to update a post by ID
      */
-    private async updatePost( req: mp.IAuthReq, res: express.Response ) {
-        const token: mp.IPost = req.body;
+    private async updatePost( req: Modepress.IAuthReq, res: express.Response ) {
+        const token: Modepress.IPost = req.body;
         const posts = this.getModel( 'posts' ) !;
 
         try {
-            const instance = await posts.update( <mp.IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
+            const instance = await posts.update( <Modepress.IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
 
             if ( instance.error )
                 throw new Error( <string>instance.tokens[ 0 ].error );
@@ -300,7 +299,7 @@ export default class PostsController extends Controller {
             if ( instance.tokens.length === 0 )
                 throw new Error( 'Could not find post with that id' );
 
-            okJson<mp.IResponse>( {
+            okJson<Modepress.IResponse>( {
                 error: false,
                 message: 'Post Updated'
             }, res );
@@ -313,8 +312,8 @@ export default class PostsController extends Controller {
     /**
      * Attempts to create a new post
      */
-    private async createPost( req: mp.IAuthReq, res: express.Response ) {
-        const token: mp.IPost = req.body;
+    private async createPost( req: Modepress.IAuthReq, res: express.Response ) {
+        const token: Modepress.IPost = req.body;
         const posts = this.getModel( 'posts' ) !;
 
         // User is passed from the authentication function
@@ -324,7 +323,7 @@ export default class PostsController extends Controller {
             const instance = await posts.createInstance( token );
             const json = await instance.schema.getAsJson( instance._id, { verbose: true });
 
-            okJson<mp.IGetPost>( {
+            okJson<Modepress.IGetPost>( {
                 error: false,
                 message: 'New post created',
                 data: json
@@ -338,15 +337,15 @@ export default class PostsController extends Controller {
     /**
      * Attempts to create a new category item
      */
-    private async createCategory( req: mp.IAuthReq, res: express.Response ) {
-        const token: mp.ICategory = req.body;
+    private async createCategory( req: Modepress.IAuthReq, res: express.Response ) {
+        const token: Modepress.ICategory = req.body;
         const categories = this.getModel( 'categories' ) !;
 
         try {
             const instance = await categories.createInstance( token );
             const json = await instance.schema.getAsJson( instance._id, { verbose: true });
 
-            okJson<mp.IGetCategory>( {
+            okJson<Modepress.IGetCategory>( {
                 error: false,
                 message: 'New category created',
                 data: json

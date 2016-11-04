@@ -1,5 +1,5 @@
 ﻿import { SchemaItem } from './schema-item';
-import sanitizeHtml = require( 'sanitize-html' );
+import * as sanitizeHtml from 'sanitize-html';
 
 /**
  * A text scheme item for use in Models

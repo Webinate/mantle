@@ -1,7 +1,6 @@
 ﻿import * as mongodb from 'mongodb';
 import { Schema } from './schema';
 import * as winston from 'winston';
-import { IModelEntry } from 'modepress-api';
 
 
 export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
@@ -222,7 +221,7 @@ export abstract class Model {
 
             instance = new ModelInstance<T>( this, result );
             instance.schema.deserialize( result );
-            instance._id = ( <IModelEntry>result )._id;
+            instance._id = ( <Modepress.IModelEntry>result )._id;
 
             // Complete
             return instance;
@@ -232,7 +231,7 @@ export abstract class Model {
     /**
 	 * Deletes a instance and all its dependencies are updated or deleted accordingly
 	 */
-    private async deleteInstance( instance: ModelInstance<IModelEntry> ): Promise<number> {
+    private async deleteInstance( instance: ModelInstance<Modepress.IModelEntry> ): Promise<number> {
         let foreignModel: Model;
         const optionalDependencies = instance.dbEntry._optionalDependencies;
         const requiredDependencies = instance.dbEntry._requiredDependencies;
@@ -249,7 +248,7 @@ export abstract class Model {
 
                 let setToken = { $set: {} };
                 setToken.$set[ optionalDependencies[ i ].propertyName ] = null;
-                promises.push( foreignModel.collection.updateOne( <IModelEntry>{ _id: optionalDependencies[ i ]._id }, setToken ) );
+                promises.push( foreignModel.collection.updateOne( <Modepress.IModelEntry>{ _id: optionalDependencies[ i ]._id }, setToken ) );
             }
 
         // Remove any dependencies that are in arrays
@@ -261,7 +260,7 @@ export abstract class Model {
 
                 let pullToken = { $pull: {} };
                 pullToken.$pull[ arrayDependencies[ i ].propertyName ] = instance._id;
-                promises.push( foreignModel.collection.updateMany( <IModelEntry>{ _id: arrayDependencies[ i ]._id }, pullToken ) );
+                promises.push( foreignModel.collection.updateMany( <Modepress.IModelEntry>{ _id: arrayDependencies[ i ]._id }, pullToken ) );
             }
 
         // For those dependencies that are required, we delete the instances
@@ -271,7 +270,7 @@ export abstract class Model {
                 if ( !foreignModel )
                     continue;
 
-                promises.push( foreignModel.deleteInstances( <IModelEntry>{ _id: requiredDependencies[ i ]._id }) );
+                promises.push( foreignModel.deleteInstances( <Modepress.IModelEntry>{ _id: requiredDependencies[ i ]._id }) );
             }
 
         // Added the schema item post deletion promises
@@ -280,7 +279,7 @@ export abstract class Model {
         await Promise.all( promises );
 
         // Remove the original instance from the DB
-        const deleteResult = await this.collection.deleteMany( <IModelEntry>{ _id: instance.dbEntry._id });
+        const deleteResult = await this.collection.deleteMany( <Modepress.IModelEntry>{ _id: instance.dbEntry._id });
 
         return deleteResult.deletedCount!;
     }
@@ -289,7 +288,7 @@ export abstract class Model {
 	 * Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	 */
     async deleteInstances( selector: any ): Promise<number> {
-        const instances = await this.findInstances<IModelEntry>( selector );
+        const instances = await this.findInstances<Modepress.IModelEntry>( selector );
 
         if ( !instances || instances.length === 0 )
             return 0;
@@ -348,7 +347,7 @@ export abstract class Model {
                 // Transform the schema into a JSON ready format
                 const json = instance.schema.serialize();
                 const collection = this.collection;
-                await collection.updateOne( { _id: ( <IModelEntry>instance )._id }, { $set: json });
+                await collection.updateOne( { _id: ( <Modepress.IModelEntry>instance )._id }, { $set: json });
 
                 // Now that everything has been added, we can do some post insert/update validation
                 await instance.schema.postUpsert<T>( instance, this._collectionName );

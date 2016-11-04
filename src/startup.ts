@@ -3,12 +3,11 @@ import * as winston from 'winston';
 import * as yargs from 'yargs';
 import * as readline from 'readline';
 import { MongoWrapper } from './mongo-wrapper';
-import { IConfig } from 'modepress-api';
 import { UsersService } from './users-service';
 import { Server } from './server';
 import { EventManager } from './event-manager';
 
-let config: IConfig | null = null;
+let config: Modepress.IConfig | null = null;
 const args = yargs.argv;
 
 // Add the console colours

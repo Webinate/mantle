@@ -1,5 +1,4 @@
 ﻿import * as mongodb from 'mongodb';
-import { IConfig, IServer, IResponse, IRender, IGetRenders } from 'modepress-api';
 import * as winston from 'winston';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -89,7 +88,7 @@ export default class PageRenderer extends Controller {
      * @param config The configuration options
      * @param e The express instance of this server
 	 */
-    constructor( server: IServer, config: IConfig, e: express.Express ) {
+    constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
         super( [ Model.registerModel( RendersModel ) ] );
 
         server; // Supress empty param warning
@@ -212,11 +211,11 @@ export default class PageRenderer extends Controller {
 
         const model = this.getModel( 'renders' ) !;
         const url = this.getUrl( req );
-        let instance: ModelInstance<IRender> | null = null;
+        let instance: ModelInstance<Modepress.IRender> | null = null;
         let expiration = 0;
 
         try {
-            instance = await model.findOne<IRender>( { url: url });
+            instance = await model.findOne<Modepress.IRender>( { url: url });
             let html = '';
 
             if ( instance ) {
@@ -233,11 +232,11 @@ export default class PageRenderer extends Controller {
 
             if ( !instance ) {
                 winston.info( `Saving render '${url}'`, { process: process.pid });
-                await model.createInstance<IRender>( <IRender>{ expiration: Date.now() + this.expiration, html: html, url: url });
+                await model.createInstance<Modepress.IRender>( <Modepress.IRender>{ expiration: Date.now() + this.expiration, html: html, url: url });
             }
             else if ( Date.now() > expiration ) {
                 winston.info( `Updating render '${url}'`, { process: process.pid });
-                await model.update<IRender>( <IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html });
+                await model.update<Modepress.IRender>( <Modepress.IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html });
             }
 
             winston.info( 'Sending back render without script tags', { process: process.pid });
@@ -286,7 +285,7 @@ export default class PageRenderer extends Controller {
         const renders = this.getModel( 'renders' );
 
         try {
-            const instances = await renders!.findInstances<IRender>( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const instances = await renders!.findInstances<Modepress.IRender>( <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find a render with that ID' );
@@ -313,12 +312,12 @@ export default class PageRenderer extends Controller {
         const renders = this.getModel( 'renders' );
 
         try {
-            const numRemoved = await renders!.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const numRemoved = await renders!.deleteInstances( <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
 
             if ( numRemoved === 0 )
                 throw new Error( 'Could not find a cache with that ID' );
 
-            okJson<IResponse>( {
+            okJson<Modepress.IResponse>( {
                 error: false,
                 message: 'Cache has been successfully removed'
             }, res );
@@ -339,7 +338,7 @@ export default class PageRenderer extends Controller {
             const auth = await users.authenticated( req );
 
             if ( !auth.authenticated ) {
-                okJson<IResponse>( {
+                okJson<Modepress.IResponse>( {
                     error: true,
                     message: 'You must be logged in to make this request'
                 }, res );
@@ -375,7 +374,7 @@ export default class PageRenderer extends Controller {
         }
 
         // Sort by the date created
-        const sort: IRender = { createdOn: sortOrder };
+        const sort: Modepress.IRender = { createdOn: sortOrder };
 
         let getContent: boolean = true;
         if ( req.query.minimal )
@@ -383,20 +382,20 @@ export default class PageRenderer extends Controller {
 
         // Check for keywords
         if ( req.query.search )
-            ( <IRender>findToken ).url = <any>new RegExp( req.query.search, 'i' );
+            ( <Modepress.IRender>findToken ).url = <any>new RegExp( req.query.search, 'i' );
 
         try {
             // First get the count
             count = await renders!.count( findToken );
-            const instances = await renders!.findInstances<IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { html: 0 } : undefined ) );
+            const instances = await renders!.findInstances<Modepress.IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { html: 0 } : undefined ) );
 
-            const jsons: Array<Promise<IRender>> = [];
+            const jsons: Array<Promise<Modepress.IRender>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
 
             const sanitizedData = await Promise.all( jsons );
 
-            okJson<IGetRenders>( {
+            okJson<Modepress.IGetRenders>( {
                 error: false,
                 count: count,
                 message: `Found ${count} renders`,
@@ -419,7 +418,7 @@ export default class PageRenderer extends Controller {
             // First get the count
             const num = await renders!.deleteInstances( {});
 
-            okJson<IResponse>( {
+            okJson<Modepress.IResponse>( {
                 error: false,
                 message: `${num} Instances have been removed`
             }, res );

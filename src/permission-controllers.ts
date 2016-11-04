@@ -1,6 +1,5 @@
-﻿import express = require( 'express' );
+﻿import * as express from 'express';
 import { UsersService } from './users-service';
-import { IResponse, IAuthReq } from 'modepress-api';
 import * as mongodb from 'mongodb';
 
 /**
@@ -12,23 +11,23 @@ export function getUser( req: express.Request, res: express.Response, next: Func
     const users = UsersService.getSingleton();
     users.authenticated( req ).then( function( auth ) {
         if ( !auth.authenticated ) {
-            ( <IAuthReq><Express.Request>req )._user = null;
-            ( <IAuthReq><Express.Request>req )._isAdmin = false;
-            ( <IAuthReq><Express.Request>req )._verbose = false;
+            ( <Modepress.IAuthReq><Express.Request>req )._user = null;
+            ( <Modepress.IAuthReq><Express.Request>req )._isAdmin = false;
+            ( <Modepress.IAuthReq><Express.Request>req )._verbose = false;
         }
         else {
-            ( <IAuthReq><Express.Request>req )._user = auth.user!;
-            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
+            ( <Modepress.IAuthReq><Express.Request>req )._user = auth.user!;
+            ( <Modepress.IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
 
 
             // Check if this must be cleaned or not
             let verbose = ( req.query.verbose ? true : false );
             if ( verbose )
-                if ( !( <IAuthReq><Express.Request>req )._isAdmin )
+                if ( !( <Modepress.IAuthReq><Express.Request>req )._isAdmin )
                     if ( req.params.user !== undefined && req.params.user !== auth.user!.username )
                         verbose = false;
 
-            ( <IAuthReq><Express.Request>req )._verbose = verbose;
+            ( <Modepress.IAuthReq><Express.Request>req )._verbose = verbose;
 
         }
 
@@ -50,7 +49,7 @@ export function hasId( idName: string, idLabel: string = '', optional: boolean =
         // Make sure the id
         if ( !req.params[ idName ] && !optional ) {
             res.setHeader( 'Content-Type', 'application/json' );
-            return res.end( JSON.stringify( <IResponse>{
+            return res.end( JSON.stringify( <Modepress.IResponse>{
                 error: true,
                 message: 'Please specify an ' + ( !idLabel || idLabel === '' ? idLabel : idName )
             }) );
@@ -58,7 +57,7 @@ export function hasId( idName: string, idLabel: string = '', optional: boolean =
         // Make sure the id format is correct
         else if ( req.params[ idName ] && !mongodb.ObjectID.isValid( req.params[ idName ] ) ) {
             res.setHeader( 'Content-Type', 'application/json' );
-            return res.end( JSON.stringify( <IResponse>{
+            return res.end( JSON.stringify( <Modepress.IResponse>{
                 error: true,
                 message: 'Invalid ID format'
             }) );
@@ -85,7 +84,7 @@ export async function userExists( req: express.Request, res: express.Response, n
     }
     catch ( err ) {
         res.setHeader( 'Content-Type', 'application/json' );
-        return res.end( JSON.stringify( <IResponse>{
+        return res.end( JSON.stringify( <Modepress.IResponse>{
             error: true,
             message: err.message
         }) );
@@ -105,15 +104,15 @@ export function isAdmin( req: express.Request, res: express.Response, next: Func
         else if ( !users.isAdmin( auth.user! ) )
             throw new Error( 'You do not have permission' );
         else {
-            ( <IAuthReq><Express.Request>req )._user = auth.user!;
-            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
-            ( <IAuthReq><Express.Request>req )._verbose = true;
+            ( <Modepress.IAuthReq><Express.Request>req )._user = auth.user!;
+            ( <Modepress.IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
+            ( <Modepress.IAuthReq><Express.Request>req )._verbose = true;
             next();
         }
 
     }).catch( function( error: Error ) {
         res.setHeader( 'Content-Type', 'application/json' );
-        res.end( JSON.stringify( <IResponse>{
+        res.end( JSON.stringify( <Modepress.IResponse>{
             error: true,
             message: error.message
         }) );
@@ -145,16 +144,16 @@ export async function canEdit( req: express.Request, res: express.Response, next
         else if ( !users.hasPermission( auth.user!, 2, targetUser ) )
             throw new Error( 'You do not have permission' );
         else {
-            ( <IAuthReq><Express.Request>req )._user = auth.user!;
-            ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
-            ( <IAuthReq><Express.Request>req )._verbose = ( req.query.verbose ? true : false );
+            ( <Modepress.IAuthReq><Express.Request>req )._user = auth.user!;
+            ( <Modepress.IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
+            ( <Modepress.IAuthReq><Express.Request>req )._verbose = ( req.query.verbose ? true : false );
             next();
             return;
         }
 
     } catch ( error ) {
         res.setHeader( 'Content-Type', 'application/json' );
-        res.end( JSON.stringify( <IResponse>{
+        res.end( JSON.stringify( <Modepress.IResponse>{
             error: true,
             message: error.message
         }) );
@@ -170,23 +169,23 @@ export function isAuthenticated( req: express.Request, res: express.Response, ne
         if ( !auth.authenticated )
             throw new Error( auth.message );
 
-        ( <IAuthReq><Express.Request>req )._user = auth.user!;
-        ( <IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
+        ( <Modepress.IAuthReq><Express.Request>req )._user = auth.user!;
+        ( <Modepress.IAuthReq><Express.Request>req )._isAdmin = ( auth.user!.privileges === 1 || auth.user!.privileges === 2 ? true : false );
 
         // Check if this must be cleaned or not
         let verbose = ( req.query.verbose ? true : false );
         if ( verbose )
-            if ( !( <IAuthReq><Express.Request>req )._isAdmin )
+            if ( !( <Modepress.IAuthReq><Express.Request>req )._isAdmin )
                 if ( req.params.user !== undefined && req.params.user !== auth.user!.username )
                     verbose = false;
 
-        ( <IAuthReq><Express.Request>req )._verbose = verbose;
+        ( <Modepress.IAuthReq><Express.Request>req )._verbose = verbose;
 
         next();
 
     }).catch( function( error: Error ) {
         res.setHeader( 'Content-Type', 'application/json' );
-        res.end( JSON.stringify( <IResponse>{
+        res.end( JSON.stringify( <Modepress.IResponse>{
             error: true,
             message: error.message
         }) );

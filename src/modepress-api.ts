@@ -10,7 +10,6 @@ export const Controller = _Controller.Controller;
 export const Model = _Models.Model;
 export const UsersService = _UsersService.UsersService;
 export const SchemaFactory = _SchemaFactory;
-export const NumberType = _SchemaFactory.NumberType;
 export const EventManager = _EventManager.EventManager;
 
 export const isAdmin = _PermissionController.isAdmin;

@@ -1,6 +1,5 @@
 ﻿import * as express from 'express';
 import * as request from 'request';
-import { IConfig } from 'modepress-api';
 
 /**
  * Singleton service for communicating with a webinate-users server
@@ -14,7 +13,7 @@ export class UsersService {
 	 * Creates an instance of the service
 	 * @param config The config file of this server
 	 */
-    constructor( config: IConfig ) {
+    constructor( config: Modepress.IConfig ) {
         UsersService.usersURL = config.usersURL;
     }
 
@@ -126,7 +125,7 @@ export class UsersService {
     /**
 	 * Gets the user singleton
 	 */
-    public static getSingleton( config?: IConfig ) {
+    public static getSingleton( config?: Modepress.IConfig ) {
         if ( !UsersService._singleton )
             UsersService._singleton = new UsersService( config! );
 

@@ -6,18 +6,17 @@ import * as https from 'https';
 import * as fs from 'fs';
 import * as winston from 'winston';
 import * as compression from 'compression';
-import { IConfig, IServer } from 'modepress-api';
 import { Controller } from './controllers/controller'
 import PageRenderer from './controllers/page-renderer'
 import CORSController from './controllers/cors-controller';
 import { PathHandler } from './path-handler';
 
 export class Server {
-    private _config: IConfig;
-    private _server: IServer;
+    private _config: Modepress.IConfig;
+    private _server: Modepress.IServer;
     private _db: mongodb.Db;
 
-    constructor( server: IServer, config: IConfig, db: mongodb.Db ) {
+    constructor( server: Modepress.IServer, config: Modepress.IConfig, db: mongodb.Db ) {
         this._config = config;
         this._server = server;
         this._db = db;

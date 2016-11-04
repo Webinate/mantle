@@ -7,7 +7,6 @@ import { Model, ModelInstance } from '../models/model';
 import { CommentsModel } from '../models/comments-model';
 import { UsersService } from '../users-service';
 import { getUser, isAdmin, canEdit, hasId, userExists } from '../permission-controllers';
-import * as mp from 'modepress-api';
 import { okJson, errJson } from '../serializers';
 
 /**
@@ -20,7 +19,7 @@ export default class CommentsController extends Controller {
      * @param config The configuration options
      * @param e The express instance of this server
 	 */
-    constructor( server: mp.IServer, config: mp.IConfig, e: express.Express ) {
+    constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
         super( [ Model.registerModel( CommentsModel ) ] );
 
         server; // Supress empty param warning
@@ -48,24 +47,24 @@ export default class CommentsController extends Controller {
     /**
      * Returns an array of IComment items
      */
-    private async getComments( req: mp.IAuthReq, res: express.Response ) {
+    private async getComments( req: Modepress.IAuthReq, res: express.Response ) {
         const comments = this.getModel( 'comments' ) !;
         let count = 0;
         let visibility = 'public';
         const user = req._user;
-        const findToken = { $or: [] as mp.IComment[] };
+        const findToken = { $or: [] as Modepress.IComment[] };
 
         // Set the parent filter
         if ( req.query.parentId )
-            ( <mp.IComment>findToken ).parent = req.query.parentId;
+            ( <Modepress.IComment>findToken ).parent = req.query.parentId;
 
         // Set the user property if its provided
         if ( req.query.user )
-            ( <mp.IComment>findToken ).author = <any>new RegExp( req.query.user, 'i' );
+            ( <Modepress.IComment>findToken ).author = <any>new RegExp( req.query.user, 'i' );
 
         // Check for keywords
         if ( req.query.keyword )
-            findToken.$or.push( <mp.IComment>{ content: <any>new RegExp( req.query.keyword, 'i' ) });
+            findToken.$or.push( <Modepress.IComment>{ content: <any>new RegExp( req.query.keyword, 'i' ) });
 
         // Check for visibility
         if ( req.query.visibility ) {
@@ -86,9 +85,9 @@ export default class CommentsController extends Controller {
         // Add the or conditions for visibility
         if ( visibility !== 'all' ) {
             if ( visibility === 'public' )
-                ( <mp.IComment>findToken ).public = true;
+                ( <Modepress.IComment>findToken ).public = true;
             else
-                ( <mp.IComment>findToken ).public = false;
+                ( <Modepress.IComment>findToken ).public = false;
         }
 
         // Set the default sort order to ascending
@@ -101,7 +100,7 @@ export default class CommentsController extends Controller {
         }
 
         // Sort by the date created
-        let sort: mp.IComment = { createdOn: sortOrder };
+        let sort: Modepress.IComment = { createdOn: sortOrder };
 
         // Optionally sort by the last updated
         if ( req.query.sort ) {
@@ -116,11 +115,11 @@ export default class CommentsController extends Controller {
             // First get the count
             count = await comments.count( findToken );
 
-            const instances = await comments.findInstances<mp.IComment>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ) );
+            const instances = await comments.findInstances<Modepress.IComment>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ) );
 
-            const jsons: Array<Promise<mp.IComment>> = [];
+            const jsons: Array<Promise<Modepress.IComment>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<mp.IComment>( instances[ i ]._id, {
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.IComment>( instances[ i ]._id, {
                     verbose: Boolean( req.query.verbose ),
                     expandForeignKeys: Boolean( req.query.expanded ),
                     expandMaxDepth: parseInt( req.query.depth || 1 ),
@@ -129,7 +128,7 @@ export default class CommentsController extends Controller {
 
             const sanitizedData = await Promise.all( jsons );
 
-            okJson<mp.IGetComments>( {
+            okJson<Modepress.IGetComments>( {
                 error: false,
                 count: count,
                 message: `Found ${count} comments`,
@@ -144,13 +143,13 @@ export default class CommentsController extends Controller {
     /**
      * Returns a single comment
      */
-    private async getComment( req: mp.IAuthReq, res: express.Response ) {
+    private async getComment( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const comments = this.getModel( 'comments' ) !;
-            const findToken: mp.IComment = { _id: new mongodb.ObjectID( req.params.id ) };
+            const findToken: Modepress.IComment = { _id: new mongodb.ObjectID( req.params.id ) };
             const user = req._user;
 
-            const instances = await comments.findInstances<mp.IComment>( findToken, [], 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( findToken, [], 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find comment' );
@@ -162,9 +161,9 @@ export default class CommentsController extends Controller {
             if ( !isPublic && ( !user || users.isAdmin( user ) === false ) )
                 throw new Error( 'That comment is marked private' );
 
-            const jsons: Array<Promise<mp.IComment>> = [];
+            const jsons: Array<Promise<Modepress.IComment>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<mp.IComment>( instances[ i ]._id, {
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.IComment>( instances[ i ]._id, {
                     verbose: Boolean( req.query.verbose ),
                     expandForeignKeys: Boolean( req.query.expanded ),
                     expandMaxDepth: parseInt( req.query.depth || 1 ),
@@ -173,7 +172,7 @@ export default class CommentsController extends Controller {
 
             const sanitizedData = await Promise.all( jsons );
 
-            okJson<mp.IGetComment>( {
+            okJson<Modepress.IGetComment>( {
                 error: false,
                 message: `Found ${sanitizedData.length} comments`,
                 data: sanitizedData[ 0 ]
@@ -187,16 +186,16 @@ export default class CommentsController extends Controller {
     /**
      * Attempts to remove a comment by ID
      */
-    private async remove( req: mp.IAuthReq, res: express.Response ) {
+    private async remove( req: Modepress.IAuthReq, res: express.Response ) {
         const comments = this.getModel( 'comments' ) !;
-        const findToken: mp.IComment = {
+        const findToken: Modepress.IComment = {
             _id: new mongodb.ObjectID( req.params.id )
         }
 
         try {
             const user = req._user;
             const users = UsersService.getSingleton();
-            const instances = await comments.findInstances<mp.IComment>( findToken, [], 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( findToken, [], 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find a comment with that ID' );
@@ -210,7 +209,7 @@ export default class CommentsController extends Controller {
 
             // Attempt to delete the instances
             await comments.deleteInstances( findToken );
-            okJson<mp.IResponse>( {
+            okJson<Modepress.IResponse>( {
                 error: false,
                 message: 'Comment has been successfully removed'
             }, res );
@@ -223,17 +222,17 @@ export default class CommentsController extends Controller {
     /**
      * Attempts to update a comment by ID
      */
-    private async update( req: mp.IAuthReq, res: express.Response ) {
-        const token: mp.IComment = req.body;
+    private async update( req: Modepress.IAuthReq, res: express.Response ) {
+        const token: Modepress.IComment = req.body;
         const comments = this.getModel( 'comments' ) !;
-        const findToken: mp.IComment = {
+        const findToken: Modepress.IComment = {
             _id: new mongodb.ObjectID( req.params.id )
         }
 
         try {
             const user = req._user;
             const users = UsersService.getSingleton();
-            const instances = await comments.findInstances<mp.IComment>( findToken, [], 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( findToken, [], 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find comment with that id' );
@@ -250,7 +249,7 @@ export default class CommentsController extends Controller {
             if ( instance.error )
                 throw new Error( <string>instance.tokens[ 0 ].error );
 
-            okJson<mp.IResponse>( {
+            okJson<Modepress.IResponse>( {
                 error: false,
                 message: 'Comment Updated'
             }, res );
@@ -263,19 +262,19 @@ export default class CommentsController extends Controller {
     /**
      * Attempts to create a new comment
      */
-    private async create( req: mp.IAuthReq, res: express.Response ) {
-        const token: mp.IComment = req.body;
+    private async create( req: Modepress.IAuthReq, res: express.Response ) {
+        const token: Modepress.IComment = req.body;
         const comments = this.getModel( 'comments' ) !;
 
         // User is passed from the authentication function
         token.author = req._user!.username;
         token.post = req.params.postId;
         token.parent = req.params.parent;
-        let parent: ModelInstance<mp.IComment> | null = null;
+        let parent: ModelInstance<Modepress.IComment> | null = null;
 
         try {
             if ( token.parent ) {
-                parent = await comments.findOne<mp.IComment>( <mp.IModelEntry>{ _id: new mongodb.ObjectID( token.parent ) });
+                parent = await comments.findOne<Modepress.IComment>( <Modepress.IModelEntry>{ _id: new mongodb.ObjectID( token.parent ) });
                 if ( !parent )
                     throw new Error( `No comment exists with the id ${token.parent}` );
             }
@@ -288,10 +287,10 @@ export default class CommentsController extends Controller {
             if ( parent ) {
                 const children: Array<string> = parent.schema.getByName( 'children' ) !.value;
                 children.push( instance.dbEntry!._id );
-                await parent.model.update<mp.IComment>( <mp.IComment>{ _id: parent.dbEntry._id }, { children: children })
+                await parent.model.update<Modepress.IComment>( <Modepress.IComment>{ _id: parent.dbEntry._id }, { children: children })
             }
 
-            okJson<mp.IGetComment>( {
+            okJson<Modepress.IGetComment>( {
                 error: false,
                 message: 'New comment created',
                 data: json

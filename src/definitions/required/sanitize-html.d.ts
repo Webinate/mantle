@@ -1,34 +1,58 @@
-﻿// Based on the module: https://www.npmjs.com/package/sanitize-html
-// Written by Mathew Henson
+﻿// Type definitions for sanitize-html 1.13.0
+// Project: https://github.com/punkave/sanitize-html
+// Definitions by: Rogier Schouten <https://github.com/rogierschouten>, Afshin Darian <https://github.com/afshin>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-declare module "sanitize-html"
-{
-    /**
-    Santizes a dirty piece of html code. Below you will find some examples of its use
-        
-    // Simple example
-    var dirty = 'some really tacky HTML';
-    var clean = sanitizeHtml(dirty);
-    
-    // Allow only a super restricted set of tags and attributes
-    clean = sanitizeHtml(dirty, {
-        allowedTags: [ 'b', 'i', 'em', 'strong', 'a' ],
-        allowedAttributes: {
-            'a': [ 'href' ]
-        }
-    });
 
-    // I like your set but I want to add one more tag. Is there a convenient way?
-    clean = sanitizeHtml(dirty, {
-        allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])
-    });
-    */
-   function sanitizeHtml(html: string, options?: {
-        allowedTags?: Array<string>;
-        allowedAttributes?: { [name: string]: Array<string> };
-        selfClosing?: Array<string>;
-        allowedSchemes?: Array<string>;
-    }): string;
+declare function sanitize( dirty: string, options?: sanitize.IOptions ): string;
 
-   export = sanitizeHtml;
+
+declare namespace sanitize {
+    type Attributes = { [ attr: string ]: string };
+
+
+    type Tag = { tagName: string; attribs: Attributes; text?: string; };
+
+
+    type Transformer = ( tagName: string, attribs: Attributes ) => Tag;
+
+
+    interface IDefaults {
+        allowedAttributes: { [ index: string ]: string[] };
+        allowedSchemes: string[];
+        allowedSchemesByTag: { [ index: string ]: string[] };
+        allowedTags: string[];
+        selfClosing: string[];
+    }
+
+
+    interface IFrame {
+        tag: string;
+        attribs: { [ index: string ]: string };
+        text: string;
+        tagPosition: number;
+    }
+
+
+    interface IOptions {
+        allowedAttributes?: { [ index: string ]: string[] } | boolean;
+        allowedClasses?: { [ index: string ]: string[] } | boolean;
+        allowedSchemes?: string[] | boolean;
+        allowedTags?: string[] | boolean;
+        exclusiveFilter?: ( frame: IFrame ) => boolean;
+        nonTextTags?: string[];
+        selfClosing?: string[];
+        transformTags?: { [ tagName: string ]: string | Transformer };
+    }
+
+
+    var defaults: IDefaults;
+
+
+    function simpleTransform( tagName: string, attribs: Attributes, merge?: boolean ): Transformer;
+}
+
+
+declare module 'sanitize-html' {
+    export = sanitize;
 }

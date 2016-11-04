@@ -1,5 +1,4 @@
-﻿import { IServer, IPath } from 'modepress-api';
-import * as express from 'express';
+﻿import * as express from 'express';
 import * as fs from 'fs';
 import { UsersService } from './users-service';
 
@@ -9,13 +8,13 @@ import { UsersService } from './users-service';
  * to a static one.
  */
 export class PathHandler {
-    private _path: IPath;
-    private _config: IServer;
+    private _path: Modepress.IPath;
+    private _config: Modepress.IServer;
 
     /**
      * Creates a new path handler
      */
-    constructor( path: IPath, cfg: IServer ) {
+    constructor( path: Modepress.IPath, cfg: Modepress.IServer ) {
         this._path = path;
         this._config = cfg;
     }
