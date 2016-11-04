@@ -11,7 +11,7 @@ export const Model = _Models.Model;
 export const UsersService = _UsersService.UsersService;
 export const SchemaFactory = _SchemaFactory;
 export const EventManager = _EventManager.EventManager;
-
+export const NumberType = _SchemaFactory.NumberType;
 export const isAdmin = _PermissionController.isAdmin;
 export const isAuthenticated = _PermissionController.isAuthenticated;
 export const getUser = _PermissionController.getUser;
