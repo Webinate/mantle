@@ -494,6 +494,13 @@ declare namespace Modepress {
         public remove( val: SchemaItem<any> | string );
     }
 
+    export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
+
+    /*
+     * Describes a token returned from updating instances
+     */
+    export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>> }
+
     /**
      * An instance of a model with its own unique schema and ID. The initial schema is a clone
      * the parent model's
@@ -612,7 +619,7 @@ declare namespace Modepress {
     }
 
     export class Controller {
-        constructor( models: Array<Model> );
+        constructor( models: Array<Model> | null );
 
         /**
          * Called to initialize this controller and its related database objects
