@@ -494,6 +494,13 @@
         public remove( val: SchemaItem<any> | string );
     }
 
+    export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
+
+    /*
+     * Describes a token returned from updating instances
+     */
+    export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>> }
+
     /**
      * An instance of a model with its own unique schema and ID. The initial schema is a clone
      * the parent model's
