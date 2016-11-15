@@ -8,17 +8,17 @@ let numCPUs = os.cpus().length;
 // Check for the threads argument
 if ( args.numThreads ) {
     if ( args.numThreads === 'max' ) {
-        console.log( `Setting the number of clusters to  ${numCPUs}` );
+        console.log( `Setting the number of clusters to  ${ numCPUs }` );
     }
     else if ( isNaN( parseInt( args.numThreads ) ) ) {
         console.log( 'attribute numThreads must be a number' );
         process.exit();
     }
     else if ( args.numThreads > numCPUs ) {
-        console.log( `You only have ${numCPUs} threads available - attribute numThreads will be set to ${numCPUs}` );
+        console.log( `You only have ${ numCPUs } threads available - attribute numThreads will be set to ${ numCPUs }` );
     }
     else if ( args.numThreads ) {
-        console.log( `Setting the number of clusters to  ${args.numThreads}` );
+        console.log( `Setting the number of clusters to  ${ args.numThreads }` );
         numCPUs = args.numThreads;
     }
 }
@@ -46,12 +46,12 @@ else if ( cluster.isMaster ) {
         const newPID = worker.process.pid;
         const oldPID = deadWorker.process.pid;
 
-        console.log( `Cluster ${worker.process.pid} died` );
+        console.log( `Cluster ${ worker.process.pid } died` );
         console.log( `Attempting to restart failed cluster` );
 
         // Log the event
-        console.log( `worker ${oldPID} died` );
-        console.log( `worker ${newPID} born` );
+        console.log( `worker ${ oldPID } died` );
+        console.log( `worker ${ newPID } born` );
     });
 }
 else {

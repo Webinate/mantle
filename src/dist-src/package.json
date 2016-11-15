@@ -12,7 +12,6 @@
         "morgan": "^1.5.1",
         "body-parser": "^1.12.0",
         "method-override": "^2.3.1",
-        "node-inspector": "^0.12.7",
         "request": "^2.69.0",
         "jade": "^1.10.0",
         "yargs": "^3.12.0",
