@@ -229,8 +229,8 @@ export abstract class Model {
     }
 
     /**
-	 * Deletes a instance and all its dependencies are updated or deleted accordingly
-	 */
+     * Deletes a instance and all its dependencies are updated or deleted accordingly
+     */
     private async deleteInstance( instance: ModelInstance<Modepress.IModelEntry> ): Promise<number> {
         let foreignModel: Model;
         const optionalDependencies = instance.dbEntry._optionalDependencies;
@@ -305,14 +305,14 @@ export abstract class Model {
     }
 
     /**
-	 * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
+     * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
      * unique fields are still being respected. An array is returned of each instance along with an error string if anything went wrong
      * with updating the specific instance.
-	 * @param selector The selector for updating instances
+     * @param selector The selector for updating instances
      * @param data The data object that will attempt to set the instance's schema variables
-	 * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
+     * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
      * went wrong when updating the specific instance, and a string message if something did in fact go wrong
-	 */
+     */
     async update<T>( selector: any, data: T ): Promise<UpdateRequest<T>> {
         const toRet: UpdateRequest<T> = {
             error: false,
@@ -329,7 +329,7 @@ export abstract class Model {
 
             // If we have data, then set the variables
             if ( data )
-                instance.schema.set( data );
+                instance.schema.set( data, false );
 
             try {
                 // Make sure the new updates are valid
@@ -409,7 +409,7 @@ export abstract class Model {
 
         // If we have data, then set the variables
         if ( data )
-            newInstance.schema.set( data );
+            newInstance.schema.set( data, true );
 
         const unique = await this.checkUniqueness( newInstance );
 

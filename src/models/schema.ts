@@ -28,14 +28,15 @@ export class Schema {
     /**
 	 * Sets a schema value by name
 	 * @param data The data object we are setting
+     * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
 	 */
-    set( data: any ) {
+    set( data: any, allowReadOnlyValues: boolean ) {
         const items = this._items,
             l = items.length;
 
         for ( const i in data ) {
             for ( let ii = 0; ii < l; ii++ )
-                if ( items[ ii ].name === i )
+                if ( items[ ii ].name === i && ( items[ ii ].getReadOnly() === false || allowReadOnlyValues ) )
                     items[ ii ].setValue( data[ i ] );
         }
     }

@@ -12,6 +12,7 @@ export class SchemaItem<T> {
     private _indexable: boolean;
     private _required: boolean;
     private _modified: boolean;
+    private _readOnly: boolean;
 
     constructor( name: string, value: T ) {
         this.name = name;
@@ -22,6 +23,7 @@ export class SchemaItem<T> {
         this._indexable = false;
         this._required = false;
         this._modified = false;
+        this._readOnly = false;
     }
 
 	/**
@@ -60,6 +62,21 @@ export class SchemaItem<T> {
      */
     public setRequired( val: boolean ): SchemaItem<T> {
         this._required = val;
+        return this;
+    }
+
+    /**
+     * Gets if this item is read only. If true, then the value can only be set when the item is created
+     * and any future updates are ignored
+     */
+    public getReadOnly(): boolean { return this._readOnly; }
+
+    /**
+     * Sets if this item is required. If true, then the value can only be set when the item is created
+     * and any future updates are ignored
+     */
+    public setReadOnly( val: boolean ): SchemaItem<T> {
+        this._readOnly = val;
         return this;
     }
 

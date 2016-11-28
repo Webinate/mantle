@@ -360,7 +360,19 @@ declare namespace Modepress {
         /**
          * Sets if this item is required. This will throw an error on the item if the value is not set before validation
          */
-        public setRequired( val: boolean );
+        public setRequired( val: boolean ): SchemaItem<T>;
+
+        /**
+         * Gets if this item is read only. If true, then the value can only be set when the item is created
+         * and any future updates are ignored
+         */
+        public getReadOnly(): boolean;
+
+        /**
+         * Sets if this item is required. If true, then the value can only be set when the item is created
+         * and any future updates are ignored
+         */
+        public setReadOnly( val: boolean ): SchemaItem<T>;
 
         /**
          * Gets if this item is indexable by mongodb
