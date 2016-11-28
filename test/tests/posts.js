@@ -138,7 +138,8 @@ describe( 'Testing all post related endpoints', function() {
                     .string( res.body.data.tags[ 0 ] ).is( "super-tags-1234" )
                     .string( res.body.data.tags[ 1 ] ).is( "supert-tags-4321" )
                     .string( res.body.data._id )
-
+                    .number( res.body.data.createdOn ).isGreaterThan( 0 )
+                    .number( res.body.data.lastUpdated ).isGreaterThan( 0 )
 
                 done();
             });
