@@ -42,12 +42,14 @@ export class EventManager extends events.EventEmitter {
                 // Opens a stream to the users socket events
                 _client.on( 'close', function() {
                     winston.error( `We lost connection to the stream`, { process: process.pid });
+                    _client.removeAllListeners();
                     setTimeout( connect, reconnectInterval );
                 });
 
                 // Report if there are any errors
                 _client.on( 'error', function( err: Error ) {
                     winston.error( `An error occurred when trying to connect to the users socket: ${err.message}`, { process: process.pid });
+                    _client.removeAllListeners();
                     setTimeout( connect, reconnectInterval );
                 });
 
