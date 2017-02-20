@@ -40,7 +40,7 @@ export class UsersService {
 	 */
     login( user: string, password: string, remember: boolean ): Promise<UsersInterface.IAuthenticationResponse> {
         return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
-            request.post( `${UsersService.usersURL}/login`, { body: <UsersInterface.ILoginToken>{ username: user, password: password, rememberMe: remember } }, function( error, response, body ) {
+            request.post( `${UsersService.usersURL}/users/login`, { body: <UsersInterface.ILoginToken>{ username: user, password: password, rememberMe: remember } }, function( error, response, body ) {
                 response; // Supress empty param warning
 
                 if ( error )
@@ -61,7 +61,7 @@ export class UsersService {
 	 */
     authenticated( req: express.Request ): Promise<UsersInterface.IAuthenticationResponse> {
         return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
-            request.get( `${UsersService.usersURL}/authenticated`, { headers: { cookie: ( <any>req ).headers.cookie } }, function( error, response, body ) {
+            request.get( `${UsersService.usersURL}/users/authenticated`, { headers: { cookie: ( <any>req ).headers.cookie } }, function( error, response, body ) {
                 response; // Supress empty param warning
 
                 if ( error )

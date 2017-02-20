@@ -13,8 +13,13 @@ describe( 'Log in as an admin user', function() {
                 test.bool( res.body.error ).isNotTrue()
                     .bool( res.body.authenticated ).isTrue()
                     .object( res.body ).hasProperty( "message" )
+				
+				
 
                 header.adminCookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
+				
+				console.log('WE have a message!' + res.body.message )
+				console.log('WE have a cookie!' + header.adminCookie )
                 done();
             });
     }).timeout( 25000 )
