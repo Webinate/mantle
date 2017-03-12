@@ -10,6 +10,12 @@ import { Controller } from './controllers/controller'
 import PageRenderer from './controllers/page-renderer'
 import CORSController from './controllers/cors-controller';
 import { PathHandler } from './path-handler';
+import { BucketController } from './controllers/bucket-controller';
+import { AuthController } from './controllers/auth-controller';
+import { UserController } from './controllers/user-controller';
+import { CORSController } from './controllers/cors-controller';
+import { ErrorController } from './controllers/error-controller';
+import { CommsController } from './socket-api/comms-controller';
 
 export class Server {
     private _config: Modepress.IConfig;
@@ -51,6 +57,13 @@ export class Server {
         let lastAddedController: string | null = null;
 
         controllers.push( new PageRenderer( server, config, app ) );
+
+        // Users related
+        controllers.push( new CommsController( config! ) );
+        controllers.push( new BucketController( app, config! ) );
+        controllers.push( new AuthController( app, config! ) );
+        controllers.push( new UserController( app, config! ) );
+        controllers.push( new ErrorController( app ) );
 
         // Load the controllers
         try {

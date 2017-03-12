@@ -11,7 +11,7 @@
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "outDir": "./dist",
-        "noUnusedParameters": true,
+        "noUnusedParameters": false,
         "noUnusedLocals": true,
         "strictNullChecks": true,
         "rootDir": "src"

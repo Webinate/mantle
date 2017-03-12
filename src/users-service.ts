@@ -82,7 +82,7 @@ export class UsersService {
 	 * @param user The user we are checking
 	 */
     isAdmin( user: UsersInterface.IUserEntry ): boolean {
-        if ( user.privileges > 2 )
+        if ( user.privileges! > 2 )
             return false;
 
         return true;
@@ -97,10 +97,10 @@ export class UsersService {
 	 */
     hasPermission( user: UsersInterface.IUserEntry, level: number, existingUser?: string ): boolean {
         if ( existingUser !== undefined ) {
-            if ( ( user.email !== existingUser && user.username !== existingUser ) && user.privileges > level )
+            if ( ( user.email !== existingUser && user.username !== existingUser ) && user.privileges! > level )
                 return false;
         }
-        else if ( user.privileges > level )
+        else if ( user.privileges! > level )
             return false;
 
         return true;

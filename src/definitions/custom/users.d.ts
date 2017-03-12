@@ -1,4 +1,4 @@
-declare namespace UsersInterface {
+﻿declare namespace UsersInterface {
     export class User {
         dbEntry: IUserEntry;
     }

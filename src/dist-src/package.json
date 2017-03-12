@@ -19,6 +19,15 @@
         "modepress-api": "./modepress-api",
         "ws": "^1.0.1",
         "sanitize-html": "^1.11.4",
-        "jsdom": "^8.2.0"
+        "jsdom": "^8.2.0",
+        "validator": "~3.39.0",
+        "bcryptjs": "~2.2.0",
+        "mailgun-js": "^0.7.11",
+        "gcloud": "~0.24.1",
+        "googleapis": "~2.1.7",
+        "google-auth-library": "~0.9.7",
+        "multiparty": "~4.1.2",
+        "compressible": "~2.0.4",
+        "xoauth2": "~1.1.0"
     }
 }
