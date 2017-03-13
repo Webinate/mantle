@@ -219,6 +219,24 @@ declare namespace Modepress {
          * An array of controllers associated with this server
          */
         controllers: Array<IControllerPlugin>
+
+         /**
+         * The URL to redirect to after the user attempts to activate their account.
+         * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
+         * adding a query ?message=You%20have%20activated%20your%20account&status=success.
+         * The status can be either 'success' or 'error'
+         *
+         * eg: 'http://localhost/notify-user'
+         */
+        accountRedirectURL: string;
+
+        /**
+         * The URL sent to users emails for when their password is reset. This URL should
+         * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
+         *
+         * eg: 'http://localhost/reset-password'
+         */
+        passwordResetURL: string;
     }
 
     /**
@@ -248,10 +266,116 @@ declare namespace Modepress {
         variables: { [ name: string ]: string };
     }
 
+    export interface IMailOptions { }
+
+    /**
+     * Options for a gmail mailer
+     */
+    export interface IGMail extends IMailOptions {
+        /*
+         * The email account to use the gmail API through. This account must be authorized to
+         * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
+         */
+        apiEmail: string;
+
+        /*
+         * Path to the key file
+         */
+        keyFile: string;
+    }
+
+    /**
+     * Options for a mailgun mailer
+     */
+    export interface IMailgun extends IMailOptions {
+        /**
+         * The domain for associated with the mailgun account
+         */
+        domain: string;
+
+        /**
+         * The api key for your mailgun account
+         */
+        apiKey: string;
+    }
+
+    /*
+     * Users stores data on an external cloud bucket with Google
+     */
+    export interface IWebsocket {
+        /**
+         * A key that must be provided in the headers of socket client connections. If the connection headers
+         * contain 'users-api-key', and it matches this key, then the connection is considered an authorized connection.
+         */
+        socketApiKey: string;
+
+        /**
+         * The port number to use for web socket communication. You can use this port to send and receive events or messages
+         * to the server.
+         * e.g. 8080
+         */
+        port: number;
+
+        /**
+         * An array of safe origins for socket communication
+         * [
+         *   'webinate.net',
+         *   'localhost'
+         * ]
+         */
+        approvedSocketDomains: Array<string>;
+    }
+
+    /*
+     * Users stores data on an external cloud bucket with Google
+     */
+    export interface IGoogleProperties {
+        /*
+         * Path to the key file
+         */
+        keyFile: string;
+
+        /*
+         * Describes the bucket details
+         */
+        bucket: {
+
+            /*
+             * Project ID
+             */
+            projectId: string;
+
+            /**
+             * The name of the mongodb collection for storing bucket details
+             * eg: 'buckets'
+             */
+            bucketsCollection: string;
+
+            /**
+             * The name of the mongodb collection for storing file details
+             * eg: 'files'
+             */
+            filesCollection: string;
+
+            /**
+             * The name of the mongodb collection for storing user stats
+             * eg: 'storageAPI'
+             */
+            statsCollection: string;
+
+            /**
+             * The length of time the assets should be cached on a user's browser.
+             * eg:  2592000000 or 30 days
+             */
+            cacheLifetime: number;
+        }
+    }
+
     /**
      * A server configuration
      */
     export interface IConfig {
+
         /**
          * The length of time the assets should be cached on a user's browser. The default is 30 days.
          */
@@ -315,6 +439,56 @@ declare namespace Modepress {
           * eg: 'this-is-my-key'
           */
         usersSocketApiKey: string;
+
+        /**
+         * If debug is true, certain functions will be emulated and more information logged
+         */
+        debug: boolean;
+
+        /**
+         * Settings related to sending emails
+         */
+        mail: {
+
+            /**
+             * The from field sent to recipients
+             */
+            from: string;
+
+            /**
+             * Specify the type of mailer to use.
+             * Currently we support either 'gmail' or 'mailgun'
+             */
+            type: 'gmail' | 'mailgun';
+
+            /**
+             * Options to be sent to the desired mailer
+             */
+            options: IGMail | IMailgun;
+        }
+
+        /**
+         * Information relating to the Google storage platform
+         *
+         'google': {
+             'keyFile': '',
+             'mail':{
+                 'apiEmail': '',
+                 'from': ''
+             },
+             'bucket': {
+                     'projectId': '',
+                     'bucketsCollection': 'buckets',
+                     'filesCollection': 'files'
+                 }
+             }
+         */
+        google: IGoogleProperties;
+
+        /**
+         * Information regarding the websocket communication. Used for events and IPC
+         */
+        websocket: IWebsocket;
     }
 
     export interface IAuthReq extends Express.Request {
@@ -898,17 +1072,17 @@ declare namespace Modepress {
      * A list of helper functions for creating schema items
      */
     export namespace SchemaFactory {
-        export var num: typeof SchemaNumber;
-        export var text: typeof SchemaText;
-        export var textArray: typeof SchemaTextArray;
-        export var json: typeof SchemaJSON;
-        export var numArray: typeof SchemaNumArray;
-        export var idArray: typeof SchemaIdArray;
-        export var date: typeof SchemaDate;
-        export var bool: typeof SchemaBool;
-        export var id: typeof SchemaId;
-        export var html: typeof SchemaHtml;
-        export var foreignKey: typeof SchemaForeignKey;
+        export const num: typeof SchemaNumber;
+        export const text: typeof SchemaText;
+        export const textArray: typeof SchemaTextArray;
+        export const json: typeof SchemaJSON;
+        export const numArray: typeof SchemaNumArray;
+        export const idArray: typeof SchemaIdArray;
+        export const date: typeof SchemaDate;
+        export const bool: typeof SchemaBool;
+        export const id: typeof SchemaId;
+        export const html: typeof SchemaHtml;
+        export const foreignKey: typeof SchemaForeignKey;
     }
 
     /**

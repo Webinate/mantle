@@ -10,11 +10,13 @@ import { Controller } from './controllers/controller'
 import PageRenderer from './controllers/page-renderer'
 import CORSController from './controllers/cors-controller';
 import { PathHandler } from './path-handler';
+import { SessionController } from './controllers/session-controller';
 import { BucketController } from './controllers/bucket-controller';
 import { StatsController } from './controllers/stats-controller';
 import { FileController } from './controllers/file-controller';
 import { AuthController } from './controllers/auth-controller';
 import { UserController } from './controllers/user-controller';
+import { AdminController } from './controllers/admin-controller';
 import { ErrorController } from './controllers/error-controller';
 import { CommsController } from './socket-api/comms-controller';
 
@@ -60,12 +62,17 @@ export class Server {
 
         controllers.push( new PageRenderer( server, config, app ) );
 
-        // Users related
-        controllers.push( new CommsController( config! ) );
+        // Socket manager
+        let comms = new CommsController( config!, server! );
+        await comms.initialize(db);
+
+        // User controllers
         controllers.push( new BucketController( app, config! ) );
         controllers.push( new FileController( app, config! ) );
-        controllers.push( new AuthController( app, config! ) );
+        controllers.push( new SessionController( app, config! ) );
+        controllers.push( new AuthController( app, config!, server! ) );
         controllers.push( new UserController( app, config! ) );
+        controllers.push( new AdminController( app, config! ) );
         controllers.push( new StatsController( app, config! ) );
 
 

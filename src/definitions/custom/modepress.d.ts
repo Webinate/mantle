@@ -219,6 +219,24 @@
          * An array of controllers associated with this server
          */
         controllers: Array<IControllerPlugin>
+
+         /**
+         * The URL to redirect to after the user attempts to activate their account.
+         * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
+         * adding a query ?message=You%20have%20activated%20your%20account&status=success.
+         * The status can be either 'success' or 'error'
+         *
+         * eg: 'http://localhost/notify-user'
+         */
+        accountRedirectURL: string;
+
+        /**
+         * The URL sent to users emails for when their password is reset. This URL should
+         * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
+         *
+         * eg: 'http://localhost/reset-password'
+         */
+        passwordResetURL: string;
     }
 
     /**
@@ -279,6 +297,33 @@
          * The api key for your mailgun account
          */
         apiKey: string;
+    }
+
+    /*
+     * Users stores data on an external cloud bucket with Google
+     */
+    export interface IWebsocket {
+        /**
+         * A key that must be provided in the headers of socket client connections. If the connection headers
+         * contain 'users-api-key', and it matches this key, then the connection is considered an authorized connection.
+         */
+        socketApiKey: string;
+
+        /**
+         * The port number to use for web socket communication. You can use this port to send and receive events or messages
+         * to the server.
+         * e.g. 8080
+         */
+        port: number;
+
+        /**
+         * An array of safe origins for socket communication
+         * [
+         *   'webinate.net',
+         *   'localhost'
+         * ]
+         */
+        approvedSocketDomains: Array<string>;
     }
 
     /*
@@ -439,6 +484,11 @@
              }
          */
         google: IGoogleProperties;
+
+        /**
+         * Information regarding the websocket communication. Used for events and IPC
+         */
+        websocket: IWebsocket;
     }
 
     export interface IAuthReq extends Express.Request {
@@ -1022,17 +1072,17 @@
      * A list of helper functions for creating schema items
      */
     export namespace SchemaFactory {
-        export var num: typeof SchemaNumber;
-        export var text: typeof SchemaText;
-        export var textArray: typeof SchemaTextArray;
-        export var json: typeof SchemaJSON;
-        export var numArray: typeof SchemaNumArray;
-        export var idArray: typeof SchemaIdArray;
-        export var date: typeof SchemaDate;
-        export var bool: typeof SchemaBool;
-        export var id: typeof SchemaId;
-        export var html: typeof SchemaHtml;
-        export var foreignKey: typeof SchemaForeignKey;
+        export const num: typeof SchemaNumber;
+        export const text: typeof SchemaText;
+        export const textArray: typeof SchemaTextArray;
+        export const json: typeof SchemaJSON;
+        export const numArray: typeof SchemaNumArray;
+        export const idArray: typeof SchemaIdArray;
+        export const date: typeof SchemaDate;
+        export const bool: typeof SchemaBool;
+        export const id: typeof SchemaId;
+        export const html: typeof SchemaHtml;
+        export const foreignKey: typeof SchemaForeignKey;
     }
 
     /**
