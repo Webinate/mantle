@@ -1193,7 +1193,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not get buckets for admin', function( done ) {
             agent
-                .get( "/users/" + config.adminUser.username + "/buckets" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .get( "/buckets/user/" + config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1343,7 +1343,7 @@ describe( 'Checking media API', function() {
 
         it( 'did get buckets for itself', function( done ) {
             agent
-                .get( "/users/george/buckets" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .get( "/buckets/user/george" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1386,7 +1386,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create a bucket for another user', function( done ) {
             agent
-                .post( "/users/" + config.adminUser.username + "/buckets/test" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .post( "/buckets/user/" + config.adminUser.username + "/test" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1400,7 +1400,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create a bucket with bad characters', function( done ) {
             agent
-                .post( "/users/george/buckets/�BAD!CHARS" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .post( "/buckets/user/george/�BAD!CHARS" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1414,7 +1414,7 @@ describe( 'Checking media API', function() {
 
         it( 'did create a new bucket called dinosaurs', function( done ) {
             agent
-                .post( "/users/george/buckets/dinosaurs" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .post( "/buckets/user/george/dinosaurs" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1427,7 +1427,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create a bucket with the same name as an existing one', function( done ) {
             agent
-                .post( "/users/george/buckets/dinosaurs" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .post( "/buckets/user/george/dinosaurs" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1440,7 +1440,7 @@ describe( 'Checking media API', function() {
 
         it( 'did create a bucket with a different name', function( done ) {
             agent
-                .post( "/users/george/buckets/dinosaurs2" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .post( "/buckets/users/george/dinosaurs2" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1467,7 +1467,7 @@ describe( 'Checking media API', function() {
 
         it( 'did get the 2 buckets for george', function( done ) {
             agent
-                .get( "/users/george/buckets" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .get( "/buckets/user/george" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );

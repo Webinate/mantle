@@ -17,6 +17,7 @@ import { UsersModel } from '../models/users-model';
  */
 export class AuthController extends Controller {
     private _config: Modepress.IConfig;
+    private _server: Modepress.IServer;
 
 	/**
 	 * Creates an instance of the user manager
@@ -24,10 +25,11 @@ export class AuthController extends Controller {
 	 * @param sessionCollection The mongo collection that stores the session data
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: Modepress.IConfig ) {
+    constructor( e: express.Express, config: Modepress.IConfig, server: Modepress.IServer ) {
         super([ Model.registerModel(UsersModel) ]);
 
         this._config = config;
+        this._server = server;
 
         // Setup the rest calls
         const router = express.Router();
@@ -54,7 +56,7 @@ export class AuthController extends Controller {
 	 * Activates the user's account
 	 */
     private async activateAccount( req: express.Request, res: express.Response ) {
-        const redirectURL = this._config.accountRedirectURL;
+        const redirectURL = this._server.accountRedirectURL;
 
         try {
             // Check the user's activation and forward them onto the admin message page

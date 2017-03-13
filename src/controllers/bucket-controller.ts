@@ -44,13 +44,13 @@ export class BucketController extends Controller {
         router.use( bodyParser.json() );
         router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-        router.get( '/users/:user/buckets', <any>[ ownerRights, this.getBuckets.bind( this ) ] );
-        router.delete( '/buckets/:buckets', <any>[ requireUser, this.removeBuckets.bind( this ) ] );
-        router.post( '/buckets/:bucket/upload/:parentFile?', <any>[ requireUser, this.uploadUserFiles.bind( this ) ] );
-        router.post( '/users/:user/buckets/:name', <any>[ ownerRights, this.createBucket.bind( this ) ] );
+        router.get( '/user/:user', <any>[ ownerRights, this.getBuckets.bind( this ) ] );
+        router.delete( '/:buckets', <any>[ requireUser, this.removeBuckets.bind( this ) ] );
+        router.post( '/:bucket/upload/:parentFile?', <any>[ requireUser, this.uploadUserFiles.bind( this ) ] );
+        router.post( '/user/:user/:name', <any>[ ownerRights, this.createBucket.bind( this ) ] );
 
         // Register the path
-        e.use( `${config.apiPrefix}`, router );
+        e.use( `/buckets`, router );
     }
 
     /**

@@ -35,22 +35,17 @@ export class UserController extends Controller {
         router.use( bodyParser.json() );
         router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-        router.get( '/users', <any>[ identifyUser, this.getUsers.bind( this ) ] );
-        router.post( '/users', <any>[ ownerRights, this.createUser.bind( this ) ] );
-        router.get( '/users/:user/meta', <any>[ ownerRights, this.getData.bind( this ) ] );
-        router.get( '/users/:user/meta/:name', <any>[ ownerRights, this.getVal.bind( this ) ] );
-        router.get( '/users/:username', <any>[ ownerRights, this.getUser.bind( this ) ] );
-        router.delete( '/users/:user', <any>[ ownerRights, this.removeUser.bind( this ) ] );
-        router.post( '/users/:user/meta/:name', <any>[ adminRights, this.setVal.bind( this ) ] );
-        router.post( '/users/:user/meta', <any>[ adminRights, this.setData.bind( this ) ] );
-
-        router.get( '/who-am-i', this.authenticated.bind( this ) );
-        router.get( '/sessions', <any>[ ownerRights, this.getSessions.bind( this ) ] );
-        router.delete( '/sessions/:id', <any>[ ownerRights, this.deleteSession.bind( this ) ] );
-        router.post( '/message-webmaster', this.messageWebmaster.bind( this ) );
+        router.get( '/', <any>[ identifyUser, this.getUsers.bind( this ) ] );
+        router.post( '/', <any>[ ownerRights, this.createUser.bind( this ) ] );
+        router.get( '/:user/meta', <any>[ ownerRights, this.getData.bind( this ) ] );
+        router.get( '/:user/meta/:name', <any>[ ownerRights, this.getVal.bind( this ) ] );
+        router.get( '/:username', <any>[ ownerRights, this.getUser.bind( this ) ] );
+        router.delete( '/:user', <any>[ ownerRights, this.removeUser.bind( this ) ] );
+        router.post( '/:user/meta/:name', <any>[ adminRights, this.setVal.bind( this ) ] );
+        router.post( '/:user/meta', <any>[ adminRights, this.setData.bind( this ) ] );
 
         // Register the path
-        e.use( config.apiPrefix, router );
+        e.use( '/users', router );
     }
 
     /**
@@ -103,57 +98,6 @@ export class UserController extends Controller {
                 data: sanitizedData,
                 count: totalNumUsers
             }, res );
-
-        } catch ( err ) {
-            return errJson( err, res );
-        };
-    }
-
-	/**
-	 * Gets a list of active sessions. You can limit the haul by specifying the 'index' and 'limit' query parameters.
-	 */
-    private async getSessions( req: express.Request, res: express.Response ) {
-        try {
-            const numSessions = await UserManager.get.sessionManager.numActiveSessions();
-            const sessions = await UserManager.get.sessionManager.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
-
-            okJson<def.IGetSessions>( {
-                error: false,
-                message: `Found ${sessions.length} active sessions`,
-                data: sessions,
-                count: numSessions
-            }, res );
-
-        } catch ( err ) {
-            return errJson( err, res );
-        };
-    }
-
-	/**
- 	 * Resends the activation link to the user
-	 */
-    private async deleteSession( req: express.Request, res: express.Response ) {
-        try {
-            await UserManager.get.sessionManager.clearSession( req.params.id, req, res );
-            okJson<def.IResponse>( { error: false, message: `Session ${req.params.id} has been removed` }, res );
-
-        } catch ( err ) {
-            return errJson( err, res );
-        };
-    }
-
-    /**
-	 * Attempts to send the webmaster an email message
-	 */
-    async messageWebmaster( req: express.Request, res: express.Response ) {
-        try {
-            const token: any = req.body;
-
-            if ( !token.message )
-                throw new Error( 'Please specify a message to send' );
-
-            await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
-            okJson<def.IResponse>( { error: false, message: 'Your message has been sent to the support team' }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -257,7 +201,9 @@ export class UserController extends Controller {
             if ( token.privileges === UserPrivileges.SuperAdmin )
                 throw new Error( 'You cannot create a user with super admin permissions' );
 
-            const user = await UserManager.get.createUser( token.username!, token.email, token.password, ( this._config.ssl ? 'https://' : 'http://' ) + this._config.host, token.privileges, token.meta );
+            const secure = ( ( <any>req.connection ).encrypted || req.headers[ 'x-forwarded-proto' ] === 'https' ? true : false );
+
+            const user = await UserManager.get.createUser( token.username!, token.email, token.password, ( secure ? 'https://' : 'http://' ) + req.host, token.privileges, token.meta );
             okJson<def.IGetUser>( {
                 error: false,
                 message: `User ${user.dbEntry.username} has been created`,
@@ -266,28 +212,6 @@ export class UserController extends Controller {
 
         } catch ( err ) {
             return errJson( err, res );
-        };
-    }
-
-	/**
-	 * Checks to see if the current session is logged in. If the user is, it will be returned redacted. You can specify the 'verbose' query parameter
-	 */
-    private async authenticated( req: express.Request, res: express.Response ) {
-        try {
-            const user = await UserManager.get.loggedIn( req, res );
-            return okJson<def.IAuthenticationResponse>( {
-                message: ( user ? 'User is authenticated' : 'User is not authenticated' ),
-                authenticated: ( user ? true : false ),
-                error: false,
-                user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
-            }, res );
-
-        } catch ( error ) {
-            return okJson<def.IAuthenticationResponse>( {
-                message: error.message,
-                authenticated: false,
-                error: true
-            }, res );
         };
     }
 }
