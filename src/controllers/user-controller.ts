@@ -15,7 +15,7 @@ import { UsersModel } from '../models/users-model';
  * Main class to use for managing users
  */
 export class UserController extends Controller {
-    private _config: def.IConfig;
+    private _config: Modepress.IConfig;
 
 	/**
 	 * Creates an instance of the user manager
@@ -23,7 +23,7 @@ export class UserController extends Controller {
 	 * @param sessionCollection The mongo collection that stores the session data
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: def.IConfig ) {
+    constructor( e: express.Express, config: Modepress.IConfig ) {
         super([ Model.registerModel( UsersModel ) ]);
 
         this._config = config;

@@ -248,10 +248,89 @@
         variables: { [ name: string ]: string };
     }
 
+    export interface IMailOptions { }
+
+    /**
+     * Options for a gmail mailer
+     */
+    export interface IGMail extends IMailOptions {
+        /*
+         * The email account to use the gmail API through. This account must be authorized to
+         * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
+         */
+        apiEmail: string;
+
+        /*
+         * Path to the key file
+         */
+        keyFile: string;
+    }
+
+    /**
+     * Options for a mailgun mailer
+     */
+    export interface IMailgun extends IMailOptions {
+        /**
+         * The domain for associated with the mailgun account
+         */
+        domain: string;
+
+        /**
+         * The api key for your mailgun account
+         */
+        apiKey: string;
+    }
+
+    /*
+     * Users stores data on an external cloud bucket with Google
+     */
+    export interface IGoogleProperties {
+        /*
+         * Path to the key file
+         */
+        keyFile: string;
+
+        /*
+         * Describes the bucket details
+         */
+        bucket: {
+
+            /*
+             * Project ID
+             */
+            projectId: string;
+
+            /**
+             * The name of the mongodb collection for storing bucket details
+             * eg: 'buckets'
+             */
+            bucketsCollection: string;
+
+            /**
+             * The name of the mongodb collection for storing file details
+             * eg: 'files'
+             */
+            filesCollection: string;
+
+            /**
+             * The name of the mongodb collection for storing user stats
+             * eg: 'storageAPI'
+             */
+            statsCollection: string;
+
+            /**
+             * The length of time the assets should be cached on a user's browser.
+             * eg:  2592000000 or 30 days
+             */
+            cacheLifetime: number;
+        }
+    }
+
     /**
      * A server configuration
      */
     export interface IConfig {
+
         /**
          * The length of time the assets should be cached on a user's browser. The default is 30 days.
          */
@@ -315,6 +394,51 @@
           * eg: 'this-is-my-key'
           */
         usersSocketApiKey: string;
+
+        /**
+         * If debug is true, certain functions will be emulated and more information logged
+         */
+        debug: boolean;
+
+        /**
+         * Settings related to sending emails
+         */
+        mail: {
+
+            /**
+             * The from field sent to recipients
+             */
+            from: string;
+
+            /**
+             * Specify the type of mailer to use.
+             * Currently we support either 'gmail' or 'mailgun'
+             */
+            type: 'gmail' | 'mailgun';
+
+            /**
+             * Options to be sent to the desired mailer
+             */
+            options: IGMail | IMailgun;
+        }
+
+        /**
+         * Information relating to the Google storage platform
+         *
+         'google': {
+             'keyFile': '',
+             'mail':{
+                 'apiEmail': '',
+                 'from': ''
+             },
+             'bucket': {
+                     'projectId': '',
+                     'bucketsCollection': 'buckets',
+                     'filesCollection': 'files'
+                 }
+             }
+         */
+        google: IGoogleProperties;
     }
 
     export interface IAuthReq extends Express.Request {

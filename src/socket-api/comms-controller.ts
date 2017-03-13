@@ -22,12 +22,12 @@ export class CommsController extends events.EventEmitter {
     private _server: ws.Server;
     private _connections: ClientConnection[];
     private _hashedApiKey: string;
-    private _cfg: def.IConfig;
+    private _cfg: Modepress.IConfig;
 
     /**
 	 * Creates an instance of the Communication server
 	 */
-    constructor( cfg: def.IConfig ) {
+    constructor( cfg: Modepress.IConfig ) {
         super();
 
         CommsController.singleton = this;
@@ -121,7 +121,7 @@ export class CommsController extends events.EventEmitter {
     async onWsConnection( ws: ws ): Promise<void> {
         let headers = ws.upgradeReq.headers;
 
-        if ( this._cfg.debugMode )
+        if ( this._cfg.debug )
             winston.info( `Websocket client connected: ${headers.origin}`, { process: process.pid } )
 
         let clientApproved = false;

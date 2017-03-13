@@ -16,7 +16,7 @@ import { UsersModel } from '../models/users-model';
  * Main class to use for managing users
  */
 export class AuthController extends Controller {
-    private _config: def.IConfig;
+    private _config: Modepress.IConfig;
 
 	/**
 	 * Creates an instance of the user manager
@@ -24,7 +24,7 @@ export class AuthController extends Controller {
 	 * @param sessionCollection The mongo collection that stores the session data
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: def.IConfig ) {
+    constructor( e: express.Express, config: Modepress.IConfig ) {
         super([ Model.registerModel(UsersModel) ]);
 
         this._config = config;
@@ -36,18 +36,18 @@ export class AuthController extends Controller {
         router.use( bodyParser.json() );
         router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-        router.get( '/auth/authenticated', this.authenticated.bind( this ) );
-        router.get( '/auth/logout', this.logout.bind( this ) );
-        router.get( '/auth/activate-account', this.activateAccount.bind( this ) );
-        router.post( '/auth/login', this.login.bind( this ) );
-        router.post( '/auth/register', this.register.bind( this ) );
-        router.put( '/auth/password-reset', this.passwordReset.bind( this ) );
-        router.get( '/auth/:user/resend-activation', this.resendActivation.bind( this ) );
-        router.get( '/auth/:user/request-password-reset', this.requestPasswordReset.bind( this ) );
-        router.put( '/auth/:user/approve-activation', <any>[ ownerRights, this.approveActivation.bind( this ) ] );
+        router.get( '/authenticated', this.authenticated.bind( this ) );
+        router.get( '/logout', this.logout.bind( this ) );
+        router.get( '/activate-account', this.activateAccount.bind( this ) );
+        router.post( '/login', this.login.bind( this ) );
+        router.post( '/register', this.register.bind( this ) );
+        router.put( '/password-reset', this.passwordReset.bind( this ) );
+        router.get( '/:user/resend-activation', this.resendActivation.bind( this ) );
+        router.get( '/:user/request-password-reset', this.requestPasswordReset.bind( this ) );
+        router.put( '/:user/approve-activation', <any>[ ownerRights, this.approveActivation.bind( this ) ] );
 
         // Register the path
-        e.use( config.apiPrefix, router );
+        e.use( '/auth', router );
     }
 
 	/**

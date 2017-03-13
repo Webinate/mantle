@@ -13,7 +13,7 @@ export class ErrorController extends Controller {
 	 * Creates an instance
 	 */
     constructor( e: express.Express ) {
-        super();
+        super(null);
 
         // Handle all errors the same way
         e.use( function( err: Error, req: express.Request, res: express.Response ) {
