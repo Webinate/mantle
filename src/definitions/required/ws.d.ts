@@ -8,6 +8,7 @@
 declare module "ws" {
     import * as events from 'events';
     import * as http from 'http';
+    import * as https from 'https';
     import * as net from 'net';
 
     class WebSocket extends events.EventEmitter {
@@ -90,7 +91,7 @@ declare module "ws" {
         export interface IServerOptions {
             host?: string;
             port?: number;
-            server?: http.Server;
+            server?: http.Server | https.Server;
             verifyClient?: {
                 (info: {origin: string; secure: boolean; req: http.ServerRequest}): boolean;
                 (info: {origin: string; secure: boolean; req: http.ServerRequest},
