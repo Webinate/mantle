@@ -220,14 +220,14 @@ declare namespace Modepress {
          */
         controllers: Array<IControllerPlugin>
 
-         /**
-         * The URL to redirect to after the user attempts to activate their account.
-         * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
-         * adding a query ?message=You%20have%20activated%20your%20account&status=success.
-         * The status can be either 'success' or 'error'
-         *
-         * eg: 'http://localhost/notify-user'
-         */
+        /**
+        * The URL to redirect to after the user attempts to activate their account.
+        * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
+        * adding a query ?message=You%20have%20activated%20your%20account&status=success.
+        * The status can be either 'success' or 'error'
+        *
+        * eg: 'http://localhost/notify-user'
+        */
         accountRedirectURL: string;
 
         /**
@@ -371,6 +371,15 @@ declare namespace Modepress {
         }
     }
 
+    /*
+    * Represents the details of the admin user
+    */
+    export interface IAdminUser {
+        username: string;
+        email: string;
+        password: string;
+    }
+
     /**
      * A server configuration
      */
@@ -421,11 +430,11 @@ declare namespace Modepress {
          */
         servers: Array<IServer>;
 
-        /**
-         * The URL to listen for events from a webinate users socket
-         * eg: 'ws://www.webinate.net:123'
-         */
-        usersSocketURL: string;
+        // /**
+        //  * The URL to listen for events from a webinate users socket
+        //  * eg: 'ws://www.webinate.net:123'
+        //  */
+        // usersSocketURL: string;
 
         /**
          * Specifies the header 'origin' when connecting to the user socket. This origin must be whitelisted on the users API config file.
@@ -468,6 +477,114 @@ declare namespace Modepress {
         }
 
         /**
+         * User related settings
+         */
+        userSettings: {
+            /**
+            * The name of the mongodb collection for storing user details
+            * eg: 'users'
+            */
+            userCollection: string;
+
+            /**
+             * The name of the mongodb collection for storing session details
+             * eg: 'sessions'
+             */
+            sessionCollection: string;
+
+            /**
+             * The private key to use for Google captcha
+             * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
+             */
+            captchaPrivateKey: string;
+
+            /**
+             * The public key to use for Google captcha
+             * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
+             */
+            captchaPublicKey: string;
+
+            /**
+             * The URL to redirect to after the user attempts to activate their account.
+             * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
+             * adding a query ?message=You%20have%20activated%20your%20account&status=success.
+             * The status can be either 'success' or 'error'
+             *
+             * eg: 'http://localhost/notify-user'
+             */
+            accountRedirectURL: string;
+
+            /**
+             * The URL sent to users emails for when their password is reset. This URL should
+             * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
+             *
+             * eg: 'http://localhost/reset-password'
+             */
+            passwordResetURL: string;
+
+            // These need to be removed eventually
+            secure: boolean;
+            hostName: string;
+            portHTTP: number;
+            portHTTPS: number;
+            apiPrefix: string;
+        }
+
+        sessionSettings: {
+            /*
+            * If set, the session will be restricted to URLs underneath the given path.
+            * By default the path is '/', which means that the same sessions will be shared across the entire domain.
+            * e.g: '/'
+            */
+            sessionPath?: string;
+
+            /**
+             * If present, the cookie (and hence the session) will apply to the given domain, including any subdomains.
+             * For example, on a request from foo.example.org, if the domain is set to '.example.org', then this session will persist across any subdomain of example.org.
+             * By default, the domain is not set, and the session will only be visible to other requests that exactly match the domain.
+             * Default is blank ''
+             */
+            sessionDomain?: string;
+
+            /**
+             * A persistent connection is one that will last after the user closes the window and visits the site again (true).
+             * A non-persistent that will forget the user once the window is closed (false)
+             * e.g: true/false. Default is true
+             */
+            sessionPersistent?: boolean;
+
+            /**
+             * The default length of user sessions in seconds
+             * e.g 1800
+             */
+            sessionLifetime?: number;
+
+            /**
+             * The longer period length of user sessions in seconds (Typically when a user clicks a 'remember me' type of button)
+             * e.g (60 * 60 * 24 * 2) = 2 days
+             */
+            sessionLifetimeExtended?: number;
+
+            /**
+             * Should the session be secure
+             */
+            secure: boolean;
+        }
+
+        /**
+         * The administrative user. This is the root user that will have access to the information in the database.
+         * This can be anything you like, but try to use passwords that are hard to guess
+         * eg:
+
+         'adminUser': {
+                 'username': 'root',
+                 'email': 'root_email@host.com',
+                 'password': 'CHANGE_THIS_PASSWORD'
+             }
+         */
+        adminUser: IAdminUser;
+
+        /**
          * Information relating to the Google storage platform
          *
          'google': {
@@ -489,6 +606,8 @@ declare namespace Modepress {
          * Information regarding the websocket communication. Used for events and IPC
          */
         websocket: IWebsocket;
+
+
     }
 
     export interface IAuthReq extends Express.Request {

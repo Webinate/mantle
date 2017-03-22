@@ -29,7 +29,7 @@ export class BucketManager {
     private _unzipper: zlib.Gunzip;
     private _deflater: zlib.Deflate;
 
-    constructor( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: users.IConfig ) {
+    constructor( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: Modepress.IConfig ) {
         BucketManager._singleton = this;
         this._gcs = gcloud.storage( { projectId: config.google.bucket.projectId, keyFilename: config.google.keyFile } );
         this._buckets = buckets;
@@ -818,7 +818,7 @@ export class BucketManager {
     /**
      * Creates the bucket manager singleton
      */
-    static create( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: users.IConfig ): BucketManager {
+    static create( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: Modepress.IConfig ): BucketManager {
         return new BucketManager( buckets, files, stats, config );
     }
 
