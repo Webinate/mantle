@@ -12,6 +12,7 @@
         "tslint": "^4.5.1",
         "gulp-tslint": "^7.1.0",
         "gulp-download": "^0.0.1",
-        "gulp-rename": "^1.2.2"
+        "gulp-rename": "^1.2.2",
+        "heapdump": "^0.3.7"
     }
 }
