@@ -1,5 +1,5 @@
 ﻿import * as mongodb from 'mongodb';
-import * as winston from 'winston';
+import { error as logError, info } from '../logger';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Controller } from './controller';
@@ -102,9 +102,9 @@ export default class PageRenderer extends Controller {
         this.expiration = config.ajaxRenderExpiration * 1000;
 
         const router = express.Router();
-        router.use( bodyParser.urlencoded( { 'extended': true }) );
+        router.use( bodyParser.urlencoded( { 'extended': true } ) );
         router.use( bodyParser.json() );
-        router.use( bodyParser.json( { type: 'application/vnd.api+json' }) );
+        router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
         router.get( '/', <any>[ this.authenticateAdmin.bind( this ), this.getRenders.bind( this ) ] );
         router.get( '/preview/:id', <any>[ this.previewRender.bind( this ) ] );
@@ -194,8 +194,8 @@ export default class PageRenderer extends Controller {
                     win = window;
                     checkComplete();
                 }
-            });
-        });
+            } );
+        } );
     }
 
     /**
@@ -209,13 +209,13 @@ export default class PageRenderer extends Controller {
         if ( !this.shouldShowPrerenderedPage( req ) )
             return next();
 
-        const model = this.getModel( 'renders' ) !;
+        const model = this.getModel( 'renders' )!;
         const url = this.getUrl( req );
         let instance: ModelInstance<Modepress.IRender> | null = null;
         let expiration = 0;
 
         try {
-            instance = await model.findOne<Modepress.IRender>( { url: url });
+            instance = await model.findOne<Modepress.IRender>( { url: url } );
             let html = '';
 
             if ( instance ) {
@@ -231,15 +231,15 @@ export default class PageRenderer extends Controller {
                 html = await this.renderPage( url );
 
             if ( !instance ) {
-                winston.info( `Saving render '${url}'`, { process: process.pid });
-                await model.createInstance<Modepress.IRender>( <Modepress.IRender>{ expiration: Date.now() + this.expiration, html: html, url: url });
+                info( `Saving render '${url}'` );
+                await model.createInstance<Modepress.IRender>( <Modepress.IRender>{ expiration: Date.now() + this.expiration, html: html, url: url } );
             }
             else if ( Date.now() > expiration ) {
-                winston.info( `Updating render '${url}'`, { process: process.pid });
-                await model.update<Modepress.IRender>( <Modepress.IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html });
+                info( `Updating render '${url}'` );
+                await model.update<Modepress.IRender>( <Modepress.IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
             }
 
-            winston.info( 'Sending back render without script tags', { process: process.pid });
+            info( 'Sending back render without script tags' );
 
             res.status( 200 );
             return res.send( html );
@@ -266,13 +266,13 @@ export default class PageRenderer extends Controller {
         if ( parsedQuery && parsedQuery[ '_escaped_fragment_' ] !== undefined ) isRequestingPrerenderedPage = true;
 
         // if it is a bot...show prerendered page
-        if ( PageRenderer.crawlerUserAgents.some( function( crawlerUserAgent ) { return userAgent.toLowerCase().indexOf( crawlerUserAgent.toLowerCase() ) !== -1; }) ) isRequestingPrerenderedPage = true;
+        if ( PageRenderer.crawlerUserAgents.some( function( crawlerUserAgent ) { return userAgent.toLowerCase().indexOf( crawlerUserAgent.toLowerCase() ) !== -1; } ) ) isRequestingPrerenderedPage = true;
 
         // if it is BufferBot...show prerendered page
         if ( bufferAgent ) isRequestingPrerenderedPage = true;
 
         // if it is a bot and is requesting a resource...dont prerender
-        if ( PageRenderer.extensionsToIgnore.some( function( extension ) { return req.url.indexOf( extension ) !== -1; }) ) return false;
+        if ( PageRenderer.extensionsToIgnore.some( function( extension ) { return req.url.indexOf( extension ) !== -1; } ) ) return false;
 
         return isRequestingPrerenderedPage;
     }
@@ -285,12 +285,12 @@ export default class PageRenderer extends Controller {
         const renders = this.getModel( 'renders' );
 
         try {
-            const instances = await renders!.findInstances<Modepress.IRender>( <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const instances = await renders!.findInstances<Modepress.IRender>( <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) } );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find a render with that ID' );
 
-            let html: string = await instances[ 0 ].schema.getByName( 'html' ) !.getValue();
+            let html: string = await instances[ 0 ].schema.getByName( 'html' )!.getValue();
             const matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
             for ( let i = 0; matches && i < matches.length; i++ )
                 if ( matches[ i ].indexOf( 'application/ld+json' ) === -1 ) {
@@ -300,7 +300,7 @@ export default class PageRenderer extends Controller {
             res.end( html );
 
         } catch ( error ) {
-            winston.error( error.message, { process: process.pid });
+            logError( error.message );
             res.writeHead( 404 );
         };
     }
@@ -312,7 +312,7 @@ export default class PageRenderer extends Controller {
         const renders = this.getModel( 'renders' );
 
         try {
-            const numRemoved = await renders!.deleteInstances( <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const numRemoved = await renders!.deleteInstances( <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) } );
 
             if ( numRemoved === 0 )
                 throw new Error( 'Could not find a cache with that ID' );
@@ -391,7 +391,7 @@ export default class PageRenderer extends Controller {
 
             const jsons: Array<Promise<Modepress.IRender>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<Modepress.IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
 
             const sanitizedData = await Promise.all( jsons );
 
@@ -416,7 +416,7 @@ export default class PageRenderer extends Controller {
 
         try {
             // First get the count
-            const num = await renders!.deleteInstances( {});
+            const num = await renders!.deleteInstances( {} );
 
             okJson<Modepress.IResponse>( {
                 error: false,

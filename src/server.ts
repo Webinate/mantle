@@ -4,7 +4,7 @@ import * as mongodb from 'mongodb';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
-import * as winston from 'winston';
+import { error, info } from './logger';
 import * as compression from 'compression';
 import { Controller } from './controllers/controller'
 import PageRenderer from './controllers/page-renderer'
@@ -45,7 +45,7 @@ export class Server {
 
         // User defined static folders
         for ( let i = 0, l: number = server.staticFilesFolder.length; i < l; i++ ) {
-            winston.info( `Adding static resource folder '${server.staticFilesFolder[ i ]}'`, { process: process.pid } );
+            info( `Adding static resource folder '${server.staticFilesFolder[ i ]}'` );
             app.use( express.static( server.staticFilesFolder[ i ], { maxAge: server.cacheLifetime } ) );
         }
 
@@ -64,7 +64,7 @@ export class Server {
 
         // Socket manager
         let comms = new CommsController( config!, server! );
-        await comms.initialize(db);
+        await comms.initialize( db );
 
         // User controllers
         controllers.push( new BucketController( app, config! ) );
@@ -85,8 +85,8 @@ export class Server {
             }
         }
         catch ( err ) {
-            winston.error( `An error occurred while creating one of the controllers: '${err.message}'`, { process: process.pid } );
-            winston.error( `The controller that failed was: '${lastAddedController!}'`, { process: process.pid } );
+            error( `An error occurred while creating one of the controllers: '${err.message}'` );
+            error( `The controller that failed was: '${lastAddedController!}'` );
             process.exit();
         }
 
@@ -97,32 +97,32 @@ export class Server {
         for ( let i = 0, l: number = server.paths.length; i < l; i++ )
             new PathHandler( server.paths[ i ], server ).route( app );
 
-        winston.info( `Attempting to start HTTP server...`, { process: process.pid } );
+        info( `Attempting to start HTTP server...` );
 
         // Start app with node server.js
         const httpServer = http.createServer( app );
         httpServer.listen( { port: server.portHTTP, host: 'localhost' } );
-        winston.info( `Listening on HTTP port ${server.portHTTP}`, { process: process.pid } );
+        info( `Listening on HTTP port ${server.portHTTP}` );
 
         // If we use SSL then start listening for that as well
         if ( server.ssl ) {
             if ( server.sslIntermediate !== '' && !fs.existsSync( server.sslIntermediate ) ) {
-                winston.error( `Could not find sslIntermediate: '${server.sslIntermediate}'`, { process: process.pid } );
+                error( `Could not find sslIntermediate: '${server.sslIntermediate}'` );
                 process.exit();
             }
 
             if ( server.sslCert !== '' && !fs.existsSync( server.sslCert ) ) {
-                winston.error( `Could not find sslIntermediate: '${server.sslCert}'`, { process: process.pid } );
+                error( `Could not find sslIntermediate: '${server.sslCert}'` );
                 process.exit();
             }
 
             if ( server.sslRoot !== '' && !fs.existsSync( server.sslRoot ) ) {
-                winston.error( `Could not find sslIntermediate: '${server.sslRoot}'`, { process: process.pid } );
+                error( `Could not find sslIntermediate: '${server.sslRoot}'` );
                 process.exit();
             }
 
             if ( server.sslKey !== '' && !fs.existsSync( server.sslKey ) ) {
-                winston.error( `Could not find sslIntermediate: '${server.sslKey}'`, { process: process.pid } );
+                error( `Could not find sslIntermediate: '${server.sslKey}'` );
                 process.exit();
             }
 
@@ -131,12 +131,12 @@ export class Server {
             const theCert = server.sslCert ? fs.readFileSync( server.sslCert ) : null;
             const port = server.portHTTPS ? server.portHTTPS : 443;
 
-            winston.info( `Attempting to start SSL server...`, { process: process.pid } );
+            info( `Attempting to start SSL server...` );
 
             const httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: server.sslPassPhrase, ca: caChain }, app );
             httpsServer.listen( { port: port, host: 'localhost' } );
 
-            winston.info( `Listening on HTTPS port ${port}`, { process: process.pid } );
+            info( `Listening on HTTPS port ${port}` );
         }
 
         // Initialize all the controllers
@@ -146,7 +146,7 @@ export class Server {
         // Return a promise once all the controllers are complete
         try {
             await Promise.all( controllerPromises );
-            winston.info( `All controllers are now setup successfully for ${this._server.host}!`, { process: process.pid } );
+            info( `All controllers are now setup successfully for ${this._server.host}!` );
             return this;
 
         } catch ( e ) {

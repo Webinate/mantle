@@ -7,7 +7,7 @@ import { ownerRights, requireUser } from '../permission-controllers';
 import { Controller } from './controller'
 import { BucketManager } from '../bucket-manager';
 import * as compression from 'compression';
-import * as winston from 'winston';
+import { error as logError } from '../logger';
 import * as def from 'webinate-users';
 import { okJson, errJson } from '../serializers';
 import { Model } from '../models/model';
@@ -125,7 +125,7 @@ export class FileController extends Controller {
             manager.incrementAPI( file.user! );
 
         } catch ( err ) {
-            winston.error( err.toString(), { process: process.pid } );
+            logError( err.toString() );
             return res.status( 404 ).send( 'File not found' );
         }
     }

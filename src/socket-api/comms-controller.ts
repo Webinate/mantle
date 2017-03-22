@@ -7,7 +7,7 @@ import * as def from 'webinate-users';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as mongodb from 'mongodb';
-import * as winston from 'winston';
+import { error as logError, info } from '../logger';
 import { ServerInstructionType } from './socket-event-types';
 import { SocketAPI } from './socket-api';
 import { ClientConnection } from './client-connection';
@@ -83,10 +83,10 @@ export class CommsController extends events.EventEmitter {
 	 */
     processServerInstruction( instruction: ServerInstruction<def.SocketTokens.IToken> ) {
         if ( !instruction.token )
-            return winston.error( `Websocket error: An instruction was sent from '${instruction.from.domain}' without a token`, { process: process.pid } );
+            return logError( `Websocket error: An instruction was sent from '${instruction.from.domain}' without a token` );
 
         if ( !ServerInstructionType[ instruction.token.type ] )
-            return winston.error( `Websocket error: An instruction was sent from '${instruction.from.domain}' with a type that is not recognised`, { process: process.pid } );
+            return logError( `Websocket error: An instruction was sent from '${instruction.from.domain}' with a type that is not recognised` );
 
 
         this.emit( instruction.token.type, instruction );
@@ -108,7 +108,7 @@ export class CommsController extends events.EventEmitter {
 
             connection.ws.send( serializedData, {}, function( error: Error ) {
                 if ( error ) {
-                    winston.error( `Websocket broadcase error: '${error}'`, { process: process.pid } );
+                    logError( `Websocket broadcase error: '${error}'` );
                     reject( error );
                 }
 
@@ -124,14 +124,14 @@ export class CommsController extends events.EventEmitter {
         let headers = ws.upgradeReq.headers;
 
         if ( this._cfg.debug )
-            winston.info( `Websocket client connected: ${headers.origin}`, { process: process.pid } )
+            info( `Websocket client connected: ${headers.origin}` )
 
         let clientApproved = false;
         for ( let domain of this._cfg.websocket.approvedSocketDomains ) {
             // Check if the connecting client is an authorized third party (more privileges)
             let authorizedThirdParty = false;
             if ( headers[ 'users-api-key' ] && this._hashedApiKey ) {
-                winston.info( 'Checking socket API key' );
+                info( 'Checking socket API key' );
                 authorizedThirdParty = await this.checkApiKey( headers[ 'users-api-key' ] );
             }
 
@@ -151,7 +151,7 @@ export class CommsController extends events.EventEmitter {
 
         // The client was not approved - so kill the connection
         if ( !clientApproved ) {
-            winston.error( `A connection was made by ${headers.origin} but it is not on the approved domain list. Make sure the host is on the approvedSocketDomains parameter in the config file.` );
+            logError( `A connection was made by ${headers.origin} but it is not on the approved domain list. Make sure the host is on the approvedSocketDomains parameter in the config file.` );
             ws.terminate();
             ws.close();
         }
@@ -179,27 +179,27 @@ export class CommsController extends events.EventEmitter {
 
         // Create the web socket server
         if ( server.ssl ) {
-            winston.info( 'Creating secure socket connection', { process: process.pid } );
+            info( 'Creating secure socket connection' );
             let httpsServer: https.Server;
             const caChain = [ fs.readFileSync( server.sslIntermediate ), fs.readFileSync( server.sslRoot ) ];
             const privkey = server.sslKey ? fs.readFileSync( server.sslKey ) : null;
             const theCert = server.sslCert ? fs.readFileSync( server.sslCert ) : null;
 
-            winston.info( `Attempting to start Websocket server with SSL...`, { process: process.pid } );
+            info( `Attempting to start Websocket server with SSL...` );
             httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: server.sslPassPhrase, ca: caChain }, processRequest );
             httpsServer.listen( cfg.websocket.port );
             this._server = new ws.Server( { server: httpsServer } );
         }
         else {
-            winston.info( 'Creating regular socket connection', { process: process.pid } );
+            info( 'Creating regular socket connection' );
             this._server = new ws.Server( { port: cfg.websocket.port } );
         }
 
-        winston.info( 'Websockets attempting to listen on HTTP port ' + this._cfg.websocket.port, { process: process.pid } );
+        info( 'Websockets attempting to listen on HTTP port ' + this._cfg.websocket.port );
 
         // Handle errors
         this._server.on( 'error', ( err ) => {
-            winston.error( 'Websocket error: ' + err.toString() );
+            logError( 'Websocket error: ' + err.toString() );
             this._server.close();
         } );
 

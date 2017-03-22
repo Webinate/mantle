@@ -1,6 +1,6 @@
 ﻿import * as mongodb from 'mongodb';
 import { Schema } from './schema';
-import * as winston from 'winston';
+import { info } from '../logger';
 
 
 export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
@@ -147,7 +147,7 @@ export abstract class Model {
         await Promise.all( promises );
 
         this._initialized = true;
-        winston.info( `Successfully created model '${this._collectionName}'`, { process: process.pid });
+        info( `Successfully created model '${this._collectionName}'` );
         return this;
     }
 
@@ -180,7 +180,7 @@ export abstract class Model {
             throw new Error( 'The model has not been initialized' );
 
         // Attempt to save the data to mongo collection
-        const result = await collection.find( selector ).limit( limit ).skip( startIndex ).project( projection || {}).sort( sort ).toArray();
+        const result = await collection.find( selector ).limit( limit ).skip( startIndex ).project( projection || {} ).sort( sort ).toArray();
 
         // Create the instance array
         const instances: Array<ModelInstance<T>> = [];
@@ -210,7 +210,7 @@ export abstract class Model {
             throw new Error( 'The model has not been initialized' );
 
         // Attempt to save the data to mongo collection
-        const result = await collection.find( selector ).limit( 1 ).project( projection || {}).next();
+        const result = await collection.find( selector ).limit( 1 ).project( projection || {} ).next();
 
         // Check for errors
         if ( !result )
@@ -270,7 +270,7 @@ export abstract class Model {
                 if ( !foreignModel )
                     continue;
 
-                promises.push( foreignModel.deleteInstances( <Modepress.IModelEntry>{ _id: requiredDependencies[ i ]._id }) );
+                promises.push( foreignModel.deleteInstances( <Modepress.IModelEntry>{ _id: requiredDependencies[ i ]._id } ) );
             }
 
         // Added the schema item post deletion promises
@@ -279,7 +279,7 @@ export abstract class Model {
         await Promise.all( promises );
 
         // Remove the original instance from the DB
-        const deleteResult = await this.collection.deleteMany( <Modepress.IModelEntry>{ _id: instance.dbEntry._id });
+        const deleteResult = await this.collection.deleteMany( <Modepress.IModelEntry>{ _id: instance.dbEntry._id } );
 
         return deleteResult.deletedCount!;
     }
@@ -340,23 +340,23 @@ export abstract class Model {
 
                 if ( !unique ) {
                     toRet.error = true;
-                    toRet.tokens.push( { error: `'${instance.uniqueFieldNames()}' must be unique`, instance: instance });
+                    toRet.tokens.push( { error: `'${instance.uniqueFieldNames()}' must be unique`, instance: instance } );
                     continue;
                 }
 
                 // Transform the schema into a JSON ready format
                 const json = instance.schema.serialize();
                 const collection = this.collection;
-                await collection.updateOne( { _id: ( <Modepress.IModelEntry>instance )._id }, { $set: json });
+                await collection.updateOne( { _id: ( <Modepress.IModelEntry>instance )._id }, { $set: json } );
 
                 // Now that everything has been added, we can do some post insert/update validation
                 await instance.schema.postUpsert<T>( instance, this._collectionName );
 
-                toRet.tokens.push( { error: false, instance: instance });
+                toRet.tokens.push( { error: false, instance: instance } );
 
             } catch ( err ) {
                 toRet.error = true;
-                toRet.tokens.push( { error: err.message, instance: instance });
+                toRet.tokens.push( { error: err.message, instance: instance } );
             };
         };
 

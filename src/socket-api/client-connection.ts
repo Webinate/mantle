@@ -2,7 +2,7 @@
 
 import * as ws from 'ws';
 import * as def from 'webinate-users';
-import * as winston from 'winston';
+import { error as logError, info } from '../logger';
 import { UserManager, User } from '../users';
 import { CommsController } from './comms-controller';
 import { ServerInstruction } from './server-instruction';
@@ -37,13 +37,13 @@ export class ClientConnection {
 	 * Called whenever we recieve a message from a client
 	 */
     private onMessage( message: string ) {
-        winston.info( `Received message from client: '${message}'`, { process: process.pid } );
+        info( `Received message from client: '${message}'` );
         try {
             const token: def.SocketTokens.IToken = JSON.parse( message );
             this._controller.processServerInstruction( new ServerInstruction( token, this ) );
         }
         catch ( err ) {
-            winston.error( `Could not parse socket message: '${err}'`, { process: process.pid } );
+            logError( `Could not parse socket message: '${err}'` );
         }
     }
 
@@ -54,7 +54,7 @@ export class ClientConnection {
         if ( this.onDisconnected )
             this.onDisconnected( this );
 
-        winston.info( `Websocket disconnected: ${this.domain}`, { process: process.pid } )
+        info( `Websocket disconnected: ${this.domain}` )
 
         this.ws.removeAllListeners( 'message' );
         this.ws.removeAllListeners( 'close' );
@@ -65,6 +65,6 @@ export class ClientConnection {
 	 * Called whenever an error has occurred
 	 */
     private onError( err: Error ) {
-        winston.error( `An error has occurred for web socket : '${err.message}'`, { process: process.pid } )
+        logError( `An error has occurred for web socket : '${err.message}'` )
     }
 }

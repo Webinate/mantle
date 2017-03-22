@@ -1,6 +1,6 @@
 'use strict';
 
-import * as winston from 'winston';
+import { error as logError, info } from '../logger';
 import * as def from 'webinate-users';
 
 /**
@@ -39,22 +39,22 @@ export class Mailguner implements def.IMailer {
     sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean> {
         return new Promise(( resolve, reject ) => {
 
-            winston.info( `Sending email to: ${to}`, { process: process.pid } );
+            info( `Sending email to: ${to}` );
 
             if ( this._debugMode )
                 return resolve( true );
 
-            winston.info( `Sending: ${msg}`, { process: process.pid } );
+            info( `Sending: ${msg}` );
 
             // Send the message
             this.mailgun.messages().send( { from: from, subject: subject, text: msg, to: to }, function( err, response ) {
 
                 if ( err ) {
-                    winston.error( `Could not send email to ${to}: ${err}`, { process: process.pid } );
+                    logError( `Could not send email to ${to}: ${err}` );
                     return reject( err );
                 }
 
-                winston.info( `Email sent ${JSON.stringify( response )} unmodified`, { process: process.pid } );
+                info( `Email sent ${JSON.stringify( response )} unmodified` );
                 return resolve( true );
             } );
         } );

@@ -8,7 +8,7 @@ import { ownerRights } from '../permission-controllers';
 import { Controller } from './controller'
 import { okJson, errJson } from '../serializers';
 import * as compression from 'compression';
-import * as winston from 'winston';
+import { error as logError } from '../logger';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
 
@@ -26,7 +26,7 @@ export class AuthController extends Controller {
 	 * @param The config options of this manager
 	 */
     constructor( e: express.Express, config: Modepress.IConfig, server: Modepress.IServer ) {
-        super([ Model.registerModel(UsersModel) ]);
+        super( [ Model.registerModel( UsersModel ) ] );
 
         this._config = config;
         this._server = server;
@@ -64,7 +64,7 @@ export class AuthController extends Controller {
             res.redirect( `${redirectURL}?message=${encodeURIComponent( 'Your account has been activated!' )}&status=success&origin=${encodeURIComponent( req.query.origin )}` );
 
         } catch ( error ) {
-            winston.error( error.toString(), { process: process.pid } );
+            logError( error.toString() );
             res.redirect( `${redirectURL}?message=${encodeURIComponent( error.message )}&status=error&origin=${encodeURIComponent( req.query.origin )}` );
         };
     }

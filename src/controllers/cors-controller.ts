@@ -1,5 +1,5 @@
 ﻿import * as http from 'http';
-import * as winston from 'winston';
+import { error as logError } from '../logger';
 import { Controller } from './controller';
 import * as express from 'express';
 
@@ -32,7 +32,7 @@ export default class CORSController extends Controller {
                     }
 
                 if ( !matched )
-                    winston.error( `${( <http.ServerRequest>req ).headers.origin} Does not have permission. Add it to the allowed `, { process: process.pid });
+                    logError( `${( <http.ServerRequest>req ).headers.origin} Does not have permission. Add it to the allowed ` );
             }
 
             if ( req.method === 'OPTIONS' ) {
@@ -41,6 +41,6 @@ export default class CORSController extends Controller {
             }
             else
                 next();
-        });
+        } );
     }
 }

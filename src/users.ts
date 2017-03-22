@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as validator from 'validator';
 import * as bcrypt from 'bcryptjs';
 import * as express from 'express';
-import * as winston from 'winston';
+import { info, warn } from './logger';
 import * as https from 'https';
 
 import { CommsController } from './socket-api/comms-controller';
@@ -116,7 +116,7 @@ export class UserManager {
 
     public sessionManager: SessionManager;
     private _userCollection: mongodb.Collection;
-    private _config: def.IConfig;
+    private _config: Modepress.IConfig;
     private _mailer: def.IMailer;
 
 	/**
@@ -125,18 +125,18 @@ export class UserManager {
 	 * @param sessionCollection The mongo collection that stores the session data
 	 * @param The config options of this manager
 	 */
-    constructor( userCollection: mongodb.Collection, sessionCollection: mongodb.Collection, config: def.IConfig ) {
+    constructor( userCollection: mongodb.Collection, sessionCollection: mongodb.Collection, config: Modepress.IConfig ) {
         this._userCollection = userCollection;
         this._config = config;
         UserManager._singleton = this;
 
         // Create the session manager
         this.sessionManager = new SessionManager( sessionCollection, {
-            domain: config.sessionDomain,
-            lifetime: config.sessionLifetime,
-            path: config.sessionPath,
-            persistent: config.sessionPersistent,
-            secure: config.ssl
+            domain: config.sessionSettings.sessionDomain,
+            lifetime: config.sessionSettings.sessionLifetime,
+            path: config.sessionSettings.sessionPath,
+            persistent: config.sessionSettings.sessionPersistent,
+            secure: config.sessionSettings.secure
         } );
 
         this.sessionManager.on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
@@ -154,7 +154,7 @@ export class UserManager {
             // Send logged out event to socket
             const token: def.SocketTokens.IUserToken = { username: useEntry.username!, type: ClientInstructionType[ ClientInstructionType.Logout ] };
             await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, useEntry.username ) );
-            winston.info( `User '${useEntry.username}' has logged out`, { process: process.pid } );
+            info( `User '${useEntry.username}' has logged out` );
         }
 
         return;
@@ -168,17 +168,17 @@ export class UserManager {
 
         if ( config.mail ) {
             if ( config.mail.type === 'gmail' ) {
-                this._mailer = new GMailer( config.debugMode );
+                this._mailer = new GMailer( config.debug );
                 this._mailer.initialize( config.mail.options as def.IGMail );
             }
             else if ( config.mail.type === 'mailgun' ) {
-                this._mailer = new Mailguner( config.debugMode );
+                this._mailer = new Mailguner( config.debug );
                 this._mailer.initialize( config.mail.options as def.IMailgun );
             }
         }
 
         if ( !this._mailer )
-            winston.warn( 'No mailer has been specified and so the API cannot send emails. Please check your config.' )
+            warn( 'No mailer has been specified and so the API cannot send emails. Please check your config.' )
 
 
         // Clear all existing indices and then re-add them
@@ -192,7 +192,7 @@ export class UserManager {
 
         // If no admin user exists, so lets try to create one
         if ( !user )
-            user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, ( config.ssl ? 'https://' : 'http://' ) + config.hostName, UserPrivileges.SuperAdmin, {}, true );
+            user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, ( config.userSettings.secure ? 'https://' : 'http://' ) + config.userSettings.hostName, UserPrivileges.SuperAdmin, {}, true );
 
         return;
     }
@@ -204,7 +204,7 @@ export class UserManager {
     private checkCaptcha( captcha: string ): Promise<boolean> {
         return new Promise<boolean>(( resolve, reject ) => {
 
-            const privatekey: string = this._config.captchaPrivateKey;
+            const privatekey: string = this._config.userSettings.captchaPrivateKey;
             https.get( 'https://www.google.com/recaptcha/api/siteverify?secret=' + privatekey + '&response=' + captcha, function( res ) {
                 let data = '';
                 res.on( 'data', function( chunk ) {
@@ -266,7 +266,7 @@ export class UserManager {
      * @param origin The origin of where the activation link came from
 	 */
     private createActivationLink( user: User, origin: string ): string {
-        return `${( this._config.ssl ? 'https://' : 'http://' )}${this._config.hostName}:${( this._config.ssl ? this._config.portHTTPS : this._config.portHTTP )}${this._config.apiPrefix}activate-account?key=${user.dbEntry.registerKey}&user=${user.dbEntry.username}&origin=${origin}`;
+        return `${( this._config.userSettings.secure ? 'https://' : 'http://' )}${this._config.userSettings.hostName}:${( this._config.userSettings.secure ? this._config.userSettings.portHTTPS : this._config.userSettings.portHTTP )}${this._config.userSettings.apiPrefix}activate-account?key=${user.dbEntry.registerKey}&user=${user.dbEntry.username}&origin=${origin}`;
     }
 
 	/**
@@ -275,7 +275,7 @@ export class UserManager {
      * @param origin The origin of where the activation link came from
 	 */
     private createResetLink( user: User, origin: string ): string {
-        return `${this._config.passwordResetURL}?key=${user.dbEntry.passwordTag}&user=${user.dbEntry.username}&origin=${origin}`;
+        return `${this._config.userSettings.passwordResetURL}?key=${user.dbEntry.passwordTag}&user=${user.dbEntry.username}&origin=${origin}`;
     }
 
 	/**
@@ -296,7 +296,7 @@ export class UserManager {
         const token: def.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
         await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
 
-        winston.info( `User '${username}' has been activated`, { process: process.pid } );
+        info( `User '${username}' has been activated` );
         return;
     }
 
@@ -491,7 +491,7 @@ export class UserManager {
         const token: def.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
         await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
 
-        winston.info( `User '${username}' has been activated`, { process: process.pid } );
+        info( `User '${username}' has been activated` );
         return true;
     }
 
@@ -627,7 +627,7 @@ export class UserManager {
         const token: def.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Removed ] };
         CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
 
-        winston.info( `User '${username}' has been removed`, { process: process.pid } );
+        info( `User '${username}' has been removed` );
 
         return;
     }
@@ -831,7 +831,7 @@ export class UserManager {
     /**
      * Creates the user manager singlton
      */
-    static create( users: mongodb.Collection, sessions: mongodb.Collection, config: def.IConfig ): UserManager {
+    static create( users: mongodb.Collection, sessions: mongodb.Collection, config: Modepress.IConfig ): UserManager {
         return new UserManager( users, sessions, config );
     }
 
