@@ -51,7 +51,7 @@ export interface ISessionOptions {
  */
 export class SessionManager extends EventEmitter {
     private _dbCollection: mongodb.Collection;
-    private _timeout: number;
+    private _timeout: NodeJS.Timer | null;
     private _cleanupProxy: any;
     private _options: ISessionOptions;
 
@@ -63,7 +63,7 @@ export class SessionManager extends EventEmitter {
         super();
         this._dbCollection = dbCollection;
         this._cleanupProxy = this.cleanup.bind( this );
-        this._timeout = 0;
+        this._timeout = null;
         this._options = {};
         this._options.path = options.path || '/';
         this._options.domain = options.domain || '';
@@ -151,7 +151,7 @@ export class SessionManager extends EventEmitter {
 
             // make sure a timeout is pending for the expired session reaper
             if ( !this._timeout )
-                this._timeout = setTimeout( this._cleanupProxy, 60000 );
+                this._timeout = global.setTimeout( this._cleanupProxy, 60000 );
 
             // Set the session cookie header
             if ( response )
@@ -193,7 +193,7 @@ export class SessionManager extends EventEmitter {
     async cleanup( force: boolean = false ) {
         const now: number = +new Date;
         let next: number = Infinity;
-        this._timeout = 0;
+        this._timeout = null;
 
         try {
 
@@ -223,16 +223,16 @@ export class SessionManager extends EventEmitter {
                     this.emit( 'sessionRemoved', toRemoveQuery.$or[ i ].sessionId );
 
                 if ( next < Infinity )
-                    this._timeout = setTimeout( this._cleanupProxy, next - ( +new Date ) + 1000 );
+                    this._timeout = global.setTimeout( this._cleanupProxy, next - ( +new Date ) + 1000 );
             }
             else {
                 if ( next < Infinity )
-                    this._timeout = setTimeout( this._cleanupProxy, next - ( +new Date ) + 1000 );
+                    this._timeout = global.setTimeout( this._cleanupProxy, next - ( +new Date ) + 1000 );
             }
 
         } catch ( err ) {
             // If an error occurs, just try again in 2 minutes
-            this._timeout = setTimeout( this._cleanupProxy, 120000 );
+            this._timeout = global.setTimeout( this._cleanupProxy, 120000 );
         }
     }
 

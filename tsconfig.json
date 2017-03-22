@@ -7,7 +7,12 @@
         "sourceMap": false,
         "preserveConstEnums": true,
         "noImplicitAny": false,
-        "target": "es6",
+        "target": "es2017",
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "es7"
+        ],
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "outDir": "./dist",
