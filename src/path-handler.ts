@@ -1,6 +1,5 @@
 ﻿import * as express from 'express';
 import * as fs from 'fs';
-import { UsersService } from './users-service';
 
 /**
  * A simple wrapper that holds information on each path the server can respond to.
@@ -36,7 +35,7 @@ export class PathHandler {
 
         const requestIsSecure = ( ( <any>req.connection ).encrypted || req.headers[ 'x-forwarded-proto' ] === 'https' ? true : false );
         const url = `${( requestIsSecure ? 'https' : 'http' )}://${config.host}`;
-        const options: any = { usersURL: `${UsersService.usersURL}`, url: url };
+        const options: any = { usersURL: `/users`, url: url };
 
         options.plugins = path.plugins || [];
         options.variables = {};

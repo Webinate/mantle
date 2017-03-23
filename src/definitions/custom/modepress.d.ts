@@ -614,6 +614,7 @@
         _isAdmin: boolean;
         _verbose: boolean;
         _user: UsersInterface.IUserEntry | null;
+        _target: UsersInterface.IUserEntry | null;
         body: any;
         headers: any;
         params: any;
@@ -1221,33 +1222,6 @@
         emit( event: string, ...args: any[] ): boolean;
         listenerCount( type: string ): number;
     }
-
-
-
-    /**
-     * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
-     */
-    export function hasId( req: Express.Request, res: Express.Response, next: Function );
-
-    /**
-     * This funciton checks if user is logged in
-     */
-    export function isAdmin( req: IAuthReq, res: Express.Response, next: Function );
-
-    /**
-     * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
-     */
-    export function canEdit( req: IAuthReq, res: Express.Response, next: Function );
-
-    /**
-     * This funciton checks if user is logged in
-     */
-    export function getUser( req: IAuthReq, res: Express.Response, next: Function );
-
-    /**
-     * This funciton checks the logged in user is an admin. If not an error is thrown
-     */
-    export function isAuthenticated( req: IAuthReq, res: Express.Response, next: Function );
 
     /**
      * Checks a string to see if its a valid mongo id

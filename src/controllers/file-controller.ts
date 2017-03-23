@@ -54,7 +54,7 @@ export class FileController extends Controller {
     /**
      * Removes files specified in the URL
      */
-    private async removeFiles( req: users.AuthRequest, res: express.Response ) {
+    private async removeFiles( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             let files: Array<string>;
@@ -63,7 +63,7 @@ export class FileController extends Controller {
                 throw new Error( 'Please specify the files to remove' );
 
             files = req.params.files.split( ',' );
-            const filesRemoved = await manager.removeFilesByIdentifiers( files, req._user!.dbEntry.username );
+            const filesRemoved = await manager.removeFilesByIdentifiers( files, req._user!.username );
 
             okJson<users.IRemoveFiles>( {
                 message: `Removed [${filesRemoved.length}] files`,
@@ -80,7 +80,7 @@ export class FileController extends Controller {
     /**
      * Renames a file
      */
-    private async renameFile( req: users.AuthRequest, res: express.Response ) {
+    private async renameFile( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
 
@@ -89,7 +89,7 @@ export class FileController extends Controller {
             if ( !req.body || !req.body.name || req.body.name.trim() === '' )
                 throw new Error( 'Please specify the new name of the file' );
 
-            const fileEntry = await manager.getFile( req.params.file, req._user!.dbEntry.username );
+            const fileEntry = await manager.getFile( req.params.file, req._user!.username );
 
             if ( !fileEntry )
                 throw new Error( `Could not find the file '${req.params.file}'` );
@@ -105,7 +105,7 @@ export class FileController extends Controller {
     /**
      * Attempts to download a file from the server
      */
-    private async getFile( req: users.AuthRequest, res: express.Response ) {
+    private async getFile( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             const fileID = req.params.id;
@@ -133,7 +133,7 @@ export class FileController extends Controller {
     /**
      * Attempts to make a file public
      */
-    private async makePublic( req: users.AuthRequest, res: express.Response ) {
+    private async makePublic( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             const fileID = req.params.id;
@@ -141,7 +141,7 @@ export class FileController extends Controller {
             if ( !fileID || fileID.trim() === '' )
                 throw new Error( `Please specify a file ID` );
 
-            let fileEntry = await manager.getFile( fileID, req._user!.dbEntry.username );
+            let fileEntry = await manager.getFile( fileID, req._user!.username );
             fileEntry = await manager.makeFilePublic( fileEntry );
 
             okJson<users.IGetFile>( { message: `File is now public`, error: false, data: fileEntry }, res );
@@ -154,7 +154,7 @@ export class FileController extends Controller {
     /**
      * Attempts to make a file private
      */
-    private async makePrivate( req: users.AuthRequest, res: express.Response ) {
+    private async makePrivate( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             const fileID = req.params.id;
@@ -163,7 +163,7 @@ export class FileController extends Controller {
             if ( !fileID || fileID.trim() === '' )
                 throw new Error( `Please specify a file ID` );
 
-            fileEntry = await manager.getFile( fileID, req._user!.dbEntry.username );
+            fileEntry = await manager.getFile( fileID, req._user!.username );
             fileEntry = await manager.makeFilePrivate( fileEntry )
 
             okJson<users.IGetFile>( { message: `File is now private`, error: false, data: fileEntry }, res );
@@ -176,7 +176,7 @@ export class FileController extends Controller {
     /**
      * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
      */
-    private async getFiles( req: users.AuthRequest, res: express.Response ) {
+    private async getFiles( req: Modepress.IAuthReq, res: express.Response ) {
         const manager = BucketManager.get;
         const index = parseInt( req.query.index );
         const limit = parseInt( req.query.limit );
@@ -194,7 +194,7 @@ export class FileController extends Controller {
             if ( req.query.search )
                 searchTerm = new RegExp( req.query.search, 'i' );
 
-            bucketEntry = await manager.getIBucket( req.params.bucket, req._user!.dbEntry.username );
+            bucketEntry = await manager.getIBucket( req.params.bucket, req._user!.username );
 
             if ( !bucketEntry )
                 throw new Error( `Could not find the bucket '${req.params.bucket}'` );

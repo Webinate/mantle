@@ -6,9 +6,9 @@ import { Controller } from './controller';
 import { Model } from '../models/model';
 import { PostsModel } from '../models/posts-model';
 import { CategoriesModel } from '../models/categories-model';
-import { UsersService } from '../users-service';
-import { getUser, isAdmin, hasId } from '../permission-controllers';
+import { identifyUser, checkVerbosity, adminRights, hasId } from '../permission-controllers';
 import { okJson, errJson } from '../serializers';
+import { UserPrivileges } from '../users';
 
 /**
  * A controller that deals with the management of posts
@@ -29,20 +29,20 @@ export default class PostsController extends Controller {
         const router = express.Router();
 
         router.use( compression() );
-        router.use( bodyParser.urlencoded( { 'extended': true }) );
+        router.use( bodyParser.urlencoded( { 'extended': true } ) );
         router.use( bodyParser.json() );
-        router.use( bodyParser.json( { type: 'application/vnd.api+json' }) );
+        router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-        router.get( '/posts', <any>[ getUser, this.getPosts.bind( this ) ] );
-        router.get( '/posts/slug/:slug', <any>[ getUser, this.getPost.bind( this ) ] );
-        router.get( '/posts/:id', <any>[ getUser, hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
-        router.delete( '/posts/:id', <any>[ isAdmin, hasId( 'id', 'ID' ), this.removePost.bind( this ) ] );
-        router.put( '/posts/:id', <any>[ isAdmin, hasId( 'id', 'ID' ), this.updatePost.bind( this ) ] );
-        router.post( '/posts', <any>[ isAdmin, this.createPost.bind( this ) ] );
+        router.get( '/posts', <any>[ identifyUser, checkVerbosity, this.getPosts.bind( this ) ] );
+        router.get( '/posts/slug/:slug', <any>[ identifyUser, checkVerbosity, this.getPost.bind( this ) ] );
+        router.get( '/posts/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
+        router.delete( '/posts/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removePost.bind( this ) ] );
+        router.put( '/posts/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.updatePost.bind( this ) ] );
+        router.post( '/posts', <any>[ adminRights, this.createPost.bind( this ) ] );
 
         router.get( '/categories', this.getCategories.bind( this ) );
-        router.post( '/categories', <any>[ isAdmin, this.createCategory.bind( this ) ] );
-        router.delete( '/categories/:id', <any>[ isAdmin, hasId( 'id', 'ID' ), this.removeCategory.bind( this ) ] );
+        router.post( '/categories', <any>[ adminRights, this.createCategory.bind( this ) ] );
+        router.delete( '/categories/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removeCategory.bind( this ) ] );
 
         // Register the path
         e.use( '/api', router );
@@ -63,9 +63,9 @@ export default class PostsController extends Controller {
 
         // Check for keywords
         if ( req.query.keyword ) {
-            findToken.$or.push( <Modepress.IPost>{ title: <any>new RegExp( req.query.keyword, 'i' ) });
-            findToken.$or.push( <Modepress.IPost>{ content: <any>new RegExp( req.query.keyword, 'i' ) });
-            findToken.$or.push( <Modepress.IPost>{ brief: <any>new RegExp( req.query.keyword, 'i' ) });
+            findToken.$or.push( <Modepress.IPost>{ title: <any>new RegExp( req.query.keyword, 'i' ) } );
+            findToken.$or.push( <Modepress.IPost>{ content: <any>new RegExp( req.query.keyword, 'i' ) } );
+            findToken.$or.push( <Modepress.IPost>{ brief: <any>new RegExp( req.query.keyword, 'i' ) } );
         }
 
         // Check for visibility
@@ -78,10 +78,8 @@ export default class PostsController extends Controller {
         else
             visibility = 'all';
 
-        const users = UsersService.getSingleton();
-
         // Only admins are allowed to see private posts
-        if ( !user || ( ( visibility === 'all' || visibility === 'private' ) && users.isAdmin( user ) === false ) )
+        if ( !user || ( ( visibility === 'all' || visibility === 'private' ) && ( req._user && req._user.privileges! < UserPrivileges.Admin ) ) )
             visibility = 'public';
 
         // Add the or conditions for visibility
@@ -153,7 +151,7 @@ export default class PostsController extends Controller {
 
             const jsons: Array<Promise<Modepress.IPost>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<Modepress.IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
 
             const sanitizedData = await Promise.all( jsons );
 
@@ -188,15 +186,15 @@ export default class PostsController extends Controller {
             if ( instances.length === 0 )
                 throw new Error( 'Could not find post' );
 
-            const users = UsersService.getSingleton();
-            const isPublic = await instances[ 0 ].schema.getByName( 'public' ) !.getValue();
+
+            const isPublic = await instances[ 0 ].schema.getByName( 'public' )!.getValue();
             // Only admins are allowed to see private posts
-            if ( !isPublic && ( !user || users.isAdmin( user ) === false ) )
+            if ( !isPublic && ( !user || user.privileges! < UserPrivileges.Admin ) )
                 throw new Error( 'That post is marked private' );
 
             const jsons: Array<Promise<Modepress.IPost>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<Modepress.IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
 
             const sanitizedData = await Promise.all( jsons );
 
@@ -215,14 +213,14 @@ export default class PostsController extends Controller {
      * Returns an array of ICategory items
      */
     private async getCategories( req: Modepress.IAuthReq, res: express.Response ) {
-        const categories = this.getModel( 'categories' ) !;
+        const categories = this.getModel( 'categories' )!;
 
         try {
             const instances = await categories.findInstances<Modepress.ICategory>( {}, {}, parseInt( req.query.index ), parseInt( req.query.limit ) );
 
             const jsons: Array<Promise<Modepress.ICategory>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<Modepress.ICategory>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) }) );
+                jsons.push( instances[ i ].schema.getAsJson<Modepress.ICategory>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
 
             const sanitizedData = await Promise.all( jsons );
 
@@ -242,11 +240,11 @@ export default class PostsController extends Controller {
      * Attempts to remove a post by ID
      */
     private async removePost( req: Modepress.IAuthReq, res: express.Response ) {
-        const posts = this.getModel( 'posts' ) !;
+        const posts = this.getModel( 'posts' )!;
 
         try {
             // Attempt to delete the instances
-            const numRemoved = await posts.deleteInstances( <Modepress.IPost>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const numRemoved = await posts.deleteInstances( <Modepress.IPost>{ _id: new mongodb.ObjectID( req.params.id ) } );
 
             if ( numRemoved === 0 )
                 throw new Error( 'Could not find a post with that ID' );
@@ -265,10 +263,10 @@ export default class PostsController extends Controller {
      * Attempts to remove a category by ID
      */
     private async removeCategory( req: Modepress.IAuthReq, res: express.Response ) {
-        const categories = this.getModel( 'categories' ) !;
+        const categories = this.getModel( 'categories' )!;
 
         try {
-            const numRemoved = await categories.deleteInstances( <Modepress.ICategory>{ _id: new mongodb.ObjectID( req.params.id ) });
+            const numRemoved = await categories.deleteInstances( <Modepress.ICategory>{ _id: new mongodb.ObjectID( req.params.id ) } );
 
             if ( numRemoved === 0 )
                 return Promise.reject( new Error( 'Could not find a category with that ID' ) );
@@ -288,7 +286,7 @@ export default class PostsController extends Controller {
      */
     private async updatePost( req: Modepress.IAuthReq, res: express.Response ) {
         const token: Modepress.IPost = req.body;
-        const posts = this.getModel( 'posts' ) !;
+        const posts = this.getModel( 'posts' )!;
 
         try {
             const instance = await posts.update( <Modepress.IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
@@ -314,14 +312,14 @@ export default class PostsController extends Controller {
      */
     private async createPost( req: Modepress.IAuthReq, res: express.Response ) {
         const token: Modepress.IPost = req.body;
-        const posts = this.getModel( 'posts' ) !;
+        const posts = this.getModel( 'posts' )!;
 
         // User is passed from the authentication function
         token.author = req._user!.username;
 
         try {
             const instance = await posts.createInstance( token );
-            const json = await instance.schema.getAsJson( instance._id, { verbose: true });
+            const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
 
             okJson<Modepress.IGetPost>( {
                 error: false,
@@ -339,11 +337,11 @@ export default class PostsController extends Controller {
      */
     private async createCategory( req: Modepress.IAuthReq, res: express.Response ) {
         const token: Modepress.ICategory = req.body;
-        const categories = this.getModel( 'categories' ) !;
+        const categories = this.getModel( 'categories' )!;
 
         try {
             const instance = await categories.createInstance( token );
-            const json = await instance.schema.getAsJson( instance._id, { verbose: true });
+            const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
 
             okJson<Modepress.IGetCategory>( {
                 error: false,

@@ -2,10 +2,7 @@
 import { error, info, clear, initializeLogger } from './logger';
 import * as yargs from 'yargs';
 import { Server as MongoServer, Db } from 'mongodb';
-
-import { UsersService } from './users-service';
 import { Server } from './server';
-// import { EventManager } from './event-manager';
 import { ConsoleManager } from './console/console-manager';
 import { prepare } from './db-preparation';
 
@@ -69,7 +66,6 @@ async function initialize() {
     const promises: Array<Promise<any>> = [];
 
     await prepare( db, config! );
-    UsersService.getSingleton( config! );
 
     // Load the servers
     for ( let i = 0, l = config!.servers.length; i < l; i++ ) {

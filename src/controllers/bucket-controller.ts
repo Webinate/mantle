@@ -56,7 +56,7 @@ export class BucketController extends Controller {
     /**
      * Removes buckets specified in the URL
      */
-    private async removeBuckets( req: users.AuthRequest, res: express.Response ) {
+    private async removeBuckets( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             let buckets: Array<string>;
@@ -66,7 +66,7 @@ export class BucketController extends Controller {
 
             buckets = req.params.buckets.split( ',' );
 
-            const filesRemoved = await manager.removeBucketsByName( buckets, req._user!.dbEntry.username! );
+            const filesRemoved = await manager.removeBucketsByName( buckets, req._user!.username! );
 
             return okJson<users.IRemoveFiles>( {
                 message: `Removed [${filesRemoved.length}] buckets`,
@@ -83,7 +83,7 @@ export class BucketController extends Controller {
     /**
 	 * Fetches all bucket entries from the database
 	 */
-    private async getBuckets( req: users.AuthRequest, res: express.Response ) {
+    private async getBuckets( req: Modepress.IAuthReq, res: express.Response ) {
         const user = req.params.user;
         const manager = BucketManager.get;
         let searchTerm: RegExp | undefined;
@@ -117,7 +117,7 @@ export class BucketController extends Controller {
     /**
 	 * Creates a new user bucket based on the target provided
 	 */
-    private async createBucket( req: users.AuthRequest, res: express.Response ) {
+    private async createBucket( req: Modepress.IAuthReq, res: express.Response ) {
         const manager = BucketManager.get;
         const username: string = req.params.user;
         const bucketName: string = req.params.name;
@@ -220,14 +220,14 @@ export class BucketController extends Controller {
     /**
 	 * Attempts to upload a file to the user's bucket
 	 */
-    private uploadUserFiles( req: users.AuthRequest, res: express.Response ) {
+    private uploadUserFiles( req: Modepress.IAuthReq, res: express.Response ) {
         const form = new multiparty.Form( { maxFields: 8, maxFieldsSize: 5 * 1024 * 1024, maxFilesSize: 10 * 1024 * 1024 } );
         let numParts = 0;
         let completedParts = 0;
         let closed = false;
         const uploadedTokens: Array<users.IUploadToken> = [];
         const manager = BucketManager.get;
-        const username = req._user!.dbEntry.username!;
+        const username = req._user!.username!;
         const parentFile = req.params.parentFile;
         const filesUploaded: Array<UsersInterface.IFileEntry> = [];
         const bucketName = req.params.bucket;
