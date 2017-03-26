@@ -36,6 +36,15 @@
         "sessionLifetimeExtended": 172800,
         "secure": false
     },
+    "websocket" : {
+        "port": 8020,
+		"socketApiKey" : "KEY_YOU_DEFINE!",
+		"approvedSocketDomains": [
+            "^.+\\.webinate\\.dev$",
+			"^hatchery.webinate.dev$",
+            "^localhost$"
+		]
+    },
     "mail": {
         "type": "mailgun",
         "from": "webinate",
