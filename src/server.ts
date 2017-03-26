@@ -4,7 +4,7 @@ import * as mongodb from 'mongodb';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
-import { error, info } from './logger';
+import { error, info, enabled as loggingEnabled } from './logger';
 import * as compression from 'compression';
 import { Controller } from './controllers/controller'
 import PageRenderer from './controllers/page-renderer'
@@ -19,7 +19,6 @@ import { UserController } from './controllers/user-controller';
 import { AdminController } from './controllers/admin-controller';
 import { ErrorController } from './controllers/error-controller';
 import { CommsController } from './socket-api/comms-controller';
-
 
 export class Server {
     private _config: Modepress.IConfig;
@@ -53,7 +52,8 @@ export class Server {
         app.set( 'view engine', 'jade' );
 
         // log every request to the console
-        app.use( morgan( 'dev' ) );
+        if ( loggingEnabled() )
+            app.use( morgan( 'dev' ) );
 
         // Create each of your controllers here
         const controllerPromises: Array<Promise<any>> = [];
@@ -76,12 +76,14 @@ export class Server {
         controllers.push( new StatsController( app, config! ) );
 
 
-        // Load the controllers
+        // Load the optional controllers
         try {
-            for ( let i = 0, l: number = server.controllers.length; i < l; i++ ) {
-                lastAddedController = server.controllers[ i ].path;
-                const func = require( server.controllers[ i ].path );
-                controllers.push( new func.default( server, config, app ) );
+            if ( config.includePluginControllers ) {
+                for ( let i = 0, l: number = server.controllers.length; i < l; i++ ) {
+                    lastAddedController = server.controllers[ i ].path;
+                    const func = require( server.controllers[ i ].path );
+                    controllers.push( new func.default( server, config, app ) );
+                }
             }
         }
         catch ( err ) {

@@ -455,6 +455,11 @@
         debug: boolean;
 
         /**
+         * If false, the server config controllers will not be included
+         */
+        includePluginControllers: boolean;
+
+        /**
          * Settings related to sending emails
          */
         mail: {
