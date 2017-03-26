@@ -1,40 +1,102 @@
-var test = require( 'unit.js' );
-var fs = require( 'fs' );
-var yargs = require( "yargs" );
-var args = yargs.argv;
+let test = require( 'unit.js' );
+let fs = require( 'fs' );
+let yargs = require( "yargs" );
+let args = yargs.argv;
 
-// Load the files
-var config = fs.readFileSync( args.config );
-var uconfig = fs.readFileSync( args.uconfig );
-try {
-    // Parse the config files
-    console.log( "Parsing files..." );
-    config = JSON.parse( config );
-    uconfig = JSON.parse( uconfig );
-    config = config.servers[ parseInt( args.server ) ];
-}
-catch ( exp ) {
-    console.log( exp.toString() )
-    process.exit();
-}
+/**
+ * A class for managing the tests
+ */
+class TestManager {
 
-var usersAgent = test.httpAgent( "http://" + uconfig.host + ":" + uconfig.portHTTP );
-var modepressAgent = test.httpAgent( "http://" + config.host + ":" + config.portHTTP );
-var adminCookie = "";
+    /**
+     * Creates an instance of the test manager
+     */
+    constructor() {
+        TestManager._singleton = this;
+        this.cookies = {
+            admin: ''
+        };
+    }
 
+    post( url, json, who = 'admin' ) {
+        return new Promise(( resolve, reject ) => {
+            this.agent.post( url )
+                .set( 'Accept', 'application/json' )
+                .expect( 200 ).expect( 'Content-Type', /json/ )
+                .send( json )
+                .set( 'Cookie', this.cookies[ who ] || '' )
+                .end(( err, res ) => {
+                    if ( err )
+                        return reject( err );
 
-function TestManager() {
-    this.usersAgent = usersAgent,
-        this.modepressAgent = modepressAgent,
-        this.adminCookie = adminCookie,
-        this.config = config,
-        this.uconfig = uconfig
+                    return ( resolve( res ) );
+                } );
+        } );
+    }
+
+    delete( url, json, who = 'admin' ) {
+        return new Promise(( resolve, reject ) => {
+            this.agent.delete( url )
+                .set( 'Accept', 'application/json' )
+                .expect( 200 ).expect( 'Content-Type', /json/ )
+                .send( json )
+                .set( 'Cookie', this.cookies[ who ] || '' )
+                .end(( err, res ) => {
+                    if ( err )
+                        return reject( err );
+
+                    return ( resolve( res ) );
+                } );
+        } );
+    }
+
+    get( url, who = 'admin' ) {
+        return new Promise(( resolve, reject ) => {
+            this.agent.get( url )
+                .set( 'Accept', 'application/json' )
+                .expect( 200 ).expect( 'Content-Type', /json/ )
+                .set( 'Cookie', this.cookies[ who ] || '' )
+                .end(( err, res ) => {
+                    if ( err )
+                        return reject( err );
+
+                    return ( resolve( res ) );
+                } );
+        } );
+    }
+
+    updateCookieToken( who, resp ) {
+        this.cookies[ who ] = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
+    }
+
+    /**
+     * Initialize the manager
+     */
+    async initialize() {
+
+        try {
+            const config = this.config = JSON.parse( fs.readFileSync( args.config ) );
+            const serverConfig = this.serverConfig = config.servers[ parseInt( args.server ) ];
+            this.agent = test.httpAgent( "http://" + serverConfig.host + ":" + serverConfig.portHTTP );
+
+            const resp = await this.post( '/auth/login', { username: config.adminUser.username, password: config.adminUser.password } );
+            this.cookies.admin = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
+        }
+        catch ( exp ) {
+            console.log( exp.toString() )
+            process.exit();
+        }
+    }
+
+    /**
+     * Gets the test manager intance
+     */
+    static get get() {
+        if ( !TestManager._singleton )
+            new TestManager();
+
+        return TestManager._singleton;
+    }
 };
 
-// Create the test manager to declare the shared variables
-var testManager = new TestManager();
-
-// Export the manager
-exports.singleton = function() {
-    return testManager;
-}
+exports.TestManager = TestManager;

@@ -1,51 +1,7 @@
-// var test = require( 'unit.js' );
-// var header = require( './header.js' ).singleton();
-
-// /**
-//  * Log in as an admin user and store the cookie for later
-//  */
-// describe( 'Log in as an admin user', function() {
-//     it( 'logged in with a valid username & valid password', function( done ) {
-//         header.usersAgent
-//             .post( '/users/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-//             .send( { username: header.uconfig.adminUser.username, password: header.uconfig.adminUser.password })
-//             .end( function( err, res ) {
-//                 test.bool( res.body.error ).isNotTrue()
-//                     .bool( res.body.authenticated ).isTrue()
-//                     .object( res.body ).hasProperty( "message" )
-
-
-
-//                 header.adminCookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
-
-// 				console.log('WE have a message!' + res.body.message )
-// 				console.log('WE have a cookie!' + header.adminCookie )
-//                 done();
-//             });
-//     }).timeout( 25000 )
-// });
-
+const header = require( './header.js' );
 const test = require( 'unit.js' );
-const fs = require( 'fs' );
 const ws = require( 'ws' );
 
-// Load the file
-const jsonConfig = fs.readFileSync( "../dist/config.json", "utf8" );
-let config;
-
-try {
-    // Parse the config
-    console.log( "Parsing file config..." );
-    config = JSON.parse( jsonConfig );
-
-}
-catch ( exp ) {
-    console.log( exp.toString() )
-    process.exit();
-}
-
-let apiPrefix = "";
-const agent = test.httpAgent( "http://" + config.host + ":" + config.portHTTP + apiPrefix );
 let adminCookie = "";
 let georgeCookie = "";
 let george2Cookie = "";
@@ -53,6 +9,7 @@ let activation = "";
 let fileId = "";
 let publicURL = "";
 let wsClient;
+const manager = header.TestManager.get;
 
 // A map of all web socket events
 const socketEvents = {
@@ -183,94 +140,79 @@ describe( 'Testing user API functions', function() {
 
     describe( 'Checking basic authentication', function() {
         it( 'should not be logged in', function( done ) {
-            agent
-                .get( '/auth/authenticated' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( '/auth/authenticated', null )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.bool( res.body.authenticated ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 
     describe( 'Checking login with admin user', function() {
 
         it( 'did not log in with empty credentials', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "", password: "" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( '/auth/login', { username: "", password: "" }, null )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.bool( res.body.authenticated ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
         } ).timeout( 20000 )
 
         it( 'did not log in with bad credentials', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "$%^\}{}\"&*[]@~�&$", password: "$%^&*�&@#`{}/\"�%\"$" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( '/auth/login', { username: "$%^\}{}\"&*[]@~�&$", password: "$%^&*�&@#`{}/\"�%\"$" }, null )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.bool( res.body.authenticated ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not log in with false credentials', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "GeorgeTheTwat", password: "FakePass" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( '/auth/login', { username: "GeorgeTheTwat", password: "FakePass" }, null )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.bool( res.body.authenticated ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not log in with a valid username but invalid password', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: config.adminUser.username, password: "FakePass" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( '/auth/login', { username: manager.config.adminUser.username, password: "FakePass" }, null )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.bool( res.body.authenticated ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 25000 )
 
         it( 'did log in with a valid username & valid password', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: config.adminUser.username, password: config.adminUser.password } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( '/auth/login', { username: manager.config.adminUser.username, password: manager.config.adminUser.password }, null )
+                .then( res => {
+                    manager.updateCookieToken( 'admin', res );
                     test.bool( res.body.error ).isNotTrue()
                     test.bool( res.body.authenticated ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
-                    adminCookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 25000 )
     } )
 
     describe( 'Checking authentication with cookie', function() {
         it( 'should be logged in with hidden user details', function( done ) {
-            agent
-                .get( '/auth/authenticated' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( '/auth/authenticated' )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.bool( res.body.authenticated ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
@@ -282,45 +224,41 @@ describe( 'Testing user API functions', function() {
                     test.value( res.body.user.password ).isUndefined()
                     test.value( res.body.user.registerKey ).isUndefined()
                     test.value( res.body.user.sessionId ).isUndefined()
-                    test.string( res.body.user.username ).is( config.adminUser.username )
+                    test.string( res.body.user.username ).is( manager.config.adminUser.username )
                     test.number( res.body.user.privileges ).is( 1 )
                     test.value( res.body.user.passwordTag ).isUndefined()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should be logged in with visible user details', function( done ) {
-            agent
-                .get( '/auth/authenticated?verbose=true' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( '/auth/authenticated?verbose=true' )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.bool( res.body.authenticated ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.object( res.body ).hasProperty( "user" )
                     test.string( res.body.user._id )
-                    test.string( res.body.user.email ).is( config.adminUser.email )
+                    test.string( res.body.user.email ).is( manager.config.adminUser.email )
                     test.number( res.body.user.lastLoggedIn ).isNotNaN()
                     test.number( res.body.user.createdOn ).isNotNaN()
                     test.value( res.body.user.password )
                     test.value( res.body.user.registerKey )
                     test.value( res.body.user.sessionId )
-                    test.string( res.body.user.username ).is( config.adminUser.username )
+                    test.string( res.body.user.username ).is( manager.config.adminUser.username )
                     test.number( res.body.user.privileges ).is( 1 )
                     test.value( res.body.user.passwordTag )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 
     describe( 'Getting user data with admin cookie', function() {
         it( 'should get admin user without details', function( done ) {
-            agent
-                .get( '/users/' + config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}` )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.object( res.body ).hasProperty( "data" )
@@ -330,41 +268,37 @@ describe( 'Testing user API functions', function() {
                     test.value( res.body.data.password ).isUndefined()
                     test.value( res.body.data.registerKey ).isUndefined()
                     test.value( res.body.data.sessionId ).isUndefined()
-                    test.string( res.body.data.username ).is( config.adminUser.username )
+                    test.string( res.body.data.username ).is( manager.config.adminUser.username )
                     test.number( res.body.data.privileges ).is( 1 )
                     test.value( res.body.data.passwordTag ).isUndefined()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should get admin user with details', function( done ) {
-            agent
-                .get( '/users/' + config.adminUser.username + "?verbose=true" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}?verbose=true` )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.object( res.body ).hasProperty( "data" )
                     test.string( res.body.data._id )
-                    test.string( res.body.data.email ).is( config.adminUser.email )
+                    test.string( res.body.data.email ).is( manager.config.adminUser.email )
                     test.number( res.body.data.lastLoggedIn ).isNotNaN()
                     test.value( res.body.data.password )
                     test.value( res.body.data.registerKey )
                     test.value( res.body.data.sessionId )
-                    test.string( res.body.data.username ).is( config.adminUser.username )
+                    test.string( res.body.data.username ).is( manager.config.adminUser.username )
                     test.number( res.body.data.privileges ).is( 1 )
                     test.value( res.body.data.passwordTag )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should get admin user by email without details', function( done ) {
-            agent
-                .get( '/users/' + config.adminUser.email ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.email}` )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.object( res.body ).hasProperty( "data" )
@@ -374,500 +308,421 @@ describe( 'Testing user API functions', function() {
                     test.value( res.body.data.password ).isUndefined()
                     test.value( res.body.data.registerKey ).isUndefined()
                     test.value( res.body.data.sessionId ).isUndefined()
-                    test.string( res.body.data.username ).is( config.adminUser.username )
+                    test.string( res.body.data.username ).is( manager.config.adminUser.username )
                     test.number( res.body.data.privileges ).is( 1 )
                     test.value( res.body.data.passwordTag ).isUndefined()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should get admin user by email with details', function( done ) {
-            agent
-                .get( '/users/' + config.adminUser.email + "?verbose=true" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.email}?verbose=true` )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.object( res.body ).hasProperty( "data" )
                     test.string( res.body.data._id )
-                    test.string( res.body.data.email ).is( config.adminUser.email )
+                    test.string( res.body.data.email ).is( manager.config.adminUser.email )
                     test.number( res.body.data.lastLoggedIn ).isNotNaN()
                     test.value( res.body.data.password )
                     test.value( res.body.data.registerKey )
                     test.value( res.body.data.sessionId )
                     test.value( res.body.data.passwordTag )
-                    test.string( res.body.data.username ).is( config.adminUser.username )
+                    test.string( res.body.data.username ).is( manager.config.adminUser.username )
                     test.number( res.body.data.privileges ).is( 1 )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did set user meta data of myself', function( done ) {
-            agent
-                .post( "/users/" + config.adminUser.username + "/meta" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { value: { sister: "sam", brother: "mat" } } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users/${manager.config.adminUser.username}/meta`, { value: { sister: "sam", brother: "mat" } } )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "User's data has been updated" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did get user meta "sister"', function( done ) {
-            agent
-                .get( "/users/" + config.adminUser.username + "/meta/sister" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}/meta/sister` )
+                .then( res => {
                     test.string( res.body ).is( "sam" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did get user meta "brother"', function( done ) {
-            agent
-                .get( "/users/" + config.adminUser.username + "/meta/brother" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}/meta/brother` )
+                .then( res => {
                     test.string( res.body ).is( "mat" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did update user meta "brother" to john', function( done ) {
-            agent
-                .post( "/users/" + config.adminUser.username + "/meta/brother" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { value: "john" } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users/${manager.config.adminUser.username}/meta/brother`, { value: "john" } )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Value 'brother' has been updated" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did get user meta "brother" and its john', function( done ) {
-            agent
-                .get( "/users/" + config.adminUser.username + "/meta/brother" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}/meta/brother` )
+                .then( res => {
                     test.string( res.body ).is( "john" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did set clear all user data', function( done ) {
-            agent
-                .post( "/users/" + config.adminUser.username + "/meta" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users/${manager.config.adminUser.username}/meta`, {} )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "User's data has been updated" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 
     describe( 'Logging out', function() {
         it( 'should log out', function( done ) {
-            agent
-                .get( '/auth/logout' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/logout` )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 
     describe( 'Checking authentication with stale session', function() {
         it( 'should veryify logged out', function( done ) {
-            agent
-                .get( '/auth/authenticated' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/authenticated` )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.bool( res.body.authenticated ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 
     describe( 'When not logged in', function() {
         it( 'should get no user with username', function( done ) {
-            agent
-                .get( '/users/' + config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}` )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.bool( res.body.error ).isTrue()
                     test.string( res.body.message ).is( "You must be logged in to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should get no user with email or verbose', function( done ) {
-            agent
-                .get( '/users/' + config.adminUser.email + "?verbose=true" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.email}?verbose=true` )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.bool( res.body.error ).isTrue()
                     test.string( res.body.message ).is( "You must be logged in to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should get no sessions', function( done ) {
-            agent
-                .get( '/sessions' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/sessions` )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.bool( res.body.error ).isTrue()
                     test.string( res.body.message ).is( "You must be logged in to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not be able to create a new user', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "George", password: "Password", email: "george@webinate.net", privileges: 1 } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "George", password: "Password", email: "george@webinate.net", privileges: 1 } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You must be logged in to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not be able to get user meta data', function( done ) {
-            agent
-                .get( '/users/' + config.adminUser.username + '/meta/datum' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}/meta/datum` )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You must be logged in to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
     } )
 
     describe( 'Registering as a new user', function() {
         it( 'should not register with blank credentials', function( done ) {
-            agent
-                .post( '/auth/register' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "", password: "" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: "", password: "" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Please enter a valid username" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not register with existing username', function( done ) {
-            agent
-                .post( '/auth/register' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: config.adminUser.username, password: "FakePass" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: manager.config.adminUser.username, password: "FakePass" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "That username or email is already in use; please choose another or login." )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not register with blank username', function( done ) {
-            agent
-                .post( '/auth/register' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "", password: "FakePass" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: "", password: "FakePass" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Please enter a valid username" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not register with blank password', function( done ) {
-            agent
-                .post( '/auth/register' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "sdfsdsdfsdfdf", password: "" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: "sdfsdsdfsdfdf", password: "" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Password cannot be null or empty" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not register with bad characters', function( done ) {
-            agent
-                .post( '/auth/register' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "!\"�$%^^&&*()-=~#}{}", password: "!\"./<>;�$$%^&*()_+" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: "!\"�$%^^&&*()-=~#}{}", password: "!\"./<>;�$$%^&*()_+" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Please only use alpha numeric characters for your username" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not register with valid information but no email', function( done ) {
-            agent
-                .post( '/auth/register' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "George", password: "Password" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: "George", password: "Password" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Email cannot be null or empty" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not register with valid information but invalid email', function( done ) {
-            agent
-                .post( '/auth/register' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "George", password: "Password", email: "bad_email" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: "George", password: "Password", email: "bad_email" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Please use a valid email address" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'should not register with valid information, email & no captcha', function( done ) {
-            agent
-                .post( '/auth/register' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "George", password: "Password", email: "george@webinate.net" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: "George", password: "Password", email: "george@webinate.net" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Captcha cannot be null or empty" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 
     describe( 'Create a new user when logged in as admin', function() {
 
         it( 'did log in with an admin username & valid password', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: config.adminUser.username, password: config.adminUser.password } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password }, null )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.bool( res.body.authenticated ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
-                    adminCookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
+                    manager.updateCookieToken( 'admin', res );
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
 
 
         it( 'did not create a new user without a username', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "", password: "" } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/register`, { username: "", password: "" }, null )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Username cannot be empty" )
+                    test.string( res.body.message ).is( "Please enter a valid username" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a new user without a password', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "", email: "thisisatest@test.com" } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "george", password: "", email: "thisisatest@test.com" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Password cannot be empty" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a new user with invalid characters', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "!\"�$%^&*()", password: "password" } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "!\"�$%^&*()", password: "password" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Username must be alphanumeric" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a new user without email', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "password" } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "george", password: "password" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Email cannot be empty" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a new user with invalid email', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "password", email: "matmat" } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "george", password: "password", email: "matmat" } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Email must be valid" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a new user with invalid privilege', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "password", email: "matmat@yahoo.com", privileges: 4 } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "george", password: "password", email: "matmat@yahoo.com", privileges: 4 } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Privilege type is unrecognised" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a new user with an existing username', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: config.adminUser.username, password: "password", email: "matmat@yahoo.com", privileges: 2 } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: manager.config.adminUser.username, password: "password", email: "matmat@yahoo.com", privileges: 2 } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "A user with that name or email already exists" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a new user with an existing email', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "password", email: config.adminUser.email, privileges: 2 } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "george", password: "password", email: manager.config.adminUser.email, privileges: 2 } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "A user with that name or email already exists" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create user george with super admin privileges', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "password", email: "thisisatest@test.com", privileges: 1 } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "george", password: "password", email: "thisisatest@test.com", privileges: 1 } )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You cannot create a user with super admin permissions" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did create regular user george with valid details', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "password", email: "thisisatest@test.com", privileges: 3 } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "george", password: "password", email: "thisisatest@test.com", privileges: 3 } )
+                .then( res => {
                     test.string( res.body.message ).is( "User george has been created" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 16000 )
 
         it( 'should get george when searching all registered users', function( done ) {
-            agent
-                .get( '/users?search=george' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users?search=george`, null )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Found 1 users" )
                     test.bool( res.body.error ).isFalse()
                     test.value( res.body.data[ 0 ].password ).isUndefined()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did create another regular user george2 with valid details', function( done ) {
-            agent
-                .post( '/users' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george2", password: "password", email: "thisisatest2@test.com", privileges: 3 } )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, { username: "george2", password: "password", email: "thisisatest2@test.com", privileges: 3 } )
+                .then( res => {
                     test.string( res.body.message ).is( "User george2 has been created" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 16000 )
 
         it( 'did create an activation key for george', function( done ) {
-            agent
-                .get( '/users/george?verbose=true' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/george?verbose=true` )
+                .then( res => {
                     test.object( res.body.data ).hasProperty( "registerKey" )
                     activation = res.body.data.registerKey
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did activate george2 through the admin', function( done ) {
@@ -963,7 +818,7 @@ describe( 'Testing user API functions', function() {
                     // Login as admin
                     agent
                         .post( '/auth/login' ).set( 'Accept', 'application/json' )
-                        .send( { username: config.adminUser.username, password: config.adminUser.password } )
+                        .send( { username: manager.config.adminUser.username, password: manager.config.adminUser.password } )
                         .end( function( err, res ) {
                             if ( err ) return done( err );
                             adminCookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
@@ -1022,7 +877,7 @@ describe( 'Testing user API functions', function() {
 
         it( 'did not get details of the admin user (no permission)', function( done ) {
             agent
-                .get( "/users/" + config.adminUser.username + "?verbose=true" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .get( "/users/" + manager.config.adminUser.username + "?verbose=true" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1048,7 +903,7 @@ describe( 'Testing user API functions', function() {
 
         it( 'did not remove the admin user (no permission)', function( done ) {
             agent
-                .delete( "/users/" + config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .delete( "/users/" + manager.config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1061,7 +916,7 @@ describe( 'Testing user API functions', function() {
 
         it( 'did not approve activation (no permission)', function( done ) {
             agent
-                .put( "/auth/" + config.adminUser.username + "/approve-activation" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .put( "/auth/" + manager.config.adminUser.username + "/approve-activation" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1180,7 +1035,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not get stats for admin', function( done ) {
             agent
-                .get( "/users/" + config.adminUser.username + "/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .get( "/users/" + manager.config.adminUser.username + "/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1193,7 +1048,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not get buckets for admin', function( done ) {
             agent
-                .get( "/buckets/user/" + config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .get( "/buckets/user/" + manager.config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1206,7 +1061,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create stats for admin', function( done ) {
             agent
-                .post( "/stats/create-stats/" + config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .post( "/stats/create-stats/" + manager.config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1219,7 +1074,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create storage calls for admin', function( done ) {
             agent
-                .put( "/stats/storage-calls/" + config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .put( "/stats/storage-calls/" + manager.config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1232,7 +1087,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create storage memory for admin', function( done ) {
             agent
-                .put( "/stats/storage-memory/" + config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .put( "/stats/storage-memory/" + manager.config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1245,7 +1100,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create storage allocated calls for admin', function( done ) {
             agent
-                .put( "/stats/storage-allocated-calls/" + config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .put( "/stats/storage-allocated-calls/" + manager.config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1258,7 +1113,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create storage allocated memory for admin', function( done ) {
             agent
-                .put( "/stats/storage-allocated-memory/" + config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .put( "/stats/storage-allocated-memory/" + manager.config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1358,7 +1213,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not get files for another user\'s bucket', function( done ) {
             agent
-                .get( "/files/users/" + config.adminUser.username + "/buckets/BAD_ENTRY" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .get( "/files/users/" + manager.config.adminUser.username + "/buckets/BAD_ENTRY" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1386,7 +1241,7 @@ describe( 'Checking media API', function() {
 
         it( 'did not create a bucket for another user', function( done ) {
             agent
-                .post( "/buckets/user/" + config.adminUser.username + "/test" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
+                .post( "/buckets/user/" + manager.config.adminUser.username + "/test" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', georgeCookie )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1922,37 +1777,27 @@ describe( 'Checking media API', function() {
 describe( 'Cleaning up', function() {
 
     it( 'We did log in as admin', function( done ) {
-        // Login as admin
-        agent
-            .post( '/auth/login' ).set( 'Accept', 'application/json' )
-            .send( { username: config.adminUser.username, password: config.adminUser.password } )
-            .end( function( err, res ) {
-                if ( err ) return done( err );
-                adminCookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
+        manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password } )
+            .then( res => {
+                manager.updateCookieToken( 'admin', res );
                 done();
-            } )
+            } ).catch( err => done( err ) );
     } )
 
     it( 'did remove any users called george', function( done ) {
-        agent
-            .delete( '/users/george' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-            .set( 'Cookie', adminCookie )
-            .end( function( err, res ) {
-                if ( err ) return done( err );
+        manager.delete( `/users/george`, {} )
+            .then( res => {
                 test.string( res.body.message ).is( "User george has been removed" )
                 done();
-            } );
+            } ).catch( err => done( err ) );
     } ).timeout( 25000 )
 
     it( 'did remove any users called george2', function( done ) {
-        agent
-            .delete( '/users/george2' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-            .set( 'Cookie', adminCookie )
-            .end( function( err, res ) {
-                if ( err ) return done( err );
+        manager.delete( `/users/george2`, {} )
+            .then( res => {
                 test.string( res.body.message ).is( "User george2 has been removed" )
                 done();
-            } );
+            } ).catch( err => done( err ) );
     } ).timeout( 25000 )
 } )
 
