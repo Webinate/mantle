@@ -1,7 +1,7 @@
 ﻿import * as express from 'express';
 import * as controllerModule from './controller';
 import * as bodyParser from 'body-parser';
-import { UsersService } from '../users-service'
+import { UserManager } from '../users'
 import { errJson } from '../serializers';
 
 export default class EmailsController extends controllerModule.Controller {
@@ -18,9 +18,9 @@ export default class EmailsController extends controllerModule.Controller {
         config; // Supress empty param warning
 
         const router = express.Router();
-        router.use( bodyParser.urlencoded( { 'extended': true }) );
+        router.use( bodyParser.urlencoded( { 'extended': true } ) );
         router.use( bodyParser.json() );
-        router.use( bodyParser.json( { type: 'application/vnd.api+json' }) );
+        router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
         // Filter the post requests
         router.post( '/', this.onPost.bind( this ) );
@@ -44,11 +44,11 @@ export default class EmailsController extends controllerModule.Controller {
             `Phone: ${( <Modepress.IMessage>req.body ).phone}`,
             `Website: ${( <Modepress.IMessage>req.body ).website}` ].join( '\r\n' );
 
-        UsersService.getSingleton().sendAdminEmail( message ).then( function( body ) {
+        UserManager.get.sendAdminEmail( message ).then( function( body ) {
             res.end( body );
 
-        }).catch( function( err ) {
+        } ).catch( function( err ) {
             errJson( err, res );
-        });
+        } );
     }
 }

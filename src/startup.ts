@@ -2,12 +2,10 @@
 import { error, info, clear, initializeLogger } from './logger';
 import * as yargs from 'yargs';
 import { Server as MongoServer, Db } from 'mongodb';
-
-import { UsersService } from './users-service';
 import { Server } from './server';
-// import { EventManager } from './event-manager';
 import { ConsoleManager } from './console/console-manager';
 import { prepare } from './db-preparation';
+import * as cluster from 'cluster';
 
 let config: Modepress.IConfig | null = null;
 const args = yargs.argv;
@@ -55,7 +53,7 @@ catch ( err ) {
 /**
  * initialization function to prep DB and servers
  */
-async function initialize() {
+export async function initialize() {
     info( `Attempting to connect to mongodb...` );
 
     const mongoServer = new MongoServer( config!.databaseHost, config!.databasePort, config!.databaseName );
@@ -69,7 +67,6 @@ async function initialize() {
     const promises: Array<Promise<any>> = [];
 
     await prepare( db, config! );
-    UsersService.getSingleton( config! );
 
     // Load the servers
     for ( let i = 0, l = config!.servers.length; i < l; i++ ) {
@@ -86,7 +83,9 @@ async function initialize() {
     new ConsoleManager().initialize();
 }
 
-// Start the server initialization
-initialize().catch(( err: Error ) => {
-    error( err.message ).then(() => process.exit() );
-} );
+if ( cluster.isWorker ) {
+    // Start the server initialization
+    initialize().catch(( err: Error ) => {
+        error( err.message ).then(() => process.exit() );
+    } );
+}

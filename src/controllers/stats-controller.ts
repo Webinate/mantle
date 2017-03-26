@@ -53,7 +53,7 @@ export class StatsController extends Controller {
     /**
      * Makes sure the target user exists and the numeric value specified is valid
      */
-    private async verifyTargetValue( req: users.AuthRequest, res: express.Response, next: Function ) {
+    private async verifyTargetValue( req: Modepress.IAuthReq, res: express.Response, next: Function ) {
         try {
             // Set the content type
             const value = parseInt( req.params.value );
@@ -70,7 +70,7 @@ export class StatsController extends Controller {
             if ( !user )
                 throw new Error( `Could not find the user '${req.params.target}'` );
 
-            req._target = user;
+            req._target = user.dbEntry;
             next();
 
         } catch ( err ) {
@@ -81,11 +81,11 @@ export class StatsController extends Controller {
     /**
      * Updates the target user's api calls
      */
-    private async updateCalls( req: users.AuthRequest, res: express.Response ) {
+    private async updateCalls( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
-            await manager.updateStorage( req._target.dbEntry.username!, <users.IStorageStats>{ apiCallsUsed: value } );
+            await manager.updateStorage( req._target!.username!, <users.IStorageStats>{ apiCallsUsed: value } );
             okJson<def.IResponse>( { message: `Updated the user API calls to [${value}]`, error: false }, res );
 
         } catch ( err ) {
@@ -96,11 +96,11 @@ export class StatsController extends Controller {
     /**
      * Updates the target user's memory usage
      */
-    private async updateMemory( req: users.AuthRequest, res: express.Response ) {
+    private async updateMemory( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
-            await manager.updateStorage( req._target.dbEntry.username!, <users.IStorageStats>{ memoryUsed: value } );
+            await manager.updateStorage( req._target!.username!, <users.IStorageStats>{ memoryUsed: value } );
 
             okJson<def.IResponse>( { message: `Updated the user memory to [${value}] bytes`, error: false }, res );
 
@@ -112,11 +112,11 @@ export class StatsController extends Controller {
     /**
      * Updates the target user's allocated api calls
      */
-    private async updateAllocatedCalls( req: users.AuthRequest, res: express.Response ) {
+    private async updateAllocatedCalls( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
-            await manager.updateStorage( req._target.dbEntry.username!, <users.IStorageStats>{ apiCallsAllocated: value } );
+            await manager.updateStorage( req._target!.username!, <users.IStorageStats>{ apiCallsAllocated: value } );
             okJson<def.IResponse>( { message: `Updated the user API calls to [${value}]`, error: false }, res );
 
         } catch ( err ) {
@@ -127,11 +127,11 @@ export class StatsController extends Controller {
     /**
      * Updates the target user's allocated memory
      */
-    private async updateAllocatedMemory( req: users.AuthRequest, res: express.Response ) {
+    private async updateAllocatedMemory( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
-            await manager.updateStorage( req._target.dbEntry.username!, <users.IStorageStats>{ memoryAllocated: value } );
+            await manager.updateStorage( req._target!.username!, <users.IStorageStats>{ memoryAllocated: value } );
             okJson<def.IResponse>( { message: `Updated the user memory to [${value}] bytes`, error: false }, res );
 
         } catch ( err ) {
@@ -143,13 +143,13 @@ export class StatsController extends Controller {
     /**
      * Fetches the statistic information for the specified user
      */
-    private async getStats( req: users.AuthRequest, res: express.Response ) {
+    private async getStats( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
-            const stats = await manager.getUserStats( req._user!.dbEntry.username );
+            const stats = await manager.getUserStats( req._user!.username );
 
             return okJson<users.IGetUserStorageData>( {
-                message: `Successfully retrieved ${req._user!.dbEntry.username}'s stats`,
+                message: `Successfully retrieved ${req._user!.username}'s stats`,
                 error: false,
                 data: stats
             }, res );
@@ -164,7 +164,7 @@ export class StatsController extends Controller {
     /**
      * Creates a new user stat entry. This is usually done for you when creating a new user
      */
-    private async createStats( req: users.AuthRequest, res: express.Response ) {
+    private async createStats( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             await manager.createUserStats( req.params.target );

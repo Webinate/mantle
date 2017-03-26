@@ -10,6 +10,7 @@
     "usersSocketOrigin": "webinate.net",
     "usersSocketApiKey": "my-secret-key",
     "debug": true,
+    "includePluginControllers": true,
     "adminUser": {
         "username": "root",
         "email": "root_email@host.com",

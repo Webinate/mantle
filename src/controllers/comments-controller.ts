@@ -5,9 +5,9 @@ import * as compression from 'compression';
 import { Controller } from './controller';
 import { Model, ModelInstance } from '../models/model';
 import { CommentsModel } from '../models/comments-model';
-import { UsersService } from '../users-service';
-import { getUser, isAdmin, canEdit, hasId, userExists } from '../permission-controllers';
+import { identifyUser, checkVerbosity, adminRights, canEdit, hasId, requireUser } from '../permission-controllers';
 import { okJson, errJson } from '../serializers';
+import { UserPrivileges } from '../users';
 
 /**
  * A controller that deals with the management of comments
@@ -22,23 +22,20 @@ export default class CommentsController extends Controller {
     constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
         super( [ Model.registerModel( CommentsModel ) ] );
 
-        server; // Supress empty param warning
-        config; // Supress empty param warning
-
         const router = express.Router();
 
         router.use( compression() );
-        router.use( bodyParser.urlencoded( { 'extended': true }) );
+        router.use( bodyParser.urlencoded( { 'extended': true } ) );
         router.use( bodyParser.json() );
-        router.use( bodyParser.json( { type: 'application/vnd.api+json' }) );
+        router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-        router.get( '/comments', <any>[ isAdmin, this.getComments.bind( this ) ] );
-        router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), getUser, this.getComment.bind( this ) ] );
-        router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), getUser, this.getComments.bind( this ) ] );
-        router.get( '/users/:user/comments', <any>[ userExists, getUser, this.getComments.bind( this ) ] );
-        router.delete( '/comments/:id', <any>[ getUser, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
-        router.put( '/comments/:id', <any>[ getUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
-        router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
+        router.get( '/comments', <any>[ adminRights, this.getComments.bind( this ) ] );
+        router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, checkVerbosity, this.getComment.bind( this ) ] );
+        router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), identifyUser, checkVerbosity, this.getComments.bind( this ) ] );
+        router.get( '/users/:user/comments', <any>[ requireUser, identifyUser, checkVerbosity, this.getComments.bind( this ) ] );
+        router.delete( '/comments/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
+        router.put( '/comments/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
+        router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, checkVerbosity, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
 
         // Register the path
         e.use( '/api', router );
@@ -48,7 +45,7 @@ export default class CommentsController extends Controller {
      * Returns an array of IComment items
      */
     private async getComments( req: Modepress.IAuthReq, res: express.Response ) {
-        const comments = this.getModel( 'comments' ) !;
+        const comments = this.getModel( 'comments' )!;
         let count = 0;
         let visibility = 'public';
         const user = req._user;
@@ -64,7 +61,7 @@ export default class CommentsController extends Controller {
 
         // Check for keywords
         if ( req.query.keyword )
-            findToken.$or.push( <Modepress.IComment>{ content: <any>new RegExp( req.query.keyword, 'i' ) });
+            findToken.$or.push( <Modepress.IComment>{ content: <any>new RegExp( req.query.keyword, 'i' ) } );
 
         // Check for visibility
         if ( req.query.visibility ) {
@@ -76,10 +73,8 @@ export default class CommentsController extends Controller {
         else
             visibility = 'all';
 
-        const users = UsersService.getSingleton();
-
         // Only admins are allowed to see private comments
-        if ( !user || ( ( visibility === 'all' || visibility === 'private' ) && users.isAdmin( user ) === false ) )
+        if ( !user || ( ( visibility === 'all' || visibility === 'private' ) && user.privileges! >= UserPrivileges.Admin ) )
             visibility = 'public';
 
         // Add the or conditions for visibility
@@ -124,7 +119,7 @@ export default class CommentsController extends Controller {
                     expandForeignKeys: Boolean( req.query.expanded ),
                     expandMaxDepth: parseInt( req.query.depth || 1 ),
                     expandSchemaBlacklist: [ 'parent' ]
-                }) );
+                } ) );
 
             const sanitizedData = await Promise.all( jsons );
 
@@ -145,7 +140,7 @@ export default class CommentsController extends Controller {
      */
     private async getComment( req: Modepress.IAuthReq, res: express.Response ) {
         try {
-            const comments = this.getModel( 'comments' ) !;
+            const comments = this.getModel( 'comments' )!;
             const findToken: Modepress.IComment = { _id: new mongodb.ObjectID( req.params.id ) };
             const user = req._user;
 
@@ -154,11 +149,10 @@ export default class CommentsController extends Controller {
             if ( instances.length === 0 )
                 throw new Error( 'Could not find comment' );
 
-            const users = UsersService.getSingleton();
-            const isPublic = await instances[ 0 ].schema.getByName( 'public' ) !.getValue()
+            const isPublic = await instances[ 0 ].schema.getByName( 'public' )!.getValue()
 
             // Only admins are allowed to see private comments
-            if ( !isPublic && ( !user || users.isAdmin( user ) === false ) )
+            if ( !isPublic && ( !user || user.privileges! >= UserPrivileges.Admin ) )
                 throw new Error( 'That comment is marked private' );
 
             const jsons: Array<Promise<Modepress.IComment>> = [];
@@ -168,7 +162,7 @@ export default class CommentsController extends Controller {
                     expandForeignKeys: Boolean( req.query.expanded ),
                     expandMaxDepth: parseInt( req.query.depth || 1 ),
                     expandSchemaBlacklist: [ 'parent' ]
-                }) );
+                } ) );
 
             const sanitizedData = await Promise.all( jsons );
 
@@ -187,23 +181,22 @@ export default class CommentsController extends Controller {
      * Attempts to remove a comment by ID
      */
     private async remove( req: Modepress.IAuthReq, res: express.Response ) {
-        const comments = this.getModel( 'comments' ) !;
+        const comments = this.getModel( 'comments' )!;
         const findToken: Modepress.IComment = {
             _id: new mongodb.ObjectID( req.params.id )
         }
 
         try {
             const user = req._user;
-            const users = UsersService.getSingleton();
             const instances = await comments.findInstances<Modepress.IComment>( findToken, [], 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find a comment with that ID' );
             else {
-                const author = await instances[ 0 ].schema.getByName( 'author' ) !.getValue();
+                const author = await instances[ 0 ].schema.getByName( 'author' )!.getValue();
 
                 // Only admins are allowed to see private comments
-                if ( !user || ( !users.isAdmin( user ) && user.username !== author ) )
+                if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== author ) )
                     throw new Error( 'You do not have permission' );
             }
 
@@ -224,23 +217,22 @@ export default class CommentsController extends Controller {
      */
     private async update( req: Modepress.IAuthReq, res: express.Response ) {
         const token: Modepress.IComment = req.body;
-        const comments = this.getModel( 'comments' ) !;
+        const comments = this.getModel( 'comments' )!;
         const findToken: Modepress.IComment = {
             _id: new mongodb.ObjectID( req.params.id )
         }
 
         try {
             const user = req._user;
-            const users = UsersService.getSingleton();
             const instances = await comments.findInstances<Modepress.IComment>( findToken, [], 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find comment with that id' );
             else {
-                const author = await instances[ 0 ].schema.getByName( 'author' ) !.getValue();
+                const author = await instances[ 0 ].schema.getByName( 'author' )!.getValue();
 
                 // Only admins are allowed to see private comments
-                if ( !user || ( !users.isAdmin( user ) && user.username !== author ) )
+                if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== author ) )
                     throw new Error( 'You do not have permission' );
             }
 
@@ -264,7 +256,7 @@ export default class CommentsController extends Controller {
      */
     private async create( req: Modepress.IAuthReq, res: express.Response ) {
         const token: Modepress.IComment = req.body;
-        const comments = this.getModel( 'comments' ) !;
+        const comments = this.getModel( 'comments' )!;
 
         // User is passed from the authentication function
         token.author = req._user!.username;
@@ -274,20 +266,20 @@ export default class CommentsController extends Controller {
 
         try {
             if ( token.parent ) {
-                parent = await comments.findOne<Modepress.IComment>( <Modepress.IModelEntry>{ _id: new mongodb.ObjectID( token.parent ) });
+                parent = await comments.findOne<Modepress.IComment>( <Modepress.IModelEntry>{ _id: new mongodb.ObjectID( token.parent ) } );
                 if ( !parent )
                     throw new Error( `No comment exists with the id ${token.parent}` );
             }
 
             const instance = await comments.createInstance( token );
-            const json = await instance.schema.getAsJson( instance._id, { verbose: true });
+            const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
 
 
             // Assign this comment as a child to its parent comment if it exists
             if ( parent ) {
-                const children: Array<string> = parent.schema.getByName( 'children' ) !.value;
+                const children: Array<string> = parent.schema.getByName( 'children' )!.value;
                 children.push( instance.dbEntry!._id );
-                await parent.model.update<Modepress.IComment>( <Modepress.IComment>{ _id: parent.dbEntry._id }, { children: children })
+                await parent.model.update<Modepress.IComment>( <Modepress.IComment>{ _id: parent.dbEntry._id }, { children: children } )
             }
 
             okJson<Modepress.IGetComment>( {

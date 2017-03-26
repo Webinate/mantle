@@ -24,7 +24,7 @@ export class UserController extends Controller {
 	 * @param The config options of this manager
 	 */
     constructor( e: express.Express, config: Modepress.IConfig ) {
-        super([ Model.registerModel( UsersModel ) ]);
+        super( [ Model.registerModel( UsersModel ) ] );
 
         this._config = config;
 
@@ -52,7 +52,7 @@ export class UserController extends Controller {
 	 * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
      * is specified. Specify the verbose=true parameter in order to get all user data.
 	 */
-    private async getUser( req: def.AuthRequest, res: express.Response ) {
+    private async getUser( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const user = await UserManager.get.getUser( req.params.username );
 
@@ -75,11 +75,11 @@ export class UserController extends Controller {
      * Also specify the verbose=true parameter in order to get all user data. You can also filter usernames with the
      * search query
 	 */
-    private async getUsers( req: def.AuthRequest, res: express.Response ) {
+    private async getUsers( req: Modepress.IAuthReq, res: express.Response ) {
         let verbose = Boolean( req.query.verbose );
 
         // Only admins are allowed to see sensitive data
-        if ( req._user && req._user.dbEntry.privileges === UserPrivileges.SuperAdmin && verbose )
+        if ( req._user && req._user.privileges === UserPrivileges.SuperAdmin && verbose )
             verbose = true;
         else
             verbose = false;
@@ -107,8 +107,8 @@ export class UserController extends Controller {
     /**
  	 * Sets a user's meta data
 	 */
-    private async setData( req: def.AuthRequest, res: express.Response ) {
-        const user = req._user!.dbEntry;
+    private async setData( req: Modepress.IAuthReq, res: express.Response ) {
+        const user = req._user!;
         let val = req.body && req.body.value;
         if ( !val )
             val = {};
@@ -125,8 +125,8 @@ export class UserController extends Controller {
     /**
 	 * Sets a user's meta value
 	 */
-    private async setVal( req: def.AuthRequest, res: express.Response ) {
-        const user = req._user!.dbEntry;
+    private async setVal( req: Modepress.IAuthReq, res: express.Response ) {
+        const user = req._user!;
         const name = req.params.name;
 
         try {
@@ -141,8 +141,8 @@ export class UserController extends Controller {
     /**
 	 * Gets a user's meta value
 	 */
-    private async getVal( req: def.AuthRequest, res: express.Response ) {
-        const user = req._user!.dbEntry;
+    private async getVal( req: Modepress.IAuthReq, res: express.Response ) {
+        const user = req._user!;
         const name = req.params.name;
 
         try {
@@ -157,8 +157,8 @@ export class UserController extends Controller {
     /**
 	 * Gets a user's meta data
 	 */
-    private async getData( req: def.AuthRequest, res: express.Response ) {
-        const user = req._user!.dbEntry;
+    private async getData( req: Modepress.IAuthReq, res: express.Response ) {
+        const user = req._user!;
 
         try {
             const val = await UserManager.get.getMetaData( user );
@@ -172,7 +172,7 @@ export class UserController extends Controller {
 	/**
 	 * Removes a user from the database
 	 */
-    private async removeUser( req: def.AuthRequest, res: express.Response ) {
+    private async removeUser( req: Modepress.IAuthReq, res: express.Response ) {
         try {
             const toRemove = req.params.user;
             if ( !toRemove )

@@ -1,6 +1,8 @@
 import * as winston from 'winston';
 import * as yargs from 'yargs';
 
+let showLogs: boolean = false;
+
 function assignMeta( meta?: any ) {
     if ( meta )
         return Object.assign( meta, { process: process.pid } );
@@ -16,6 +18,12 @@ export function initializeLogger() {
 
     // Add the console colours
     winston.addColors( { debug: 'green', info: 'cyan', silly: 'magenta', warn: 'yellow', error: 'red' } );
+
+
+
+    if ( args.logging === undefined || args.logging === 'true' )
+        showLogs = true;
+
     winston.remove( winston.transports.Console );
     winston.add( winston.transports.Console, <any>{ level: 'debug', colorize: true } );
 
@@ -31,6 +39,9 @@ export function initializeLogger() {
  */
 export function warn( message: string, meta?: any ) {
     return new Promise( function( resolve, reject ) {
+        if ( !showLogs )
+            return resolve();
+
         winston.warn( message, assignMeta( meta ), function( err ) {
             if ( err )
                 reject( err )
@@ -41,12 +52,22 @@ export function warn( message: string, meta?: any ) {
 }
 
 /**
+ * Returns if logging is enabled
+ */
+export function enabled() {
+    return showLogs;
+}
+
+/**
  * Logs an info message
  * @param message The message to log
  * @param meta Optional meta information to store with the message
  */
 export function info( message: string, meta?: any ) {
     return new Promise( function( resolve, reject ) {
+        if ( !showLogs )
+            return resolve();
+
         winston.info( message, assignMeta( meta ), function( err ) {
             if ( err )
                 reject( err )
@@ -63,6 +84,9 @@ export function info( message: string, meta?: any ) {
  */
 export function error( message: string, meta?: any ) {
     return new Promise( function( resolve, reject ) {
+        if ( !showLogs )
+            return resolve();
+
         winston.error( message, assignMeta( meta ), function( err ) {
             if ( err )
                 reject( err )

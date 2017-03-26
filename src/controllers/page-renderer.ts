@@ -3,12 +3,12 @@ import { error as logError, info } from '../logger';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Controller } from './controller';
-import { UsersService } from '../users-service'
 import { RendersModel } from '../models/renders-model';
 import { ModelInstance, Model } from '../models/model';
 import * as url from 'url';
 import * as jsdom from 'jsdom';
 import { okJson, errJson } from '../serializers';
+import { adminRights } from '../permission-controllers'
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -106,10 +106,10 @@ export default class PageRenderer extends Controller {
         router.use( bodyParser.json() );
         router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-        router.get( '/', <any>[ this.authenticateAdmin.bind( this ), this.getRenders.bind( this ) ] );
+        router.get( '/', <any>[ adminRights, this.getRenders.bind( this ) ] );
         router.get( '/preview/:id', <any>[ this.previewRender.bind( this ) ] );
-        router.delete( '/clear', <any>[ this.authenticateAdmin.bind( this ), this.clearRenders.bind( this ) ] );
-        router.delete( '/:id', <any>[ this.authenticateAdmin.bind( this ), this.removeRender.bind( this ) ] );
+        router.delete( '/clear', <any>[ adminRights, this.clearRenders.bind( this ) ] );
+        router.delete( '/:id', <any>[ adminRights, this.removeRender.bind( this ) ] );
 
         // Register the path
         e.use( '/api/renders', router );
@@ -308,7 +308,7 @@ export default class PageRenderer extends Controller {
     /**
      * Attempts to remove a render by ID
      */
-    private async removeRender( req: express.Request, res: express.Response ) {
+    private async removeRender( req: Modepress.IAuthReq, res: express.Response ) {
         const renders = this.getModel( 'renders' );
 
         try {
@@ -328,38 +328,9 @@ export default class PageRenderer extends Controller {
     }
 
     /**
-     * This funciton checks the logged in user is an admin. If not an admin it returns an error,
-     * if true it passes the scope onto the next function in the queue
-     */
-    private async authenticateAdmin( req: express.Request, res: express.Response, next: Function ) {
-        const users = UsersService.getSingleton();
-
-        try {
-            const auth = await users.authenticated( req );
-
-            if ( !auth.authenticated ) {
-                okJson<Modepress.IResponse>( {
-                    error: true,
-                    message: 'You must be logged in to make this request'
-                }, res );
-            }
-            else if ( !users.isAdmin( auth.user! ) ) {
-                errJson( new Error( 'You do not have permission' ), res );
-            }
-            else {
-                req.params.user = auth.user;
-                next();
-            }
-
-        } catch ( error ) {
-            errJson( new Error( 'You do not have permission' ), res );
-        };
-    }
-
-    /**
      * Returns an array of IPost items
      */
-    private async getRenders( req: express.Request, res: express.Response ) {
+    private async getRenders( req: Modepress.IAuthReq, res: express.Response ) {
         const renders = this.getModel( 'renders' );
         let count = 0;
         const findToken = {};
@@ -410,8 +381,7 @@ export default class PageRenderer extends Controller {
     /**
      * Removes all cache items from the db
      */
-    private async clearRenders( req: express.Request, res: express.Response ) {
-        req; // Supress empty param warning
+    private async clearRenders( req: Modepress.IAuthReq, res: express.Response ) {
         const renders = this.getModel( 'renders' );
 
         try {
