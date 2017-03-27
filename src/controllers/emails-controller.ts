@@ -14,9 +14,6 @@ export default class EmailsController extends controllerModule.Controller {
     constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
         super( null );
 
-        server; // Supress empty param warning
-        config; // Supress empty param warning
-
         const router = express.Router();
         router.use( bodyParser.urlencoded( { 'extended': true } ) );
         router.use( bodyParser.json() );
