@@ -23,18 +23,16 @@ export class CommsController extends events.EventEmitter {
     private _connections: ClientConnection[];
     private _hashedApiKey: string;
     private _cfg: Modepress.IConfig;
-    private _serverConfig: Modepress.IServer;
 
     /**
 	 * Creates an instance of the Communication server
 	 */
-    constructor( cfg: Modepress.IConfig, server: Modepress.IServer ) {
+    constructor( cfg: Modepress.IConfig ) {
         super();
 
         CommsController.singleton = this;
         this._connections = [];
         this._cfg = cfg;
-        this._serverConfig = server;
     }
 
     /**
@@ -162,7 +160,6 @@ export class CommsController extends events.EventEmitter {
 	 */
     async initialize( db: mongodb.Db ): Promise<void> {
         let cfg = this._cfg;
-        let server = this._serverConfig;
 
         // Throw error if no socket api key
         if ( !cfg.websocket.socketApiKey )
@@ -178,21 +175,21 @@ export class CommsController extends events.EventEmitter {
         };
 
         // Create the web socket server
-        if ( server.ssl ) {
+        if ( cfg.websocket.ssl ) {
             info( 'Creating secure socket connection' );
             let httpsServer: https.Server;
-            const caChain = [ fs.readFileSync( server.sslIntermediate ), fs.readFileSync( server.sslRoot ) ];
-            const privkey = server.sslKey ? fs.readFileSync( server.sslKey ) : null;
-            const theCert = server.sslCert ? fs.readFileSync( server.sslCert ) : null;
+            const caChain = [ fs.readFileSync( cfg.websocket.ssl.sslIntermediate ), fs.readFileSync( cfg.websocket.ssl.sslRoot ) ];
+            const privkey = cfg.websocket.ssl.sslKey ? fs.readFileSync( cfg.websocket.ssl.sslKey ) : null;
+            const theCert = cfg.websocket.ssl.sslCert ? fs.readFileSync( cfg.websocket.ssl.sslCert ) : null;
 
             info( `Attempting to start Websocket server with SSL...` );
-            httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: server.sslPassPhrase, ca: caChain }, processRequest );
+            httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: cfg.websocket.ssl.sslPassPhrase, ca: caChain }, processRequest );
             httpsServer.listen( cfg.websocket.port );
-            this._server = new ws.Server( { server: httpsServer } );
+            this._server = new ws.Server( { host: cfg.websocket.host, server: httpsServer } );
         }
         else {
             info( 'Creating regular socket connection' );
-            this._server = new ws.Server( { port: cfg.websocket.port } );
+            this._server = new ws.Server( { host: cfg.websocket.host, port: cfg.websocket.port } );
         }
 
         info( 'Websockets attempting to listen on HTTP port ' + this._cfg.websocket.port );

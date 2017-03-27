@@ -5,6 +5,9 @@ import * as googleAuth from 'google-auth-library';
 import * as fs from 'fs';
 import { error as logError, info } from '../logger';
 import * as def from 'webinate-users';
+import * as yargs from 'yargs';
+
+const args = yargs.argv;
 
 /**
  * A simple class for sending mail using Google Mail's API
@@ -39,7 +42,7 @@ export class GMailer implements def.IMailer {
         return new Promise(( resolve ) => {
 
             this.gmail = google.gmail( 'v1' );
-            this._keyFile = JSON.parse( fs.readFileSync( options.keyFile, 'utf8' ) );
+            this._keyFile = args.keyFile || JSON.parse( fs.readFileSync( options.keyFile, 'utf8' ) );
             this._apiEmail = options.apiEmail;
 
             // Authorize a client with the loaded credentials

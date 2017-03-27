@@ -10,7 +10,6 @@
     "usersSocketOrigin": "webinate.net",
     "usersSocketApiKey": "my-secret-key",
     "debug": true,
-    "includePluginControllers": true,
     "adminUser": {
         "username": "root",
         "email": "root_email@host.com",
@@ -21,8 +20,6 @@
         "sessionCollection": "sessions",
         "captchaPrivateKey": "GOOGLE_CAPTHCA_PRIVATE_KEY",
         "captchaPublicKey": "GOOGLE_CAPTHCA_PUBLIC_KEY",
-        "accountRedirectURL": "http://host.com/admin/message",
-        "passwordResetURL": "http://host.com/admin/password-reset-form",
         "secure": false,
         "hostName": "localhost",
         "portHTTP": 8000,
@@ -37,14 +34,15 @@
         "sessionLifetimeExtended": 172800,
         "secure": false
     },
-    "websocket" : {
+    "websocket": {
+        "host": "localhost",
         "port": 8020,
-		"socketApiKey" : "KEY_YOU_DEFINE!",
-		"approvedSocketDomains": [
+        "socketApiKey": "ThisIsADinosaur1234!",
+        "approvedSocketDomains": [
             "^.+\\.webinate\\.dev$",
-			"^hatchery.webinate.dev$",
+            "^hatchery.webinate.dev$",
             "^localhost$"
-		]
+        ]
     },
     "mail": {
         "type": "mailgun",
@@ -72,12 +70,15 @@
             "staticFilesFolder": [
                 "../../admin/dist"
             ],
-            "ssl": false,
-            "sslKey": "",
-            "sslCert": "",
-            "sslRoot": "",
-            "sslIntermediate": "",
-            "sslPassPhrase": "",
+            "ssl": {
+                "sslKey": "",
+                "sslCert": "",
+                "sslRoot": "",
+                "sslIntermediate": "",
+                "sslPassPhrase": ""
+            },
+            "accountRedirectURL": "localhost/admin/message",
+            "passwordResetURL": "localhost/admin/password-reset-form",
             "controllers": [
                 {
                     "path": "./controllers/emails-controller.js"

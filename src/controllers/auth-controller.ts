@@ -61,10 +61,12 @@ export class AuthController extends Controller {
         try {
             // Check the user's activation and forward them onto the admin message page
             await UserManager.get.checkActivation( req.query.user, req.query.key );
+            res.setHeader( 'Content-Type', 'application/json' );
             res.redirect( `${redirectURL}?message=${encodeURIComponent( 'Your account has been activated!' )}&status=success&origin=${encodeURIComponent( req.query.origin )}` );
 
         } catch ( error ) {
             logError( error.toString() );
+            res.setHeader( 'Content-Type', 'application/json' );
             res.redirect( `${redirectURL}?message=${encodeURIComponent( error.message )}&status=error&origin=${encodeURIComponent( req.query.origin )}` );
         };
     }
@@ -76,7 +78,7 @@ export class AuthController extends Controller {
         try {
             const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
-            await UserManager.get.resendActivation( req.params.user, origin );
+            await UserManager.get.resendActivation( req.params.user, this._server.accountRedirectURL, origin );
             okJson<def.IResponse>( { error: false, message: 'An activation link has been sent, please check your email for further instructions' }, res );
 
         } catch ( err ) {
@@ -91,7 +93,7 @@ export class AuthController extends Controller {
         try {
             const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
-            await UserManager.get.requestPasswordReset( req.params.user, origin );
+            await UserManager.get.requestPasswordReset( req.params.user, this._server.passwordResetURL, origin );
 
             okJson<def.IResponse>( { error: false, message: 'Instructions have been sent to your email on how to change your password' }, res );
 
@@ -181,7 +183,7 @@ export class AuthController extends Controller {
     private async register( req: express.Request, res: express.Response ) {
         try {
             const token: def.IRegisterToken = req.body;
-            const user = await UserManager.get.register( token.username!, token.password!, token.email!, token.captcha!, {}, req );
+            const user = await UserManager.get.register( token.username!, token.password!, token.email!, this._server.accountRedirectURL, token.captcha!, {}, req );
 
             return okJson<def.IAuthenticationResponse>( {
                 message: ( user ? 'Please activate your account with the link sent to your email address' : 'User is not authenticated' ),

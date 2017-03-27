@@ -23,9 +23,6 @@ export default class PostsController extends Controller {
     constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
         super( [ Model.registerModel( PostsModel ), Model.registerModel( CategoriesModel ) ] );
 
-        server; // Supress empty param warning
-        config; // Supress empty param warning
-
         const router = express.Router();
 
         router.use( compression() );

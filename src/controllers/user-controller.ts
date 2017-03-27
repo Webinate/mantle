@@ -16,6 +16,7 @@ import { UsersModel } from '../models/users-model';
  */
 export class UserController extends Controller {
     private _config: Modepress.IConfig;
+    private _server: Modepress.IServer;
 
 	/**
 	 * Creates an instance of the user manager
@@ -23,10 +24,11 @@ export class UserController extends Controller {
 	 * @param sessionCollection The mongo collection that stores the session data
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: Modepress.IConfig ) {
+    constructor( e: express.Express, config: Modepress.IConfig, server: Modepress.IServer ) {
         super( [ Model.registerModel( UsersModel ) ] );
 
         this._config = config;
+        this._server = server;
 
         // Setup the rest calls
         const router = express.Router();
@@ -203,7 +205,7 @@ export class UserController extends Controller {
 
             const secure = ( ( <any>req.connection ).encrypted || req.headers[ 'x-forwarded-proto' ] === 'https' ? true : false );
 
-            const user = await UserManager.get.createUser( token.username!, token.email, token.password, ( secure ? 'https://' : 'http://' ) + req.host, token.privileges, token.meta );
+            const user = await UserManager.get.createUser( token.username!, token.email, token.password, this._server.accountRedirectURL, ( secure ? 'https://' : 'http://' ) + req.hostname, token.privileges, token.meta );
             okJson<def.IGetUser>( {
                 error: false,
                 message: `User ${user.dbEntry.username} has been created`,

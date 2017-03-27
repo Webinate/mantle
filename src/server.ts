@@ -18,7 +18,6 @@ import { AuthController } from './controllers/auth-controller';
 import { UserController } from './controllers/user-controller';
 import { AdminController } from './controllers/admin-controller';
 import { ErrorController } from './controllers/error-controller';
-import { CommsController } from './socket-api/comms-controller';
 
 export class Server {
     private _config: Modepress.IConfig;
@@ -62,28 +61,22 @@ export class Server {
 
         controllers.push( new PageRenderer( server, config, app ) );
 
-        // Socket manager
-        let comms = new CommsController( config!, server! );
-        await comms.initialize( db );
-
         // User controllers
         controllers.push( new BucketController( app, config! ) );
         controllers.push( new FileController( app, config! ) );
         controllers.push( new SessionController( app, config! ) );
         controllers.push( new AuthController( app, config!, server! ) );
-        controllers.push( new UserController( app, config! ) );
+        controllers.push( new UserController( app, config!, server! ) );
         controllers.push( new AdminController( app, config! ) );
         controllers.push( new StatsController( app, config! ) );
 
 
         // Load the optional controllers
         try {
-            if ( config.includePluginControllers ) {
-                for ( let i = 0, l: number = server.controllers.length; i < l; i++ ) {
-                    lastAddedController = server.controllers[ i ].path;
-                    const func = require( server.controllers[ i ].path );
-                    controllers.push( new func.default( server, config, app ) );
-                }
+            for ( let i = 0, l: number = server.controllers.length; i < l; i++ ) {
+                lastAddedController = server.controllers[ i ].path;
+                const func = require( server.controllers[ i ].path );
+                controllers.push( new func.default( server, config, app ) );
             }
         }
         catch ( err ) {
@@ -108,34 +101,34 @@ export class Server {
 
         // If we use SSL then start listening for that as well
         if ( server.ssl ) {
-            if ( server.sslIntermediate !== '' && !fs.existsSync( server.sslIntermediate ) ) {
-                error( `Could not find sslIntermediate: '${server.sslIntermediate}'` );
+            if ( server.ssl.sslIntermediate !== '' && !fs.existsSync( server.ssl.sslIntermediate ) ) {
+                error( `Could not find sslIntermediate: '${server.ssl.sslIntermediate}'` );
                 process.exit();
             }
 
-            if ( server.sslCert !== '' && !fs.existsSync( server.sslCert ) ) {
-                error( `Could not find sslIntermediate: '${server.sslCert}'` );
+            if ( server.ssl.sslCert !== '' && !fs.existsSync( server.ssl.sslCert ) ) {
+                error( `Could not find sslIntermediate: '${server.ssl.sslCert}'` );
                 process.exit();
             }
 
-            if ( server.sslRoot !== '' && !fs.existsSync( server.sslRoot ) ) {
-                error( `Could not find sslIntermediate: '${server.sslRoot}'` );
+            if ( server.ssl.sslRoot !== '' && !fs.existsSync( server.ssl.sslRoot ) ) {
+                error( `Could not find sslIntermediate: '${server.ssl.sslRoot}'` );
                 process.exit();
             }
 
-            if ( server.sslKey !== '' && !fs.existsSync( server.sslKey ) ) {
-                error( `Could not find sslIntermediate: '${server.sslKey}'` );
+            if ( server.ssl.sslKey !== '' && !fs.existsSync( server.ssl.sslKey ) ) {
+                error( `Could not find sslIntermediate: '${server.ssl.sslKey}'` );
                 process.exit();
             }
 
-            const caChain = [ fs.readFileSync( server.sslIntermediate ), fs.readFileSync( server.sslRoot ) ];
-            const privkey = server.sslKey ? fs.readFileSync( server.sslKey ) : null;
-            const theCert = server.sslCert ? fs.readFileSync( server.sslCert ) : null;
-            const port = server.portHTTPS ? server.portHTTPS : 443;
+            const caChain = [ fs.readFileSync( server.ssl.sslIntermediate ), fs.readFileSync( server.ssl.sslRoot ) ];
+            const privkey = server.ssl.sslKey ? fs.readFileSync( server.ssl.sslKey ) : null;
+            const theCert = server.ssl.sslCert ? fs.readFileSync( server.ssl.sslCert ) : null;
+            const port = server.ssl.portHTTPS ? server.ssl.portHTTPS : 443;
 
             info( `Attempting to start SSL server...` );
 
-            const httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: server.sslPassPhrase, ca: caChain }, app );
+            const httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: server.ssl.sslPassPhrase, ca: caChain }, app );
             httpsServer.listen( { port: port, host: 'localhost' } );
 
             info( `Listening on HTTPS port ${port}` );

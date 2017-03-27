@@ -15,7 +15,7 @@ if ( args.server === undefined || isNaN( parseInt( args.server ) ) ) {
 
 const startup = require( '../dist/startup.js' );
 const header = require( './tests/header.js' );
-
+header.TestManager.get;
 
 describe( 'Initializing tests', function() {
 

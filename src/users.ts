@@ -192,7 +192,7 @@ export class UserManager {
 
         // If no admin user exists, so lets try to create one
         if ( !user )
-            user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, ( config.userSettings.secure ? 'https://' : 'http://' ) + config.userSettings.hostName, UserPrivileges.SuperAdmin, {}, true );
+            user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, '', ( config.userSettings.secure ? 'https://' : 'http://' ) + config.userSettings.hostName, UserPrivileges.SuperAdmin, {}, true );
 
         return;
     }
@@ -237,7 +237,7 @@ export class UserManager {
 	 * @param request
 	 * @param response
 	 */
-    async register( username: string = '', pass: string = '', email: string = '', captcha: string = '', meta: any = {}, request: express.Request ): Promise<User> {
+    async register( username: string = '', pass: string = '', email: string = '', captcha: string = '', activationUrl: string = '', meta: any = {}, request: express.Request ): Promise<User> {
         const origin = encodeURIComponent( request.headers[ 'origin' ] || request.headers[ 'referer' ] );
 
         // First check if user exists, make sure the details supplied are ok, then create the new user
@@ -256,26 +256,28 @@ export class UserManager {
         // Check the captcha
         await this.checkCaptcha( captcha );
 
-        user = await this.createUser( username, email, pass, origin, UserPrivileges.Regular, meta );
+        user = await this.createUser( username, email, pass, activationUrl, origin, UserPrivileges.Regular, meta );
         return user;
     }
 
 	/**
 	 * Creates the link to send to the user for activation
 	 * @param user The user we are activating
+     * @param resetUrl The url of where the activation link should go
      * @param origin The origin of where the activation link came from
 	 */
-    private createActivationLink( user: User, origin: string ): string {
-        return `${( this._config.userSettings.secure ? 'https://' : 'http://' )}${this._config.userSettings.hostName}:${( this._config.userSettings.secure ? this._config.userSettings.portHTTPS : this._config.userSettings.portHTTP )}${this._config.userSettings.apiPrefix}activate-account?key=${user.dbEntry.registerKey}&user=${user.dbEntry.username}&origin=${origin}`;
+    private createActivationLink( user: User, resetUrl: string, origin: string ): string {
+        return `${resetUrl}?key=${user.dbEntry.registerKey}&user=${user.dbEntry.username}&origin=${origin}`;
     }
 
 	/**
 	 * Creates the link to send to the user for password reset
 	 * @param username The username of the user
-     * @param origin The origin of where the activation link came from
+     * @param origin The origin of where the password reset link came from
+     * @param resetUrl The url of where the password reset link should go
 	 */
-    private createResetLink( user: User, origin: string ): string {
-        return `${this._config.userSettings.passwordResetURL}?key=${user.dbEntry.passwordTag}&user=${user.dbEntry.username}&origin=${origin}`;
+    private createResetLink( user: User, origin: string, resetUrl: string ): string {
+        return `${resetUrl}?key=${user.dbEntry.passwordTag}&user=${user.dbEntry.username}&origin=${origin}`;
     }
 
 	/**
@@ -323,9 +325,10 @@ export class UserManager {
 	/**
 	 * Attempts to resend the activation link
 	 * @param username The username of the user
+     * @param resetUrl The url where the reset password link should direct to
      * @param origin The origin of where the request came from (this is emailed to the user)
 	 */
-    async resendActivation( username: string, origin: string ): Promise<boolean> {
+    async resendActivation( username: string, resetUrl: string, origin: string ): Promise<boolean> {
         // Get the user
         const user: User | null = await this.getUser( username );
 
@@ -343,7 +346,7 @@ export class UserManager {
 
         // Send a message to the user to say they are registered but need to activate their account
         const message: string = 'Thank you for registering with Webinate!\nTo activate your account please click the link below:' +
-            this.createActivationLink( user, origin ) +
+            this.createActivationLink( user, resetUrl, origin ) +
             'Thanks\n\n' +
             'The Webinate Team';
 
@@ -364,9 +367,10 @@ export class UserManager {
     /**
 	 * Sends the user an email with instructions on how to reset their password
 	 * @param username The username of the user
+     * @param resetUrl The url where the reset password link should direct to
      * @param origin The site where the request came from
 	 */
-    async requestPasswordReset( username: string, origin: string ): Promise<boolean> {
+    async requestPasswordReset( username: string, resetUrl: string, origin: string ): Promise<boolean> {
         // Get the user
         const user: User | null = await this.getUser( username );
 
@@ -383,7 +387,7 @@ export class UserManager {
 
         // Send a message to the user to say they are registered but need to activate their account
         const message: string = 'A request has been made to reset your password. To change your password please click the link below:\n\n' +
-            this.createResetLink( user, origin ) +
+            this.createResetLink( user, origin, resetUrl ) +
             'Thanks\n\n' +
             'The Webinate Team';
 
@@ -529,12 +533,13 @@ export class UserManager {
 	 * @param user The unique username
 	 * @param email The unique email
 	 * @param password The password for the user
+     * @param activationUrl The url to where the activation link will be sent
      * @param origin The origin of where the request came from (this is emailed to the user)
 	 * @param privilege The type of privileges the user has. Defaults to regular
      * @param meta Any optional data associated with this user
      * @param allowAdmin Should this be allowed to create a super user
 	 */
-    async createUser( user: string, email: string, password: string, origin: string, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ): Promise<User> {
+    async createUser( user: string, email: string, password: string, activationUrl: string, origin: string, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ): Promise<User> {
         // Basic checks
         if ( !user || validator.trim( user ) === '' )
             throw new Error( 'Username cannot be empty' );
@@ -576,7 +581,7 @@ export class UserManager {
 
         // Send a message to the user to say they are registered but need to activate their account
         const message: string = 'Thank you for registering with Webinate! To activate your account please click the link below: \n\n' +
-            this.createActivationLink( newUser, origin ) + '\n\n' +
+            ( activationUrl ? this.createActivationLink( newUser, activationUrl, origin ) + '\n\n' : '' ) +
             'Thanks\n' +
             'The Webinate Team';
 

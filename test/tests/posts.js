@@ -3,21 +3,20 @@ var header = require( './header.js' );
 var lastPost = null;
 var tempPost = null;
 var numPosts = 0;
+const manager = header.TestManager.get;
 
 /**
  * Tests all post related endpoints
  */
 describe( 'Testing all post related endpoints', function() {
     it( 'Fetched all posts', function( done ) {
-        header.modepressAgent
-            .get( '/api/posts' ).expect( 200 ).expect( 'Content-Type', /json/ )
-            .end( function( err, res ) {
-                test.bool( res.body.error ).isNotTrue()
-                    .number( res.body.count );
-
+        manager.get( `/api/posts`, null )
+            .then( res => {
+                test.bool( res.body.error ).isNotTrue();
+                test.number( res.body.count );
                 numPosts = res.body.count;
                 done();
-            } );
+            } ).catch( err => done( err ) );
     } )
 
     it( 'Cannot create post when not logged in', function( done ) {
