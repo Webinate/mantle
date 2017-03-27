@@ -1,6 +1,7 @@
 import * as mongodb from 'mongodb';
 import { UserManager } from './users';
 import { BucketManager } from './bucket-manager';
+import { CommsController } from './socket-api/comms-controller'
 
 /**
  * Prepares the database and any dependencies of the collections
@@ -32,5 +33,11 @@ export async function prepare( db: mongodb.Db, config: Modepress.IConfig ) {
     // Create the user manager
     UserManager.create( usersCollection, sessionsCollection, config );
     await UserManager.get.initialize();
+
+    // Create the bucket controller
     BucketManager.create( bucketsCollection, filesCollection, statsCollection, config );
+
+    // Create the comms controller
+    let comms = new CommsController( config! );
+    await comms.initialize( db );
 }
