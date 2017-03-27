@@ -2,14 +2,15 @@ const header = require( './header.js' );
 const test = require( 'unit.js' );
 const ws = require( 'ws' );
 
-let adminCookie = "";
-let georgeCookie = "";
-let george2Cookie = "";
-let activation = "";
-let fileId = "";
-let publicURL = "";
+let adminCookie = '';
+let georgeCookie = '';
+let george2Cookie = '';
+let activation = '';
+let fileId = '';
+let publicURL = '';
 let wsClient;
 const manager = header.TestManager.get;
+const filePath = './test/media/file.png';
 
 // A map of all web socket events
 const socketEvents = {
@@ -1243,7 +1244,7 @@ describe( 'Checking media API', function() {
             manager.agent
                 .post( "/buckets/dinosaurs3/upload" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', manager.cookies.george )
-                .attach( '"�$^&&', "file.png" )
+                .attach( '"�$^&&', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
                     test.object( res.body ).hasProperty( "message" )
@@ -1259,7 +1260,7 @@ describe( 'Checking media API', function() {
             manager.agent
                 .post( "/buckets/dinosaurs/upload" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', manager.cookies.george )
-                .attach( 'small-image', "file.png" )
+                .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
                     test.object( res.body ).hasProperty( "message" )
@@ -1281,7 +1282,7 @@ describe( 'Checking media API', function() {
                 .post( "/buckets/dinosaurs/upload" ).set( 'content-type', 'application/x-www-form-urlencoded' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', manager.cookies.george )
                 .field( 'meta', 'BAD META' )
-                .attach( 'small-image', "file.png" )
+                .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
                     test.object( res.body ).hasProperty( "message" )
@@ -1298,7 +1299,7 @@ describe( 'Checking media API', function() {
                 .post( "/buckets/dinosaurs/upload" ).set( 'content-type', 'application/x-www-form-urlencoded' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', manager.cookies.george )
                 .field( 'meta', '{ "meta" : "good" }' )
-                .attach( 'small-image', "file.png" )
+                .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
                     test.object( res.body ).hasProperty( "message" )
@@ -1314,7 +1315,7 @@ describe( 'Checking media API', function() {
             manager.agent
                 .get( "/files/users/george/buckets/dinosaurs" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', manager.cookies.george )
-                .attach( 'small-image', "file.png" )
+                .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
                     test.object( res.body ).hasProperty( "message" )
@@ -1412,7 +1413,7 @@ describe( 'Checking media API', function() {
             manager.agent
                 .post( "/buckets/dinosaurs2/upload" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', manager.cookies.george )
-                .attach( 'small-image', "file.png" )
+                .attach( 'small-image',filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
 
@@ -1472,7 +1473,7 @@ describe( 'Checking media API', function() {
             manager.agent
                 .post( "/buckets/dinosaurs2/upload" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
                 .set( 'Cookie', manager.cookies.george )
-                .attach( 'small-image', "file.png" )
+                .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
 
@@ -1704,7 +1705,7 @@ describe( 'Test WS API events are valid', function() {
         test.number( numWSCalls.removed ).is( 2 )
         done();
     } );
-} );
+} )
 
 describe( 'Cleaning up socket', function() {
 
