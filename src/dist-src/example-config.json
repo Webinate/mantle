@@ -6,9 +6,6 @@
     "databasePort": 27017,
     "databaseName": "test",
     "usersURL": "",
-    "usersSocketURL": "ws://www.webinate.net:8063",
-    "usersSocketOrigin": "webinate.net",
-    "usersSocketApiKey": "my-secret-key",
     "debug": true,
     "adminUser": {
         "username": "root",

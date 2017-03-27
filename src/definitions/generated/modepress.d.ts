@@ -453,25 +453,6 @@ declare namespace Modepress {
          */
         servers: Array<IServer>;
 
-        // /**
-        //  * The URL to listen for events from a webinate users socket
-        //  * eg: 'ws://www.webinate.net:123'
-        //  */
-        // usersSocketURL: string;
-
-        /**
-         * Specifies the header 'origin' when connecting to the user socket. This origin must be whitelisted on the users API config file.
-         * eg: 'webinate.net'
-         */
-        usersSocketOrigin: string;
-
-        /**
-          * Specifies the User's socket API key. This is used for receiving events & instructions from the Users socket API.
-          * This key must be the same as the one that's stored in the User's' config JSON.
-          * eg: 'this-is-my-key'
-          */
-        usersSocketApiKey: string;
-
         /**
          * If debug is true, certain functions will be emulated and more information logged
          */

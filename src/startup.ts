@@ -40,16 +40,6 @@ catch ( err ) {
     process.exit();
 }
 
-
-// // Attempt to connect to Users
-// if ( config!.usersSocketURL !== '' ) {
-//     info( `Attempting to connect to users socket at: '${config!.usersSocketURL}'` );
-//     new EventManager( config! ).init().catch( function() {
-//         error( `Could not connect to user socket even though it was specified at: '${config!.usersSocketURL}'` );
-//         process.exit();
-//     } );
-// }
-
 /**
  * initialization function to prep DB and servers
  */
