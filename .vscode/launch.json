@@ -39,7 +39,7 @@
                 "--config=./dist/config.json",
                 "--server=0",
                 "--inspect=true",
-                "--logging=true",
+                "--logging=false",
                 "--keyFile=./dist/bucket-credentials.json"
             ],
             "cwd": "${workspaceRoot}",
