@@ -12,6 +12,9 @@ import { CommsController } from './socket-api/comms-controller';
 import { ClientInstructionType } from './socket-api/socket-event-types';
 import { ClientInstruction } from './socket-api/client-instruction';
 import * as def from 'webinate-users';
+import * as yargs from 'yargs';
+
+const args = yargs.argv;
 
 /**
  * Class responsible for managing buckets and uploads to Google storage
@@ -31,7 +34,7 @@ export class BucketManager {
 
     constructor( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: Modepress.IConfig ) {
         BucketManager._singleton = this;
-        this._gcs = gcloud.storage( { projectId: config.google.bucket.projectId, keyFilename: config.google.keyFile } );
+        this._gcs = gcloud.storage( { projectId: config.google.bucket.projectId, keyFilename: args.keyFile || config.google.keyFile } );
         this._buckets = buckets;
         this._files = files;
         this._stats = stats;
