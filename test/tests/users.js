@@ -95,7 +95,7 @@ describe( 'Testing WS connectivity', function() {
 
     it( 'should not connect when the origin is not approved', function( done ) {
 
-        const socketUrl = "ws://localhost:" + config.websocket.port;
+        const socketUrl = "ws://localhost:" + manager.config.websocket.port;
         wsClient = new ws( socketUrl, { headers: { origin: "badhost" } } );
 
         // Opens a stream to the users socket events
@@ -107,9 +107,9 @@ describe( 'Testing WS connectivity', function() {
 
     it( 'connected to the users socket API', function( done ) {
 
-        const socketUrl = "ws://localhost:" + config.websocket.port;
+        const socketUrl = "ws://localhost:" + manager.config.websocket.port;
         const options = { headers: { origin: "localhost" } };
-        options.headers[ 'users-api-key' ] = config.websocket.socketApiKey;
+        options.headers[ 'users-api-key' ] = manager.config.websocket.socketApiKey;
 
         wsClient = new ws( socketUrl, options );
 
@@ -563,7 +563,7 @@ describe( 'Testing user API functions', function() {
                 .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Captcha cannot be null or empty" )
+                    test.string( res.body.message ).is( "Your captcha code seems to be wrong. Please try another." )
                     done();
                 } ).catch( err => done( err ) );
 
@@ -726,226 +726,180 @@ describe( 'Testing user API functions', function() {
         } ).timeout( 20000 )
 
         it( 'did activate george2 through the admin', function( done ) {
-            agent
-                .put( '/auth/george2/approve-activation' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/auth/george2/approve-activation`, {} )
+                .then( res => {
                     test.bool( res.body.error ).isFalse()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'admin did logout', function( done ) {
-            agent
-                .get( '/auth/logout' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', adminCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/logout` )
+                .then( res => {
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 
     describe( 'Checking user login with activation code present', function() {
 
         it( 'did not log in with an activation code present', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "password" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/login`, { username: "george", password: "password" }, null )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.bool( res.body.authenticated ).isFalse()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Please authorise your account by clicking on the link that was sent to your email" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not resend an activation with an invalid user', function( done ) {
-            agent
-                .get( '/auth/NONUSER5/resend-activation' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/NONUSER5/resend-activation`, null )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "No user exists with the specified details" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did resend an activation email with a valid user', function( done ) {
-            agent
-                .get( '/auth/george/resend-activation' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/george/resend-activation`, null )
+                .then( res => {
                     test.bool( res.body.error ).isFalse()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "An activation link has been sent, please check your email for further instructions" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 16000 )
 
         it( 'did not activate with an invalid username', function( done ) {
-            agent
-                .get( '/auth/activate-account?user=NONUSER' ).set( 'Accept', 'application/json' ).expect( 302 )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/activate-account?user=NONUSER`, null, 302 )
+                .then( res => {
                     test.string( res.headers[ "location" ] ).contains( "error" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not activate with an valid username and no key', function( done ) {
-            agent
-                .get( '/auth/activate-account?user=george' ).set( 'Accept', 'application/json' ).expect( 302 )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/activate-account?user=george`, null, 302 )
+                .then( res => {
                     test.string( res.headers[ "location" ] ).contains( "error" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not activate with an valid username and invalid key', function( done ) {
-            agent
-                .get( '/auth/activate-account?user=george&key=123' ).set( 'Accept', 'application/json' ).expect( 302 )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/activate-account?user=george&key=123`, null, 302 )
+                .then( res => {
                     test.string( res.headers[ "location" ] ).contains( "error" )
 
                     // We need to get the new key - so we log in as admin, get the user details and then log out again
                     // Login as admin
-                    agent
-                        .post( '/auth/login' ).set( 'Accept', 'application/json' )
-                        .send( { username: manager.config.adminUser.username, password: manager.config.adminUser.password } )
-                        .end( function( err, res ) {
-                            if ( err ) return done( err );
-                            adminCookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
+                    return manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password } );
 
-                            // Get the new user register key
-                            agent
-                                .get( '/users/george?verbose=true' ).set( 'Accept', 'application/json' )
-                                .set( 'Cookie', adminCookie )
-                                .end( function( err, res ) {
-                                    if ( err ) return done( err );
-                                    activation = res.body.data.registerKey
+                } ).then( function( res ) {
+                    manager.updateCookieToken( 'admin', res );
+                    return manager.get( `/users/george?verbose=true` );
 
-                                    // Logout again
-                                    agent
-                                        .get( '/auth/logout' ).set( 'Accept', 'application/json' )
-                                        .set( 'Cookie', adminCookie )
-                                        .end( function( err, res ) {
-                                            if ( err ) return done( err );
+                } ).then( function( res ) {
+                    activation = res.body.data.registerKey;
+                    done();
 
-                                            // Finished
-                                            done();
-                                        } );
-                                } );
-
-                        } );
-                } );
+                } ).catch( err => done( err ) );
 
         } ).timeout( 30000 )
 
         it( 'did activate with a valid username and key', function( done ) {
-            agent
-                .get( '/auth/activate-account?user=george&key=' + activation ).set( 'Accept', 'application/json' ).expect( 302 )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/auth/activate-account?user=george&key=${activation}`, null, 302 )
+                .then( res => {
                     test.string( res.headers[ "location" ] ).contains( "success" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did log in with valid details and an activated account', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george", password: "password" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/auth/login`, { username: "george", password: "password" }, null )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.bool( res.body.authenticated ).isNotFalse()
                     test.object( res.body ).hasProperty( "message" )
-                    georgeCookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
+                    manager.updateCookieToken( 'george', res );
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } )
     } ).timeout( 20000 )
 
     describe( 'Getting/Setting data when a regular user', function() {
 
         it( 'did not get details of the admin user (no permission)', function( done ) {
-            agent
-                .get( "/users/" + manager.config.adminUser.username + "?verbose=true" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}?verbose=true`, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not get sessions (no permission)', function( done ) {
-            agent
-                .get( "/sessions" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/sessions`, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not remove the admin user (no permission)', function( done ) {
-            agent
-                .delete( "/users/" + manager.config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.delete( `/users/${manager.config.adminUser.username}`, null, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not approve activation (no permission)', function( done ) {
-            agent
-                .put( "/auth/" + manager.config.adminUser.username + "/approve-activation" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/auth/${manager.config.adminUser.username}/approve-activation`, null, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a new user (no permission)', function( done ) {
-            agent
-                .post( "/users" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/users`, null, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did get user data of myself', function( done ) {
-            agent
-                .get( "/users/george?verbose=true" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/george?verbose=true`, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.object( res.body ).hasProperty( "data" )
@@ -959,7 +913,8 @@ describe( 'Testing user API functions', function() {
                     test.string( res.body.data.username ).is( "george" )
                     test.number( res.body.data.privileges ).is( 3 )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 } )
@@ -1034,154 +989,129 @@ describe( 'Checking media API', function() {
     describe( 'Getting/Setting data when a Regular user', function() {
 
         it( 'did not get stats for admin', function( done ) {
-            agent
-                .get( "/users/" + manager.config.adminUser.username + "/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/users/${manager.config.adminUser.username}/get-stats`, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not get buckets for admin', function( done ) {
-            agent
-                .get( "/buckets/user/" + manager.config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/buckets/users/${manager.config.adminUser.username}`, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create stats for admin', function( done ) {
-            agent
-                .post( "/stats/create-stats/" + manager.config.adminUser.username ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/stats/create-stats/${manager.config.adminUser.username}`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create storage calls for admin', function( done ) {
-            agent
-                .put( "/stats/storage-calls/" + manager.config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/create-stats/${manager.config.adminUser.username}/90000`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create storage memory for admin', function( done ) {
-            agent
-                .put( "/stats/storage-memory/" + manager.config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/storage-memory/${manager.config.adminUser.username}/90000`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create storage allocated calls for admin', function( done ) {
-            agent
-                .put( "/stats/storage-allocated-calls/" + manager.config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/storage-allocated-calls/${manager.config.adminUser.username}/90000`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create storage allocated memory for admin', function( done ) {
-            agent
-                .put( "/stats/storage-allocated-memory/" + manager.config.adminUser.username + "/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/storage-allocated-memory/${manager.config.adminUser.username}/90000`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create storage calls for itself', function( done ) {
-            agent
-                .put( "/stats/storage-calls/george/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/storage-calls/george/90000`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create storage memory for itself', function( done ) {
-            agent
-                .put( "/stats/storage-memory/george/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/storage-memory/george/90000`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create storage allocated calls for itself', function( done ) {
-            agent
-                .put( "/stats/storage-allocated-calls/george/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/storage-allocated-calls/george/90000`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create storage allocated memory for itself', function( done ) {
-            agent
-                .put( "/stats/storage-allocated-memory/george/90000" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/storage-allocated-memory/george/90000`, {}, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did get stats for itself', function( done ) {
-            agent
-                .get( "/stats/users/george/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/stats/users/george/get-stats`, {}, 'george' )
+                .then( res => {
                     test.string( res.body.message ).is( "Successfully retrieved george's stats" )
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
@@ -1193,151 +1123,126 @@ describe( 'Checking media API', function() {
                     test.number( res.body.data.apiCallsUsed ).is( 1 )
                     test.number( res.body.data.memoryUsed ).is( 0 )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did get buckets for itself', function( done ) {
-            agent
-                .get( "/buckets/user/george" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/stats/users/george/get-stats`, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     test.object( res.body ).hasProperty( "message" )
                     test.object( res.body ).hasProperty( "count" )
                     test.object( res.body ).hasProperty( "data" )
                     test.number( res.body.count ).is( 1 )
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not get files for another user\'s bucket', function( done ) {
-            agent
-                .get( "/files/users/" + manager.config.adminUser.username + "/buckets/BAD_ENTRY" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.get( `/files/users/${manager.config.adminUser.username}/buckets/BAD_ENTRY`, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not get files for a non existant bucket', function( done ) {
-            agent
-                .get( "/files/users/george/buckets/test" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.get( `/files/users/george/buckets/test`, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Could not find the bucket 'test'" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a bucket for another user', function( done ) {
-            agent
-                .post( "/buckets/user/" + manager.config.adminUser.username + "/test" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.post( `/buckets/user/${manager.config.adminUser.username} + "/test`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "You don't have permission to make this request" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a bucket with bad characters', function( done ) {
-            agent
-                .post( "/buckets/user/george/�BAD!CHARS" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.post( `/buckets/user/george/�BAD!CHARS`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Please only use safe characters" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did create a new bucket called dinosaurs', function( done ) {
-            agent
-                .post( "/buckets/user/george/dinosaurs" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/buckets/user/george/dinosaurs`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Bucket 'dinosaurs' created" )
                     test.bool( res.body.error ).isNotTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not create a bucket with the same name as an existing one', function( done ) {
-            agent
-                .post( "/buckets/user/george/dinosaurs" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/buckets/user/george/dinosaurs`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "A Bucket with the name 'dinosaurs' has already been registered" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
         } )
 
         it( 'did create a bucket with a different name', function( done ) {
-            agent
-                .post( "/buckets/users/george/dinosaurs2" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.post( `/buckets/users/george/dinosaurs2`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Bucket 'dinosaurs2' created" )
                     test.bool( res.body.error ).isNotTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not delete any buckets when the name is wrong', function( done ) {
-            agent
-                .delete( "/buckets/dinosaurs3,dinosaurs4" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.delete( `/buckets/dinosaurs3,dinosaurs4`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Removed [0] buckets" )
                     test.array( res.body.data ).isEmpty()
                     test.bool( res.body.error ).isNotTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
         } )
 
         it( 'did get the 2 buckets for george', function( done ) {
-            agent
-                .get( "/buckets/user/george" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/buckets/dinosaurs3,dinosaurs4`, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Found [3] buckets" )
                     test.array( res.body.data ).hasLength( 3 )
                     test.bool( res.body.error ).isNotTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not upload a file to a bucket that does not exist', function( done ) {
-            agent
+            manager.agent
                 .post( "/buckets/dinosaurs3/upload" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
+                .set( 'Cookie', manager.cookies.george )
                 .attach( '"�$^&&', "file.png" )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1351,9 +1256,9 @@ describe( 'Checking media API', function() {
         } ).timeout( 20000 )
 
         it( 'did upload a file to dinosaurs', function( done ) {
-            agent
+            manager.agent
                 .post( "/buckets/dinosaurs/upload" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
+                .set( 'Cookie', manager.cookies.george )
                 .attach( 'small-image', "file.png" )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1372,9 +1277,9 @@ describe( 'Checking media API', function() {
         } ).timeout( 20000 )
 
         it( 'did not upload a file when the meta was invalid', function( done ) {
-            agent
+            manager.agent
                 .post( "/buckets/dinosaurs/upload" ).set( 'content-type', 'application/x-www-form-urlencoded' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
+                .set( 'Cookie', manager.cookies.george )
                 .field( 'meta', 'BAD META' )
                 .attach( 'small-image', "file.png" )
                 .end( function( err, res ) {
@@ -1389,9 +1294,9 @@ describe( 'Checking media API', function() {
         } ).timeout( 20000 )
 
         it( 'did not upload a file when the meta was invalid', function( done ) {
-            agent
+            manager.agent
                 .post( "/buckets/dinosaurs/upload" ).set( 'content-type', 'application/x-www-form-urlencoded' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
+                .set( 'Cookie', manager.cookies.george )
                 .field( 'meta', '{ "meta" : "good" }' )
                 .attach( 'small-image', "file.png" )
                 .end( function( err, res ) {
@@ -1406,9 +1311,9 @@ describe( 'Checking media API', function() {
         } ).timeout( 20000 )
 
         it( 'fetched the files of the dinosaur bucket', function( done ) {
-            agent
+            manager.agent
                 .get( "/files/users/george/buckets/dinosaurs" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
+                .set( 'Cookie', manager.cookies.george )
                 .attach( 'small-image', "file.png" )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1440,43 +1345,35 @@ describe( 'Checking media API', function() {
         } ).timeout( 20000 )
 
         it( 'did not make a non-file public', function( done ) {
-            agent
-                .put( "/files/123/make-public" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/files/123/make-public`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "File '123' does not exist" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } )
 
         it( 'did not make a non-file private', function( done ) {
-            agent
-                .put( "/files/123/make-private" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.put( `/files/123/make-private`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "File '123' does not exist" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
         } )
 
         it( 'did make a file public', function( done ) {
-            agent
-                .put( "/files/" + fileId + "/make-public" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.put( `/files/${fileId}/make-public`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "File is now public" )
                     test.bool( res.body.error ).isNotTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did download the file off the bucket', function( done ) {
@@ -1490,37 +1387,31 @@ describe( 'Checking media API', function() {
         } )
 
         it( 'did make a file private', function( done ) {
-            agent
-                .put( "/files/" + fileId + "/make-private" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.put( `/files/${fileId}/make-private`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "File is now private" )
                     test.bool( res.body.error ).isNotTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'updated its stats accordingly', function( done ) {
-            agent
-                .get( "/users/george/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.get( `/users/george/get-stats`, 'george' )
+                .then( res => {
                     test.number( res.body.data.apiCallsUsed ).is( 9 )
                     test.number( res.body.data.memoryUsed ).is( 226 * 2 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did upload another file to dinosaurs2', function( done ) {
-            agent
+            manager.agent
                 .post( "/buckets/dinosaurs2/upload" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
+                .set( 'Cookie', manager.cookies.george )
                 .attach( 'small-image', "file.png" )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1540,30 +1431,26 @@ describe( 'Checking media API', function() {
         } ).timeout( 20000 )
 
         it( 'updated its stats with the 2nd upload accordingly', function( done ) {
-            agent
-                .get( "/users/george/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.get( `/users/george/get-stats`, 'george' )
+                .then( res => {
                     test.number( res.body.data.apiCallsUsed ).is( 10 )
                     test.number( res.body.data.memoryUsed ).is( 226 * 3 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not download a file with an invalid id anonomously', function( done ) {
-            agent
-                .get( "/files/123/download" ).set( 'Accept', 'application/json' ).expect( 404 )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/files/123/download`, 'george' )
+                .then( res => {
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did download an image file with a valid id anonomously', function( done ) {
-            agent
+            manager.agent
                 .get( "/files/" + fileId + "/download" ).expect( 200 ).expect( 'Content-Type', /image/ ).expect( 'Content-Length', "226" )
                 .end( function( err, res ) {
                     //if (err) return done(err);
@@ -1572,22 +1459,19 @@ describe( 'Checking media API', function() {
         } ).timeout( 20000 )
 
         it( 'did update the api calls to 5', function( done ) {
-            agent
-                .get( "/users/george/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.get( `/users/george/get-stats`, 'george' )
+                .then( res => {
                     test.number( res.body.data.apiCallsUsed ).is( 11 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did upload another file to dinosaurs2', function( done ) {
-            agent
+            manager.agent
                 .post( "/buckets/dinosaurs2/upload" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
+                .set( 'Cookie', manager.cookies.george )
                 .attach( 'small-image', "file.png" )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
@@ -1604,172 +1488,135 @@ describe( 'Checking media API', function() {
                     test.bool( res.body.error ).isNotTrue()
                     done()
                 } );
+
         } ).timeout( 20000 )
 
         it( 'fetched the uploaded file Id of the dinosaur2 bucket', function( done ) {
-            agent
-                .get( "/files/users/george/buckets/dinosaurs2" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
+            manager.get( `/files/users/george/buckets/dinosaurs2`, 'george' )
+                .then( res => {
                     test.bool( res.body.error ).isNotTrue()
                     fileId = res.body.data[ 1 ].identifier
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not rename an incorrect file to testy', function( done ) {
-            agent
-                .put( "/files/123/rename-file" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .set( "contentType", 'application/json' )
-                .send( { name: "testy" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.put( `/files/123/rename-file`, { name: "testy" }, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "File '123' does not exist" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not rename a correct file with an empty name', function( done ) {
-            agent
-                .put( "/files/" + fileId + "/rename-file" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .set( "contentType", 'application/json' )
-                .send( { name: "" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.put( `/files/${fileId}/rename-file`, { name: "" }, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Please specify the new name of the file" )
                     test.bool( res.body.error ).isTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did rename a correct file to testy', function( done ) {
-            agent
-                .put( "/files/" + fileId + "/rename-file" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .set( "contentType", 'application/json' )
-                .send( { name: "testy" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.put( `/files/${fileId}/rename-file`, { name: "testy" }, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Renamed file to 'testy'" )
                     test.bool( res.body.error ).isNotTrue()
                     done()
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not remove a file from dinosaurs2 with a bad id', function( done ) {
-            agent
-                .delete( "/files/123" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.delete( `/files/123`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Removed [0] files" )
                     test.array( res.body.data ).hasLength( 0 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did remove a file from dinosaurs2 with a valid id', function( done ) {
-            agent
-                .delete( "/files/" + fileId ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.delete( `/files/${fileId}`, {}, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Removed [1] files" )
                     test.array( res.body.data ).hasLength( 1 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'updated its stats to reflect a file was deleted', function( done ) {
-            agent
-                .get( "/users/george/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.get( `/users/george/get-stats`, 'george' )
+                .then( res => {
                     test.number( res.body.data.apiCallsUsed ).is( 14 )
                     test.number( res.body.data.memoryUsed ).is( 226 * 3 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did not remove a bucket with a bad name', function( done ) {
-            agent
-                .delete( "/buckets/123" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.delete( `/buckets/123`, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Removed [0] buckets" )
                     test.array( res.body.data ).hasLength( 0 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'did remove the bucket dinosaurs2', function( done ) {
-            agent
-                .delete( "/buckets/dinosaurs2" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.delete( `/buckets/dinosaurs2`, 'george' )
+                .then( res => {
                     test.object( res.body ).hasProperty( "message" )
                     test.string( res.body.message ).is( "Removed [1] buckets" )
                     test.array( res.body.data ).hasLength( 1 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
 
         it( 'updated its stats that both a file and bucket were deleted', function( done ) {
-            agent
-                .get( "/users/george/get-stats" ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .set( 'Cookie', georgeCookie )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.get( `/users/george/get-stats`, 'george' )
+                .then( res => {
                     test.number( res.body.data.apiCallsUsed ).is( 16 )
                     test.number( res.body.data.memoryUsed ).is( 226 * 2 )
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 
     describe( 'Checking permission data for another regular user', function() {
 
         it( 'did log in with valid details for george2', function( done ) {
-            agent
-                .post( '/auth/login' ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                .send( { username: "george2", password: "password" } )
-                .end( function( err, res ) {
-                    if ( err ) return done( err );
-
+            manager.post( `/auth/login`, { username: "george2", password: "password" }, null )
+                .then( res => {
                     test.bool( res.body.authenticated ).isNotFalse()
                     test.object( res.body ).hasProperty( "message" )
-                    george2Cookie = res.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
+                    manager.updateCookieToken( "george2", res );
                     test.bool( res.body.error ).isNotTrue()
                     done();
-                } );
+                } ).catch( err => done( err ) );
+
         } ).timeout( 20000 )
     } )
 } )
