@@ -12,8 +12,7 @@
 
 /// <reference path="./node.d.ts" />
 
-declare module Express
-{
+declare module Express {
 
     // These open interfaces may be extended in an application-specific manner via declaration merging.
     // See for example method-override.d.ts (https://github.com/borisyankov/DefinitelyTyped/blob/master/method-override/method-override.d.ts)
@@ -24,33 +23,29 @@ declare module Express
 
 
 declare module "express" {
-    import http = require('http');
+    import http = require( 'http' );
 
     function e(): e.Express;
 
-    module e
-	{
-        interface IRoute
-		{
+    module e {
+        interface IRoute {
             path: string;
             stack: any;
-            all(...handler: RequestHandler[]): IRoute;
-            get(...handler: RequestHandler[]): IRoute;
-            post(...handler: RequestHandler[]): IRoute;
-            put(...handler: RequestHandler[]): IRoute;
-            delete(...handler: RequestHandler[]): IRoute;
-            patch(...handler: RequestHandler[]): IRoute;
-            options(...handler: RequestHandler[]): IRoute;
+            all( ...handler: RequestHandler[] ): IRoute;
+            get( ...handler: RequestHandler[] ): IRoute;
+            post( ...handler: RequestHandler[] ): IRoute;
+            put( ...handler: RequestHandler[] ): IRoute;
+            delete( ...handler: RequestHandler[] ): IRoute;
+            patch( ...handler: RequestHandler[] ): IRoute;
+            options( ...handler: RequestHandler[] ): IRoute;
         }
 
-        interface IRouterMatcher<T>
-		{
-            (name: string, ...handlers: RequestHandler[]): T;
-            (name: RegExp, ...handlers: RequestHandler[]): T;
+        interface IRouterMatcher<T> {
+            ( name: string, ...handlers: RequestHandler[] ): T;
+            ( name: RegExp, ...handlers: RequestHandler[] ): T;
         }
 
-        interface IRouter<T> extends RequestHandler
-		{
+        interface IRouter<T> extends RequestHandler {
             /**
              * Map the given param placeholder `name`(s) to the given callback(s).
              *
@@ -80,11 +75,11 @@ declare module "express" {
              * @param name
              * @param fn
              */
-            param(name: string, handler: RequestParamHandler): T;
-            param(name: string, matcher: RegExp): T;
-            param(name: string, mapper: (param: any) => any): T;
+            param( name: string, handler: RequestParamHandler ): T;
+            param( name: string, matcher: RegExp ): T;
+            param( name: string, mapper: ( param: any ) => any ): T;
             // Alternatively, you can pass only a callback, in which case you have the opportunity to alter the app.param() API
-            param(callback: (name: string, matcher: RegExp) => RequestParamHandler): T;
+            param( callback: ( name: string, matcher: RegExp ) => RequestParamHandler ): T;
 
             /**
              * Special-cased "all" method, applying the given route `path`,
@@ -101,20 +96,19 @@ declare module "express" {
             patch: IRouterMatcher<T>;
             options: IRouterMatcher<T>;
 
-            route(path: string): IRoute;
+            route( path: string ): IRoute;
 
-            use(...handler: RequestHandler[]): T;
-            use(handler: ErrorRequestHandler): T;
-            use(path: string, ...handler: RequestHandler[]): T;
-            use(path: string, handler: ErrorRequestHandler): T;
+            use( ...handler: RequestHandler[] ): T;
+            use( handler: ErrorRequestHandler ): T;
+            use( path: string, ...handler: RequestHandler[] ): T;
+            use( path: string, handler: ErrorRequestHandler ): T;
         }
 
-        export function Router(options?: any): Router;
+        export function Router( options?: any ): Router;
 
         export interface Router extends IRouter<Router> { }
 
-        interface CookieOptions
-		{
+        interface CookieOptions {
             maxAge?: number;
             signed?: boolean;
             expires?: Date;
@@ -124,10 +118,9 @@ declare module "express" {
             secure?: boolean;
         }
 
-        interface Errback { (err: Error): void; }
+        interface Errback { ( err: Error ): void; }
 
-        interface Request extends http.ServerRequest, Express.Request
-		{
+        interface Request extends http.ServerRequest, Express.Request {
 
             /**
              * Return request header.
@@ -150,11 +143,11 @@ declare module "express" {
              *
              * @param name
              */
-            get(name: string): string;
+            get( name: string ): string;
 
-            header(name: string): string;
+            header( name: string ): string;
 
-            headers: { [key: string]: string; };
+            headers: { [ key: string ]: string; };
 
             /**
              * Check if the given `type(s)` is acceptable, returning
@@ -193,9 +186,9 @@ declare module "express" {
              *     req.accepts('html, json');
              *     // => "json"
              */
-            accepts(type: string): string;
+            accepts( type: string ): string;
 
-            accepts(type: string[]): string;
+            accepts( type: string[] ): string;
 
             /**
              * Check if the given `charset` is acceptable,
@@ -203,7 +196,7 @@ declare module "express" {
              *
              * @param charset
              */
-            acceptsCharset(charset: string): boolean;
+            acceptsCharset( charset: string ): boolean;
 
             /**
              * Check if the given `lang` is acceptable,
@@ -211,7 +204,7 @@ declare module "express" {
              *
              * @param lang
              */
-            acceptsLanguage(lang: string): boolean;
+            acceptsLanguage( lang: string ): boolean;
 
             /**
              * Parse Range header field,
@@ -230,7 +223,7 @@ declare module "express" {
              *
              * @param size
              */
-            range(size: number): any[];
+            range( size: number ): any[];
 
             /**
              * Return an array of Accepted media types
@@ -274,7 +267,7 @@ declare module "express" {
              * @param name
              * @param defaultValue
              */
-            param(name: string, defaultValue?: any): string;
+            param( name: string, defaultValue?: any ): string;
 
             /**
              * Check if the incoming request contains the "Content-Type"
@@ -299,7 +292,7 @@ declare module "express" {
              *
              * @param type
              */
-            is(type: string): boolean;
+            is( type: string ): boolean;
 
             /**
              * Return the protocol string "http" or "https"
@@ -357,6 +350,8 @@ declare module "express" {
              * Parse the "Host" header field hostname.
              */
             host: string;
+            hostname: string;
+
 
             /**
              * Check if the request is fresh, aka
@@ -399,7 +394,7 @@ declare module "express" {
              * @param name
              * @param options
              */
-            clearCookie(name: string, options?: any): Response;
+            clearCookie( name: string, options?: any ): Response;
 
             query: any;
 
@@ -412,28 +407,25 @@ declare module "express" {
             url: string;
         }
 
-        interface MediaType
-		{
+        interface MediaType {
             value: string;
             quality: number;
             type: string;
             subtype: string;
         }
 
-        interface Send
-		{
-            (status: number, body?: any): Response;
-            (body: any): Response;
+        interface Send {
+            ( status: number, body?: any ): Response;
+            ( body: any ): Response;
         }
 
-        interface Response extends http.ServerResponse, Express.Response
-		{
+        interface Response extends http.ServerResponse, Express.Response {
             /**
              * Set status `code`.
              *
              * @param code
              */
-            status(code: number): Response;
+            status( code: number ): Response;
 
             /**
              * Set the response HTTP status code to `statusCode` and send its string representation as the response body.
@@ -448,7 +440,7 @@ declare module "express" {
              *
              * @param code
              */
-            sendStatus(code: number): Response;
+            sendStatus( code: number ): Response;
 
             /**
              * Set Link header field with the given `links`.
@@ -462,7 +454,7 @@ declare module "express" {
              *
              * @param links
              */
-            links(links: any): Response;
+            links( links: any ): Response;
 
             /**
              * Send a response.
@@ -541,27 +533,27 @@ declare module "express" {
              *
              * @api public
              */
-            sendFile(path: string): void;
-            sendFile(path: string, options: any): void;
-            sendFile(path: string, fn: Errback): void;
-            sendFile(path: string, options: any, fn: Errback): void;
+            sendFile( path: string ): void;
+            sendFile( path: string, options: any ): void;
+            sendFile( path: string, fn: Errback ): void;
+            sendFile( path: string, options: any, fn: Errback ): void;
 
             /**
              * deprecated, use sendFile instead.
              */
-            sendfile(path: string): void;
+            sendfile( path: string ): void;
             /**
              * deprecated, use sendFile instead.
              */
-            sendfile(path: string, options: any): void;
+            sendfile( path: string, options: any ): void;
             /**
              * deprecated, use sendFile instead.
              */
-            sendfile(path: string, fn: Errback): void;
+            sendfile( path: string, fn: Errback ): void;
             /**
              * deprecated, use sendFile instead.
              */
-            sendfile(path: string, options: any, fn: Errback): void;
+            sendfile( path: string, options: any, fn: Errback ): void;
 
             /**
              * Transfer the file at the given `path` as an attachment.
@@ -573,10 +565,10 @@ declare module "express" {
              *
              * This method uses `res.sendfile()`.
              */
-            download(path: string): void;
-            download(path: string, filename: string): void;
-            download(path: string, fn: Errback): void;
-            download(path: string, filename: string, fn: Errback): void;
+            download( path: string ): void;
+            download( path: string, filename: string ): void;
+            download( path: string, fn: Errback ): void;
+            download( path: string, filename: string, fn: Errback ): void;
 
             /**
              * Set _Content-Type_ response header with `type` through `mime.lookup()`
@@ -592,7 +584,7 @@ declare module "express" {
              *
              * @param type
              */
-            contentType(type: string): Response;
+            contentType( type: string ): Response;
 
             /**
              * Set _Content-Type_ response header with `type` through `mime.lookup()`
@@ -608,7 +600,7 @@ declare module "express" {
              *
              * @param type
              */
-            type(type: string): Response;
+            type( type: string ): Response;
 
             /**
              * Respond to the Acceptable formats using an `obj`
@@ -664,14 +656,14 @@ declare module "express" {
              *
              * @param obj
              */
-            format(obj: any): Response;
+            format( obj: any ): Response;
 
             /**
              * Set _Content-Disposition_ header to _attachment_ with optional `filename`.
              *
              * @param filename
              */
-            attachment(filename?: string): Response;
+            attachment( filename?: string ): Response;
 
             /**
              * Set header `field` to `val`, or pass
@@ -685,11 +677,11 @@ declare module "express" {
              *
              * Aliased as `res.header()`.
              */
-            set(field: any): Response;
-            set(field: string, value?: string): Response;
+            set( field: any ): Response;
+            set( field: string, value?: string ): Response;
 
-            header(field: any): Response;
-            header(field: string, value?: string): Response;
+            header( field: any ): Response;
+            header( field: string, value?: string ): Response;
 
             // Property indicating if HTTP headers has been sent for the response.
             headersSent: boolean;
@@ -699,7 +691,7 @@ declare module "express" {
              *
              * @param field
              */
-            get(field: string): string;
+            get( field: string ): string;
 
             /**
              * Clear cookie `name`.
@@ -707,7 +699,7 @@ declare module "express" {
              * @param name
              * @param options
              */
-            clearCookie(name: string, options?: any): Response;
+            clearCookie( name: string, options?: any ): Response;
 
             /**
              * Set cookie `name` to `val`, with the given `options`.
@@ -726,9 +718,9 @@ declare module "express" {
              *    // save as above
              *    res.cookie('rememberme', '1', { maxAge: 900000, httpOnly: true })
              */
-            cookie(name: string, val: string, options: CookieOptions): Response;
-            cookie(name: string, val: any, options: CookieOptions): Response;
-            cookie(name: string, val: any): Response;
+            cookie( name: string, val: string, options: CookieOptions ): Response;
+            cookie( name: string, val: any, options: CookieOptions ): Response;
+            cookie( name: string, val: any ): Response;
 
             /**
              * Set the location header to `url`.
@@ -758,7 +750,7 @@ declare module "express" {
              *
              * @param url
              */
-            location(url: string): Response;
+            location( url: string ): Response;
 
             /**
              * Redirect to the given `url` with optional response `status`
@@ -776,9 +768,9 @@ declare module "express" {
              *    res.redirect('http://example.com', 301);
              *    res.redirect('../login'); // /blog/post/1 -> /blog/login
              */
-            redirect(url: string): void;
-            redirect(status: number, url: string): void;
-            redirect(url: string, status: number): void;
+            redirect( url: string ): void;
+            redirect( status: number, url: string ): void;
+            redirect( url: string, status: number ): void;
 
             /**
              * Render `view` with the given `options` and optional callback `fn`.
@@ -790,33 +782,29 @@ declare module "express" {
              *  - `cache`     boolean hinting to the engine it should cache
              *  - `filename`  filename of the view being rendered
              */
-            render(view: string, options?: Object, callback?: (err: Error, html: string) => void): void;
-            render(view: string, callback?: (err: Error, html: string) => void): void;
+            render( view: string, options?: Object, callback?: ( err: Error, html: string ) => void ): void;
+            render( view: string, callback?: ( err: Error, html: string ) => void ): void;
 
             locals: any;
 
             charset: string;
         }
 
-        interface ErrorRequestHandler
-		{
-            (err: any, req: Request, res: Response, next: Function): any;
+        interface ErrorRequestHandler {
+            ( err: any, req: Request, res: Response, next: Function ): any;
         }
 
-        interface RequestHandler
-		{
-            (req: Request, res: Response, next: Function): any;
+        interface RequestHandler {
+            ( req: Request, res: Response, next: Function ): any;
         }
 
         interface Handler extends RequestHandler { }
 
-        interface RequestParamHandler
-		{
-            (req: Request, res: Response, next: Function, param: any): any;
+        interface RequestParamHandler {
+            ( req: Request, res: Response, next: Function, param: any ): any;
         }
 
-        interface Application extends IRouter<Application>, Express.Application
-		{
+        interface Application extends IRouter<Application>, Express.Application {
             /**
              * Initialize the server.
              *
@@ -859,7 +847,7 @@ declare module "express" {
              * engines to follow this convention, thus allowing them to
              * work seamlessly within Express.
              */
-            engine(ext: string, fn: Function): Application;
+            engine( ext: string, fn: Function ): Application;
 
             /**
              * Assign `setting` to `val`, or return `setting`'s value.
@@ -876,11 +864,11 @@ declare module "express" {
              * @param setting
              * @param val
              */
-            set(setting: string, val: any): Application;
+            set( setting: string, val: any ): Application;
             get: {
-                (name: string): any; // Getter
-                (name: string, ...handlers: RequestHandler[]): Application;
-                (name: RegExp, ...handlers: RequestHandler[]): Application;
+                ( name: string ): any; // Getter
+                ( name: string, ...handlers: RequestHandler[] ): Application;
+                ( name: RegExp, ...handlers: RequestHandler[] ): Application;
             };
 
             /**
@@ -905,7 +893,7 @@ declare module "express" {
              *    app.enabled('foo')
              *    // => true
              */
-            enabled(setting: string): boolean;
+            enabled( setting: string ): boolean;
 
             /**
              * Check if `setting` is disabled.
@@ -919,21 +907,21 @@ declare module "express" {
              *
              * @param setting
              */
-            disabled(setting: string): boolean;
+            disabled( setting: string ): boolean;
 
             /**
              * Enable `setting`.
              *
              * @param setting
              */
-            enable(setting: string): Application;
+            enable( setting: string ): Application;
 
             /**
              * Disable `setting`.
              *
              * @param setting
              */
-            disable(setting: string): Application;
+            disable( setting: string ): Application;
 
             /**
              * Configure callback for zero or more envs,
@@ -977,12 +965,12 @@ declare module "express" {
              * @param env
              * @param fn
              */
-            configure(fn: Function): Application;
-            configure(env0: string, fn: Function): Application;
-            configure(env0: string, env1: string, fn: Function): Application;
-            configure(env0: string, env1: string, env2: string, fn: Function): Application;
-            configure(env0: string, env1: string, env2: string, env3: string, fn: Function): Application;
-            configure(env0: string, env1: string, env2: string, env3: string, env4: string, fn: Function): Application;
+            configure( fn: Function ): Application;
+            configure( env0: string, fn: Function ): Application;
+            configure( env0: string, env1: string, fn: Function ): Application;
+            configure( env0: string, env1: string, env2: string, fn: Function ): Application;
+            configure( env0: string, env1: string, env2: string, env3: string, fn: Function ): Application;
+            configure( env0: string, env1: string, env2: string, env3: string, env4: string, fn: Function ): Application;
 
             /**
              * Render the given view `name` name with `options`
@@ -999,8 +987,8 @@ declare module "express" {
              * @param options or fn
              * @param fn
              */
-            render(name: string, options?: Object, callback?: (err: Error, html: string) => void): void;
-            render(name: string, callback: (err: Error, html: string) => void): void;
+            render( name: string, options?: Object, callback?: ( err: Error, html: string ) => void ): void;
+            render( name: string, callback: ( err: Error, html: string ) => void ): void;
 
 
             /**
@@ -1020,13 +1008,13 @@ declare module "express" {
              *    http.createServer(app).listen(80);
              *    https.createServer({ ... }, app).listen(443);
              */
-            listen(port: number, hostname: string, backlog: number, callback?: Function): http.Server;
-            listen(port: number, hostname: string, callback?: Function): http.Server;
-            listen(port: number, callback?: Function): http.Server;
-            listen(path: string, callback?: Function): http.Server;
-            listen(handle: any, listeningListener?: Function): http.Server;
+            listen( port: number, hostname: string, backlog: number, callback?: Function ): http.Server;
+            listen( port: number, hostname: string, callback?: Function ): http.Server;
+            listen( port: number, callback?: Function ): http.Server;
+            listen( path: string, callback?: Function ): http.Server;
+            listen( handle: any, listeningListener?: Function ): http.Server;
 
-            route(path: string): IRoute;
+            route( path: string ): IRoute;
 
             router: string;
 
@@ -1049,8 +1037,7 @@ declare module "express" {
             routes: any;
         }
 
-        interface Express extends Application
-		{
+        interface Express extends Application {
             /**
              * Framework version.
              */
@@ -1101,7 +1088,7 @@ declare module "express" {
          * @param root
          * @param options
          */
-        function static(root: string, options?: any): RequestHandler;
+        function static( root: string, options?: any ): RequestHandler;
     }
 
     export = e;

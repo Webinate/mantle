@@ -16,7 +16,7 @@ export class ErrorController extends Controller {
         super( null );
 
         // Handle all errors the same way
-        e.use( function( err: Error, req: express.Request, res: express.Response ) {
+        e.use( function( err: Error, req: express.Request, res: express.Response, next: Function ) {
             res.setHeader( 'Content-Type', 'application/json' );
             return res.end( JSON.stringify( <def.IResponse>{ message: err.toString(), error: true } ) );
         } );
