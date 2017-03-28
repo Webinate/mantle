@@ -173,14 +173,22 @@ export abstract class Model {
 	 * @param limit The number of results to fetch
      * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	 */
-    async findInstances<T>( selector: any, sort?: any, startIndex: number = 0, limit: number = 0, projection?: any ): Promise<Array<ModelInstance<T>>> {
+    async findInstances<T>( selector: any, sort?: { [name: string]: number; } | null | T, startIndex: number = 0, limit: number = 0, projection?: { [name: string]: number } ): Promise<Array<ModelInstance<T>>> {
         const collection = this.collection;
 
         if ( !collection || !this._initialized )
             throw new Error( 'The model has not been initialized' );
 
         // Attempt to save the data to mongo collection
-        const result = await collection.find( selector ).limit( limit ).skip( startIndex ).project( projection || {} ).sort( sort ).toArray();
+        let cursor = collection.find( selector ).skip( startIndex );
+        if (limit)
+            cursor = cursor.limit( limit );
+        if (projection)
+            cursor = cursor.project( projection );
+        if (sort)
+            cursor = cursor.sort( sort );
+
+        const result = await cursor.toArray();
 
         // Create the instance array
         const instances: Array<ModelInstance<T>> = [];

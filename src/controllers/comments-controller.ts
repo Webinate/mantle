@@ -47,9 +47,9 @@ export default class CommentsController extends Controller {
     private async getComments( req: Modepress.IAuthReq, res: express.Response ) {
         const comments = this.getModel( 'comments' )!;
         let count = 0;
-        let visibility = 'public';
         const user = req._user;
         const findToken = { $or: [] as Modepress.IComment[] };
+        let visibility: string | undefined;
 
         // Set the parent filter
         if ( req.query.parentId )
@@ -69,21 +69,23 @@ export default class CommentsController extends Controller {
                 visibility = 'all';
             else if ( ( <string>req.query.visibility ).toLowerCase() === 'private' )
                 visibility = 'private';
+            else
+                visibility = 'public';
         }
-        else
-            visibility = 'all';
 
-        // Only admins are allowed to see private comments
-        if ( !user || ( ( visibility === 'all' || visibility === 'private' ) && user.privileges! >= UserPrivileges.Admin ) )
+        // If no user we only allow public
+        if ( !user )
+            visibility = 'public';
+        // If an admin - we do not need visibility
+        else if ( user.privileges! < UserPrivileges.Admin )
+            visibility = undefined;
+        // Regular users only see public
+        else
             visibility = 'public';
 
         // Add the or conditions for visibility
-        if ( visibility !== 'all' ) {
-            if ( visibility === 'public' )
-                ( <Modepress.IComment>findToken ).public = true;
-            else
-                ( <Modepress.IComment>findToken ).public = false;
-        }
+        if ( visibility )
+            ( <Modepress.IComment>findToken ).public = visibility === 'public' ? true : false;
 
         // Set the default sort order to ascending
         let sortOrder = -1;
@@ -110,7 +112,14 @@ export default class CommentsController extends Controller {
             // First get the count
             count = await comments.count( findToken );
 
-            const instances = await comments.findInstances<Modepress.IComment>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ) );
+            let index: number | undefined;
+            let limit: number | undefined;
+            if ( req.query.index !== undefined )
+                index = parseInt( req.query.index );
+            if ( req.query.limit !== undefined )
+                limit = parseInt( req.query.limit );
+
+            const instances = await comments.findInstances<Modepress.IComment>( findToken, sort, index, limit );
 
             const jsons: Array<Promise<Modepress.IComment>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
@@ -144,7 +153,7 @@ export default class CommentsController extends Controller {
             const findToken: Modepress.IComment = { _id: new mongodb.ObjectID( req.params.id ) };
             const user = req._user;
 
-            const instances = await comments.findInstances<Modepress.IComment>( findToken, [], 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( findToken, null, 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find comment' );
@@ -188,7 +197,7 @@ export default class CommentsController extends Controller {
 
         try {
             const user = req._user;
-            const instances = await comments.findInstances<Modepress.IComment>( findToken, [], 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( findToken, null, 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find a comment with that ID' );
@@ -224,7 +233,7 @@ export default class CommentsController extends Controller {
 
         try {
             const user = req._user;
-            const instances = await comments.findInstances<Modepress.IComment>( findToken, [], 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( findToken, null, 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find comment with that id' );

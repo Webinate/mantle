@@ -358,7 +358,7 @@ export default class PageRenderer extends Controller {
         try {
             // First get the count
             count = await renders!.count( findToken );
-            const instances = await renders!.findInstances<Modepress.IRender>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { html: 0 } : undefined ) );
+            const instances = await renders!.findInstances<Modepress.IRender>( findToken, sort, parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { html: 0 } : undefined ) );
 
             const jsons: Array<Promise<Modepress.IRender>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )

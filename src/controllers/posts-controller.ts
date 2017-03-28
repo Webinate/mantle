@@ -51,8 +51,8 @@ export default class PostsController extends Controller {
     private async getPosts( req: Modepress.IAuthReq, res: express.Response ) {
         const posts = this.getModel( 'posts' );
         let count = 0;
-        let visibility = 'public';
-        const user: UsersInterface.IUserEntry = req._user!;
+        let visibility: string | undefined = undefined;
+        const user = req._user;
 
         const findToken = { $or: [] as Modepress.IPost[] };
         if ( req.query.author )
@@ -71,21 +71,25 @@ export default class PostsController extends Controller {
                 visibility = 'all';
             else if ( ( <string>req.query.visibility ).toLowerCase() === 'private' )
                 visibility = 'private';
+            else
+                visibility = 'public';
         }
-        else
-            visibility = 'all';
 
-        // Only admins are allowed to see private posts
-        if ( !user || ( ( visibility === 'all' || visibility === 'private' ) && ( req._user && req._user.privileges! < UserPrivileges.Admin ) ) )
+        // If no user we only allow public
+        if ( !user )
+            visibility = 'public';
+        // If an admin - we do not need visibility
+        else if ( user.privileges! < UserPrivileges.Admin )
+            visibility = undefined;
+        // Regular users only see public
+        else
             visibility = 'public';
 
         // Add the or conditions for visibility
-        if ( visibility !== 'all' ) {
-            if ( visibility === 'public' )
-                ( <Modepress.IPost>findToken ).public = true;
-            else
-                ( <Modepress.IPost>findToken ).public = false;
-        }
+        if ( visibility )
+            ( <Modepress.IPost>findToken ).public = visibility === 'public' ? true : false;
+
+
 
         // Check for tags (an OR request with tags)
         if ( req.query.tags ) {
@@ -94,7 +98,7 @@ export default class PostsController extends Controller {
                 ( <any>findToken ).tags = { $in: tags };
         }
 
-        // Check for 'r'equired tags (an AND request with tags)
+        // Check for required tags (an AND request with tags)
         if ( req.query.rtags ) {
             const rtags = req.query.rtags.split( ',' );
             if ( rtags.length > 0 ) {
@@ -135,7 +139,6 @@ export default class PostsController extends Controller {
         if ( req.query.minimal )
             getContent = false;
 
-
         // Stephen is lovely
         if ( findToken.$or.length === 0 )
             delete findToken.$or;
@@ -144,7 +147,14 @@ export default class PostsController extends Controller {
             // First get the count
             count = await posts!.count( findToken );
 
-            const instances = await posts!.findInstances<Modepress.IPost>( findToken, [ sort ], parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { content: 0 } : undefined ) );
+            let index: number | undefined;
+            let limit: number | undefined;
+            if ( req.query.index !== undefined )
+                index = parseInt( req.query.index );
+            if ( req.query.limit !== undefined )
+                limit = parseInt( req.query.limit );
+
+            const instances = await posts!.findInstances<Modepress.IPost>( findToken, sort, index, limit, ( getContent === false ? { content: 0 } : undefined ) );
 
             const jsons: Array<Promise<Modepress.IPost>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
@@ -178,7 +188,7 @@ export default class PostsController extends Controller {
             else
                 findToken = { slug: req.params.slug };
 
-            const instances = await posts!.findInstances<Modepress.IPost>( findToken, [], 0, 1 );
+            const instances = await posts!.findInstances<Modepress.IPost>( findToken, null, 0, 1 );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find post' );
@@ -186,7 +196,7 @@ export default class PostsController extends Controller {
 
             const isPublic = await instances[ 0 ].schema.getByName( 'public' )!.getValue();
             // Only admins are allowed to see private posts
-            if ( !isPublic && ( !user || user.privileges! < UserPrivileges.Admin ) )
+            if ( !isPublic && ( !user || (user && user.privileges! > UserPrivileges.Admin) ) )
                 throw new Error( 'That post is marked private' );
 
             const jsons: Array<Promise<Modepress.IPost>> = [];
