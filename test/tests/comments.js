@@ -147,7 +147,7 @@ describe( 'Testing all comment related endpoints', function() {
     } )
 
     it( 'Can create a second public comment on the same post', function( done ) {
-        manager.post( `/api/posts/${lastPost._id}/comments`, { content: "Hello world 2! __filter__", public: true }, null )
+        manager.post( `/api/posts/${lastPost._id}/comments`, { content: "Hello world 2! __filter__", public: true } )
             .then( res => {
                 comment2 = res.body.data;
                 test.string( res.body.message ).is( "New comment created" );
@@ -166,7 +166,7 @@ describe( 'Testing all comment related endpoints', function() {
     } )
 
     it( 'Can get comments by user & there are more than 1', function( done ) {
-        manager.get( `/api/users/${header.uconfig.adminUser.username}/comments` )
+        manager.get( `/api/users/${manager.config.adminUser.username}/comments` )
             .then( res => {
                 test.number( res.body.count );
                 test.bool( res.body.count >= 2 ).isTrue();
@@ -176,7 +176,7 @@ describe( 'Testing all comment related endpoints', function() {
     } )
 
     it( 'Can get comments by user & there should be 2 if we filter by keyword', function( done ) {
-        manager.get( `/api/users/${header.uconfig.adminUser.username}/comments?keyword=__filter__` )
+        manager.get( `/api/users/${manager.config.adminUser.username}/comments?keyword=__filter__` )
             .then( res => {
                 test.number( res.body.count );
                 test.array( res.body.data ).hasLength( 2 );
@@ -187,10 +187,10 @@ describe( 'Testing all comment related endpoints', function() {
     } )
 
     it( 'Can get comments by user & should limit whats returned to 1', function( done ) {
-        manager.get( `/api/users/${header.uconfig.adminUser.username}/comments?keyword=__filter__&limit=1` )
+        manager.get( `/api/users/${manager.config.adminUser.username}/comments?keyword=__filter__&limit=1` )
             .then( res => {
                 test.number( res.body.count );
-                test.array( res.body.data ).hasLength( 2 );
+                test.array( res.body.data ).hasLength( 1 );
                 test.bool( res.body.count === 2 ).isTrue();
                 test.bool( res.body.error ).isFalse();
                 done();
@@ -198,11 +198,11 @@ describe( 'Testing all comment related endpoints', function() {
     } )
 
     it( 'Can get comments by user & should limit whats returned to 1 if not admin', function( done ) {
-        manager.get( `/api/users/${header.uconfig.adminUser.username}/comments?keyword=__filter__`, null )
+        manager.get( `/api/users/${manager.config.adminUser.username}/comments?keyword=__filter__` )
             .then( res => {
                 test.number( res.body.count );
-                test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.count === 1 ).isTrue(); // Count is still 2 as
+                test.array( res.body.data ).hasLength( 2 );
+                test.bool( res.body.count === 2 ).isTrue(); // Count is still 2 as
                 test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );

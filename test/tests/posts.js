@@ -119,8 +119,8 @@ describe( 'Testing all post related endpoints', function() {
             } ).catch( err => done( err ) );
     } )
 
-    it( 'Can fetch posts and impose a limit off 0 on them', function( done ) {
-        manager.get( `/api/posts?index=1&limit=1` )
+    it( 'Can fetch posts and impose an index and limit', function( done ) {
+        manager.get( `/api/posts?index=${numPosts - 1}&limit=1` )
             .then( res => {
                 test.array( res.body.data ).hasLength( 1 );
                 done();
@@ -176,7 +176,7 @@ describe( 'Testing all post related endpoints', function() {
     } )
 
     it( 'Fetched 0 posts when not logged in as admin as post is not public', function( done ) {
-        manager.get( `/api/posts?tags=super-tags-1234&categories=super-tests` )
+        manager.get( `/api/posts?tags=super-tags-1234&categories=super-tests`, null )
             .then( res => {
                 test.number( res.body.count ).is( 0 );
                 done();
@@ -191,7 +191,7 @@ describe( 'Testing all post related endpoints', function() {
             } ).catch( err => done( err ) );
     } )
 
-    it( 'Cannot create a post with the same slug', function( done ) {
+    it( 'Cannot create a post with an existing slug', function( done ) {
         manager.post( `/api/posts`,  { title: "Simple Test 2", slug: "--simple--test--" } )
             .then( res => {
                 test.string( res.body.message ).is( "'slug' must be unique" )
@@ -273,7 +273,7 @@ describe( 'Testing all post related endpoints', function() {
     } )
 
     it( 'Can set a post to public', function( done ) {
-        manager.put( `/api/posts/${lastPost}`, { public: true }, null )
+        manager.put( `/api/posts/${lastPost}`, { public: true } )
             .then( res => {
                 test.string( res.body.message ).is( "Post Updated" );
                 done();
@@ -289,7 +289,7 @@ describe( 'Testing all post related endpoints', function() {
     } )
 
     it( 'Cannot delete a post with invalid ID format', function( done ) {
-        manager.delete( `/api/posts/WRONGWRONGWRONG`, {}, null )
+        manager.delete( `/api/posts/WRONGWRONGWRONG`, {} )
             .then( res => {
                 test.string( res.body.message ).is( "Invalid ID format" );
                 done();
@@ -320,14 +320,6 @@ describe( 'Testing all post related endpoints', function() {
             } ).catch( err => done( err ) );
     } )
 
-    it( 'Can delete temp post with valid ID', function( done ) {
-        manager.delete( `/api/posts/${lastPost}`, {} )
-            .then( res => {
-               test.string( res.body.message ).is( "Post has been successfully removed" );
-                done();
-            } ).catch( err => done( err ) );
-    } )
-
     it( 'Should create a post & strip HTML from title', function( done ) {
         manager.post( `/api/posts`, {
                 title: "Simple Test <h2>NO</h2>",
@@ -339,13 +331,10 @@ describe( 'Testing all post related endpoints', function() {
                 test.string( res.body.data.title ).is( "Simple Test NO" );
 
                 // Clean up
-                header.modepressAgent
-                test.delete( '/api/posts/' + res.body.data._id ).set( 'Accept', 'application/json' ).expect( 200 ).expect( 'Content-Type', /json/ )
-                test.set( 'Cookie', header.adminCookie )
-                test.end( function( err, res ) {
+                manager.delete( '/api/posts/' + res.body.data._id, {} ).then( function( res ) {
                     test.string( res.body.message ).is( "Post has been successfully removed" );
                     done();
-                } );
+                } ).catch( err => done( err ) );
             } ).catch( err => done( err ) );
     } )
 
