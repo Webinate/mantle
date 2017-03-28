@@ -990,44 +990,44 @@ describe( 'Checking media API', function() {
     describe( 'Getting/Setting data when a Regular user', function() {
 
         it( 'did not get stats for admin', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.username}/get-stats`, 'george' )
+            manager.get( `/stats/users/${manager.config.adminUser.username}/get-stats`, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'did not get buckets for admin', function( done ) {
-            manager.get( `/buckets/users/${manager.config.adminUser.username}`, 'george' )
+            manager.get( `/buckets/user/${manager.config.adminUser.username}`, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'did not create stats for admin', function( done ) {
-            manager.get( `/stats/create-stats/${manager.config.adminUser.username}`, {}, 'george' )
+            manager.post( `/stats/create-stats/${manager.config.adminUser.username}`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'did not create storage calls for admin', function( done ) {
-            manager.put( `/stats/create-stats/${manager.config.adminUser.username}/90000`, {}, 'george' )
+            manager.put( `/stats/storage-calls/${manager.config.adminUser.username}/90000`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1036,9 +1036,9 @@ describe( 'Checking media API', function() {
         it( 'did not create storage memory for admin', function( done ) {
             manager.put( `/stats/storage-memory/${manager.config.adminUser.username}/90000`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1047,9 +1047,9 @@ describe( 'Checking media API', function() {
         it( 'did not create storage allocated calls for admin', function( done ) {
             manager.put( `/stats/storage-allocated-calls/${manager.config.adminUser.username}/90000`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1058,9 +1058,9 @@ describe( 'Checking media API', function() {
         it( 'did not create storage allocated memory for admin', function( done ) {
             manager.put( `/stats/storage-allocated-memory/${manager.config.adminUser.username}/90000`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1069,9 +1069,9 @@ describe( 'Checking media API', function() {
         it( 'did not create storage calls for itself', function( done ) {
             manager.put( `/stats/storage-calls/george/90000`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1080,9 +1080,9 @@ describe( 'Checking media API', function() {
         it( 'did not create storage memory for itself', function( done ) {
             manager.put( `/stats/storage-memory/george/90000`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1091,9 +1091,9 @@ describe( 'Checking media API', function() {
         it( 'did not create storage allocated calls for itself', function( done ) {
             manager.put( `/stats/storage-allocated-calls/george/90000`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1102,27 +1102,27 @@ describe( 'Checking media API', function() {
         it( 'did not create storage allocated memory for itself', function( done ) {
             manager.put( `/stats/storage-allocated-memory/george/90000`, {}, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
+                    test.bool( res.body.error ).isTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
                     done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'did get stats for itself', function( done ) {
-            manager.put( `/stats/users/george/get-stats`, {}, 'george' )
+            manager.get( `/stats/users/george/get-stats`, 'george' )
                 .then( res => {
-                    test.string( res.body.message ).is( "Successfully retrieved george's stats" )
-                    test.bool( res.body.error ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "data" )
-                    test.object( res.body.data ).hasProperty( "_id" )
-                    test.string( res.body.data.user ).is( "george" )
-                    test.number( res.body.data.apiCallsAllocated ).is( 20000 )
-                    test.number( res.body.data.memoryAllocated ).is( 500000000 )
-                    test.number( res.body.data.apiCallsUsed ).is( 1 )
-                    test.number( res.body.data.memoryUsed ).is( 0 )
+                    test.string( res.body.message ).is( "Successfully retrieved george's stats" );
+                    test.bool( res.body.error ).isNotTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "data" );
+                    test.object( res.body.data ).hasProperty( "_id" );
+                    test.string( res.body.data.user ).is( "george" );
+                    test.number( res.body.data.apiCallsAllocated ).is( 20000 );
+                    test.number( res.body.data.memoryAllocated ).is( 500000000 );
+                    test.number( res.body.data.apiCallsUsed ).is( 1 );
+                    test.number( res.body.data.memoryUsed ).is( 0 );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1131,11 +1131,9 @@ describe( 'Checking media API', function() {
         it( 'did get buckets for itself', function( done ) {
             manager.get( `/stats/users/george/get-stats`, 'george' )
                 .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "count" )
-                    test.object( res.body ).hasProperty( "data" )
-                    test.number( res.body.count ).is( 1 )
+                    test.bool( res.body.error ).isNotTrue();
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "data" );
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1144,10 +1142,10 @@ describe( 'Checking media API', function() {
         it( 'did not get files for another user\'s bucket', function( done ) {
             manager.get( `/files/users/${manager.config.adminUser.username}/buckets/BAD_ENTRY`, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1155,10 +1153,10 @@ describe( 'Checking media API', function() {
         it( 'did not get files for a non existant bucket', function( done ) {
             manager.get( `/files/users/george/buckets/test`, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Could not find the bucket 'test'" )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Could not find the bucket 'test'" );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1166,10 +1164,10 @@ describe( 'Checking media API', function() {
         it( 'did not create a bucket for another user', function( done ) {
             manager.post( `/buckets/user/${manager.config.adminUser.username} + "/test`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "You don't have permission to make this request" );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1177,10 +1175,10 @@ describe( 'Checking media API', function() {
         it( 'did not create a bucket with bad characters', function( done ) {
             manager.post( `/buckets/user/george/�BAD!CHARS`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Please only use safe characters" )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Please only use safe characters" );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1188,10 +1186,10 @@ describe( 'Checking media API', function() {
         it( 'did create a new bucket called dinosaurs', function( done ) {
             manager.post( `/buckets/user/george/dinosaurs`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Bucket 'dinosaurs' created" )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Bucket 'dinosaurs' created" );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1199,20 +1197,20 @@ describe( 'Checking media API', function() {
         it( 'did not create a bucket with the same name as an existing one', function( done ) {
             manager.post( `/buckets/user/george/dinosaurs`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "A Bucket with the name 'dinosaurs' has already been registered" )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "A Bucket with the name 'dinosaurs' has already been registered" );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } ).catch( err => done( err ) );
         } )
 
         it( 'did create a bucket with a different name', function( done ) {
-            manager.post( `/buckets/users/george/dinosaurs2`, {}, 'george' )
+            manager.post( `/buckets/user/george/dinosaurs2`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Bucket 'dinosaurs2' created" )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Bucket 'dinosaurs2' created" );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1220,22 +1218,22 @@ describe( 'Checking media API', function() {
         it( 'did not delete any buckets when the name is wrong', function( done ) {
             manager.delete( `/buckets/dinosaurs3,dinosaurs4`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Removed [0] buckets" )
-                    test.array( res.body.data ).isEmpty()
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Removed [0] buckets" );
+                    test.array( res.body.data ).isEmpty();
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } ).catch( err => done( err ) );
         } )
 
         it( 'did get the 2 buckets for george', function( done ) {
-            manager.get( `/buckets/dinosaurs3,dinosaurs4`, 'george' )
+            manager.get( `/buckets/user/george`, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Found [3] buckets" )
-                    test.array( res.body.data ).hasLength( 3 )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Found [3] buckets" );
+                    test.array( res.body.data ).hasLength( 3 );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1247,11 +1245,11 @@ describe( 'Checking media API', function() {
                 .attach( '"�$^&&', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "tokens" )
-                    test.string( res.body.message ).is( "No bucket exists with the name 'dinosaurs3'" )
-                    test.array( res.body.tokens ).hasLength( 0 )
-                    test.bool( res.body.error ).isTrue()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "tokens" );
+                    test.string( res.body.message ).is( "No bucket exists with the name 'dinosaurs3'" );
+                    test.array( res.body.tokens ).hasLength( 0 );
+                    test.bool( res.body.error ).isTrue();
                     done()
                 } );
         } ).timeout( 20000 )
@@ -1263,17 +1261,17 @@ describe( 'Checking media API', function() {
                 .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "tokens" )
-                    test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." )
-                    test.array( res.body.tokens ).hasLength( 1 )
-                    test.string( res.body.tokens[ 0 ].field ).is( "small-image" )
-                    test.string( res.body.tokens[ 0 ].filename ).is( "file.png" )
-                    test.bool( res.body.tokens[ 0 ].error ).isNotTrue()
-                    test.string( res.body.tokens[ 0 ].errorMsg ).is( "" )
-                    test.object( res.body.tokens[ 0 ] ).hasProperty( "file" )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "tokens" );
+                    test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
+                    test.array( res.body.tokens ).hasLength( 1 );
+                    test.string( res.body.tokens[ 0 ].field ).is( "small-image" );
+                    test.string( res.body.tokens[ 0 ].filename ).is( "file.png" );
+                    test.bool( res.body.tokens[ 0 ].error ).isNotTrue();
+                    test.string( res.body.tokens[ 0 ].errorMsg ).is( "" );
+                    test.object( res.body.tokens[ 0 ] ).hasProperty( "file" );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } );
         } ).timeout( 20000 )
 
@@ -1285,12 +1283,12 @@ describe( 'Checking media API', function() {
                 .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "tokens" )
-                    test.string( res.body.message ).is( "Error: Meta data is not a valid JSON: SyntaxError: Unexpected token B in JSON at position 0" )
-                    test.array( res.body.tokens ).hasLength( 0 )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "tokens" );
+                    test.string( res.body.message ).is( "Error: Meta data is not a valid JSON: SyntaxError: Unexpected token B in JSON at position 0" );
+                    test.array( res.body.tokens ).hasLength( 0 );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } );
         } ).timeout( 20000 )
 
@@ -1302,12 +1300,12 @@ describe( 'Checking media API', function() {
                 .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "tokens" )
-                    test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." )
-                    test.array( res.body.tokens ).hasLength( 1 )
-                    test.bool( res.body.error ).isFalse()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "tokens" );
+                    test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
+                    test.array( res.body.tokens ).hasLength( 1 );
+                    test.bool( res.body.error ).isFalse();
+                    done();
                 } );
         } ).timeout( 20000 )
 
@@ -1318,40 +1316,40 @@ describe( 'Checking media API', function() {
                 .attach( 'small-image', filePath )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "data" )
-                    test.string( res.body.message ).is( "Found [2] files" )
-                    test.array( res.body.data ).hasLength( 2 )
-                    test.number( res.body.data[ 0 ].numDownloads ).is( 0 )
-                    test.number( res.body.data[ 0 ].size ).is( 226 )
-                    test.string( res.body.data[ 0 ].mimeType ).is( "image/png" )
-                    test.string( res.body.data[ 0 ].user ).is( "george" )
-                    test.object( res.body.data[ 0 ] ).hasProperty( "publicURL" )
-                    test.bool( res.body.data[ 0 ].isPublic ).isTrue()
-                    test.object( res.body.data[ 0 ] ).hasProperty( "identifier" )
-                    test.object( res.body.data[ 0 ] ).hasProperty( "bucketId" )
-                    test.object( res.body.data[ 0 ] ).hasProperty( "created" )
-                    test.string( res.body.data[ 0 ].bucketName ).is( "dinosaurs" )
-                    test.object( res.body.data[ 0 ] ).hasProperty( "_id" )
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "data" );
+                    test.string( res.body.message ).is( "Found [2] files" );
+                    test.array( res.body.data ).hasLength( 2 );
+                    test.number( res.body.data[ 0 ].numDownloads ).is( 0 );
+                    test.number( res.body.data[ 0 ].size ).is( 226 );
+                    test.string( res.body.data[ 0 ].mimeType ).is( "image/png" );
+                    test.string( res.body.data[ 0 ].user ).is( "george" );
+                    test.object( res.body.data[ 0 ] ).hasProperty( "publicURL" );
+                    test.bool( res.body.data[ 0 ].isPublic ).isTrue();
+                    test.object( res.body.data[ 0 ] ).hasProperty( "identifier" );
+                    test.object( res.body.data[ 0 ] ).hasProperty( "bucketId" );
+                    test.object( res.body.data[ 0 ] ).hasProperty( "created" );
+                    test.string( res.body.data[ 0 ].bucketName ).is( "dinosaurs" );
+                    test.object( res.body.data[ 0 ] ).hasProperty( "_id" );
 
                     // Check the second files meta
-                    test.object( res.body.data[ 1 ] ).hasProperty( "meta" )
-                    test.string( res.body.data[ 1 ].meta.meta ).is( "good" )
+                    test.object( res.body.data[ 1 ] ).hasProperty( "meta" );
+                    test.string( res.body.data[ 1 ].meta.meta ).is( "good" );
 
-                    fileId = res.body.data[ 0 ].identifier
-                    publicURL = res.body.data[ 0 ].publicURL
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    fileId = res.body.data[ 0 ].identifier;
+                    publicURL = res.body.data[ 0 ].publicURL;
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } );
         } ).timeout( 20000 )
 
         it( 'did not make a non-file public', function( done ) {
             manager.put( `/files/123/make-public`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "File '123' does not exist" )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "File '123' does not exist" );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } )
@@ -1369,10 +1367,10 @@ describe( 'Checking media API', function() {
         it( 'did make a file public', function( done ) {
             manager.put( `/files/${fileId}/make-public`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "File is now public" )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "File is now public" );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1382,7 +1380,6 @@ describe( 'Checking media API', function() {
                 .get( "" ).expect( 200 ).expect( 'content-type', /image/ )
                 .end( function( err, res ) {
                     if ( err ) return done( err );
-
                     done();
                 } );
         } )
@@ -1390,20 +1387,20 @@ describe( 'Checking media API', function() {
         it( 'did make a file private', function( done ) {
             manager.put( `/files/${fileId}/make-private`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "File is now private" )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "File is now private" );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'updated its stats accordingly', function( done ) {
-            manager.get( `/users/george/get-stats`, 'george' )
+            manager.get( `/stats/users/george/get-stats`, 'george' )
                 .then( res => {
-                    test.number( res.body.data.apiCallsUsed ).is( 9 )
-                    test.number( res.body.data.memoryUsed ).is( 226 * 2 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.number( res.body.data.apiCallsUsed ).is( 9 );
+                    test.number( res.body.data.memoryUsed ).is( 226 * 2 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1417,33 +1414,33 @@ describe( 'Checking media API', function() {
                 .end( function( err, res ) {
                     if ( err ) return done( err );
 
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "tokens" )
-                    test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." )
-                    test.array( res.body.tokens ).hasLength( 1 )
-                    test.string( res.body.tokens[ 0 ].field ).is( "small-image" )
-                    test.string( res.body.tokens[ 0 ].filename ).is( "file.png" )
-                    test.bool( res.body.tokens[ 0 ].error ).isNotTrue()
-                    test.string( res.body.tokens[ 0 ].errorMsg ).is( "" )
-                    test.object( res.body.tokens[ 0 ] ).hasProperty( "file" )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "tokens" );
+                    test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
+                    test.array( res.body.tokens ).hasLength( 1 );
+                    test.string( res.body.tokens[ 0 ].field ).is( "small-image" );
+                    test.string( res.body.tokens[ 0 ].filename ).is( "file.png" );
+                    test.bool( res.body.tokens[ 0 ].error ).isNotTrue();
+                    test.string( res.body.tokens[ 0 ].errorMsg ).is( "" );
+                    test.object( res.body.tokens[ 0 ] ).hasProperty( "file" );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } );
         } ).timeout( 20000 )
 
         it( 'updated its stats with the 2nd upload accordingly', function( done ) {
-            manager.get( `/users/george/get-stats`, 'george' )
+            manager.get( `/stats/users/george/get-stats`, 'george' )
                 .then( res => {
-                    test.number( res.body.data.apiCallsUsed ).is( 10 )
-                    test.number( res.body.data.memoryUsed ).is( 226 * 3 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.number( res.body.data.apiCallsUsed ).is( 10 );
+                    test.number( res.body.data.memoryUsed ).is( 226 * 3 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'did not download a file with an invalid id anonomously', function( done ) {
-            manager.get( `/files/123/download`, 'george' )
+            manager.get( `/files/123/download`, null, 404 )
                 .then( res => {
                     done();
                 } ).catch( err => done( err ) );
@@ -1460,10 +1457,10 @@ describe( 'Checking media API', function() {
         } ).timeout( 20000 )
 
         it( 'did update the api calls to 5', function( done ) {
-            manager.get( `/users/george/get-stats`, 'george' )
+            manager.get( `/stats/users/george/get-stats`, 'george' )
                 .then( res => {
-                    test.number( res.body.data.apiCallsUsed ).is( 11 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.number( res.body.data.apiCallsUsed ).is( 11 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1477,17 +1474,17 @@ describe( 'Checking media API', function() {
                 .end( function( err, res ) {
                     if ( err ) return done( err );
 
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "tokens" )
-                    test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." )
-                    test.array( res.body.tokens ).hasLength( 1 )
-                    test.string( res.body.tokens[ 0 ].field ).is( "small-image" )
-                    test.string( res.body.tokens[ 0 ].filename ).is( "file.png" )
-                    test.bool( res.body.tokens[ 0 ].error ).isNotTrue()
-                    test.string( res.body.tokens[ 0 ].errorMsg ).is( "" )
-                    test.object( res.body.tokens[ 0 ] ).hasProperty( "file" )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.object( res.body ).hasProperty( "tokens" );
+                    test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
+                    test.array( res.body.tokens ).hasLength( 1 );
+                    test.string( res.body.tokens[ 0 ].field ).is( "small-image" );
+                    test.string( res.body.tokens[ 0 ].filename ).is( "file.png" );
+                    test.bool( res.body.tokens[ 0 ].error ).isNotTrue();
+                    test.string( res.body.tokens[ 0 ].errorMsg ).is( "" );
+                    test.object( res.body.tokens[ 0 ] ).hasProperty( "file" );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } );
 
         } ).timeout( 20000 )
@@ -1496,8 +1493,8 @@ describe( 'Checking media API', function() {
             manager.get( `/files/users/george/buckets/dinosaurs2`, 'george' )
                 .then( res => {
                     test.bool( res.body.error ).isNotTrue()
-                    fileId = res.body.data[ 1 ].identifier
-                    done()
+                    fileId = res.body.data[ 1 ].identifier;
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1505,10 +1502,10 @@ describe( 'Checking media API', function() {
         it( 'did not rename an incorrect file to testy', function( done ) {
             manager.put( `/files/123/rename-file`, { name: "testy" }, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "File '123' does not exist" )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "File '123' does not exist" );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1516,10 +1513,10 @@ describe( 'Checking media API', function() {
         it( 'did not rename a correct file with an empty name', function( done ) {
             manager.put( `/files/${fileId}/rename-file`, { name: "" }, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Please specify the new name of the file" )
-                    test.bool( res.body.error ).isTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Please specify the new name of the file" );
+                    test.bool( res.body.error ).isTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1527,10 +1524,10 @@ describe( 'Checking media API', function() {
         it( 'did rename a correct file to testy', function( done ) {
             manager.put( `/files/${fileId}/rename-file`, { name: "testy" }, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Renamed file to 'testy'" )
-                    test.bool( res.body.error ).isNotTrue()
-                    done()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Renamed file to 'testy'" );
+                    test.bool( res.body.error ).isNotTrue();
+                    done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
@@ -1538,10 +1535,10 @@ describe( 'Checking media API', function() {
         it( 'did not remove a file from dinosaurs2 with a bad id', function( done ) {
             manager.delete( `/files/123`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Removed [0] files" )
-                    test.array( res.body.data ).hasLength( 0 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Removed [0] files" );
+                    test.array( res.body.data ).hasLength( 0 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1550,21 +1547,21 @@ describe( 'Checking media API', function() {
         it( 'did remove a file from dinosaurs2 with a valid id', function( done ) {
             manager.delete( `/files/${fileId}`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Removed [1] files" )
-                    test.array( res.body.data ).hasLength( 1 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Removed [1] files" );
+                    test.array( res.body.data ).hasLength( 1 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'updated its stats to reflect a file was deleted', function( done ) {
-            manager.get( `/users/george/get-stats`, 'george' )
+            manager.get( `/stats/users/george/get-stats`, 'george' )
                 .then( res => {
-                    test.number( res.body.data.apiCallsUsed ).is( 14 )
-                    test.number( res.body.data.memoryUsed ).is( 226 * 3 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.number( res.body.data.apiCallsUsed ).is( 14 );
+                    test.number( res.body.data.memoryUsed ).is( 226 * 3 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1573,33 +1570,33 @@ describe( 'Checking media API', function() {
         it( 'did not remove a bucket with a bad name', function( done ) {
             manager.delete( `/buckets/123`, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Removed [0] buckets" )
-                    test.array( res.body.data ).hasLength( 0 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Removed [0] buckets" );
+                    test.array( res.body.data ).hasLength( 0 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'did remove the bucket dinosaurs2', function( done ) {
-            manager.delete( `/buckets/dinosaurs2`, 'george' )
+            manager.delete( `/buckets/dinosaurs2`, {}, 'george' )
                 .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Removed [1] buckets" )
-                    test.array( res.body.data ).hasLength( 1 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.object( res.body ).hasProperty( "message" );
+                    test.string( res.body.message ).is( "Removed [1] buckets" );
+                    test.array( res.body.data ).hasLength( 1 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
 
         it( 'updated its stats that both a file and bucket were deleted', function( done ) {
-            manager.get( `/users/george/get-stats`, 'george' )
+            manager.get( `/stats/users/george/get-stats`, 'george' )
                 .then( res => {
-                    test.number( res.body.data.apiCallsUsed ).is( 16 )
-                    test.number( res.body.data.memoryUsed ).is( 226 * 2 )
-                    test.bool( res.body.error ).isNotTrue()
+                    test.number( res.body.data.apiCallsUsed ).is( 16 );
+                    test.number( res.body.data.memoryUsed ).is( 226 * 2 );
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1611,10 +1608,10 @@ describe( 'Checking media API', function() {
         it( 'did log in with valid details for george2', function( done ) {
             manager.post( `/auth/login`, { username: "george2", password: "password" }, null )
                 .then( res => {
-                    test.bool( res.body.authenticated ).isNotFalse()
-                    test.object( res.body ).hasProperty( "message" )
+                    test.bool( res.body.authenticated ).isNotFalse();
+                    test.object( res.body ).hasProperty( "message" );
                     manager.updateCookieToken( "george2", res );
-                    test.bool( res.body.error ).isNotTrue()
+                    test.bool( res.body.error ).isNotTrue();
                     done();
                 } ).catch( err => done( err ) );
 
@@ -1635,7 +1632,7 @@ describe( 'Cleaning up', function() {
     it( 'did remove any users called george', function( done ) {
         manager.delete( `/users/george`, {} )
             .then( res => {
-                test.string( res.body.message ).is( "User george has been removed" )
+                test.string( res.body.message ).is( "User george has been removed" );
                 done();
             } ).catch( err => done( err ) );
     } ).timeout( 25000 )
@@ -1643,7 +1640,7 @@ describe( 'Cleaning up', function() {
     it( 'did remove any users called george2', function( done ) {
         manager.delete( `/users/george2`, {} )
             .then( res => {
-                test.string( res.body.message ).is( "User george2 has been removed" )
+                test.string( res.body.message ).is( "User george2 has been removed" );
                 done();
             } ).catch( err => done( err ) );
     } ).timeout( 25000 )
@@ -1673,36 +1670,36 @@ describe( 'Test WS API events are valid', function() {
 
         test.object( socketEvents.bucketUploaded ).hasProperty( 'username' );
         test.object( socketEvents.bucketUploaded ).hasProperty( 'bucket' );
-        test.string( socketEvents.bucketUploaded.bucket.name )
-        test.string( socketEvents.bucketUploaded.bucket.identifier )
-        test.string( socketEvents.bucketUploaded.bucket.user )
-        test.number( socketEvents.bucketUploaded.bucket.created )
-        test.number( socketEvents.bucketUploaded.bucket.memoryUsed )
-        test.string( socketEvents.bucketUploaded.bucket._id )
+        test.string( socketEvents.bucketUploaded.bucket.name );
+        test.string( socketEvents.bucketUploaded.bucket.identifier );
+        test.string( socketEvents.bucketUploaded.bucket.user );
+        test.number( socketEvents.bucketUploaded.bucket.created );
+        test.number( socketEvents.bucketUploaded.bucket.memoryUsed );
+        test.string( socketEvents.bucketUploaded.bucket._id );
         done();
     } );
 
     it( 'has valid bucket removed event properties', function( done ) {
         test.object( socketEvents.bucketRemoved ).hasProperty( 'bucket' );
-        test.string( socketEvents.bucketRemoved.bucket.name )
-        test.string( socketEvents.bucketRemoved.bucket.identifier )
-        test.string( socketEvents.bucketRemoved.bucket.user )
-        test.number( socketEvents.bucketRemoved.bucket.created )
-        test.number( socketEvents.bucketRemoved.bucket.memoryUsed )
-        test.string( socketEvents.bucketRemoved.bucket._id )
+        test.string( socketEvents.bucketRemoved.bucket.name );
+        test.string( socketEvents.bucketRemoved.bucket.identifier );
+        test.string( socketEvents.bucketRemoved.bucket.user );
+        test.number( socketEvents.bucketRemoved.bucket.created );
+        test.number( socketEvents.bucketRemoved.bucket.memoryUsed );
+        test.string( socketEvents.bucketRemoved.bucket._id );
         done();
     } );
 
     it( 'has the correct number of events registered', function( done ) {
-        test.number( numWSCalls.login ).is( 6 )
-        test.number( numWSCalls.logout ).is( 3 )
-        test.number( numWSCalls.activated ).is( 2 )
-        test.number( numWSCalls.bucketRemoved ).is( 4 )
-        test.number( numWSCalls.bucketUploaded ).is( 4 )
-        test.number( numWSCalls.fileRemoved ).is( 5 )
-        test.number( numWSCalls.fileUploaded ).is( 4 )
-        test.number( numWSCalls.metaRequest ).is( 5 )
-        test.number( numWSCalls.removed ).is( 2 )
+        test.number( numWSCalls.login ).is( 6 );
+        test.number( numWSCalls.logout ).is( 3 );
+        test.number( numWSCalls.activated ).is( 2 );
+        test.number( numWSCalls.bucketRemoved ).is( 4 );
+        test.number( numWSCalls.bucketUploaded ).is( 4 );
+        test.number( numWSCalls.fileRemoved ).is( 5 );
+        test.number( numWSCalls.fileUploaded ).is( 4 );
+        test.number( numWSCalls.metaRequest ).is( 5 );
+        test.number( numWSCalls.removed ).is( 2 );
         done();
     } );
 } )
