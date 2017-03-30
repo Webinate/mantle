@@ -38,7 +38,7 @@ export class UserController extends Controller {
         router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
         router.get( '/', <any>[ identifyUser, this.getUsers.bind( this ) ] );
-        router.post( '/', <any>[ ownerRights, this.createUser.bind( this ) ] );
+        router.post( '/', <any>[ adminRights, this.createUser.bind( this ) ] );
         router.get( '/:user/meta', <any>[ ownerRights, this.getData.bind( this ) ] );
         router.get( '/:user/meta/:name', <any>[ ownerRights, this.getVal.bind( this ) ] );
         router.get( '/:username', <any>[ ownerRights, this.getUser.bind( this ) ] );
@@ -194,7 +194,7 @@ export class UserController extends Controller {
 	 */
     private async createUser( req: express.Request, res: express.Response ) {
         try {
-            const token: def.IRegisterToken = req.body;
+            const token: def.IUserEntry = req.body;
 
             // Set default privileges
             token.privileges = token.privileges ? token.privileges : UserPrivileges.Regular;
@@ -203,9 +203,7 @@ export class UserController extends Controller {
             if ( token.privileges === UserPrivileges.SuperAdmin )
                 throw new Error( 'You cannot create a user with super admin permissions' );
 
-            const secure = ( ( <any>req.connection ).encrypted || req.headers[ 'x-forwarded-proto' ] === 'https' ? true : false );
-
-            const user = await UserManager.get.createUser( token.username!, token.email, token.password, this._server.accountRedirectURL, ( secure ? 'https://' : 'http://' ) + req.hostname, token.privileges, token.meta );
+            const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, token.privileges, token.meta );
             okJson<def.IGetUser>( {
                 error: false,
                 message: `User ${user.dbEntry.username} has been created`,

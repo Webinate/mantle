@@ -192,7 +192,7 @@ export class UserManager {
 
         // If no admin user exists, so lets try to create one
         if ( !user )
-            user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, '', ( config.userSettings.secure ? 'https://' : 'http://' ) + config.userSettings.hostName, UserPrivileges.SuperAdmin, {}, true );
+            user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, UserPrivileges.SuperAdmin, {}, true );
 
         return;
     }
@@ -256,7 +256,26 @@ export class UserManager {
         // Check the captcha
         await this.checkCaptcha( captcha );
 
-        user = await this.createUser( username, email, pass, activationUrl, origin, UserPrivileges.Regular, meta );
+        user = await this.createUser( username, email, pass, UserPrivileges.Regular, meta );
+
+        // Send a message to the user to say they are registered but need to activate their account
+        const message = 'Thank you for registering with Webinate! To activate your account please click the link below: \n\n' +
+            ( activationUrl ? this.createActivationLink( user, activationUrl, origin ) + '\n\n' : '' ) +
+            'Thanks\n' +
+            'The Webinate Team';
+
+        // If no mailer is setup
+        if ( !this._mailer )
+            throw new Error( `No email account has been setup` );
+
+        // Send mail using the mailer
+        await this._mailer.sendMail(
+            user.dbEntry.email!,
+            this._config.mail.from,
+            'Activate your account',
+            message
+        );
+
         return user;
     }
 
@@ -533,13 +552,11 @@ export class UserManager {
 	 * @param user The unique username
 	 * @param email The unique email
 	 * @param password The password for the user
-     * @param activationUrl The url to where the activation link will be sent
-     * @param origin The origin of where the request came from (this is emailed to the user)
 	 * @param privilege The type of privileges the user has. Defaults to regular
      * @param meta Any optional data associated with this user
      * @param allowAdmin Should this be allowed to create a super user
 	 */
-    async createUser( user: string, email: string, password: string, activationUrl: string, origin: string, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ): Promise<User> {
+    async createUser( user: string, email: string, password: string, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ): Promise<User> {
         // Basic checks
         if ( !user || validator.trim( user ) === '' )
             throw new Error( 'Username cannot be empty' );
@@ -578,24 +595,6 @@ export class UserManager {
 
         // Assing the ID and pass the user on
         newUser.dbEntry = insertResult.ops[ 0 ];
-
-        // Send a message to the user to say they are registered but need to activate their account
-        const message: string = 'Thank you for registering with Webinate! To activate your account please click the link below: \n\n' +
-            ( activationUrl ? this.createActivationLink( newUser, activationUrl, origin ) + '\n\n' : '' ) +
-            'Thanks\n' +
-            'The Webinate Team';
-
-        // If no mailer is setup
-        if ( !this._mailer )
-            throw new Error( `No email account has been setup` );
-
-        // Send mail using the mailer
-        await this._mailer.sendMail(
-            newUser.dbEntry.email!,
-            this._config.mail.from,
-            'Activate your account',
-            message
-        );
 
         // All users have default stats created for them
         await BucketManager.get.createUserStats( newUser.dbEntry.username! );
