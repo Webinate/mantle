@@ -496,18 +496,6 @@ declare namespace Modepress {
              */
             sessionCollection: string;
 
-            /**
-             * The private key to use for Google captcha
-             * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
-             */
-            captchaPrivateKey: string;
-
-            /**
-             * The public key to use for Google captcha
-             * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
-             */
-            captchaPublicKey: string;
-
             // These need to be removed eventually
             secure: boolean;
             hostName: string;

@@ -355,7 +355,6 @@
         username: string;
         password: string;
         email: string;
-        captcha?: string;
         meta?: any;
         privileges?: number;
     }
@@ -532,18 +531,6 @@
          * e.g (60 * 60 * 24 * 2) = 2 days
          */
         sessionLifetimeExtended?: number;
-
-        /**
-         * The private key to use for Google captcha
-         * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
-         */
-        captchaPrivateKey: string;
-
-        /**
-         * The public key to use for Google captcha
-         * Get your key from the captcha admin: https://www.google.com/recaptcha/intro/index.html
-         */
-        captchaPublicKey: string;
 
         /**
          * The administrative user. This is the root user that will have access to the information in the database.

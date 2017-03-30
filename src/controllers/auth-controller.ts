@@ -183,7 +183,7 @@ export class AuthController extends Controller {
     private async register( req: express.Request, res: express.Response ) {
         try {
             const token: def.IRegisterToken = req.body;
-            const user = await UserManager.get.register( token.username!, token.password!, token.email!, this._server.accountRedirectURL, token.captcha!, {}, req );
+            const user = await UserManager.get.register( token.username!, token.password!, token.email!, this._server.accountRedirectURL, {}, req );
 
             return okJson<def.IAuthenticationResponse>( {
                 message: ( user ? 'Please activate your account with the link sent to your email address' : 'User is not authenticated' ),

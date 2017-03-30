@@ -34,5 +34,5 @@ describe( 'Initializing tests', function() {
 } );
 
 require( './tests/users.js' );
-require( './tests/posts.js' );
-require( './tests/comments.js' );
+// require( './tests/posts.js' );
+// require( './tests/comments.js' );

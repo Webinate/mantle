@@ -558,17 +558,6 @@ describe( 'Testing user API functions', function() {
                 } ).catch( err => done( err ) );
 
         } ).timeout( 20000 )
-
-        it( 'should not register with valid information, email & no captcha', function( done ) {
-            manager.post( `/auth/register`, { username: "George", password: "Password", email: "george@webinate.net" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Your captcha code seems to be wrong. Please try another." )
-                    done();
-                } ).catch( err => done( err ) );
-
-        } ).timeout( 20000 )
     } )
 
     describe( 'Create a new user when logged in as admin', function() {

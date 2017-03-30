@@ -6,7 +6,6 @@ import * as validator from 'validator';
 import * as bcrypt from 'bcryptjs';
 import * as express from 'express';
 import { info, warn } from './logger';
-import * as https from 'https';
 
 import { CommsController } from './socket-api/comms-controller';
 import { ClientInstruction } from './socket-api/client-instruction';
@@ -197,47 +196,16 @@ export class UserManager {
         return;
     }
 
-    /**
-	 * Checks if a Google captcha sent from a user is valid
-     * @param captcha The captcha value the user guessed
-	 */
-    private checkCaptcha( captcha: string ): Promise<boolean> {
-        return new Promise<boolean>(( resolve, reject ) => {
-
-            const privatekey: string = this._config.userSettings.captchaPrivateKey;
-            https.get( 'https://www.google.com/recaptcha/api/siteverify?secret=' + privatekey + '&response=' + captcha, function( res ) {
-                let data = '';
-                res.on( 'data', function( chunk ) {
-                    data += chunk.toString();
-                } );
-                res.on( 'end', function() {
-                    try {
-                        const parsedData = JSON.parse( data );
-                        if ( !parsedData.success )
-                            return reject( new Error( 'Your captcha code seems to be wrong. Please try another.' ) );
-
-                        resolve( true );
-
-                    } catch ( e ) {
-                        return reject( new Error( 'There was an error connecting to Google Captcha: ' + e.message ) );
-                    }
-                } );
-            } );
-
-        } );
-    }
-
 	/**
 	 * Attempts to register a new user
 	 * @param username The username of the user
 	 * @param pass The users secret password
 	 * @param email The users email address
-	 * @param captcha The captcha value the user guessed
      * @param meta Any optional data associated with this user
 	 * @param request
 	 * @param response
 	 */
-    async register( username: string = '', pass: string = '', email: string = '', captcha: string = '', activationUrl: string = '', meta: any = {}, request: express.Request ): Promise<User> {
+    async register( username: string = '', pass: string = '', email: string = '', activationUrl: string = '', meta: any = {}, request: express.Request ): Promise<User> {
         const origin = encodeURIComponent( request.headers[ 'origin' ] || request.headers[ 'referer' ] );
 
         // First check if user exists, make sure the details supplied are ok, then create the new user
@@ -251,10 +219,6 @@ export class UserManager {
         if ( !pass || pass === '' ) throw new Error( 'Password cannot be null or empty' );
         if ( !email || email === '' ) throw new Error( 'Email cannot be null or empty' );
         if ( !validator.isEmail( email ) ) throw new Error( 'Please use a valid email address' );
-        if ( request && ( !captcha || captcha === '' ) ) throw new Error( 'Captcha cannot be null or empty' );
-
-        // Check the captcha
-        await this.checkCaptcha( captcha );
 
         user = await this.createUser( username, email, pass, UserPrivileges.Regular, meta );
 
