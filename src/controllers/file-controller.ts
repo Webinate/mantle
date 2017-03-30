@@ -2,13 +2,12 @@
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import * as users from 'webinate-users';
+import * as users from 'modepress-api';
 import { ownerRights, requireUser } from '../permission-controllers';
 import { Controller } from './controller'
 import { BucketManager } from '../bucket-manager';
 import * as compression from 'compression';
 import { error as logError } from '../logger';
-import * as def from 'webinate-users';
 import { okJson, errJson } from '../serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
@@ -95,7 +94,7 @@ export class FileController extends Controller {
                 throw new Error( `Could not find the file '${req.params.file}'` );
 
             await manager.renameFile( fileEntry, req.body.name );
-            okJson<def.IResponse>( { message: `Renamed file to '${req.body.name}'`, error: false }, res );
+            okJson<users.IResponse>( { message: `Renamed file to '${req.body.name}'`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );

@@ -3,7 +3,6 @@
 import * as bcrypt from 'bcryptjs';
 import * as ws from 'ws';
 import * as events from 'events';
-import * as def from 'webinate-users';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as mongodb from 'mongodb';
@@ -53,7 +52,7 @@ export class CommsController extends events.EventEmitter {
 	 * Sends an instruction to the relevant client connections
      * @param instruction The instruction from the server
 	 */
-    processClientInstruction( instruction: ClientInstruction<def.SocketTokens.IToken> ) {
+    processClientInstruction( instruction: ClientInstruction<Modepress.SocketTokens.IToken> ) {
         let recipients: ClientConnection[];
 
         if ( !instruction.recipients )
@@ -79,7 +78,7 @@ export class CommsController extends events.EventEmitter {
      * instruction - and in some cases might resond to the client with a ClientInstruction.
      * @param instruction The instruction from the client
 	 */
-    processServerInstruction( instruction: ServerInstruction<def.SocketTokens.IToken> ) {
+    processServerInstruction( instruction: ServerInstruction<Modepress.SocketTokens.IToken> ) {
         if ( !instruction.token )
             return logError( `Websocket error: An instruction was sent from '${instruction.from.domain}' without a token` );
 
@@ -93,7 +92,7 @@ export class CommsController extends events.EventEmitter {
     /**
      * Attempts to send a token to a specific client
      */
-    private sendToken( connection: ClientConnection, token: def.SocketTokens.IToken ): Promise<void> {
+    private sendToken( connection: ClientConnection, token: Modepress.SocketTokens.IToken ): Promise<void> {
         return new Promise<void>( function( resolve, reject ) {
             let serializedData: string;
 

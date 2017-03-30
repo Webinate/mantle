@@ -1,12 +1,11 @@
 'use strict';
 
 import { error as logError, info } from '../logger';
-import * as def from 'webinate-users';
 
 /**
  * A simple class for sending mail using Google Mail's API
  */
-export class Mailguner implements def.IMailer {
+export class Mailguner implements Modepress.IMailer {
     private _debugMode: boolean;
     private mailgun: MailGun.Instance;
 
@@ -21,7 +20,7 @@ export class Mailguner implements def.IMailer {
      * Attempts to initialize the mailer
      * @param options The mailgun options for this mailer
      */
-    initialize( options: def.IMailgun ): Promise<boolean> {
+    initialize( options: Modepress.IMailgun ): Promise<boolean> {
 
         return new Promise(( resolve ) => {
             this.mailgun = require( 'mailgun-js' )( { apiKey: options.apiKey, domain: options.domain } );

@@ -13,7 +13,6 @@
 /// <reference path="./definitions/required/yargs.d.ts" />
 /// <reference path="./definitions/required/request.d.ts" />
 /// <reference path="./definitions/required/sanitize-html.d.ts" />
-/// <reference path="./definitions/custom/users.d.ts" />
 /// <reference path='./definitions/required/bcrypt.d.ts' />
 /// <reference path='./definitions/required/compressible.d.ts' />
 /// <reference path='./definitions/required/gcloud.d.ts' />

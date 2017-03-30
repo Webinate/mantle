@@ -2,7 +2,7 @@
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import * as users from 'webinate-users';
+import * as users from 'modepress-api';
 import * as mongodb from 'mongodb';
 import { UserManager } from '../users';
 import { ownerRights, requireUser } from '../permission-controllers';
@@ -13,7 +13,6 @@ import * as compression from 'compression';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
-import * as def from 'webinate-users';
 import { okJson, errJson } from '../serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
@@ -229,7 +228,7 @@ export class BucketController extends Controller {
         const manager = BucketManager.get;
         const username = req._user!.username!;
         const parentFile = req.params.parentFile;
-        const filesUploaded: Array<UsersInterface.IFileEntry> = [];
+        const filesUploaded: Array<users.IFileEntry> = [];
         const bucketName = req.params.bucket;
         if ( !bucketName || bucketName.trim() === '' )
             return okJson<users.IUploadResponse>( { message: `Please specify a bucket`, error: true, tokens: [] }, res );
@@ -398,7 +397,7 @@ export class BucketController extends Controller {
             // Notify the sockets of each file that was uploaded
             for ( let i = 0, l = files.length; i < l; i++ ) {
                 // Send file added events to sockets
-                const token: def.SocketTokens.IFileToken = { username: user, type: ClientInstructionType[ ClientInstructionType.FileUploaded ], file: files[ i ] };
+                const token: users.SocketTokens.IFileToken = { username: user, type: ClientInstructionType[ ClientInstructionType.FileUploaded ], file: files[ i ] };
                 await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user ) )
             }
 

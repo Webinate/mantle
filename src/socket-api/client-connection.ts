@@ -1,7 +1,6 @@
 'use strict';
 
 import * as ws from 'ws';
-import * as def from 'webinate-users';
 import { error as logError, info } from '../logger';
 import { UserManager, User } from '../users';
 import { CommsController } from './comms-controller';
@@ -39,7 +38,7 @@ export class ClientConnection {
     private onMessage( message: string ) {
         info( `Received message from client: '${message}'` );
         try {
-            const token: def.SocketTokens.IToken = JSON.parse( message );
+            const token: Modepress.SocketTokens.IToken = JSON.parse( message );
             this._controller.processServerInstruction( new ServerInstruction( token, this ) );
         }
         catch ( err ) {

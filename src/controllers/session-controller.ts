@@ -2,7 +2,6 @@
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import * as def from 'webinate-users';
 import { UserManager } from '../users';
 import { ownerRights } from '../permission-controllers';
 import { Controller } from './controller'
@@ -50,7 +49,7 @@ export class SessionController extends Controller {
             const numSessions = await UserManager.get.sessionManager.numActiveSessions();
             const sessions = await UserManager.get.sessionManager.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
 
-            okJson<def.IGetSessions>( {
+            okJson<Modepress.IGetSessions>( {
                 error: false,
                 message: `Found ${sessions.length} active sessions`,
                 data: sessions,
@@ -68,7 +67,7 @@ export class SessionController extends Controller {
     private async deleteSession( req: express.Request, res: express.Response ) {
         try {
             await UserManager.get.sessionManager.clearSession( req.params.id, req, res );
-            okJson<def.IResponse>( { error: false, message: `Session ${req.params.id} has been removed` }, res );
+            okJson<Modepress.IResponse>( { error: false, message: `Session ${req.params.id} has been removed` }, res );
 
         } catch ( err ) {
             return errJson( err, res );

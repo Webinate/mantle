@@ -2,7 +2,6 @@
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import * as def from 'webinate-users';
 import { UserManager, UserPrivileges } from '../users';
 import { ownerRights, adminRights, identifyUser } from '../permission-controllers';
 import { Controller } from './controller'
@@ -61,7 +60,7 @@ export class UserController extends Controller {
             if ( !user )
                 throw new Error( 'No user found' );
 
-            okJson<def.IGetUser>( {
+            okJson<Modepress.IGetUser>( {
                 error: false,
                 message: `Found ${user.dbEntry.username}`,
                 data: user.generateCleanedData( Boolean( req.query.verbose ) )
@@ -89,12 +88,12 @@ export class UserController extends Controller {
         try {
             const totalNumUsers = await UserManager.get.numUsers( new RegExp( req.query.search ) );
             const users = await UserManager.get.getUsers( parseInt( req.query.index ), parseInt( req.query.limit ), new RegExp( req.query.search ) );
-            const sanitizedData: def.IUserEntry[] = [];
+            const sanitizedData: Modepress.IUserEntry[] = [];
 
             for ( let i = 0, l = users.length; i < l; i++ )
                 sanitizedData.push( users[ i ].generateCleanedData( verbose ) );
 
-            okJson<def.IGetUsers>( {
+            okJson<Modepress.IGetUsers>( {
                 error: false,
                 message: `Found ${users.length} users`,
                 data: sanitizedData,
@@ -117,7 +116,7 @@ export class UserController extends Controller {
 
         try {
             await UserManager.get.setMeta( user, val );
-            okJson<def.IResponse>( { message: `User's data has been updated`, error: false }, res );
+            okJson<Modepress.IResponse>( { message: `User's data has been updated`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -133,7 +132,7 @@ export class UserController extends Controller {
 
         try {
             await UserManager.get.setMetaVal( user, name, req.body.value );
-            okJson<def.IResponse>( { message: `Value '${name}' has been updated`, error: false }, res );
+            okJson<Modepress.IResponse>( { message: `Value '${name}' has been updated`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -182,7 +181,7 @@ export class UserController extends Controller {
 
             await UserManager.get.removeUser( toRemove );
 
-            return okJson<def.IResponse>( { message: `User ${toRemove} has been removed`, error: false }, res );
+            return okJson<Modepress.IResponse>( { message: `User ${toRemove} has been removed`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -194,7 +193,7 @@ export class UserController extends Controller {
 	 */
     private async createUser( req: express.Request, res: express.Response ) {
         try {
-            const token: def.IUserEntry = req.body;
+            const token: Modepress.IUserEntry = req.body;
 
             // Set default privileges
             token.privileges = token.privileges ? token.privileges : UserPrivileges.Regular;
@@ -204,7 +203,7 @@ export class UserController extends Controller {
                 throw new Error( 'You cannot create a user with super admin permissions' );
 
             const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, token.privileges, token.meta );
-            okJson<def.IGetUser>( {
+            okJson<Modepress.IGetUser>( {
                 error: false,
                 message: `User ${user.dbEntry.username} has been created`,
                 data: user.dbEntry

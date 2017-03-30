@@ -2,7 +2,6 @@
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import * as def from 'webinate-users';
 import { UserManager } from '../users';
 import { Controller } from './controller'
 import { okJson, errJson } from '../serializers';
@@ -45,7 +44,7 @@ export class AdminController extends Controller {
                 throw new Error( 'Please specify a message to send' );
 
             await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
-            okJson<def.IResponse>( { error: false, message: 'Your message has been sent to the support team' }, res );
+            okJson<Modepress.IResponse>( { error: false, message: 'Your message has been sent to the support team' }, res );
 
         } catch ( err ) {
             return errJson( err, res );

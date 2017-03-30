@@ -5,7 +5,6 @@ import { ServerInstruction } from './server-instruction';
 import { ClientInstruction } from './client-instruction';
 import { CommsController } from './comms-controller';
 import { ClientInstructionType, ServerInstructionType } from './socket-event-types';
-import * as def from 'webinate-users';
 
 /**
  * Handles express errors
@@ -23,7 +22,7 @@ export class SocketAPI {
     /**
      * Responds to a meta request from a client
      */
-    private onMeta( e: ServerInstruction<def.SocketTokens.IMetaToken> ) {
+    private onMeta( e: ServerInstruction<Modepress.SocketTokens.IMetaToken> ) {
         const comms = this._comms;
 
         if ( !UserManager.get )
@@ -49,23 +48,23 @@ export class SocketAPI {
 
         } ).then( function( metaVal ) {
 
-            let responseToken: def.SocketTokens.IMetaToken = {
+            let responseToken: Modepress.SocketTokens.IMetaToken = {
                 type: ClientInstructionType[ ClientInstructionType.MetaRequest ],
                 val: metaVal,
                 property: e.token.property,
                 username: e.token.username
             };
 
-            comms.processClientInstruction( new ClientInstruction<def.SocketTokens.IMetaToken>( responseToken, [ e.from ] ) );
+            comms.processClientInstruction( new ClientInstruction<Modepress.SocketTokens.IMetaToken>( responseToken, [ e.from ] ) );
 
         } ).catch( function( err: Error ) {
 
-            let responseToken: def.SocketTokens.IMetaToken = {
+            let responseToken: Modepress.SocketTokens.IMetaToken = {
                 type: ClientInstructionType[ ClientInstructionType.MetaRequest ],
                 error: err.message
             };
 
-            comms.processClientInstruction( new ClientInstruction<def.SocketTokens.IMetaToken>( responseToken, [ e.from ] ) );
+            comms.processClientInstruction( new ClientInstruction<Modepress.SocketTokens.IMetaToken>( responseToken, [ e.from ] ) );
         } );
     }
 }

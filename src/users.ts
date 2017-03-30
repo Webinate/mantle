@@ -10,7 +10,6 @@ import { info, warn } from './logger';
 import { CommsController } from './socket-api/comms-controller';
 import { ClientInstruction } from './socket-api/client-instruction';
 import { ClientInstructionType } from './socket-api/socket-event-types';
-import * as def from 'webinate-users';
 import { SessionManager, Session } from './session';
 import { BucketManager } from './bucket-manager';
 import { GMailer } from './mailers/gmail'
@@ -29,13 +28,13 @@ export enum UserPrivileges {
  * Class that represents a user and its database entry
  */
 export class User {
-    dbEntry: def.IUserEntry;
+    dbEntry: Modepress.IUserEntry;
 
 	/**
 	 * Creates a new User instance
 	 * @param dbEntry The data object that represents the user in the DB
 	 */
-    constructor( dbEntry: def.IUserEntry ) {
+    constructor( dbEntry: Modepress.IUserEntry ) {
         this.dbEntry = dbEntry;
     }
 
@@ -43,7 +42,7 @@ export class User {
 	* Generates an object that can be sent to clients.
     * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
 	*/
-    generateCleanedData( verbose: boolean = false ): def.IUserEntry {
+    generateCleanedData( verbose: boolean = false ): Modepress.IUserEntry {
         if ( !this.dbEntry.passwordTag )
             this.dbEntry.passwordTag = '';
 
@@ -77,7 +76,7 @@ export class User {
 	/**
 	 * Generates the object to be stored in the database
 	 */
-    generateDbEntry(): def.IUserEntry {
+    generateDbEntry(): Modepress.IUserEntry {
         return {
             email: this.dbEntry.email,
             lastLoggedIn: Date.now(),
@@ -116,7 +115,7 @@ export class UserManager {
     public sessionManager: SessionManager;
     private _userCollection: mongodb.Collection;
     private _config: Modepress.IConfig;
-    private _mailer: def.IMailer;
+    private _mailer: Modepress.IMailer;
 
 	/**
 	 * Creates an instance of the user manager
@@ -148,10 +147,10 @@ export class UserManager {
         if ( !sessionId || sessionId === '' )
             return;
 
-        const useEntry: def.IUserEntry = await this._userCollection.find( <def.IUserEntry>{ sessionId: sessionId } ).limit( 1 ).next();
+        const useEntry: Modepress.IUserEntry = await this._userCollection.find( <Modepress.IUserEntry>{ sessionId: sessionId } ).limit( 1 ).next();
         if ( useEntry ) {
             // Send logged out event to socket
-            const token: def.SocketTokens.IUserToken = { username: useEntry.username!, type: ClientInstructionType[ ClientInstructionType.Logout ] };
+            const token: Modepress.SocketTokens.IUserToken = { username: useEntry.username!, type: ClientInstructionType[ ClientInstructionType.Logout ] };
             await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, useEntry.username ) );
             info( `User '${useEntry.username}' has logged out` );
         }
@@ -168,11 +167,11 @@ export class UserManager {
         if ( config.mail ) {
             if ( config.mail.type === 'gmail' ) {
                 this._mailer = new GMailer( config.debug );
-                this._mailer.initialize( config.mail.options as def.IGMail );
+                this._mailer.initialize( config.mail.options as Modepress.IGMail );
             }
             else if ( config.mail.type === 'mailgun' ) {
                 this._mailer = new Mailguner( config.debug );
-                this._mailer.initialize( config.mail.options as def.IMailgun );
+                this._mailer.initialize( config.mail.options as Modepress.IMailgun );
             }
         }
 
@@ -184,7 +183,7 @@ export class UserManager {
         await this._userCollection.dropIndexes();
 
         // Make sure the user collection has an index to search the username field
-        await this._userCollection.createIndex( <def.IUserEntry>{ username: 'text', email: 'text' } );
+        await this._userCollection.createIndex( <Modepress.IUserEntry>{ username: 'text', email: 'text' } );
 
         // See if we have an admin user
         let user = await this.getUser( config.adminUser.username );
@@ -275,10 +274,10 @@ export class UserManager {
             throw new Error( 'No user exists with the specified details' );
 
         // Clear the user's activation
-        await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <def.IUserEntry>{ registerKey: '' } } );
+        await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <Modepress.IUserEntry>{ registerKey: '' } } );
 
         // Send activated event
-        const token: def.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
+        const token: Modepress.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
         await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
 
         info( `User '${username}' has been activated` );
@@ -325,7 +324,7 @@ export class UserManager {
         user.dbEntry.registerKey = newKey;
 
         // Update the collection with a new key
-        await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <def.IUserEntry>{ registerKey: newKey } } );
+        await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <Modepress.IUserEntry>{ registerKey: newKey } } );
 
         // Send a message to the user to say they are registered but need to activate their account
         const message: string = 'Thank you for registering with Webinate!\nTo activate your account please click the link below:' +
@@ -366,7 +365,7 @@ export class UserManager {
         user.dbEntry.passwordTag = newKey;
 
         // Update the collection with a new key
-        await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <def.IUserEntry>{ passwordTag: newKey } } );
+        await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <Modepress.IUserEntry>{ passwordTag: newKey } } );
 
         // Send a message to the user to say they are registered but need to activate their account
         const message: string = 'A request has been made to reset your password. To change your password please click the link below:\n\n' +
@@ -445,7 +444,7 @@ export class UserManager {
         const hashed = await this.hashPassword( newPassword );
 
         // Update the key to be blank
-        await this._userCollection.updateOne( <def.IUserEntry>{ _id: user.dbEntry._id }, { $set: <def.IUserEntry>{ passwordTag: '', password: hashed } } );
+        await this._userCollection.updateOne( <Modepress.IUserEntry>{ _id: user.dbEntry._id }, { $set: <Modepress.IUserEntry>{ passwordTag: '', password: hashed } } );
 
         // All done :)
         return true;
@@ -472,10 +471,10 @@ export class UserManager {
             throw new Error( 'Activation key is not valid. Please try send another.' );
 
         // Update the key to be blank
-        await this._userCollection.updateOne( <def.IUserEntry>{ _id: user.dbEntry._id }, { $set: <def.IUserEntry>{ registerKey: '' } } );
+        await this._userCollection.updateOne( <Modepress.IUserEntry>{ _id: user.dbEntry._id }, { $set: <Modepress.IUserEntry>{ registerKey: '' } } );
 
         // Send activated event
-        const token: def.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
+        const token: Modepress.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
         await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
 
         info( `User '${username}' has been activated` );
@@ -586,13 +585,13 @@ export class UserManager {
         username = userInstance.dbEntry.username!;
 
         await BucketManager.get.removeUser( username );
-        const result = await this._userCollection.deleteOne( <def.IUserEntry>{ _id: userInstance.dbEntry._id! } );
+        const result = await this._userCollection.deleteOne( <Modepress.IUserEntry>{ _id: userInstance.dbEntry._id! } );
 
         if ( result.deletedCount === 0 )
             throw new Error( 'Could not remove the user from the database' );
 
         // Send event to sockets
-        const token: def.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Removed ] };
+        const token: Modepress.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Removed ] };
         CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
 
         info( `User '${username}' has been removed` );
@@ -621,7 +620,7 @@ export class UserManager {
         const target = [ { email: email }, { username: user }];
 
         // Search the collection for the user
-        const userEntry: def.IUserEntry = await this._userCollection.find( { $or: target } ).limit( 1 ).next();
+        const userEntry: Modepress.IUserEntry = await this._userCollection.find( { $or: target } ).limit( 1 ).next();
         if ( !userEntry )
             return null;
         else
@@ -673,7 +672,7 @@ export class UserManager {
             throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
         // Send logged in event to socket
-        const token: def.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Login ] };
+        const token: Modepress.SocketTokens.IUserToken = { username: username, type: ClientInstructionType[ ClientInstructionType.Login ] };
         await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
         return user;
     }
@@ -704,14 +703,14 @@ export class UserManager {
      * @param data The meta data object to set
 	 * @returns Returns the data set
 	 */
-    async setMeta( user: def.IUserEntry, data?: any ): Promise<boolean | any> {
+    async setMeta( user: Modepress.IUserEntry, data?: any ): Promise<boolean | any> {
 
         // There was no user
         if ( !user )
             return false;
 
         // Remove the user from the DB
-        await this._userCollection.updateOne( <def.IUserEntry>{ _id: user._id }, { $set: <def.IUserEntry>{ meta: ( data ? data : {} ) } } );
+        await this._userCollection.updateOne( <Modepress.IUserEntry>{ _id: user._id }, { $set: <Modepress.IUserEntry>{ meta: ( data ? data : {} ) } } );
         return data;
     }
 
@@ -722,7 +721,7 @@ export class UserManager {
      * @param data The value of the meta to set
 	 * @returns {Promise<boolean|any>} Returns the value of the set
 	 */
-    async setMetaVal( user: def.IUserEntry, name: string, val: any ): Promise<boolean | any> {
+    async setMetaVal( user: Modepress.IUserEntry, name: string, val: any ): Promise<boolean | any> {
         // There was no user
         if ( !user )
             return false;
@@ -732,7 +731,7 @@ export class UserManager {
         updateToken.$set[ datum ] = val;
 
         // Remove the user from the DB
-        await this._userCollection.updateOne( <def.IUserEntry>{ _id: user._id }, updateToken );
+        await this._userCollection.updateOne( <Modepress.IUserEntry>{ _id: user._id }, updateToken );
         return val;
     }
 
@@ -742,14 +741,14 @@ export class UserManager {
      * @param name The name of the meta to get
 	 * @returns The value to get
 	 */
-    async getMetaVal( user: def.IUserEntry, name: string ): Promise<boolean | any> {
+    async getMetaVal( user: Modepress.IUserEntry, name: string ): Promise<boolean | any> {
 
         // There was no user
         if ( !user )
             return false;
 
         // Remove the user from the DB
-        const result: def.IUserEntry = await this._userCollection.find( <def.IUserEntry>{ _id: user._id } ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
+        const result: Modepress.IUserEntry = await this._userCollection.find( <Modepress.IUserEntry>{ _id: user._id } ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
         return result.meta[ name ];
     }
 
@@ -758,14 +757,14 @@ export class UserManager {
 	 * @param user The user
 	 * @returns The value to get
 	 */
-    async getMetaData( user: def.IUserEntry ): Promise<boolean | any> {
+    async getMetaData( user: Modepress.IUserEntry ): Promise<boolean | any> {
 
         // There was no user
         if ( !user )
             return false;
 
         // Remove the user from the DB
-        const result: def.IUserEntry = await this._userCollection.find( <def.IUserEntry>{ _id: user._id } ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
+        const result: Modepress.IUserEntry = await this._userCollection.find( <Modepress.IUserEntry>{ _id: user._id } ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
         return result.meta;
     }
 
@@ -775,7 +774,7 @@ export class UserManager {
 	 */
     async numUsers( searchPhrases?: RegExp ): Promise<number> {
 
-        const findToken = { $or: [ <def.IUserEntry>{ username: <any>searchPhrases }, <def.IUserEntry>{ email: <any>searchPhrases }] };
+        const findToken = { $or: [ <Modepress.IUserEntry>{ username: <any>searchPhrases }, <Modepress.IUserEntry>{ email: <any>searchPhrases }] };
         const result: number = await this._userCollection.count( findToken );
         return result;
     }
@@ -787,8 +786,8 @@ export class UserManager {
      * @param searchPhrases Search phrases
 	 */
     async getUsers( startIndex: number = 0, limit: number = 0, searchPhrases?: RegExp ): Promise<Array<User>> {
-        const findToken = { $or: [ <def.IUserEntry>{ username: <any>searchPhrases }, <def.IUserEntry>{ email: <any>searchPhrases }] };
-        const results: Array<def.IUserEntry> = await this._userCollection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
+        const findToken = { $or: [ <Modepress.IUserEntry>{ username: <any>searchPhrases }, <Modepress.IUserEntry>{ email: <any>searchPhrases }] };
+        const results: Array<Modepress.IUserEntry> = await this._userCollection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
         const users: Array<User> = [];
         for ( let i = 0, l = results.length; i < l; i++ )
             users.push( new User( results[ i ] ) );

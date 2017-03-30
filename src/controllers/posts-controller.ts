@@ -180,7 +180,7 @@ export default class PostsController extends Controller {
     private async getPost( req: Modepress.IAuthReq, res: express.Response ) {
         const posts = this.getModel( 'posts' );
         let findToken: Modepress.IPost;
-        const user: UsersInterface.IUserEntry = req._user!;
+        const user: Modepress.IUserEntry = req._user!;
 
         try {
             if ( req.params.id )

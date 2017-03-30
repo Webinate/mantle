@@ -4,7 +4,6 @@ import * as google from 'googleapis';
 import * as googleAuth from 'google-auth-library';
 import * as fs from 'fs';
 import { error as logError, info } from '../logger';
-import * as def from 'webinate-users';
 import * as yargs from 'yargs';
 
 const args = yargs.argv;
@@ -12,7 +11,7 @@ const args = yargs.argv;
 /**
  * A simple class for sending mail using Google Mail's API
  */
-export class GMailer implements def.IMailer {
+export class GMailer implements Modepress.IMailer {
     public gmail: google.GMail;
     private _keyFile: any;
     private _apiEmail: string;
@@ -37,7 +36,7 @@ export class GMailer implements def.IMailer {
      * Attempts to initialize the mailer
      * @param options The gmail options for this mailer
      */
-    initialize( options: def.IGMail ): Promise<boolean> {
+    initialize( options: Modepress.IGMail ): Promise<boolean> {
 
         return new Promise(( resolve ) => {
 

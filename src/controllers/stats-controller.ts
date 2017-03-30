@@ -2,13 +2,11 @@
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import * as users from 'webinate-users';
 import { UserManager } from '../users';
 import { ownerRights } from '../permission-controllers';
 import { Controller } from './controller'
 import { BucketManager } from '../bucket-manager';
 import * as compression from 'compression';
-import * as def from 'webinate-users';
 import { okJson, errJson } from '../serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
@@ -85,8 +83,8 @@ export class StatsController extends Controller {
         try {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
-            await manager.updateStorage( req._target!.username!, <users.IStorageStats>{ apiCallsUsed: value } );
-            okJson<def.IResponse>( { message: `Updated the user API calls to [${value}]`, error: false }, res );
+            await manager.updateStorage( req._target!.username!, <Modepress.IStorageStats>{ apiCallsUsed: value } );
+            okJson<Modepress.IResponse>( { message: `Updated the user API calls to [${value}]`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -100,9 +98,9 @@ export class StatsController extends Controller {
         try {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
-            await manager.updateStorage( req._target!.username!, <users.IStorageStats>{ memoryUsed: value } );
+            await manager.updateStorage( req._target!.username!, <Modepress.IStorageStats>{ memoryUsed: value } );
 
-            okJson<def.IResponse>( { message: `Updated the user memory to [${value}] bytes`, error: false }, res );
+            okJson<Modepress.IResponse>( { message: `Updated the user memory to [${value}] bytes`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -116,8 +114,8 @@ export class StatsController extends Controller {
         try {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
-            await manager.updateStorage( req._target!.username!, <users.IStorageStats>{ apiCallsAllocated: value } );
-            okJson<def.IResponse>( { message: `Updated the user API calls to [${value}]`, error: false }, res );
+            await manager.updateStorage( req._target!.username!, <Modepress.IStorageStats>{ apiCallsAllocated: value } );
+            okJson<Modepress.IResponse>( { message: `Updated the user API calls to [${value}]`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -131,8 +129,8 @@ export class StatsController extends Controller {
         try {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
-            await manager.updateStorage( req._target!.username!, <users.IStorageStats>{ memoryAllocated: value } );
-            okJson<def.IResponse>( { message: `Updated the user memory to [${value}] bytes`, error: false }, res );
+            await manager.updateStorage( req._target!.username!, <Modepress.IStorageStats>{ memoryAllocated: value } );
+            okJson<Modepress.IResponse>( { message: `Updated the user memory to [${value}] bytes`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -148,7 +146,7 @@ export class StatsController extends Controller {
             const manager = BucketManager.get;
             const stats = await manager.getUserStats( req._user!.username );
 
-            return okJson<users.IGetUserStorageData>( {
+            return okJson<Modepress.IGetUserStorageData>( {
                 message: `Successfully retrieved ${req._user!.username}'s stats`,
                 error: false,
                 data: stats
@@ -168,7 +166,7 @@ export class StatsController extends Controller {
         try {
             const manager = BucketManager.get;
             await manager.createUserStats( req.params.target );
-            okJson<users.IResponse>( { message: `Stats for the user '${req.params.target}' have been created`, error: false }, res );
+            okJson<Modepress.IResponse>( { message: `Stats for the user '${req.params.target}' have been created`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );

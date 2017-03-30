@@ -39,15 +39,6 @@ gulp.task( 'tslint', [ 'ts-code' ], function() {
 });
 
 /**
- * Downloads the definition files used in the development of the application and moves them into the definitions folder
- */
-gulp.task( 'install-definitions', function() {
-    return Promise.all( [
-        setup.getDefinition( "https://raw.githubusercontent.com/MKHenson/users/dev/src/definitions/generated/users.d.ts", "src/definitions/required/", "users.d.ts" )
-    ] );
-});
-
-/**
  * Copies the distribution files from src to the dist folder
  */
 gulp.task( 'dist-files', function() {
@@ -66,5 +57,4 @@ gulp.task( 'ts-code-definitions', function() {
 gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchNum, configFiles ) });
 gulp.task( 'bump-minor', function() { return setup.bumpVersion( setup.bumpMidNum, configFiles ) });
 gulp.task( 'bump-major', function() { return setup.bumpVersion( setup.bumpMajorNum, configFiles ) });
-gulp.task( 'install', [ 'install-definitions' ] );
 gulp.task( 'build', [ 'tslint', 'dist-files', 'ts-code-definitions' ] );

@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import * as users from 'webinate-users';
+import * as users from 'modepress-api';
 import * as fs from 'fs';
 import * as gcloud from 'gcloud';
 import * as mongodb from 'mongodb';
@@ -11,7 +11,6 @@ import express = require( 'express' );
 import { CommsController } from './socket-api/comms-controller';
 import { ClientInstructionType } from './socket-api/socket-event-types';
 import { ClientInstruction } from './socket-api/client-instruction';
-import * as def from 'webinate-users';
 import * as yargs from 'yargs';
 
 const args = yargs.argv;
@@ -243,7 +242,7 @@ export class BucketManager {
         await stats.updateOne( <users.IStorageStats>{ user: user }, { $inc: <users.IStorageStats>{ apiCallsUsed: 1 } } );
 
         // Send bucket added events to sockets
-        const token: def.SocketTokens.IBucketToken = { type: ClientInstructionType[ ClientInstructionType.BucketUploaded ], bucket: bucketEntry!, username: user };
+        const token: users.SocketTokens.IBucketToken = { type: ClientInstructionType[ ClientInstructionType.BucketUploaded ], bucket: bucketEntry!, username: user };
         await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user ) );
         return gBucket;
     }
@@ -344,7 +343,7 @@ export class BucketManager {
         await stats.updateOne( <users.IStorageStats>{ user: bucketEntry.user }, { $inc: <users.IStorageStats>{ apiCallsUsed: 1 } } );
 
         // Send events to sockets
-        const token: def.SocketTokens.IBucketToken = { type: ClientInstructionType[ ClientInstructionType.BucketRemoved ], bucket: bucketEntry, username: bucketEntry.user! };
+        const token: users.SocketTokens.IBucketToken = { type: ClientInstructionType[ ClientInstructionType.BucketRemoved ], bucket: bucketEntry, username: bucketEntry.user! };
         await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, bucketEntry.user ) );
 
         return bucketEntry;
@@ -395,7 +394,7 @@ export class BucketManager {
         await stats.updateOne( <users.IStorageStats>{ user: bucketEntry.user }, { $inc: <users.IStorageStats>{ memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } } );
 
         // Update any listeners on the sockets
-        const token: def.SocketTokens.IFileToken = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };
+        const token: users.SocketTokens.IFileToken = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };
         await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, fileEntry.user ) );
 
         return fileEntry;

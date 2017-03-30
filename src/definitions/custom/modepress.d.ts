@@ -91,13 +91,6 @@
     }
 
     /*
-     * A response for when bulk items are deleted
-     */
-    export interface IRemoveResponse extends IResponse {
-        itemsRemoved: Array<{ id: string; error: boolean; errorMsg: string; }>;
-    }
-
-    /*
      * Describes the cache renders model
      */
     export interface IRender extends IModelEntry {
@@ -106,6 +99,210 @@
         createdOn?: number;
         updateDate?: number;
         html?: string;
+    }
+
+    /*
+     * Describes the different types of event interfaces we can use to interact with the system via web sockets
+     */
+    export namespace SocketTokens {
+        export type ClientInstructionType = (
+            'Login' |
+            'Logout' |
+            'Activated' |
+            'Removed' |
+            'FileUploaded' |
+            'FileRemoved' |
+            'BucketUploaded' |
+            'BucketRemoved' |
+            'MetaRequest'
+        );
+
+        export type ServerInstructionType = (
+            'MetaRequest'
+        );
+
+        /**
+         * The base interface for all data that is serialized & sent to clients or server.
+         * The type property describes to the reciever what kind of data to expect.
+         */
+        export interface IToken {
+            error?: string;
+            type: ClientInstructionType | ServerInstructionType | string;
+        }
+
+        /*
+         * Describes a get/set Meta request, which can fetch or set meta data for a given user
+         * if you provide a property value, then only that specific meta property is edited.
+         * If not provided, then the entire meta data is set.
+         */
+        export interface IMetaToken extends IToken {
+            username?: string;
+            property?: string;
+            val?: any;
+        }
+
+        /*
+         * The socket user event
+         */
+        export interface IUserToken extends IToken {
+            username: string;
+        }
+
+        /*
+         * Interface for file added events
+         */
+        export interface IFileToken extends IToken {
+            username: string;
+            file: IFileEntry;
+        }
+
+        /*
+         * Interface for a bucket being added
+         */
+        export interface IBucketToken extends IToken {
+            username: string;
+            bucket: IBucketEntry
+        }
+    }
+
+    /*
+     * An interface to describe the data stored in the database for users
+     */
+    export interface IUserEntry {
+        _id?: any;
+        username?: string;
+        email?: string;
+        password?: string;
+        registerKey?: string;
+        sessionId?: string;
+        createdOn?: number;
+        lastLoggedIn?: number;
+        privileges?: number;
+        passwordTag?: string;
+        meta?: any;
+    }
+
+    /**
+     * The interface for describing each user's bucket
+     */
+    export interface IBucketEntry {
+        _id?: any;
+        name?: string;
+        identifier?: string;
+        user?: string;
+        created?: number;
+        memoryUsed?: number;
+        meta?: any;
+    }
+
+    /**
+     * The interface for describing each user's bucket
+     */
+    export interface IStorageStats {
+        user?: string;
+        memoryUsed?: number;
+        memoryAllocated?: number;
+        apiCallsUsed?: number;
+        apiCallsAllocated?: number;
+    }
+
+    /**
+     * The interface for describing each user's file
+     */
+    export interface IFileEntry {
+        _id?: any;
+        name?: string;
+        user?: string;
+        identifier?: string;
+        bucketId?: string;
+        bucketName?: string;
+        publicURL?: string;
+        created?: number;
+        size?: number;
+        mimeType?: string;
+        isPublic?: boolean;
+        numDownloads?: number;
+        parentFile?: string | null;
+        meta?: any;
+    }
+
+    /*
+     * An interface to describe the data stored in the database from the sessions
+     */
+    export interface ISessionEntry {
+        _id?: any;
+        sessionId?: string;
+        data?: any;
+        expiration?: number;
+    }
+
+    /*
+     * Token used to describe how the upload went
+     */
+    export interface IUploadToken {
+        file: string;
+        field: string;
+        filename: string;
+        error: boolean;
+        errorMsg: string;
+        url: string;
+        extension: string
+    }
+
+    /*
+     * The token used for logging in
+     */
+    export interface ILoginToken {
+        username: string;
+        password: string;
+        rememberMe: boolean;
+    }
+
+    /*
+     * The token used for registration
+     */
+    export interface IRegisterToken {
+        username: string;
+        password: string;
+        email: string;
+        meta?: any;
+        privileges?: number;
+    }
+
+    /*
+     * A response for when bulk items are deleted
+     */
+    export interface IRemoveResponse extends IResponse {
+        itemsRemoved: Array<{ id: string; error: boolean; errorMsg: string; }>;
+    }
+
+    /*
+     * A GET request that returns the status of a user's authentication
+     */
+    export interface IAuthenticationResponse extends IResponse {
+        authenticated: boolean;
+        user?: IUserEntry;
+    }
+
+    /*
+     * A POST request that returns the details of a text upload
+     */
+    export interface IUploadTextResponse extends IResponse {
+        token: IUploadToken;
+    }
+
+    /*
+     * A POST request that returns the details of a binary upload
+     */
+    export interface IUploadBinaryResponse extends IResponse {
+        token: IUploadToken;
+    }
+
+    /*
+     * A POST request that returns the details of a multipart form upload
+     */
+    export interface IUploadResponse extends IResponse {
+        tokens: Array<IUploadToken>
     }
 
     /*
@@ -138,6 +335,14 @@
     export interface IGetComment extends IGetResponse<IComment> { }
     export interface IGetCategory extends IGetResponse<ICategory> { }
     export interface IGetCategories extends IGetArrayResponse<ICategory> { }
+    export interface IGetUser extends IGetResponse<IUserEntry> { }
+    export interface IGetUserStorageData extends IGetResponse<IStorageStats> { }
+    export interface IGetUsers extends IGetArrayResponse<IUserEntry> { count: number; }
+    export interface IGetSessions extends IGetArrayResponse<ISessionEntry> { }
+    export interface IGetBuckets extends IGetArrayResponse<IBucketEntry> { }
+    export interface IGetFile extends IGetResponse<IFileEntry> { }
+    export interface IGetFiles extends IGetArrayResponse<IFileEntry> { }
+    export interface IRemoveFiles extends IGetArrayResponse<string> { }
 
     /**
      * Describes the controller structure of plugins in the config file
@@ -279,6 +484,25 @@
     }
 
     export interface IMailOptions { }
+
+    export interface IMailer {
+        /**
+         * Attempts to initialize the mailer
+         * @param {IMailOptions} options
+         * @returns {Promise<boolean>}
+         */
+        initialize( options: IMailOptions ): Promise<boolean>
+
+        /**
+         * Sends an email
+         * @param {stirng} to The email address to send the message to
+         * @param {stirng} from The email we're sending from
+         * @param {stirng} subject The message subject
+         * @param {stirng} msg The message to be sent
+         * @returns {Promise<boolean>}
+         */
+        sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>
+    }
 
     /**
      * Options for a gmail mailer
@@ -587,8 +811,8 @@
     export interface IAuthReq extends Express.Request {
         _isAdmin: boolean;
         _verbose: boolean;
-        _user: UsersInterface.IUserEntry | null;
-        _target: UsersInterface.IUserEntry | null;
+        _user: IUserEntry | null;
+        _target: IUserEntry | null;
         body: any;
         headers: any;
         params: any;
@@ -934,13 +1158,13 @@
         /**
          * Checks if a user is logged in and authenticated
          */
-        authenticated( req: any, res: any ): Promise<UsersInterface.IAuthenticationResponse>;
+        authenticated( req: any, res: any ): Promise<IAuthenticationResponse>;
 
         /**
          * Checks a user has admin rights
          * @param user The user we are checking
          */
-        isAdmin( user: UsersInterface.IUserEntry ): boolean;
+        isAdmin( user: IUserEntry ): boolean;
 
         /**
          * Checks a user has the desired permission
@@ -948,20 +1172,20 @@
          * @param level The level we are checking against
          * @param existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
          */
-        hasPermission( user: UsersInterface.IUserEntry, level: number, existingUser?: string ): boolean;
+        hasPermission( user: IUserEntry, level: number, existingUser?: string ): boolean;
 
         /**
          * Attempts to log a user in
          * @param user The email or username
          * @param password The users password
          */
-        login( user: string, password: string, remember: boolean ): Promise<UsersInterface.IAuthenticationResponse>;
+        login( user: string, password: string, remember: boolean ): Promise<IAuthenticationResponse>;
 
         /**
          * Attempts to get a user by username or email
          * @param user The username or email
          */
-        getUser( user: string, req: Express.Request ): Promise<UsersInterface.IGetUser>;
+        getUser( user: string, req: Express.Request ): Promise<IGetUser>;
 
         /**
          * Gets the user singleton
