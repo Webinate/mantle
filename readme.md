@@ -2,12 +2,11 @@
 A simple Mongo-Node CMS server. The server is accessed via a RESTful API.
 
 ## Current stable version
-* v0.5.7
+* v0.6.0
 
 ## Requirements
 * MongoDB v3
 * Node 6.2
-* [Webinate-Users](https://github.com/Webinate/users)
 * **Tested Ubuntu v14**
 * [Gulp](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)
 
