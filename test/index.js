@@ -33,6 +33,9 @@ describe( 'Initializing tests', function() {
     } );
 } );
 
+require( './tests/user/authenticated.js' );
+require( './tests/user/log-in.js' );
+require( './tests/user/get-user' );
 require( './tests/users.js' );
-// require( './tests/posts.js' );
-// require( './tests/comments.js' );
+require( './tests/posts.js' );
+require( './tests/comments.js' );

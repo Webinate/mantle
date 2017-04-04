@@ -139,203 +139,203 @@ describe( 'Hook WS API events', function() {
 
 describe( 'Testing user API functions', function() {
 
-    describe( 'Checking basic authentication', function() {
-        it( 'should not be logged in', function( done ) {
-            manager.get( '/auth/authenticated', null )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.bool( res.body.authenticated ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    done();
-                } ).catch( err => done( err ) );
+    // describe( 'Checking basic authentication', function() {
+    //     it( 'should not be logged in', function( done ) {
+    //         manager.get( '/auth/authenticated', null )
+    //             .then( res => {
+    //                 test.bool( res.body.error ).isNotTrue()
+    //                 test.bool( res.body.authenticated ).isNotTrue()
+    //                 test.object( res.body ).hasProperty( "message" )
+    //                 done();
+    //             } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
-    } )
+    //     } ).timeout( 20000 )
+    // } )
 
-    describe( 'Checking login with admin user', function() {
+    // describe( 'Checking login with admin user', function() {
 
-        it( 'did not log in with empty credentials', function( done ) {
-            manager.post( '/auth/login', { username: "", password: "" }, null )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.bool( res.body.authenticated ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    done();
-                } ).catch( err => done( err ) );
-        } ).timeout( 20000 )
+    //     it( 'did not log in with empty credentials', function( done ) {
+    //         manager.post( '/auth/login', { username: "", password: "" }, null )
+    //             .then( res => {
+    //                 test.bool( res.body.error ).isTrue()
+    //                 test.bool( res.body.authenticated ).isNotTrue()
+    //                 test.object( res.body ).hasProperty( "message" )
+    //                 done();
+    //             } ).catch( err => done( err ) );
+    //     } ).timeout( 20000 )
 
-        it( 'did not log in with bad credentials', function( done ) {
-            manager.post( '/auth/login', { username: "$%^\}{}\"&*[]@~�&$", password: "$%^&*�&@#`{}/\"�%\"$" }, null )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.bool( res.body.authenticated ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    done();
-                } ).catch( err => done( err ) );
+    //     it( 'did not log in with bad credentials', function( done ) {
+    //         manager.post( '/auth/login', { username: "$%^\}{}\"&*[]@~�&$", password: "$%^&*�&@#`{}/\"�%\"$" }, null )
+    //             .then( res => {
+    //                 test.bool( res.body.error ).isTrue()
+    //                 test.bool( res.body.authenticated ).isNotTrue()
+    //                 test.object( res.body ).hasProperty( "message" )
+    //                 done();
+    //             } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+    //     } ).timeout( 20000 )
 
-        it( 'did not log in with false credentials', function( done ) {
-            manager.post( '/auth/login', { username: "GeorgeTheTwat", password: "FakePass" }, null )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.bool( res.body.authenticated ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    done();
-                } ).catch( err => done( err ) );
+    //     it( 'did not log in with false credentials', function( done ) {
+    //         manager.post( '/auth/login', { username: "GeorgeTheTwat", password: "FakePass" }, null )
+    //             .then( res => {
+    //                 test.bool( res.body.error ).isTrue()
+    //                 test.bool( res.body.authenticated ).isNotTrue()
+    //                 test.object( res.body ).hasProperty( "message" )
+    //                 done();
+    //             } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+    //     } ).timeout( 20000 )
 
-        it( 'did not log in with a valid username but invalid password', function( done ) {
-            manager.post( '/auth/login', { username: manager.config.adminUser.username, password: "FakePass" }, null )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.bool( res.body.authenticated ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    done();
-                } ).catch( err => done( err ) );
+    //     it( 'did not log in with a valid username but invalid password', function( done ) {
+    //         manager.post( '/auth/login', { username: manager.config.adminUser.username, password: "FakePass" }, null )
+    //             .then( res => {
+    //                 test.bool( res.body.error ).isTrue()
+    //                 test.bool( res.body.authenticated ).isNotTrue()
+    //                 test.object( res.body ).hasProperty( "message" )
+    //                 done();
+    //             } ).catch( err => done( err ) );
 
-        } ).timeout( 25000 )
+    //     } ).timeout( 25000 )
 
-        it( 'did log in with a valid username & valid password', function( done ) {
-            manager.post( '/auth/login', { username: manager.config.adminUser.username, password: manager.config.adminUser.password }, null )
-                .then( res => {
-                    manager.updateCookieToken( 'admin', res );
-                    test.bool( res.body.error ).isNotTrue()
-                    test.bool( res.body.authenticated ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    done();
-                } ).catch( err => done( err ) );
+    //     it( 'did log in with a valid username & valid password', function( done ) {
+    //         manager.post( '/auth/login', { username: manager.config.adminUser.username, password: manager.config.adminUser.password }, null )
+    //             .then( res => {
+    //                 manager.updateCookieToken( 'admin', res );
+    //                 test.bool( res.body.error ).isNotTrue()
+    //                 test.bool( res.body.authenticated ).isTrue()
+    //                 test.object( res.body ).hasProperty( "message" )
+    //                 done();
+    //             } ).catch( err => done( err ) );
 
-        } ).timeout( 25000 )
-    } )
+    //     } ).timeout( 25000 )
+    // } )
 
-    describe( 'Checking authentication with cookie', function() {
-        it( 'should be logged in with hidden user details', function( done ) {
-            manager.get( '/auth/authenticated' )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.bool( res.body.authenticated ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "user" )
-                    test.string( res.body.user._id )
-                    test.value( res.body.user.email ).isUndefined()
-                    test.number( res.body.user.lastLoggedIn ).isNotNaN()
-                    test.number( res.body.user.createdOn ).isNotNaN()
-                    test.value( res.body.user.password ).isUndefined()
-                    test.value( res.body.user.registerKey ).isUndefined()
-                    test.value( res.body.user.sessionId ).isUndefined()
-                    test.string( res.body.user.username ).is( manager.config.adminUser.username )
-                    test.number( res.body.user.privileges ).is( 1 )
-                    test.value( res.body.user.passwordTag ).isUndefined()
-                    done();
-                } ).catch( err => done( err ) );
+    // describe( 'Checking authentication with cookie', function() {
+    //     it( 'should be logged in with hidden user details', function( done ) {
+    //         manager.get( '/auth/authenticated' )
+    //             .then( res => {
+    //                 test.bool( res.body.error ).isNotTrue()
+    //                 test.bool( res.body.authenticated ).isTrue()
+    //                 test.object( res.body ).hasProperty( "message" )
+    //                 test.object( res.body ).hasProperty( "user" )
+    //                 test.string( res.body.user._id )
+    //                 test.value( res.body.user.email ).isUndefined()
+    //                 test.number( res.body.user.lastLoggedIn ).isNotNaN()
+    //                 test.number( res.body.user.createdOn ).isNotNaN()
+    //                 test.value( res.body.user.password ).isUndefined()
+    //                 test.value( res.body.user.registerKey ).isUndefined()
+    //                 test.value( res.body.user.sessionId ).isUndefined()
+    //                 test.string( res.body.user.username ).is( manager.config.adminUser.username )
+    //                 test.number( res.body.user.privileges ).is( 1 )
+    //                 test.value( res.body.user.passwordTag ).isUndefined()
+    //                 done();
+    //             } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+    //     } ).timeout( 20000 )
 
-        it( 'should be logged in with visible user details', function( done ) {
-            manager.get( '/auth/authenticated?verbose=true' )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.bool( res.body.authenticated ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "user" )
-                    test.string( res.body.user._id )
-                    test.string( res.body.user.email ).is( manager.config.adminUser.email )
-                    test.number( res.body.user.lastLoggedIn ).isNotNaN()
-                    test.number( res.body.user.createdOn ).isNotNaN()
-                    test.value( res.body.user.password )
-                    test.value( res.body.user.registerKey )
-                    test.value( res.body.user.sessionId )
-                    test.string( res.body.user.username ).is( manager.config.adminUser.username )
-                    test.number( res.body.user.privileges ).is( 1 )
-                    test.value( res.body.user.passwordTag )
-                    done();
-                } ).catch( err => done( err ) );
+    //     it( 'should be logged in with visible user details', function( done ) {
+    //         manager.get( '/auth/authenticated?verbose=true' )
+    //             .then( res => {
+    //                 test.bool( res.body.error ).isNotTrue()
+    //                 test.bool( res.body.authenticated ).isTrue()
+    //                 test.object( res.body ).hasProperty( "message" )
+    //                 test.object( res.body ).hasProperty( "user" )
+    //                 test.string( res.body.user._id )
+    //                 test.string( res.body.user.email ).is( manager.config.adminUser.email )
+    //                 test.number( res.body.user.lastLoggedIn ).isNotNaN()
+    //                 test.number( res.body.user.createdOn ).isNotNaN()
+    //                 test.value( res.body.user.password )
+    //                 test.value( res.body.user.registerKey )
+    //                 test.value( res.body.user.sessionId )
+    //                 test.string( res.body.user.username ).is( manager.config.adminUser.username )
+    //                 test.number( res.body.user.privileges ).is( 1 )
+    //                 test.value( res.body.user.passwordTag )
+    //                 done();
+    //             } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
-    } )
+    //     } ).timeout( 20000 )
+    // } )
 
     describe( 'Getting user data with admin cookie', function() {
-        it( 'should get admin user without details', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.username}` )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "data" )
-                    test.string( res.body.data._id )
-                    test.value( res.body.data.email ).isUndefined()
-                    test.number( res.body.data.lastLoggedIn ).isNotNaN()
-                    test.value( res.body.data.password ).isUndefined()
-                    test.value( res.body.data.registerKey ).isUndefined()
-                    test.value( res.body.data.sessionId ).isUndefined()
-                    test.string( res.body.data.username ).is( manager.config.adminUser.username )
-                    test.number( res.body.data.privileges ).is( 1 )
-                    test.value( res.body.data.passwordTag ).isUndefined()
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should get admin user without details', function( done ) {
+        //     manager.get( `/users/${manager.config.adminUser.username}` )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isNotTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.object( res.body ).hasProperty( "data" )
+        //             test.string( res.body.data._id )
+        //             test.value( res.body.data.email ).isUndefined()
+        //             test.number( res.body.data.lastLoggedIn ).isNotNaN()
+        //             test.value( res.body.data.password ).isUndefined()
+        //             test.value( res.body.data.registerKey ).isUndefined()
+        //             test.value( res.body.data.sessionId ).isUndefined()
+        //             test.string( res.body.data.username ).is( manager.config.adminUser.username )
+        //             test.number( res.body.data.privileges ).is( 1 )
+        //             test.value( res.body.data.passwordTag ).isUndefined()
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should get admin user with details', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.username}?verbose=true` )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "data" )
-                    test.string( res.body.data._id )
-                    test.string( res.body.data.email ).is( manager.config.adminUser.email )
-                    test.number( res.body.data.lastLoggedIn ).isNotNaN()
-                    test.value( res.body.data.password )
-                    test.value( res.body.data.registerKey )
-                    test.value( res.body.data.sessionId )
-                    test.string( res.body.data.username ).is( manager.config.adminUser.username )
-                    test.number( res.body.data.privileges ).is( 1 )
-                    test.value( res.body.data.passwordTag )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should get admin user with details', function( done ) {
+        //     manager.get( `/users/${manager.config.adminUser.username}?verbose=true` )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isNotTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.object( res.body ).hasProperty( "data" )
+        //             test.string( res.body.data._id )
+        //             test.string( res.body.data.email ).is( manager.config.adminUser.email )
+        //             test.number( res.body.data.lastLoggedIn ).isNotNaN()
+        //             test.value( res.body.data.password )
+        //             test.value( res.body.data.registerKey )
+        //             test.value( res.body.data.sessionId )
+        //             test.string( res.body.data.username ).is( manager.config.adminUser.username )
+        //             test.number( res.body.data.privileges ).is( 1 )
+        //             test.value( res.body.data.passwordTag )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should get admin user by email without details', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.email}` )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "data" )
-                    test.string( res.body.data._id )
-                    test.value( res.body.data.email ).isUndefined()
-                    test.number( res.body.data.lastLoggedIn ).isNotNaN()
-                    test.value( res.body.data.password ).isUndefined()
-                    test.value( res.body.data.registerKey ).isUndefined()
-                    test.value( res.body.data.sessionId ).isUndefined()
-                    test.string( res.body.data.username ).is( manager.config.adminUser.username )
-                    test.number( res.body.data.privileges ).is( 1 )
-                    test.value( res.body.data.passwordTag ).isUndefined()
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should get admin user by email without details', function( done ) {
+        //     manager.get( `/users/${manager.config.adminUser.email}` )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isNotTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.object( res.body ).hasProperty( "data" )
+        //             test.string( res.body.data._id )
+        //             test.value( res.body.data.email ).isUndefined()
+        //             test.number( res.body.data.lastLoggedIn ).isNotNaN()
+        //             test.value( res.body.data.password ).isUndefined()
+        //             test.value( res.body.data.registerKey ).isUndefined()
+        //             test.value( res.body.data.sessionId ).isUndefined()
+        //             test.string( res.body.data.username ).is( manager.config.adminUser.username )
+        //             test.number( res.body.data.privileges ).is( 1 )
+        //             test.value( res.body.data.passwordTag ).isUndefined()
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should get admin user by email with details', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.email}?verbose=true` )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "data" )
-                    test.string( res.body.data._id )
-                    test.string( res.body.data.email ).is( manager.config.adminUser.email )
-                    test.number( res.body.data.lastLoggedIn ).isNotNaN()
-                    test.value( res.body.data.password )
-                    test.value( res.body.data.registerKey )
-                    test.value( res.body.data.sessionId )
-                    test.value( res.body.data.passwordTag )
-                    test.string( res.body.data.username ).is( manager.config.adminUser.username )
-                    test.number( res.body.data.privileges ).is( 1 )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should get admin user by email with details', function( done ) {
+        //     manager.get( `/users/${manager.config.adminUser.email}?verbose=true` )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isNotTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.object( res.body ).hasProperty( "data" )
+        //             test.string( res.body.data._id )
+        //             test.string( res.body.data.email ).is( manager.config.adminUser.email )
+        //             test.number( res.body.data.lastLoggedIn ).isNotNaN()
+        //             test.value( res.body.data.password )
+        //             test.value( res.body.data.registerKey )
+        //             test.value( res.body.data.sessionId )
+        //             test.value( res.body.data.passwordTag )
+        //             test.string( res.body.data.username ).is( manager.config.adminUser.username )
+        //             test.number( res.body.data.privileges ).is( 1 )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
         it( 'did set user meta data of myself', function( done ) {
             manager.post( `/users/${manager.config.adminUser.username}/meta`, { value: { sister: "sam", brother: "mat" } } )
@@ -424,27 +424,27 @@ describe( 'Testing user API functions', function() {
     } )
 
     describe( 'When not logged in', function() {
-        it( 'should get no user with username', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.username}` )
-                .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.bool( res.body.error ).isTrue()
-                    test.string( res.body.message ).is( "You must be logged in to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should get no user with username', function( done ) {
+        //     manager.get( `/users/${manager.config.adminUser.username}` )
+        //         .then( res => {
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.bool( res.body.error ).isTrue()
+        //             test.string( res.body.message ).is( "You must be logged in to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should get no user with email or verbose', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.email}?verbose=true` )
-                .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.bool( res.body.error ).isTrue()
-                    test.string( res.body.message ).is( "You must be logged in to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should get no user with email or verbose', function( done ) {
+        //     manager.get( `/users/${manager.config.adminUser.email}?verbose=true` )
+        //         .then( res => {
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.bool( res.body.error ).isTrue()
+        //             test.string( res.body.message ).is( "You must be logged in to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
         it( 'should get no sessions', function( done ) {
             manager.get( `/sessions` )
