@@ -3,15 +3,19 @@ let fs = require( 'fs' );
 let yargs = require( "yargs" );
 let args = yargs.argv;
 
-let admin;
-
+/**
+ * Represents an agent that can make calls to the backend
+ */
 class Agent {
-    constructor( agent, cookie ) {
-        this.agent = agent;
+    constructor( serverConfig, cookie ) {
+        this.agent = test.httpAgent( "http://" + serverConfig.host + ":" + serverConfig.portHTTP );
         this.cookie = cookie;
         this.setDefaults();
     }
 
+    /**
+     * Sets the default properties
+     */
     setDefaults() {
         this.code = 200;
         this.accepts = 'application/json';
@@ -31,6 +35,14 @@ class Agent {
     contentType( val ) {
         this.contentType = val;
         return this;
+    }
+
+    /**
+     * Updates the cookie of the agent
+     * @param {string} response
+     */
+    updateCookie( response ) {
+        this.cookie = response.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
     }
 
     go( url, data, type ) {
@@ -182,7 +194,10 @@ class TestManager {
             this.cookies.admin = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
 
             const serverConfig = this.config.servers[ parseInt( args.server ) ];
-            admin = new Agent( test.httpAgent( "http://" + serverConfig.host + ":" + serverConfig.portHTTP ), this.cookies.admin );
+            exports.config = config;
+            exports.serverConfig = serverConfig;
+            exports.guest = new Agent( serverConfig );
+            exports.admin = new Agent( serverConfig, this.cookies.admin );
         }
         catch ( exp ) {
             console.log( exp.toString() )
@@ -202,4 +217,3 @@ class TestManager {
 };
 
 exports.TestManager = TestManager;
-exports.admin = admin;
