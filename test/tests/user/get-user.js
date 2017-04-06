@@ -5,8 +5,8 @@ describe( 'Getting user data', function() {
 
     before( function() {
         const header = require( '../header.js' );
-        guest = header.guest;
-        admin = header.admin;
+        guest = header.users.guest;
+        admin = header.users.admin;
         config = header.config;
     } )
 

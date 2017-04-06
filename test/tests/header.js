@@ -7,9 +7,12 @@ let args = yargs.argv;
  * Represents an agent that can make calls to the backend
  */
 class Agent {
-    constructor( serverConfig, cookie ) {
-        this.agent = test.httpAgent( "http://" + serverConfig.host + ":" + serverConfig.portHTTP );
+    constructor( cookie, username, password, email ) {
+        this.agent = test.httpAgent( "http://" + exports.serverConfig.host + ":" + exports.serverConfig.portHTTP );
         this.cookie = cookie;
+        this.username = username;
+        this.password = password;
+        this.email = email;
         this.setDefaults();
     }
 
@@ -17,23 +20,49 @@ class Agent {
      * Sets the default properties
      */
     setDefaults() {
-        this.code = 200;
-        this.accepts = 'application/json';
-        this.contentType = /json/;
+        this._code = 200;
+        this._accepts = 'application/json';
+        this._contentType = /json/;
+        this._filePath = null;
+        this._fileName = null;
+        this._expects = '';
+        this._fields = null;
+        this._contentLength = null;
     }
 
     code( val ) {
-        this.code = val;
+        this._code = val;
         return this;
     }
 
     accepts( val ) {
-        this.accepts = val;
+        this._accepts = val;
+        return this;
+    }
+
+    fields( val ) {
+        this._fields = val;
+        return this;
+    }
+
+    attach( name, filePath ) {
+        this._fileName = name;
+        this._filePath = filePath;
         return this;
     }
 
     contentType( val ) {
-        this.contentType = val;
+        this._contentType = val;
+        return this;
+    }
+
+    setContentType(val) {
+        this._setContentType = val;
+        return this;
+    }
+
+    contentLength( val ) {
+        this._contentLength = val;
         return this;
     }
 
@@ -57,11 +86,29 @@ class Agent {
             else
                 req = this.agent.get( url );
 
-            req.set( 'Accept', this.accepts );
-            req.expect( this.code )
-            req.expect( 'Content-Type', this.contentType )
+            req.set( 'Accept', this._accepts );
+
+            if ( this._setContentType )
+                req.set( 'Accept', this._setContentType );
+
+            if (this._code)
+                req.expect( this._code )
+
+            if (this._contentType)
+                req.expect( 'Content-Type', this._contentType );
+
             if (data)
                 req.send( data )
+
+            if (this._fields)
+                for ( let i in this._fields )
+                    req.field( i, this._fields[i] )
+
+            if (this._filePath)
+                req.attach( this._fileName, this._filePath )
+
+            if (this._contentLength)
+                req.expect( 'Content-Length', this._contentLength )
 
             if ( this.cookie )
                 req.set( 'Cookie', this.cookie )
@@ -180,8 +227,47 @@ class TestManager {
         this.cookies[ who ] = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
     }
 
-    async createAgent(  ) {
+    /**
+     * Creates new user without the need of activating the account. Will first delete any user with that name that
+     * that already exists in the database.
+     * @param {string} username The new user username (Must be unique)
+     * @param {string} password The new user's password
+     * @param {string} email The new user's email
+     * @param {string} priviledge The user's privilege type
+     */
+    async createUser( username, password, email, priviledge = 3 ) {
 
+        // Remove the user if they already exist
+        let response = await exports.users.admin.delete( `/users/${username}` );
+
+        // Now create the user using the admin account
+        response = await exports.users.admin.post( `/users`, { username: username, password: password, email: email, privileges: priviledge } );
+
+        if ( response.body.error )
+            throw new Error( response.body.message );
+
+        // User created, but not logged in
+        const newAgent = new Agent( null, username, password, email );
+        response = await newAgent.post( `/auth/login`, { username: username, password: password } );
+
+        if ( response.body.error )
+            throw new Error( response.body.message );
+
+        newAgent.updateCookie(response);
+        exports.users[username] = newAgent;
+    }
+
+    /**
+     * Removes a user from the system
+     * @param {string} username The username of the user we are removing
+     */
+    async removeUser( username ) {
+
+        // Remove the user if they already exist
+        let response = await exports.users.admin.delete( `/users/${username}` );
+
+        if ( response.body.error )
+            throw new Error( response.body.message );
     }
 
     /**
@@ -190,14 +276,27 @@ class TestManager {
     async initialize() {
         try {
             const config = this.config;
-            const resp = await this.post( '/auth/login', { username: config.adminUser.username, password: config.adminUser.password } );
-            this.cookies.admin = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
-
             const serverConfig = this.config.servers[ parseInt( args.server ) ];
+
+            const resp = await this.post( '/auth/login', { username: config.adminUser.username, password: config.adminUser.password } );
+            const adminCookie = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];;
+            this.cookies.admin = adminCookie;
+
+            // Set the functions we want to expose
             exports.config = config;
             exports.serverConfig = serverConfig;
-            exports.guest = new Agent( serverConfig );
-            exports.admin = new Agent( serverConfig, this.cookies.admin );
+            exports.createUser = this.createUser;
+            exports.removeUser = this.removeUser;
+            exports.users = {
+                guest: new Agent(),
+                admin: new Agent( this.cookies.admin, config.adminUser.username, config.adminUser.password, config.adminUser.email ),
+                user1: null,
+                user2: null
+            };
+
+            await this.createUser( 'user1', 'password', 'user1@test.com' );
+            await this.createUser( 'user2', 'password', 'user2@test.com' );
+
         }
         catch ( exp ) {
             console.log( exp.toString() )

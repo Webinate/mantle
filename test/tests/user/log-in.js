@@ -5,9 +5,9 @@ describe( 'Testing user logging in', function() {
 
     before(function(){
         const header = require( '../header.js' );
-        guest = header.guest;
+        guest = header.users.guest;
         config = header.config;
-        admin = header.admin;
+        admin = header.users.admin;
     })
 
     it( 'did not log in with empty credentials', function( done ) {
