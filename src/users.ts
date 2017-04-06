@@ -82,7 +82,7 @@ export class User {
             lastLoggedIn: Date.now(),
             createdOn: Date.now(),
             password: this.dbEntry.password,
-            registerKey: ( this.dbEntry.privileges === UserPrivileges.SuperAdmin ? '' : this.generateKey( 10 ) ),
+            registerKey: ( this.dbEntry.registerKey !== undefined || this.dbEntry.privileges === UserPrivileges.SuperAdmin ? '' : this.generateKey( 10 ) ),
             sessionId: this.dbEntry.sessionId,
             username: this.dbEntry.username,
             privileges: this.dbEntry.privileges,
@@ -190,7 +190,7 @@ export class UserManager {
 
         // If no admin user exists, so lets try to create one
         if ( !user )
-            user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, UserPrivileges.SuperAdmin, {}, true );
+            user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, true, UserPrivileges.SuperAdmin, {}, true );
 
         return;
     }
@@ -219,7 +219,7 @@ export class UserManager {
         if ( !email || email === '' ) throw new Error( 'Email cannot be null or empty' );
         if ( !validator.isEmail( email ) ) throw new Error( 'Please use a valid email address' );
 
-        user = await this.createUser( username, email, pass, UserPrivileges.Regular, meta );
+        user = await this.createUser( username, email, pass, false, UserPrivileges.Regular, meta );
 
         // Send a message to the user to say they are registered but need to activate their account
         const message = 'Thank you for registering with Webinate! To activate your account please click the link below: \n\n' +
@@ -515,11 +515,12 @@ export class UserManager {
 	 * @param user The unique username
 	 * @param email The unique email
 	 * @param password The password for the user
+     * @param activateAccount If true, the account will be automatically activated (no need for email verification)
 	 * @param privilege The type of privileges the user has. Defaults to regular
      * @param meta Any optional data associated with this user
      * @param allowAdmin Should this be allowed to create a super user
 	 */
-    async createUser( user: string, email: string, password: string, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ): Promise<User> {
+    async createUser( user: string, email: string, password: string, activateAccount: boolean, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ): Promise<User> {
         // Basic checks
         if ( !user || validator.trim( user ) === '' )
             throw new Error( 'Username cannot be empty' );
@@ -550,7 +551,8 @@ export class UserManager {
             email: email,
             privileges: privilege,
             passwordTag: '',
-            meta: meta
+            meta: meta,
+            registerKey: ( activateAccount ? '' : undefined )
         } );
 
         // Update the database

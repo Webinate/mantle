@@ -202,7 +202,7 @@ export class UserController extends Controller {
             if ( token.privileges === UserPrivileges.SuperAdmin )
                 throw new Error( 'You cannot create a user with super admin permissions' );
 
-            const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, token.privileges, token.meta );
+            const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
             okJson<Modepress.IGetUser>( {
                 error: false,
                 message: `User ${user.dbEntry.username} has been created`,
