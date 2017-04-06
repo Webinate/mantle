@@ -564,9 +564,6 @@ export class UserManager {
         // All users have default stats created for them
         await BucketManager.get.createUserStats( newUser.dbEntry.username! );
 
-        // All users have a bucket created for them
-        await BucketManager.get.createBucket( newUser.dbEntry.username + '-bucket', newUser.dbEntry.username! );
-
         return newUser;
     }
 
