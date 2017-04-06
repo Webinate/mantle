@@ -33,11 +33,18 @@ describe( 'Initializing tests', function() {
     } );
 } );
 
-require( './tests/user/authenticated.js' );
-require( './tests/user/log-in.js' );
-require( './tests/user/get-user' );
-require( './tests/user/meta-data' );
-require( './tests/user/media-stats' );
-require( './tests/users.js' );
-require( './tests/posts.js' );
-require( './tests/comments.js' );
+require( './tests/user/test-authenticated.js' );
+require( './tests/user/test-log-in.js' );
+require( './tests/user/test-get-user' );
+require( './tests/user/test-user-meta' );
+require( './tests/user/test-stats-basics' );
+require( './tests/user/test-bucket-creation' );
+require( './tests/user/test-bucket-deletion' );
+require( './tests/user/test-bucket-fetching' );
+require( './tests/user/test-files-get' );
+require( './tests/user/test-files-upload' );
+require( './tests/user/test-files-rename' );
+require( './tests/user/test-files-deletion' );
+//require( './tests/users.js' );
+//require( './tests/posts.js' );
+//require( './tests/comments.js' );
