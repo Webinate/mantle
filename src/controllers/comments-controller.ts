@@ -119,7 +119,7 @@ export default class CommentsController extends Controller {
             if ( req.query.limit !== undefined )
                 limit = parseInt( req.query.limit );
 
-            const instances = await comments.findInstances<Modepress.IComment>( findToken, sort, index, limit );
+            const instances = await comments.findInstances<Modepress.IComment>( { selector: findToken, sort: sort, index: index, limit: limit } );
 
             const jsons: Array<Promise<Modepress.IComment>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
@@ -153,7 +153,7 @@ export default class CommentsController extends Controller {
             const findToken: Modepress.IComment = { _id: new mongodb.ObjectID( req.params.id ) };
             const user = req._user;
 
-            const instances = await comments.findInstances<Modepress.IComment>( findToken, null, 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( { selector: findToken, index: 0, limit: 1 } );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find comment' );
@@ -197,7 +197,7 @@ export default class CommentsController extends Controller {
 
         try {
             const user = req._user;
-            const instances = await comments.findInstances<Modepress.IComment>( findToken, null, 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( { selector: findToken, index: 0, limit: 1 } );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find a comment with that ID' );
@@ -233,7 +233,7 @@ export default class CommentsController extends Controller {
 
         try {
             const user = req._user;
-            const instances = await comments.findInstances<Modepress.IComment>( findToken, null, 0, 1 );
+            const instances = await comments.findInstances<Modepress.IComment>( { selector: findToken, index: 0, limit: 1 } );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find comment with that id' );
