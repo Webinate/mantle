@@ -20,7 +20,6 @@ describe( 'Getting and setting user stats', function() {
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
             } ).catch( err => done( err ) );
-
     } )
 
     it( 'regular user did not create stats for admin', function( done ) {
@@ -31,7 +30,6 @@ describe( 'Getting and setting user stats', function() {
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
             } ).catch( err => done( err ) );
-
     } )
 
     it( 'regular user did get default stats for itself', function( done ) {
@@ -49,6 +47,5 @@ describe( 'Getting and setting user stats', function() {
                 test.number( res.body.data.memoryUsed ).is( 0 );
                 done();
             } ).catch( err => done( err ) );
-
     } )
 } )

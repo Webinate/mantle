@@ -7,8 +7,8 @@ let args = yargs.argv;
  * Represents an agent that can make calls to the backend
  */
 class Agent {
-    constructor( cookie, username, password, email ) {
-        this.agent = test.httpAgent( "http://" + exports.serverConfig.host + ":" + exports.serverConfig.portHTTP );
+    constructor( cookie, username, password, email, url ) {
+        this.agent = test.httpAgent( url || ( "http://" + exports.serverConfig.host + ":" + exports.serverConfig.portHTTP ) );
         this.cookie = cookie;
         this.username = username;
         this.password = password;
@@ -86,7 +86,7 @@ class Agent {
             else
                 req = this.agent.get( url );
 
-            req.set( 'Accept', this._accepts );
+            // req.set( 'Accept', this._accepts );
 
             if ( this._setContentType )
                 req.set( 'Accept', this._setContentType );
@@ -114,10 +114,11 @@ class Agent {
                 req.set( 'Cookie', this.cookie )
 
             req.end(( err, res ) => {
+                this.setDefaults()
+
                 if ( err )
                     return reject( err );
 
-                this.setDefaults()
                 return ( resolve( res ) );
             } );
         });
@@ -138,6 +139,10 @@ class Agent {
     get(url, data) {
         return this.go(url );
     }
+}
+
+function createAgent( url, options = {} ) {
+    return new Agent( options.cookie, options.username, options.password, options.email, url );
 }
 
 /**
@@ -287,6 +292,7 @@ class TestManager {
             exports.serverConfig = serverConfig;
             exports.createUser = this.createUser;
             exports.removeUser = this.removeUser;
+            exports.createAgent = createAgent;
             exports.users = {
                 guest: new Agent(),
                 admin: new Agent( this.cookies.admin, config.adminUser.username, config.adminUser.password, config.adminUser.email ),

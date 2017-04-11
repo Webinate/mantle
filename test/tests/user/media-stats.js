@@ -14,145 +14,6 @@ describe( 'Getting and setting user media stat usage', function() {
         config = header.config;
     } )
 
-    it( 'regular user did not create storage calls for admin', function( done ) {
-        user1.put( `/stats/storage-calls/${config.adminUser.username}/90000`, {} )
-            .then( res => {
-                test.bool( res.body.error ).isTrue();
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "You don't have permission to make this request" );
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not create storage memory for admin', function( done ) {
-        user1.put( `/stats/storage-memory/${config.adminUser.username}/90000`, {} )
-            .then( res => {
-                test.bool( res.body.error ).isTrue();
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "You don't have permission to make this request" );
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not create storage allocated calls for admin', function( done ) {
-        user1.put( `/stats/storage-allocated-calls/${config.adminUser.username}/90000`, {} )
-            .then( res => {
-                test.bool( res.body.error ).isTrue();
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "You don't have permission to make this request" );
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not create storage allocated memory for admin', function( done ) {
-        user1.put( `/stats/storage-allocated-memory/${config.adminUser.username}/90000`, {} )
-            .then( res => {
-                test.bool( res.body.error ).isTrue();
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "You don't have permission to make this request" );
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not create storage calls for itself', function( done ) {
-        user1.put( `/stats/storage-calls/${user1.username}/90000`, {} )
-            .then( res => {
-                test.bool( res.body.error ).isTrue();
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "You don't have permission to make this request" );
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not create storage memory for itself', function( done ) {
-        user1.put( `/stats/storage-memory/${user1.username}/90000`, {} )
-            .then( res => {
-                test.bool( res.body.error ).isTrue();
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "You don't have permission to make this request" );
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not create storage allocated calls for itself', function( done ) {
-        user1.put( `/stats/storage-allocated-calls/${user1.username}/90000`, {} )
-            .then( res => {
-                test.bool( res.body.error ).isTrue();
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "You don't have permission to make this request" );
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not create storage allocated memory for itself', function( done ) {
-        user1.put( `/stats/storage-allocated-memory/${user1.username}/90000`, {} )
-            .then( res => {
-                test.bool( res.body.error ).isTrue();
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "You don't have permission to make this request" );
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not make a non-file public', function( done ) {
-        user1.put( `/files/123/make-public`, {} )
-            .then( res => {
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "File '123' does not exist" );
-                test.bool( res.body.error ).isTrue();
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'regular user did not make a non-file private', function( done ) {
-        user1.put( `/files/123/make-private`, {} )
-            .then( res => {
-                test.object( res.body ).hasProperty( "message" )
-                test.string( res.body.message ).is( "File '123' does not exist" )
-                test.bool( res.body.error ).isTrue()
-                done()
-            } ).catch( err => done( err ) );
-    } )
-
-    it( 'regular user did make a file public', function( done ) {
-        user1.put( `/files/${fileId}/make-public`, {} )
-            .then( res => {
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "File is now public" );
-                test.bool( res.body.error ).isNotTrue();
-                done();
-            } ).catch( err => done( err ) );
-
-    } )
-
-    it( 'did download the file off the bucket', function( done ) {
-        test.httpAgent( publicURL )
-            .get( "" ).expect( 200 ).expect( 'content-type', /image/ )
-            .end( function( err, res ) {
-                if ( err ) return done( err );
-                done();
-            } );
-    } )
-
-    it( 'regular user did make a file private', function( done ) {
-        user1.put( `/files/${fileId}/make-private`, {} )
-            .then( res => {
-                test.object( res.body ).hasProperty( "message" );
-                test.string( res.body.message ).is( "File is now private" );
-                test.bool( res.body.error ).isNotTrue();
-                done();
-            } ).catch( err => done( err ) );
-    } )
-
     it( 'regular user updated its stats accordingly', function( done ) {
         user1.get( `/stats/users/${user1.username}/get-stats` )
             .then( res => {
@@ -166,9 +27,9 @@ describe( 'Getting and setting user media stat usage', function() {
 
     it( 'regular user did upload another file to dinosaurs2', function( done ) {
         user1
-            .attach( 'small-image',filePath )
+            .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs2/upload" )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
@@ -195,8 +56,8 @@ describe( 'Getting and setting user media stat usage', function() {
     } )
 
     it( 'guest did not download a file with an invalid id anonomously', function( done ) {
-        guest.code(404)
-            .get( `/files/123/download`)
+        guest.code( 404 )
+            .get( `/files/123/download` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );
@@ -205,10 +66,10 @@ describe( 'Getting and setting user media stat usage', function() {
 
     it( 'guest did download an image file with a valid id anonomously', function( done ) {
         guest
-            .contentLength("226")
-            .contentType(/image/)
+            .contentLength( "226" )
+            .contentType( /image/ )
             .get( "/files/" + fileId + "/download" )
-            .then( ( res ) => {
+            .then(( res ) => {
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -227,7 +88,7 @@ describe( 'Getting and setting user media stat usage', function() {
         user1
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs2/upload" )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
@@ -252,9 +113,6 @@ describe( 'Getting and setting user media stat usage', function() {
             } ).catch( err => done( err ) );
 
     } )
-
-
-
 
 
     it( 'regular user updated its stats to reflect a file was deleted', function( done ) {
