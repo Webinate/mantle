@@ -1,7 +1,9 @@
 var gulp = require( 'gulp' );
 var ts = require( 'gulp-typescript' );
 var tslint = require( 'gulp-tslint' );
+var concat = require( 'gulp-concat' );
 var setup = require( './gulp/setup.js' );
+
 
 // CONFIG
 // ==============================
@@ -22,7 +24,7 @@ gulp.task( 'ts-code', function() {
         .pipe( tsProject() );
 
     return tsResult.js.pipe( gulp.dest( './dist' ) );
-});
+} );
 
 /**
  * Ensures the code quality is up to scratch
@@ -32,29 +34,36 @@ gulp.task( 'tslint', [ 'ts-code' ], function() {
         .pipe( tslint( {
             configuration: 'tslint.json',
             formatter: 'verbose'
-        }) )
+        } ) )
         .pipe( tslint.report( {
             emitError: false
-        }) )
-});
+        } ) )
+} );
 
 /**
  * Copies the distribution files from src to the dist folder
  */
 gulp.task( 'dist-files', function() {
-    return gulp.src( [ 'src/dist-src/*.json', 'src/dist-src/modepress-api/*.json' ], { base: "src/dist-src/" })
+    return gulp.src( [ 'src/dist-src/*.json', 'src/dist-src/modepress-api/*.json' ], { base: "src/dist-src/" } )
         .pipe( gulp.dest( './dist' ) );
-});
+} );
 
 /**
  * Copies the modepress definition into a definitions/generated folder
  */
 gulp.task( 'ts-code-definitions', function() {
-    return gulp.src( [ 'src/definitions/custom/modepress.d.ts' ], { base: 'src/definitions/custom/' })
+    return gulp.src( [
+        'src/definitions/custom/config/**/*.d.ts',
+        'src/definitions/custom/misc/**/*.d.ts',
+        'src/definitions/custom/models/**/*.d.ts',
+        'src/definitions/custom/tokens/**/*.d.ts',
+        'src/definitions/custom/exposed-functions/**/*.d.ts',
+    ], { base: 'src/definitions/custom/' } )
+        .pipe( concat( 'modepress.d.ts' ) )
         .pipe( gulp.dest( './src/definitions/generated' ) );
-});
+} );
 
-gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchNum, configFiles ) });
-gulp.task( 'bump-minor', function() { return setup.bumpVersion( setup.bumpMidNum, configFiles ) });
-gulp.task( 'bump-major', function() { return setup.bumpVersion( setup.bumpMajorNum, configFiles ) });
+gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchNum, configFiles ) } );
+gulp.task( 'bump-minor', function() { return setup.bumpVersion( setup.bumpMidNum, configFiles ) } );
+gulp.task( 'bump-major', function() { return setup.bumpVersion( setup.bumpMajorNum, configFiles ) } );
 gulp.task( 'build', [ 'tslint', 'dist-files', 'ts-code-definitions' ] );
