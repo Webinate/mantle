@@ -70,7 +70,8 @@ export async function initialize() {
     info( `Server instances loaded...` );
 
     // Create the console manager
-    new ConsoleManager().initialize();
+    if ( !args.runningTests )
+        new ConsoleManager().initialize();
 }
 
 if ( cluster.isWorker ) {

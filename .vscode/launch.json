@@ -4,6 +4,7 @@
         {
             "name": "Launch",
             "type": "node",
+            "protocol": "auto",
             "request": "launch",
             "program": "${workspaceRoot}/dist/main.js",
             "stopOnEntry": false,
@@ -29,6 +30,7 @@
         {
             "name": "Debug Tests",
             "type": "node",
+            "protocol": "auto",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "stopOnEntry": false,
@@ -38,9 +40,9 @@
                 "test/index.js",
                 "--config=./dist/config.json",
                 "--server=0",
-                "--inspect=true",
                 "--logging=false",
-                "--keyFile=./dist/bucket-credentials.json"
+                "--keyFile=./dist/bucket-credentials.json",
+                "--runningTests=true"
             ],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
