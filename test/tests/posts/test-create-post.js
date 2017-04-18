@@ -1,5 +1,5 @@
 const test = require( 'unit.js' );
-let guest, admin, config, numPosts, lastPost;
+let guest, admin, config, numPosts, lastPost, lastPost2;
 
 describe( 'Testing creation of posts', function() {
 
@@ -56,6 +56,21 @@ describe( 'Testing creation of posts', function() {
             } ).catch( err => done( err ) );
     } )
 
+    it( 'did delete any existing posts with the slug --simple--test--', function( done ) {
+        admin.get( `/api/posts/slug/--simple--test--` )
+            .then( res => {
+                if ( res.body.data ) {
+                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                        .then( res => {
+                            test.bool( res.body.error ).isFalse();
+                            done();
+                        } ).catch( err => done( err ) );
+                }
+                else
+                    done();
+            } ).catch( err => done( err ) );
+    } )
+
     it( 'can create a post with valid data', function( done ) {
         admin.post( `/api/posts`, {
             title: "Simple Test",
@@ -85,8 +100,44 @@ describe( 'Testing creation of posts', function() {
         } ).catch( err => done( err ) );
     } )
 
-    it( 'did delete the created file', function( done ) {
-        manager.delete( `/api/posts/${lastPost}` )
+    it( 'did delete any existing posts with this slug --strip--test--', function( done ) {
+        admin.get( `/api/posts/slug/--strip--test--` )
+            .then( res => {
+                if ( res.body.data ) {
+                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                        .then( res => {
+                            test.bool( res.body.error ).isFalse();
+                            done();
+                        } ).catch( err => done( err ) );
+                }
+                else
+                    done();
+            } ).catch( err => done( err ) );
+    } )
+
+    it( 'should create a post & strip HTML from title', function( done ) {
+        admin.post( `/api/posts`, {
+            title: "Simple Test <h2>NO</h2>",
+            slug: "--strip--test--",
+            brief: "This is brief"
+        } ).then( res => {
+            test.string( res.body.message ).is( "New post created" );
+            test.string( res.body.data.title ).is( "Simple Test NO" );
+            lastPost2 = res.body.data._id;
+            done();
+        } ).catch( err => done( err ) );
+    } )
+
+    it( 'did delete the first post', function( done ) {
+        admin.delete( `/api/posts/${ lastPost }` )
+            .then( res => {
+                test.bool( res.body.error ).isFalse();
+                done();
+            } ).catch( err => done( err ) );
+    } )
+
+    it( 'did delete the second post', function( done ) {
+        admin.delete( `/api/posts/${ lastPost2 }` )
             .then( res => {
                 test.bool( res.body.error ).isFalse();
                 done();

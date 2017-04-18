@@ -1,5 +1,5 @@
 const test = require( 'unit.js' );
-let guest, admin, config, numPosts, lastPost;
+let guest, admin, config, numPosts, postId;
 
 describe( 'Testing deletion of posts', function() {
 
@@ -27,7 +27,7 @@ describe( 'Testing deletion of posts', function() {
             public: true,
             content: "Hello world"
         } ).then( res => {
-            lastPost = res.body.data._id;
+            postId = res.body.data._id;
             test.bool( res.body.error ).isNotTrue();
             done();
         } ).catch( err => done( err ) );
@@ -50,7 +50,7 @@ describe( 'Testing deletion of posts', function() {
     } )
 
     it( 'cannot delete a post without permission', function( done ) {
-        guest.delete( `/api/posts/${lastPost}`, null )
+        guest.delete( `/api/posts/${ postId }`, null )
             .then( res => {
                 test.string( res.body.message ).is( "You must be logged in to make this request" );
                 done();
@@ -58,7 +58,7 @@ describe( 'Testing deletion of posts', function() {
     } )
 
     it( 'can delete a post with valid ID & admin permissions', function( done ) {
-        admin.delete( `/api/posts/${lastPost}` )
+        admin.delete( `/api/posts/${ postId }` )
             .then( res => {
                 test.string( res.body.message ).is( "Post has been successfully removed" );
                 done();
