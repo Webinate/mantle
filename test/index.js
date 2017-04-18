@@ -48,6 +48,6 @@ require( './tests/user/test-files-get' );
 require( './tests/user/test-files-upload' );
 require( './tests/user/test-files-rename' );
 require( './tests/user/test-files-deletion' );
-require( './tests/users.js' );
+// require( './tests/users.js' );
 require( './tests/posts.js' );
 require( './tests/comments.js' );
