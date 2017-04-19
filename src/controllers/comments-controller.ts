@@ -5,7 +5,7 @@ import * as compression from 'compression';
 import { Controller } from './controller';
 import { Model, ModelInstance } from '../models/model';
 import { CommentsModel } from '../models/comments-model';
-import { identifyUser, checkVerbosity, adminRights, canEdit, hasId, requireUser } from '../permission-controllers';
+import { identifyUser, checkVerbosity, adminRights, canEdit, hasId } from '../permission-controllers';
 import { okJson, errJson } from '../serializers';
 import { UserPrivileges } from '../users';
 
@@ -32,7 +32,7 @@ export default class CommentsController extends Controller {
         router.get( '/comments', <any>[ adminRights, this.getComments.bind( this ) ] );
         router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, checkVerbosity, this.getComment.bind( this ) ] );
         router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), identifyUser, checkVerbosity, this.getComments.bind( this ) ] );
-        router.get( '/users/:user/comments', <any>[ requireUser, identifyUser, checkVerbosity, this.getComments.bind( this ) ] );
+        router.get( '/users/:user/comments', <any>[ identifyUser, checkVerbosity, this.getComments.bind( this ) ] );
         router.delete( '/comments/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
         router.put( '/comments/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
         router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, checkVerbosity, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
