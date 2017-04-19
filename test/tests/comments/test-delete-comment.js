@@ -1,5 +1,6 @@
 const test = require( 'unit.js' );
-let guest, admin, config, numPosts, numComments, lastPost, commentId, comment2Id;
+let guest, admin, config, numPosts, numComments,
+    postId, commentId, parentCommentId;
 
 describe( 'Testing deletion of comments', function() {
 
@@ -34,7 +35,7 @@ describe( 'Testing deletion of comments', function() {
         admin.get( `/api/posts/slug/--comments--test--` )
             .then( res => {
                 if ( res.body.data ) {
-                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                    admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
                             test.bool( res.body.error ).isFalse();
                             done();
@@ -53,14 +54,14 @@ describe( 'Testing deletion of comments', function() {
             public: false,
             content: "Hello world"
         } ).then( res => {
-            lastPost = res.body.data._id;
+            postId = res.body.data._id;
             test.bool( res.body.data.public ).isFalse();
             done();
         } ).catch( err => done( err ) );
     } )
 
     it( 'did create a test comment', function( done ) {
-        admin.post( `/api/posts/${ lastPost }/comments`, { content: "Hello world!", public: false } )
+        admin.post( `/api/posts/${postId}/comments`, { content: "Hello world!", public: false } )
             .then( res => {
                 commentId = res.body.data._id;
                 test.bool( res.body.error ).isFalse();
@@ -68,19 +69,46 @@ describe( 'Testing deletion of comments', function() {
             } ).catch( err => done( err ) );
     } )
 
-    it( 'can create a another comment which will be a parent comment', function( done ) {
-        admin.post( `/api/posts/${ lastPost }/comments/${ commentId }`, { content: "Parent Comment", public: true } )
+    it( 'did incremented the number of comments by 1', function( done ) {
+        admin.get( `/api/comments` )
             .then( res => {
-                comment2Id = res.body.data._id;
+                test.bool( res.body.error ).isNotTrue();
+                test.bool( res.body.count === numComments + 1 ).isTrue();
+                done();
+            } ).catch( err => done( err ) );
+    } )
+
+    it( 'can create a another comment which will be a parent comment', function( done ) {
+        admin.post( `/api/posts/${postId}/comments`, { content: "Parent Comment", public: true } )
+            .then( res => {
+                parentCommentId = res.body.data._id;
                 test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
 
+    it( 'did incremented the number of comments by 2', function( done ) {
+        admin.get( `/api/comments` )
+            .then( res => {
+                test.bool( res.body.error ).isNotTrue();
+                test.bool( res.body.count === numComments + 2 ).isTrue();
+                done();
+            } ).catch( err => done( err ) );
+    } )
+
     it( 'can create a nested comment', function( done ) {
-        admin.post( `/api/posts/${ lastPost }/comments/${ comment2Id }`, { content: "Child Comment", public: true } )
+        admin.post( `/api/posts/${postId}/comments/${parentCommentId}`, { content: "Child Comment", public: true } )
             .then( res => {
                 test.bool( res.body.error ).isFalse();
+                done();
+            } ).catch( err => done( err ) );
+    } )
+
+    it( 'did incremented the number of comments by 3', function( done ) {
+        admin.get( `/api/comments` )
+            .then( res => {
+                test.bool( res.body.error ).isNotTrue();
+                test.bool( res.body.count === numComments + 3 ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -104,7 +132,7 @@ describe( 'Testing deletion of comments', function() {
     } )
 
     it( 'can delete the parent comment', function( done ) {
-        admin.delete( `/api/comments/${ comment2Id }`, {} )
+        admin.delete( `/api/comments/${parentCommentId}`, {} )
             .then( res => {
                 test.string( res.body.message ).is( "Comment has been successfully removed" );
                 test.bool( res.body.error ).isFalse();
@@ -116,14 +144,14 @@ describe( 'Testing deletion of comments', function() {
         admin.get( `/api/comments` )
             .then( res => {
                 test.number( res.body.count );
-                test.bool( res.body.count - 2 === numComments + 1 ).isTrue();
+                test.bool( res.body.count === numComments + 1 ).isTrue();
                 test.bool( res.body.error ).isNotTrue()
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'can delete a regular existing comment', function( done ) {
-        admin.delete( `/api/comments/${ commentId }`, {} )
+        admin.delete( `/api/comments/${commentId}`, {} )
             .then( res => {
                 test.string( res.body.message ).is( "Comment has been successfully removed" );
                 test.bool( res.body.error ).isFalse();
@@ -132,7 +160,7 @@ describe( 'Testing deletion of comments', function() {
     } )
 
     it( 'did delete the test post', function( done ) {
-        admin.delete( `/api/posts/${ lastPost }` )
+        admin.delete( `/api/posts/${postId}` )
             .then( res => {
                 test.bool( res.body.error ).isFalse();
                 done();

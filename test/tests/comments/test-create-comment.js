@@ -1,5 +1,6 @@
 const test = require( 'unit.js' );
-let guest, admin, config, numPosts, numComments, lastPost, commentId;
+let guest, admin, config, numPosts,
+    numComments, postId, commentId;
 
 describe( 'Testing creation of comments', function() {
 
@@ -8,6 +9,21 @@ describe( 'Testing creation of comments', function() {
         guest = header.users.guest;
         admin = header.users.admin;
         config = header.config;
+    } )
+
+    it( 'did delete any existing posts with the slug --comments--test--', function( done ) {
+        admin.get( `/api/posts/slug/--comments--test--` )
+            .then( res => {
+                if ( res.body.data ) {
+                    admin.delete( `/api/posts/${res.body.data._id}` )
+                        .then( res => {
+                            test.bool( res.body.error ).isFalse();
+                            done();
+                        } ).catch( err => done( err ) );
+                }
+                else
+                    done();
+            } ).catch( err => done( err ) );
     } )
 
     it( 'fetched all posts', function( done ) {
@@ -30,21 +46,6 @@ describe( 'Testing creation of comments', function() {
             } ).catch( err => done( err ) );
     } )
 
-    it( 'did delete any existing posts with the slug --comments--test--', function( done ) {
-        admin.get( `/api/posts/slug/--comments--test--` )
-            .then( res => {
-                if ( res.body.data ) {
-                    admin.delete( `/api/posts/${ res.body.data._id }` )
-                        .then( res => {
-                            test.bool( res.body.error ).isFalse();
-                            done();
-                        } ).catch( err => done( err ) );
-                }
-                else
-                    done();
-            } ).catch( err => done( err ) );
-    } )
-
     it( 'can create a temp post', function( done ) {
         admin.post( `/api/posts`, {
             title: "Simple Test",
@@ -53,7 +54,7 @@ describe( 'Testing creation of comments', function() {
             public: false,
             content: "Hello world"
         } ).then( res => {
-            lastPost = res.body.data._id;
+            postId = res.body.data._id;
             test.bool( res.body.data.public ).isFalse();
             done();
         } ).catch( err => done( err ) );
@@ -105,7 +106,7 @@ describe( 'Testing creation of comments', function() {
     } )
 
     it( 'cannot create a comment on a post that does exist with illegal html', function( done ) {
-        admin.post( `/api/posts/${ lastPost }/comments`, { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } )
+        admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } )
             .then( res => {
                 test.string( res.body.message ).is( "'content' has html code that is not allowed" );
                 test.bool( res.body.error ).isTrue();
@@ -114,14 +115,14 @@ describe( 'Testing creation of comments', function() {
     } )
 
     it( 'can create a comment on a valid post', function( done ) {
-        admin.post( `/api/posts/${ lastPost }/comments`, { content: "Hello world! __filter__", public: false } )
+        admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__", public: false } )
             .then( res => {
                 commentId = res.body.data._id;
                 test.string( res.body.message ).is( "New comment created" );
                 test.string( res.body.data._id );
                 test.string( res.body.data.author );
                 test.value( res.body.data.parent ).isNull();
-                test.string( res.body.data.post ).is( lastPost );
+                test.string( res.body.data.post ).is( postId );
                 test.string( res.body.data.content ).is( "Hello world! __filter__" );
                 test.array( res.body.data.children ).hasLength( 0 );
                 test.bool( res.body.data.public ).isFalse();
@@ -133,7 +134,7 @@ describe( 'Testing creation of comments', function() {
     } )
 
     it( 'can create a another comment on the same post, with a parent comment', function( done ) {
-        admin.post( `/api/posts/${ lastPost }/comments/${ commentId }`, { content: "Hello world 2", public: true } )
+        admin.post( `/api/posts/${postId}/comments/${commentId}`, { content: "Hello world 2", public: true } )
             .then( res => {
                 test.string( res.body.message ).is( "New comment created" );
                 done();
@@ -141,7 +142,7 @@ describe( 'Testing creation of comments', function() {
     } )
 
     it( 'did delete the test post', function( done ) {
-        admin.delete( `/api/posts/${ lastPost }` )
+        admin.delete( `/api/posts/${postId}` )
             .then( res => {
                 test.bool( res.body.error ).isFalse();
                 done();
