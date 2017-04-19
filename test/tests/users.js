@@ -457,232 +457,230 @@ describe( 'Testing user API functions', function() {
 
         } ).timeout( 20000 )
 
-        it( 'should not be able to create a new user', function( done ) {
-            manager.post( `/users`, { username: "George", password: "Password", email: "george@webinate.net", privileges: 1 } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You must be logged in to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not be able to create a new user', function( done ) {
+        //     manager.post( `/users`, { username: "George", password: "Password", email: "george@webinate.net", privileges: 1 } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "You must be logged in to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should not be able to get user meta data', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.username}/meta/datum` )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You must be logged in to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not be able to get user meta data', function( done ) {
+        //     manager.get( `/users/${ manager.config.adminUser.username }/meta/datum` )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "You must be logged in to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
     } )
 
     describe( 'Registering as a new user', function() {
-        it( 'should not register with blank credentials', function( done ) {
-            manager.post( `/auth/register`, { username: "", password: "" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Please enter a valid username" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not register with blank credentials', function( done ) {
+        //     manager.post( `/auth/register`, { username: "", password: "" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Please enter a valid username" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should not register with existing username', function( done ) {
-            manager.post( `/auth/register`, { username: manager.config.adminUser.username, password: "FakePass" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "That username or email is already in use; please choose another or login." )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not register with existing username', function( done ) {
+        //     manager.post( `/auth/register`, { username: manager.config.adminUser.username, password: "FakePass" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "That username or email is already in use; please choose another or login." )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should not register with blank username', function( done ) {
-            manager.post( `/auth/register`, { username: "", password: "FakePass" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Please enter a valid username" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not register with blank username', function( done ) {
+        //     manager.post( `/auth/register`, { username: "", password: "FakePass" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Please enter a valid username" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should not register with blank password', function( done ) {
-            manager.post( `/auth/register`, { username: "sdfsdsdfsdfdf", password: "" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Password cannot be null or empty" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not register with blank password', function( done ) {
+        //     manager.post( `/auth/register`, { username: "sdfsdsdfsdfdf", password: "" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Password cannot be null or empty" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should not register with bad characters', function( done ) {
-            manager.post( `/auth/register`, { username: "!\"�$%^^&&*()-=~#}{}", password: "!\"./<>;�$$%^&*()_+" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Please only use alpha numeric characters for your username" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not register with bad characters', function( done ) {
+        //     manager.post( `/auth/register`, { username: "!\"�$%^^&&*()-=~#}{}", password: "!\"./<>;�$$%^&*()_+" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Please only use alpha numeric characters for your username" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should not register with valid information but no email', function( done ) {
-            manager.post( `/auth/register`, { username: "George", password: "Password" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Email cannot be null or empty" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not register with valid information but no email', function( done ) {
+        //     manager.post( `/auth/register`, { username: "George", password: "Password" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Email cannot be null or empty" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'should not register with valid information but invalid email', function( done ) {
-            manager.post( `/auth/register`, { username: "George", password: "Password", email: "bad_email" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Please use a valid email address" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should not register with valid information but invalid email', function( done ) {
+        //     manager.post( `/auth/register`, { username: "George", password: "Password", email: "bad_email" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Please use a valid email address" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
     } )
 
     describe( 'Create a new user when logged in as admin', function() {
 
-        it( 'did log in with an admin username & valid password', function( done ) {
-            manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password }, null )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.bool( res.body.authenticated ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    manager.updateCookieToken( 'admin', res );
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did log in with an admin username & valid password', function( done ) {
+        //     manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password }, null )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isNotTrue()
+        //             test.bool( res.body.authenticated ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             manager.updateCookieToken( 'admin', res );
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
+        // it( 'did not create a new user without a username', function( done ) {
+        //     manager.post( `/auth/register`, { username: "", password: "" }, null )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Please enter a valid username" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user without a username', function( done ) {
-            manager.post( `/auth/register`, { username: "", password: "" }, null )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Please enter a valid username" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create a new user without a password', function( done ) {
+        //     manager.post( `/users`, { username: "george", password: "", email: "thisisatest@test.com" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Password cannot be empty" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user without a password', function( done ) {
-            manager.post( `/users`, { username: "george", password: "", email: "thisisatest@test.com" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Password cannot be empty" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create a new user with invalid characters', function( done ) {
+        //     manager.post( `/users`, { username: "!\"�$%^&*()", password: "password" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Username must be alphanumeric" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user with invalid characters', function( done ) {
-            manager.post( `/users`, { username: "!\"�$%^&*()", password: "password" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Username must be alphanumeric" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create a new user without email', function( done ) {
+        //     manager.post( `/users`, { username: "george", password: "password" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Email cannot be empty" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user without email', function( done ) {
-            manager.post( `/users`, { username: "george", password: "password" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Email cannot be empty" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create a new user with invalid email', function( done ) {
+        //     manager.post( `/users`, { username: "george", password: "password", email: "matmat" } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Email must be valid" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user with invalid email', function( done ) {
-            manager.post( `/users`, { username: "george", password: "password", email: "matmat" } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Email must be valid" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create a new user with invalid privilege', function( done ) {
+        //     manager.post( `/users`, { username: "george", password: "password", email: "matmat@yahoo.com", privileges: 4 } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Privilege type is unrecognised" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user with invalid privilege', function( done ) {
-            manager.post( `/users`, { username: "george", password: "password", email: "matmat@yahoo.com", privileges: 4 } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Privilege type is unrecognised" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create a new user with an existing username', function( done ) {
+        //     manager.post( `/users`, { username: manager.config.adminUser.username, password: "password", email: "matmat@yahoo.com", privileges: 2 } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "A user with that name or email already exists" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user with an existing username', function( done ) {
-            manager.post( `/users`, { username: manager.config.adminUser.username, password: "password", email: "matmat@yahoo.com", privileges: 2 } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "A user with that name or email already exists" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create a new user with an existing email', function( done ) {
+        //     manager.post( `/users`, { username: "george", password: "password", email: manager.config.adminUser.email, privileges: 2 } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "A user with that name or email already exists" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user with an existing email', function( done ) {
-            manager.post( `/users`, { username: "george", password: "password", email: manager.config.adminUser.email, privileges: 2 } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "A user with that name or email already exists" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create user george with super admin privileges', function( done ) {
+        //     manager.post( `/users`, { username: "george", password: "password", email: "thisisatest@test.com", privileges: 1 } )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "You cannot create a user with super admin permissions" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create user george with super admin privileges', function( done ) {
-            manager.post( `/users`, { username: "george", password: "password", email: "thisisatest@test.com", privileges: 1 } )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You cannot create a user with super admin permissions" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did create regular user george with valid details', function( done ) {
+        //     manager.post( `/users`, { username: "george", password: "password", email: "thisisatest@test.com", privileges: 3 } )
+        //         .then( res => {
+        //             test.string( res.body.message ).is( "User george has been created" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
-
-        it( 'did create regular user george with valid details', function( done ) {
-            manager.post( `/users`, { username: "george", password: "password", email: "thisisatest@test.com", privileges: 3 } )
-                .then( res => {
-                    test.string( res.body.message ).is( "User george has been created" )
-                    done();
-                } ).catch( err => done( err ) );
-
-        } ).timeout( 16000 )
+        // } ).timeout( 16000 )
 
         it( 'should get george when searching all registered users', function( done ) {
             manager.get( `/users?search=george`, null )
@@ -705,32 +703,31 @@ describe( 'Testing user API functions', function() {
 
         } ).timeout( 16000 )
 
-        it( 'did create an activation key for george', function( done ) {
-            manager.get( `/users/george?verbose=true` )
-                .then( res => {
-                    test.object( res.body.data ).hasProperty( "registerKey" )
-                    activation = res.body.data.registerKey
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did create an activation key for george', function( done ) {
+        //     manager.get( `/users/george?verbose=true` )
+        //         .then( res => {
+        //             test.object( res.body.data ).hasProperty( "registerKey" )
+        //             activation = res.body.data.registerKey
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did activate george2 through the admin', function( done ) {
-            manager.put( `/auth/george2/approve-activation`, {} )
-                .then( res => {
-                    test.bool( res.body.error ).isFalse()
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did activate george2 through the admin', function( done ) {
+        //     manager.put( `/auth/george2/approve-activation`, {} )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isFalse()
+        //             done();
+        //         } ).catch( err => done( err ) );
+        // } ).timeout( 20000 )
 
-        } ).timeout( 20000 )
+        // it( 'admin did logout', function( done ) {
+        //     manager.get( `/auth/logout` )
+        //         .then( res => {
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        it( 'admin did logout', function( done ) {
-            manager.get( `/auth/logout` )
-                .then( res => {
-                    done();
-                } ).catch( err => done( err ) );
-
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
     } )
 
     describe( 'Checking user login with activation code present', function() {
@@ -1592,48 +1589,48 @@ describe( 'Checking media API', function() {
         // } ).timeout( 20000 )
     } )
 
-    describe( 'Checking permission data for another regular user', function() {
+    // describe( 'Checking permission data for another regular user', function() {
 
-        it( 'did log in with valid details for george2', function( done ) {
-            manager.post( `/auth/login`, { username: "george2", password: "password" }, null )
-                .then( res => {
-                    test.bool( res.body.authenticated ).isNotFalse();
-                    test.object( res.body ).hasProperty( "message" );
-                    manager.updateCookieToken( "george2", res );
-                    test.bool( res.body.error ).isNotTrue();
-                    done();
-                } ).catch( err => done( err ) );
+    //     it( 'did log in with valid details for george2', function( done ) {
+    //         manager.post( `/auth/login`, { username: "george2", password: "password" }, null )
+    //             .then( res => {
+    //                 test.bool( res.body.authenticated ).isNotFalse();
+    //                 test.object( res.body ).hasProperty( "message" );
+    //                 manager.updateCookieToken( "george2", res );
+    //                 test.bool( res.body.error ).isNotTrue();
+    //                 done();
+    //             } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
-    } )
+    //     } ).timeout( 20000 )
+    // } )
 } )
 
-describe( 'Cleaning up', function() {
+// describe( 'Cleaning up', function() {
 
-    it( 'We did log in as admin', function( done ) {
-        manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password } )
-            .then( res => {
-                manager.updateCookieToken( 'admin', res );
-                done();
-            } ).catch( err => done( err ) );
-    } )
+//     it( 'We did log in as admin', function( done ) {
+//         manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password } )
+//             .then( res => {
+//                 manager.updateCookieToken( 'admin', res );
+//                 done();
+//             } ).catch( err => done( err ) );
+//     } )
 
-    it( 'did remove any users called george', function( done ) {
-        manager.delete( `/users/george`, {} )
-            .then( res => {
-                test.string( res.body.message ).is( "User george has been removed" );
-                done();
-            } ).catch( err => done( err ) );
-    } ).timeout( 25000 )
+//     it( 'did remove any users called george', function( done ) {
+//         manager.delete( `/users/george`, {} )
+//             .then( res => {
+//                 test.string( res.body.message ).is( "User george has been removed" );
+//                 done();
+//             } ).catch( err => done( err ) );
+//     } ).timeout( 25000 )
 
-    it( 'did remove any users called george2', function( done ) {
-        manager.delete( `/users/george2`, {} )
-            .then( res => {
-                test.string( res.body.message ).is( "User george2 has been removed" );
-                done();
-            } ).catch( err => done( err ) );
-    } ).timeout( 25000 )
-} )
+//     it( 'did remove any users called george2', function( done ) {
+//         manager.delete( `/users/george2`, {} )
+//             .then( res => {
+//                 test.string( res.body.message ).is( "User george2 has been removed" );
+//                 done();
+//             } ).catch( err => done( err ) );
+//     } ).timeout( 25000 )
+// } )
 
 describe( 'Test WS API events are valid', function() {
 
