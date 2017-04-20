@@ -12,17 +12,18 @@ if ( args.server === undefined || isNaN( parseInt( args.server ) ) ) {
     process.exit();
 }
 
-
 const startup = require( '../dist/startup.js' );
 const header = require( './tests/header.js' );
-header.TestManager.get;
 
+// Start the first test to initialize everything
 describe( 'Initializing tests', function() {
 
     before( function( done ) {
-
+        // Initialize the server
         startup.initialize().then(() => {
-            return header.TestManager.get.initialize();
+
+            // Initialize the test suites
+            return header.initialize();
         } ).then(() => {
             done();
         } );
@@ -34,6 +35,7 @@ describe( 'Initializing tests', function() {
 } );
 
 require( './tests/user/test-authenticated.js' );
+require( './tests/user/test-user-logout' );
 require( './tests/user/test-user-creation' );
 require( './tests/user/test-user-registration' );
 require( './tests/user/test-user-activation' );
