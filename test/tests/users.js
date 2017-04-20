@@ -829,38 +829,38 @@ describe( 'Testing user API functions', function() {
 
     describe( 'Getting/Setting data when a regular user', function() {
 
-        it( 'did not get details of the admin user (no permission)', function( done ) {
-            manager.get( `/users/${manager.config.adminUser.username}?verbose=true`, 'george' )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not get details of the admin user (no permission)', function( done ) {
+        //     manager.get( `/users/${manager.config.adminUser.username}?verbose=true`, 'george' )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "You don't have permission to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not get sessions (no permission)', function( done ) {
-            manager.get( `/sessions`, 'george' )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not get sessions (no permission)', function( done ) {
+        //     manager.get( `/sessions`, 'george' )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "You don't have permission to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not remove the admin user (no permission)', function( done ) {
-            manager.delete( `/users/${manager.config.adminUser.username}`, null, 'george' )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not remove the admin user (no permission)', function( done ) {
+        //     manager.delete( `/users/${manager.config.adminUser.username}`, null, 'george' )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "You don't have permission to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
         // it( 'did not approve activation (no permission)', function( done ) {
         //     manager.put( `/auth/${manager.config.adminUser.username}/approve-activation`, null, 'george' )
@@ -884,25 +884,25 @@ describe( 'Testing user API functions', function() {
 
         // } ).timeout( 20000 )
 
-        it( 'did get user data of myself', function( done ) {
-            manager.get( `/users/george?verbose=true`, 'george' )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.object( res.body ).hasProperty( "data" )
-                    test.string( res.body.data._id )
-                    test.string( res.body.data.email ).is( "thisisatest@test.com" )
-                    test.number( res.body.data.lastLoggedIn ).isNotNaN()
-                    test.value( res.body.data.password )
-                    test.value( res.body.data.registerKey )
-                    test.value( res.body.data.sessionId )
-                    test.value( res.body.data.passwordTag )
-                    test.string( res.body.data.username ).is( "george" )
-                    test.number( res.body.data.privileges ).is( 3 )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did get user data of myself', function( done ) {
+        //     manager.get( `/users/george?verbose=true`, 'george' )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isNotTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.object( res.body ).hasProperty( "data" )
+        //             test.string( res.body.data._id )
+        //             test.string( res.body.data.email ).is( "thisisatest@test.com" )
+        //             test.number( res.body.data.lastLoggedIn ).isNotNaN()
+        //             test.value( res.body.data.password )
+        //             test.value( res.body.data.registerKey )
+        //             test.value( res.body.data.sessionId )
+        //             test.value( res.body.data.passwordTag )
+        //             test.string( res.body.data.username ).is( "george" )
+        //             test.number( res.body.data.privileges ).is( 3 )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
     } )
 } )
 

@@ -37,6 +37,8 @@ require( './tests/user/test-authenticated.js' );
 require( './tests/user/test-user-creation' );
 require( './tests/user/test-user-registration' );
 require( './tests/user/test-user-activation' );
+require( './tests/user/test-user-fetching' );
+require( './tests/user/test-user-deletion' );
 require( './tests/user/test-user-meta' );
 require( './tests/user/test-log-in.js' );
 require( './tests/user/test-get-user' );
