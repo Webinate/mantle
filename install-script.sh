@@ -6,7 +6,7 @@ set -e
 
 # Functiom that prints the latest stable version
 version() {
-  echo "0.6.1"
+  echo "0.6.2"
 }
 
 echo "Downloading latest version from github $(version)"
