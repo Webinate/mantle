@@ -1,5 +1,5 @@
 const test = require( 'unit.js' );
-let guest, admin, config,
+let guest, admin, config, user1,
     testUserName = 'fancyUser123',
     testUserEmail = 'fancyUser123@fancy.com';
 
@@ -9,6 +9,7 @@ describe( 'Testing registering a user', function() {
         const header = require( '../header.js' );
         guest = header.users.guest;
         admin = header.users.admin;
+        user1 = header.users.user1;
         config = header.config;
     } )
 
@@ -104,6 +105,16 @@ describe( 'Testing registering a user', function() {
             .then( res => {
                 test.object( res.body.data ).hasProperty( "registerKey" )
                 test.string( res.body.data.registerKey ).isNot( "" );
+                done();
+            } ).catch( err => done( err ) );
+    } )
+
+    it( 'did not approve activation as a regular user', function( done ) {
+        user1.put( `/auth/${testUserName}/approve-activation` )
+            .then( res => {
+                test.bool( res.body.error ).isTrue()
+                test.object( res.body ).hasProperty( "message" )
+                test.string( res.body.message ).is( "You don't have permission to make this request" )
                 done();
             } ).catch( err => done( err ) );
     } )

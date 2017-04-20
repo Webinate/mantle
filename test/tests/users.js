@@ -682,26 +682,26 @@ describe( 'Testing user API functions', function() {
 
         // } ).timeout( 16000 )
 
-        it( 'should get george when searching all registered users', function( done ) {
-            manager.get( `/users?search=george`, null )
-                .then( res => {
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Found 1 users" )
-                    test.bool( res.body.error ).isFalse()
-                    test.value( res.body.data[ 0 ].password ).isUndefined()
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'should get george when searching all registered users', function( done ) {
+        //     manager.get( `/users?search=george`, null )
+        //         .then( res => {
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Found 1 users" )
+        //             test.bool( res.body.error ).isFalse()
+        //             test.value( res.body.data[ 0 ].password ).isUndefined()
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did create another regular user george2 with valid details', function( done ) {
-            manager.post( `/users`, { username: "george2", password: "password", email: "thisisatest2@test.com", privileges: 3 } )
-                .then( res => {
-                    test.string( res.body.message ).is( "User george2 has been created" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did create another regular user george2 with valid details', function( done ) {
+        //     manager.post( `/users`, { username: "george2", password: "password", email: "thisisatest2@test.com", privileges: 3 } )
+        //         .then( res => {
+        //             test.string( res.body.message ).is( "User george2 has been created" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 16000 )
+        // } ).timeout( 16000 )
 
         // it( 'did create an activation key for george', function( done ) {
         //     manager.get( `/users/george?verbose=true` )
@@ -732,99 +732,99 @@ describe( 'Testing user API functions', function() {
 
     describe( 'Checking user login with activation code present', function() {
 
-        it( 'did not log in with an activation code present', function( done ) {
-            manager.post( `/auth/login`, { username: "george", password: "password" }, null )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.bool( res.body.authenticated ).isFalse()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "Please authorise your account by clicking on the link that was sent to your email" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not log in with an activation code present', function( done ) {
+        //     manager.post( `/auth/login`, { username: "george", password: "password" }, null )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.bool( res.body.authenticated ).isFalse()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "Please authorise your account by clicking on the link that was sent to your email" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not resend an activation with an invalid user', function( done ) {
-            manager.get( `/auth/NONUSER5/resend-activation`, null )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "No user exists with the specified details" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not resend an activation with an invalid user', function( done ) {
+        //     manager.get( `/auth/NONUSER5/resend-activation`, null )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "No user exists with the specified details" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did resend an activation email with a valid user', function( done ) {
-            manager.get( `/auth/george/resend-activation`, null )
-                .then( res => {
-                    test.bool( res.body.error ).isFalse()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "An activation link has been sent, please check your email for further instructions" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did resend an activation email with a valid user', function( done ) {
+        //     manager.get( `/auth/george/resend-activation`, null )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isFalse()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "An activation link has been sent, please check your email for further instructions" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 16000 )
+        // } ).timeout( 16000 )
 
-        it( 'did not activate with an invalid username', function( done ) {
-            manager.get( `/auth/activate-account?user=NONUSER`, null, 302 )
-                .then( res => {
-                    test.string( res.headers[ "location" ] ).contains( "error" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not activate with an invalid username', function( done ) {
+        //     manager.get( `/auth/activate-account?user=NONUSER`, null, 302 )
+        //         .then( res => {
+        //             test.string( res.headers[ "location" ] ).contains( "error" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not activate with an valid username and no key', function( done ) {
-            manager.get( `/auth/activate-account?user=george`, null, 302 )
-                .then( res => {
-                    test.string( res.headers[ "location" ] ).contains( "error" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not activate with an valid username and no key', function( done ) {
+        //     manager.get( `/auth/activate-account?user=george`, null, 302 )
+        //         .then( res => {
+        //             test.string( res.headers[ "location" ] ).contains( "error" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not activate with an valid username and invalid key', function( done ) {
-            manager.get( `/auth/activate-account?user=george&key=123`, null, 302 )
-                .then( res => {
-                    test.string( res.headers[ "location" ] ).contains( "error" )
+        // it( 'did not activate with an valid username and invalid key', function( done ) {
+        //     manager.get( `/auth/activate-account?user=george&key=123`, null, 302 )
+        //         .then( res => {
+        //             test.string( res.headers[ "location" ] ).contains( "error" )
 
-                    // We need to get the new key - so we log in as admin, get the user details and then log out again
-                    // Login as admin
-                    return manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password } );
+        //             // We need to get the new key - so we log in as admin, get the user details and then log out again
+        //             // Login as admin
+        //             return manager.post( `/auth/login`, { username: manager.config.adminUser.username, password: manager.config.adminUser.password } );
 
-                } ).then( function( res ) {
-                    manager.updateCookieToken( 'admin', res );
-                    return manager.get( `/users/george?verbose=true` );
+        //         } ).then( function( res ) {
+        //             manager.updateCookieToken( 'admin', res );
+        //             return manager.get( `/users/george?verbose=true` );
 
-                } ).then( function( res ) {
-                    activation = res.body.data.registerKey;
-                    done();
+        //         } ).then( function( res ) {
+        //             activation = res.body.data.registerKey;
+        //             done();
 
-                } ).catch( err => done( err ) );
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 30000 )
+        // } ).timeout( 30000 )
 
-        it( 'did activate with a valid username and key', function( done ) {
-            manager.get( `/auth/activate-account?user=george&key=${activation}`, null, 302 )
-                .then( res => {
-                    test.string( res.headers[ "location" ] ).contains( "success" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did activate with a valid username and key', function( done ) {
+        //     manager.get( `/auth/activate-account?user=george&key=${activation}`, null, 302 )
+        //         .then( res => {
+        //             test.string( res.headers[ "location" ] ).contains( "success" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did log in with valid details and an activated account', function( done ) {
-            manager.post( `/auth/login`, { username: "george", password: "password" }, null )
-                .then( res => {
-                    test.bool( res.body.error ).isNotTrue()
-                    test.bool( res.body.authenticated ).isNotFalse()
-                    test.object( res.body ).hasProperty( "message" )
-                    manager.updateCookieToken( 'george', res );
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did log in with valid details and an activated account', function( done ) {
+        //     manager.post( `/auth/login`, { username: "george", password: "password" }, null )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isNotTrue()
+        //             test.bool( res.body.authenticated ).isNotFalse()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             manager.updateCookieToken( 'george', res );
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } )
+        // } )
     } ).timeout( 20000 )
 
     describe( 'Getting/Setting data when a regular user', function() {
@@ -862,27 +862,27 @@ describe( 'Testing user API functions', function() {
 
         } ).timeout( 20000 )
 
-        it( 'did not approve activation (no permission)', function( done ) {
-            manager.put( `/auth/${manager.config.adminUser.username}/approve-activation`, null, 'george' )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not approve activation (no permission)', function( done ) {
+        //     manager.put( `/auth/${manager.config.adminUser.username}/approve-activation`, null, 'george' )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "You don't have permission to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
-        it( 'did not create a new user (no permission)', function( done ) {
-            manager.post( `/users`, null, 'george' )
-                .then( res => {
-                    test.bool( res.body.error ).isTrue()
-                    test.object( res.body ).hasProperty( "message" )
-                    test.string( res.body.message ).is( "You don't have permission to make this request" )
-                    done();
-                } ).catch( err => done( err ) );
+        // it( 'did not create a new user (no permission)', function( done ) {
+        //     manager.post( `/users`, null, 'george' )
+        //         .then( res => {
+        //             test.bool( res.body.error ).isTrue()
+        //             test.object( res.body ).hasProperty( "message" )
+        //             test.string( res.body.message ).is( "You don't have permission to make this request" )
+        //             done();
+        //         } ).catch( err => done( err ) );
 
-        } ).timeout( 20000 )
+        // } ).timeout( 20000 )
 
         it( 'did get user data of myself', function( done ) {
             manager.get( `/users/george?verbose=true`, 'george' )

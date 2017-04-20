@@ -38,6 +38,7 @@ require( './tests/user/test-create-user' );
 require( './tests/user/test-register-user' );
 require( './tests/user/test-log-in.js' );
 require( './tests/user/test-get-user' );
+require( './tests/user/test-user-activation' );
 require( './tests/user/test-user-meta' );
 require( './tests/user/test-stats-basics' );
 require( './tests/user/test-stats-setting-values' );
