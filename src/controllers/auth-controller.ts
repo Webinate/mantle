@@ -182,7 +182,8 @@ export class AuthController extends Controller {
     private async register( req: express.Request, res: express.Response ) {
         try {
             const token: Modepress.IRegisterToken = req.body;
-            const user = await UserManager.get.register( token.username!, token.password!, token.email!, this._server.accountRedirectURL, {}, req );
+            const activationLink = ( this._server.ssl ? 'https://' : 'http://' ) + this._server.host + '/auth/activate-account';
+            const user = await UserManager.get.register( token.username!, token.password!, token.email!, activationLink, {}, req );
 
             return okJson<Modepress.IAuthenticationResponse>( {
                 message: ( user ? 'Please activate your account with the link sent to your email address' : 'User is not authenticated' ),
