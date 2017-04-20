@@ -11,7 +11,6 @@ const tsProject = ts.createProject( 'tsconfig.json' );
 const configFiles = [
     './readme.md',
     './install-script.sh',
-    './test/package.json',
     './src/dist-src/package.json',
     './package.json'
 ];
