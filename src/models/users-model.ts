@@ -8,8 +8,8 @@ export class UsersModel extends Model {
     constructor() {
         super( 'users' );
 
-        this.defaultSchema.add( new text( 'username', '' ) ).setRequired( true ).setUnique(true);
-        this.defaultSchema.add( new text( 'email', '' ) ).setRequired( true ).setUnique(true);
+        this.defaultSchema.add( new text( 'username', '' ) ).setRequired( true ).setUnique( true );
+        this.defaultSchema.add( new text( 'email', '' ) ).setRequired( true ).setUnique( true );
         this.defaultSchema.add( new text( 'password', '' ) ).setRequired( true );
         this.defaultSchema.add( new text( 'registerKey', '' ) );
         this.defaultSchema.add( new text( 'sessionId', '' ) );

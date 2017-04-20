@@ -83,7 +83,7 @@ export class SchemaHtml extends SchemaItem<string> {
         else if ( transformedValue.length < minCharacters )
             return Promise.reject<Error>( new Error( `The character length of '${this.name}' is too short, please keep it above ${minCharacters}` ) );
 
-        const sanitizedHTML = sanitizeHtml( this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags }).trim();
+        const sanitizedHTML = sanitizeHtml( this.value, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags } ).trim();
         if ( this.errorBadHTML && transformedValue !== sanitizedHTML )
             return Promise.reject<Error>( new Error( `'${this.name}' has html code that is not allowed` ) );
 

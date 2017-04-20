@@ -89,9 +89,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         const arr = this.value;
 
         for ( let i = 0, l = arr.length; i < l; i++ )
-            query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] });
+            query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] } );
 
-        const result = await model.findInstances<Modepress.IModelEntry>( query );
+        const result = await model.findInstances<Modepress.IModelEntry>( { selector: query } );
         this._targetDocs = result;
 
         return true;
@@ -113,10 +113,10 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 
         for ( let i = 0, l = this._targetDocs.length; i < l; i++ ) {
             let arrDeps = this._targetDocs[ i ].dbEntry._arrayDependencies || [];
-            arrDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name });
+            arrDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name } );
             promises.push( model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDocs[ i ].dbEntry._id }, {
                 $set: <Modepress.IModelEntry>{ _arrayDependencies: arrDeps }
-            }) );
+            } ) );
         }
 
         await Promise.all( promises );
@@ -147,9 +147,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         const arr = this.value;
 
         for ( let i = 0, l = arr.length; i < l; i++ )
-            query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] });
+            query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] } );
 
-        const results = await model.findInstances<Modepress.IModelEntry>( query );
+        const results = await model.findInstances<Modepress.IModelEntry>( { selector: query } );
         if ( !results || results.length === 0 )
             return;
 
@@ -198,9 +198,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         // Create the query for fetching the instances
         const query = { $or: [] as Modepress.IModelEntry[] };
         for ( let i = 0, l = this.value.length; i < l; i++ )
-            query.$or.push( <Modepress.IModelEntry>{ _id: this.value[ i ] });
+            query.$or.push( <Modepress.IModelEntry>{ _id: this.value[ i ] } );
 
-        const instances = await model.findInstances<Modepress.IModelEntry>( query );
+        const instances = await model.findInstances<Modepress.IModelEntry>( { selector: query } );
         let instance: ModelInstance<Modepress.IModelEntry>;
         const promises: Array<Promise<Modepress.IModelEntry>> = [];
 

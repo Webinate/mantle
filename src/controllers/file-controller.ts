@@ -183,9 +183,6 @@ export class FileController extends Controller {
         let searchTerm: RegExp | undefined;
 
         try {
-
-            ownerRights( req, res )
-
             if ( !req.params.bucket || req.params.bucket.trim() === '' )
                 throw new Error( 'Please specify a valid bucket name' );
 
@@ -193,7 +190,7 @@ export class FileController extends Controller {
             if ( req.query.search )
                 searchTerm = new RegExp( req.query.search, 'i' );
 
-            bucketEntry = await manager.getIBucket( req.params.bucket, req._user!.username );
+            bucketEntry = await manager.getIBucket( req.params.bucket, req.params.user );
 
             if ( !bucketEntry )
                 throw new Error( `Could not find the bucket '${req.params.bucket}'` );

@@ -16,7 +16,7 @@ export class AdminController extends Controller {
     private _config: Modepress.IConfig;
 
     constructor( e: express.Express, config: Modepress.IConfig ) {
-        super([ Model.registerModel( UsersModel ) ]);
+        super( [ Model.registerModel( UsersModel ) ] );
 
         this._config = config;
 

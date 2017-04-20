@@ -10,6 +10,14 @@ export interface UpdateToken<T> { error: string | boolean; instance: ModelInstan
  */
 export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>> }
 
+export interface ISearchOptions<T> {
+    selector?: any;
+    sort?: { [ name: string ]: number; } | null | T;
+    index?: number;
+    limit?: number;
+    projection?: { [ name: string ]: number }
+}
+
 
 /**
  * An instance of a model with its own unique schema and ID. The initial schema is a clone
@@ -173,20 +181,23 @@ export abstract class Model {
 	 * @param limit The number of results to fetch
      * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	 */
-    async findInstances<T>( selector: any, sort?: { [name: string]: number; } | null | T, startIndex: number = 0, limit: number = 0, projection?: { [name: string]: number } ): Promise<Array<ModelInstance<T>>> {
+    async findInstances<T>( options: ISearchOptions<T> = {} ): Promise<Array<ModelInstance<T>>> {
         const collection = this.collection;
 
         if ( !collection || !this._initialized )
             throw new Error( 'The model has not been initialized' );
 
         // Attempt to save the data to mongo collection
-        let cursor = collection.find( selector ).skip( startIndex );
-        if (limit)
-            cursor = cursor.limit( limit );
-        if (projection)
-            cursor = cursor.project( projection );
-        if (sort)
-            cursor = cursor.sort( sort );
+        let cursor = collection.find( options.selector || {} );
+
+        if ( options.index !== undefined )
+            cursor = cursor.skip( options.index );
+        if ( options.limit !== undefined )
+            cursor = cursor.limit( options.limit );
+        if ( options.projection !== undefined )
+            cursor = cursor.project( options.projection );
+        if ( options.sort )
+            cursor = cursor.sort( options.sort );
 
         const result = await cursor.toArray();
 
@@ -296,7 +307,7 @@ export abstract class Model {
 	 * Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	 */
     async deleteInstances( selector: any ): Promise<number> {
-        const instances = await this.findInstances<Modepress.IModelEntry>( selector );
+        const instances = await this.findInstances<Modepress.IModelEntry>( { selector: selector } );
 
         if ( !instances || instances.length === 0 )
             return 0;
@@ -327,7 +338,7 @@ export abstract class Model {
             tokens: []
         };
 
-        const instances = await this.findInstances<T>( selector );
+        const instances = await this.findInstances<T>( { selector: selector } );
 
         if ( !instances || instances.length === 0 )
             return toRet;

@@ -285,7 +285,7 @@ export default class PageRenderer extends Controller {
         const renders = this.getModel( 'renders' );
 
         try {
-            const instances = await renders!.findInstances<Modepress.IRender>( <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) } );
+            const instances = await renders!.findInstances<Modepress.IRender>( { selector: <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) } } );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find a render with that ID' );
@@ -358,7 +358,13 @@ export default class PageRenderer extends Controller {
         try {
             // First get the count
             count = await renders!.count( findToken );
-            const instances = await renders!.findInstances<Modepress.IRender>( findToken, sort, parseInt( req.query.index ), parseInt( req.query.limit ), ( getContent === false ? { html: 0 } : undefined ) );
+            const instances = await renders!.findInstances<Modepress.IRender>( {
+                selector: findToken,
+                sort: sort,
+                index: parseInt( req.query.index ),
+                limit: parseInt( req.query.limit ),
+                projection: ( getContent === false ? { html: 0 } : undefined )
+            } );
 
             const jsons: Array<Promise<Modepress.IRender>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )

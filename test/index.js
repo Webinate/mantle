@@ -12,17 +12,18 @@ if ( args.server === undefined || isNaN( parseInt( args.server ) ) ) {
     process.exit();
 }
 
-
 const startup = require( '../dist/startup.js' );
 const header = require( './tests/header.js' );
-header.TestManager.get;
 
+// Start the first test to initialize everything
 describe( 'Initializing tests', function() {
 
     before( function( done ) {
-
+        // Initialize the server
         startup.initialize().then(() => {
-            return header.TestManager.get.initialize();
+
+            // Initialize the test suites
+            return header.initialize();
         } ).then(() => {
             done();
         } );
@@ -33,6 +34,31 @@ describe( 'Initializing tests', function() {
     } );
 } );
 
-require( './tests/users.js' );
-// require( './tests/posts.js' );
-// require( './tests/comments.js' );
+require( './tests/user/test-authenticated.js' );
+require( './tests/user/test-user-logout' );
+require( './tests/user/test-user-creation' );
+require( './tests/user/test-user-registration' );
+require( './tests/user/test-user-activation' );
+require( './tests/user/test-user-fetching' );
+require( './tests/user/test-user-deletion' );
+require( './tests/user/test-user-meta' );
+require( './tests/user/test-log-in.js' );
+require( './tests/user/test-get-user' );
+require( './tests/user/test-stats-basics' );
+require( './tests/user/test-stats-setting-values' );
+require( './tests/user/test-files-download' );
+require( './tests/user/test-files-set-accessibility' );
+require( './tests/user/test-bucket-creation' );
+require( './tests/user/test-bucket-deletion' );
+require( './tests/user/test-bucket-fetching' );
+require( './tests/user/test-files-get' );
+require( './tests/user/test-files-upload' );
+require( './tests/user/test-files-rename' );
+require( './tests/user/test-files-deletion' );
+require( './tests/posts/test-create-post' );
+require( './tests/posts/test-delete-post' );
+require( './tests/posts/test-getting-posts' );
+require( './tests/posts/test-editting-posts' );
+require( './tests/comments/test-create-comment' );
+require( './tests/comments/test-delete-comment' );
+require( './tests/comments/test-fetch-comment' );

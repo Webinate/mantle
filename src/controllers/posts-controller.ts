@@ -154,7 +154,13 @@ export default class PostsController extends Controller {
             if ( req.query.limit !== undefined )
                 limit = parseInt( req.query.limit );
 
-            const instances = await posts!.findInstances<Modepress.IPost>( findToken, sort, index, limit, ( getContent === false ? { content: 0 } : undefined ) );
+            const instances = await posts!.findInstances<Modepress.IPost>( {
+                selector: findToken,
+                sort: sort,
+                index: index,
+                limit: limit,
+                projection: ( getContent === false ? { content: 0 } : undefined )
+            } );
 
             const jsons: Array<Promise<Modepress.IPost>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
@@ -188,7 +194,7 @@ export default class PostsController extends Controller {
             else
                 findToken = { slug: req.params.slug };
 
-            const instances = await posts!.findInstances<Modepress.IPost>( findToken, null, 0, 1 );
+            const instances = await posts!.findInstances<Modepress.IPost>( { selector: findToken, index: 0, limit: 1 } );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find post' );
@@ -196,7 +202,7 @@ export default class PostsController extends Controller {
 
             const isPublic = await instances[ 0 ].schema.getByName( 'public' )!.getValue();
             // Only admins are allowed to see private posts
-            if ( !isPublic && ( !user || (user && user.privileges! > UserPrivileges.Admin) ) )
+            if ( !isPublic && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
                 throw new Error( 'That post is marked private' );
 
             const jsons: Array<Promise<Modepress.IPost>> = [];
@@ -223,7 +229,7 @@ export default class PostsController extends Controller {
         const categories = this.getModel( 'categories' )!;
 
         try {
-            const instances = await categories.findInstances<Modepress.ICategory>( {}, {}, parseInt( req.query.index ), parseInt( req.query.limit ) );
+            const instances = await categories.findInstances<Modepress.ICategory>( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
 
             const jsons: Array<Promise<Modepress.ICategory>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )

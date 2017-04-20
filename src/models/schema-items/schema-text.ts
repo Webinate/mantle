@@ -49,7 +49,7 @@ export class SchemaText extends SchemaItem<string> {
         let transformedValue = '';
 
         if ( this.htmlClean )
-            transformedValue = sanitizeHtml( this.value.trim(), { allowedTags: [] });
+            transformedValue = sanitizeHtml( this.value.trim(), { allowedTags: [] } );
         else
             transformedValue = this.value.trim();
 

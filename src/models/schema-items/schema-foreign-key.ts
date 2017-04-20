@@ -12,7 +12,8 @@ import { SchemaIdArray } from './schema-id-array';
  */
 export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.IModelEntry | null> {
     public targetCollection: string;
-    public optionalKey: boolean;
+    public keyCanBeNull: boolean;
+    public canAdapt: boolean;
     public curLevel: number;
 
     private _targetDoc: ModelInstance<Modepress.IModelEntry> | null;
@@ -22,22 +23,24 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 	 * @param name The name of this item
 	 * @param val The string representation of the foreign key's _id
      * @param targetCollection The name of the collection to which the target exists
-     * @param optionalKey If true, then this key will only be nullified if the target is removed
+     * @param keyCanBeNull If true, then the key is allowed to be null
+     * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
+     * owns this item must be removed as it cannot exist without the target.
 	 */
-    constructor( name: string, val: string, targetCollection: string, optionalKey: boolean = false ) {
+    constructor( name: string, val: string, targetCollection: string, keyCanBeNull: boolean, canAdapt: boolean ) {
         super( name, val );
         this.targetCollection = targetCollection;
-        this.optionalKey = optionalKey;
+        this.canAdapt = canAdapt;
         this.curLevel = 1;
+        this.keyCanBeNull = keyCanBeNull;
     }
 
 	/**
 	 * Creates a clone of this item
 	 */
     public clone( copy?: SchemaForeignKey ): SchemaForeignKey {
-        copy = copy === undefined ? new SchemaForeignKey( this.name, <string>this.value, this.targetCollection ) : copy;
+        copy = copy === undefined ? new SchemaForeignKey( this.name, <string>this.value, this.targetCollection, this.keyCanBeNull, this.canAdapt ) : copy;
         super.clone( copy );
-        copy.optionalKey = this.optionalKey;
         return copy;
     }
 
@@ -65,16 +68,16 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         if ( !transformedValue )
             this.value = null;
 
-        if ( !this.optionalKey && !this.value )
+        if ( !this.keyCanBeNull && !this.value )
             throw new Error( `${this.name} does not exist` );
 
         // We can assume the value is object id by this point
-        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
+        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value } );
 
-        if ( !this.optionalKey && !result )
+        if ( !this.keyCanBeNull && !result )
             throw new Error( `${this.name} does not exist` );
 
-        this._targetDoc = result!;
+        this._targetDoc = result;
 
         return true;
     }
@@ -96,17 +99,17 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         let requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
 
         // Now we need to register the schemas source with the target model
-        if ( this.optionalKey ) {
+        if ( this.canAdapt ) {
             if ( !optionalDeps )
                 optionalDeps = [];
 
-            optionalDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name });
+            optionalDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name } );
         }
         else {
             if ( !requiredDeps )
                 requiredDeps = [];
 
-            requiredDeps.push( { _id: instance.dbEntry._id, collection: collection })
+            requiredDeps.push( { _id: instance.dbEntry._id, collection: collection } )
         }
 
         await model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDoc.dbEntry._id }, {
@@ -114,7 +117,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
                 _optionalDependencies: optionalDeps,
                 _requiredDependencies: requiredDeps
             }
-        });
+        } );
 
         // Nullify the target doc cache
         this._targetDoc = null;
@@ -135,13 +138,13 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             return;
 
         // We can assume the value is object id by this point
-        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
+        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value } );
         if ( !result )
             return;
 
         let query;
 
-        if ( this.optionalKey )
+        if ( this.canAdapt )
             query = { $pull: { _optionalDependencies: { _id: instance.dbEntry._id } } };
         else
             query = { $pull: { _requiredDependencies: { _id: instance.dbEntry._id } } };
@@ -178,13 +181,13 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
                 return this.value;
         }
 
-        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value });
+        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value } );
 
         if ( !result )
             throw new Error( `Could not find instance of ${this.name} references with foreign key '${this.targetCollection}'` );
 
         // Get the models items are increase their level - this ensures we dont go too deep
-        const items = result.schema.getItems() !;
+        const items = result.schema.getItems()!;
         const nextLevel = this.curLevel + 1;
 
         for ( let i = 0, l = items.length; i < l; i++ )
