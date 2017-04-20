@@ -56,7 +56,7 @@ class Agent {
         return this;
     }
 
-    setContentType(val) {
+    setContentType( val ) {
         this._setContentType = val;
         return this;
     }
@@ -77,11 +77,11 @@ class Agent {
     go( url, data, type ) {
         return new Promise(( resolve, reject ) => {
             let req = null;
-            if (type === 'post')
+            if ( type === 'post' )
                 req = this.agent.post( url );
-            else if (type === 'delete')
+            else if ( type === 'delete' )
                 req = this.agent.delete( url );
-            else if (type === 'put')
+            else if ( type === 'put' )
                 req = this.agent.put( url );
             else
                 req = this.agent.get( url );
@@ -91,23 +91,23 @@ class Agent {
             if ( this._setContentType )
                 req.set( 'Accept', this._setContentType );
 
-            if (this._code)
+            if ( this._code )
                 req.expect( this._code )
 
-            if (this._contentType)
+            if ( this._contentType )
                 req.expect( 'Content-Type', this._contentType );
 
-            if (data)
+            if ( data )
                 req.send( data )
 
-            if (this._fields)
+            if ( this._fields )
                 for ( let i in this._fields )
-                    req.field( i, this._fields[i] )
+                    req.field( i, this._fields[ i ] )
 
-            if (this._filePath)
+            if ( this._filePath )
                 req.attach( this._fileName, this._filePath )
 
-            if (this._contentLength)
+            if ( this._contentLength )
                 req.expect( 'Content-Length', this._contentLength )
 
             if ( this.cookie )
@@ -121,23 +121,23 @@ class Agent {
 
                 return ( resolve( res ) );
             } );
-        });
+        } );
     }
 
-    post(url, data) {
-        return this.go(url, data, 'post');
+    post( url, data ) {
+        return this.go( url, data, 'post' );
     }
 
-    delete(url, data) {
-        return this.go(url, data, 'delete');
+    delete( url, data ) {
+        return this.go( url, data, 'delete' );
     }
 
-    put(url, data) {
-        return this.go(url, data, 'put');
+    put( url, data ) {
+        return this.go( url, data, 'put' );
     }
 
-    get(url, data) {
-        return this.go(url );
+    get( url, data ) {
+        return this.go( url );
     }
 }
 
@@ -258,8 +258,9 @@ class TestManager {
         if ( response.body.error )
             throw new Error( response.body.message );
 
-        newAgent.updateCookie(response);
-        exports.users[username] = newAgent;
+        newAgent.updateCookie( response );
+        exports.users[ username ] = newAgent;
+        return newAgent;
     }
 
     /**
