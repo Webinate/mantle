@@ -74,7 +74,7 @@ export async function initialize() {
         new ConsoleManager().initialize();
 }
 
-if ( cluster.isWorker ) {
+if ( cluster.isWorker || args.numThreads === 1 ) {
     // Start the server initialization
     initialize().catch(( err: Error ) => {
         error( err.message ).then(() => process.exit() );
