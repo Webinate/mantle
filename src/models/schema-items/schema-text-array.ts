@@ -50,7 +50,7 @@ export class SchemaTextArray extends SchemaItem<Array<string>> {
         const transformedValue = this.value;
         const toRemove: number[] = [];
         for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
-            transformedValue[ i ] = sanitizeHtml( transformedValue[ i ].trim(), { allowedTags: [] });
+            transformedValue[ i ] = sanitizeHtml( transformedValue[ i ].trim(), { allowedTags: [] } );
 
             if ( transformedValue[ i ].trim() === '' )
                 toRemove.push( i );

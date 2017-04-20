@@ -77,7 +77,7 @@ export abstract class Model {
         this.defaultSchema = new Schema();
 
         if ( Model._registeredModels[ collection ] )
-            throw new Error( `You cannot create model '${ collection }' as its already been registered` );
+            throw new Error( `You cannot create model '${collection}' as its already been registered` );
 
         // Register the model
         Model._registeredModels[ collection ] = this;
@@ -155,7 +155,7 @@ export abstract class Model {
         await Promise.all( promises );
 
         this._initialized = true;
-        info( `Successfully created model '${ this._collectionName }'` );
+        info( `Successfully created model '${this._collectionName}'` );
         return this;
     }
 
@@ -359,7 +359,7 @@ export abstract class Model {
 
                 if ( !unique ) {
                     toRet.error = true;
-                    toRet.tokens.push( { error: `'${ instance.uniqueFieldNames() }' must be unique`, instance: instance } );
+                    toRet.tokens.push( { error: `'${instance.uniqueFieldNames()}' must be unique`, instance: instance } );
                     continue;
                 }
 
@@ -433,7 +433,7 @@ export abstract class Model {
         const unique = await this.checkUniqueness( newInstance );
 
         if ( !unique )
-            throw new Error( `'${ newInstance.uniqueFieldNames() }' must be unique` );
+            throw new Error( `'${newInstance.uniqueFieldNames()}' must be unique` );
 
         // Now try to create a new instance
         const instance = await this.insert( [ newInstance ] );

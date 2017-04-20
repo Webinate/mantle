@@ -60,16 +60,16 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
                 if ( Utils.isValidObjectID( <string>this.value[ i ] ) )
                     transformedValue[ i ] = new ObjectID( <string>this.value[ i ] );
                 else if ( ( <string>this.value[ i ] ).trim() !== '' )
-                    throw new Error( `Please use a valid ID for '${ this.name }'` );
+                    throw new Error( `Please use a valid ID for '${this.name}'` );
                 else
-                    throw new Error( `Please use a valid ID for '${ this.name }'` );
+                    throw new Error( `Please use a valid ID for '${this.name}'` );
             }
         }
 
         if ( transformedValue.length < this.minItems )
-            throw new Error( `You must select at least ${ this.minItems } item${ ( this.minItems === 1 ? '' : 's' ) } for ${ this.name }` );
+            throw new Error( `You must select at least ${this.minItems} item${( this.minItems === 1 ? '' : 's' )} for ${this.name}` );
         if ( transformedValue.length > this.maxItems )
-            throw new Error( `You have selected too many items for ${ this.name }, please only use up to ${ this.maxItems }` );
+            throw new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` );
 
         // If no collection - then return
         if ( !this.targetCollection )
@@ -82,7 +82,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         const model = Model.getByName( this.targetCollection );
 
         if ( !model )
-            throw new Error( `${ this.name } references a foreign key '${ this.targetCollection }' which doesn't seem to exist` );
+            throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
         // We can assume the value is object id by this point
         const query = { $or: [] as Modepress.IModelEntry[] };
@@ -184,7 +184,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 
         const model = Model.getByName( this.targetCollection );
         if ( !model )
-            throw new Error( `${ this.name } references a foreign key '${ this.targetCollection }' which doesn't seem to exist` );
+            throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
         // Make sure the current level is not beyond the max depth
         if ( options.expandMaxDepth !== undefined ) {

@@ -144,7 +144,7 @@ export default class PageRenderer extends Controller {
         if ( !req.query || Object.keys( req.query ).length === 0 )
             addQueryMark = true;
 
-        return protocol + '://' + req.get( 'host' ) + req.url + ( addQueryMark ? `?${ this.renderQueryFlag }=true` : `&${ this.renderQueryFlag }=true` );
+        return protocol + '://' + req.get( 'host' ) + req.url + ( addQueryMark ? `?${this.renderQueryFlag}=true` : `&${this.renderQueryFlag}=true` );
     }
 
     /**
@@ -231,11 +231,11 @@ export default class PageRenderer extends Controller {
                 html = await this.renderPage( url );
 
             if ( !instance ) {
-                info( `Saving render '${ url }'` );
+                info( `Saving render '${url}'` );
                 await model.createInstance<Modepress.IRender>( <Modepress.IRender>{ expiration: Date.now() + this.expiration, html: html, url: url } );
             }
             else if ( Date.now() > expiration ) {
-                info( `Updating render '${ url }'` );
+                info( `Updating render '${url}'` );
                 await model.update<Modepress.IRender>( <Modepress.IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
             }
 
@@ -375,7 +375,7 @@ export default class PageRenderer extends Controller {
             okJson<Modepress.IGetRenders>( {
                 error: false,
                 count: count,
-                message: `Found ${ count } renders`,
+                message: `Found ${count} renders`,
                 data: sanitizedData
             }, res );
 
@@ -396,7 +396,7 @@ export default class PageRenderer extends Controller {
 
             okJson<Modepress.IResponse>( {
                 error: false,
-                message: `${ num } Instances have been removed`
+                message: `${num} Instances have been removed`
             }, res );
 
         } catch ( err ) {

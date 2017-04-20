@@ -23,7 +23,7 @@ export class SessionController extends Controller {
 	 * @param The config options of this manager
 	 */
     constructor( e: express.Express, config: Modepress.IConfig ) {
-        super([ Model.registerModel( UsersModel ) ]);
+        super( [ Model.registerModel( UsersModel ) ] );
 
         this._config = config;
 
