@@ -34,11 +34,22 @@ export default class PageRenderer extends Controller {
         'quora link preview',
         'showyoubot',
         'outbrain',
-        'pinterest',
+        'pinterest/0.',
         'developers.google.com/+/web/snippet',
         'slackbot',
         'vkShare',
-        'W3C_Validator'
+        'W3C_Validator',
+        'redditbot',
+        'Applebot',
+        'WhatsApp',
+        'flipboard',
+        'tumblr',
+        'bitlybot',
+        'SkypeUriPreview',
+        'nuzzel',
+        'Discordbot',
+        'Google Page Speed',
+        'Qwantify'
     ];
 
     private static extensionsToIgnore: Array<string> = [
