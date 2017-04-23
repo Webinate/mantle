@@ -5,7 +5,6 @@ import { Server as MongoServer, Db } from 'mongodb';
 import { Server } from './server';
 import { ConsoleManager } from './console/console-manager';
 import { prepare } from './db-preparation';
-import * as cluster from 'cluster';
 
 let config: Modepress.IConfig | null = null;
 const args = yargs.argv;
@@ -74,7 +73,7 @@ export async function initialize() {
         new ConsoleManager().initialize();
 }
 
-if ( cluster.isWorker || args.numThreads === 1 ) {
+if ( !args.runningTests ) {
     // Start the server initialization
     initialize().catch(( err: Error ) => {
         error( err.message ).then(() => process.exit() );
