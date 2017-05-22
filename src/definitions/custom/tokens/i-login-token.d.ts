@@ -1,10 +1,8 @@
-declare namespace Modepress {
-    /*
-     * The token used for logging in
-     */
-    export interface ILoginToken {
-        username: string;
-        password: string;
-        rememberMe: boolean;
-    }
+/*
+* The token used for logging in
+*/
+export interface ILoginToken {
+    username: string;
+    password: string;
+    rememberMe: boolean;
 }

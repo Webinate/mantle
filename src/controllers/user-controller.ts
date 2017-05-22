@@ -6,6 +6,12 @@ import { UserManager, UserPrivileges } from '../users';
 import { ownerRights, adminRights, identifyUser } from '../permission-controllers';
 import { Controller } from './controller'
 import { okJson, errJson } from '../serializers';
+import { IConfig } from '../definitions/custom/config/i-config';
+import { IServer } from '../definitions/custom/config/i-server';
+import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
+import { IUserEntry } from '../definitions/custom/models/i-user-entry';
+import { IGetUser, IResponse, IGetUsers } from '../definitions/custom/tokens/standard-tokens';
+
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
@@ -14,8 +20,8 @@ import { UsersModel } from '../models/users-model';
  * Main class to use for managing users
  */
 export class UserController extends Controller {
-    private _config: Modepress.IConfig;
-    private _server: Modepress.IServer;
+    private _config: IConfig;
+    private _server: IServer;
 
 	/**
 	 * Creates an instance of the user manager
@@ -23,7 +29,7 @@ export class UserController extends Controller {
 	 * @param sessionCollection The mongo collection that stores the session data
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: Modepress.IConfig, server: Modepress.IServer ) {
+    constructor( e: express.Express, config: IConfig, server: IServer ) {
         super( [ Model.registerModel( UsersModel ) ] );
 
         this._config = config;
@@ -53,14 +59,14 @@ export class UserController extends Controller {
 	 * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
      * is specified. Specify the verbose=true parameter in order to get all user data.
 	 */
-    private async getUser( req: Modepress.IAuthReq, res: express.Response ) {
+    private async getUser( req: IAuthReq, res: express.Response ) {
         try {
             const user = await UserManager.get.getUser( req.params.username );
 
             if ( !user )
                 throw new Error( 'No user found' );
 
-            okJson<Modepress.IGetUser>( {
+            okJson<IGetUser>( {
                 error: false,
                 message: `Found ${user.dbEntry.username}`,
                 data: user.generateCleanedData( Boolean( req.query.verbose ) )
@@ -76,7 +82,7 @@ export class UserController extends Controller {
      * Also specify the verbose=true parameter in order to get all user data. You can also filter usernames with the
      * search query
 	 */
-    private async getUsers( req: Modepress.IAuthReq, res: express.Response ) {
+    private async getUsers( req: IAuthReq, res: express.Response ) {
         let verbose = Boolean( req.query.verbose );
 
         // Only admins are allowed to see sensitive data
@@ -88,12 +94,12 @@ export class UserController extends Controller {
         try {
             const totalNumUsers = await UserManager.get.numUsers( new RegExp( req.query.search ) );
             const users = await UserManager.get.getUsers( parseInt( req.query.index ), parseInt( req.query.limit ), new RegExp( req.query.search ) );
-            const sanitizedData: Modepress.IUserEntry[] = [];
+            const sanitizedData: IUserEntry[] = [];
 
             for ( let i = 0, l = users.length; i < l; i++ )
                 sanitizedData.push( users[ i ].generateCleanedData( verbose ) );
 
-            okJson<Modepress.IGetUsers>( {
+            okJson<IGetUsers>( {
                 error: false,
                 message: `Found ${users.length} users`,
                 data: sanitizedData,
@@ -108,7 +114,7 @@ export class UserController extends Controller {
     /**
  	 * Sets a user's meta data
 	 */
-    private async setData( req: Modepress.IAuthReq, res: express.Response ) {
+    private async setData( req: IAuthReq, res: express.Response ) {
         const user = req._user!;
         let val = req.body && req.body.value;
         if ( !val )
@@ -116,7 +122,7 @@ export class UserController extends Controller {
 
         try {
             await UserManager.get.setMeta( user, val );
-            okJson<Modepress.IResponse>( { message: `User's data has been updated`, error: false }, res );
+            okJson<IResponse>( { message: `User's data has been updated`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -126,13 +132,13 @@ export class UserController extends Controller {
     /**
 	 * Sets a user's meta value
 	 */
-    private async setVal( req: Modepress.IAuthReq, res: express.Response ) {
+    private async setVal( req: IAuthReq, res: express.Response ) {
         const user = req._user!;
         const name = req.params.name;
 
         try {
             await UserManager.get.setMetaVal( user, name, req.body.value );
-            okJson<Modepress.IResponse>( { message: `Value '${name}' has been updated`, error: false }, res );
+            okJson<IResponse>( { message: `Value '${name}' has been updated`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -142,7 +148,7 @@ export class UserController extends Controller {
     /**
 	 * Gets a user's meta value
 	 */
-    private async getVal( req: Modepress.IAuthReq, res: express.Response ) {
+    private async getVal( req: IAuthReq, res: express.Response ) {
         const user = req._user!;
         const name = req.params.name;
 
@@ -158,7 +164,7 @@ export class UserController extends Controller {
     /**
 	 * Gets a user's meta data
 	 */
-    private async getData( req: Modepress.IAuthReq, res: express.Response ) {
+    private async getData( req: IAuthReq, res: express.Response ) {
         const user = req._user!;
 
         try {
@@ -173,7 +179,7 @@ export class UserController extends Controller {
 	/**
 	 * Removes a user from the database
 	 */
-    private async removeUser( req: Modepress.IAuthReq, res: express.Response ) {
+    private async removeUser( req: IAuthReq, res: express.Response ) {
         try {
             const toRemove = req.params.user;
             if ( !toRemove )
@@ -181,7 +187,7 @@ export class UserController extends Controller {
 
             await UserManager.get.removeUser( toRemove );
 
-            return okJson<Modepress.IResponse>( { message: `User ${toRemove} has been removed`, error: false }, res );
+            return okJson<IResponse>( { message: `User ${toRemove} has been removed`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -193,7 +199,7 @@ export class UserController extends Controller {
 	 */
     private async createUser( req: express.Request, res: express.Response ) {
         try {
-            const token: Modepress.IUserEntry = req.body;
+            const token: IUserEntry = req.body;
 
             // Set default privileges
             token.privileges = token.privileges ? token.privileges : UserPrivileges.Regular;
@@ -203,7 +209,7 @@ export class UserController extends Controller {
                 throw new Error( 'You cannot create a user with super admin permissions' );
 
             const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
-            okJson<Modepress.IGetUser>( {
+            okJson<IGetUser>( {
                 error: false,
                 message: `User ${user.dbEntry.username} has been created`,
                 data: user.dbEntry

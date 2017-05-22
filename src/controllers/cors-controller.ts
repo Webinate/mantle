@@ -1,4 +1,5 @@
-﻿import * as http from 'http';
+﻿import { IServer } from '../definitions/custom/config/i-server';
+import * as http from 'http';
 import { error as logError } from '../logger';
 import { Controller } from './controller';
 import * as express from 'express';
@@ -10,7 +11,7 @@ export default class CORSController extends Controller {
     /**
 	 * Creates an instance of the user manager
 	 */
-    constructor( e: express.Express, config: Modepress.IServer ) {
+    constructor( e: express.Express, config: IServer ) {
         super( null );
 
         const matches: Array<RegExp> = [];

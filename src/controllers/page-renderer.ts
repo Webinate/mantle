@@ -1,4 +1,10 @@
-﻿import * as mongodb from 'mongodb';
+﻿import { IConfig } from '../definitions/custom/config/i-config';
+import { IServer } from '../definitions/custom/config/i-server';
+import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
+import { IRender } from '../definitions/custom/models/i-render';
+import { IGetRenders, IResponse } from '../definitions/custom/tokens/standard-tokens';
+
+import * as mongodb from 'mongodb';
 import { error as logError, info } from '../logger';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -99,7 +105,7 @@ export default class PageRenderer extends Controller {
      * @param config The configuration options
      * @param e The express instance of this server
 	 */
-    constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
+    constructor( server: IServer, config: IConfig, e: express.Express ) {
         super( [ Model.registerModel( RendersModel ) ] );
 
         server; // Supress empty param warning
@@ -222,11 +228,11 @@ export default class PageRenderer extends Controller {
 
         const model = this.getModel( 'renders' )!;
         const url = this.getUrl( req );
-        let instance: ModelInstance<Modepress.IRender> | null = null;
+        let instance: ModelInstance<IRender> | null = null;
         let expiration = 0;
 
         try {
-            instance = await model.findOne<Modepress.IRender>( { url: url } );
+            instance = await model.findOne<IRender>( { url: url } );
             let html = '';
 
             if ( instance ) {
@@ -243,11 +249,11 @@ export default class PageRenderer extends Controller {
 
             if ( !instance ) {
                 info( `Saving render '${url}'` );
-                await model.createInstance<Modepress.IRender>( <Modepress.IRender>{ expiration: Date.now() + this.expiration, html: html, url: url } );
+                await model.createInstance<IRender>( <IRender>{ expiration: Date.now() + this.expiration, html: html, url: url } );
             }
             else if ( Date.now() > expiration ) {
                 info( `Updating render '${url}'` );
-                await model.update<Modepress.IRender>( <Modepress.IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
+                await model.update<IRender>( <IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
             }
 
             info( 'Sending back render without script tags' );
@@ -296,7 +302,7 @@ export default class PageRenderer extends Controller {
         const renders = this.getModel( 'renders' );
 
         try {
-            const instances = await renders!.findInstances<Modepress.IRender>( { selector: <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) } } );
+            const instances = await renders!.findInstances<IRender>( { selector: <IRender>{ _id: new mongodb.ObjectID( req.params.id ) } } );
 
             if ( instances.length === 0 )
                 throw new Error( 'Could not find a render with that ID' );
@@ -319,16 +325,16 @@ export default class PageRenderer extends Controller {
     /**
      * Attempts to remove a render by ID
      */
-    private async removeRender( req: Modepress.IAuthReq, res: express.Response ) {
+    private async removeRender( req: IAuthReq, res: express.Response ) {
         const renders = this.getModel( 'renders' );
 
         try {
-            const numRemoved = await renders!.deleteInstances( <Modepress.IRender>{ _id: new mongodb.ObjectID( req.params.id ) } );
+            const numRemoved = await renders!.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) } );
 
             if ( numRemoved === 0 )
                 throw new Error( 'Could not find a cache with that ID' );
 
-            okJson<Modepress.IResponse>( {
+            okJson<IResponse>( {
                 error: false,
                 message: 'Cache has been successfully removed'
             }, res );
@@ -341,7 +347,7 @@ export default class PageRenderer extends Controller {
     /**
      * Returns an array of IPost items
      */
-    private async getRenders( req: Modepress.IAuthReq, res: express.Response ) {
+    private async getRenders( req: IAuthReq, res: express.Response ) {
         const renders = this.getModel( 'renders' );
         let count = 0;
         const findToken = {};
@@ -356,7 +362,7 @@ export default class PageRenderer extends Controller {
         }
 
         // Sort by the date created
-        const sort: Modepress.IRender = { createdOn: sortOrder };
+        const sort: IRender = { createdOn: sortOrder };
 
         let getContent: boolean = true;
         if ( req.query.minimal )
@@ -364,12 +370,12 @@ export default class PageRenderer extends Controller {
 
         // Check for keywords
         if ( req.query.search )
-            ( <Modepress.IRender>findToken ).url = <any>new RegExp( req.query.search, 'i' );
+            ( <IRender>findToken ).url = <any>new RegExp( req.query.search, 'i' );
 
         try {
             // First get the count
             count = await renders!.count( findToken );
-            const instances = await renders!.findInstances<Modepress.IRender>( {
+            const instances = await renders!.findInstances<IRender>( {
                 selector: findToken,
                 sort: sort,
                 index: parseInt( req.query.index ),
@@ -377,13 +383,13 @@ export default class PageRenderer extends Controller {
                 projection: ( getContent === false ? { html: 0 } : undefined )
             } );
 
-            const jsons: Array<Promise<Modepress.IRender>> = [];
+            const jsons: Array<Promise<IRender>> = [];
             for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<Modepress.IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
+                jsons.push( instances[ i ].schema.getAsJson<IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
 
             const sanitizedData = await Promise.all( jsons );
 
-            okJson<Modepress.IGetRenders>( {
+            okJson<IGetRenders>( {
                 error: false,
                 count: count,
                 message: `Found ${count} renders`,
@@ -398,14 +404,14 @@ export default class PageRenderer extends Controller {
     /**
      * Removes all cache items from the db
      */
-    private async clearRenders( req: Modepress.IAuthReq, res: express.Response ) {
+    private async clearRenders( req: IAuthReq, res: express.Response ) {
         const renders = this.getModel( 'renders' );
 
         try {
             // First get the count
             const num = await renders!.deleteInstances( {} );
 
-            okJson<Modepress.IResponse>( {
+            okJson<IResponse>( {
                 error: false,
                 message: `${num} Instances have been removed`
             }, res );

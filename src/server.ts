@@ -1,4 +1,6 @@
-﻿import * as express from 'express';
+﻿import { IConfig } from './definitions/custom/config/i-config';
+import { IServer } from './definitions/custom/config/i-server';
+import * as express from 'express';
 import * as morgan from 'morgan';
 import * as mongodb from 'mongodb';
 import * as http from 'http';
@@ -20,11 +22,11 @@ import { AdminController } from './controllers/admin-controller';
 import { ErrorController } from './controllers/error-controller';
 
 export class Server {
-    private _config: Modepress.IConfig;
-    private _server: Modepress.IServer;
+    private _config: IConfig;
+    private _server: IServer;
     private _db: mongodb.Db;
 
-    constructor( server: Modepress.IServer, config: Modepress.IConfig, db: mongodb.Db ) {
+    constructor( server: IServer, config: IConfig, db: mongodb.Db ) {
         this._config = config;
         this._server = server;
         this._db = db;

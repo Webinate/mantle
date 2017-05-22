@@ -1,5 +1,5 @@
 ﻿'use strict';
-
+import { ISessionEntry } from './definitions/custom/models/i-session-entry';
 import * as http from 'http';
 import * as mongodb from 'mongodb';
 import { EventEmitter } from 'events';
@@ -85,8 +85,8 @@ export class SessionManager extends EventEmitter {
      * @param startIndex
      * @param limit
      */
-    async getActiveSessions( startIndex?: number, limit: number = -1 ): Promise<Array<Modepress.ISessionEntry>> {
-        const results: Array<Modepress.ISessionEntry> = await this._dbCollection.find( {} ).skip( startIndex! ).limit( limit ).toArray();
+    async getActiveSessions( startIndex?: number, limit: number = -1 ): Promise<Array<ISessionEntry>> {
+        const results: Array<ISessionEntry> = await this._dbCollection.find( {} ).skip( startIndex! ).limit( limit ).toArray();
         return results;
     }
 
@@ -102,14 +102,14 @@ export class SessionManager extends EventEmitter {
 
         if ( sId !== '' ) {
             // We have a session ID, lets try to find it in the DB
-            await this._dbCollection.find( <Modepress.ISessionEntry>{ sessionId: sId } ).limit( 1 ).next();
+            await this._dbCollection.find( <ISessionEntry>{ sessionId: sId } ).limit( 1 ).next();
 
             // Create a new session
             const session = new Session( sId, this._options );
             session.expiration = -1;
 
             // Deletes the session entry
-            await this._dbCollection.deleteOne( <Modepress.ISessionEntry>{ sessionId: session.sessionId } );
+            await this._dbCollection.deleteOne( <ISessionEntry>{ sessionId: session.sessionId } );
 
             this.emit( 'sessionRemoved', sId );
 
@@ -135,7 +135,7 @@ export class SessionManager extends EventEmitter {
 
         if ( sessionId !== '' ) {
             // We have a session ID, lets try to find it in the DB
-            const sessionDB: Modepress.ISessionEntry = await this._dbCollection.find( { sessionId: sessionId } ).limit( 1 ).next();
+            const sessionDB: ISessionEntry = await this._dbCollection.find( { sessionId: sessionId } ).limit( 1 ).next();
 
             // Cant seem to find any session - so create a new one
             if ( !sessionDB )
@@ -199,17 +199,17 @@ export class SessionManager extends EventEmitter {
             // TODO: We need to replace the findToken with one where mongo looks at the conditions
             const findToken = {};
 
-            const sessions: Array<Modepress.ISessionEntry> = await this._dbCollection.find( findToken ).toArray();
+            const sessions: Array<ISessionEntry> = await this._dbCollection.find( findToken ).toArray();
 
             // Remove query
-            const toRemoveQuery: { $or: Array<Modepress.ISessionEntry> } = { $or: [] };
+            const toRemoveQuery: { $or: Array<ISessionEntry> } = { $or: [] };
 
             for ( let i = 0, l = sessions.length; i < l; i++ ) {
                 const expiration: number = parseFloat( sessions[ i ].expiration!.toString() );
 
                 // If the session's time is up
                 if ( expiration < now || force )
-                    toRemoveQuery.$or.push( <Modepress.ISessionEntry>{ _id: sessions[ i ]._id, sessionId: sessions[ i ].sessionId } );
+                    toRemoveQuery.$or.push( <ISessionEntry>{ _id: sessions[ i ]._id, sessionId: sessions[ i ].sessionId } );
                 else
                     // Session time is not up, but may be the next time target
                     next = next < expiration ? next : expiration;
@@ -320,7 +320,7 @@ export class Session {
      * Fills in the data of this session from the data saved in the database
      * @param data The data fetched from the database
      */
-    open( data: Modepress.ISessionEntry ) {
+    open( data: ISessionEntry ) {
         this.sessionId = data.sessionId!;
         this.data = data.data;
         this.expiration = data.expiration!;
@@ -329,8 +329,8 @@ export class Session {
     /**
      * Creates an object that represents this session to be saved in the database
      */
-    save(): Modepress.ISessionEntry {
-        const data: Modepress.ISessionEntry = {
+    save(): ISessionEntry {
+        const data: ISessionEntry = {
             sessionId: this.sessionId,
             data: this.data,
             expiration: ( new Date( Date.now() + ( this.data.shortTerm! ? this.options.lifetime! : this.options.lifetimeExtended! ) * 1000 ) ).getTime()

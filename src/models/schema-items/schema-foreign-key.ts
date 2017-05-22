@@ -1,4 +1,7 @@
-﻿import { SchemaItem } from './schema-item';
+﻿import { ISchemaOptions } from '../../definitions/custom/misc/i-schema-options';
+import { IModelEntry } from '../../definitions/custom/models/i-model-entry';
+
+import { SchemaItem } from './schema-item';
 import { Model, ModelInstance } from '../model';
 import { ObjectID } from 'mongodb';
 import { Utils } from '../../utils';
@@ -10,13 +13,13 @@ import { SchemaIdArray } from './schema-id-array';
  * Required keys will mean that the current document cannot exist if the target does not. Optional keys
  * will simply be nullified if the target no longer exists.
  */
-export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.IModelEntry | null> {
+export class SchemaForeignKey extends SchemaItem<ObjectID | string | IModelEntry | null> {
     public targetCollection: string;
     public keyCanBeNull: boolean;
     public canAdapt: boolean;
     public curLevel: number;
 
-    private _targetDoc: ModelInstance<Modepress.IModelEntry> | null;
+    private _targetDoc: ModelInstance<IModelEntry> | null;
 
 	/**
 	 * Creates a new schema item
@@ -72,7 +75,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             throw new Error( `${this.name} does not exist` );
 
         // We can assume the value is object id by this point
-        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value } );
+        const result = await model.findOne<IModelEntry>( { _id: <ObjectID>this.value } );
 
         if ( !this.keyCanBeNull && !result )
             throw new Error( `${this.name} does not exist` );
@@ -88,7 +91,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
      * @param instance The model instance that was inserted or updated
      * @param collection The DB collection that the model was inserted into
 	 */
-    public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+    public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         if ( !this._targetDoc )
             return;
 
@@ -112,8 +115,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             requiredDeps.push( { _id: instance.dbEntry._id, collection: collection } )
         }
 
-        await model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDoc.dbEntry._id }, {
-            $set: <Modepress.IModelEntry>{
+        await model.collection.updateOne( <IModelEntry>{ _id: this._targetDoc.dbEntry._id }, {
+            $set: <IModelEntry>{
                 _optionalDependencies: optionalDeps,
                 _requiredDependencies: requiredDeps
             }
@@ -128,7 +131,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
      * Called after a model instance is deleted. Useful for any schema item cleanups.
      * @param instance The model instance that was deleted
      */
-    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
+    public async postDelete<T extends IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
         // If they key is required then it must exist
         const model = Model.getByName( this.targetCollection );
         if ( !model )
@@ -138,7 +141,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             return;
 
         // We can assume the value is object id by this point
-        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value } );
+        const result = await model.findOne<IModelEntry>( { _id: <ObjectID>this.value } );
         if ( !result )
             return;
 
@@ -149,7 +152,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
         else
             query = { $pull: { _requiredDependencies: { _id: instance.dbEntry._id } } };
 
-        await model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDoc!.dbEntry._id }, query );
+        await model.collection.updateOne( <IModelEntry>{ _id: this._targetDoc!.dbEntry._id }, query );
         return;
     }
 
@@ -157,7 +160,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
 	 * Gets the value of this item
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
 	 */
-    public async getValue( options: Modepress.ISchemaOptions ): Promise<ObjectID | Modepress.IModelEntry | null> {
+    public async getValue( options: ISchemaOptions ): Promise<ObjectID | IModelEntry | null> {
 
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
             throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
@@ -181,7 +184,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
                 return this.value;
         }
 
-        const result = await model.findOne<Modepress.IModelEntry>( { _id: <ObjectID>this.value } );
+        const result = await model.findOne<IModelEntry>( { _id: <ObjectID>this.value } );
 
         if ( !result )
             throw new Error( `Could not find instance of ${this.name} references with foreign key '${this.targetCollection}'` );
@@ -194,6 +197,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | Modepress.I
             if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
                 ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
 
-        return await result.schema.getAsJson<Modepress.IModelEntry>( result.dbEntry._id, options );
+        return await result.schema.getAsJson<IModelEntry>( result.dbEntry._id, options );
     }
 }

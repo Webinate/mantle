@@ -1,8 +1,11 @@
 ﻿'use strict';
-
+import { IConfig } from '../definitions/custom/config/i-config';
+import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
+import { IFileEntry } from '../definitions/custom/models/i-file-entry';
+import { IBucketEntry } from '../definitions/custom/models/i-bucket-entry';
+import { IRemoveFiles, IResponse, IGetFiles, IGetFile } from '../definitions/custom/tokens/standard-tokens';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import * as users from 'modepress-api';
 import { ownerRights, requireUser } from '../permission-controllers';
 import { Controller } from './controller'
 import { BucketManager } from '../bucket-manager';
@@ -16,7 +19,7 @@ import { BucketModel } from '../models/bucket-model';
  * Main class to use for managing users
  */
 export class FileController extends Controller {
-    private _config: Modepress.IConfig;
+    private _config: IConfig;
     private _allowedFileTypes: Array<string>;
 
 	/**
@@ -24,7 +27,7 @@ export class FileController extends Controller {
 	 * @param e The express app
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: Modepress.IConfig ) {
+    constructor( e: express.Express, config: IConfig ) {
         super( [ Model.registerModel( BucketModel ) ] );
 
         this._config = config;
@@ -53,7 +56,7 @@ export class FileController extends Controller {
     /**
      * Removes files specified in the URL
      */
-    private async removeFiles( req: Modepress.IAuthReq, res: express.Response ) {
+    private async removeFiles( req: IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             let files: Array<string>;
@@ -64,7 +67,7 @@ export class FileController extends Controller {
             files = req.params.files.split( ',' );
             const filesRemoved = await manager.removeFilesByIdentifiers( files, req._user!.username );
 
-            okJson<users.IRemoveFiles>( {
+            okJson<IRemoveFiles>( {
                 message: `Removed [${filesRemoved.length}] files`,
                 error: false,
                 data: filesRemoved,
@@ -79,7 +82,7 @@ export class FileController extends Controller {
     /**
      * Renames a file
      */
-    private async renameFile( req: Modepress.IAuthReq, res: express.Response ) {
+    private async renameFile( req: IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
 
@@ -94,7 +97,7 @@ export class FileController extends Controller {
                 throw new Error( `Could not find the file '${req.params.file}'` );
 
             await manager.renameFile( fileEntry, req.body.name );
-            okJson<users.IResponse>( { message: `Renamed file to '${req.body.name}'`, error: false }, res );
+            okJson<IResponse>( { message: `Renamed file to '${req.body.name}'`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -104,11 +107,11 @@ export class FileController extends Controller {
     /**
      * Attempts to download a file from the server
      */
-    private async getFile( req: Modepress.IAuthReq, res: express.Response ) {
+    private async getFile( req: IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             const fileID = req.params.id;
-            let file: users.IFileEntry;
+            let file: IFileEntry;
             const cache = this._config.google.bucket.cacheLifetime;
 
             if ( !fileID || fileID.trim() === '' )
@@ -132,7 +135,7 @@ export class FileController extends Controller {
     /**
      * Attempts to make a file public
      */
-    private async makePublic( req: Modepress.IAuthReq, res: express.Response ) {
+    private async makePublic( req: IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             const fileID = req.params.id;
@@ -143,7 +146,7 @@ export class FileController extends Controller {
             let fileEntry = await manager.getFile( fileID, req._user!.username );
             fileEntry = await manager.makeFilePublic( fileEntry );
 
-            okJson<users.IGetFile>( { message: `File is now public`, error: false, data: fileEntry }, res );
+            okJson<IGetFile>( { message: `File is now public`, error: false, data: fileEntry }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -153,11 +156,11 @@ export class FileController extends Controller {
     /**
      * Attempts to make a file private
      */
-    private async makePrivate( req: Modepress.IAuthReq, res: express.Response ) {
+    private async makePrivate( req: IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             const fileID = req.params.id;
-            let fileEntry: users.IFileEntry;
+            let fileEntry: IFileEntry;
 
             if ( !fileID || fileID.trim() === '' )
                 throw new Error( `Please specify a file ID` );
@@ -165,7 +168,7 @@ export class FileController extends Controller {
             fileEntry = await manager.getFile( fileID, req._user!.username );
             fileEntry = await manager.makeFilePrivate( fileEntry )
 
-            okJson<users.IGetFile>( { message: `File is now private`, error: false, data: fileEntry }, res );
+            okJson<IGetFile>( { message: `File is now private`, error: false, data: fileEntry }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -175,11 +178,11 @@ export class FileController extends Controller {
     /**
      * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
      */
-    private async getFiles( req: Modepress.IAuthReq, res: express.Response ) {
+    private async getFiles( req: IAuthReq, res: express.Response ) {
         const manager = BucketManager.get;
         const index = parseInt( req.query.index );
         const limit = parseInt( req.query.limit );
-        let bucketEntry: users.IBucketEntry | null;
+        let bucketEntry: IBucketEntry | null;
         let searchTerm: RegExp | undefined;
 
         try {
@@ -198,7 +201,7 @@ export class FileController extends Controller {
             const count = await manager.numFiles( { bucketId: bucketEntry.identifier } );
             const files = await manager.getFilesByBucket( bucketEntry, index, limit, searchTerm );
 
-            return okJson<users.IGetFiles>( {
+            return okJson<IGetFiles>( {
                 message: `Found [${count}] files`,
                 error: false,
                 data: files,

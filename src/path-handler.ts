@@ -1,4 +1,6 @@
-﻿import * as express from 'express';
+﻿import { IPath } from './definitions/custom/config/i-path';
+import { IServer } from './definitions/custom/config/i-server';
+import * as express from 'express';
 import * as fs from 'fs';
 
 /**
@@ -7,13 +9,13 @@ import * as fs from 'fs';
  * to a static one.
  */
 export class PathHandler {
-    private _path: Modepress.IPath;
-    private _config: Modepress.IServer;
+    private _path: IPath;
+    private _config: IServer;
 
     /**
      * Creates a new path handler
      */
-    constructor( path: Modepress.IPath, cfg: Modepress.IServer ) {
+    constructor( path: IPath, cfg: IServer ) {
         this._path = path;
         this._config = cfg;
     }

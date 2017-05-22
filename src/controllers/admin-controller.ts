@@ -1,5 +1,6 @@
 ﻿'use strict';
-
+import { IConfig } from '../definitions/custom/config/i-config';
+import { IResponse } from '../definitions/custom/tokens/standard-tokens';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../users';
@@ -13,9 +14,9 @@ import { UsersModel } from '../models/users-model';
  * Main class to use for managing users
  */
 export class AdminController extends Controller {
-    private _config: Modepress.IConfig;
+    private _config: IConfig;
 
-    constructor( e: express.Express, config: Modepress.IConfig ) {
+    constructor( e: express.Express, config: IConfig ) {
         super( [ Model.registerModel( UsersModel ) ] );
 
         this._config = config;
@@ -44,7 +45,7 @@ export class AdminController extends Controller {
                 throw new Error( 'Please specify a message to send' );
 
             await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
-            okJson<Modepress.IResponse>( { error: false, message: 'Your message has been sent to the support team' }, res );
+            okJson<IResponse>( { error: false, message: 'Your message has been sent to the support team' }, res );
 
         } catch ( err ) {
             return errJson( err, res );

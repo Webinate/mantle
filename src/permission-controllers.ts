@@ -1,4 +1,6 @@
-﻿import * as express from 'express';
+﻿import { IResponse } from './definitions/custom/tokens/standard-tokens';
+import { IAuthReq } from './definitions/custom/tokens/i-auth-request';
+import * as express from 'express';
 import * as mongodb from 'mongodb';
 import { UserManager, UserPrivileges, User } from './users';
 import { errJson } from './serializers';
@@ -37,7 +39,7 @@ function hasPermission( user: User, level: number, existingUser?: string ): bool
 /**
  * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
  */
-export async function canEdit( req: Modepress.IAuthReq, res: express.Response, next?: Function ) {
+export async function canEdit( req: IAuthReq, res: express.Response, next?: Function ) {
     const targetUser: string = req.params.user;
 
     try {
@@ -72,7 +74,7 @@ export async function canEdit( req: Modepress.IAuthReq, res: express.Response, n
 
     } catch ( error ) {
         res.setHeader( 'Content-Type', 'application/json' );
-        res.end( JSON.stringify( <Modepress.IResponse>{
+        res.end( JSON.stringify( <IResponse>{
             error: true,
             message: error.message
         } ) );
@@ -82,7 +84,7 @@ export async function canEdit( req: Modepress.IAuthReq, res: express.Response, n
 /**
  * Checks if the request has owner rights (admin/owner). If not, an error is sent back to the user
  */
-export function ownerRights( req: Modepress.IAuthReq, res: express.Response, next?: Function ): any {
+export function ownerRights( req: IAuthReq, res: express.Response, next?: Function ): any {
     const username = req.params.username || req.params.user;
     requestHasPermission( UserPrivileges.Admin, req, res, username ).then( function() {
         if ( next )
@@ -96,7 +98,7 @@ export function ownerRights( req: Modepress.IAuthReq, res: express.Response, nex
 /**
  * Checks if the request has admin rights. If not, an error is sent back to the user
  */
-export function adminRights( req: Modepress.IAuthReq, res: express.Response, next?: Function ): any {
+export function adminRights( req: IAuthReq, res: express.Response, next?: Function ): any {
     UserManager.get.loggedIn( <express.Request><Express.Request>req, res ).then( function( user ) {
         if ( !user )
             return errJson( new Error( 'You must be logged in to make this request' ), res );
@@ -110,7 +112,7 @@ export function adminRights( req: Modepress.IAuthReq, res: express.Response, nex
     } );
 }
 
-export function checkVerbosity( req: Modepress.IAuthReq, res: express.Response, next?: Function ): any {
+export function checkVerbosity( req: IAuthReq, res: express.Response, next?: Function ): any {
 
     // Check if this must be cleaned or not
     let verbose = req.query.verbose ? true : false;
@@ -128,7 +130,7 @@ export function checkVerbosity( req: Modepress.IAuthReq, res: express.Response, 
 /**
  * Checks for session data and fetches the user. Does not throw an error if the user is not present.
  */
-export function identifyUser( req: Modepress.IAuthReq, res: express.Response, next?: Function ): any {
+export function identifyUser( req: IAuthReq, res: express.Response, next?: Function ): any {
     UserManager.get.loggedIn( <express.Request><Express.Request>req, res ).then( function( user ) {
         if ( user ) {
             req._user = user.dbEntry;
@@ -147,7 +149,7 @@ export function identifyUser( req: Modepress.IAuthReq, res: express.Response, ne
 /**
  * Checks for session data and fetches the user. Sends back an error if no user present
  */
-export function requireUser( req: Modepress.IAuthReq, res: express.Response, next?: Function ): any {
+export function requireUser( req: IAuthReq, res: express.Response, next?: Function ): any {
     UserManager.get.loggedIn( <express.Request><Express.Request>req, res ).then( function( user ) {
         if ( !user )
             return errJson( new Error( `You must be logged in to make this request` ), res );
@@ -170,7 +172,7 @@ export function requireUser( req: Modepress.IAuthReq, res: express.Response, nex
  * @param existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
  * @param next
  */
-export async function requestHasPermission( level: UserPrivileges, req: Modepress.IAuthReq, res: express.Response, existingUser?: string ): Promise<boolean> {
+export async function requestHasPermission( level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string ): Promise<boolean> {
     const user = await UserManager.get.loggedIn( <express.Request><Express.Request>req, res );
 
     if ( !user )

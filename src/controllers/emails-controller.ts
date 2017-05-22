@@ -1,4 +1,8 @@
-﻿import * as express from 'express';
+﻿import { IConfig } from '../definitions/custom/config/i-config';
+import { IServer } from '../definitions/custom/config/i-server';
+import { IMessage } from '../definitions/custom/tokens/i-message';
+
+import * as express from 'express';
 import * as controllerModule from './controller';
 import * as bodyParser from 'body-parser';
 import { UserManager } from '../users'
@@ -11,7 +15,7 @@ export default class EmailsController extends controllerModule.Controller {
      * @param config The configuration options
      * @param e The express instance of this server
 	 */
-    constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
+    constructor( server: IServer, config: IConfig, e: express.Express ) {
         super( null );
 
         const router = express.Router();
@@ -34,12 +38,12 @@ export default class EmailsController extends controllerModule.Controller {
         res.setHeader( 'Content-Type', 'application/json' );
 
         const message: string = [ `Hello admin,`,
-            `We have received a message from ${( <Modepress.IMessage>req.body ).name}:`,
-            `${( <Modepress.IMessage>req.body ).message}`,
+            `We have received a message from ${( <IMessage>req.body ).name}:`,
+            `${( <IMessage>req.body ).message}`,
             ``,
-            `Email: ${( <Modepress.IMessage>req.body ).email}`,
-            `Phone: ${( <Modepress.IMessage>req.body ).phone}`,
-            `Website: ${( <Modepress.IMessage>req.body ).website}` ].join( '\r\n' );
+            `Email: ${( <IMessage>req.body ).email}`,
+            `Phone: ${( <IMessage>req.body ).phone}`,
+            `Website: ${( <IMessage>req.body ).website}` ].join( '\r\n' );
 
         UserManager.get.sendAdminEmail( message ).then( function( body ) {
             res.end( body );

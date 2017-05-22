@@ -1,4 +1,6 @@
 ﻿'use strict';
+import { IConfig } from '../definitions/custom/config/i-config';
+import { IGetSessions, IResponse } from '../definitions/custom/tokens/standard-tokens';
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
@@ -14,7 +16,7 @@ import { UsersModel } from '../models/users-model';
  * Main class to use for managing users
  */
 export class SessionController extends Controller {
-    private _config: Modepress.IConfig;
+    private _config: IConfig;
 
 	/**
 	 * Creates an instance of the user manager
@@ -22,7 +24,7 @@ export class SessionController extends Controller {
 	 * @param sessionCollection The mongo collection that stores the session data
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: Modepress.IConfig ) {
+    constructor( e: express.Express, config: IConfig ) {
         super( [ Model.registerModel( UsersModel ) ] );
 
         this._config = config;
@@ -49,7 +51,7 @@ export class SessionController extends Controller {
             const numSessions = await UserManager.get.sessionManager.numActiveSessions();
             const sessions = await UserManager.get.sessionManager.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
 
-            okJson<Modepress.IGetSessions>( {
+            okJson<IGetSessions>( {
                 error: false,
                 message: `Found ${sessions.length} active sessions`,
                 data: sessions,
@@ -67,7 +69,7 @@ export class SessionController extends Controller {
     private async deleteSession( req: express.Request, res: express.Response ) {
         try {
             await UserManager.get.sessionManager.clearSession( req.params.id, req, res );
-            okJson<Modepress.IResponse>( { error: false, message: `Session ${req.params.id} has been removed` }, res );
+            okJson<IResponse>( { error: false, message: `Session ${req.params.id} has been removed` }, res );
 
         } catch ( err ) {
             return errJson( err, res );

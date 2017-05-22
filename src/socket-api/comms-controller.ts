@@ -1,5 +1,5 @@
 ﻿'use strict';
-
+import { IConfig } from '../definitions/custom/config/i-config';
 import * as bcrypt from 'bcryptjs';
 import * as ws from 'ws';
 import * as events from 'events';
@@ -21,12 +21,12 @@ export class CommsController extends events.EventEmitter {
     private _server: ws.Server;
     private _connections: ClientConnection[];
     private _hashedApiKey: string;
-    private _cfg: Modepress.IConfig;
+    private _cfg: IConfig;
 
     /**
 	 * Creates an instance of the Communication server
 	 */
-    constructor( cfg: Modepress.IConfig ) {
+    constructor( cfg: IConfig ) {
         super();
 
         CommsController.singleton = this;
@@ -52,7 +52,7 @@ export class CommsController extends events.EventEmitter {
 	 * Sends an instruction to the relevant client connections
      * @param instruction The instruction from the server
 	 */
-    processClientInstruction( instruction: ClientInstruction<Modepress.SocketTokens.IToken> ) {
+    processClientInstruction( instruction: ClientInstruction<any> ) {
         let recipients: ClientConnection[];
 
         if ( !instruction.recipients )
@@ -78,7 +78,7 @@ export class CommsController extends events.EventEmitter {
      * instruction - and in some cases might resond to the client with a ClientInstruction.
      * @param instruction The instruction from the client
 	 */
-    processServerInstruction( instruction: ServerInstruction<Modepress.SocketTokens.IToken> ) {
+    processServerInstruction( instruction: ServerInstruction<any> ) {
         if ( !instruction.token )
             return logError( `Websocket error: An instruction was sent from '${instruction.from.domain}' without a token` );
 
@@ -92,7 +92,7 @@ export class CommsController extends events.EventEmitter {
     /**
      * Attempts to send a token to a specific client
      */
-    private sendToken( connection: ClientConnection, token: Modepress.SocketTokens.IToken ): Promise<void> {
+    private sendToken( connection: ClientConnection, token: any ): Promise<void> {
         return new Promise<void>( function( resolve, reject ) {
             let serializedData: string;
 

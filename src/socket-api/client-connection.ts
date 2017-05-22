@@ -38,7 +38,7 @@ export class ClientConnection {
     private onMessage( message: string ) {
         info( `Received message from client: '${message}'` );
         try {
-            const token: Modepress.SocketTokens.IToken = JSON.parse( message );
+            const token: any = JSON.parse( message );
             this._controller.processServerInstruction( new ServerInstruction( token, this ) );
         }
         catch ( err ) {

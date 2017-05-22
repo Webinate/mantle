@@ -1,4 +1,6 @@
-﻿import { SchemaItem } from './schema-items/schema-item';
+﻿import { ISchemaOptions } from '../definitions/custom/misc/i-schema-options';
+import { IModelEntry } from '../definitions/custom/models/i-model-entry';
+import { SchemaItem } from './schema-items/schema-item';
 import * as mongodb from 'mongodb'
 import { ModelInstance } from './model'
 
@@ -81,8 +83,8 @@ export class Schema {
      * @param id The models dont store the _id property directly, and so this has to be passed for serialization
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
 	 */
-    public async getAsJson<T extends Modepress.IModelEntry>( id: mongodb.ObjectID, options: Modepress.ISchemaOptions ): Promise<T> {
-        const toReturn: T = <T><Modepress.IModelEntry>{ _id: id };
+    public async getAsJson<T extends IModelEntry>( id: mongodb.ObjectID, options: ISchemaOptions ): Promise<T> {
+        const toReturn: T = <T><IModelEntry>{ _id: id };
         const items = this._items;
         const promises: Array<Promise<any>> = [];
         const itemsInUse: SchemaItem<any>[] = [];
@@ -133,7 +135,7 @@ export class Schema {
      * @param instance The model instance that was inserted or updated
      * @param collection The DB collection that the model was inserted into
 	 */
-    public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
+    public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
         const items = this._items;
         const promises: Array<Promise<any>> = [];
 
@@ -149,7 +151,7 @@ export class Schema {
      * @param instance The model instance that was deleted
      * @param collection The DB collection that the model was deleted from
      */
-    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
+    public async postDelete<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
         const items = this._items;
         const promises: Array<Promise<any>> = [];
 
