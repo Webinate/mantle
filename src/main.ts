@@ -55,5 +55,5 @@ else if ( cluster.isMaster ) {
     } );
 }
 else {
-    require( './startup.js' );
+    require( './core/startup.js' );
 }
