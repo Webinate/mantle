@@ -3,9 +3,9 @@ import { IConfig } from '../definitions/custom/config/i-config';
 import { IResponse } from '../definitions/custom/tokens/standard-tokens';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../users';
+import { UserManager } from '../core/users';
 import { Controller } from './controller'
-import { okJson, errJson } from '../serializers';
+import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';

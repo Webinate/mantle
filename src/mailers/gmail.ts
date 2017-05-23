@@ -3,7 +3,7 @@ import { IMailer, IGMail } from '../definitions/custom/config/i-mail';
 import * as google from 'googleapis';
 import * as googleAuth from 'google-auth-library';
 import * as fs from 'fs';
-import { error as logError, info } from '../logger';
+import { error as logError, info } from '../utils/logger';
 import * as yargs from 'yargs';
 
 const args = yargs.argv;

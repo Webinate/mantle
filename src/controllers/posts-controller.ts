@@ -14,9 +14,9 @@ import { Controller } from './controller';
 import { Model } from '../models/model';
 import { PostsModel } from '../models/posts-model';
 import { CategoriesModel } from '../models/categories-model';
-import { identifyUser, checkVerbosity, adminRights, hasId } from '../permission-controllers';
-import { okJson, errJson } from '../serializers';
-import { UserPrivileges } from '../users';
+import { identifyUser, checkVerbosity, adminRights, hasId } from '../utils/permission-controllers';
+import { okJson, errJson } from '../utils/serializers';
+import { UserPrivileges } from '../core/users';
 
 /**
  * A controller that deals with the management of posts

@@ -2,10 +2,10 @@
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager, UserPrivileges } from '../users';
-import { ownerRights, adminRights, identifyUser } from '../permission-controllers';
+import { UserManager, UserPrivileges } from '../core/users';
+import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { okJson, errJson } from '../serializers';
+import { okJson, errJson } from '../utils/serializers';
 import { IConfig } from '../definitions/custom/config/i-config';
 import { IServer } from '../definitions/custom/config/i-server';
 import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';

@@ -6,7 +6,7 @@ import * as events from 'events';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as mongodb from 'mongodb';
-import { error as logError, info } from '../logger';
+import { error as logError, info } from '../utils/logger';
 import { ServerInstructionType } from './socket-event-types';
 import { SocketAPI } from './socket-api';
 import { ClientConnection } from './client-connection';

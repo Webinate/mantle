@@ -1,6 +1,6 @@
 ﻿import { SchemaItem } from './schema-item';
 import { ObjectID } from 'mongodb';
-import { isValidObjectID } from '../../utils'
+import { isValidObjectID } from '../../utils/utils'
 
 /**
  * A mongodb ObjectID scheme item for use in Models

@@ -1,8 +1,8 @@
-import { IConfig } from './definitions/custom/config/i-config';
+import { IConfig } from '../definitions/custom/config/i-config';
 import * as mongodb from 'mongodb';
-import { UserManager } from './users';
-import { BucketManager } from './bucket-manager';
-import { CommsController } from './socket-api/comms-controller'
+import { UserManager } from '../core/users';
+import { BucketManager } from '../core/bucket-manager';
+import { CommsController } from '../socket-api/comms-controller'
 
 /**
  * Prepares the database and any dependencies of the collections

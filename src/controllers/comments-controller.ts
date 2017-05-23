@@ -11,9 +11,9 @@ import * as compression from 'compression';
 import { Controller } from './controller';
 import { Model, ModelInstance } from '../models/model';
 import { CommentsModel } from '../models/comments-model';
-import { identifyUser, checkVerbosity, adminRights, canEdit, hasId } from '../permission-controllers';
-import { okJson, errJson } from '../serializers';
-import { UserPrivileges } from '../users';
+import { identifyUser, checkVerbosity, adminRights, canEdit, hasId } from '../utils/permission-controllers';
+import { okJson, errJson } from '../utils/serializers';
+import { UserPrivileges } from '../core/users';
 
 /**
  * A controller that deals with the management of comments

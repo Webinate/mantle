@@ -1,6 +1,6 @@
 'use strict';
 import { IMailer, IMailgun } from '../definitions/custom/config/i-mail';
-import { error as logError, info } from '../logger';
+import { error as logError, info } from '../utils/logger';
 
 /**
  * A simple class for sending mail using Google Mail's API

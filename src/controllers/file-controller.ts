@@ -6,12 +6,12 @@ import { IBucketEntry } from '../definitions/custom/models/i-bucket-entry';
 import { IRemoveFiles, IResponse, IGetFiles, IGetFile } from '../definitions/custom/tokens/standard-tokens';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { ownerRights, requireUser } from '../permission-controllers';
+import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { BucketManager } from '../bucket-manager';
+import { BucketManager } from '../core/bucket-manager';
 import * as compression from 'compression';
-import { error as logError } from '../logger';
-import { okJson, errJson } from '../serializers';
+import { error as logError } from '../utils/logger';
+import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
 

@@ -3,9 +3,8 @@ import { IServer } from '../definitions/custom/config/i-server';
 import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
 import { IRender } from '../definitions/custom/models/i-render';
 import { IGetRenders, IResponse } from '../definitions/custom/tokens/standard-tokens';
-
 import * as mongodb from 'mongodb';
-import { error as logError, info } from '../logger';
+import { error as logError, info } from '../utils/logger';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Controller } from './controller';
@@ -13,8 +12,8 @@ import { RendersModel } from '../models/renders-model';
 import { ModelInstance, Model } from '../models/model';
 import * as url from 'url';
 import * as jsdom from 'jsdom';
-import { okJson, errJson } from '../serializers';
-import { adminRights } from '../permission-controllers'
+import { okJson, errJson } from '../utils/serializers';
+import { adminRights } from '../utils/permission-controllers'
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.

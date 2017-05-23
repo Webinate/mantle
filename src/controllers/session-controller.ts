@@ -4,10 +4,10 @@ import { IGetSessions, IResponse } from '../definitions/custom/tokens/standard-t
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../users';
-import { ownerRights } from '../permission-controllers';
+import { UserManager } from '../core/users';
+import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { okJson, errJson } from '../serializers';
+import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';

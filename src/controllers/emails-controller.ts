@@ -5,8 +5,8 @@ import { IMessage } from '../definitions/custom/tokens/i-message';
 import * as express from 'express';
 import * as controllerModule from './controller';
 import * as bodyParser from 'body-parser';
-import { UserManager } from '../users'
-import { errJson } from '../serializers';
+import { UserManager } from '../core/users'
+import { errJson } from '../utils/serializers';
 
 export default class EmailsController extends controllerModule.Controller {
 	/**

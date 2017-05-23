@@ -1,6 +1,6 @@
 ﻿import { IServer } from '../definitions/custom/config/i-server';
 import * as http from 'http';
-import { error as logError } from '../logger';
+import { error as logError } from '../utils/logger';
 import { Controller } from './controller';
 import * as express from 'express';
 

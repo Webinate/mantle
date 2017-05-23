@@ -1,25 +1,25 @@
-﻿import { IConfig } from './definitions/custom/config/i-config';
-import { IServer } from './definitions/custom/config/i-server';
+﻿import { IConfig } from '../definitions/custom/config/i-config';
+import { IServer } from '../definitions/custom/config/i-server';
 import * as express from 'express';
 import * as morgan from 'morgan';
 import * as mongodb from 'mongodb';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
-import { error, info, enabled as loggingEnabled } from './logger';
+import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
-import { Controller } from './controllers/controller'
-import PageRenderer from './controllers/page-renderer'
-import CORSController from './controllers/cors-controller';
+import { Controller } from '../controllers/controller'
+import PageRenderer from '../controllers/page-renderer'
+import CORSController from '../controllers/cors-controller';
 import { PathHandler } from './path-handler';
-import { SessionController } from './controllers/session-controller';
-import { BucketController } from './controllers/bucket-controller';
-import { StatsController } from './controllers/stats-controller';
-import { FileController } from './controllers/file-controller';
-import { AuthController } from './controllers/auth-controller';
-import { UserController } from './controllers/user-controller';
-import { AdminController } from './controllers/admin-controller';
-import { ErrorController } from './controllers/error-controller';
+import { SessionController } from '../controllers/session-controller';
+import { BucketController } from '../controllers/bucket-controller';
+import { StatsController } from '../controllers/stats-controller';
+import { FileController } from '../controllers/file-controller';
+import { AuthController } from '../controllers/auth-controller';
+import { UserController } from '../controllers/user-controller';
+import { AdminController } from '../controllers/admin-controller';
+import { ErrorController } from '../controllers/error-controller';
 
 export class Server {
     private _config: IConfig;

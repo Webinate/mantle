@@ -1,9 +1,9 @@
 ﻿'use strict';
 
-import { IConfig } from './definitions/custom/config/i-config';
-import { IBucketEntry } from './definitions/custom/models/i-bucket-entry';
-import { IFileEntry } from './definitions/custom/models/i-file-entry';
-import { IStorageStats } from './definitions/custom/models/i-storage-stats';
+import { IConfig } from '../definitions/custom/config/i-config';
+import { IBucketEntry } from '../definitions/custom/models/i-bucket-entry';
+import { IFileEntry } from '../definitions/custom/models/i-file-entry';
+import { IStorageStats } from '../definitions/custom/models/i-storage-stats';
 import * as fs from 'fs';
 import * as gcloud from 'gcloud';
 import * as mongodb from 'mongodb';
@@ -11,9 +11,9 @@ import * as multiparty from 'multiparty';
 import * as zlib from 'zlib';
 import * as compressible from 'compressible';
 import express = require( 'express' );
-import { CommsController } from './socket-api/comms-controller';
-import { ClientInstructionType } from './socket-api/socket-event-types';
-import { ClientInstruction } from './socket-api/client-instruction';
+import { CommsController } from '../socket-api/comms-controller';
+import { ClientInstructionType } from '../socket-api/socket-event-types';
+import { ClientInstruction } from '../socket-api/client-instruction';
 import * as yargs from 'yargs';
 
 const args = yargs.argv;

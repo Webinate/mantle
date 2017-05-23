@@ -4,7 +4,7 @@ import { IModelEntry } from '../../definitions/custom/models/i-model-entry';
 import { SchemaItem } from './schema-item';
 import { Model, ModelInstance } from '../model';
 import { ObjectID } from 'mongodb';
-import { isValidObjectID } from '../../utils';
+import { isValidObjectID } from '../../utils/utils';
 import { SchemaIdArray } from './schema-id-array';
 
 /**

@@ -7,12 +7,12 @@ import { ILoginToken } from '../definitions/custom/tokens/i-login-token';
 import { IRegisterToken } from '../definitions/custom/tokens/i-register-token';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../users';
-import { ownerRights } from '../permission-controllers';
+import { UserManager } from '../core/users';
+import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { okJson, errJson } from '../serializers';
+import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
-import { error as logError } from '../logger';
+import { error as logError } from '../utils/logger';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
 

@@ -4,7 +4,7 @@ import { SchemaItem } from './schema-item';
 import { SchemaForeignKey } from './schema-foreign-key';
 import { Model, ModelInstance } from '../model';
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
-import { isValidObjectID } from '../../utils';
+import { isValidObjectID } from '../../utils/utils';
 
 /**
  * An ID array scheme item for use in Models. Optionally can be used as a foreign key array

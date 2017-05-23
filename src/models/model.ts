@@ -1,7 +1,7 @@
 ﻿import { IModelEntry } from '../definitions/custom/models/i-model-entry';
 import * as mongodb from 'mongodb';
 import { Schema } from './schema';
-import { info } from '../logger';
+import { info } from '../utils/logger';
 
 
 export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }

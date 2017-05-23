@@ -5,12 +5,12 @@ import { IStorageStats } from '../definitions/custom/models/i-storage-stats';
 import { IGetUserStorageData, IResponse } from '../definitions/custom/tokens/standard-tokens';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../users';
-import { ownerRights } from '../permission-controllers';
+import { UserManager } from '../core/users';
+import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { BucketManager } from '../bucket-manager';
+import { BucketManager } from '../core/bucket-manager';
 import * as compression from 'compression';
-import { okJson, errJson } from '../serializers';
+import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
 

@@ -1,8 +1,8 @@
-﻿import { IResponse } from './definitions/custom/tokens/standard-tokens';
-import { IAuthReq } from './definitions/custom/tokens/i-auth-request';
+﻿import { IResponse } from '../definitions/custom/tokens/standard-tokens';
+import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
-import { UserManager, UserPrivileges, User } from './users';
+import { UserManager, UserPrivileges, User } from '../core/users';
 import { errJson } from './serializers';
 
 /**

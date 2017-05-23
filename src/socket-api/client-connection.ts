@@ -1,8 +1,8 @@
 'use strict';
 
 import * as ws from 'ws';
-import { error as logError, info } from '../logger';
-import { UserManager, User } from '../users';
+import { error as logError, info } from '../utils/logger';
+import { UserManager, User } from '../core/users';
 import { CommsController } from './comms-controller';
 import { ServerInstruction } from './server-instruction';
 

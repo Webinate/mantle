@@ -1,5 +1,5 @@
-﻿import { IPath } from './definitions/custom/config/i-path';
-import { IServer } from './definitions/custom/config/i-server';
+﻿import { IPath } from '../definitions/custom/config/i-path';
+import { IServer } from '../definitions/custom/config/i-server';
 import * as express from 'express';
 import * as fs from 'fs';
 
