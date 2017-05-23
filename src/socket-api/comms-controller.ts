@@ -1,6 +1,6 @@
 ﻿'use strict';
 import { IConfig } from '../definitions/custom/config/i-config';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import * as ws from 'ws';
 import * as events from 'events';
 import * as https from 'https';
@@ -164,7 +164,7 @@ export class CommsController extends events.EventEmitter {
         if ( !cfg.websocket.socketApiKey )
             throw new Error( 'The socketApiKey was not set in the config file. Make sure it exists (Check the example-config.json) ' );
 
-        this._hashedApiKey = bcrypt.hashSync( cfg.websocket.socketApiKey );
+        this._hashedApiKey = bcrypt.hashSync( cfg.websocket.socketApiKey, 10 );
 
         // dummy request processing - this is not actually called as its handed off to the socket api
         const processRequest = function( req, res ) {

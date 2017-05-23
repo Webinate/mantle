@@ -1,17 +1,15 @@
 ﻿// Created by Mathew Henson
-// Based on the files here: https://github.com/GoogleCloudPlatform/gcloud-node/tree/master/lib/storage 
+// Based on the files here: https://github.com/GoogleCloudPlatform/gcloud-node/tree/master/lib/storage
 
-declare module "gcloud" {
+declare module 'gcloud' {
 
-    import * as fs from "fs";
+    import * as fs from 'fs';
 
-    export interface IOWner
-    {
+    export interface IOWner {
         entity: string;
     }
 
-    export interface IMeta
-    {
+    export interface IMeta {
         etag: string;
         id: string;
         kind: string;
@@ -25,31 +23,29 @@ declare module "gcloud" {
         timeCreated: string;
     }
 
-    interface IACLUserController
-    {
-        addAllAuthenticatedUsers(callback?: (err: Error, aclObject: IACL) => any);
-        deleteAllAuthenticatedUsers(callback?: (err: Error, aclObject: IACL) => any);
-        addAllUsers(callback?: (err: Error, aclObject: IACL) => any);
-        deleteAllUsers(callback?: (err: Error, aclObject: IACL) => any);
-        addDomain(domain: string, callback?: (err: Error, aclObject: IACL) => any);
-        deleteDomain(domain: string, callback?: (err: Error, aclObject: IACL) => any);
-        addGroup(group: string, callback?: (err: Error, aclObject: IACL) => any);
-        deleteGroup(group: string, callback?: (err: Error, aclObject: IACL) => any);
-        addProject(project: string, callback?: (err: Error, aclObject: IACL) => any);
-        deleteProject(project: string, callback?: (err: Error, aclObject: IACL) => any);
-        addUser(user: string, callback?: (err: Error, aclObject: IACL) => any);
-        deleteUser(user: string, callback?: (err: Error, aclObject: IACL) => any);
+    interface IACLUserController {
+        addAllAuthenticatedUsers( callback?: ( err: Error, aclObject: IACL ) => any );
+        deleteAllAuthenticatedUsers( callback?: ( err: Error, aclObject: IACL ) => any );
+        addAllUsers( callback?: ( err: Error, aclObject: IACL ) => any );
+        deleteAllUsers( callback?: ( err: Error, aclObject: IACL ) => any );
+        addDomain( domain: string, callback?: ( err: Error, aclObject: IACL ) => any );
+        deleteDomain( domain: string, callback?: ( err: Error, aclObject: IACL ) => any );
+        addGroup( group: string, callback?: ( err: Error, aclObject: IACL ) => any );
+        deleteGroup( group: string, callback?: ( err: Error, aclObject: IACL ) => any );
+        addProject( project: string, callback?: ( err: Error, aclObject: IACL ) => any );
+        deleteProject( project: string, callback?: ( err: Error, aclObject: IACL ) => any );
+        addUser( user: string, callback?: ( err: Error, aclObject: IACL ) => any );
+        deleteUser( user: string, callback?: ( err: Error, aclObject: IACL ) => any );
     }
 
-    export interface IACL
-    {
+    export interface IACL {
         OWNER_ROLE: string;
         READER_ROLE: string;
         WRITER_ROLE: string;
 
         default: IACL;
         pathPrefix: string;
-               
+
 
         /**
         * An object of convenience methods to add or delete owner ACL permissions for a
@@ -204,7 +200,7 @@ declare module "gcloud" {
         *   generation: 1
         * }, function(err, aclObject, apiResponse) {});
         */
-        add(options?: { entity?: string; role?: string; generation?: number; }, callback?: (err: Error, aclObject: IACL, apiResponse: any) => any);
+        add( options?: { entity?: string; role?: string; generation?: number; }, callback?: ( err: Error, aclObject: IACL, apiResponse: any ) => any );
 
         /**
         * Delete access controls on a {module:storage/bucket} or {module:storage/file}.
@@ -230,7 +226,7 @@ declare module "gcloud" {
         *   generation: 1
         * }, function(err, apiResponse) {});
         */
-        delete(options?: { entity?: string; generation?: number; }, callback?: (err: Error, apiResponse: any) => any);
+        delete( options?: { entity?: string; generation?: number; }, callback?: ( err: Error, apiResponse: any ) => any );
 
         /**
         * Get access controls on a {module:storage/bucket} or {module:storage/file}. If
@@ -272,8 +268,8 @@ declare module "gcloud" {
         *   generation: 1
         * }, function(err, aclObject, apiResponse) {});
         */
-        get(callback?: (err: Error, aclObject: IACL, apiResponse: any) => any);
-        get(options?: { entity?: string; generation?: number; }, callback?: (err: Error, aclObject: IACL, apiResponse: any) => any);
+        get( callback?: ( err: Error, aclObject: IACL, apiResponse: any ) => any );
+        get( options?: { entity?: string; generation?: number; }, callback?: ( err: Error, aclObject: IACL, apiResponse: any ) => any );
 
         /**
         * Update access controls on a {module:storage/bucket} or {module:storage/file}.
@@ -307,11 +303,10 @@ declare module "gcloud" {
         *   generation: 1
         * }, function(err, apiResponse) {});
         */
-        update(options?: { entity?: string; role: string; generation?: number; }, callback?: (err: Error, apiResponse: any) => any);
+        update( options?: { entity?: string; role: string; generation?: number; }, callback?: ( err: Error, apiResponse: any ) => any );
     }
 
-    export interface IFile
-    {
+    export interface IFile {
         acl: IACL;
         metadata: any;
 
@@ -342,8 +337,8 @@ declare module "gcloud" {
         * //-
         * file.copy('my-image-copy.png', function(err, copiedFile, apiResponse) {
         *   // `my-bucket` now contains:
-        *   // - "my-image.png"
-        *   // - "my-image-copy.png"
+        *   // - 'my-image.png'
+        *   // - 'my-image-copy.png'
         *
         *   // `copiedFile` is an instance of a File object that refers to your new
         *   // file.
@@ -356,10 +351,10 @@ declare module "gcloud" {
         * var anotherBucket = gcs.bucket('another-bucket');
         * file.copy(anotherBucket, function(err, copiedFile, apiResponse) {
         *   // `my-bucket` still contains:
-        *   // - "my-image.png"
+        *   // - 'my-image.png'
         *   //
         *   // `another-bucket` now contains:
-        *   // - "my-image.png"
+        *   // - 'my-image.png'
         *
         *   // `copiedFile` is an instance of a File object that refers to your new
         *   // file.
@@ -372,16 +367,16 @@ declare module "gcloud" {
         * var anotherFile = anotherBucket.file('my-awesome-image.png');
         * file.copy(anotherFile, function(err, copiedFile, apiResponse) {
         *   // `my-bucket` still contains:
-        *   // - "my-image.png"
+        *   // - 'my-image.png'
         *   //
         *   // `another-bucket` now contains:
-        *   // - "my-awesome-image.png"
+        *   // - 'my-awesome-image.png'
         *
         *   // Note:
         *   // The `copiedFile` parameter is equal to `anotherFile`.
         * });
         */
-        copy(destination: string|IBucket|IFile, callback?: (err: Error, file: IFile, response: any) => any);
+        copy( destination: string | IBucket | IFile, callback?: ( err: Error, file: IFile, response: any ) => any );
 
         /**
         * Move this file to another location. By default, this will move the file to
@@ -418,9 +413,9 @@ declare module "gcloud" {
         * //-
         * file.move('my-image-new.png', function(err, destinationFile, apiResponse) {
         *   // `my-bucket` no longer contains:
-        *   // - "my-image.png"
+        *   // - 'my-image.png'
         *   // but contains instead:
-        *   // - "my-image-new.png"
+        *   // - 'my-image-new.png'
         *
         *   // `destinationFile` is an instance of a File object that refers to your
         *   // new file.
@@ -434,10 +429,10 @@ declare module "gcloud" {
         *
         * file.move(anotherBucket, function(err, destinationFile, apiResponse) {
         *   // `my-bucket` no longer contains:
-        *   // - "my-image.png"
+        *   // - 'my-image.png'
         *   //
         *   // `another-bucket` now contains:
-        *   // - "my-image.png"
+        *   // - 'my-image.png'
         *
         *   // `destinationFile` is an instance of a File object that refers to your
         *   // new file.
@@ -451,16 +446,16 @@ declare module "gcloud" {
         *
         * file.move(anotherFile, function(err, destinationFile, apiResponse) {
         *   // `my-bucket` no longer contains:
-        *   // - "my-image.png"
+        *   // - 'my-image.png'
         *   //
         *   // `another-bucket` now contains:
-        *   // - "my-awesome-image.png"
+        *   // - 'my-awesome-image.png'
         *
         *   // Note:
         *   // The `destinationFile` parameter is equal to `anotherFile`.
         * });
         */
-        move(destination: string|IBucket|IFile, callback?: (err: Error, file: IFile, response: any) => any);
+        move( destination: string | IBucket | IFile, callback?: ( err: Error, file: IFile, response: any ) => any );
 
         /**
         * Create a readable stream to read the contents of the remote file. It can be
@@ -469,15 +464,15 @@ declare module "gcloud" {
         *
         * In the unlikely event there is a mismatch between what you downloaded and the
         * version in your Bucket, your error handler will receive an error with code
-        * "CONTENT_DOWNLOAD_MISMATCH". If you receive this error, the best recourse is
+        * 'CONTENT_DOWNLOAD_MISMATCH'. If you receive this error, the best recourse is
         * to try downloading the file again.
         *
         * NOTE: Readable streams will emit the `complete` event when the file is fully
         * downloaded.
         *
         * @param {object=} options - Configuration object.
-        * @param {string|boolean} options.validation - Possible values: `"md5"`,
-        *     `"crc32c"`, or `false`. By default, data integrity is validated with an
+        * @param {string|boolean} options.validation - Possible values: `'md5'`,
+        *     `'crc32c'`, or `false`. By default, data integrity is validated with an
         *     MD5 checksum for maximum reliability, falling back to CRC32c when an MD5
         *     hash wasn't returned from the API. CRC32c will provide better performance
         *     with less reliability. You may also choose to skip validation completely,
@@ -536,11 +531,11 @@ declare module "gcloud" {
         *   .pipe(fs.createWriteStream('/Users/stephen/logfile.txt'))
         *   .on('error', function(err) {});
         */
-        createReadStream(options?: {
+        createReadStream( options?: {
             validation?: string | boolean,
             start: number,
             end: number
-        }): fs.ReadStream;
+        } ): fs.ReadStream;
 
         /**
         * Create a writable stream to overwrite the contents of the file in your
@@ -558,8 +553,8 @@ declare module "gcloud" {
         *     completely consumed. Because of this, it's best for you to be explicit
         *     for what makes sense given your input. Read more about resumable uploads
         *     [here](http://goo.gl/1JWqCF).
-        * @param {string|boolean} options.validation - Possible values: `"md5"`,
-        *     `"crc32c"`, or `false`. By default, data integrity is validated with an
+        * @param {string|boolean} options.validation - Possible values: `'md5'`,
+        *     `'crc32c'`, or `false`. By default, data integrity is validated with an
         *     MD5 checksum for maximum reliability. CRC32c will provide better
         *     performance with less reliability. You may also choose to skip validation
         *     completely, however this is **not recommended**.
@@ -604,11 +599,11 @@ declare module "gcloud" {
         *   }))
         *   .on('error', function(err) {});
         */
-        createWriteStream(options?: {
+        createWriteStream( options?: {
             metadata?: any,
             resumable?: boolean,
             validation?: string | boolean
-        }): fs.WriteStream;
+        } ): fs.WriteStream;
 
         /**
         * Delete the file.
@@ -618,7 +613,7 @@ declare module "gcloud" {
         * @example
         * file.delete(function(err, apiResponse) {});
         */
-        delete(callback?: (err: Error, apiResponse : any) => any);
+        delete( callback?: ( err: Error, apiResponse: any ) => any );
 
         /**
         * Convenience method to download a file into memory or to a local destination.
@@ -643,12 +638,12 @@ declare module "gcloud" {
         *   destination: '/Users/stephen/Desktop/file-backup.txt'
         * }, function(err) {});
         */
-        download(options?: {
+        download( options?: {
             destination?: string,
             validation?: string | boolean,
             start: number,
             end: number
-        }, callback?: (err: Error, fileContents: Buffer) => any);
+        }, callback?: ( err: Error, fileContents: Buffer ) => any );
 
         /**
         * Get the file's metadata.
@@ -658,7 +653,7 @@ declare module "gcloud" {
         * @example
         * file.getMetadata(function(err, metadata, apiResponse) {});
         */
-        getMetadata(callback?: (err: Error, meta: any, apiResponse: any) => any);
+        getMetadata( callback?: ( err: Error, meta: any, apiResponse: any ) => any );
 
         /**
         * Get a signed policy document to allow a user to upload data with a POST
@@ -710,7 +705,7 @@ declare module "gcloud" {
         *   // policy.signature: the policy signature in base64.
         * });
         */
-        getSignedPolicy(options?: {
+        getSignedPolicy( options?: {
             expiration: number;
             equals?: Array<any> | Array<Array<any>>;
             startsWith?: Array<any> | Array<Array<any>>;
@@ -718,7 +713,7 @@ declare module "gcloud" {
             successRedirect?: string;
             successStatus?: string;
             contentLengthRange?: any;
-            }, callback?: (err: Error, data: { string: any; base64: any; signature: any }) => any);
+        }, callback?: ( err: Error, data: { string: any; base64: any; signature: any } ) => any );
 
         /**
         * Get a signed URL to allow limited time access to the file.
@@ -728,7 +723,7 @@ declare module "gcloud" {
         * @throws {Error} if an expiration timestamp from the past is given.
         *
         * @param {object} options - Configuration object.
-        * @param {string} options.action - "read", "write", or "delete"
+        * @param {string} options.action - 'read', 'write', or 'delete'
         * @param {string=} options.contentMd5 - The MD5 digest value in base64. If you
         *     provide this, the client must provide this HTTP header with this same
         *     value in its request.
@@ -755,14 +750,14 @@ declare module "gcloud" {
         *   promptSaveAs: 'filename.ext'
         * }, function(err, url) {});
         */
-        getSignedUrl(options?: {
+        getSignedUrl( options?: {
             action?: string,
             contentType?: string,
             extensionHeaders?: string,
             promptSaveAs?: string,
             responseDisposition?: string,
             responseType?: string
-        }, callback?: (err: Error, url: string) => any);
+        }, callback?: ( err: Error, url: string ) => any );
 
         /**
         * Merge the given metadata with the current remote file's metadata. This will
@@ -798,7 +793,7 @@ declare module "gcloud" {
         *   // metadata should now be { abc: '123', hello: 'goodbye' }
         * });
         */
-        setMetadata(metadata: any, callback?: (err: Error, meta: any, responseApi : any) => any);
+        setMetadata( metadata: any, callback?: ( err: Error, meta: any, responseApi: any ) => any );
 
         /**
         * Make a file private to the project and remove all other permissions.
@@ -821,9 +816,9 @@ declare module "gcloud" {
         * //-
         * file.makePrivate({ strict: true }, function(err) {});
         */
-        makePrivate(options?: {
+        makePrivate( options?: {
             strict?: boolean;
-        }, callback?: (err: Error) => any);
+        }, callback?: ( err: Error ) => any );
 
         /**
         * Set a file to be publicly readable and maintain all previous permissions.
@@ -833,11 +828,10 @@ declare module "gcloud" {
         * @example
         * file.makePublic(function(err, apiResponse) {});
         */
-        makePublic(callback?: (err: Error, apiResponse: any) => any);
+        makePublic( callback?: ( err: Error, apiResponse: any ) => any );
     }
 
-    export interface IBucket
-    {
+    export interface IBucket {
         acl: IACL;
         metadata: IMeta
         name: string;
@@ -856,7 +850,7 @@ declare module "gcloud" {
         * @example
         * var file = bucket.file('my-existing-file.png');
         */
-        file(name: string, options?: { generation: string | number }): IFile;
+        file( name: string, options?: { generation: string | number } ): IFile;
 
         /**
         * Get File objects for the files currently in the bucket.
@@ -910,14 +904,14 @@ declare module "gcloud" {
         *   // Each file is scoped to its generation.
         * });
         */
-        getFiles(query: {
+        getFiles( query: {
             delimiter?: string;
             prefix?: string;
             maxResults?: number;
             pageToken?: string;
             versions?: boolean;
-        }, callback: (err?: Error, files?: Array<IFile>, nextQuery?: any, response?: any) => any): any;
-        getFiles(callback: (err?: Error, files?: Array<IFile>, nextQuery?: any, response?: any) => any): any;
+        }, callback: ( err?: Error, files?: Array<IFile>, nextQuery?: any, response?: any ) => any ): any;
+        getFiles( callback: ( err?: Error, files?: Array<IFile>, nextQuery?: any, response?: any ) => any ): any;
 
         /**
         * Get the bucket's metadata.
@@ -929,7 +923,7 @@ declare module "gcloud" {
         * @example
         * bucket.getMetadata(function(err, metadata, apiResponse) {});
         */
-        getMetadata(callback: (err?: Error, meta?: any, response?: any) => any);
+        getMetadata( callback: ( err?: Error, meta?: any, response?: any ) => any );
 
         /**
         * Set the bucket's metadata.
@@ -957,7 +951,7 @@ declare module "gcloud" {
         *   }
         * }, function(err, metadata, apiResponse) {});
         */
-        setMetadata(metadata: any, callback: (err?: Error, meta?: any, response?: any) => any);
+        setMetadata( metadata: any, callback: ( err?: Error, meta?: any, response?: any ) => any );
 
         /**
         * Make the bucket listing private.
@@ -1020,7 +1014,7 @@ declare module "gcloud" {
         *   //    Array of files successfully made private in the bucket.
         * });
         */
-        makePrivate(options?: { includeFiles: boolean; force: boolean }, callback?: (errors?: Array<Error>, files?: Array<IFile>) => any);
+        makePrivate( options?: { includeFiles: boolean; force: boolean }, callback?: ( errors?: Array<Error>, files?: Array<IFile> ) => any );
 
         /**
         * Make the bucket publicly readable.
@@ -1083,7 +1077,7 @@ declare module "gcloud" {
         *   //    Array of files successfully made public in the bucket.
         * });
         */
-        makePublic(options?: { includeFiles: boolean; force: boolean }, callback?: (errors?: Array<Error>, files?: Array<IFile>) => any);
+        makePublic( options?: { includeFiles: boolean; force: boolean }, callback?: ( errors?: Array<Error>, files?: Array<IFile> ) => any );
 
         /**
         * Upload a file to the bucket. This is a convenience method that wraps the
@@ -1107,8 +1101,8 @@ declare module "gcloud" {
         *     completely consumed. Because of this, it's best for you to be explicit
         *     for what makes sense given your input.
         * @param {function} callback - The callback function.
-        * @param {string|boolean} options.validation - Possible values: `"md5"`,
-        *     `"crc32c"`, or `false`. By default, data integrity is validated with an
+        * @param {string|boolean} options.validation - Possible values: `'md5'`,
+        *     `'crc32c'`, or `false`. By default, data integrity is validated with an
         *     MD5 checksum for maximum reliability. CRC32c will provide better
         *     performance with less reliability. You may also choose to skip validation
         *     completely, however this is **not recommended**.
@@ -1119,7 +1113,7 @@ declare module "gcloud" {
         * //-
         * bucket.upload('/local/path/image.png', function(err, file, apiResponse) {
         *   // Your bucket now contains:
-        *   // - "image.png" (with the contents of `/local/path/image.png')
+        *   // - 'image.png' (with the contents of `/local/path/image.png')
         *
         *   // `file` is an instance of a File object that refers to your new file.
         * });
@@ -1141,7 +1135,7 @@ declare module "gcloud" {
         *
         * bucket.upload('local-image.png', options, function(err, file) {
         *   // Your bucket now contains:
-        *   // - "new-image.png" (with the contents of `local-image.png')
+        *   // - 'new-image.png' (with the contents of `local-image.png')
         *
         *   // `file` is an instance of a File object that refers to your new file.
         * });
@@ -1157,13 +1151,13 @@ declare module "gcloud" {
         *
         * bucket.upload('local-img.png', options, function(err, newFile) {
         *   // Your bucket now contains:
-        *   // - "existing-file.png" (with the contents of `local-img.png')
+        *   // - 'existing-file.png' (with the contents of `local-img.png')
         *
         *   // Note:
         *   // The `newFile` parameter is equal to `file`.
         * });
         */
-        upload(localPath: string, options: any, callback: (err?: Error, newFile?: IFile) => any);
+        upload( localPath: string, options: any, callback: ( err?: Error, newFile?: IFile ) => any );
 
         /**
         * Combine mutliple files into one new file.
@@ -1192,7 +1186,7 @@ declare module "gcloud" {
         *   // newFile === allLogs
         * });
         */
-        combine(sources: Array<string> | IFile, destination: string | IFile, callback: (err?: Error, destination?: string, response? : any) => any) : any;
+        combine( sources: Array<string> | IFile, destination: string | IFile, callback: ( err?: Error, destination?: string, response?: any ) => any ): any;
 
         /**
         * Delete the bucket.
@@ -1203,11 +1197,10 @@ declare module "gcloud" {
         * var bucket = gcs.bucket('delete-me');
         * bucket.delete(function(err, apiResponse) {});
         */
-        delete(callback: (err?: Error, apiResponse?: any) => any)
+        delete( callback: ( err?: Error, apiResponse?: any ) => any )
     }
 
-    export interface IGCS
-    {
+    export interface IGCS {
         acl: IACL;
 
         /**
@@ -1227,7 +1220,7 @@ declare module "gcloud" {
        * var albums = gcs.bucket('albums');
        * var photos = gcs.bucket('photos');
        */
-        bucket(bucketName: string): IBucket;
+        bucket( bucketName: string ): IBucket;
 
         /**
         * Create a bucket.
@@ -1263,8 +1256,8 @@ declare module "gcloud" {
         *
         * gcs.createBucket('new-bucket', metadata, callback);
         */
-        createBucket(bucketName: string, callback: (err: Error, bucket: IBucket) => any): any;
-        createBucket(bucketName: string, metadata: any, callback: (err: Error, bucket: IBucket) => any): any;
+        createBucket( bucketName: string, callback: ( err: Error, bucket: IBucket ) => any ): any;
+        createBucket( bucketName: string, metadata: any, callback: ( err: Error, bucket: IBucket ) => any ): any;
 
         /**
         * Get Bucket objects for all of the buckets in your project.
@@ -1300,8 +1293,8 @@ declare module "gcloud" {
         *   maxResults: 5
         * }, function(err, buckets, nextQuery, apiResponse) {});
         */
-        getBuckets(query: { maxResults?: number; pageToken?: string; }, callback?: (err: Error, buckets: Array<IBucket>, nextQuery?: Function) => any);
+        getBuckets( query: { maxResults?: number; pageToken?: string; }, callback?: ( err: Error, buckets: Array<IBucket>, nextQuery?: Function ) => any );
     }
 
-    export function storage(options: { keyFilename?: string, credentials?: { client_email: string; private_key: string; }, projectId: string }): IGCS;
+    export function storage( options: { keyFilename?: string, credentials?: { client_email: string; private_key: string; }, projectId: string } ): IGCS;
 }

@@ -5,7 +5,7 @@ import { IMailer, IGMail, IMailgun } from '../definitions/custom/config/i-mail';
 import * as mongodb from 'mongodb';
 import * as http from 'http';
 import * as validator from 'validator';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import * as express from 'express';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
