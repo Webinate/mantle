@@ -25,11 +25,6 @@ export interface IControllerPlugin {
 export interface IConfig {
 
     /**
-     * The length of time the assets should be cached on a user's browser. The default is 30 days.
-     */
-    cacheLifetime: number;
-
-    /**
      * If true, then modepress will render bot page crawls stripping all javascript source tags after the page is fully loaded. This
      * is accomplished by sending a headless browser request to the page and waiting for it to fully load. Once loaded the page is saved
      * and stripped of scripts. Any subsequent calls to the page will result in the saved page being presented as long as the expiration
@@ -109,13 +104,6 @@ export interface IConfig {
          * eg: 'sessions'
          */
         sessionCollection: string;
-
-        // These need to be removed eventually
-        secure: boolean;
-        hostName: string;
-        portHTTP: number;
-        portHTTPS: number;
-        apiPrefix: string;
     }
 
     sessionSettings: {

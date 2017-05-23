@@ -16,12 +16,7 @@
     },
     "userSettings": {
         "userCollection": "users",
-        "sessionCollection": "sessions",
-        "secure": false,
-        "hostName": "localhost",
-        "portHTTP": 8000,
-        "portHTTPS": 8001,
-        "apiPrefix": "users"
+        "sessionCollection": "sessions"
     },
     "sessionSettings": {
         "sessionPath": "/",
