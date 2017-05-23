@@ -1,20 +1,20 @@
 ﻿'use strict';
-import { IUserEntry } from './definitions/custom/models/i-user-entry';
-import { IConfig } from './definitions/custom/config/i-config';
-import { IMailer, IGMail, IMailgun } from './definitions/custom/config/i-mail';
+import { IUserEntry } from '../definitions/custom/models/i-user-entry';
+import { IConfig } from '../definitions/custom/config/i-config';
+import { IMailer, IGMail, IMailgun } from '../definitions/custom/config/i-mail';
 import * as mongodb from 'mongodb';
 import * as http from 'http';
 import * as validator from 'validator';
 import * as bcrypt from 'bcryptjs';
 import * as express from 'express';
-import { info, warn } from './logger';
-import { CommsController } from './socket-api/comms-controller';
-import { ClientInstruction } from './socket-api/client-instruction';
-import { ClientInstructionType } from './socket-api/socket-event-types';
+import { info, warn } from '../utils/logger';
+import { CommsController } from '../socket-api/comms-controller';
+import { ClientInstruction } from '../socket-api/client-instruction';
+import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { SessionManager, Session } from './session';
 import { BucketManager } from './bucket-manager';
-import { GMailer } from './mailers/gmail'
-import { Mailguner } from './mailers/mailgun'
+import { GMailer } from '../mailers/gmail'
+import { Mailguner } from '../mailers/mailgun'
 
 /*
  * Describes what kind of privileges the user has
