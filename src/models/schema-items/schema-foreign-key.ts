@@ -4,7 +4,7 @@ import { IModelEntry } from '../../definitions/custom/models/i-model-entry';
 import { SchemaItem } from './schema-item';
 import { Model, ModelInstance } from '../model';
 import { ObjectID } from 'mongodb';
-import { Utils } from '../../utils';
+import { isValidObjectID } from '../../utils';
 import { SchemaIdArray } from './schema-id-array';
 
 /**
@@ -60,7 +60,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | IModelEntry
             throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
         if ( typeof this.value === 'string' ) {
-            if ( Utils.isValidObjectID( <string>this.value ) )
+            if ( isValidObjectID( <string>this.value ) )
                 transformedValue = this.value = new ObjectID( <string>this.value );
             else if ( ( <string>this.value ).trim() !== '' )
                 throw new Error( `Please use a valid ID for '${this.name}'` );

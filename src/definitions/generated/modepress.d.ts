@@ -23,6 +23,14 @@ export interface IControllerPlugin {
  * A server configuration
  */
 export interface IConfig {
+
+    /**
+     * The folder where modepress will search for client projects to add to the runtime.
+     * This setting must represent a path string. Each folder in the path will be analyzed
+     * and any with a valid modepress.json will be added.
+     */
+    clientsFolder: string;
+
     /**
      * If true, then modepress will render bot page crawls stripping all javascript source tags after the page is fully loaded. This
      * is accomplished by sending a headless browser request to the page and waiting for it to fully load. Once loaded the page is saved
@@ -55,11 +63,6 @@ export interface IConfig {
          */
         port: number;
     }
-
-    /**
-     * An array of servers for each host / route that modepress is supporting
-     */
-    servers: Array<IServer>;
 
     /**
      * If debug is true, certain functions will be emulated and more information logged
@@ -103,13 +106,6 @@ export interface IConfig {
          * eg: 'sessions'
          */
         sessionCollection: string;
-
-        // // These need to be removed eventually
-        // secure: boolean;
-        // hostName: string;
-        // portHTTP: number;
-        // portHTTPS: number;
-        // apiPrefix: string;
     }
 
     sessionSettings: {

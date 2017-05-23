@@ -4,7 +4,7 @@ import { SchemaItem } from './schema-item';
 import { SchemaForeignKey } from './schema-foreign-key';
 import { Model, ModelInstance } from '../model';
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
-import { Utils } from '../../utils';
+import { isValidObjectID } from '../../utils';
 
 /**
  * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
@@ -59,7 +59,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
 
         for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
             if ( typeof this.value[ i ] === 'string' ) {
-                if ( Utils.isValidObjectID( <string>this.value[ i ] ) )
+                if ( isValidObjectID( <string>this.value[ i ] ) )
                     transformedValue[ i ] = new ObjectID( <string>this.value[ i ] );
                 else if ( ( <string>this.value[ i ] ).trim() !== '' )
                     throw new Error( `Please use a valid ID for '${this.name}'` );
