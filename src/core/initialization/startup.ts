@@ -1,11 +1,11 @@
-﻿import { IConfig } from '../definitions/custom/config/i-config';
+﻿import { IConfig } from '../../definitions/custom/config/i-config';
 import * as fs from 'fs';
-import { error, info, clear, initializeLogger } from '../utils/logger';
+import { error, info, clear, initializeLogger } from '../../utils/logger';
 import * as yargs from 'yargs';
 import { Server as MongoServer, Db } from 'mongodb';
-import { Server } from './server';
-import { ConsoleManager } from '../console/console-manager';
-import { prepare } from '../utils/db-preparation';
+import { Server } from '../server';
+import { ConsoleManager } from '../../console/console-manager';
+import { prepare } from './db-preparation';
 
 let config: IConfig | null = null;
 const args = yargs.argv;
