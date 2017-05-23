@@ -2,9 +2,11 @@
     "enableAjaxRendering": true,
     "ajaxRenderExpiration": 86400,
     "cacheLifetime": 2592000000,
-    "databaseHost": "127.0.0.1",
-    "databasePort": 27017,
-    "databaseName": "test",
+    "database": {
+        "host": "127.0.0.1",
+        "port": 27017,
+        "name": "test"
+    },
     "usersURL": "",
     "debug": true,
     "adminUser": {

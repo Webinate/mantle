@@ -44,25 +44,23 @@ export interface IConfig {
      */
     ajaxRenderExpiration: number;
 
-    /**
-     * The name of the mongo database to use
-     */
-    databaseName: string;
 
-    /**
-     * The database host we are listening on
-     */
-    databaseHost: string;
+    database: {
+        /**
+         * The name of the mongo database to use
+         */
+        name: string;
 
-    /**
-     * The port number the mongo database is listening on
-     */
-    databasePort: number;
+        /**
+         * The database host we are listening on
+         */
+        host: string;
 
-    /**
-     * The URL of the webinate-users api
-     */
-    usersURL: string;
+        /**
+         * The port number the mongo database is listening on
+         */
+        port: number;
+    }
 
     /**
      * An array of servers for each host / route that modepress is supporting

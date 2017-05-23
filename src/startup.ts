@@ -46,11 +46,14 @@ catch ( err ) {
 export async function initialize() {
     info( `Attempting to connect to mongodb...` );
 
-    const mongoServer = new MongoServer( config!.databaseHost, config!.databasePort, config!.databaseName );
-    const mongoDB = new Db( config!.databaseName, mongoServer, { w: 1 } );
+    if ( !config!.database )
+        throw new Error( 'No database object defined in the config file' );
+
+    const mongoServer = new MongoServer( config!.database.host, config!.database.port, config!.database.name );
+    const mongoDB = new Db( config!.database.name, mongoServer, { w: 1 } );
     const db = await mongoDB.open();
 
-    info( `Successfully connected to '${config!.databaseName}' at ${config!.databaseHost}:${config!.databasePort}` );
+    info( `Successfully connected to '${config!.database.name}' at ${config!.database.host}:${config!.database.port}` );
     info( `Starting up HTTP servers...` );
 
     // Create each of your servers here
