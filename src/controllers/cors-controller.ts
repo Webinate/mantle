@@ -7,7 +7,7 @@ import * as express from 'express';
 /**
  * Checks all incomming requests to see if they are CORS approved
  */
-export default class CORSController extends Controller {
+export class CORSController extends Controller {
     /**
 	 * Creates an instance of the user manager
 	 */

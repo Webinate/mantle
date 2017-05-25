@@ -15,7 +15,7 @@ import { UserPrivileges } from '../core/users';
 /**
  * A controller that deals with the management of posts
  */
-export default class PostsController extends Controller {
+export class PostsController extends Controller {
 	/**
 	 * Creates a new instance of the controller
 	 * @param server The server configuration options

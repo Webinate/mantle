@@ -5,7 +5,7 @@ import * as bodyParser from 'body-parser';
 import { UserManager } from '../core/users'
 import { errJson } from '../utils/serializers';
 
-export default class EmailsController extends controllerModule.Controller {
+export class EmailsController extends controllerModule.Controller {
 	/**
 	 * Creates a new instance of the email controller
 	 * @param server The server configuration options

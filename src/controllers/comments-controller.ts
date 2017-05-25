@@ -13,7 +13,7 @@ import { UserPrivileges } from '../core/users';
 /**
  * A controller that deals with the management of comments
  */
-export default class CommentsController extends Controller {
+export class CommentsController extends Controller {
 	/**
 	 * Creates a new instance of the controller
 	 * @param server The server configuration options

@@ -9,7 +9,7 @@ import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
 import { Controller } from '../controllers/controller'
 import PageRenderer from '../controllers/page-renderer'
-import CORSController from '../controllers/cors-controller';
+import { CORSController } from '../controllers/cors-controller';
 import { PathHandler } from './path-handler';
 import { SessionController } from '../controllers/session-controller';
 import { BucketController } from '../controllers/bucket-controller';
