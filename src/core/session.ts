@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { ISessionEntry } from '../definitions/custom/models/i-session-entry';
+import { ISessionEntry } from 'modepress';
 import * as http from 'http';
 import * as mongodb from 'mongodb';
 import { EventEmitter } from 'events';

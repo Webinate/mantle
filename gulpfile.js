@@ -3,7 +3,8 @@ var ts = require( 'gulp-typescript' );
 var tslint = require( 'gulp-tslint' );
 var concat = require( 'gulp-concat' );
 var setup = require( './gulp/setup.js' );
-
+const process = require( 'child_process' );
+const fs = require( 'fs' );
 
 // CONFIG
 // ==============================
@@ -43,7 +44,7 @@ gulp.task( 'tslint', [ 'ts-code' ], function() {
  * Copies the distribution files from src to the dist folder
  */
 gulp.task( 'dist-files', function() {
-    return gulp.src( [ 'src/dist-src/*.json', 'src/dist-src/modepress-api/*.json' ], { base: "src/dist-src/" } )
+    return gulp.src( [ 'src/dist-src/*.json', 'src/dist-src/modepress/*.json' ], { base: "src/dist-src/" } )
         .pipe( gulp.dest( './dist' ) );
 } );
 
@@ -60,6 +61,13 @@ gulp.task( 'ts-code-definitions', function() {
     ], { base: 'src/definitions/custom/' } )
         .pipe( concat( 'modepress.d.ts' ) )
         .pipe( gulp.dest( './src/definitions/generated' ) );
+} );
+
+/**
+ * Builds each of the ts files into JS files in the output folder
+ */
+gulp.task( 'definition', function() {
+    process.exec( 'npm run definition' );
 } );
 
 gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchNum, configFiles ) } );

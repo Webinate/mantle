@@ -1,9 +1,6 @@
 ﻿'use strict';
 
-import { IConfig } from '../definitions/custom/config/i-config';
-import { IBucketEntry } from '../definitions/custom/models/i-bucket-entry';
-import { IFileEntry } from '../definitions/custom/models/i-file-entry';
-import { IStorageStats } from '../definitions/custom/models/i-storage-stats';
+import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
 import * as fs from 'fs';
 import * as gcloud from 'gcloud';
 import * as mongodb from 'mongodb';

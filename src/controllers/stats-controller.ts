@@ -1,8 +1,5 @@
 ﻿'use strict';
-import { IConfig } from '../definitions/custom/config/i-config';
-import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
-import { IStorageStats } from '../definitions/custom/models/i-storage-stats';
-import { IGetUserStorageData, IResponse } from '../definitions/custom/tokens/standard-tokens';
+import { IGetUserStorageData, IResponse, IConfig, IAuthReq, IStorageStats } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';

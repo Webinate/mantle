@@ -1,7 +1,5 @@
 ﻿'use strict';
-import { IUserEntry } from '../definitions/custom/models/i-user-entry';
-import { IConfig } from '../definitions/custom/config/i-config';
-import { IMailer, IGMail, IMailgun } from '../definitions/custom/config/i-mail';
+import { IUserEntry, IConfig, IMailer, IGMail, IMailgun } from 'modepress';
 import * as mongodb from 'mongodb';
 import * as http from 'http';
 import * as validator from 'validator';

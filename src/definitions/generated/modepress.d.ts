@@ -1,458 +1,464 @@
-import { IServer } from './i-server';
-import { IGMail, IMailgun } from './i-mail';
-import { IGoogleProperties } from './i-google';
-import { IWebsocket } from './i-socket';
-
-/*
+declare module 'modepress' {
+    /*
     * Represents the details of the admin user
     */
-export interface IAdminUser {
-    username: string;
-    email: string;
-    password: string;
-}
-
-/**
- * Describes the controller structure of plugins in the config file
- */
-export interface IControllerPlugin {
-    path: string;
-}
-
-/**
- * A server configuration
- */
-export interface IConfig {
+    export interface IAdminUser {
+        username: string;
+        email: string;
+        password: string;
+    }
 
     /**
-     * The folder where modepress will search for client projects to add to the runtime.
-     * This setting must represent a path string. Each folder in the path will be analyzed
-     * and any with a valid modepress.json will be added.
+     * Describes the controller structure of plugins in the config file
      */
-    clientsFolder: string;
+    export interface IControllerPlugin {
+        path: string;
+    }
 
     /**
-     * If true, then modepress will render bot page crawls stripping all javascript source tags after the page is fully loaded. This
-     * is accomplished by sending a headless browser request to the page and waiting for it to fully load. Once loaded the page is saved
-     * and stripped of scripts. Any subsequent calls to the page will result in the saved page being presented as long as the expiration
-     * has not been exceeded - if it has then a new render is done.
-     * e.g. '127.0.0.1:3000'
+     * A server configuration
      */
-    enableAjaxRendering: boolean;
+    export interface IConfig {
 
-    /**
-     * The length of time a render is kept in the DB before being updated. Stored in seconds.
-     * e.g. 86400 (1 day)
-     */
-    ajaxRenderExpiration: number;
-
-
-    database: {
         /**
-         * The name of the mongo database to use
+         * The folder where modepress will search for client projects to add to the runtime.
+         * This setting must represent a path string. Each folder in the path will be analyzed
+         * and any with a valid modepress.json will be added.
          */
-        name: string;
+        clientsFolder: string;
 
         /**
-         * The database host we are listening on
+         * If true, then modepress will render bot page crawls stripping all javascript source tags after the page is fully loaded. This
+         * is accomplished by sending a headless browser request to the page and waiting for it to fully load. Once loaded the page is saved
+         * and stripped of scripts. Any subsequent calls to the page will result in the saved page being presented as long as the expiration
+         * has not been exceeded - if it has then a new render is done.
+         * e.g. '127.0.0.1:3000'
+         */
+        enableAjaxRendering: boolean;
+
+        /**
+         * The length of time a render is kept in the DB before being updated. Stored in seconds.
+         * e.g. 86400 (1 day)
+         */
+        ajaxRenderExpiration: number;
+
+
+        database: {
+            /**
+             * The name of the mongo database to use
+             */
+            name: string;
+
+            /**
+             * The database host we are listening on
+             */
+            host: string;
+
+            /**
+             * The port number the mongo database is listening on
+             */
+            port: number;
+        }
+
+        /**
+         * An array of servers for each host / route that modepress is supporting
+         */
+        servers: Array<IServer>;
+
+        /**
+         * If debug is true, certain functions will be emulated and more information logged
+         */
+        debug: boolean;
+
+        /**
+         * Settings related to sending emails
+         */
+        mail: {
+
+            /**
+             * The from field sent to recipients
+             */
+            from: string;
+
+            /**
+             * Specify the type of mailer to use.
+             * Currently we support either 'gmail' or 'mailgun'
+             */
+            type: 'gmail' | 'mailgun';
+
+            /**
+             * Options to be sent to the desired mailer
+             */
+            options: IGMail | IMailgun;
+        }
+
+        /**
+         * User related settings
+         */
+        userSettings: {
+            /**
+            * The name of the mongodb collection for storing user details
+            * eg: 'users'
+            */
+            userCollection: string;
+
+            /**
+             * The name of the mongodb collection for storing session details
+             * eg: 'sessions'
+             */
+            sessionCollection: string;
+        }
+
+        sessionSettings: {
+            /*
+            * If set, the session will be restricted to URLs underneath the given path.
+            * By default the path is '/', which means that the same sessions will be shared across the entire domain.
+            * e.g: '/'
+            */
+            sessionPath?: string;
+
+            /**
+             * If present, the cookie (and hence the session) will apply to the given domain, including any subdomains.
+             * For example, on a request from foo.example.org, if the domain is set to '.example.org', then this session will persist across any subdomain of example.org.
+             * By default, the domain is not set, and the session will only be visible to other requests that exactly match the domain.
+             * Default is blank ''
+             */
+            sessionDomain?: string;
+
+            /**
+             * A persistent connection is one that will last after the user closes the window and visits the site again (true).
+             * A non-persistent that will forget the user once the window is closed (false)
+             * e.g: true/false. Default is true
+             */
+            sessionPersistent?: boolean;
+
+            /**
+             * The default length of user sessions in seconds
+             * e.g 1800
+             */
+            sessionLifetime?: number;
+
+            /**
+             * The longer period length of user sessions in seconds (Typically when a user clicks a 'remember me' type of button)
+             * e.g (60 * 60 * 24 * 2) = 2 days
+             */
+            sessionLifetimeExtended?: number;
+
+            /**
+             * Should the session be secure
+             */
+            secure: boolean;
+        }
+
+        /**
+         * The administrative user. This is the root user that will have access to the information in the database.
+         * This can be anything you like, but try to use passwords that are hard to guess
+         * eg:
+
+            'adminUser': {
+                    'username': 'root',
+                    'email': 'root_email@host.com',
+                    'password': 'CHANGE_THIS_PASSWORD'
+                }
+            */
+        adminUser: IAdminUser;
+
+        /**
+         * Information relating to the Google storage platform
+         *
+         'google': {
+             'keyFile': '',
+             'mail':{
+                 'apiEmail': '',
+                 'from': ''
+             },
+             'bucket': {
+                     'projectId': '',
+                     'bucketsCollection': 'buckets',
+                     'filesCollection': 'files'
+                 }
+             }
+         */
+        google: IGoogleProperties;
+
+        /**
+         * Information regarding the websocket communication. Used for events and IPC
+         */
+        websocket: IWebsocket;
+    }
+}
+declare module 'modepress' {
+    /*
+    * Users stores data on an external cloud bucket with Google
+    */
+    export interface IGoogleProperties {
+        /*
+        * Path to the key file
+        */
+        keyFile: string;
+
+        /*
+        * Describes the bucket details
+        */
+        bucket: {
+
+            /*
+            * Project ID
+            */
+            projectId: string;
+
+            /**
+             * The name of the mongodb collection for storing bucket details
+             * eg: 'buckets'
+             */
+            bucketsCollection: string;
+
+            /**
+             * The name of the mongodb collection for storing file details
+             * eg: 'files'
+             */
+            filesCollection: string;
+
+            /**
+             * The name of the mongodb collection for storing user stats
+             * eg: 'storageAPI'
+             */
+            statsCollection: string;
+
+            /**
+             * The length of time the assets should be cached on a user's browser.
+             * eg:  2592000000 or 30 days
+             */
+            cacheLifetime: number;
+        }
+    }
+}
+declare module 'modepress' {
+    export interface IMailOptions { }
+
+    export interface IMailer {
+        /**
+         * Attempts to initialize the mailer
+         * @param {IMailOptions} options
+         * @returns {Promise<boolean>}
+         */
+        initialize( options: IMailOptions ): Promise<boolean>
+
+        /**
+         * Sends an email
+         * @param {stirng} to The email address to send the message to
+         * @param {stirng} from The email we're sending from
+         * @param {stirng} subject The message subject
+         * @param {stirng} msg The message to be sent
+         * @returns {Promise<boolean>}
+         */
+        sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>
+    }
+
+    /**
+     * Options for a gmail mailer
+     */
+    export interface IGMail extends IMailOptions {
+        /*
+            * The email account to use the gmail API through. This account must be authorized to
+            * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
+            */
+        apiEmail: string;
+
+        /*
+            * Path to the key file
+            */
+        keyFile: string;
+    }
+
+    /**
+     * Options for a mailgun mailer
+     */
+    export interface IMailgun extends IMailOptions {
+        /**
+         * The domain for associated with the mailgun account
+         */
+        domain: string;
+
+        /**
+         * The api key for your mailgun account
+         */
+        apiKey: string;
+    }
+}
+declare module "modepress" {
+    /**
+     * Defines routes and the paths they take
+     */
+    export interface IPath {
+        /**
+         * The express end point route to use. E.g. '*' or '/some-route'
+         */
+        path: string;
+
+        /**
+         * The file to be sent when the path resolves. This must be a file path and point to a file that exists.
+         * The file could be any valid html file. Alternatively it can be rendered as an express jade file (.jade)
+         */
+        index: string;
+
+        /**
+         * An array of javascript file paths that should be added to the page when it loads
+         * e.g. ['./plugins/my-plugin/index.js']
+         */
+        plugins: Array<string>;
+
+        /**
+         * An array of javascript variables that will be sent to any jade templates for a given path
+         */
+        variables: { [ name: string ]: string };
+    }
+}
+declare module 'modepress' {
+    /**
+     * Defines routes and the paths of a host / port
+     */
+    export interface IServer {
+        /**
+         * The host we listening for
+        */
+        host: string;
+
+        /**
+         * The length of time the assets should be cached on a user's browser. The default is 30 days.
+         */
+        cacheLifetime: number;
+
+        /**
+         * The port number of the host
+         */
+        portHTTP: number;
+
+        /**
+         * An array of domains that are CORS approved
+         */
+        approvedDomains: Array<string>;
+
+        /**
+         * An array of folder paths that can be used to fetch static content
+         */
+        staticFilesFolder: Array<string>;
+
+        /**
+         * An object to describe SSL properties.
+         * eg : {
+                portHTTPS: 443;
+                sslKey: './PATH_TO_KEY';
+                sslCert: './PATH_TO_CERT';
+                sslRoot: './PATH_TO_ROOT';
+                sslIntermediate: './PATH_TO_INTERMEDIATE';
+                sslPassPhrase: 'PASSPHRASE';
+            * }
+            */
+        ssl: ISSL;
+
+        /**
+         * An array of IPath objects that define routes and where they go to
+         */
+        paths: Array<IPath>
+
+        /**
+         * An array of controllers associated with this server
+         */
+        controllers: Array<IControllerPlugin>
+
+        /**
+        * The URL to redirect to after the user attempts to activate their account.
+        * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
+        * adding a query ?message=You%20have%20activated%20your%20account&status=success.
+        * The status can be either 'success' or 'error'
+        *
+        * eg: 'http://localhost/notify-user'
+        */
+        accountRedirectURL: string;
+
+        /**
+         * The URL sent to users emails for when their password is reset. This URL should
+         * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
+         *
+         * eg: 'http://localhost/reset-password'
+         */
+        passwordResetURL: string;
+    }
+}
+declare module 'modepress' {
+
+    /*
+    * Users stores data on an external cloud bucket with Google
+    */
+    export interface IWebsocket {
+        /**
+         * A key that must be provided in the headers of socket client connections. If the connection headers
+         * contain 'users-api-key', and it matches this key, then the connection is considered an authorized connection.
+         */
+        socketApiKey: string;
+
+        /**
+         * The port number to use for web socket communication. You can use this port to send and receive events or messages
+         * to the server.
+         * e.g. 8080
+         */
+        port: number;
+
+        /**
+         * The hostname of the socket connection
+         * eg: 'localhost'
          */
         host: string;
 
         /**
-         * The port number the mongo database is listening on
+         * An array of safe origins for socket communication
+         * [
+         *   'webinate.net',
+         *   'localhost'
+         * ]
          */
-        port: number;
-    }
-
-    /**
-     * If debug is true, certain functions will be emulated and more information logged
-     */
-    debug: boolean;
-
-    /**
-     * Settings related to sending emails
-     */
-    mail: {
+        approvedSocketDomains: Array<string>;
 
         /**
-         * The from field sent to recipients
+         * An object to descrine the socket ssl properties
          */
-        from: string;
-
-        /**
-         * Specify the type of mailer to use.
-         * Currently we support either 'gmail' or 'mailgun'
-         */
-        type: 'gmail' | 'mailgun';
-
-        /**
-         * Options to be sent to the desired mailer
-         */
-        options: IGMail | IMailgun;
-    }
-
-    /**
-     * User related settings
-     */
-    userSettings: {
-        /**
-        * The name of the mongodb collection for storing user details
-        * eg: 'users'
-        */
-        userCollection: string;
-
-        /**
-         * The name of the mongodb collection for storing session details
-         * eg: 'sessions'
-         */
-        sessionCollection: string;
-    }
-
-    sessionSettings: {
-        /*
-        * If set, the session will be restricted to URLs underneath the given path.
-        * By default the path is '/', which means that the same sessions will be shared across the entire domain.
-        * e.g: '/'
-        */
-        sessionPath?: string;
-
-        /**
-         * If present, the cookie (and hence the session) will apply to the given domain, including any subdomains.
-         * For example, on a request from foo.example.org, if the domain is set to '.example.org', then this session will persist across any subdomain of example.org.
-         * By default, the domain is not set, and the session will only be visible to other requests that exactly match the domain.
-         * Default is blank ''
-         */
-        sessionDomain?: string;
-
-        /**
-         * A persistent connection is one that will last after the user closes the window and visits the site again (true).
-         * A non-persistent that will forget the user once the window is closed (false)
-         * e.g: true/false. Default is true
-         */
-        sessionPersistent?: boolean;
-
-        /**
-         * The default length of user sessions in seconds
-         * e.g 1800
-         */
-        sessionLifetime?: number;
-
-        /**
-         * The longer period length of user sessions in seconds (Typically when a user clicks a 'remember me' type of button)
-         * e.g (60 * 60 * 24 * 2) = 2 days
-         */
-        sessionLifetimeExtended?: number;
-
-        /**
-         * Should the session be secure
-         */
-        secure: boolean;
-    }
-
-    /**
-     * The administrative user. This is the root user that will have access to the information in the database.
-     * This can be anything you like, but try to use passwords that are hard to guess
-     * eg:
-
-        'adminUser': {
-                'username': 'root',
-                'email': 'root_email@host.com',
-                'password': 'CHANGE_THIS_PASSWORD'
-            }
-        */
-    adminUser: IAdminUser;
-
-    /**
-     * Information relating to the Google storage platform
-     *
-     'google': {
-         'keyFile': '',
-         'mail':{
-             'apiEmail': '',
-             'from': ''
-         },
-         'bucket': {
-                 'projectId': '',
-                 'bucketsCollection': 'buckets',
-                 'filesCollection': 'files'
-             }
-         }
-     */
-    google: IGoogleProperties;
-
-    /**
-     * Information regarding the websocket communication. Used for events and IPC
-     */
-    websocket: IWebsocket;
-
-
-}
-/*
-* Users stores data on an external cloud bucket with Google
-*/
-export interface IGoogleProperties {
-    /*
-    * Path to the key file
-    */
-    keyFile: string;
-
-    /*
-    * Describes the bucket details
-    */
-    bucket: {
-
-        /*
-        * Project ID
-        */
-        projectId: string;
-
-        /**
-         * The name of the mongodb collection for storing bucket details
-         * eg: 'buckets'
-         */
-        bucketsCollection: string;
-
-        /**
-         * The name of the mongodb collection for storing file details
-         * eg: 'files'
-         */
-        filesCollection: string;
-
-        /**
-         * The name of the mongodb collection for storing user stats
-         * eg: 'storageAPI'
-         */
-        statsCollection: string;
-
-        /**
-         * The length of time the assets should be cached on a user's browser.
-         * eg:  2592000000 or 30 days
-         */
-        cacheLifetime: number;
+        ssl?: ISSL;
     }
 }
+declare module 'modepress' {
+    export interface ISSL {
 
-export interface IMailOptions { }
+        /**
+         * The port number to use for SSL. Only applicable if ssl is true.
+         */
+        portHTTPS: number;
 
-export interface IMailer {
-    /**
-     * Attempts to initialize the mailer
-     * @param {IMailOptions} options
-     * @returns {Promise<boolean>}
-     */
-    initialize( options: IMailOptions ): Promise<boolean>
+        /**
+         * The path of the SSL private key. Only applicable if ssl is true.
+         */
+        sslKey: string;
 
-    /**
-     * Sends an email
-     * @param {stirng} to The email address to send the message to
-     * @param {stirng} from The email we're sending from
-     * @param {stirng} subject The message subject
-     * @param {stirng} msg The message to be sent
-     * @returns {Promise<boolean>}
-     */
-    sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>
-}
+        /**
+         * The path of the SSL certificate file (usually provided by a third vendor). Only applicable if ssl is true.
+         */
+        sslCert: string;
 
-/**
- * Options for a gmail mailer
- */
-export interface IGMail extends IMailOptions {
-    /*
-        * The email account to use the gmail API through. This account must be authorized to
-        * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
-        */
-    apiEmail: string;
+        /**
+         * The path of the SSL root file (usually provided by a third vendor). Only applicable if ssl is true.
+         */
+        sslRoot: string;
 
-    /*
-        * Path to the key file
-        */
-    keyFile: string;
-}
+        /**
+         * The path of the SSL intermediate/link file (usually provided by a third vendor). Only applicable if ssl is true.
+         */
+        sslIntermediate: string;
 
-/**
- * Options for a mailgun mailer
- */
-export interface IMailgun extends IMailOptions {
-    /**
-     * The domain for associated with the mailgun account
-     */
-    domain: string;
-
-    /**
-     * The api key for your mailgun account
-     */
-    apiKey: string;
-}
-/**
- * Defines routes and the paths they take
- */
-export interface IPath {
-    /**
-     * The express end point route to use. E.g. '*' or '/some-route'
-     */
-    path: string;
-
-    /**
-     * The file to be sent when the path resolves. This must be a file path and point to a file that exists.
-     * The file could be any valid html file. Alternatively it can be rendered as an express jade file (.jade)
-     */
-    index: string;
-
-    /**
-     * An array of javascript file paths that should be added to the page when it loads
-     * e.g. ['./plugins/my-plugin/index.js']
-     */
-    plugins: Array<string>;
-
-    /**
-     * An array of javascript variables that will be sent to any jade templates for a given path
-     */
-    variables: { [ name: string ]: string };
-}
-import { IPath } from './i-path';
-import { ISSL } from './i-ssl';
-import { IControllerPlugin } from './i-config';
-
-/**
- * Defines routes and the paths of a host / port
- */
-export interface IServer {
-    /**
-     * The host we listening for
-    */
-    host: string;
-
-    /**
-     * The length of time the assets should be cached on a user's browser. The default is 30 days.
-     */
-    cacheLifetime: number;
-
-    /**
-     * The port number of the host
-     */
-    portHTTP: number;
-
-    /**
-     * An array of domains that are CORS approved
-     */
-    approvedDomains: Array<string>;
-
-    /**
-     * An array of folder paths that can be used to fetch static content
-     */
-    staticFilesFolder: Array<string>;
-
-    /**
-     * An object to describe SSL properties.
-     * eg : {
-            portHTTPS: 443;
-            sslKey: './PATH_TO_KEY';
-            sslCert: './PATH_TO_CERT';
-            sslRoot: './PATH_TO_ROOT';
-            sslIntermediate: './PATH_TO_INTERMEDIATE';
-            sslPassPhrase: 'PASSPHRASE';
-        * }
-        */
-    ssl: ISSL;
-
-    /**
-     * An array of IPath objects that define routes and where they go to
-     */
-    paths: Array<IPath>
-
-    /**
-     * An array of controllers associated with this server
-     */
-    controllers: Array<IControllerPlugin>
-
-    /**
-    * The URL to redirect to after the user attempts to activate their account.
-    * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
-    * adding a query ?message=You%20have%20activated%20your%20account&status=success.
-    * The status can be either 'success' or 'error'
-    *
-    * eg: 'http://localhost/notify-user'
-    */
-    accountRedirectURL: string;
-
-    /**
-     * The URL sent to users emails for when their password is reset. This URL should
-     * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
-     *
-     * eg: 'http://localhost/reset-password'
-     */
-    passwordResetURL: string;
-}
-import { ISSL } from './i-ssl';
-
-/*
-* Users stores data on an external cloud bucket with Google
-*/
-export interface IWebsocket {
-    /**
-     * A key that must be provided in the headers of socket client connections. If the connection headers
-     * contain 'users-api-key', and it matches this key, then the connection is considered an authorized connection.
-     */
-    socketApiKey: string;
-
-    /**
-     * The port number to use for web socket communication. You can use this port to send and receive events or messages
-     * to the server.
-     * e.g. 8080
-     */
-    port: number;
-
-    /**
-     * The hostname of the socket connection
-     * eg: 'localhost'
-     */
-    host: string;
-
-    /**
-     * An array of safe origins for socket communication
-     * [
-     *   'webinate.net',
-     *   'localhost'
-     * ]
-     */
-    approvedSocketDomains: Array<string>;
-
-    /**
-     * An object to descrine the socket ssl properties
-     */
-    ssl?: ISSL;
-}
-export interface ISSL {
-
-    /**
-     * The port number to use for SSL. Only applicable if ssl is true.
-     */
-    portHTTPS: number;
-
-    /**
-     * The path of the SSL private key. Only applicable if ssl is true.
-     */
-    sslKey: string;
-
-    /**
-     * The path of the SSL certificate file (usually provided by a third vendor). Only applicable if ssl is true.
-     */
-    sslCert: string;
-
-    /**
-     * The path of the SSL root file (usually provided by a third vendor). Only applicable if ssl is true.
-     */
-    sslRoot: string;
-
-    /**
-     * The path of the SSL intermediate/link file (usually provided by a third vendor). Only applicable if ssl is true.
-     */
-    sslIntermediate: string;
-
-    /**
-     * The password to use for the SSL (optional). Only applicable if ssl is true.
-     */
-    sslPassPhrase: string;
+        /**
+         * The password to use for the SSL (optional). Only applicable if ssl is true.
+         */
+        sslPassPhrase: string;
+    }
 }
 /**
  * A list of optional parameters that can be passed to schema items that determines how they are

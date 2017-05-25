@@ -6,11 +6,7 @@ import { UserManager, UserPrivileges } from '../core/users';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { okJson, errJson } from '../utils/serializers';
-import { IConfig } from '../definitions/custom/config/i-config';
-import { IServer } from '../definitions/custom/config/i-server';
-import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
-import { IUserEntry } from '../definitions/custom/models/i-user-entry';
-import { IGetUser, IResponse, IGetUsers } from '../definitions/custom/tokens/standard-tokens';
+import { IGetUser, IResponse, IGetUsers, IConfig, IServer, IAuthReq, IUserEntry } from 'modepress';
 
 import * as compression from 'compression';
 import { Model } from '../models/model';

@@ -1,4 +1,4 @@
-﻿import { IServer } from '../definitions/custom/config/i-server';
+﻿import { IServer } from 'modepress';
 import * as http from 'http';
 import { error as logError } from '../utils/logger';
 import { Controller } from './controller';

@@ -1,7 +1,4 @@
-﻿import { IConfig } from '../definitions/custom/config/i-config';
-import { IServer } from '../definitions/custom/config/i-server';
-import { IMessage } from '../definitions/custom/tokens/i-message';
-
+﻿import { IConfig, IServer, IMessage } from 'modepress';
 import * as express from 'express';
 import * as controllerModule from './controller';
 import * as bodyParser from 'body-parser';

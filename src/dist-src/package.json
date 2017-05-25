@@ -16,7 +16,7 @@
         "jade": "^1.10.0",
         "yargs": "^3.12.0",
         "compression": "^1.5.1",
-        "modepress-api": "./modepress-api",
+        "modepress": "./modepress",
         "ws": "^1.0.1",
         "sanitize-html": "^1.11.4",
         "jsdom": "^8.2.0",

@@ -1,5 +1,4 @@
-﻿import { ISchemaOptions } from '../../definitions/custom/misc/i-schema-options';
-import { IModelEntry } from '../../definitions/custom/models/i-model-entry';
+﻿import { ISchemaOptions, IModelEntry } from 'modepress';
 
 import { SchemaItem } from './schema-item';
 import { Model, ModelInstance } from '../model';

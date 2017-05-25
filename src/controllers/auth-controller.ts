@@ -1,10 +1,6 @@
 ﻿'use strict';
 
-import { IConfig } from '../definitions/custom/config/i-config';
-import { IServer } from '../definitions/custom/config/i-server';
-import { IResponse, IAuthenticationResponse } from '../definitions/custom/tokens/standard-tokens';
-import { ILoginToken } from '../definitions/custom/tokens/i-login-token';
-import { IRegisterToken } from '../definitions/custom/tokens/i-register-token';
+import { IConfig, IServer, IResponse, IAuthenticationResponse, ILoginToken, IRegisterToken } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';

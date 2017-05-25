@@ -1,8 +1,4 @@
-﻿import { IConfig } from '../definitions/custom/config/i-config';
-import { IServer } from '../definitions/custom/config/i-server';
-import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
-import { IRender } from '../definitions/custom/models/i-render';
-import { IGetRenders, IResponse } from '../definitions/custom/tokens/standard-tokens';
+﻿import { IConfig, IServer, IAuthReq, IRender, IGetRenders, IResponse } from 'modepress';
 import * as mongodb from 'mongodb';
 import { error as logError, info } from '../utils/logger';
 import * as express from 'express';

@@ -1,6 +1,0 @@
-{
-    "name": "modepress-api",
-    "version": "0.0.1",
-    "main": "../../modepress-api.js",
-    "dependencies": {}
-}

@@ -1,4 +1,4 @@
-import { IConfig } from '../../definitions/custom/config/i-config';
+import { IConfig } from 'modepress';
 import * as mongodb from 'mongodb';
 import { UserManager } from '../../core/users';
 import { BucketManager } from '../../core/bucket-manager';

@@ -1,5 +1,5 @@
 'use strict';
-import { IMailer, IMailgun } from '../definitions/custom/config/i-mail';
+import { IMailer, IMailgun } from 'modepress';
 import { error as logError, info } from '../utils/logger';
 
 /**

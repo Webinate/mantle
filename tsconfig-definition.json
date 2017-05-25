@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "module": "amd",
+        "removeComments": false,
+        "noEmitOnError": false,
+        "declaration": true,
+        "sourceMap": false,
+        "preserveConstEnums": true,
+        "noImplicitAny": false,
+        "target": "es2017",
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "es7"
+        ],
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "out": "modepress",
+        "noUnusedParameters": false,
+        "noUnusedLocals": true,
+        "strictNullChecks": true
+    },
+    "include": [
+        "src/definitions/custom/**/*.ts",
+        "src/modepress.ts"
+    ],
+    "exclude": [
+        "src/definitions/generated/*",
+        "src/definitions/required/**/*"
+    ]
+}

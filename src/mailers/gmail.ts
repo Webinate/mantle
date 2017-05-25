@@ -1,5 +1,5 @@
 'use strict';
-import { IMailer, IGMail } from '../definitions/custom/config/i-mail';
+import { IMailer, IGMail } from 'modepress';
 import * as google from 'googleapis';
 import * as googleAuth from 'google-auth-library';
 import * as fs from 'fs';

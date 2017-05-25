@@ -1,4 +1,4 @@
-﻿import { IConfig } from '../../definitions/custom/config/i-config';
+﻿import { IConfig } from 'modepress';
 import * as fs from 'fs';
 import { error, info, clear, initializeLogger } from '../../utils/logger';
 import * as yargs from 'yargs';

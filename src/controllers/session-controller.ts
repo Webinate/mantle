@@ -1,7 +1,6 @@
 ﻿'use strict';
-import { IConfig } from '../definitions/custom/config/i-config';
-import { IGetSessions, IResponse } from '../definitions/custom/tokens/standard-tokens';
 
+import { IConfig, IGetSessions, IResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';

@@ -1,10 +1,4 @@
-﻿import { IConfig } from '../definitions/custom/config/i-config';
-import { IServer } from '../definitions/custom/config/i-server';
-import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
-import { IPost } from '../definitions/custom/models/i-post';
-import { IUserEntry } from '../definitions/custom/models/i-user-entry';
-import { ICategory } from '../definitions/custom/models/i-category';
-import { IGetCategory, IGetCategories, IGetPost, IGetPosts, IResponse } from '../definitions/custom/tokens/standard-tokens';
+﻿import { IConfig, IServer, IAuthReq, IPost, IUserEntry, ICategory, IGetCategory, IGetCategories, IGetPost, IGetPosts, IResponse } from 'modepress';
 
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';

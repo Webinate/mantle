@@ -1,12 +1,8 @@
 ﻿'use strict';
 
-import { IConfig } from '../definitions/custom/config/i-config';
-import { IFileEntry } from '../definitions/custom/models/i-file-entry';
-import { IUploadToken } from '../definitions/custom/tokens/i-upload-token';
-import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
+import { IConfig, IFileEntry, IUploadToken, IAuthReq, IRemoveFiles, IGetBuckets, IResponse, IUploadResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { IRemoveFiles, IGetBuckets, IResponse, IUploadResponse } from '../definitions/custom/tokens/standard-tokens';
 import * as mongodb from 'mongodb';
 import { UserManager } from '../core/users';
 import { ownerRights, requireUser } from '../utils/permission-controllers';

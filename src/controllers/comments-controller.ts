@@ -1,9 +1,4 @@
-﻿import { IConfig } from '../definitions/custom/config/i-config';
-import { IServer } from '../definitions/custom/config/i-server';
-import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
-import { IComment } from '../definitions/custom/models/i-comment';
-import { IModelEntry } from '../definitions/custom/models/i-model-entry';
-import { IGetComments, IGetComment, IResponse } from '../definitions/custom/tokens/standard-tokens';
+﻿import { IConfig, IServer, IAuthReq, IComment, IModelEntry, IGetComment, IGetComments, IResponse } from 'modepress';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';

@@ -1,5 +1,4 @@
-﻿import { IConfig } from '../definitions/custom/config/i-config';
-import { IServer } from '../definitions/custom/config/i-server';
+﻿import { IConfig, IServer } from 'modepress';
 import * as express from 'express';
 import * as morgan from 'morgan';
 import * as mongodb from 'mongodb';

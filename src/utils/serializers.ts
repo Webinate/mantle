@@ -1,5 +1,5 @@
 'use strict';
-import { IResponse } from '../definitions/custom/tokens/standard-tokens';
+import { IResponse } from 'modepress';
 import * as express from 'express';
 import { error as logError } from './logger';
 

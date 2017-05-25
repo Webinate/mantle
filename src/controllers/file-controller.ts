@@ -1,9 +1,5 @@
 ﻿'use strict';
-import { IConfig } from '../definitions/custom/config/i-config';
-import { IAuthReq } from '../definitions/custom/tokens/i-auth-request';
-import { IFileEntry } from '../definitions/custom/models/i-file-entry';
-import { IBucketEntry } from '../definitions/custom/models/i-bucket-entry';
-import { IRemoveFiles, IResponse, IGetFiles, IGetFile } from '../definitions/custom/tokens/standard-tokens';
+import { IConfig, IAuthReq, IFileEntry, IBucketEntry, IRemoveFiles, IResponse, IGetFile, IGetFiles } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
