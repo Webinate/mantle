@@ -6,30 +6,30 @@ import { UserManager, UserPrivileges } from '../core/users';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { okJson, errJson } from '../utils/serializers';
-import { IGetUser, IResponse, IGetUsers, IConfig, IServer, IAuthReq, IUserEntry } from 'modepress';
-
+import { IGetUser, IResponse, IGetUsers, IAuthReq, IUserEntry } from 'modepress';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
+import { IControllerOptions } from 'modepress';
+import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class UserController extends Controller {
-    private _config: IConfig;
-    private _server: IServer;
 
 	/**
 	 * Creates an instance of the user manager
-	 * @param userCollection The mongo collection that stores the users
-	 * @param sessionCollection The mongo collection that stores the session data
-	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: IConfig, server: IServer ) {
+    constructor( options: IControllerOptions ) {
         super( [ Model.registerModel( UsersModel ) ] );
+    }
 
-        this._config = config;
-        this._server = server;
+    /**
+     * Called to initialize this controller and its related database objects
+     */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         // Setup the rest calls
         const router = express.Router();
@@ -49,6 +49,8 @@ export class UserController extends Controller {
 
         // Register the path
         e.use( '/users', router );
+
+        return this;
     }
 
     /**

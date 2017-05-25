@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IConfig, IAuthReq, IFileEntry, IBucketEntry, IRemoveFiles, IResponse, IGetFile, IGetFiles } from 'modepress';
+import { IAuthReq, IFileEntry, IBucketEntry, IRemoveFiles, IResponse, IGetFile, IGetFiles } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
@@ -10,25 +10,34 @@ import { error as logError } from '../utils/logger';
 import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
+import { IFileOptions } from 'modepress';
+import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class FileController extends Controller {
-    private _config: IConfig;
     private _allowedFileTypes: Array<string>;
+    private _cacheLifetime: number;
 
 	/**
 	 * Creates an instance of the user manager
 	 * @param e The express app
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: IConfig ) {
+    constructor( options: IFileOptions ) {
         super( [ Model.registerModel( BucketModel ) ] );
-
-        this._config = config;
-
+        this._cacheLifetime = options.cacheLifetime;
         this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
+    }
+
+    /**
+     * Called to initialize this controller and its related database objects
+     */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
+
+
 
         // Setup the rest calls
         const router = express.Router();
@@ -46,8 +55,9 @@ export class FileController extends Controller {
 
         // Register the path
         e.use( `/files`, router );
-    }
 
+        return this;
+    }
 
     /**
      * Removes files specified in the URL
@@ -108,7 +118,7 @@ export class FileController extends Controller {
             const manager = BucketManager.get;
             const fileID = req.params.id;
             let file: IFileEntry;
-            const cache = this._config.google.bucket.cacheLifetime;
+            const cache = this._cacheLifetime;
 
             if ( !fileID || fileID.trim() === '' )
                 throw new Error( `Please specify a file ID` );

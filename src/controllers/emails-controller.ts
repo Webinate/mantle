@@ -1,19 +1,25 @@
-﻿import { IConfig, IServer, IMessage } from 'modepress';
+﻿import { IMessage } from 'modepress';
 import * as express from 'express';
-import * as controllerModule from './controller';
+import { Controller } from './controller';
 import * as bodyParser from 'body-parser';
 import { UserManager } from '../core/users'
 import { errJson } from '../utils/serializers';
+import { IControllerOptions } from 'modepress';
+import * as mongodb from 'mongodb';
 
-export class EmailsController extends controllerModule.Controller {
+export class EmailsController extends Controller {
 	/**
 	 * Creates a new instance of the email controller
-	 * @param server The server configuration options
-     * @param config The configuration options
-     * @param e The express instance of this server
 	 */
-    constructor( server: IServer, config: IConfig, e: express.Express ) {
+    constructor( options: IControllerOptions ) {
         super( null );
+    }
+
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         const router = express.Router();
         router.use( bodyParser.urlencoded( { 'extended': true } ) );
@@ -25,6 +31,8 @@ export class EmailsController extends controllerModule.Controller {
 
         // Register the path
         e.use( '/api/message-admin', router );
+
+        return this;
     }
 
 	/**

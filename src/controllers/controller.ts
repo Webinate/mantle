@@ -1,11 +1,13 @@
-﻿import { Model } from '../models/model';
+﻿import { IControllerOptions } from 'modepress';
+import { Model } from '../models/model';
 import * as mongodb from 'mongodb';
+import * as express from 'express';
 
 export class Controller {
     private static _models: Array<Model> = [];
     private _models: Array<Model>;
 
-    constructor( models: Array<Model> | null ) {
+    constructor( models: Array<Model> | null, options?: IControllerOptions ) {
         this._models = [];
 
         if ( models ) {
@@ -28,9 +30,8 @@ export class Controller {
 
 	/**
 	 * Called to initialize this controller and its related database objects
-	 * @param db The mongo database to use
 	 */
-    async initialize( db: mongodb.Db ): Promise<Controller> {
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
         if ( !this._models )
             return this;
 
@@ -39,10 +40,7 @@ export class Controller {
         for ( let i = 0, l = this._models.length; i < l; i++ )
             promises.push( this._models[ i ].initialize( db ) );
 
-
-
         await Promise.all( promises );
-
         return this;
     }
 

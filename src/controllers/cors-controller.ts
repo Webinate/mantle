@@ -1,22 +1,33 @@
-﻿import { IServer } from 'modepress';
-import * as http from 'http';
+﻿import * as http from 'http';
 import { error as logError } from '../utils/logger';
 import { Controller } from './controller';
 import * as express from 'express';
+import * as mongodb from 'mongodb';
 
 /**
  * Checks all incomming requests to see if they are CORS approved
  */
 export class CORSController extends Controller {
+
+    private _approvedDomains: string[];
+
     /**
 	 * Creates an instance of the user manager
 	 */
-    constructor( e: express.Express, config: IServer ) {
+    constructor( approvedDomains: string[] ) {
         super( null );
+        this._approvedDomains = approvedDomains;
+    }
+
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         const matches: Array<RegExp> = [];
-        for ( let i = 0, l = config.approvedDomains.length; i < l; i++ )
-            matches.push( new RegExp( config.approvedDomains[ i ] ) );
+        for ( let i = 0, l = this._approvedDomains.length; i < l; i++ )
+            matches.push( new RegExp( this._approvedDomains[ i ] ) );
 
         // Approves the valid domains for CORS requests
         e.use( function( req: express.Request, res: express.Response, next: Function ) {
@@ -43,5 +54,7 @@ export class CORSController extends Controller {
             else
                 next();
         } );
+
+        return this;
     }
 }

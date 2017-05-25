@@ -177,12 +177,12 @@ export class CommsController extends events.EventEmitter {
         if ( cfg.websocket.ssl ) {
             info( 'Creating secure socket connection' );
             let httpsServer: https.Server;
-            const caChain = [ fs.readFileSync( cfg.websocket.ssl.sslIntermediate ), fs.readFileSync( cfg.websocket.ssl.sslRoot ) ];
-            const privkey = cfg.websocket.ssl.sslKey ? fs.readFileSync( cfg.websocket.ssl.sslKey ) : null;
-            const theCert = cfg.websocket.ssl.sslCert ? fs.readFileSync( cfg.websocket.ssl.sslCert ) : null;
+            const caChain = [ fs.readFileSync( cfg.websocket.ssl.intermediate ), fs.readFileSync( cfg.websocket.ssl.root ) ];
+            const privkey = cfg.websocket.ssl.key ? fs.readFileSync( cfg.websocket.ssl.key ) : null;
+            const theCert = cfg.websocket.ssl.cert ? fs.readFileSync( cfg.websocket.ssl.cert ) : null;
 
             info( `Attempting to start Websocket server with SSL...` );
-            httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: cfg.websocket.ssl.sslPassPhrase, ca: caChain }, processRequest );
+            httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: cfg.websocket.ssl.passPhrase, ca: caChain }, processRequest );
             httpsServer.listen( cfg.websocket.port );
             this._server = new ws.Server( { host: cfg.websocket.host, server: httpsServer } );
         }

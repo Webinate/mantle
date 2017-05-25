@@ -1,4 +1,4 @@
-﻿import { IConfig, IServer, IAuthReq, IPost, IUserEntry, ICategory, IGetCategory, IGetCategories, IGetPost, IGetPosts, IResponse } from 'modepress';
+﻿import { IAuthReq, IPost, IUserEntry, ICategory, IGetCategory, IGetCategories, IGetPost, IGetPosts, IResponse } from 'modepress';
 
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
@@ -11,6 +11,7 @@ import { CategoriesModel } from '../models/categories-model';
 import { identifyUser, checkVerbosity, adminRights, hasId } from '../utils/permission-controllers';
 import { okJson, errJson } from '../utils/serializers';
 import { UserPrivileges } from '../core/users';
+import { IControllerOptions } from 'modepress';
 
 /**
  * A controller that deals with the management of posts
@@ -18,12 +19,16 @@ import { UserPrivileges } from '../core/users';
 export class PostsController extends Controller {
 	/**
 	 * Creates a new instance of the controller
-	 * @param server The server configuration options
-     * @param config The configuration options
-     * @param e The express instance of this server
 	 */
-    constructor( server: IServer, config: IConfig, e: express.Express ) {
+    constructor( options: IControllerOptions ) {
         super( [ Model.registerModel( PostsModel ), Model.registerModel( CategoriesModel ) ] );
+    }
+
+    /**
+     * Called to initialize this controller and its related database objects
+     */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         const router = express.Router();
 
@@ -45,6 +50,8 @@ export class PostsController extends Controller {
 
         // Register the path
         e.use( '/api', router );
+
+        return this;
     }
 
     /**

@@ -1,4 +1,4 @@
-﻿import { IConfig, IServer, IAuthReq, IComment, IModelEntry, IGetComment, IGetComments, IResponse } from 'modepress';
+﻿import { IAuthReq, IComment, IModelEntry, IGetComment, IGetComments, IResponse } from 'modepress';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
@@ -9,6 +9,7 @@ import { CommentsModel } from '../models/comments-model';
 import { identifyUser, checkVerbosity, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { okJson, errJson } from '../utils/serializers';
 import { UserPrivileges } from '../core/users';
+import { IControllerOptions } from 'modepress';
 
 /**
  * A controller that deals with the management of comments
@@ -16,12 +17,16 @@ import { UserPrivileges } from '../core/users';
 export class CommentsController extends Controller {
 	/**
 	 * Creates a new instance of the controller
-	 * @param server The server configuration options
-     * @param config The configuration options
-     * @param e The express instance of this server
 	 */
-    constructor( server: IServer, config: IConfig, e: express.Express ) {
+    constructor( options: IControllerOptions ) {
         super( [ Model.registerModel( CommentsModel ) ] );
+    }
+
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         const router = express.Router();
 
@@ -40,6 +45,8 @@ export class CommentsController extends Controller {
 
         // Register the path
         e.use( '/api', router );
+
+        return this;
     }
 
     /**

@@ -9,13 +9,6 @@ declare module 'modepress' {
     }
 
     /**
-     * Describes the controller structure of plugins in the config file
-     */
-    export interface IControllerPlugin {
-        path: string;
-    }
-
-    /**
      * A server configuration
      */
     export interface IConfig {
@@ -26,15 +19,6 @@ declare module 'modepress' {
          * and any with a valid modepress.json will be added.
          */
         clientsFolder: string;
-
-        /**
-         * If true, then modepress will render bot page crawls stripping all javascript source tags after the page is fully loaded. This
-         * is accomplished by sending a headless browser request to the page and waiting for it to fully load. Once loaded the page is saved
-         * and stripped of scripts. Any subsequent calls to the page will result in the saved page being presented as long as the expiration
-         * has not been exceeded - if it has then a new render is done.
-         * e.g. '127.0.0.1:3000'
-         */
-        enableAjaxRendering: boolean;
 
         /**
          * The length of time a render is kept in the DB before being updated. Stored in seconds.
@@ -63,7 +47,7 @@ declare module 'modepress' {
         /**
          * An array of servers for each host / route that modepress is supporting
          */
-        servers: Array<IServer>;
+        servers: Array<IClient>;
 
         /**
          * If debug is true, certain functions will be emulated and more information logged

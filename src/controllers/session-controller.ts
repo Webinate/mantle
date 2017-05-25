@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { IConfig, IGetSessions, IResponse } from 'modepress';
+import { IGetSessions, IResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';
@@ -10,23 +10,26 @@ import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
+import { IControllerOptions } from 'modepress';
+import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class SessionController extends Controller {
-    private _config: IConfig;
 
 	/**
 	 * Creates an instance of the user manager
-	 * @param userCollection The mongo collection that stores the users
-	 * @param sessionCollection The mongo collection that stores the session data
-	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: IConfig ) {
+    constructor( options: IControllerOptions ) {
         super( [ Model.registerModel( UsersModel ) ] );
+    }
 
-        this._config = config;
+    /**
+     * Called to initialize this controller and its related database objects
+     */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         // Setup the rest calls
         const router = express.Router();
@@ -40,6 +43,8 @@ export class SessionController extends Controller {
 
         // Register the path
         e.use( '/sessions', router );
+
+        return this;
     }
 
 	/**

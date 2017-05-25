@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { IConfig, IFileEntry, IUploadToken, IAuthReq, IRemoveFiles, IGetBuckets, IResponse, IUploadResponse } from 'modepress';
+import { IFileEntry, IUploadToken, IAuthReq, IRemoveFiles, IGetBuckets, IResponse, IUploadResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
@@ -16,25 +16,27 @@ import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
+import { IControllerOptions } from 'modepress';
 
 /**
  * Main class to use for managing users
  */
 export class BucketController extends Controller {
-    private _config: IConfig;
     private _allowedFileTypes: Array<string>;
 
 	/**
 	 * Creates an instance of the user manager
-	 * @param e The express app
-	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: IConfig ) {
+    constructor( options: IControllerOptions ) {
         super( [ Model.registerModel( BucketModel ) ] );
-
-        this._config = config;
-
         this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
+    }
+
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         // Setup the rest calls
         const router = express.Router();
@@ -50,6 +52,8 @@ export class BucketController extends Controller {
 
         // Register the path
         e.use( `/buckets`, router );
+
+        return this;
     }
 
     /**

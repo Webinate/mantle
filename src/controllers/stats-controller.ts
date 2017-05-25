@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IGetUserStorageData, IResponse, IConfig, IAuthReq, IStorageStats } from 'modepress';
+import { IGetUserStorageData, IResponse, IAuthReq, IStorageStats } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';
@@ -10,12 +10,13 @@ import * as compression from 'compression';
 import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
+import { IControllerOptions } from 'modepress';
+import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class StatsController extends Controller {
-    private _config: IConfig;
     private _allowedFileTypes: Array<string>;
 
 	/**
@@ -23,12 +24,16 @@ export class StatsController extends Controller {
 	 * @param e The express app
 	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: IConfig ) {
+    constructor( options: IControllerOptions ) {
         super( [ Model.registerModel( BucketModel ) ] );
-
-        this._config = config;
-
         this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
+    }
+
+    /**
+     * Called to initialize this controller and its related database objects
+     */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         // Setup the rest calls
         const router = express.Router();
@@ -46,6 +51,8 @@ export class StatsController extends Controller {
 
         // Register the path
         e.use( `/stats`, router );
+
+        return this;
     }
 
     /**

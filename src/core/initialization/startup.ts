@@ -1,4 +1,4 @@
-﻿import { IConfig } from 'modepress';
+﻿import { IConfig, IClient } from 'modepress';
 import * as fs from 'fs';
 import { error, info, clear, initializeLogger } from '../../utils/logger';
 import * as yargs from 'yargs';
@@ -7,7 +7,7 @@ import { Server } from '../server';
 import { ConsoleManager } from '../../console/console-manager';
 import { prepare } from './db-preparation';
 
-let config: IConfig | null = null;
+let config: IConfig;
 const args = yargs.argv;
 
 // Start the logger
@@ -40,32 +40,76 @@ catch ( err ) {
     process.exit();
 }
 
+export async function discoverClients() {
+    if ( !config.clientsFolder )
+        throw new Error( 'The property clientsFolder is not present in the config file' );
+
+    if ( !fs.existsSync( config.clientsFolder ) )
+        throw new Error( 'Cannot resolve clientsFolder property. Make sure the folder exists and is accessible' );
+
+    const directories = fs.readdirSync( config.clientsFolder );
+    const clientDefinitions: IClient[] = [];
+    for ( const dir of directories )
+        if ( fs.existsSync( `${dir}/modepress.json` ) ) {
+            try {
+                const client = JSON.parse( fs.readFileSync( `${dir}/modepress.json` ).toString() );
+                clientDefinitions.push( client );
+            }
+            catch ( err ) {
+                throw new Error( `Could not parse modepress JSON in '${dir}'` );
+            }
+        }
+
+    return clientDefinitions;
+}
+
 /**
  * initialization function to prep DB and servers
  */
 export async function initialize() {
     info( `Attempting to connect to mongodb...` );
 
-    if ( !config!.database )
+    if ( !config.database )
         throw new Error( 'No database object defined in the config file' );
 
-    const mongoServer = new MongoServer( config!.database.host, config!.database.port, config!.database.name );
-    const mongoDB = new Db( config!.database.name, mongoServer, { w: 1 } );
+    const mongoServer = new MongoServer( config.database.host, config.database.port, config.database.name );
+    const mongoDB = new Db( config.database.name, mongoServer, { w: 1 } );
     const db = await mongoDB.open();
 
-    info( `Successfully connected to '${config!.database.name}' at ${config!.database.host}:${config!.database.port}` );
+    info( `Successfully connected to '${config.database.name}' at ${config.database.host}:${config.database.port}` );
     info( `Starting up HTTP servers...` );
 
     // Create each of your servers here
     const promises: Array<Promise<any>> = [];
 
-    await prepare( db, config! );
+    await prepare( db, config );
+    const clients = await discoverClients();
 
-    // Load the servers
-    for ( let i = 0, l = config!.servers.length; i < l; i++ ) {
-        const server = new Server( config!.servers[ i ], config!, db );
-        promises.push( server.initialize( db ) );
+    const servers: Server[] = [];
+
+    // First create the servers
+    for ( const client of clients ) {
+        if ( typeof client.server !== 'string' )
+            servers.push( new Server( client.server ) );
     }
+
+    // Now go through the add on clients and add the controllers
+    // to any existing servers defined in the client
+    for ( const client of clients ) {
+        if ( typeof client.server === 'string' ) {
+            const server = servers.find( s => s.server.host === client.server )
+            if ( !server ) {
+                error( `Could not find an existing server with the name ${client.server}` );
+                process.exit();
+            }
+
+            server!.parseClient( client );
+        }
+    }
+
+
+    for ( const server of servers )
+        promises.push( server.initialize( db ) );
 
     // Load each of the servers
     await Promise.all( promises );

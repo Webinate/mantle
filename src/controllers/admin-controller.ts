@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IConfig, IResponse } from 'modepress';
+import { IResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';
@@ -8,17 +8,23 @@ import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
+import { IControllerOptions } from 'modepress';
+import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class AdminController extends Controller {
-    private _config: IConfig;
 
-    constructor( e: express.Express, config: IConfig ) {
+    constructor( options: IControllerOptions ) {
         super( [ Model.registerModel( UsersModel ) ] );
+    }
 
-        this._config = config;
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         // Setup the rest calls
         const router = express.Router();
@@ -31,6 +37,7 @@ export class AdminController extends Controller {
 
         // Register the path
         e.use( '/admin', router );
+        return this;
     }
 
     /**

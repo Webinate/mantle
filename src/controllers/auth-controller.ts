@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { IConfig, IServer, IResponse, IAuthenticationResponse, ILoginToken, IRegisterToken } from 'modepress';
+import { IResponse, IAuthenticationResponse, ILoginToken, IRegisterToken } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';
@@ -11,25 +11,28 @@ import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
+import { IAuthOptions } from 'modepress';
+import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class AuthController extends Controller {
-    private _config: IConfig;
-    private _server: IServer;
+    private _options: IAuthOptions;
 
 	/**
 	 * Creates an instance of the user manager
-	 * @param userCollection The mongo collection that stores the users
-	 * @param sessionCollection The mongo collection that stores the session data
-	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: IConfig, server: IServer ) {
+    constructor( options: IAuthOptions ) {
         super( [ Model.registerModel( UsersModel ) ] );
+        this._options = options;
+    }
 
-        this._config = config;
-        this._server = server;
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
 
         // Setup the rest calls
         const router = express.Router();
@@ -50,13 +53,14 @@ export class AuthController extends Controller {
 
         // Register the path
         e.use( '/auth', router );
+        return this;
     }
 
 	/**
 	 * Activates the user's account
 	 */
     private async activateAccount( req: express.Request, res: express.Response ) {
-        const redirectURL = this._server.accountRedirectURL;
+        const redirectURL = this._options.accountRedirectURL;
 
         try {
             // Check the user's activation and forward them onto the admin message page
@@ -78,7 +82,7 @@ export class AuthController extends Controller {
         try {
             const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
-            await UserManager.get.resendActivation( req.params.user, this._server.accountRedirectURL, origin );
+            await UserManager.get.resendActivation( req.params.user, this._options.accountRedirectURL, origin );
             okJson<IResponse>( { error: false, message: 'An activation link has been sent, please check your email for further instructions' }, res );
 
         } catch ( err ) {
@@ -93,7 +97,7 @@ export class AuthController extends Controller {
         try {
             const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
-            await UserManager.get.requestPasswordReset( req.params.user, this._server.passwordResetURL, origin );
+            await UserManager.get.requestPasswordReset( req.params.user, this._options.passwordResetURL, origin );
 
             okJson<IResponse>( { error: false, message: 'Instructions have been sent to your email on how to change your password' }, res );
 
@@ -183,7 +187,7 @@ export class AuthController extends Controller {
     private async register( req: express.Request, res: express.Response ) {
         try {
             const token: IRegisterToken = req.body;
-            const activationLink = ( this._server.ssl ? 'https://' : 'http://' ) + this._server.host + '/auth/activate-account';
+            const activationLink = this._options.activateAccountUrl;
             const user = await UserManager.get.register( token.username!, token.password!, token.email!, activationLink, {}, req );
 
             return okJson<IAuthenticationResponse>( {

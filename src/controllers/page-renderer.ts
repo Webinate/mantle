@@ -1,4 +1,4 @@
-﻿import { IConfig, IServer, IAuthReq, IRender, IGetRenders, IResponse } from 'modepress';
+﻿import { IAuthReq, IRender, IGetRenders, IResponse } from 'modepress';
 import * as mongodb from 'mongodb';
 import { error as logError, info } from '../utils/logger';
 import * as express from 'express';
@@ -10,6 +10,7 @@ import * as url from 'url';
 import * as jsdom from 'jsdom';
 import { okJson, errJson } from '../utils/serializers';
 import { adminRights } from '../utils/permission-controllers'
+import { IRenderOptions } from 'modepress';
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -96,23 +97,20 @@ export default class PageRenderer extends Controller {
 
     /**
 	 * Creates a new instance of the email controller
-	 * @param server The server configuration options
-     * @param config The configuration options
-     * @param e The express instance of this server
 	 */
-    constructor( server: IServer, config: IConfig, e: express.Express ) {
+    constructor( options: IRenderOptions ) {
         super( [ Model.registerModel( RendersModel ) ] );
-
-        server; // Supress empty param warning
-        config; // Supress empty param warning
-
-        if ( !config.enableAjaxRendering )
-            return;
-
         this.renderQueryFlag = '__render__request';
-        e.use( this.processBotRequest.bind( this ) );
-        this.expiration = config.ajaxRenderExpiration * 1000;
+        this.expiration = options.cacheLifetime * 1000;
+    }
 
+    /**
+     * Called to initialize this controller and its related database objects
+     */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        await super.initialize( e, db );
+
+        e.use( this.processBotRequest.bind( this ) );
         const router = express.Router();
         router.use( bodyParser.urlencoded( { 'extended': true } ) );
         router.use( bodyParser.json() );
@@ -125,6 +123,8 @@ export default class PageRenderer extends Controller {
 
         // Register the path
         e.use( '/api/renders', router );
+
+        return this;
     }
 
     /**
