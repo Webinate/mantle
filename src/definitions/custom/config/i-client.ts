@@ -62,19 +62,19 @@ declare module 'modepress' {
         port: number;
 
         /**
-         * The host we listening for
+         * The host we listening for. The default is 'localhost'
          */
         host: string;
 
         /**
          * An array of folder paths that can be used to fetch static content
          */
-        staticAssets: Array<string>;
+        staticAssets?: Array<string>;
 
         /**
-         * The length of time the assets should be cached on a user's browser. The default is 30 days.
+         * The length of time the assets should be cached on a user's browser in milliseconds. The default is 30 days.
          */
-        staticAssetsCache: number;
+        staticAssetsCache?: number;
 
         /**
          * An object to describe SSL properties.
@@ -89,7 +89,10 @@ declare module 'modepress' {
          */
         ssl?: ISSL;
 
-        corsApprovedDomains: string[];
+        /**
+         * An array of cors approved domains
+         */
+        corsApprovedDomains?: string[];
     }
 
     /**

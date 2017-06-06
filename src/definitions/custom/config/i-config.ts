@@ -47,7 +47,7 @@ declare module 'modepress' {
         /**
          * An array of servers for each host / route that modepress is supporting
          */
-        servers: Array<IClient>;
+        // servers: Array<IClient>;
 
         /**
          * If debug is true, certain functions will be emulated and more information logged

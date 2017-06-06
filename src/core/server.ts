@@ -24,13 +24,20 @@ import { CommentsController } from '../controllers/comments-controller';
 export class Server {
     server: IServer;
     private _controllers: Controller[];
+    private _path: string;
 
-    constructor( server: IServer ) {
+    constructor( server: IServer, path: string ) {
         this.server = server;
         this._controllers = [];
+        this._path = path;
     }
 
     parseClient( client: IClient ) {
+        if ( !client.controllers ) {
+            error( `Client '${client.name}' does not have any controllers defined` );
+            process.exit();
+        }
+
         for ( const ctrl of client.controllers ) {
             switch ( ctrl.type ) {
                 case 'renders':
@@ -84,15 +91,28 @@ export class Server {
         const app = express();
 
         // Create the controllers
-        const controllers: Controller[] = [ new CORSController( server.corsApprovedDomains ), ...this._controllers, new ErrorController() ];
+        const controllers: Controller[] = [];
+
+        if ( server.corsApprovedDomains )
+            controllers.push( new CORSController( server.corsApprovedDomains ) )
+
+        controllers.push( ...this._controllers, new ErrorController() );
 
         // Enable GZIPPING
         app.use( compression() );
 
         // User defined static folders
-        for ( let i = 0, l: number = server.staticAssets.length; i < l; i++ ) {
-            info( `Adding static resource folder '${server.staticAssets[ i ]}'` );
-            app.use( express.static( server.staticAssets[ i ], { maxAge: server.staticAssetsCache } ) );
+        if ( server.staticAssets ) {
+            for ( let i = 0, l: number = server.staticAssets.length; i < l; i++ ) {
+                let localStaticFolder = `${this._path}/${server.staticAssets[ i ]}`;
+                if ( !fs.existsSync( localStaticFolder ) ) {
+                    error( `Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'` );
+                    process.exit();
+                }
+
+                info( `Adding static resource folder '${localStaticFolder}'` );
+                app.use( express.static( localStaticFolder, { maxAge: server.staticAssetsCache || 2592000000 } ) );
+            }
         }
 
         // Setup the jade template engine
@@ -106,7 +126,7 @@ export class Server {
 
         // Start app with node server.js
         const httpServer = http.createServer( app );
-        httpServer.listen( { port: server.port, host: 'localhost' } );
+        httpServer.listen( { port: server.port, host: server.host || 'localhost' } );
         info( `Listening on HTTP port ${server.port}` );
 
         // If we use SSL then start listening for that as well
@@ -139,7 +159,7 @@ export class Server {
             info( `Attempting to start SSL server...` );
 
             const httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: server.ssl.passPhrase, ca: caChain }, app );
-            httpsServer.listen( { port: port, host: 'localhost' } );
+            httpsServer.listen( { port: port, host: server.host || 'localhost' } );
 
             info( `Listening on HTTPS port ${port}` );
         }
