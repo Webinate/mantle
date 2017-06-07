@@ -1,5 +1,6 @@
 ﻿import { IConfig, IClient, IServer } from 'modepress';
 import * as fs from 'fs';
+import { resolve } from 'path';
 import { error, info, clear, initializeLogger } from '../../utils/logger';
 import * as yargs from 'yargs';
 import { Server as MongoServer, Db } from 'mongodb';
@@ -63,7 +64,7 @@ export async function discoverClients( config: IConfig ) {
         if ( fs.existsSync( `${localDir}/modepress.json` ) ) {
             try {
                 const client = JSON.parse( fs.readFileSync( `${localDir}/modepress.json` ).toString() );
-                client.path = localDir;
+                client.path = resolve( localDir );
                 clientDefinitions.push( client );
             }
             catch ( err ) {

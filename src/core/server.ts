@@ -32,7 +32,7 @@ export class Server {
         this._path = path;
     }
 
-    parseClient( client: IClient ) {
+    parseClient( client: IClient & { path: string; } ) {
         if ( !client.controllers ) {
             error( `Client '${client.name}' does not have any controllers defined` );
             process.exit();
@@ -72,7 +72,7 @@ export class Server {
                     break;
                 default:
                     try {
-                        const constructor = require( ctrl.path! ).default;
+                        const constructor = require( `${client.path}/${ctrl.path!}` ).default;
                         this._controllers.push( new constructor() );
                     }
                     catch ( err ) {
