@@ -76,7 +76,7 @@ export class Server {
                         this._controllers.push( new constructor() );
                     }
                     catch ( err ) {
-                        error( `Could not load custom controller '${ctrl.path}'` );
+                        error( `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${err.stack ? err.stack : ''}` );
                         process.exit();
                     }
                     break
