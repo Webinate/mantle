@@ -14,7 +14,7 @@ import { IControllerOptions } from 'modepress';
 import * as mongodb from 'mongodb';
 
 /**
- * Main class to use for managing users
+ * Main class to use for managing user data
  */
 export class UserController extends Controller {
 
