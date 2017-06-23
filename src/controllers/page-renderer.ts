@@ -145,11 +145,11 @@ export default class PageRenderer extends Controller {
     getUrl( req: express.Request ): string {
         let protocol = req.protocol;
         if ( req.get( 'CF-Visitor' ) ) {
-            const match = req.get( 'CF-Visitor' ).match( /'scheme':'(http|https)'/ );
+            const match = req.get( 'CF-Visitor' )!.match( /'scheme':'(http|https)'/ );
             if ( match ) protocol = match[ 1 ];
         }
         if ( req.get( 'X-Forwarded-Proto' ) ) {
-            protocol = req.get( 'X-Forwarded-Proto' ).split( ',' )[ 0 ];
+            protocol = req.get( 'X-Forwarded-Proto' )!.split( ',' )[ 0 ];
         }
 
         let addQueryMark: boolean = false;
