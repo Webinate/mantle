@@ -52,12 +52,6 @@ gulp.task('dist-files', function() {
  * Builds each of the ts files into JS files in the output folder
  */
 gulp.task('definition', function() {
-    // process.exec( 'tsc -p ./tsconfig-definition.json' );
-    // return gulp.src( './modepress.d.ts' )
-    //     .pipe( gulp.dest( './modepress-package' ) );
-
-
-
     var tsResult = tsProjectTypes.src()
         .pipe(tsProjectTypes());
 
