@@ -1,17 +1,102 @@
+/// <reference types="express" />
 /// <reference types="ws" />
 /// <reference types="node" />
-/// <reference types="express" />
+declare module 'modepress' {
+    type ControllerType = 'posts' | 'comments' | 'buckets' | 'files' | 'admin' | 'auth' | 'emails' | 'renders' | 'stats' | 'users' | 'sessions';
+    interface IControllerOptions {
+        type: ControllerType;
+        path?: string;
+    }
+    interface IFileOptions extends IControllerOptions {
+        /**
+         * The length of time the assets should be cached on a user's browser.
+         * eg:  2592000000 or 30 days
+         */
+        cacheLifetime: number;
+    }
+    interface IRenderOptions extends IControllerOptions {
+        /**
+         * The length of time the assets should be cached on a user's browser.
+         * eg:  2592000000 or 30 days
+         */
+        cacheLifetime: number;
+    }
+    interface IAuthOptions extends IControllerOptions {
+        /**
+         * The URL to redirect to after the user attempts to activate their account.
+         * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
+         * adding a query ?message=You%20have%20activated%20your%20account&status=success.
+         * The status can be either 'success' or 'error'
+         *
+         * eg: 'http://localhost/auth/notify-user'
+         */
+        accountRedirectURL: string;
+        /**
+         * The URL sent to users emails for when their password is reset. This URL should
+         * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
+         *
+         * eg: 'http://localhost/auth/reset-password'
+         */
+        passwordResetURL: string;
+        /**
+         * The URL sent to users emails for when they need to activate their account
+         *
+         * eg: 'http://localhost/auth/activate-account
+         */
+        activateAccountUrl: string;
+    }
+    interface IServer {
+        /**
+         * The port number of the host
+         */
+        port: number;
+        /**
+         * The host we listening for. The default is 'localhost'
+         */
+        host: string;
+        /**
+         * An array of folder paths that can be used to fetch static content
+         */
+        staticAssets?: Array<string>;
+        /**
+         * The length of time the assets should be cached on a user's browser in milliseconds. The default is 30 days.
+         */
+        staticAssetsCache?: number;
+        /**
+         * An object to describe SSL properties.
+         * eg : {
+         *   portHTTPS: 443;
+         *   sslKey: './PATH_TO_KEY';
+         *   sslCert: './PATH_TO_CERT';
+         *   sslRoot: './PATH_TO_ROOT';
+         *   sslIntermediate: './PATH_TO_INTERMEDIATE';
+         *   sslPassPhrase: 'PASSPHRASE';
+         * }
+         */
+        ssl?: ISSL;
+        /**
+         * An array of cors approved domains
+         */
+        corsApprovedDomains?: string[];
+    }
+    /**
+     * This interface represents a json file that describes how modepress should load a client.
+     * Clients are plugins that are loaded dynamically by modepress on startup.
+     */
+    interface IClient {
+        server: string | IServer;
+        name: string;
+        /**
+         * An array of controllers associated with this server
+         */
+        controllers: IControllerOptions[];
+    }
+}
 declare module 'modepress' {
     interface IAdminUser {
         username: string;
         email: string;
         password: string;
-    }
-    /**
-     * Describes the controller structure of plugins in the config file
-     */
-    interface IControllerPlugin {
-        path: string;
     }
     /**
      * A server configuration
@@ -45,7 +130,6 @@ declare module 'modepress' {
         /**
          * An array of servers for each host / route that modepress is supporting
          */
-        servers: Array<IServer>;
         /**
          * If debug is true, certain functions will be emulated and more information logged
          */
@@ -168,11 +252,6 @@ declare module 'modepress' {
              * eg: 'storageAPI'
              */
             statsCollection: string;
-            /**
-             * The length of time the assets should be cached on a user's browser.
-             * eg:  2592000000 or 30 days
-             */
-            cacheLifetime: number;
         };
     }
 }
@@ -185,7 +264,7 @@ declare module 'modepress' {
          * @param {IMailOptions} options
          * @returns {Promise<boolean>}
          */
-        initialize( options: IMailOptions ): Promise<boolean>;
+        initialize(options: IMailOptions): Promise<boolean>;
         /**
          * Sends an email
          * @param {stirng} to The email address to send the message to
@@ -194,7 +273,7 @@ declare module 'modepress' {
          * @param {stirng} msg The message to be sent
          * @returns {Promise<boolean>}
          */
-        sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>;
+        sendMail(to: string, from: string, subject: string, msg: string): Promise<boolean>;
     }
     /**
      * Options for a gmail mailer
@@ -240,71 +319,8 @@ declare module 'modepress' {
          * An array of javascript variables that will be sent to any jade templates for a given path
          */
         variables: {
-            [ name: string ]: string;
+            [name: string]: string;
         };
-    }
-}
-declare module 'modepress' {
-    /**
-     * Defines routes and the paths of a host / port
-     */
-    interface IServer {
-        /**
-         * The host we listening for
-        */
-        host: string;
-        /**
-         * The length of time the assets should be cached on a user's browser. The default is 30 days.
-         */
-        cacheLifetime: number;
-        /**
-         * The port number of the host
-         */
-        portHTTP: number;
-        /**
-         * An array of domains that are CORS approved
-         */
-        approvedDomains: Array<string>;
-        /**
-         * An array of folder paths that can be used to fetch static content
-         */
-        staticFilesFolder: Array<string>;
-        /**
-         * An object to describe SSL properties.
-         * eg : {
-                portHTTPS: 443;
-                sslKey: './PATH_TO_KEY';
-                sslCert: './PATH_TO_CERT';
-                sslRoot: './PATH_TO_ROOT';
-                sslIntermediate: './PATH_TO_INTERMEDIATE';
-                sslPassPhrase: 'PASSPHRASE';
-            * }
-            */
-        ssl: ISSL;
-        /**
-         * An array of IPath objects that define routes and where they go to
-         */
-        paths: Array<IPath>;
-        /**
-         * An array of controllers associated with this server
-         */
-        controllers: Array<IControllerPlugin>;
-        /**
-        * The URL to redirect to after the user attempts to activate their account.
-        * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
-        * adding a query ?message=You%20have%20activated%20your%20account&status=success.
-        * The status can be either 'success' or 'error'
-        *
-        * eg: 'http://localhost/notify-user'
-        */
-        accountRedirectURL: string;
-        /**
-         * The URL sent to users emails for when their password is reset. This URL should
-         * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
-         *
-         * eg: 'http://localhost/reset-password'
-         */
-        passwordResetURL: string;
     }
 }
 declare module 'modepress' {
@@ -344,27 +360,27 @@ declare module 'modepress' {
         /**
          * The port number to use for SSL. Only applicable if ssl is true.
          */
-        portHTTPS: number;
+        port: number;
         /**
          * The path of the SSL private key. Only applicable if ssl is true.
          */
-        sslKey: string;
+        key: string;
         /**
          * The path of the SSL certificate file (usually provided by a third vendor). Only applicable if ssl is true.
          */
-        sslCert: string;
+        cert: string;
         /**
          * The path of the SSL root file (usually provided by a third vendor). Only applicable if ssl is true.
          */
-        sslRoot: string;
+        root: string;
         /**
          * The path of the SSL intermediate/link file (usually provided by a third vendor). Only applicable if ssl is true.
          */
-        sslIntermediate: string;
+        intermediate: string;
         /**
          * The password to use for the SSL (optional). Only applicable if ssl is true.
          */
-        sslPassPhrase: string;
+        passPhrase: string;
     }
 }
 declare module 'modepress' {
@@ -459,7 +475,7 @@ declare module 'modepress' {
          * @param {IMailOptions} options
          * @returns {Promise<boolean>}
          */
-        initialize( options: IMailOptions ): Promise<boolean>;
+        initialize(options: IMailOptions): Promise<boolean>;
         /**
          * Sends an email
          * @param {stirng} to The email address to send the message to
@@ -468,7 +484,7 @@ declare module 'modepress' {
          * @param {stirng} msg The message to be sent
          * @returns {Promise<boolean>}
          */
-        sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>;
+        sendMail(to: string, from: string, subject: string, msg: string): Promise<boolean>;
     }
     /**
      * Options for a gmail mailer
@@ -611,8 +627,8 @@ declare module 'modepress' {
 }
 declare module 'modepress' {
     namespace SocketTokens {
-        type ClientInstructionType = ( 'Login' | 'Logout' | 'Activated' | 'Removed' | 'FileUploaded' | 'FileRemoved' | 'BucketUploaded' | 'BucketRemoved' | 'MetaRequest' );
-        type ServerInstructionType = ( 'MetaRequest' );
+        type ClientInstructionType = ('Login' | 'Logout' | 'Activated' | 'Removed' | 'FileUploaded' | 'FileRemoved' | 'BucketUploaded' | 'BucketRemoved' | 'MetaRequest');
+        type ServerInstructionType = ('MetaRequest');
         /**
          * The base interface for all data that is serialized & sent to clients or server.
          * The type property describes to the reciever what kind of data to expect.
@@ -730,12 +746,12 @@ declare module "models/schema-items/schema-item" {
         private _required;
         private _modified;
         private _readOnly;
-        constructor( name: string, value: T );
+        constructor(name: string, value: T);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          */
-        clone( copy?: SchemaItem<T> ): SchemaItem<T>;
+        clone(copy?: SchemaItem<T>): SchemaItem<T>;
         /**
          * Gets if this item is indexable by mongodb
          */
@@ -743,7 +759,7 @@ declare module "models/schema-items/schema-item" {
         /**
          * Sets if this item is indexable by mongodb
          */
-        setIndexable( val: boolean ): SchemaItem<T>;
+        setIndexable(val: boolean): SchemaItem<T>;
         /**
          * Gets if this item is required. If true, then validations will fail if they are not specified
          */
@@ -751,7 +767,7 @@ declare module "models/schema-items/schema-item" {
         /**
          * Sets if this item is required. If true, then validations will fail if they are not specified
          */
-        setRequired( val: boolean ): SchemaItem<T>;
+        setRequired(val: boolean): SchemaItem<T>;
         /**
          * Gets if this item is read only. If true, then the value can only be set when the item is created
          * and any future updates are ignored
@@ -761,7 +777,7 @@ declare module "models/schema-items/schema-item" {
          * Sets if this item is required. If true, then the value can only be set when the item is created
          * and any future updates are ignored
          */
-        setReadOnly( val: boolean ): SchemaItem<T>;
+        setReadOnly(val: boolean): SchemaItem<T>;
         /**
          * Gets if this item represents a unique value in the database. An example might be a username
          */
@@ -769,7 +785,7 @@ declare module "models/schema-items/schema-item" {
         /**
          * Sets if this item represents a unique value in the database. An example might be a username
          */
-        setUnique( val: boolean ): SchemaItem<T>;
+        setUnique(val: boolean): SchemaItem<T>;
         /**
          * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
          * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
@@ -781,7 +797,7 @@ declare module "models/schema-items/schema-item" {
          * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
          * a given project. In this case the project item is set as a uniqueIndexer
          */
-        setUniqueIndexer( val: boolean ): SchemaItem<T>;
+        setUniqueIndexer(val: boolean): SchemaItem<T>;
         /**
          * Gets if this item is sensitive
          */
@@ -793,7 +809,7 @@ declare module "models/schema-items/schema-item" {
         /**
          * Sets if this item is sensitive
          */
-        setSensitive( val: boolean ): SchemaItem<T>;
+        setSensitive(val: boolean): SchemaItem<T>;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -804,13 +820,13 @@ declare module "models/schema-items/schema-item" {
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
          */
-        postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void>;
+        postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
          * @param instance The model instance that was deleted
          * @param collection The DB collection that the model was deleted from
          */
-        postDelete<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void>;
+        postDelete<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Gets the value of this item in a database safe format
          */
@@ -819,12 +835,12 @@ declare module "models/schema-items/schema-item" {
          * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
          */
-        getValue( options?: ISchemaOptions ): Promise<T>;
+        getValue(options?: ISchemaOptions): Promise<T>;
         /**
          * Sets the value of this item
          * @param {T} val The value to set
          */
-        setValue( val: T ): T;
+        setValue(val: T): T;
     }
 }
 declare module "models/schema" {
@@ -847,18 +863,18 @@ declare module "models/schema" {
          * @param data The data object we are setting
          * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
          */
-        set( data: any, allowReadOnlyValues: boolean ): void;
+        set(data: any, allowReadOnlyValues: boolean): void;
         /**
          * Sets a schema value by name
          * @param name The name of the schema item
          * @param val The new value of the item
          */
-        setVal( name: string, val: any ): void;
+        setVal(name: string, val: any): void;
         /**
          * De-serializes the schema items from the mongodb data entry.
          * I.e. the data is the document from the DB and the schema item sets its values from the document
          */
-        deserialize( data: any ): any;
+        deserialize(data: any): any;
         /**
          * Serializes the schema items into the JSON format for mongodb
          */
@@ -868,41 +884,41 @@ declare module "models/schema" {
          * @param id The models dont store the _id property directly, and so this has to be passed for serialization
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
          */
-        getAsJson<T extends IModelEntry>( id: mongodb.ObjectID, options: ISchemaOptions ): Promise<T>;
+        getAsJson<T extends IModelEntry>(id: mongodb.ObjectID, options: ISchemaOptions): Promise<T>;
         /**
          * Checks the values stored in the items to see if they are correct
          * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
          * @returns Returns true if successful
          */
-        validate( checkForRequiredFields: boolean ): Promise<Schema>;
+        validate(checkForRequiredFields: boolean): Promise<Schema>;
         /**
          * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
          */
-        postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema>;
+        postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<Schema>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
          * @param instance The model instance that was deleted
          * @param collection The DB collection that the model was deleted from
          */
-        postDelete<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema>;
+        postDelete<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<Schema>;
         /**
          * Gets a schema item from this schema by name
          * @param val The name of the item
          */
-        getByName( val: string ): SchemaItem<any> | null;
+        getByName(val: string): SchemaItem<any> | null;
         /**
          * Adds a schema item to this schema
          * @param val The new item to add
          */
-        add( val: SchemaItem<any> ): SchemaItem<any>;
+        add(val: SchemaItem<any>): SchemaItem<any>;
         /**
          * Removes a schema item from this schema
          * @param val The name of the item or the item itself
          */
-        remove( val: SchemaItem<any> | string ): void;
+        remove(val: SchemaItem<any> | string): void;
         /**
          * Gets the schema items associated with this schema
          */
@@ -919,7 +935,7 @@ declare module "utils/logger" {
      * @param message The message to log
      * @param meta Optional meta information to store with the message
      */
-    export function warn( message: string, meta?: any ): Promise<{}>;
+    export function warn(message: string, meta?: any): Promise<{}>;
     /**
      * Returns if logging is enabled
      */
@@ -929,13 +945,13 @@ declare module "utils/logger" {
      * @param message The message to log
      * @param meta Optional meta information to store with the message
      */
-    export function info( message: string, meta?: any ): Promise<{}>;
+    export function info(message: string, meta?: any): Promise<{}>;
     /**
      * Logs an error message
      * @param message The message to log
      * @param meta Optional meta information to store with the message
      */
-    export function error( message: string, meta?: any ): Promise<{}>;
+    export function error(message: string, meta?: any): Promise<{}>;
     /**
      * Clears the console
      */
@@ -956,12 +972,12 @@ declare module "models/model" {
     export interface ISearchOptions<T> {
         selector?: any;
         sort?: {
-            [ name: string ]: number;
+            [name: string]: number;
         } | null | T;
         index?: number;
         limit?: number;
         projection?: {
-            [ name: string ]: number;
+            [name: string]: number;
         };
     }
     /**
@@ -976,7 +992,7 @@ declare module "models/model" {
         /**
          * Creates a model instance
          */
-        constructor( model: Model, dbEntry: T );
+        constructor(model: Model, dbEntry: T);
         /**
          * Gets a string representation of all fields that are unique
          */
@@ -995,26 +1011,26 @@ declare module "models/model" {
          * Creates an instance of a Model
          * @param collection The collection name associated with this model
          */
-        constructor( collection: string );
+        constructor(collection: string);
         /**
          * Returns a new model of a given type. However if the model was already registered before,
          * then the previously created model is returned.
          * @param modelConstructor The model class
          * @returns Returns the registered model
          */
-        static registerModel<T extends Model>( modelConstructor: any ): T;
+        static registerModel<T extends Model>(modelConstructor: any): T;
         /**
          * Returns a registered model by its name
          * @param name The name of the model to fetch
          * @returns Returns the registered model or null if none exists
          */
-        static getByName( name: string ): Model;
+        static getByName(name: string): Model;
         /**
          * Creates an index for a collection
          * @param name The name of the field we are setting an index of
          * @param collection The collection we are setting the index on
          */
-        private createIndex( name, collection );
+        private createIndex(name, collection);
         /**
          * Gets the name of the collection associated with this model
          */
@@ -1023,12 +1039,12 @@ declare module "models/model" {
          * Initializes the model by setting up the database collections
          * @param db The database used to create this model
          */
-        initialize( db: mongodb.Db ): Promise<Model>;
+        initialize(db: mongodb.Db): Promise<Model>;
         /**
          * Gets the number of DB entries based on the selector
          * @param selector The mongodb selector
          */
-        count( selector: any ): Promise<number>;
+        count(selector: any): Promise<number>;
         /**
          * Gets an arrray of instances based on the selector search criteria
          * @param selector The mongodb selector
@@ -1038,21 +1054,21 @@ declare module "models/model" {
          * @param limit The number of results to fetch
          * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
          */
-        findInstances<T>( options?: ISearchOptions<T> ): Promise<Array<ModelInstance<T>>>;
+        findInstances<T>(options?: ISearchOptions<T>): Promise<Array<ModelInstance<T>>>;
         /**
          * Gets a model instance based on the selector criteria
          * @param selector The mongodb selector
          * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
          */
-        findOne<T>( selector: any, projection?: any ): Promise<ModelInstance<T> | null>;
+        findOne<T>(selector: any, projection?: any): Promise<ModelInstance<T> | null>;
         /**
          * Deletes a instance and all its dependencies are updated or deleted accordingly
          */
-        private deleteInstance( instance );
+        private deleteInstance(instance);
         /**
          * Deletes a number of instances based on the selector. The promise reports how many items were deleted
          */
-        deleteInstances( selector: any ): Promise<number>;
+        deleteInstances(selector: any): Promise<number>;
         /**
          * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
          * unique fields are still being respected. An array is returned of each instance along with an error string if anything went wrong
@@ -1062,42 +1078,43 @@ declare module "models/model" {
          * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
          * went wrong when updating the specific instance, and a string message if something did in fact go wrong
          */
-        update<T>( selector: any, data: T ): Promise<UpdateRequest<T>>;
+        update<T>(selector: any, data: T): Promise<UpdateRequest<T>>;
         /**
          * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
          * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
          * by parsing the data object and setting each schema item's value by the name/value in the data object.
          */
-        checkUniqueness<T>( instance: ModelInstance<T> ): Promise<boolean>;
+        checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>;
         /**
          * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
          * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
          * by parsing the data object and setting each schema item's value by the name/value in the data object
          */
-        createInstance<T>( data?: T ): Promise<ModelInstance<T | null>>;
+        createInstance<T>(data?: T): Promise<ModelInstance<T | null>>;
         /**
          * Attempts to insert an array of instances of this model into the database.
          * @param instances An array of instances to save
          */
-        insert<T>( instances: Array<ModelInstance<T>> ): Promise<Array<ModelInstance<T>>>;
+        insert<T>(instances: Array<ModelInstance<T>>): Promise<Array<ModelInstance<T>>>;
     }
 }
 declare module "controllers/controller" {
+    import { IControllerOptions } from 'modepress';
     import { Model } from "models/model";
     import * as mongodb from 'mongodb';
+    import * as express from 'express';
     export class Controller {
         private static _models;
         private _models;
-        constructor( models: Array<Model> | null );
+        constructor(models: Array<Model> | null, options?: IControllerOptions);
         /**
          * Called to initialize this controller and its related database objects
-         * @param db The mongo database to use
          */
-        initialize( db: mongodb.Db ): Promise<Controller>;
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Gets a model by its collection name
          */
-        getModel( collectionName: string ): Model | null;
+        getModel(collectionName: string): Model | null;
     }
 }
 declare module "models/schema-items/schema-number" {
@@ -1126,12 +1143,12 @@ declare module "models/schema-items/schema-number" {
          * @param type [Optional] The type of number the schema represents
          * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
          */
-        constructor( name: string, val: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number );
+        constructor(name: string, val: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          */
-        clone( copy?: SchemaNumber ): SchemaNumber;
+        clone(copy?: SchemaNumber): SchemaNumber;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -1155,13 +1172,13 @@ declare module "models/schema-items/schema-text" {
          * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
          * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
          */
-        constructor( name: string, val: string, minCharacters?: number, maxCharacters?: number, htmlClean?: boolean );
+        constructor(name: string, val: string, minCharacters?: number, maxCharacters?: number, htmlClean?: boolean);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          * @returns
          */
-        clone( copy?: SchemaText ): SchemaText;
+        clone(copy?: SchemaText): SchemaText;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -1179,12 +1196,12 @@ declare module "models/schema-items/schema-bool" {
          * @param name The name of this item
          * @param val The value of this item
          */
-        constructor( name: string, val: boolean );
+        constructor(name: string, val: boolean);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          */
-        clone( copy?: SchemaBool ): SchemaBool;
+        clone(copy?: SchemaBool): SchemaBool;
         /**
          * Always true
          */
@@ -1204,13 +1221,13 @@ declare module "models/schema-items/schema-date" {
          * @param val The date of this item. If none is specified the Date.now() number is used.
          * @param useNow [Optional] If true, the date will always be updated to use the current date
          */
-        constructor( name: string, val?: number, useNow?: boolean );
+        constructor(name: string, val?: number, useNow?: boolean);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          * @returns
          */
-        clone( copy?: SchemaDate ): SchemaDate;
+        clone(copy?: SchemaDate): SchemaDate;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -1240,13 +1257,13 @@ declare module "models/schema-items/schema-text-array" {
          * @param minCharacters [Optional] Specify the minimum number of characters for each text item
          * @param maxCharacters [Optional] Specify the maximum number of characters for each text item
          */
-        constructor( name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number );
+        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          * @returns
          */
-        clone( copy?: SchemaTextArray ): SchemaTextArray;
+        clone(copy?: SchemaTextArray): SchemaTextArray;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -1264,12 +1281,12 @@ declare module "models/schema-items/schema-json" {
          * @param name The name of this item
          * @param val The text of this item
          */
-        constructor( name: string, val: any );
+        constructor(name: string, val: any);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          */
-        clone( copy?: SchemaJSON ): SchemaJSON;
+        clone(copy?: SchemaJSON): SchemaJSON;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -1282,7 +1299,7 @@ declare module "utils/utils" {
      * @param str
      * @returns True if the string is valid
      */
-    export function isValidObjectID( str?: string ): boolean;
+    export function isValidObjectID(str?: string): boolean;
 }
 declare module "models/schema-items/schema-foreign-key" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
@@ -1310,11 +1327,11 @@ declare module "models/schema-items/schema-foreign-key" {
          * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
          * owns this item must be removed as it cannot exist without the target.
          */
-        constructor( name: string, val: string, targetCollection: string, keyCanBeNull: boolean, canAdapt: boolean );
+        constructor(name: string, val: string, targetCollection: string, keyCanBeNull: boolean, canAdapt: boolean);
         /**
          * Creates a clone of this item
          */
-        clone( copy?: SchemaForeignKey ): SchemaForeignKey;
+        clone(copy?: SchemaForeignKey): SchemaForeignKey;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -1325,17 +1342,17 @@ declare module "models/schema-items/schema-foreign-key" {
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
          */
-        postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void>;
+        postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
          * @param instance The model instance that was deleted
          */
-        postDelete<T extends IModelEntry>( instance: ModelInstance<T> ): Promise<void>;
+        postDelete<T extends IModelEntry>(instance: ModelInstance<T>): Promise<void>;
         /**
          * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
          */
-        getValue( options: ISchemaOptions ): Promise<ObjectID | IModelEntry | null>;
+        getValue(options: ISchemaOptions): Promise<ObjectID | IModelEntry | null>;
     }
 }
 declare module "models/schema-items/schema-id-array" {
@@ -1365,12 +1382,12 @@ declare module "models/schema-items/schema-id-array" {
          * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
          * the item can expand objects on retreival.
          */
-        constructor( name: string, val: Array<string>, minItems: number | undefined, maxItems: number | undefined, targetCollection: string );
+        constructor(name: string, val: Array<string>, minItems: number | undefined, maxItems: number | undefined, targetCollection: string);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          */
-        clone( copy?: SchemaIdArray ): SchemaIdArray;
+        clone(copy?: SchemaIdArray): SchemaIdArray;
         /**
          * Checks the value stored to see if its correct in its current form
          * @returns Returns true if successful or an error message string if unsuccessful
@@ -1382,17 +1399,17 @@ declare module "models/schema-items/schema-id-array" {
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
          */
-        postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void>;
+        postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
          * @param instance The model instance that was deleted
          */
-        postDelete<T extends IModelEntry>( instance: ModelInstance<T> ): Promise<void>;
+        postDelete<T extends IModelEntry>(instance: ModelInstance<T>): Promise<void>;
         /**
          * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
          */
-        getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | IModelEntry>>;
+        getValue(options: ISchemaOptions): Promise<Array<string | ObjectID | IModelEntry>>;
     }
 }
 declare module "models/schema-items/schema-num-array" {
@@ -1419,12 +1436,12 @@ declare module "models/schema-items/schema-num-array" {
          * @param type [Optional] What type of numbers to expect
          * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
          */
-        constructor( name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number );
+        constructor(name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          */
-        clone( copy?: SchemaNumArray ): SchemaNumArray;
+        clone(copy?: SchemaNumArray): SchemaNumArray;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -1443,12 +1460,12 @@ declare module "models/schema-items/schema-id" {
          * @param name The name of this item
          * @param val The string representation of the object ID
          */
-        constructor( name: string, val: string );
+        constructor(name: string, val: string);
         /**
         * Creates a clone of this item
         * @returns copy A sub class of the copy
         */
-        clone( copy?: SchemaId ): SchemaId;
+        clone(copy?: SchemaId): SchemaId;
         /**
          * Checks the value stored to see if its correct in its current form
          */
@@ -1472,11 +1489,11 @@ declare module "models/schema-items/schema-html" {
          * The default allowed attributes for each tag
          */
         static defaultAllowedAttributes: {
-            [ name: string ]: Array<string>;
+            [name: string]: Array<string>;
         };
         allowedTags: Array<string>;
         allowedAttributes: {
-            [ name: string ]: Array<string>;
+            [name: string]: Array<string>;
         };
         errorBadHTML: boolean;
         minCharacters: number;
@@ -1491,14 +1508,14 @@ declare module "models/schema-items/schema-html" {
          * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
          * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
          */
-        constructor( name: string, val: string, allowedTags?: Array<string>, allowedAttributes?: {
-            [ name: string ]: Array<string>;
-        }, errorBadHTML?: boolean, minCharacters?: number, maxCharacters?: number );
+        constructor(name: string, val: string, allowedTags?: Array<string>, allowedAttributes?: {
+            [name: string]: Array<string>;
+        }, errorBadHTML?: boolean, minCharacters?: number, maxCharacters?: number);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
          */
-        clone( copy?: SchemaHtml ): SchemaHtml;
+        clone(copy?: SchemaHtml): SchemaHtml;
         /**
          * Checks the value stored to see if its correct in its current form
          * @returns Returns true if successful or an error message string if unsuccessful
@@ -1619,17 +1636,17 @@ declare module "socket-api/client-connection" {
      * A wrapper class for client connections made to the CommsController
      */
     export class ClientConnection {
-        onDisconnected: ( connection: ClientConnection ) => void;
+        onDisconnected: (connection: ClientConnection) => void;
         ws: ws;
         user: User | null;
         domain: string;
         authorizedThirdParty: boolean;
         private _controller;
-        constructor( ws: ws, domain: string, controller: CommsController, authorizedThirdParty: boolean );
+        constructor(ws: ws, domain: string, controller: CommsController, authorizedThirdParty: boolean);
         /**
          * Called whenever we recieve a message from a client
          */
-        private onMessage( message );
+        private onMessage(message);
         /**
          * Called whenever a client disconnnects
          */
@@ -1637,7 +1654,7 @@ declare module "socket-api/client-connection" {
         /**
          * Called whenever an error has occurred
          */
-        private onError( err );
+        private onError(err);
     }
 }
 declare module "socket-api/server-instruction" {
@@ -1654,7 +1671,7 @@ declare module "socket-api/server-instruction" {
          * The token sent from the client
          */
         token: T;
-        constructor( event: T, from: ClientConnection );
+        constructor(event: T, from: ClientConnection);
     }
 }
 declare module "socket-api/client-instruction" {
@@ -1676,7 +1693,7 @@ declare module "socket-api/client-instruction" {
          * The event sent from the client
          */
         token: T;
-        constructor( event: T, client?: ClientConnection[] | null, username?: string | null );
+        constructor(event: T, client?: ClientConnection[] | null, username?: string | null);
     }
 }
 declare module "socket-api/socket-api" {
@@ -1686,11 +1703,11 @@ declare module "socket-api/socket-api" {
      */
     export class SocketAPI {
         private _comms;
-        constructor( comms: CommsController );
+        constructor(comms: CommsController);
         /**
          * Responds to a meta request from a client
          */
-        private onMeta( e );
+        private onMeta(e);
     }
 }
 declare module "socket-api/comms-controller" {
@@ -1712,34 +1729,34 @@ declare module "socket-api/comms-controller" {
         /**
          * Creates an instance of the Communication server
          */
-        constructor( cfg: IConfig );
+        constructor(cfg: IConfig);
         /**
          * Checks the header api key against the hash generated from the config
          */
-        checkApiKey( key: string ): Promise<boolean>;
+        checkApiKey(key: string): Promise<boolean>;
         /**
          * Sends an instruction to the relevant client connections
          * @param instruction The instruction from the server
          */
-        processClientInstruction( instruction: ClientInstruction<any> ): void;
+        processClientInstruction(instruction: ClientInstruction<any>): void;
         /**
          * Processes an instruction sent from a client. Any listeners of the comms controller will listen & react to the
          * instruction - and in some cases might resond to the client with a ClientInstruction.
          * @param instruction The instruction from the client
          */
-        processServerInstruction( instruction: ServerInstruction<any> ): Promise<{}> | undefined;
+        processServerInstruction(instruction: ServerInstruction<any>): Promise<{}> | undefined;
         /**
          * Attempts to send a token to a specific client
          */
-        private sendToken( connection, token );
+        private sendToken(connection, token);
         /**
          * Called whenever a new client connection is made to the WS server
          */
-        onWsConnection( ws: ws ): Promise<void>;
+        onWsConnection(ws: ws): Promise<void>;
         /**
          * Initializes the comms controller
          */
-        initialize( db: mongodb.Db ): Promise<void>;
+        initialize(db: mongodb.Db): Promise<void>;
     }
 }
 declare module "core/session" {
@@ -1787,7 +1804,7 @@ declare module "core/session" {
          * Creates an instance of a session manager
          * @param sessionCollection The mongoDB collection to use for saving sessions
          */
-        constructor( dbCollection: mongodb.Collection, options: ISessionOptions );
+        constructor(dbCollection: mongodb.Collection, options: ISessionOptions);
         /**
          * Gets an array of all active sessions
          */
@@ -1797,39 +1814,39 @@ declare module "core/session" {
          * @param startIndex
          * @param limit
          */
-        getActiveSessions( startIndex?: number, limit?: number ): Promise<Array<ISessionEntry>>;
+        getActiveSessions(startIndex?: number, limit?: number): Promise<Array<ISessionEntry>>;
         /**
          * Clears the users session cookie so that its no longer tracked
          * @param sessionId The session ID to remove, if null then the currently authenticated session will be used
          * @param request
          * @param response
          */
-        clearSession( sessionId: string | null, request: http.ServerRequest, response: http.ServerResponse ): Promise<boolean>;
+        clearSession(sessionId: string | null, request: http.ServerRequest, response: http.ServerResponse): Promise<boolean>;
         /**
          * Attempts to get a session from the request object of the client
          * @param request
          * @param response
          * @returns Returns a session or null if none can be found
          */
-        getSession( request: http.ServerRequest, response: http.ServerResponse | null ): Promise<Session | null>;
+        getSession(request: http.ServerRequest, response: http.ServerResponse | null): Promise<Session | null>;
         /**
          * Attempts to create a session from the request object of the client
          * @param shortTerm If true, we use the short term cookie. Otherwise the longer term one is used. (See session options)
          * @param response
          */
-        createSession( shortTerm: boolean, response: http.ServerResponse ): Promise<Session>;
+        createSession(shortTerm: boolean, response: http.ServerResponse): Promise<Session>;
         /**
          * Each time a session is created, a timer is started to check all sessions in the DB.
          * Once the lifetime of a session is up its then removed from the DB and we check for any remaining sessions.
          * @param force If true, this will force a cleanup instead of waiting on the next timer
          */
-        cleanup( force?: boolean ): Promise<void>;
+        cleanup(force?: boolean): Promise<void>;
         /**
          * Looks at the headers from the HTTP request to determine if a session cookie has been asssigned and returns the ID.
          * @param req
          * @returns The ID of the user session, or an empty string
          */
-        private getIDFromRequest( req );
+        private getIDFromRequest(req);
         /**
          * Creates a random session ID.
          * The ID is a pseude-random ASCII string which contains at least the specified number of bits of entropy (64 in this case)
@@ -1861,12 +1878,12 @@ declare module "core/session" {
          * @param options The options associated with this session
          * @param data The data of the session in the database
          */
-        constructor( sessionId: string, options: ISessionOptions );
+        constructor(sessionId: string, options: ISessionOptions);
         /**
          * Fills in the data of this session from the data saved in the database
          * @param data The data fetched from the database
          */
-        open( data: ISessionEntry ): void;
+        open(data: ISessionEntry): void;
         /**
          * Creates an object that represents this session to be saved in the database
          */
@@ -1879,11 +1896,11 @@ declare module "core/session" {
         /**
          * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
          */
-        private dateCookieString( ms );
+        private dateCookieString(ms);
         /**
          * Pads a string with 0's
          */
-        private pad( n );
+        private pad(n);
     }
 }
 declare module "core/bucket-manager" {
@@ -1891,7 +1908,7 @@ declare module "core/bucket-manager" {
     import * as gcloud from 'gcloud';
     import * as mongodb from 'mongodb';
     import * as multiparty from 'multiparty';
-    import express = require( 'express' );
+    import express = require('express');
     /**
      * Class responsible for managing buckets and uploads to Google storage
      */
@@ -1906,29 +1923,29 @@ declare module "core/bucket-manager" {
         private _zipper;
         private _unzipper;
         private _deflater;
-        constructor( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig );
+        constructor(buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig);
         /**
          * Fetches all bucket entries from the database
          * @param user [Optional] Specify the user. If none provided, then all buckets are retrieved
          * @param searchTerm [Optional] Specify a search term
          */
-        getBucketEntries( user?: string, searchTerm?: RegExp ): Promise<Array<IBucketEntry>>;
+        getBucketEntries(user?: string, searchTerm?: RegExp): Promise<Array<IBucketEntry>>;
         /**
          * Fetches the file count based on the given query
          * @param searchQuery The search query to idenfify files
          */
-        numFiles( searchQuery: IFileEntry ): Promise<number>;
+        numFiles(searchQuery: IFileEntry): Promise<number>;
         /**
          * Fetches all file entries by a given query
          * @param searchQuery The search query to idenfify files
          */
-        getFiles( searchQuery: any, startIndex?: number, limit?: number ): Promise<Array<IFileEntry>>;
+        getFiles(searchQuery: any, startIndex?: number, limit?: number): Promise<Array<IFileEntry>>;
         /**
          * Updates all file entries for a given search criteria with custom meta data
          * @param searchQuery The search query to idenfify files
          * @param meta Optional meta data to associate with the files
          */
-        setMeta( searchQuery: any, meta: any ): Promise<boolean>;
+        setMeta(searchQuery: any, meta: any): Promise<boolean>;
         /**
          * Fetches all file entries from the database for a given bucket
          * @param bucket Specify the bucket from which he files belong to
@@ -1936,132 +1953,132 @@ declare module "core/bucket-manager" {
          * @param limit Specify the number of files to retrieve
          * @param searchTerm Specify a search term
          */
-        getFilesByBucket( bucket: IBucketEntry, startIndex?: number, limit?: number, searchTerm?: RegExp ): Promise<Array<IFileEntry>>;
+        getFilesByBucket(bucket: IBucketEntry, startIndex?: number, limit?: number, searchTerm?: RegExp): Promise<Array<IFileEntry>>;
         /**
          * Fetches the storage/api data for a given user
          * @param user The user whos data we are fetching
          */
-        getUserStats( user?: string ): Promise<IStorageStats>;
+        getUserStats(user?: string): Promise<IStorageStats>;
         /**
          * Attempts to create a user usage statistics
          * @param user The user associated with this bucket
          */
-        createUserStats( user: string ): Promise<IStorageStats>;
+        createUserStats(user: string): Promise<IStorageStats>;
         /**
          * Attempts to remove the usage stats of a given user
          * @param user The user associated with this bucket
          * @returns A promise of the number of stats removed
          */
-        removeUserStats( user: string ): Promise<number>;
+        removeUserStats(user: string): Promise<number>;
         /**
          * Attempts to remove all data associated with a user
          * @param user The user we are removing
          */
-        removeUser( user: string ): Promise<void>;
+        removeUser(user: string): Promise<void>;
         /**
          * Attempts to create a new google storage bucket
          * @param bucketID The id of the bucket entry
          */
-        private createGBucket( bucketID );
+        private createGBucket(bucketID);
         /**
          * Attempts to create a new user bucket by first creating the storage on the cloud and then updating the internal DB
          * @param name The name of the bucket
          * @param user The user associated with this bucket
          */
-        createBucket( name: string, user: string ): Promise<gcloud.IBucket>;
+        createBucket(name: string, user: string): Promise<gcloud.IBucket>;
         /**
          * Attempts to remove buckets of the given search result. This will also update the file and stats collection.
          * @param searchQuery A valid mongodb search query
          * @returns An array of ID's of the buckets removed
          */
-        private removeBuckets( searchQuery );
+        private removeBuckets(searchQuery);
         /**
          * Attempts to remove buckets by id
          * @param buckets An array of bucket IDs to remove
          * @param user The user to whome these buckets belong
          * @returns An array of ID's of the buckets removed
          */
-        removeBucketsByName( buckets: Array<string>, user: string ): Promise<Array<string>>;
+        removeBucketsByName(buckets: Array<string>, user: string): Promise<Array<string>>;
         /**
          * Attempts to remove a user bucket
          * @param user The user associated with this bucket
          * @returns An array of ID's of the buckets removed
          */
-        removeBucketsByUser( user: string ): Promise<Array<string>>;
-        private deleteGBucket( bucketId );
+        removeBucketsByUser(user: string): Promise<Array<string>>;
+        private deleteGBucket(bucketId);
         /**
          * Deletes the bucket from storage and updates the databases
          */
-        private deleteBucket( bucketEntry );
+        private deleteBucket(bucketEntry);
         /**
          * Deletes a file from google storage
          * @param bucketId
          * @param fileId
          */
-        private deleteGFile( bucketId, fileId );
+        private deleteGFile(bucketId, fileId);
         /**
          * Deletes the file from storage and updates the databases
          * @param fileEntry
          */
-        private deleteFile( fileEntry );
+        private deleteFile(fileEntry);
         /**
          * Attempts to remove files from the cloud and database by a query
          * @param searchQuery The query we use to select the files
          * @returns Returns the file IDs of the files removed
          */
-        removeFiles( searchQuery: any ): Promise<Array<string>>;
+        removeFiles(searchQuery: any): Promise<Array<string>>;
         /**
          * Attempts to remove files from the cloud and database
         * @param fileIDs The file IDs to remove
         * @param user Optionally pass in the user to refine the search
         * @returns Returns the file IDs of the files removed
         */
-        removeFilesByIdentifiers( fileIDs: Array<string>, user?: string ): Promise<Array<string>>;
+        removeFilesByIdentifiers(fileIDs: Array<string>, user?: string): Promise<Array<string>>;
         /**
          * Attempts to remove files from the cloud and database that are in a given bucket
          * @param bucket The id or name of the bucket to remove
          * @returns Returns the file IDs of the files removed
          */
-        removeFilesByBucket( bucket: string ): Promise<Array<string> | Error>;
+        removeFilesByBucket(bucket: string): Promise<Array<string> | Error>;
         /**
          * Gets a bucket entry by its name or ID
          * @param bucket The id of the bucket. You can also use the name if you provide the user
          * @param user The username associated with the bucket (Only applicable if bucket is a name and not an ID)
          */
-        getIBucket( bucket: string, user?: string ): Promise<IBucketEntry | null>;
+        getIBucket(bucket: string, user?: string): Promise<IBucketEntry | null>;
         /**
          * Checks to see the user's storage limits to see if they are allowed to upload data
          * @param user The username
          * @param part
          */
-        private canUpload( user, part );
+        private canUpload(user, part);
         /**
          * Checks to see the user's api limit and make sure they can make calls
          * @param user The username
          */
-        withinAPILimit( user: string ): Promise<boolean>;
+        withinAPILimit(user: string): Promise<boolean>;
         /**
          * Adds an API call to a user
          * @param user The username
          */
-        incrementAPI( user: string ): Promise<boolean>;
+        incrementAPI(user: string): Promise<boolean>;
         /**
          * Makes a google file publicly or private
          * @param bucketId
          * @param fileId
          * @param val
          */
-        private makeGFilePublic( bucketId, fileId, val );
+        private makeGFilePublic(bucketId, fileId, val);
         /**
          * Makes a file publicly available
          * @param file
          */
-        makeFilePublic( file: IFileEntry ): Promise<IFileEntry>;
+        makeFilePublic(file: IFileEntry): Promise<IFileEntry>;
         /**
          * Makes a file private
          * @param file
          */
-        makeFilePrivate( file: IFileEntry ): Promise<IFileEntry>;
+        makeFilePrivate(file: IFileEntry): Promise<IFileEntry>;
         /**
          * Registers an uploaded part as a new user file in the local dbs
          * @param fileID The id of the file on the bucket
@@ -2071,8 +2088,8 @@ declare module "core/bucket-manager" {
          * @param isPublic IF true, the file will be set as public
          * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
          */
-        private registerFile( fileID, bucket, part, user, isPublic, parentFile );
-        private generateRandString( len );
+        private registerFile(fileID, bucket, part, user, isPublic, parentFile);
+        private generateRandString(len);
         /**
          * Uploads a part stream as a new user file. This checks permissions, updates the local db and uploads the stream to the bucket
          * @param part
@@ -2081,20 +2098,20 @@ declare module "core/bucket-manager" {
          * @param makePublic Makes this uploaded file public to the world
          * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
          */
-        uploadStream( part: multiparty.Part, bucketEntry: IBucketEntry, user: string, makePublic?: boolean, parentFile?: string | null ): Promise<IFileEntry>;
+        uploadStream(part: multiparty.Part, bucketEntry: IBucketEntry, user: string, makePublic?: boolean, parentFile?: string | null): Promise<IFileEntry>;
         /**
          * Fetches a file by its ID
          * @param fileID The file ID of the file on the bucket
          * @param user Optionally specify the user of the file
          * @param searchTerm Specify a search term
          */
-        getFile( fileID: string, user?: string, searchTerm?: RegExp ): Promise<IFileEntry>;
+        getFile(fileID: string, user?: string, searchTerm?: RegExp): Promise<IFileEntry>;
         /**
          * Renames a file
          * @param file The file to rename
          * @param name The new name of the file
          */
-        renameFile( file: IFileEntry, name: string ): Promise<IFileEntry>;
+        renameFile(file: IFileEntry, name: string): Promise<IFileEntry>;
         /**
          * Downloads the data from the cloud and sends it to the requester. This checks the request for encoding and
          * sets the appropriate headers if and when supported
@@ -2102,17 +2119,17 @@ declare module "core/bucket-manager" {
          * @param response The response stream to return the data
          * @param file The file to download
          */
-        downloadFile( request: express.Request, response: express.Response, file: IFileEntry ): void;
+        downloadFile(request: express.Request, response: express.Response, file: IFileEntry): void;
         /**
          * Finds and downloads a file
          * @param fileID The file ID of the file on the bucket
          * @returns Returns the number of results affected
          */
-        updateStorage( user: string, value: IStorageStats ): Promise<number>;
+        updateStorage(user: string, value: IStorageStats): Promise<number>;
         /**
          * Creates the bucket manager singleton
          */
-        static create( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig ): BucketManager;
+        static create(buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig): BucketManager;
         /**
          * Gets the bucket singleton
          */
@@ -2135,16 +2152,16 @@ declare module "mailers/gmail" {
         /**
          * Creates an instance of the mailer
          */
-        constructor( debugMode: boolean );
+        constructor(debugMode: boolean);
         /**
          * Attempts to initialize the mailer
          * @param options The gmail options for this mailer
          */
-        initialize( options: IGMail ): Promise<boolean>;
+        initialize(options: IGMail): Promise<boolean>;
         /**
          * Attempts to authorize the google service account credentials
          */
-        private authorize( credentials );
+        private authorize(credentials);
         /**
          * Sends an email using Google's Gmail API
          * @param to The email address to send the message to
@@ -2152,7 +2169,7 @@ declare module "mailers/gmail" {
          * @param subject The message subject
          * @param msg The message to be sent
          */
-        sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>;
+        sendMail(to: string, from: string, subject: string, msg: string): Promise<boolean>;
         /**
          * Builds a message string in base64 encoding
          * @param to The email address to send the message to
@@ -2160,7 +2177,7 @@ declare module "mailers/gmail" {
          * @param subject The message subject
          * @param message The message to be sent
          */
-        private buildMessage( to, from, subject, message );
+        private buildMessage(to, from, subject, message);
     }
 }
 declare module "mailers/mailgun" {
@@ -2174,12 +2191,12 @@ declare module "mailers/mailgun" {
         /**
          * Creates an instance of the mailer
          */
-        constructor( debugMode: boolean );
+        constructor(debugMode: boolean);
         /**
          * Attempts to initialize the mailer
          * @param options The mailgun options for this mailer
          */
-        initialize( options: IMailgun ): Promise<boolean>;
+        initialize(options: IMailgun): Promise<boolean>;
         /**
          * Sends an email using mailgun
          * @param to The email address to send the message to
@@ -2187,7 +2204,7 @@ declare module "mailers/mailgun" {
          * @param subject The message subject
          * @param msg The message to be sent
          */
-        sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>;
+        sendMail(to: string, from: string, subject: string, msg: string): Promise<boolean>;
     }
 }
 declare module "core/users" {
@@ -2207,12 +2224,12 @@ declare module "core/users" {
          * Creates a new User instance
          * @param dbEntry The data object that represents the user in the DB
          */
-        constructor( dbEntry: IUserEntry );
+        constructor(dbEntry: IUserEntry);
         /**
         * Generates an object that can be sent to clients.
         * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
         */
-        generateCleanedData( verbose?: boolean ): IUserEntry;
+        generateCleanedData(verbose?: boolean): IUserEntry;
         /**
          * Generates the object to be stored in the database
          */
@@ -2221,7 +2238,7 @@ declare module "core/users" {
          * Creates a random string that is assigned to the dbEntry registration key
          * @param length The length of the password
          */
-        generateKey( length?: number ): string;
+        generateKey(length?: number): string;
     }
     /**
      * Main class to use for managing users
@@ -2238,11 +2255,11 @@ declare module "core/users" {
          * @param sessionCollection The mongo collection that stores the session data
          * @param The config options of this manager
          */
-        constructor( userCollection: mongodb.Collection, sessionCollection: mongodb.Collection, config: IConfig );
+        constructor(userCollection: mongodb.Collection, sessionCollection: mongodb.Collection, config: IConfig);
         /**
          * Called whenever a session is removed from the database
          */
-        onSessionRemoved( sessionId: string ): Promise<void>;
+        onSessionRemoved(sessionId: string): Promise<void>;
         /**
          * Initializes the API
          */
@@ -2256,83 +2273,83 @@ declare module "core/users" {
          * @param request
          * @param response
          */
-        register( username: string | undefined, pass: string | undefined, email: string | undefined, activationUrl: string | undefined, meta: any, request: express.Request ): Promise<User>;
+        register(username: string | undefined, pass: string | undefined, email: string | undefined, activationUrl: string | undefined, meta: any, request: express.Request): Promise<User>;
         /**
          * Creates the link to send to the user for activation
          * @param user The user we are activating
          * @param resetUrl The url of where the activation link should go
          * @param origin The origin of where the activation link came from
          */
-        private createActivationLink( user, resetUrl, origin );
+        private createActivationLink(user, resetUrl, origin);
         /**
          * Creates the link to send to the user for password reset
          * @param username The username of the user
          * @param origin The origin of where the password reset link came from
          * @param resetUrl The url of where the password reset link should go
          */
-        private createResetLink( user, origin, resetUrl );
+        private createResetLink(user, origin, resetUrl);
         /**
          * Approves a user's activation code so they can login without email validation
          * @param username The username or email of the user
          */
-        approveActivation( username: string ): Promise<void>;
+        approveActivation(username: string): Promise<void>;
         /**
          * Attempts to send the an email to the admin user
          * @param message The message body
          * @param name The name of the sender
          * @param from The email of the sender
          */
-        sendAdminEmail( message: string, name?: string, from?: string ): Promise<any>;
+        sendAdminEmail(message: string, name?: string, from?: string): Promise<any>;
         /**
          * Attempts to resend the activation link
          * @param username The username of the user
          * @param resetUrl The url where the reset password link should direct to
          * @param origin The origin of where the request came from (this is emailed to the user)
          */
-        resendActivation( username: string, resetUrl: string, origin: string ): Promise<boolean>;
+        resendActivation(username: string, resetUrl: string, origin: string): Promise<boolean>;
         /**
          * Sends the user an email with instructions on how to reset their password
          * @param username The username of the user
          * @param resetUrl The url where the reset password link should direct to
          * @param origin The site where the request came from
          */
-        requestPasswordReset( username: string, resetUrl: string, origin: string ): Promise<boolean>;
+        requestPasswordReset(username: string, resetUrl: string, origin: string): Promise<boolean>;
         /**
          * Creates a hashed password
          * @param pass The password to hash
          */
-        private hashPassword( pass );
+        private hashPassword(pass);
         /**
          * Compares a password to the stored hash in the database
          * @param pass The password to test
          * @param hash The hash stored in the DB
          */
-        private comparePassword( pass, hash );
+        private comparePassword(pass, hash);
         /**
          * Attempts to reset a user's password.
          * @param username The username of the user
          * @param code The password code
          * @param newPassword The new password
          */
-        resetPassword( username: string, code: string, newPassword: string ): Promise<boolean>;
+        resetPassword(username: string, code: string, newPassword: string): Promise<boolean>;
         /**
          * Checks the users activation code to see if its valid
          * @param username The username of the user
          */
-        checkActivation( username: string, code: string ): Promise<boolean>;
+        checkActivation(username: string, code: string): Promise<boolean>;
         /**
          * Checks to see if a user is logged in
          * @param request
          * @param response
          * @param Gets the user or null if the user is not logged in
          */
-        loggedIn( request: http.ServerRequest, response: http.ServerResponse | null ): Promise<User | null>;
+        loggedIn(request: http.ServerRequest, response: http.ServerResponse | null): Promise<User | null>;
         /**
          * Attempts to log the user out
          * @param request
          * @param response
          */
-        logOut( request: http.ServerRequest, response: http.ServerResponse ): Promise<boolean>;
+        logOut(request: http.ServerRequest, response: http.ServerResponse): Promise<boolean>;
         /**
          * Creates a new user
          * @param user The unique username
@@ -2343,19 +2360,19 @@ declare module "core/users" {
          * @param meta Any optional data associated with this user
          * @param allowAdmin Should this be allowed to create a super user
          */
-        createUser( user: string, email: string, password: string, activateAccount: boolean, privilege?: UserPrivileges, meta?: any, allowAdmin?: boolean ): Promise<User>;
+        createUser(user: string, email: string, password: string, activateAccount: boolean, privilege?: UserPrivileges, meta?: any, allowAdmin?: boolean): Promise<User>;
         /**
          * Deletes a user from the database
          * @param user The unique username or email of the user to remove
          */
-        removeUser( user: string ): Promise<void>;
+        removeUser(user: string): Promise<void>;
         /**
          * Gets a user by a username or email
          * @param user The username or email of the user to get
          * @param email [Optional] Do a check if the email exists as well
          * @returns Resolves with either a valid user or null if none exists
          */
-        getUser( user: string, email?: string ): Promise<User | null>;
+        getUser(user: string, email?: string): Promise<User | null>;
         /**
          * Attempts to log a user in
          * @param username The username or email of the user
@@ -2364,20 +2381,20 @@ declare module "core/users" {
          * @param request
          * @param response
          */
-        logIn( username: string | undefined, pass: string | undefined, rememberMe: boolean | undefined, request: http.ServerRequest, response: http.ServerResponse ): Promise<User>;
+        logIn(username: string | undefined, pass: string | undefined, rememberMe: boolean | undefined, request: http.ServerRequest, response: http.ServerResponse): Promise<User>;
         /**
          * Removes a user by his email or username
          * @param username The username or email of the user
          * @returns True if the user was in the DB or false if they were not
          */
-        remove( username?: string ): Promise<boolean>;
+        remove(username?: string): Promise<boolean>;
         /**
          * Sets the meta data associated with the user
          * @param user The user
          * @param data The meta data object to set
          * @returns Returns the data set
          */
-        setMeta( user: IUserEntry, data?: any ): Promise<boolean | any>;
+        setMeta(user: IUserEntry, data?: any): Promise<boolean | any>;
         /**
          * Sets a meta value on the user. This updates the user's meta value by name
          * @param user The user
@@ -2385,36 +2402,36 @@ declare module "core/users" {
          * @param data The value of the meta to set
          * @returns {Promise<boolean|any>} Returns the value of the set
          */
-        setMetaVal( user: IUserEntry, name: string, val: any ): Promise<boolean | any>;
+        setMetaVal(user: IUserEntry, name: string, val: any): Promise<boolean | any>;
         /**
          * Gets the value of user's meta by name
          * @param user The user
          * @param name The name of the meta to get
          * @returns The value to get
          */
-        getMetaVal( user: IUserEntry, name: string ): Promise<boolean | any>;
+        getMetaVal(user: IUserEntry, name: string): Promise<boolean | any>;
         /**
          * Gets the meta data of a user
          * @param user The user
          * @returns The value to get
          */
-        getMetaData( user: IUserEntry ): Promise<boolean | any>;
+        getMetaData(user: IUserEntry): Promise<boolean | any>;
         /**
          * Gets the total number of users
          * @param searchPhrases Search phrases
          */
-        numUsers( searchPhrases?: RegExp ): Promise<number>;
+        numUsers(searchPhrases?: RegExp): Promise<number>;
         /**
          * Prints user objects from the database
          * @param limit The number of users to fetch
          * @param startIndex The starting index from where we are fetching users from
          * @param searchPhrases Search phrases
          */
-        getUsers( startIndex?: number, limit?: number, searchPhrases?: RegExp ): Promise<Array<User>>;
+        getUsers(startIndex?: number, limit?: number, searchPhrases?: RegExp): Promise<Array<User>>;
         /**
          * Creates the user manager singlton
          */
-        static create( users: mongodb.Collection, sessions: mongodb.Collection, config: IConfig ): UserManager;
+        static create(users: mongodb.Collection, sessions: mongodb.Collection, config: IConfig): UserManager;
         /**
          * Gets the user manager singlton
          */
@@ -2427,11 +2444,11 @@ declare module "utils/serializers" {
     /**
      * Helper function to return a status 200 json object of type T
      */
-    export function okJson<T extends IResponse>( data: T, res: express.Response ): void;
+    export function okJson<T extends IResponse>(data: T, res: express.Response): void;
     /**
      * Helper function to return a status 200 json object of type T
      */
-    export function errJson( err: Error, res: express.Response ): void;
+    export function errJson(err: Error, res: express.Response): void;
 }
 declare module "utils/permission-controllers" {
     import { IAuthReq } from 'modepress';
@@ -2442,28 +2459,28 @@ declare module "utils/permission-controllers" {
      * @param idName The name of the ID to check for
      * @param optional If true, then an error wont be thrown if it doesnt exist
      */
-    export function hasId( idName: string, idLabel?: string, optional?: boolean ): ( req: express.Request, res: express.Response, next: Function ) => void;
+    export function hasId(idName: string, idLabel?: string, optional?: boolean): (req: express.Request, res: express.Response, next: Function) => void;
     /**
      * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
      */
-    export function canEdit( req: IAuthReq, res: express.Response, next?: Function ): Promise<void>;
+    export function canEdit(req: IAuthReq, res: express.Response, next?: Function): Promise<void>;
     /**
      * Checks if the request has owner rights (admin/owner). If not, an error is sent back to the user
      */
-    export function ownerRights( req: IAuthReq, res: express.Response, next?: Function ): any;
+    export function ownerRights(req: IAuthReq, res: express.Response, next?: Function): any;
     /**
      * Checks if the request has admin rights. If not, an error is sent back to the user
      */
-    export function adminRights( req: IAuthReq, res: express.Response, next?: Function ): any;
-    export function checkVerbosity( req: IAuthReq, res: express.Response, next?: Function ): any;
+    export function adminRights(req: IAuthReq, res: express.Response, next?: Function): any;
+    export function checkVerbosity(req: IAuthReq, res: express.Response, next?: Function): any;
     /**
      * Checks for session data and fetches the user. Does not throw an error if the user is not present.
      */
-    export function identifyUser( req: IAuthReq, res: express.Response, next?: Function ): any;
+    export function identifyUser(req: IAuthReq, res: express.Response, next?: Function): any;
     /**
      * Checks for session data and fetches the user. Sends back an error if no user present
      */
-    export function requireUser( req: IAuthReq, res: express.Response, next?: Function ): any;
+    export function requireUser(req: IAuthReq, res: express.Response, next?: Function): any;
     /**
      * Checks a user is logged in and has permission
      * @param level
@@ -2472,55 +2489,57 @@ declare module "utils/permission-controllers" {
      * @param existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
      * @param next
      */
-    export function requestHasPermission( level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string ): Promise<boolean>;
+    export function requestHasPermission(level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string): Promise<boolean>;
 }
 declare module "controllers/posts-controller" {
-    import { IConfig, IServer } from 'modepress';
+    import * as mongodb from 'mongodb';
     import * as express from 'express';
     import { Controller } from "controllers/controller";
+    import { IControllerOptions } from 'modepress';
     /**
      * A controller that deals with the management of posts
      */
     export class PostsController extends Controller {
         /**
          * Creates a new instance of the controller
-         * @param server The server configuration options
-         * @param config The configuration options
-         * @param e The express instance of this server
          */
-        constructor( server: IServer, config: IConfig, e: express.Express );
+        constructor(options: IControllerOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Returns an array of IPost items
          */
-        private getPosts( req, res );
+        private getPosts(req, res);
         /**
          * Returns a single post
          */
-        private getPost( req, res );
+        private getPost(req, res);
         /**
          * Returns an array of ICategory items
          */
-        private getCategories( req, res );
+        private getCategories(req, res);
         /**
          * Attempts to remove a post by ID
          */
-        private removePost( req, res );
+        private removePost(req, res);
         /**
          * Attempts to remove a category by ID
          */
-        private removeCategory( req, res );
+        private removeCategory(req, res);
         /**
          * Attempts to update a post by ID
          */
-        private updatePost( req, res );
+        private updatePost(req, res);
         /**
          * Attempts to create a new post
          */
-        private createPost( req, res );
+        private createPost(req, res);
         /**
          * Attempts to create a new category item
          */
-        private createCategory( req, res );
+        private createCategory(req, res);
     }
 }
 declare module "models/comments-model" {
@@ -2533,40 +2552,42 @@ declare module "models/comments-model" {
     }
 }
 declare module "controllers/comments-controller" {
-    import { IConfig, IServer } from 'modepress';
+    import * as mongodb from 'mongodb';
     import * as express from 'express';
     import { Controller } from "controllers/controller";
+    import { IControllerOptions } from 'modepress';
     /**
      * A controller that deals with the management of comments
      */
     export class CommentsController extends Controller {
         /**
          * Creates a new instance of the controller
-         * @param server The server configuration options
-         * @param config The configuration options
-         * @param e The express instance of this server
          */
-        constructor( server: IServer, config: IConfig, e: express.Express );
+        constructor(options: IControllerOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Returns an array of IComment items
          */
-        private getComments( req, res );
+        private getComments(req, res);
         /**
          * Returns a single comment
          */
-        private getComment( req, res );
+        private getComment(req, res);
         /**
          * Attempts to remove a comment by ID
          */
-        private remove( req, res );
+        private remove(req, res);
         /**
          * Attempts to update a comment by ID
          */
-        private update( req, res );
+        private update(req, res);
         /**
          * Attempts to create a new comment
          */
-        private create( req, res );
+        private create(req, res);
     }
 }
 declare module "models/bucket-model" {
@@ -2579,49 +2600,51 @@ declare module "models/bucket-model" {
     }
 }
 declare module "controllers/bucket-controller" {
-    import { IConfig } from 'modepress';
-    import express = require( 'express' );
+    import express = require('express');
+    import * as mongodb from 'mongodb';
     import { Controller } from "controllers/controller";
+    import { IControllerOptions } from 'modepress';
     /**
      * Main class to use for managing users
      */
     export class BucketController extends Controller {
-        private _config;
         private _allowedFileTypes;
         /**
          * Creates an instance of the user manager
-         * @param e The express app
-         * @param The config options of this manager
          */
-        constructor( e: express.Express, config: IConfig );
+        constructor(options: IControllerOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Removes buckets specified in the URL
          */
-        private removeBuckets( req, res );
+        private removeBuckets(req, res);
         /**
          * Fetches all bucket entries from the database
          */
-        private getBuckets( req, res );
-        private alphaNumericDashSpace( str );
+        private getBuckets(req, res);
+        private alphaNumericDashSpace(str);
         /**
          * Creates a new user bucket based on the target provided
          */
-        private createBucket( req, res );
+        private createBucket(req, res);
         /**
          * Checks if a part is allowed to be uploaded
          * @returns {boolean}
          */
-        private isPartAllowed( part );
+        private isPartAllowed(part);
         /**
          * Checks if a file part is allowed to be uploaded
          * @returns {boolean}
          */
-        private isFileTypeAllowed( part );
-        private uploadMetaPart( part );
+        private isFileTypeAllowed(part);
+        private uploadMetaPart(part);
         /**
          * Attempts to upload a file to the user's bucket
          */
-        private uploadUserFiles( req, res );
+        private uploadUserFiles(req, res);
         /**
          * After the uploads have been uploaded, we set any meta on the files and send file uploaded events
          * @param meta The optional meta to associate with the uploaded files. The meta can be either a valid JSON or an error. If its
@@ -2630,7 +2653,7 @@ declare module "controllers/bucket-controller" {
          * @param user The user who uploaded the files
          * @param tokens The upload tokens to be sent back to the client
          */
-        private finalizeUploads( meta, files, user, tokens );
+        private finalizeUploads(meta, files, user, tokens);
     }
 }
 declare module "models/users-model" {
@@ -2643,95 +2666,104 @@ declare module "models/users-model" {
     }
 }
 declare module "controllers/auth-controller" {
-    import { IConfig, IServer } from 'modepress';
-    import express = require( 'express' );
+    import express = require('express');
     import { Controller } from "controllers/controller";
+    import { IAuthOptions } from 'modepress';
+    import * as mongodb from 'mongodb';
     /**
-     * Main class to use for managing users
+     * Main class to use for managing user authentication
      */
     export class AuthController extends Controller {
-        private _config;
-        private _server;
+        private _options;
         /**
          * Creates an instance of the user manager
-         * @param userCollection The mongo collection that stores the users
-         * @param sessionCollection The mongo collection that stores the session data
-         * @param The config options of this manager
          */
-        constructor( e: express.Express, config: IConfig, server: IServer );
+        constructor(options: IAuthOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Activates the user's account
          */
-        private activateAccount( req, res );
+        private activateAccount(req, res);
         /**
          * Resends the activation link to the user
          */
-        private resendActivation( req, res );
+        private resendActivation(req, res);
         /**
          * Resends the activation link to the user
          */
-        private requestPasswordReset( req, res );
+        private requestPasswordReset(req, res);
         /**
          * resets the password if the user has a valid password token
          */
-        private passwordReset( req, res );
+        private passwordReset(req, res);
         /**
          * Approves a user's activation code so they can login without email validation
          */
-        private approveActivation( req, res );
+        private approveActivation(req, res);
         /**
          * Attempts to log the user in. Expects the username, password and rememberMe parameters be set.
          */
-        private login( req, res );
+        private login(req, res);
         /**
          * Attempts to log the user out
          */
-        private logout( req, res );
+        private logout(req, res);
         /**
          * Attempts to register a new user
          */
-        private register( req, res );
+        private register(req, res);
         /**
          * Checks to see if the current session is logged in. If the user is, it will be returned redacted. You can specify the 'verbose' query parameter
          */
-        private authenticated( req, res );
+        private authenticated(req, res);
     }
 }
 declare module "controllers/cors-controller" {
-    import { IServer } from 'modepress';
     import { Controller } from "controllers/controller";
     import * as express from 'express';
+    import * as mongodb from 'mongodb';
     /**
      * Checks all incomming requests to see if they are CORS approved
      */
     export class CORSController extends Controller {
+        private _approvedDomains;
         /**
          * Creates an instance of the user manager
          */
-        constructor( e: express.Express, config: IServer );
+        constructor(approvedDomains: string[]);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
     }
 }
 declare module "controllers/emails-controller" {
-    import { IConfig, IServer } from 'modepress';
     import * as express from 'express';
-    import * as controllerModule from "controllers/controller";
-    export class EmailsController extends controllerModule.Controller {
+    import { Controller } from "controllers/controller";
+    import { IControllerOptions } from 'modepress';
+    import * as mongodb from 'mongodb';
+    export class EmailsController extends Controller {
         /**
          * Creates a new instance of the email controller
-         * @param server The server configuration options
-         * @param config The configuration options
-         * @param e The express instance of this server
          */
-        constructor( server: IServer, config: IConfig, e: express.Express );
+        constructor(options: IControllerOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Called whenever a post request is caught by this controller
          */
-        protected onPost( req: express.Request, res: express.Response ): any;
+        protected onPost(req: express.Request, res: express.Response): any;
     }
 }
 declare module "controllers/error-controller" {
     import { Controller } from "controllers/controller";
-    import express = require( 'express' );
+    import express = require('express');
+    import * as mongodb from 'mongodb';
     /**
      * Handles express errors
      */
@@ -2739,52 +2771,61 @@ declare module "controllers/error-controller" {
         /**
          * Creates an instance
          */
-        constructor( e: express.Express );
+        constructor();
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
     }
 }
 declare module "controllers/file-controller" {
-    import { IConfig } from 'modepress';
-    import express = require( 'express' );
+    import express = require('express');
     import { Controller } from "controllers/controller";
+    import { IFileOptions } from 'modepress';
+    import * as mongodb from 'mongodb';
     /**
      * Main class to use for managing users
      */
     export class FileController extends Controller {
-        private _config;
         private _allowedFileTypes;
+        private _cacheLifetime;
         /**
          * Creates an instance of the user manager
          * @param e The express app
          * @param The config options of this manager
          */
-        constructor( e: express.Express, config: IConfig );
+        constructor(options: IFileOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Removes files specified in the URL
          */
-        private removeFiles( req, res );
+        private removeFiles(req, res);
         /**
          * Renames a file
          */
-        private renameFile( req, res );
+        private renameFile(req, res);
         /**
          * Attempts to download a file from the server
          */
-        private getFile( req, res );
+        private getFile(req, res);
         /**
          * Attempts to make a file public
          */
-        private makePublic( req, res );
+        private makePublic(req, res);
         /**
          * Attempts to make a file private
          */
-        private makePrivate( req, res );
+        private makePrivate(req, res);
         /**
          * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
          */
-        private getFiles( req, res );
+        private getFiles(req, res);
     }
 }
-declare module "modepress" {
+declare module "modepress-api" {
     import * as _Controller from "controllers/controller";
     import * as _PostController from "controllers/posts-controller";
     import * as _CommentsController from "controllers/comments-controller";

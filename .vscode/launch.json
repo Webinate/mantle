@@ -9,12 +9,12 @@
             "program": "${workspaceRoot}/dist/main.js",
             "stopOnEntry": false,
             "args": [
-                "--config=config.json",
+                "--config=${workspaceRoot}/dist/config.json",
                 "--numThreads=1",
                 "--logging=true",
                 "--inspect=true"
             ],
-            "cwd": "${workspaceRoot}/dist",
+            "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
             "runtimeExecutable": null,
             "runtimeArgs": [

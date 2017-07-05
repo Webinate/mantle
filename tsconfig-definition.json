@@ -15,17 +15,15 @@
         ],
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
-        "out": "modepress",
+        "outFile": "modepress-api.js",
+        "outDir": "./modepress-api",
         "noUnusedParameters": false,
         "noUnusedLocals": true,
         "strictNullChecks": true
     },
     "include": [
-        "src/definitions/custom/**/*.ts",
-        "src/modepress.ts"
+        "src/types/**/*.ts",
+        "src/modepress-api.ts"
     ],
-    "exclude": [
-        "src/definitions/generated/*",
-        "src/definitions/required/**/*"
-    ]
+    "exclude": []
 }
