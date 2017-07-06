@@ -11,6 +11,27 @@ function assignMeta( meta?: any ) {
 }
 
 /**
+ * Fixes an issue where the console logger was not showing up in visual studio code
+ */
+function fixVSCodeOutput() {
+    const winston = require( 'winston' );
+    const winstonCommon = require( 'winston/lib/winston/common' );
+
+    // Override to use real console.log etc for VSCode debugger
+    winston.transports.Console.prototype.log = function( level, message, meta, callback ) {
+        const output = winstonCommon.log( Object.assign( {}, this, {
+            level,
+            message,
+            meta,
+        } ) );
+
+        console[ level in console ? level : 'log' ]( output );
+
+        setImmediate( callback, null, true );
+    };
+}
+
+/**
  * Initializes the logger
  */
 export function initializeLogger() {
@@ -18,8 +39,6 @@ export function initializeLogger() {
 
     // Add the console colours
     winston.addColors( { debug: 'green', info: 'cyan', silly: 'magenta', warn: 'yellow', error: 'red' } );
-
-
 
     if ( args.logging === undefined || args.logging === 'true' )
         showLogs = true;
@@ -30,6 +49,8 @@ export function initializeLogger() {
     // Saves logs to file
     if ( args.logFile && args.logFile.trim() !== '' )
         winston.add( winston.transports.File, <winston.TransportOptions>{ filename: args.logFile, maxsize: 50000000, maxFiles: 1, tailable: true } );
+
+    fixVSCodeOutput();
 }
 
 /**
