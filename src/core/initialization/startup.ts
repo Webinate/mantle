@@ -36,6 +36,12 @@ function loadConfig(): IConfig | null {
     try {
         // Try load and parse the config
         config = JSON.parse( fs.readFileSync( args.config, 'utf8' ) );
+
+        // Override any of the config settings with the yargs if they exist
+        for ( const i in args )
+            if ( config.hasOwnProperty( i ) )
+                config[ i ] = args[ i ];
+
         return config;
     }
     catch ( err ) {

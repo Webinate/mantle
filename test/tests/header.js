@@ -8,7 +8,7 @@ let args = yargs.argv;
  */
 class Agent {
     constructor( cookie, username, password, email, url ) {
-        this.agent = test.httpAgent( url || ( "http://" + exports.serverConfig.host + ":" + exports.serverConfig.portHTTP ) );
+        this.agent = test.httpAgent( url || ( "http://localhost:8000" ) );
         this.cookie = cookie;
         this.username = username;
         this.password = password;
@@ -223,7 +223,7 @@ async function initialize() {
     try {
         const config = JSON.parse( fs.readFileSync( args.config ) );
         const serverConfig = config.servers[ parseInt( args.server ) ];
-        const host = "http://" + serverConfig.host + ":" + serverConfig.portHTTP;
+        const host = "http://localhost:8000";
         const resp = await post( '/auth/login', { username: config.adminUser.username, password: config.adminUser.password }, host );
         const adminCookie = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];;
 

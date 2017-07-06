@@ -9,7 +9,7 @@
             "program": "${workspaceRoot}/dist/main.js",
             "stopOnEntry": false,
             "args": [
-                "--config=${workspaceRoot}/dist/config.json",
+                "--config=${workspaceRoot}/config.json",
                 "--numThreads=1",
                 "--logging=true",
                 "--inspect=true"
@@ -38,11 +38,12 @@
                 "-t",
                 "100000",
                 "test/index.js",
-                "--config=./dist/config.json",
+                "--config=./config.json",
                 "--server=0",
                 "--logging=false",
-                "--keyFile=./dist/bucket-credentials.json",
-                "--runningTests=true"
+                "--keyFile=./bucket-credentials.json",
+                "--runningTests=true",
+                "--clientsFolder=./"
             ],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
