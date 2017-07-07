@@ -17,6 +17,27 @@
         },
         {
             "type": "posts"
+        },
+        {
+            "type": "comments"
+        },
+        {
+            "type": "stats"
+        },
+        {
+            "type": "renders"
+        },
+        {
+            "type": "sessions"
+        },
+        {
+            "type": "admin"
+        },
+        {
+            "type": "buckets"
+        },
+        {
+            "type": "files"
         }
     ]
 }
