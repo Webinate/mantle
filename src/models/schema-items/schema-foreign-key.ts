@@ -6,13 +6,15 @@ import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { SchemaIdArray } from './schema-id-array';
 
+export type FKeyValues = ObjectID | string | IModelEntry | null;
+
 /**
  * Represents a mongodb ObjectID of a document in separate collection.
  * Foreign keys are used as a way of relating models to one another. They can be required or optional.
  * Required keys will mean that the current document cannot exist if the target does not. Optional keys
  * will simply be nullified if the target no longer exists.
  */
-export class SchemaForeignKey extends SchemaItem<ObjectID | string | IModelEntry | null> {
+export class SchemaForeignKey extends SchemaItem<FKeyValues> {
     public targetCollection: string;
     public keyCanBeNull: boolean;
     public canAdapt: boolean;
@@ -49,7 +51,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | IModelEntry
 	/**
 	 * Checks the value stored to see if its correct in its current form
 	 */
-    public async validate(): Promise<boolean | Error | null> {
+    public async validate(): Promise<boolean | Error> {
         let transformedValue = this.value;
 
         // If they key is required then it must exist
@@ -159,7 +161,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | string | IModelEntry
 	 * Gets the value of this item
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
 	 */
-    public async getValue( options: ISchemaOptions ): Promise<ObjectID | IModelEntry | null> {
+    public async getValue( options: ISchemaOptions ): Promise<FKeyValues> {
 
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
             throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
