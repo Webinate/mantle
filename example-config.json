@@ -4,7 +4,7 @@
         "port": 27017,
         "name": "test"
     },
-    "clientsFolder": "../",
+    "clientsFolder": "./clients/",
     "debug": true,
     "adminUser": {
         "username": "root",
