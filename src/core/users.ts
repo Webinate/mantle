@@ -663,7 +663,7 @@ export class UserManager {
         if ( result.matchedCount === 0 )
             throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
-        const session: Session = await this.sessionManager.createSession( !rememberMe, response );
+        const session: Session = await this.sessionManager.createSession( !rememberMe, request, response );
         result = await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { sessionId: session.sessionId } } );
 
         if ( result.matchedCount === 0 )

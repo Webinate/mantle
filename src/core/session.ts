@@ -114,7 +114,7 @@ export class SessionManager extends EventEmitter {
             this.emit( 'sessionRemoved', sId );
 
             // Set the session cookie header
-            response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue() );
+            response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue( request ) );
 
             // Resolve the request
             return true;
@@ -154,7 +154,7 @@ export class SessionManager extends EventEmitter {
 
             // Set the session cookie header
             if ( response )
-                response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue() );
+                response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue( request ) );
 
             // Resolve the request
             return session;
@@ -169,7 +169,7 @@ export class SessionManager extends EventEmitter {
      * @param shortTerm If true, we use the short term cookie. Otherwise the longer term one is used. (See session options)
      * @param response
      */
-    async createSession( shortTerm: boolean, response: http.ServerResponse ): Promise<Session> {
+    async createSession( shortTerm: boolean, request: http.ServerRequest, response: http.ServerResponse ): Promise<Session> {
         const session = new Session( this.createID(), this._options );
 
         session.data.shortTerm = shortTerm;
@@ -178,7 +178,7 @@ export class SessionManager extends EventEmitter {
         await this._dbCollection.insertOne( session.save() );
 
         // Set the session cookie header
-        response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue() );
+        response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue( request ) );
 
         // Resolve the request
         return session;
@@ -338,11 +338,20 @@ export class Session {
         return data;
     }
 
+    private getHost( request: http.ServerRequest ) {
+        if ( request.headers.host && ( request.headers.host as string ).indexOf( 'localhost' ) !== -1 )
+            return '';
+        if ( request.headers.host && request.headers.host != '' )
+            return 'domain=.' + request.headers.host;
+
+        return 'domain=' + this.options.domain
+    }
+
     /**
      * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
      * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
      */
-    getSetCookieHeaderValue() {
+    getSetCookieHeaderValue( request: http.ServerRequest ) {
         let parts;
         parts = [ 'SID=' + this.sessionId ];
 
@@ -350,7 +359,7 @@ export class Session {
             parts.push( 'path=' + this.options.path );
 
         if ( this.options.domain )
-            parts.push( 'domain=' + this.options.domain );
+            parts.push( this.getHost( request ) );
 
         if ( this.options.persistent )
             parts.push( 'expires=' + this.dateCookieString( this.expiration ) );
