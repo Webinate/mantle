@@ -1385,7 +1385,7 @@ declare module "core/session" {
          * @param shortTerm If true, we use the short term cookie. Otherwise the longer term one is used. (See session options)
          * @param response
          */
-        createSession(shortTerm: boolean, response: http.ServerResponse): Promise<Session>;
+        createSession(shortTerm: boolean, request: http.ServerRequest, response: http.ServerResponse): Promise<Session>;
         /**
          * Each time a session is created, a timer is started to check all sessions in the DB.
          * Once the lifetime of a session is up its then removed from the DB and we check for any remaining sessions.
@@ -1439,11 +1439,12 @@ declare module "core/session" {
          * Creates an object that represents this session to be saved in the database
          */
         save(): ISessionEntry;
+        private getHost(request);
         /**
          * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
          * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
          */
-        getSetCookieHeaderValue(): any;
+        getSetCookieHeaderValue(request: http.ServerRequest): any;
         /**
          * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
          */
@@ -2421,6 +2422,59 @@ declare module "models/schema-items/schema-item-factory" {
     export const html: typeof SchemaHtml;
     export const foreignKey: typeof SchemaForeignKey;
 }
+declare module "utils/serializers" {
+    import { IResponse } from 'modepress';
+    import * as express from 'express';
+    /**
+     * Helper function to return a status 200 json object of type T
+     */
+    export function okJson<T extends IResponse>(data: T, res: express.Response): void;
+    /**
+     * Helper function to return a status 200 json object of type T
+     */
+    export function errJson(err: Error, res: express.Response): void;
+}
+declare module "utils/permission-controllers" {
+    import { IAuthReq } from 'modepress';
+    import * as express from 'express';
+    import { UserPrivileges } from "core/users";
+    /**
+     * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
+     * @param idName The name of the ID to check for
+     * @param optional If true, then an error wont be thrown if it doesnt exist
+     */
+    export function hasId(idName: string, idLabel?: string, optional?: boolean): (req: express.Request, res: express.Response, next: Function) => void;
+    /**
+     * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
+     */
+    export function canEdit(req: IAuthReq, res: express.Response, next?: Function): Promise<void>;
+    /**
+     * Checks if the request has owner rights (admin/owner). If not, an error is sent back to the user
+     */
+    export function ownerRights(req: IAuthReq, res: express.Response, next?: Function): any;
+    /**
+     * Checks if the request has admin rights. If not, an error is sent back to the user
+     */
+    export function adminRights(req: IAuthReq, res: express.Response, next?: Function): any;
+    export function checkVerbosity(req: IAuthReq, res: express.Response, next?: Function): any;
+    /**
+     * Checks for session data and fetches the user. Does not throw an error if the user is not present.
+     */
+    export function identifyUser(req: IAuthReq, res: express.Response, next?: Function): any;
+    /**
+     * Checks for session data and fetches the user. Sends back an error if no user present
+     */
+    export function requireUser(req: IAuthReq, res: express.Response, next?: Function): any;
+    /**
+     * Checks a user is logged in and has permission
+     * @param level
+     * @param req
+     * @param res
+     * @param existingUser [Optional] If specified this also checks if the authenticated user is the user making the request
+     * @param next
+     */
+    export function requestHasPermission(level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string): Promise<boolean>;
+}
 declare module "modepress-api" {
     import * as _Controller from "controllers/controller";
     import * as users from "core/users";
@@ -2428,10 +2482,12 @@ declare module "modepress-api" {
     import * as _Models from "models/model";
     import * as _SchemaFactory from "models/schema-items/schema-item-factory";
     import { isValidObjectID } from "utils/utils";
+    import * as permissions from "utils/permission-controllers";
     export const Controller: typeof _Controller.Controller;
     export const Model: typeof _Models.Model;
     export const SchemaFactory: typeof _SchemaFactory;
     export const UserManager: typeof users.UserManager;
     export const BucketManager: typeof bucketManager.BucketManager;
     export const isValidID: typeof isValidObjectID;
+    export const authentication: typeof permissions;
 }
