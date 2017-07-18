@@ -19,7 +19,7 @@ export class EmailsController extends Controller {
 	 * Called to initialize this controller and its related database objects
 	 */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
-        await super.initialize( e, db );
+
 
         const router = express.Router();
         router.use( bodyParser.urlencoded( { 'extended': true } ) );
@@ -32,6 +32,7 @@ export class EmailsController extends Controller {
         // Register the path
         e.use( '/api/message-admin', router );
 
+        await super.initialize( e, db );
         return this;
     }
 

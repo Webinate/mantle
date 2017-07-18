@@ -29,7 +29,6 @@ export class UserController extends Controller {
      * Called to initialize this controller and its related database objects
      */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
-        await super.initialize( e, db );
 
         // Setup the rest calls
         const router = express.Router();
@@ -50,6 +49,7 @@ export class UserController extends Controller {
         // Register the path
         e.use( '/users', router );
 
+        await super.initialize( e, db );
         return this;
     }
 

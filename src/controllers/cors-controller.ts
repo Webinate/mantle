@@ -23,7 +23,7 @@ export class CORSController extends Controller {
 	 * Called to initialize this controller and its related database objects
 	 */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
-        await super.initialize( e, db );
+
 
         const matches: Array<RegExp> = [];
         for ( let i = 0, l = this._approvedDomains.length; i < l; i++ )
@@ -55,6 +55,7 @@ export class CORSController extends Controller {
                 next();
         } );
 
+        await super.initialize( e, db );
         return this;
     }
 }

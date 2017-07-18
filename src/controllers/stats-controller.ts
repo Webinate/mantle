@@ -33,7 +33,6 @@ export class StatsController extends Controller {
      * Called to initialize this controller and its related database objects
      */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
-        await super.initialize( e, db );
 
         // Setup the rest calls
         const router = express.Router();
@@ -52,6 +51,7 @@ export class StatsController extends Controller {
         // Register the path
         e.use( `/stats`, router );
 
+        await super.initialize( e, db );
         return this;
     }
 

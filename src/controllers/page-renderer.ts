@@ -108,7 +108,6 @@ export default class PageRenderer extends Controller {
      * Called to initialize this controller and its related database objects
      */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
-        await super.initialize( e, db );
 
         e.use( this.processBotRequest.bind( this ) );
         const router = express.Router();
@@ -124,6 +123,7 @@ export default class PageRenderer extends Controller {
         // Register the path
         e.use( '/api/renders', router );
 
+        await super.initialize( e, db );
         return this;
     }
 
