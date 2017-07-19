@@ -49,7 +49,7 @@ export class UserController extends Controller {
         router.post( '/:user/meta', <any>[ adminRights, this.setData.bind( this ) ] );
 
         // Register the path
-        e.use( this._options + '/users', router );
+        e.use(( this._options.rootPath || '' ) + '/users', router );
 
         await super.initialize( e, db );
         return this;
