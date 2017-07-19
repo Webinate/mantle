@@ -3,6 +3,7 @@ import { error as logError } from '../utils/logger';
 import { Controller } from './controller';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
+import { IBaseControler } from 'modepress';
 
 /**
  * Checks all incomming requests to see if they are CORS approved
@@ -10,20 +11,21 @@ import * as mongodb from 'mongodb';
 export class CORSController extends Controller {
 
     private _approvedDomains: string[];
+    private _options: IBaseControler;
 
     /**
 	 * Creates an instance of the user manager
 	 */
-    constructor( approvedDomains: string[] ) {
+    constructor( approvedDomains: string[], options: IBaseControler ) {
         super( null );
         this._approvedDomains = approvedDomains;
+        this._options = options;
     }
 
     /**
 	 * Called to initialize this controller and its related database objects
 	 */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
-
 
         const matches: Array<RegExp> = [];
         for ( let i = 0, l = this._approvedDomains.length; i < l; i++ )

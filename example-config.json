@@ -50,53 +50,5 @@
             "statsCollection": "storageAPI",
             "cacheLifetime": 2592000000
         }
-    },
-    "servers": [
-        {
-            "host": "localhost",
-            "portHTTP": 80,
-            "portHTTPS": 443,
-            "staticFilesFolder": [
-                "../../admin/dist"
-            ],
-            "ssl": {
-                "sslKey": "",
-                "sslCert": "",
-                "sslRoot": "",
-                "sslIntermediate": "",
-                "sslPassPhrase": ""
-            },
-            "accountRedirectURL": "localhost/admin/message",
-            "passwordResetURL": "localhost/admin/password-reset-form",
-            "controllers": [
-                {
-                    "path": "./controllers/emails-controller.js"
-                },
-                {
-                    "path": "./controllers/posts-controller.js"
-                },
-                {
-                    "path": "./controllers/posts-controller.js"
-                },
-                {
-                    "path": "./controllers/comments-controller.js"
-                }
-            ],
-            "approvedDomains": [
-                "webinate\\.net",
-                "127.0.0.1:80",
-                "http:\/\/127.0.0.1"
-            ],
-            "paths": [
-                {
-                    "path": "*",
-                    "index": "../../admin/dist/index.jade",
-                    "plugins": [],
-                    "variables": {
-                        "hello": "world"
-                    }
-                }
-            ]
-        }
-    ]
+    }
 }

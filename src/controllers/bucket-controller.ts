@@ -16,20 +16,22 @@ import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
-import { IControllerOptions } from 'modepress';
+import { IBaseControler } from 'modepress';
 
 /**
  * Main class to use for managing users
  */
 export class BucketController extends Controller {
     private _allowedFileTypes: Array<string>;
+    private _options: IBaseControler;
 
 	/**
 	 * Creates an instance of the user manager
 	 */
-    constructor( options: IControllerOptions ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( BucketModel ) ] );
         this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
+        this._options = options;
     }
 
     /**
@@ -50,7 +52,7 @@ export class BucketController extends Controller {
         router.post( '/user/:user/:name', <any>[ ownerRights, this.createBucket.bind( this ) ] );
 
         // Register the path
-        e.use( `/buckets`, router );
+        e.use(( this._options.rootPath || '' ) + `/buckets`, router );
 
         await super.initialize( e, db );
         return this;

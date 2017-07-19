@@ -10,7 +10,7 @@ import * as compression from 'compression';
 import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
-import { IControllerOptions } from 'modepress';
+import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
 
 /**
@@ -18,15 +18,17 @@ import * as mongodb from 'mongodb';
  */
 export class StatsController extends Controller {
     private _allowedFileTypes: Array<string>;
+    private _options: IBaseControler;
 
 	/**
 	 * Creates an instance of the user manager
 	 * @param e The express app
 	 * @param The config options of this manager
 	 */
-    constructor( options: IControllerOptions ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( BucketModel ) ] );
         this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
+        this._options = options;
     }
 
     /**
@@ -49,7 +51,7 @@ export class StatsController extends Controller {
         router.put( '/storage-allocated-memory/:target/:value', <any>[ ownerRights, this.verifyTargetValue, this.updateAllocatedMemory.bind( this ) ] );
 
         // Register the path
-        e.use( `/stats`, router );
+        e.use(( this._options.rootPath || '' ) + `/stats`, router );
 
         await super.initialize( e, db );
         return this;

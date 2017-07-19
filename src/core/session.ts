@@ -341,7 +341,7 @@ export class Session {
     private getHost( request: http.ServerRequest ) {
         if ( request.headers.host && ( request.headers.host as string ).indexOf( 'localhost' ) !== -1 )
             return '';
-        if ( request.headers.host && request.headers.host != '' )
+        if ( request.headers.host && request.headers.host !== '' )
             return 'domain=.' + request.headers.host;
 
         return 'domain=' + this.options.domain

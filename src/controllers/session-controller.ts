@@ -10,19 +10,21 @@ import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
-import { IControllerOptions } from 'modepress';
+import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class SessionController extends Controller {
+    private _options: IBaseControler;
 
 	/**
 	 * Creates an instance of the user manager
 	 */
-    constructor( options: IControllerOptions ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( UsersModel ) ] );
+        this._options = options;
     }
 
     /**
@@ -41,7 +43,7 @@ export class SessionController extends Controller {
         router.delete( '/:id', <any>[ ownerRights, this.deleteSession.bind( this ) ] );
 
         // Register the path
-        e.use( '/sessions', router );
+        e.use(( this._options.rootPath || '' ) + '/sessions', router );
 
         await super.initialize( e, db );
         return this;

@@ -1,4 +1,4 @@
-﻿import { IClient, IServer, IFileOptions, IAuthOptions, IRenderOptions } from 'modepress';
+﻿import { IClient, IServer } from 'modepress';
 import * as express from 'express';
 import * as morgan from 'morgan';
 import * as mongodb from 'mongodb';
@@ -8,18 +8,7 @@ import * as fs from 'fs';
 import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
 import { Controller } from '../controllers/controller'
-import PageRenderer from '../controllers/page-renderer'
-import { CORSController } from '../controllers/cors-controller';
-import { SessionController } from '../controllers/session-controller';
-import { BucketController } from '../controllers/bucket-controller';
-import { StatsController } from '../controllers/stats-controller';
-import { FileController } from '../controllers/file-controller';
-import { AuthController } from '../controllers/auth-controller';
-import { UserController } from '../controllers/user-controller';
-import { AdminController } from '../controllers/admin-controller';
 import { ErrorController } from '../controllers/error-controller';
-import { PostsController } from '../controllers/posts-controller';
-import { CommentsController } from '../controllers/comments-controller';
 
 export class Server {
     server: IServer;
@@ -32,6 +21,11 @@ export class Server {
         this._path = path;
     }
 
+    /**
+     * Goes through each client json discovered in the modepress client folder
+     * and attempts to load it
+     * @param client The client we are loading
+     */
     parseClient( client: IClient & { path: string; } ) {
         if ( !client.controllers ) {
             error( `Client '${client.name}' does not have any controllers defined` );
@@ -39,47 +33,13 @@ export class Server {
         }
 
         for ( const ctrl of client.controllers ) {
-            switch ( ctrl.type ) {
-                case 'renders':
-                    this._controllers.push( new PageRenderer( ctrl as IRenderOptions ) );
-                    break;
-                case 'stats':
-                    this._controllers.push( new StatsController( ctrl ) );
-                    break;
-                case 'posts':
-                    this._controllers.push( new PostsController( ctrl ) );
-                    break;
-                case 'comments':
-                    this._controllers.push( new CommentsController( ctrl ) );
-                    break;
-                case 'sessions':
-                    this._controllers.push( new SessionController( ctrl ) );
-                    break;
-                case 'admin':
-                    this._controllers.push( new AdminController( ctrl ) );
-                    break;
-                case 'users':
-                    this._controllers.push( new UserController( ctrl ) );
-                    break;
-                case 'auth':
-                    this._controllers.push( new AuthController( ctrl as IAuthOptions ) );
-                    break;
-                case 'buckets':
-                    this._controllers.push( new BucketController( ctrl ) );
-                    break;
-                case 'files':
-                    this._controllers.push( new FileController( ctrl as IFileOptions ) );
-                    break;
-                default:
-                    try {
-                        const constructor = require( `${client.path}/${ctrl.path!}` ).default;
-                        this._controllers.push( new constructor() );
-                    }
-                    catch ( err ) {
-                        error( `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${err.stack ? err.stack : ''}` );
-                        process.exit();
-                    }
-                    break
+            try {
+                const constructor = require( `${client.path}/${ctrl.path!}` ).default;
+                this._controllers.push( new constructor( client ) );
+            }
+            catch ( err ) {
+                error( `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${err.stack ? err.stack : ''}` );
+                process.exit();
             }
         }
     }
@@ -91,12 +51,7 @@ export class Server {
         const app = express();
 
         // Create the controllers
-        const controllers: Controller[] = [];
-
-        if ( server.corsApprovedDomains )
-            controllers.push( new CORSController( server.corsApprovedDomains ) )
-
-        controllers.push( ...this._controllers, new ErrorController() );
+        const controllers: Controller[] = [ ...this._controllers, new ErrorController() ];
 
         // Enable GZIPPING
         app.use( compression() );
@@ -163,7 +118,6 @@ export class Server {
 
             info( `Listening on HTTPS port ${port}` );
         }
-
 
         try {
 

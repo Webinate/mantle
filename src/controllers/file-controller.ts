@@ -19,22 +19,23 @@ import * as mongodb from 'mongodb';
 export class FileController extends Controller {
     private _allowedFileTypes: Array<string>;
     private _cacheLifetime: number;
+    private _options: IFileOptions;
 
 	/**
 	 * Creates an instance of the user manager
-	 * @param e The express app
-	 * @param The config options of this manager
 	 */
     constructor( options: IFileOptions ) {
         super( [ Model.registerModel( BucketModel ) ] );
-        this._cacheLifetime = options.cacheLifetime;
-        this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
+        this._options = options;
     }
 
     /**
      * Called to initialize this controller and its related database objects
      */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+
+        this._cacheLifetime = this._options.cacheLifetime;
+        this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
 
         // Setup the rest calls
         const router = express.Router();
@@ -51,7 +52,7 @@ export class FileController extends Controller {
         router.put( '/:id/make-private', <any>[ requireUser, this.makePrivate.bind( this ) ] );
 
         // Register the path
-        e.use( `/files`, router );
+        e.use(( this._options.rootPath || '' ) + `/files`, router );
 
         await super.initialize( e, db );
         return this;
