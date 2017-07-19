@@ -8,16 +8,18 @@ import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
-import { IControllerOptions } from 'modepress';
+import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class AdminController extends Controller {
+    private _options: IBaseControler;
 
-    constructor( options: IControllerOptions ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( UsersModel ) ] );
+        this._options = options;
     }
 
     /**
@@ -35,7 +37,7 @@ export class AdminController extends Controller {
         router.post( '/message-webmaster', this.messageWebmaster.bind( this ) );
 
         // Register the path
-        e.use( '/admin', router );
+        e.use(( this._options.rootPath || '' ) + '/admin', router );
 
         await super.initialize( e, db );
         return this;

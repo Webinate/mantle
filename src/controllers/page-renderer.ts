@@ -16,9 +16,10 @@ import { IRenderOptions } from 'modepress';
  * Sets up a prerender server and saves the rendered html requests to mongodb.
  * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
  */
-export default class PageRenderer extends Controller {
+export class PageRenderer extends Controller {
     private renderQueryFlag: string;
     private expiration: number;
+    private _options: IRenderOptions;
 
     // googlebot, yahoo, and bingbot are not in this list because
     // we support _escaped_fragment_ and want to ensure people aren't
@@ -100,14 +101,15 @@ export default class PageRenderer extends Controller {
 	 */
     constructor( options: IRenderOptions ) {
         super( [ Model.registerModel( RendersModel ) ] );
-        this.renderQueryFlag = '__render__request';
-        this.expiration = options.cacheLifetime * 1000;
+        this._options = options;
     }
 
     /**
      * Called to initialize this controller and its related database objects
      */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+        this.renderQueryFlag = '__render__request';
+        this.expiration = this._options.cacheLifetime * 1000;
 
         e.use( this.processBotRequest.bind( this ) );
         const router = express.Router();
@@ -121,7 +123,7 @@ export default class PageRenderer extends Controller {
         router.delete( '/:id', <any>[ adminRights, this.removeRender.bind( this ) ] );
 
         // Register the path
-        e.use( '/api/renders', router );
+        e.use(( this._options.rootPath || '' ) + '/api/renders', router );
 
         await super.initialize( e, db );
         return this;

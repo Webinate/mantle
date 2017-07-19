@@ -1,5 +1,4 @@
-﻿import { IControllerOptions } from 'modepress';
-import { Model } from '../models/model';
+﻿import { Model } from '../models/model';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 
@@ -7,7 +6,7 @@ export class Controller {
     private static _models: Array<Model> = [];
     private _models: Array<Model>;
 
-    constructor( models: Array<Model> | null, options?: IControllerOptions ) {
+    constructor( models: Array<Model> | null ) {
         this._models = [];
 
         if ( models ) {

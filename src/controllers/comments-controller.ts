@@ -9,17 +9,20 @@ import { CommentsModel } from '../models/comments-model';
 import { identifyUser, checkVerbosity, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { okJson, errJson } from '../utils/serializers';
 import { UserPrivileges } from '../core/users';
-import { IControllerOptions } from 'modepress';
+import { IBaseControler } from 'modepress';
 
 /**
  * A controller that deals with the management of comments
  */
 export class CommentsController extends Controller {
+    private _options: IBaseControler;
+
 	/**
 	 * Creates a new instance of the controller
 	 */
-    constructor( options: IControllerOptions ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( CommentsModel ) ] );
+        this._options = options;
     }
 
     /**
@@ -43,7 +46,7 @@ export class CommentsController extends Controller {
         router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, checkVerbosity, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
 
         // Register the path
-        e.use( '/api', router );
+        e.use(( this._options.rootPath || '' ) + '/api', router );
 
         await super.initialize( e, db );
         return this;

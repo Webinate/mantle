@@ -11,17 +11,21 @@ import { CategoriesModel } from '../models/categories-model';
 import { identifyUser, checkVerbosity, adminRights, hasId } from '../utils/permission-controllers';
 import { okJson, errJson } from '../utils/serializers';
 import { UserPrivileges } from '../core/users';
-import { IControllerOptions } from 'modepress';
+import { IBaseControler } from 'modepress';
 
 /**
  * A controller that deals with the management of posts
  */
 export class PostsController extends Controller {
+
+    private _options: IBaseControler;
+
 	/**
 	 * Creates a new instance of the controller
 	 */
-    constructor( options: IControllerOptions ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( PostsModel ), Model.registerModel( CategoriesModel ) ] );
+        this._options = options;
     }
 
     /**
@@ -48,7 +52,7 @@ export class PostsController extends Controller {
         router.delete( '/categories/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removeCategory.bind( this ) ] );
 
         // Register the path
-        e.use( '/api', router );
+        e.use(( this._options.rootPath || '' ) + '/api', router );
 
         await super.initialize( e, db );
         return this;

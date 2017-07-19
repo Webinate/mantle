@@ -4,15 +4,18 @@ import { Controller } from './controller';
 import * as bodyParser from 'body-parser';
 import { UserManager } from '../core/users'
 import { errJson } from '../utils/serializers';
-import { IControllerOptions } from 'modepress';
+import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
 
 export class EmailsController extends Controller {
+    private _options: IBaseControler;
+
 	/**
 	 * Creates a new instance of the email controller
 	 */
-    constructor( options: IControllerOptions ) {
+    constructor( options: IBaseControler ) {
         super( null );
+        this._options = options;
     }
 
     /**
@@ -30,7 +33,7 @@ export class EmailsController extends Controller {
         router.post( '/', this.onPost.bind( this ) );
 
         // Register the path
-        e.use( '/api/message-admin', router );
+        e.use(( this._options.rootPath || '' ) + '/message-admin', router );
 
         await super.initialize( e, db );
         return this;

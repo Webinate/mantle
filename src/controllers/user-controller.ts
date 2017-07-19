@@ -10,19 +10,21 @@ import { IGetUser, IResponse, IGetUsers, IAuthReq, IUserEntry } from 'modepress'
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
-import { IControllerOptions } from 'modepress';
+import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing user data
  */
 export class UserController extends Controller {
+    private _options: IBaseControler;
 
 	/**
 	 * Creates an instance of the user manager
 	 */
-    constructor( options: IControllerOptions ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( UsersModel ) ] );
+        this._options = options;
     }
 
     /**
@@ -47,7 +49,7 @@ export class UserController extends Controller {
         router.post( '/:user/meta', <any>[ adminRights, this.setData.bind( this ) ] );
 
         // Register the path
-        e.use( '/users', router );
+        e.use( this._options + '/users', router );
 
         await super.initialize( e, db );
         return this;

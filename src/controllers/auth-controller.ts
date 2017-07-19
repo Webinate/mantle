@@ -26,19 +26,19 @@ export class AuthController extends Controller {
     constructor( options: IAuthOptions ) {
         super( [ Model.registerModel( UsersModel ) ] );
         this._options = options;
-
-        if ( !options.accountRedirectURL )
-            throw new Error( `When using an 'auth' controller, you must specifiy the 'accountRedirectURL' property. This is the url to re-direct to when a user has attempted to activate their account. The URL is appended with the query parameters 'message' and 'status' so that the response can be portrayed to the user.` );
-        if ( !options.activateAccountUrl )
-            throw new Error( `When using an 'auth' controller, you must specifiy the 'activateAccountUrl' property. This is the url sent to users when they register. The link should resolve to your {host}/auth/activate-account` );
-        if ( !options.passwordResetURL )
-            throw new Error( `When using an 'auth' controller, you must specifiy the 'passwordResetURL' property. This is the URL sent to users emails for when their password is reset. This URL should resolve to a page with a form that allows users to reset their password. The form can post to the auth/password-reset endpoint to start the process.` );
     }
 
     /**
 	 * Called to initialize this controller and its related database objects
 	 */
     async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+
+        if ( !this._options.accountRedirectURL )
+            throw new Error( `When using an 'auth' controller, you must specifiy the 'accountRedirectURL' property. This is the url to re-direct to when a user has attempted to activate their account. The URL is appended with the query parameters 'message' and 'status' so that the response can be portrayed to the user.` );
+        if ( !this._options.activateAccountUrl )
+            throw new Error( `When using an 'auth' controller, you must specifiy the 'activateAccountUrl' property. This is the url sent to users when they register. The link should resolve to your {host}/auth/activate-account` );
+        if ( !this._options.passwordResetURL )
+            throw new Error( `When using an 'auth' controller, you must specifiy the 'passwordResetURL' property. This is the URL sent to users emails for when their password is reset. This URL should resolve to a page with a form that allows users to reset their password. The form can post to the auth/password-reset endpoint to start the process.` );
 
 
         // Setup the rest calls
@@ -59,7 +59,7 @@ export class AuthController extends Controller {
         router.put( '/:user/approve-activation', <any>[ ownerRights, this.approveActivation.bind( this ) ] );
 
         // Register the path
-        e.use( '/auth', router );
+        e.use(( this._options.rootPath || '' ) + '/auth', router );
 
         await super.initialize( e, db );
         return this;

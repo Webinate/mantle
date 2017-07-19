@@ -2,48 +2,8 @@
 /// <reference types="ws" />
 /// <reference types="node" />
 declare module 'modepress' {
-    type ControllerType = 'posts' | 'comments' | 'buckets' | 'files' | 'admin' | 'auth' | 'emails' | 'renders' | 'stats' | 'users' | 'sessions';
     interface IControllerOptions {
-        type: ControllerType;
         path?: string;
-    }
-    interface IFileOptions extends IControllerOptions {
-        /**
-         * The length of time the assets should be cached on a user's browser.
-         * eg:  2592000000 or 30 days
-         */
-        cacheLifetime: number;
-    }
-    interface IRenderOptions extends IControllerOptions {
-        /**
-         * The length of time the assets should be cached on a user's browser.
-         * eg:  2592000000 or 30 days
-         */
-        cacheLifetime: number;
-    }
-    interface IAuthOptions extends IControllerOptions {
-        /**
-         * The URL to redirect to after the user attempts to activate their account.
-         * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
-         * adding a query ?message=You%20have%20activated%20your%20account&status=success.
-         * The status can be either 'success' or 'error'
-         *
-         * eg: 'http://localhost/auth/notify-user'
-         */
-        accountRedirectURL: string;
-        /**
-         * The URL sent to users emails for when their password is reset. This URL should
-         * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
-         *
-         * eg: 'http://localhost/auth/reset-password'
-         */
-        passwordResetURL: string;
-        /**
-         * The URL sent to users emails for when they need to activate their account
-         *
-         * eg: 'http://localhost/auth/activate-account
-         */
-        activateAccountUrl: string;
     }
     interface IServer {
         /**
@@ -381,6 +341,59 @@ declare module 'modepress' {
          * The password to use for the SSL (optional). Only applicable if ssl is true.
          */
         passPhrase: string;
+    }
+}
+declare module 'modepress' {
+    interface IAuthOptions extends IBaseControler {
+        /**
+         * The URL to redirect to after the user attempts to activate their account.
+         * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL
+         * adding a query ?message=You%20have%20activated%20your%20account&status=success.
+         * The status can be either 'success' or 'error'
+         *
+         * eg: 'http://localhost/auth/notify-user'
+         */
+        accountRedirectURL: string;
+        /**
+         * The URL sent to users emails for when their password is reset. This URL should
+         * resolve to a page with a form that allows users to reset their password. (MORE TO COME ON THIS)
+         *
+         * eg: 'http://localhost/auth/reset-password'
+         */
+        passwordResetURL: string;
+        /**
+         * The URL sent to users emails for when they need to activate their account
+         *
+         * eg: 'http://localhost/auth/activate-account
+         */
+        activateAccountUrl: string;
+    }
+}
+declare module 'modepress' {
+    interface IBaseControler {
+        /**
+         * The root path of the controller's endpoint.
+         * eg: "/api"
+         */
+        rootPath?: string;
+    }
+}
+declare module 'modepress' {
+    interface IFileOptions extends IBaseControler {
+        /**
+         * The length of time the assets should be cached on a user's browser.
+         * eg:  2592000000 or 30 days
+         */
+        cacheLifetime: number;
+    }
+}
+declare module 'modepress' {
+    interface IRenderOptions extends IBaseControler {
+        /**
+         * The length of time the assets should be cached on a user's browser.
+         * eg:  2592000000 or 30 days
+         */
+        cacheLifetime: number;
     }
 }
 declare module 'modepress' {
@@ -1099,14 +1112,13 @@ declare module "models/model" {
     }
 }
 declare module "controllers/controller" {
-    import { IControllerOptions } from 'modepress';
     import { Model } from "models/model";
     import * as mongodb from 'mongodb';
     import * as express from 'express';
     export class Controller {
         private static _models;
         private _models;
-        constructor(models: Array<Model> | null, options?: IControllerOptions);
+        constructor(models: Array<Model> | null);
         /**
          * Called to initialize this controller and its related database objects
          */
@@ -2475,6 +2487,588 @@ declare module "utils/permission-controllers" {
      */
     export function requestHasPermission(level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string): Promise<boolean>;
 }
+declare module "models/users-model" {
+    import { Model } from "models/model";
+    /**
+     * A model for describing comments
+     */
+    export class UsersModel extends Model {
+        constructor();
+    }
+}
+declare module "controllers/admin-controller" {
+    import express = require('express');
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    import * as mongodb from 'mongodb';
+    /**
+     * Main class to use for managing users
+     */
+    export class AdminController extends Controller {
+        private _options;
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Attempts to send the webmaster an email message
+         */
+        private messageWebmaster(req, res);
+    }
+}
+declare module "models/bucket-model" {
+    import { Model } from "models/model";
+    /**
+     * A model for describing comments
+     */
+    export class BucketModel extends Model {
+        constructor();
+    }
+}
+declare module "controllers/bucket-controller" {
+    import express = require('express');
+    import * as mongodb from 'mongodb';
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    /**
+     * Main class to use for managing users
+     */
+    export class BucketController extends Controller {
+        private _allowedFileTypes;
+        private _options;
+        /**
+         * Creates an instance of the user manager
+         */
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Removes buckets specified in the URL
+         */
+        private removeBuckets(req, res);
+        /**
+         * Fetches all bucket entries from the database
+         */
+        private getBuckets(req, res);
+        private alphaNumericDashSpace(str);
+        /**
+         * Creates a new user bucket based on the target provided
+         */
+        private createBucket(req, res);
+        /**
+         * Checks if a part is allowed to be uploaded
+         * @returns {boolean}
+         */
+        private isPartAllowed(part);
+        /**
+         * Checks if a file part is allowed to be uploaded
+         * @returns {boolean}
+         */
+        private isFileTypeAllowed(part);
+        private uploadMetaPart(part);
+        /**
+         * Attempts to upload a file to the user's bucket
+         */
+        private uploadUserFiles(req, res);
+        /**
+         * After the uploads have been uploaded, we set any meta on the files and send file uploaded events
+         * @param meta The optional meta to associate with the uploaded files. The meta can be either a valid JSON or an error. If its
+         * an error, then that means the meta could not be parsed
+         * @param files The uploaded files
+         * @param user The user who uploaded the files
+         * @param tokens The upload tokens to be sent back to the client
+         */
+        private finalizeUploads(meta, files, user, tokens);
+    }
+}
+declare module "models/comments-model" {
+    import { Model } from "models/model";
+    /**
+     * A model for describing comments
+     */
+    export class CommentsModel extends Model {
+        constructor();
+    }
+}
+declare module "controllers/comments-controller" {
+    import * as mongodb from 'mongodb';
+    import * as express from 'express';
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    /**
+     * A controller that deals with the management of comments
+     */
+    export class CommentsController extends Controller {
+        private _options;
+        /**
+         * Creates a new instance of the controller
+         */
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Returns an array of IComment items
+         */
+        private getComments(req, res);
+        /**
+         * Returns a single comment
+         */
+        private getComment(req, res);
+        /**
+         * Attempts to remove a comment by ID
+         */
+        private remove(req, res);
+        /**
+         * Attempts to update a comment by ID
+         */
+        private update(req, res);
+        /**
+         * Attempts to create a new comment
+         */
+        private create(req, res);
+    }
+}
+declare module "controllers/cors-controller" {
+    import { Controller } from "controllers/controller";
+    import * as express from 'express';
+    import * as mongodb from 'mongodb';
+    import { IBaseControler } from 'modepress';
+    /**
+     * Checks all incomming requests to see if they are CORS approved
+     */
+    export class CORSController extends Controller {
+        private _approvedDomains;
+        private _options;
+        /**
+         * Creates an instance of the user manager
+         */
+        constructor(approvedDomains: string[], options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+    }
+}
+declare module "controllers/emails-controller" {
+    import * as express from 'express';
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    import * as mongodb from 'mongodb';
+    export class EmailsController extends Controller {
+        private _options;
+        /**
+         * Creates a new instance of the email controller
+         */
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Called whenever a post request is caught by this controller
+         */
+        protected onPost(req: express.Request, res: express.Response): any;
+    }
+}
+declare module "controllers/error-controller" {
+    import { Controller } from "controllers/controller";
+    import express = require('express');
+    import * as mongodb from 'mongodb';
+    /**
+     * Handles express errors
+     */
+    export class ErrorController extends Controller {
+        /**
+         * Creates an instance
+         */
+        constructor();
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+    }
+}
+declare module "controllers/file-controller" {
+    import express = require('express');
+    import { Controller } from "controllers/controller";
+    import { IFileOptions } from 'modepress';
+    import * as mongodb from 'mongodb';
+    /**
+     * Main class to use for managing users
+     */
+    export class FileController extends Controller {
+        private _allowedFileTypes;
+        private _cacheLifetime;
+        private _options;
+        /**
+         * Creates an instance of the user manager
+         */
+        constructor(options: IFileOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Removes files specified in the URL
+         */
+        private removeFiles(req, res);
+        /**
+         * Renames a file
+         */
+        private renameFile(req, res);
+        /**
+         * Attempts to download a file from the server
+         */
+        private getFile(req, res);
+        /**
+         * Attempts to make a file public
+         */
+        private makePublic(req, res);
+        /**
+         * Attempts to make a file private
+         */
+        private makePrivate(req, res);
+        /**
+         * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
+         */
+        private getFiles(req, res);
+    }
+}
+declare module "models/renders-model" {
+    import { Model } from "models/model";
+    /**
+     * Describes a model for page renders that can be served to bots or crawlers
+     */
+    export class RendersModel extends Model {
+        constructor();
+    }
+}
+declare module "controllers/page-renderer" {
+    import * as mongodb from 'mongodb';
+    import * as express from 'express';
+    import { Controller } from "controllers/controller";
+    import { IRenderOptions } from 'modepress';
+    /**
+     * Sets up a prerender server and saves the rendered html requests to mongodb.
+     * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
+     */
+    export class PageRenderer extends Controller {
+        private renderQueryFlag;
+        private expiration;
+        private _options;
+        private static crawlerUserAgents;
+        private static extensionsToIgnore;
+        /**
+         * Creates a new instance of the email controller
+         */
+        constructor(options: IRenderOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Strips the html page of any script tags
+         */
+        private stripScripts(html);
+        /**
+         * Gets the URL of a request
+         */
+        getUrl(req: express.Request): string;
+        /**
+         * Fetches a page and strips it of all its script tags
+         */
+        private renderPage(url);
+        /**
+         * Determines if the request comes from a bot. If so, a prerendered page is sent back which excludes any script tags
+         */
+        processBotRequest(req: express.Request, res: express.Response, next: Function): Promise<any>;
+        /**
+         * Determines if the request comes from a bot
+         */
+        private shouldShowPrerenderedPage(req);
+        /**
+         * Attempts to find a render by ID and then display it back to the user
+         */
+        private previewRender(req, res);
+        /**
+         * Attempts to remove a render by ID
+         */
+        private removeRender(req, res);
+        /**
+         * Returns an array of IPost items
+         */
+        private getRenders(req, res);
+        /**
+         * Removes all cache items from the db
+         */
+        private clearRenders(req, res);
+    }
+}
+declare module "models/posts-model" {
+    import { Model } from "models/model";
+    /**
+     * A model for describing posts
+     */
+    export class PostsModel extends Model {
+        constructor();
+    }
+}
+declare module "models/categories-model" {
+    import { Model } from "models/model";
+    /**
+     * A model for describing post categories
+     */
+    export class CategoriesModel extends Model {
+        constructor();
+    }
+}
+declare module "controllers/posts-controller" {
+    import * as mongodb from 'mongodb';
+    import * as express from 'express';
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    /**
+     * A controller that deals with the management of posts
+     */
+    export class PostsController extends Controller {
+        private _options;
+        /**
+         * Creates a new instance of the controller
+         */
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Returns an array of IPost items
+         */
+        private getPosts(req, res);
+        /**
+         * Returns a single post
+         */
+        private getPost(req, res);
+        /**
+         * Returns an array of ICategory items
+         */
+        private getCategories(req, res);
+        /**
+         * Attempts to remove a post by ID
+         */
+        private removePost(req, res);
+        /**
+         * Attempts to remove a category by ID
+         */
+        private removeCategory(req, res);
+        /**
+         * Attempts to update a post by ID
+         */
+        private updatePost(req, res);
+        /**
+         * Attempts to create a new post
+         */
+        private createPost(req, res);
+        /**
+         * Attempts to create a new category item
+         */
+        private createCategory(req, res);
+    }
+}
+declare module "controllers/session-controller" {
+    import express = require('express');
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    import * as mongodb from 'mongodb';
+    /**
+     * Main class to use for managing users
+     */
+    export class SessionController extends Controller {
+        private _options;
+        /**
+         * Creates an instance of the user manager
+         */
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Gets a list of active sessions. You can limit the haul by specifying the 'index' and 'limit' query parameters.
+         */
+        private getSessions(req, res);
+        /**
+         * Resends the activation link to the user
+         */
+        private deleteSession(req, res);
+    }
+}
+declare module "controllers/stats-controller" {
+    import express = require('express');
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    import * as mongodb from 'mongodb';
+    /**
+     * Main class to use for managing users
+     */
+    export class StatsController extends Controller {
+        private _allowedFileTypes;
+        private _options;
+        /**
+         * Creates an instance of the user manager
+         * @param e The express app
+         * @param The config options of this manager
+         */
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Makes sure the target user exists and the numeric value specified is valid
+         */
+        private verifyTargetValue(req, res, next);
+        /**
+         * Updates the target user's api calls
+         */
+        private updateCalls(req, res);
+        /**
+         * Updates the target user's memory usage
+         */
+        private updateMemory(req, res);
+        /**
+         * Updates the target user's allocated api calls
+         */
+        private updateAllocatedCalls(req, res);
+        /**
+         * Updates the target user's allocated memory
+         */
+        private updateAllocatedMemory(req, res);
+        /**
+         * Fetches the statistic information for the specified user
+         */
+        private getStats(req, res);
+        /**
+         * Creates a new user stat entry. This is usually done for you when creating a new user
+         */
+        private createStats(req, res);
+    }
+}
+declare module "controllers/user-controller" {
+    import express = require('express');
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    import * as mongodb from 'mongodb';
+    /**
+     * Main class to use for managing user data
+     */
+    export class UserController extends Controller {
+        private _options;
+        /**
+         * Creates an instance of the user manager
+         */
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
+         * is specified. Specify the verbose=true parameter in order to get all user data.
+         */
+        private getUser(req, res);
+        /**
+         * Gets a list of users. You can limit the haul by specifying the 'index' and 'limit' query parameters.
+         * Also specify the verbose=true parameter in order to get all user data. You can also filter usernames with the
+         * search query
+         */
+        private getUsers(req, res);
+        /**
+         * Sets a user's meta data
+         */
+        private setData(req, res);
+        /**
+         * Sets a user's meta value
+         */
+        private setVal(req, res);
+        /**
+         * Gets a user's meta value
+         */
+        private getVal(req, res);
+        /**
+         * Gets a user's meta data
+         */
+        private getData(req, res);
+        /**
+         * Removes a user from the database
+         */
+        private removeUser(req, res);
+        /**
+         * Allows an admin to create a new user without registration
+         */
+        private createUser(req, res);
+    }
+}
+declare module "controllers/auth-controller" {
+    import express = require('express');
+    import { Controller } from "controllers/controller";
+    import { IAuthOptions } from 'modepress';
+    import * as mongodb from 'mongodb';
+    /**
+     * Main class to use for managing user authentication
+     */
+    export class AuthController extends Controller {
+        private _options;
+        /**
+         * Creates an instance of the user manager
+         */
+        constructor(options: IAuthOptions);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Activates the user's account
+         */
+        private activateAccount(req, res);
+        /**
+         * Resends the activation link to the user
+         */
+        private resendActivation(req, res);
+        /**
+         * Resends the activation link to the user
+         */
+        private requestPasswordReset(req, res);
+        /**
+         * resets the password if the user has a valid password token
+         */
+        private passwordReset(req, res);
+        /**
+         * Approves a user's activation code so they can login without email validation
+         */
+        private approveActivation(req, res);
+        /**
+         * Attempts to log the user in. Expects the username, password and rememberMe parameters be set.
+         */
+        private login(req, res);
+        /**
+         * Attempts to log the user out
+         */
+        private logout(req, res);
+        /**
+         * Attempts to register a new user
+         */
+        private register(req, res);
+        /**
+         * Checks to see if the current session is logged in. If the user is, it will be returned redacted. You can specify the 'verbose' query parameter
+         */
+        private authenticated(req, res);
+    }
+}
 declare module "modepress-api" {
     import * as _Controller from "controllers/controller";
     import * as users from "core/users";
@@ -2483,6 +3077,19 @@ declare module "modepress-api" {
     import * as _SchemaFactory from "models/schema-items/schema-item-factory";
     import { isValidObjectID } from "utils/utils";
     import * as permissions from "utils/permission-controllers";
+    import { AdminController } from "controllers/admin-controller";
+    import { BucketController } from "controllers/bucket-controller";
+    import { CommentsController } from "controllers/comments-controller";
+    import { CORSController } from "controllers/cors-controller";
+    import { EmailsController } from "controllers/emails-controller";
+    import { ErrorController } from "controllers/error-controller";
+    import { FileController } from "controllers/file-controller";
+    import { PageRenderer } from "controllers/page-renderer";
+    import { PostsController } from "controllers/posts-controller";
+    import { SessionController } from "controllers/session-controller";
+    import { StatsController } from "controllers/stats-controller";
+    import { UserController } from "controllers/user-controller";
+    import { AuthController } from "controllers/auth-controller";
     export const Controller: typeof _Controller.Controller;
     export const Model: typeof _Models.Model;
     export const SchemaFactory: typeof _SchemaFactory;
@@ -2490,4 +3097,19 @@ declare module "modepress-api" {
     export const BucketManager: typeof bucketManager.BucketManager;
     export const isValidID: typeof isValidObjectID;
     export const authentication: typeof permissions;
+    export const controllers: {
+        admin: typeof AdminController;
+        auth: typeof AuthController;
+        posts: typeof PostsController;
+        comments: typeof CommentsController;
+        cors: typeof CORSController;
+        email: typeof EmailsController;
+        error: typeof ErrorController;
+        file: typeof FileController;
+        bucket: typeof BucketController;
+        renderer: typeof PageRenderer;
+        session: typeof SessionController;
+        stats: typeof StatsController;
+        user: typeof UserController;
+    };
 }
