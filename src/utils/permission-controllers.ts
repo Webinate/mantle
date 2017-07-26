@@ -42,7 +42,7 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
     const targetUser: string = req.params.user;
 
     try {
-        const user = await UserManager.get.loggedIn( <express.Request><Express.Request>req, res );
+        const user = await UserManager.get.loggedIn( req, res );
 
         if ( !user )
             throw new Error( 'You must be logged in to make this request' );
@@ -98,7 +98,7 @@ export function ownerRights( req: IAuthReq, res: express.Response, next?: Functi
  * Checks if the request has admin rights. If not, an error is sent back to the user
  */
 export function adminRights( req: IAuthReq, res: express.Response, next?: Function ): any {
-    UserManager.get.loggedIn( <express.Request><Express.Request>req, res ).then( function( user ) {
+    UserManager.get.loggedIn( req, res ).then( function( user ) {
         if ( !user )
             return errJson( new Error( 'You must be logged in to make this request' ), res );
 
@@ -130,7 +130,7 @@ export function checkVerbosity( req: IAuthReq, res: express.Response, next?: Fun
  * Checks for session data and fetches the user. Does not throw an error if the user is not present.
  */
 export function identifyUser( req: IAuthReq, res: express.Response, next?: Function ): any {
-    UserManager.get.loggedIn( <express.Request><Express.Request>req, res ).then( function( user ) {
+    UserManager.get.loggedIn( req, res ).then( function( user ) {
         if ( user ) {
             req._user = user.dbEntry;
             req._isAdmin = ( user.dbEntry.privileges! > UserPrivileges.Admin ? true : false );
@@ -149,7 +149,7 @@ export function identifyUser( req: IAuthReq, res: express.Response, next?: Funct
  * Checks for session data and fetches the user. Sends back an error if no user present
  */
 export function requireUser( req: IAuthReq, res: express.Response, next?: Function ): any {
-    UserManager.get.loggedIn( <express.Request><Express.Request>req, res ).then( function( user ) {
+    UserManager.get.loggedIn( req, res ).then( function( user ) {
         if ( !user )
             return errJson( new Error( `You must be logged in to make this request` ), res );
 
@@ -172,7 +172,7 @@ export function requireUser( req: IAuthReq, res: express.Response, next?: Functi
  * @param next
  */
 export async function requestHasPermission( level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string ): Promise<boolean> {
-    const user = await UserManager.get.loggedIn( <express.Request><Express.Request>req, res );
+    const user = await UserManager.get.loggedIn( req, res );
 
     if ( !user )
         throw new Error( 'You must be logged in to make this request' );

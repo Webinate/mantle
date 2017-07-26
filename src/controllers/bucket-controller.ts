@@ -356,7 +356,7 @@ export class BucketController extends Controller {
             }
 
             // Parse req
-            form.parse( <express.Request><Express.Request>req );
+            form.parse( req );
 
         } ).catch( function( err ) {
             return okJson<IUploadResponse>( { message: 'Could not get bucket: ' + err.toString(), error: true, tokens: [] }, res );

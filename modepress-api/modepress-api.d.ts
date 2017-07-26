@@ -598,19 +598,22 @@ declare module 'modepress' {
         meta?: any;
     }
 }
-declare module 'modepress' {
-    /**
-     * An interface used to describe requests that have been authenticated by a session id
-     */
-    interface IAuthReq extends Express.Request {
-        _isAdmin: boolean;
-        _verbose: boolean;
-        _user: IUserEntry | null;
-        _target: IUserEntry | null;
-        body: any;
-        headers: any;
-        params: any;
-        query: any;
+declare module "types/tokens/i-auth-request" {
+    import { Request } from 'express';
+    module 'modepress' {
+        /**
+         * An interface used to describe requests that have been authenticated by a session id
+         */
+        interface IAuthReq extends Request {
+            _isAdmin: boolean;
+            _verbose: boolean;
+            _user: IUserEntry | null;
+            _target: IUserEntry | null;
+            body: any;
+            headers: any;
+            params: any;
+            query: any;
+        }
     }
 }
 declare module 'modepress' {

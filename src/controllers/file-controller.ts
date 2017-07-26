@@ -128,7 +128,7 @@ export class FileController extends Controller {
             if ( cache )
                 res.setHeader( 'Cache-Control', 'public, max-age=' + cache );
 
-            manager.downloadFile( <express.Request><Express.Request>req, res, file );
+            manager.downloadFile( req, res, file );
             manager.incrementAPI( file.user! );
 
         } catch ( err ) {
