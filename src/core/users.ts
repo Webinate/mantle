@@ -9,7 +9,8 @@ import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
-import { SessionManager, Session } from './session';
+import { Session } from './session';
+import { SessionManager } from './session-manager';
 import { BucketManager } from './bucket-manager';
 import { GMailer } from '../mailers/gmail'
 import { Mailguner } from '../mailers/mailgun'
@@ -129,10 +130,10 @@ export class UserManager {
 
         // Create the session manager
         this.sessionManager = new SessionManager( sessionCollection, {
-            domain: config.sessionSettings.sessionDomain,
-            lifetime: config.sessionSettings.sessionLifetime,
-            path: config.sessionSettings.sessionPath,
-            persistent: config.sessionSettings.sessionPersistent,
+            domain: config.sessionSettings.domain,
+            lifetime: config.sessionSettings.lifetime,
+            path: config.sessionSettings.path,
+            persistent: config.sessionSettings.persistent,
             secure: config.sessionSettings.secure
         } );
 
@@ -663,7 +664,7 @@ export class UserManager {
         if ( result.matchedCount === 0 )
             throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
-        const session: Session = await this.sessionManager.createSession( !rememberMe, request, response );
+        const session: Session = await this.sessionManager.createSession( request, response );
         result = await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { sessionId: session.sessionId } } );
 
         if ( result.matchedCount === 0 )
@@ -784,7 +785,14 @@ export class UserManager {
      * @param searchPhrases Search phrases
 	 */
     async getUsers( startIndex: number = 0, limit: number = 0, searchPhrases?: RegExp ): Promise<Array<User>> {
-        const findToken = { $or: [ <IUserEntry>{ username: <any>searchPhrases }, <IUserEntry>{ email: <any>searchPhrases }] };
+        const findToken: { $or?: Partial<IUserEntry>[] } = {};
+
+        if ( searchPhrases ) {
+            findToken.$or = [];
+            findToken.$or.push( { username: <any>searchPhrases } );
+            findToken.$or.push( { email: <any>searchPhrases } );
+        }
+
         const results: Array<IUserEntry> = await this._userCollection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
         const users: Array<User> = [];
         for ( let i = 0, l = results.length; i < l; i++ )

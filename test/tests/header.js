@@ -183,17 +183,17 @@ function post( url, json, host ) {
 async function createUser( username, password, email, priviledge = 3 ) {
 
     // Remove the user if they already exist
-    let response = await exports.users.admin.delete( `/users/${username}` );
+    let response = await exports.users.admin.delete( `/api/users/${username}` );
 
     // Now create the user using the admin account
-    response = await exports.users.admin.post( `/users`, { username: username, password: password, email: email, privileges: priviledge } );
+    response = await exports.users.admin.post( `/api/users`, { username: username, password: password, email: email, privileges: priviledge } );
 
     if ( response.body.error )
         throw new Error( response.body.message );
 
     // User created, but not logged in
     const newAgent = new Agent( null, username, password, email );
-    response = await newAgent.post( `/auth/login`, { username: username, password: password } );
+    response = await newAgent.post( `/api/auth/login`, { username: username, password: password } );
 
     if ( response.body.error )
         throw new Error( response.body.message );
@@ -210,7 +210,7 @@ async function createUser( username, password, email, priviledge = 3 ) {
 async function removeUser( username ) {
 
     // Remove the user if they already exist
-    let response = await exports.users.admin.delete( `/users/${username}` );
+    let response = await exports.users.admin.delete( `/api/users/${username}` );
 
     if ( response.body.error )
         throw new Error( response.body.message );
@@ -222,15 +222,15 @@ async function removeUser( username ) {
 async function initialize() {
     try {
         const config = JSON.parse( fs.readFileSync( args.config ) );
-        const serverConfig = config.servers[ parseInt( args.server ) ];
+        // const serverConfig = config.servers[ parseInt( args.server ) ];
         const host = "http://localhost:8000";
-        const resp = await post( '/auth/login', { username: config.adminUser.username, password: config.adminUser.password }, host );
+        const resp = await post( '/api/auth/login', { username: config.adminUser.username, password: config.adminUser.password }, host );
         const adminCookie = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];;
 
 
         // Set the functions we want to expose
         exports.config = config;
-        exports.serverConfig = serverConfig;
+        // exports.serverConfig = serverConfig;
         exports.createUser = createUser;
         exports.removeUser = removeUser;
         exports.createAgent = createAgent;

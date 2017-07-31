@@ -93,46 +93,10 @@ declare module 'modepress' {
             sessionCollection: string;
         }
 
-        sessionSettings: {
-            /*
-            * If set, the session will be restricted to URLs underneath the given path.
-            * By default the path is '/', which means that the same sessions will be shared across the entire domain.
-            * e.g: '/'
-            */
-            sessionPath?: string;
-
-            /**
-             * If present, the cookie (and hence the session) will apply to the given domain, including any subdomains.
-             * For example, on a request from foo.example.org, if the domain is set to '.example.org', then this session will persist across any subdomain of example.org.
-             * By default, the domain is not set, and the session will only be visible to other requests that exactly match the domain.
-             * Default is blank ''
-             */
-            sessionDomain?: string;
-
-            /**
-             * A persistent connection is one that will last after the user closes the window and visits the site again (true).
-             * A non-persistent that will forget the user once the window is closed (false)
-             * e.g: true/false. Default is true
-             */
-            sessionPersistent?: boolean;
-
-            /**
-             * The default length of user sessions in seconds
-             * e.g 1800
-             */
-            sessionLifetime?: number;
-
-            /**
-             * The longer period length of user sessions in seconds (Typically when a user clicks a 'remember me' type of button)
-             * e.g (60 * 60 * 24 * 2) = 2 days
-             */
-            sessionLifetimeExtended?: number;
-
-            /**
-             * Should the session be secure
-             */
-            secure: boolean;
-        }
+        /**
+         * Describes the session settings
+         */
+        sessionSettings: ISession;
 
         /**
          * The administrative user. This is the root user that will have access to the information in the database.

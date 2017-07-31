@@ -63,7 +63,7 @@ export async function discoverClients( config: IConfig ) {
     if ( !fs.existsSync( config.clientsFolder ) )
         throw new Error( 'Cannot resolve clientsFolder property. Make sure the folder exists and is accessible' );
 
-    const directories = fs.readdirSync( config.clientsFolder );
+    const directories = fs.readdirSync( config.clientsFolder, { encoding: 'utf8' } );
     const clientDefinitions: ( IClient & { path: string } )[] = [];
     for ( const dir of directories ) {
         let localDir = ( config.clientsFolder + dir ).replace( /\/\//, '/' );

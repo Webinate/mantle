@@ -28,8 +28,11 @@ export class Server {
      */
     parseClient( client: IClient & { path: string; } ) {
         if ( !client.controllers ) {
-            error( `Client '${client.name}' does not have any controllers defined` );
-            process.exit();
+            error( `Client '${client.name}' does not have any controllers defined` ).then(() => {
+                process.exit();
+            } );
+
+            return;
         }
 
         for ( const ctrl of client.controllers ) {
@@ -38,8 +41,9 @@ export class Server {
                 this._controllers.push( new constructor( client ) );
             }
             catch ( err ) {
-                error( `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${err.stack ? err.stack : ''}` );
-                process.exit();
+                error( `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${err.stack ? err.stack : ''}` ).then(() => {
+                    process.exit();
+                } );
             }
         }
     }
@@ -61,7 +65,7 @@ export class Server {
             for ( let i = 0, l: number = server.staticAssets.length; i < l; i++ ) {
                 let localStaticFolder = `${this._path}/${server.staticAssets[ i ]}`;
                 if ( !fs.existsSync( localStaticFolder ) ) {
-                    error( `Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'` );
+                    await error( `Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'` );
                     process.exit();
                 }
 
@@ -87,22 +91,22 @@ export class Server {
         // If we use SSL then start listening for that as well
         if ( server.ssl ) {
             if ( server.ssl.intermediate !== '' && !fs.existsSync( server.ssl.intermediate ) ) {
-                error( `Could not find ssl.intermediate: '${server.ssl.intermediate}'` );
+                await error( `Could not find ssl.intermediate: '${server.ssl.intermediate}'` );
                 process.exit();
             }
 
             if ( server.ssl.cert !== '' && !fs.existsSync( server.ssl.cert ) ) {
-                error( `Could not find ssl.cert: '${server.ssl.cert}'` );
+                await error( `Could not find ssl.cert: '${server.ssl.cert}'` );
                 process.exit();
             }
 
             if ( server.ssl.root !== '' && !fs.existsSync( server.ssl.root ) ) {
-                error( `Could not find ssl.root: '${server.ssl.root}'` );
+                await error( `Could not find ssl.root: '${server.ssl.root}'` );
                 process.exit();
             }
 
             if ( server.ssl.key !== '' && !fs.existsSync( server.ssl.key ) ) {
-                error( `Could not find ssl.key: '${server.ssl.key}'` );
+                await error( `Could not find ssl.key: '${server.ssl.key}'` );
                 process.exit();
             }
 

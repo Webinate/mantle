@@ -11,7 +11,7 @@ describe( 'Getting and setting user meta data', function() {
     } )
 
     it( 'admin did set user meta data object', function( done ) {
-        admin.post( `/users/${config.adminUser.username}/meta`, { value: { sister: "sam", brother: "mat" } } )
+        admin.post( `/api/${config.adminUser.username}/meta`, { value: { sister: "sam", brother: "mat" } } )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -21,7 +21,7 @@ describe( 'Getting and setting user meta data', function() {
     } )
 
     it( 'admin did get user meta value "sister"', function( done ) {
-        admin.get( `/users/${config.adminUser.username}/meta/sister` )
+        admin.get( `/api/users/${config.adminUser.username}/meta/sister` )
             .then( res => {
                 test.string( res.body ).is( "sam" )
                 done();
@@ -29,7 +29,7 @@ describe( 'Getting and setting user meta data', function() {
     } )
 
     it( 'admin did get user meta value "brother"', function( done ) {
-        admin.get( `/users/${config.adminUser.username}/meta/brother` )
+        admin.get( `/api/users/${config.adminUser.username}/meta/brother` )
             .then( res => {
                 test.string( res.body ).is( "mat" )
                 done();
@@ -37,7 +37,7 @@ describe( 'Getting and setting user meta data', function() {
     } )
 
     it( 'admin did update user meta "brother" to john', function( done ) {
-        admin.post( `/users/${config.adminUser.username}/meta/brother`, { value: "john" } )
+        admin.post( `/api/users/${config.adminUser.username}/meta/brother`, { value: "john" } )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -47,7 +47,7 @@ describe( 'Getting and setting user meta data', function() {
     } )
 
     it( 'admin did get user meta "brother" and its john', function( done ) {
-        admin.get( `/users/${config.adminUser.username}/meta/brother` )
+        admin.get( `/api/users/${config.adminUser.username}/meta/brother` )
             .then( res => {
                 test.string( res.body ).is( "john" )
                 done();
@@ -55,7 +55,7 @@ describe( 'Getting and setting user meta data', function() {
     } )
 
     it( 'admin did set clear meta data', function( done ) {
-        admin.post( `/users/${config.adminUser.username}/meta`, {} )
+        admin.post( `/api/users/${config.adminUser.username}/meta`, {} )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )

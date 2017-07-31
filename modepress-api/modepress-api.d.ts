@@ -127,36 +127,10 @@ declare module 'modepress' {
              */
             sessionCollection: string;
         };
-        sessionSettings: {
-            sessionPath?: string;
-            /**
-             * If present, the cookie (and hence the session) will apply to the given domain, including any subdomains.
-             * For example, on a request from foo.example.org, if the domain is set to '.example.org', then this session will persist across any subdomain of example.org.
-             * By default, the domain is not set, and the session will only be visible to other requests that exactly match the domain.
-             * Default is blank ''
-             */
-            sessionDomain?: string;
-            /**
-             * A persistent connection is one that will last after the user closes the window and visits the site again (true).
-             * A non-persistent that will forget the user once the window is closed (false)
-             * e.g: true/false. Default is true
-             */
-            sessionPersistent?: boolean;
-            /**
-             * The default length of user sessions in seconds
-             * e.g 1800
-             */
-            sessionLifetime?: number;
-            /**
-             * The longer period length of user sessions in seconds (Typically when a user clicks a 'remember me' type of button)
-             * e.g (60 * 60 * 24 * 2) = 2 days
-             */
-            sessionLifetimeExtended?: number;
-            /**
-             * Should the session be secure
-             */
-            secure: boolean;
-        };
+        /**
+         * Describes the session settings
+         */
+        sessionSettings: ISession;
         /**
          * The administrative user. This is the root user that will have access to the information in the database.
          * This can be anything you like, but try to use passwords that are hard to guess
@@ -281,6 +255,32 @@ declare module 'modepress' {
         variables: {
             [name: string]: string;
         };
+    }
+}
+declare module 'modepress' {
+    interface ISession {
+        path: string;
+        /**
+         * If present, the cookie (and hence the session) will apply to the given domain, including any subdomains.
+         * For example, on a request from foo.example.org, if the domain is set to '.example.org', then this session will persist across any subdomain of example.org.
+         * By default, the domain is not set, and the session will only be visible to other requests that exactly match the domain.
+         */
+        domain: string;
+        /**
+         * A persistent connection is one that will last after the user closes the window and visits the site again (true).
+         * A non-persistent that will forget the user once the window is closed (false)
+         */
+        persistent: boolean;
+        /**
+         * If true, the cookie will be encrypted
+         */
+        secure: boolean;
+        /**
+         * If you wish to create a persistent session (one that will last after the user closes the window and visits the site again) you must specify a lifetime as a number of seconds.
+         * The lifetime controls both when the browser's cookie will expire, and when the session object will be freed by the sessions module.
+         * By default, the browser cookie will expire when the window is closed, and the session object will be freed 24 hours after the last request is seen.
+         */
+        lifetime: number;
     }
 }
 declare module 'modepress' {
@@ -566,9 +566,9 @@ declare module 'modepress' {
 declare module 'modepress' {
     interface ISessionEntry {
         _id?: any;
-        sessionId?: string;
-        data?: any;
-        expiration?: number;
+        sessionId: string;
+        data: any;
+        expiration: number;
     }
 }
 declare module 'modepress' {
@@ -1326,38 +1326,62 @@ declare module "socket-api/comms-controller" {
     }
 }
 declare module "core/session" {
-    import { ISessionEntry } from 'modepress';
-    import * as http from 'http';
-    import * as mongodb from 'mongodb';
-    import { EventEmitter } from 'events';
-    export interface ISessionOptions {
-        path?: string;
+    import { ISessionEntry, ISession } from 'modepress';
+    import { ServerRequest } from 'http';
+    import { ObjectID } from 'mongodb';
+    /**
+     * A class to represent session data
+     */
+    export class Session {
+        _id: ObjectID;
+        sessionId: string;
+        data: any;
         /**
-         * If present, the cookie (and hence the session) will apply to the given domain, including any subdomains.
-         * For example, on a request from foo.example.org, if the domain is set to '.example.org', then this session will persist across any subdomain of example.org.
-         * By default, the domain is not set, and the session will only be visible to other requests that exactly match the domain.
+         * The specific time when this session will expire
          */
-        domain?: string;
+        expiration: number;
         /**
-         * A persistent connection is one that will last after the user closes the window and visits the site again (true).
-         * A non-persistent that will forget the user once the window is closed (false)
+         * The options of this session system
          */
-        persistent?: boolean;
+        options: ISession;
         /**
-         * If true, the cookie will be encrypted
+         * Creates an instance of the session
+         * @param sessionId The ID of the session
+         * @param options The options associated with this session
+         * @param data The data of the session in the database
          */
-        secure?: boolean;
+        constructor(sessionId: string, options: ISession);
         /**
-         * If you wish to create a persistent session (one that will last after the user closes the window and visits the site again) you must specify a lifetime as a number of seconds.
-         * The lifetime controls both when the browser's cookie will expire, and when the session object will be freed by the sessions module.
-         * By default, the browser cookie will expire when the window is closed, and the session object will be freed 24 hours after the last request is seen.
+         * Fills in the data of this session from the data saved in the database
+         * @param data The data fetched from the database
          */
-        lifetime?: number;
+        deserialize(data: ISessionEntry): void;
         /**
-         * Same as lifetime, but the extended version.
+         * Creates an object that represents this session to be saved in the database
          */
-        lifetimeExtended?: number;
+        serialize(): ISessionEntry;
+        private getHost(request);
+        /**
+         * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
+         * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
+         */
+        getSetCookieHeaderValue(request: ServerRequest): any;
+        /**
+         * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
+         */
+        private dateCookieString(ms);
+        /**
+         * Pads a string with 0's
+         */
+        private pad(n);
     }
+}
+declare module "core/session-manager" {
+    import { EventEmitter } from 'events';
+    import { ISessionEntry, ISession } from 'modepress';
+    import { ServerRequest, ServerResponse } from 'http';
+    import { Collection } from 'mongodb';
+    import { Session } from "core/session";
     /**
     * A class that manages session data for active users
      */
@@ -1368,9 +1392,8 @@ declare module "core/session" {
         private _options;
         /**
          * Creates an instance of a session manager
-         * @param sessionCollection The mongoDB collection to use for saving sessions
          */
-        constructor(dbCollection: mongodb.Collection, options: ISessionOptions);
+        constructor(dbCollection: Collection, options: ISession);
         /**
          * Gets an array of all active sessions
          */
@@ -1387,20 +1410,18 @@ declare module "core/session" {
          * @param request
          * @param response
          */
-        clearSession(sessionId: string | null, request: http.ServerRequest, response: http.ServerResponse): Promise<boolean>;
+        clearSession(sessionId: string | null, request: ServerRequest, response: ServerResponse): Promise<boolean>;
         /**
          * Attempts to get a session from the request object of the client
          * @param request
          * @param response
          * @returns Returns a session or null if none can be found
          */
-        getSession(request: http.ServerRequest, response: http.ServerResponse | null): Promise<Session | null>;
+        getSession(request: ServerRequest, response: ServerResponse | null): Promise<Session | null>;
         /**
          * Attempts to create a session from the request object of the client
-         * @param shortTerm If true, we use the short term cookie. Otherwise the longer term one is used. (See session options)
-         * @param response
          */
-        createSession(shortTerm: boolean, request: http.ServerRequest, response: http.ServerResponse): Promise<Session>;
+        createSession(request: ServerRequest, response: ServerResponse): Promise<Session>;
         /**
          * Each time a session is created, a timer is started to check all sessions in the DB.
          * Once the lifetime of a session is up its then removed from the DB and we check for any remaining sessions.
@@ -1420,54 +1441,6 @@ declare module "core/session" {
          * @returns A user session ID
          */
         private createID();
-    }
-    /**
-     * A class to represent session data
-     */
-    export class Session {
-        _id: mongodb.ObjectID;
-        sessionId: string;
-        data: {
-            shortTerm: boolean;
-        };
-        /**
-         * The specific time when this session will expire
-         */
-        expiration: number;
-        /**
-         * The options of this session system
-         */
-        options: ISessionOptions;
-        /**
-         * Creates an instance of the session
-         * @param sessionId The ID of the session
-         * @param options The options associated with this session
-         * @param data The data of the session in the database
-         */
-        constructor(sessionId: string, options: ISessionOptions);
-        /**
-         * Fills in the data of this session from the data saved in the database
-         * @param data The data fetched from the database
-         */
-        open(data: ISessionEntry): void;
-        /**
-         * Creates an object that represents this session to be saved in the database
-         */
-        save(): ISessionEntry;
-        private getHost(request);
-        /**
-         * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
-         * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
-         */
-        getSetCookieHeaderValue(request: http.ServerRequest): any;
-        /**
-         * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
-         */
-        private dateCookieString(ms);
-        /**
-         * Pads a string with 0's
-         */
-        private pad(n);
     }
 }
 declare module "core/bucket-manager" {
@@ -1779,7 +1752,7 @@ declare module "core/users" {
     import * as mongodb from 'mongodb';
     import * as http from 'http';
     import * as express from 'express';
-    import { SessionManager } from "core/session";
+    import { SessionManager } from "core/session-manager";
     export enum UserPrivileges {
         SuperAdmin = 1,
         Admin = 2,

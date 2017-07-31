@@ -3,15 +3,15 @@ let guest, admin, config;
 
 describe( 'Checking basic authentication', function() {
 
-    before(function(){
+    before( function() {
         const header = require( '../header.js' );
         guest = header.users.guest;
         admin = header.users.admin;
         config = header.config;
-    })
+    } )
 
     it( 'guest should not be logged in', function( done ) {
-        guest.get( '/auth/authenticated' )
+        guest.get( '/api/auth/authenticated' )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.authenticated ).isNotTrue();
@@ -21,7 +21,7 @@ describe( 'Checking basic authentication', function() {
     } )
 
     it( 'admin should be logged in', function( done ) {
-        admin.get( '/auth/authenticated' )
+        admin.get( '/api/auth/authenticated' )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.authenticated ).isTrue();
@@ -41,7 +41,7 @@ describe( 'Checking basic authentication', function() {
     } )
 
     it( 'admin should be authenticated and pass verbose details', function( done ) {
-        admin.get( '/auth/authenticated?verbose=true' )
+        admin.get( '/api/auth/authenticated?verbose=true' )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.authenticated ).isTrue();

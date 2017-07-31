@@ -15,7 +15,7 @@ describe( 'Testing fetching users', function() {
     } )
 
     it( 'did get the number of users before the tests begin', function( done ) {
-        admin.get( `/users` )
+        admin.get( `/api/users` )
             .then( res => {
                 test.number( res.body.data.length )
                 numUsers = res.body.data.length;
@@ -24,7 +24,7 @@ describe( 'Testing fetching users', function() {
     } )
 
     it( 'did not allow a regular user to access the admin user details', function( done ) {
-        user1.get( `/users/${admin.username}?verbose=true` )
+        user1.get( `/api/users/${admin.username}?verbose=true` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -34,7 +34,7 @@ describe( 'Testing fetching users', function() {
     } )
 
     it( 'did not allow a regular user to access another user details', function( done ) {
-        user2.get( `/users/${admin.username}?verbose=true` )
+        user2.get( `/api/users/${admin.username}?verbose=true` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -44,7 +44,7 @@ describe( 'Testing fetching users', function() {
     } )
 
     it( 'did get regular users own data', function( done ) {
-        user1.get( `/users/${user1.username}?verbose=true` )
+        user1.get( `/api/users/${user1.username}?verbose=true` )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -63,7 +63,7 @@ describe( 'Testing fetching users', function() {
     } )
 
     it( 'did have the same number of users as before the tests started', function( done ) {
-        admin.get( `/users` )
+        admin.get( `/api/users` )
             .then( res => {
                 test.bool( res.body.data.length === numUsers ).isTrue();
                 done();

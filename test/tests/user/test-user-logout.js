@@ -15,14 +15,14 @@ describe( 'Testing users logout', function() {
     } )
 
     it( `did remove any existing user ${testUserName}`, function( done ) {
-        admin.delete( `/users/${testUserName}` )
+        admin.delete( `/api/users/${testUserName}` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( `did create & login regular user ${testUserName} with valid details`, function( done ) {
-        admin.post( `/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } )
+        admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } )
             .then( res => {
                 const header = require( '../header.js' );
                 return header.createUser( testUserName, 'password', testUserEmail );
@@ -33,7 +33,7 @@ describe( 'Testing users logout', function() {
     } )
 
     it( 'user should be logged in', function( done ) {
-        agent.get( '/auth/authenticated' )
+        agent.get( '/api/auth/authenticated' )
             .then( res => {
                 test.bool( res.body.error ).isFalse();
                 test.bool( res.body.authenticated ).isTrue();
@@ -42,7 +42,7 @@ describe( 'Testing users logout', function() {
     } )
 
     it( 'should log out', function( done ) {
-        agent.get( `/auth/logout` )
+        agent.get( `/api/auth/logout` )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 done();
@@ -50,7 +50,7 @@ describe( 'Testing users logout', function() {
     } )
 
     it( 'user should be logged out', function( done ) {
-        agent.get( '/auth/authenticated' )
+        agent.get( '/api/auth/authenticated' )
             .then( res => {
                 test.bool( res.body.error ).isFalse();
                 test.bool( res.body.authenticated ).isFalse();
@@ -59,7 +59,7 @@ describe( 'Testing users logout', function() {
     } )
 
     it( 'did allow the regular user to delete its own account', function( done ) {
-        admin.delete( `/users/${testUserName}` )
+        admin.delete( `/api/users/${testUserName}` )
             .then( res => {
                 test.string( res.body.message ).is( `User ${testUserName} has been removed` )
                 done();

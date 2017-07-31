@@ -4,8 +4,8 @@ declare module 'modepress' {
      */
     export interface ISessionEntry {
         _id?: any;
-        sessionId?: string;
-        data?: any;
-        expiration?: number;
+        sessionId: string;
+        data: any;
+        expiration: number;
     }
 }

@@ -16,11 +16,10 @@
         "sessionCollection": "sessions"
     },
     "sessionSettings": {
-        "sessionPath": "/",
-        "sessionDomain": ".webinate.dev",
-        "sessionPersistent": true,
-        "sessionLifetime": 1800,
-        "sessionLifetimeExtended": 172800,
+        "path": "/",
+        "domain": ".webinate.dev",
+        "persistent": true,
+        "lifetime": 1800,
         "secure": false
     },
     "websocket": {

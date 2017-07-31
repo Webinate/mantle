@@ -43,7 +43,7 @@
                 "--logging=false",
                 "--keyFile=./bucket-credentials.json",
                 "--runningTests=true",
-                "--clientsFolder=./"
+                "--clientsFolder=./test/"
             ],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
