@@ -14,6 +14,7 @@ import { ErrorController } from './controllers/error-controller';
 import { FileController } from './controllers/file-controller';
 import { PageRenderer } from './controllers/page-renderer';
 import { PostsController } from './controllers/posts-controller';
+import { CategoriesController } from './controllers/categories-controller';
 import { SessionController } from './controllers/session-controller';
 import { StatsController } from './controllers/stats-controller';
 import { UserController } from './controllers/user-controller';
@@ -33,6 +34,8 @@ export const controllers = {
     auth: AuthController,
     /** Endpoints for managing posts */
     posts: PostsController,
+    /** Endpoints for managing categories */
+    categories: CategoriesController,
     /** Endpoints for managing comments of posts */
     comments: CommentsController,
     /** Endpoints for managing cross origin allowances */

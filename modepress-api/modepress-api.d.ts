@@ -2830,17 +2830,9 @@ declare module "controllers/posts-controller" {
          */
         private getPost(req, res);
         /**
-         * Returns an array of ICategory items
-         */
-        private getCategories(req, res);
-        /**
          * Attempts to remove a post by ID
          */
         private removePost(req, res);
-        /**
-         * Attempts to remove a category by ID
-         */
-        private removeCategory(req, res);
         /**
          * Attempts to update a post by ID
          */
@@ -2849,6 +2841,34 @@ declare module "controllers/posts-controller" {
          * Attempts to create a new post
          */
         private createPost(req, res);
+    }
+}
+declare module "controllers/categories-controller" {
+    import * as mongodb from 'mongodb';
+    import * as express from 'express';
+    import { Controller } from "controllers/controller";
+    import { IBaseControler } from 'modepress';
+    /**
+     * A controller that deals with the management of categories
+     */
+    export class CategoriesController extends Controller {
+        private _options;
+        /**
+         * Creates a new instance of the controller
+         */
+        constructor(options: IBaseControler);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        /**
+         * Returns an array of ICategory items
+         */
+        private getCategories(req, res);
+        /**
+         * Attempts to remove a category by ID
+         */
+        private removeCategory(req, res);
         /**
          * Attempts to create a new category item
          */
@@ -3062,6 +3082,7 @@ declare module "modepress-api" {
     import { FileController } from "controllers/file-controller";
     import { PageRenderer } from "controllers/page-renderer";
     import { PostsController } from "controllers/posts-controller";
+    import { CategoriesController } from "controllers/categories-controller";
     import { SessionController } from "controllers/session-controller";
     import { StatsController } from "controllers/stats-controller";
     import { UserController } from "controllers/user-controller";
@@ -3077,6 +3098,7 @@ declare module "modepress-api" {
         admin: typeof AdminController;
         auth: typeof AuthController;
         posts: typeof PostsController;
+        categories: typeof CategoriesController;
         comments: typeof CommentsController;
         cors: typeof CORSController;
         email: typeof EmailsController;

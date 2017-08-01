@@ -1,4 +1,4 @@
-﻿import { IAuthReq, IPost, IUserEntry, ICategory, IGetCategory, IGetCategories, IGetPost, IGetPosts, IResponse } from 'modepress';
+﻿import { IAuthReq, IPost, IUserEntry, IGetPost, IGetPosts, IResponse } from 'modepress';
 
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
@@ -40,19 +40,15 @@ export class PostsController extends Controller {
         router.use( bodyParser.json() );
         router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-        router.get( '/posts', <any>[ identifyUser, checkVerbosity, this.getPosts.bind( this ) ] );
-        router.get( '/posts/slug/:slug', <any>[ identifyUser, checkVerbosity, this.getPost.bind( this ) ] );
-        router.get( '/posts/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
-        router.delete( '/posts/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removePost.bind( this ) ] );
-        router.put( '/posts/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.updatePost.bind( this ) ] );
-        router.post( '/posts', <any>[ adminRights, this.createPost.bind( this ) ] );
-
-        router.get( '/categories', this.getCategories.bind( this ) );
-        router.post( '/categories', <any>[ adminRights, this.createCategory.bind( this ) ] );
-        router.delete( '/categories/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removeCategory.bind( this ) ] );
+        router.get( '/', <any>[ identifyUser, checkVerbosity, this.getPosts.bind( this ) ] );
+        router.get( '/slug/:slug', <any>[ identifyUser, checkVerbosity, this.getPost.bind( this ) ] );
+        router.get( '/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
+        router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removePost.bind( this ) ] );
+        router.put( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.updatePost.bind( this ) ] );
+        router.post( '/', <any>[ adminRights, this.createPost.bind( this ) ] );
 
         // Register the path
-        e.use(( this._options.rootPath || '' ) + '/api', router );
+        e.use(( this._options.rootPath || '' ) + '/posts', router );
 
         await super.initialize( e, db );
         return this;
@@ -235,33 +231,6 @@ export class PostsController extends Controller {
     }
 
     /**
-     * Returns an array of ICategory items
-     */
-    private async getCategories( req: IAuthReq, res: express.Response ) {
-        const categories = this.getModel( 'categories' )!;
-
-        try {
-            const instances = await categories.findInstances<ICategory>( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
-
-            const jsons: Array<Promise<ICategory>> = [];
-            for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<ICategory>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
-
-            const sanitizedData = await Promise.all( jsons );
-
-            okJson<IGetCategories>( {
-                error: false,
-                count: sanitizedData.length,
-                message: `Found ${sanitizedData.length} categories`,
-                data: sanitizedData
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
-    }
-
-    /**
      * Attempts to remove a post by ID
      */
     private async removePost( req: IAuthReq, res: express.Response ) {
@@ -277,28 +246,6 @@ export class PostsController extends Controller {
             okJson<IResponse>( {
                 error: false,
                 message: 'Post has been successfully removed'
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
-    }
-
-    /**
-     * Attempts to remove a category by ID
-     */
-    private async removeCategory( req: IAuthReq, res: express.Response ) {
-        const categories = this.getModel( 'categories' )!;
-
-        try {
-            const numRemoved = await categories.deleteInstances( <ICategory>{ _id: new mongodb.ObjectID( req.params.id ) } );
-
-            if ( numRemoved === 0 )
-                return Promise.reject( new Error( 'Could not find a category with that ID' ) );
-
-            okJson<IResponse>( {
-                error: false,
-                message: 'Category has been successfully removed'
             }, res );
 
         } catch ( err ) {
@@ -349,28 +296,6 @@ export class PostsController extends Controller {
             okJson<IGetPost>( {
                 error: false,
                 message: 'New post created',
-                data: json
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
-    }
-
-    /**
-     * Attempts to create a new category item
-     */
-    private async createCategory( req: IAuthReq, res: express.Response ) {
-        const token: ICategory = req.body;
-        const categories = this.getModel( 'categories' )!;
-
-        try {
-            const instance = await categories.createInstance( token );
-            const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
-
-            okJson<IGetCategory>( {
-                error: false,
-                message: 'New category created',
                 data: json
             }, res );
 

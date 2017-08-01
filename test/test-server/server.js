@@ -29,11 +29,11 @@ class MainController extends modepress.Controller {
             } ).initialize( app, db ),
 
             new modepress.controllers.comments( {
-                rootPath: ''
+                rootPath: api
             } ).initialize( app, db ),
 
             new modepress.controllers.posts( {
-                rootPath: ''
+                rootPath: api
             } ).initialize( app, db ),
 
             new modepress.controllers.stats( {

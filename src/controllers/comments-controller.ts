@@ -46,7 +46,7 @@ export class CommentsController extends Controller {
         router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, checkVerbosity, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
 
         // Register the path
-        e.use(( this._options.rootPath || '' ) + '/api', router );
+        e.use(( this._options.rootPath || '' ) + '/', router );
 
         await super.initialize( e, db );
         return this;
