@@ -11,7 +11,7 @@ describe( 'Getting and setting user meta data', function() {
     } )
 
     it( 'admin did set user meta data object', function( done ) {
-        admin.post( `/api/${config.adminUser.username}/meta`, { value: { sister: "sam", brother: "mat" } } )
+        admin.post( `/api/users/${config.adminUser.username}/meta`, { value: { sister: "sam", brother: "mat" } } )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
