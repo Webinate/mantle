@@ -12,7 +12,7 @@ if ( args.server === undefined || isNaN( parseInt( args.server ) ) ) {
     process.exit();
 }
 
-const startup = require( '../dist/startup.js' );
+const startup = require( '../dist/core/initialization/startup.js' );
 const header = require( './tests/header.js' );
 
 // Start the first test to initialize everything
@@ -26,6 +26,8 @@ describe( 'Initializing tests', function() {
             return header.initialize();
         } ).then(() => {
             done();
+        } ).catch( e => {
+            console.error( e.toString() );
         } );
     } );
 

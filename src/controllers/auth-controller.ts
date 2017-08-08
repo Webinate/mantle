@@ -1,34 +1,45 @@
 ﻿'use strict';
 
+import { IResponse, IAuthenticationResponse, ILoginToken, IRegisterToken } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../users';
-import { ownerRights } from '../permission-controllers';
+import { UserManager } from '../core/users';
+import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { okJson, errJson } from '../serializers';
+import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
-import { error as logError } from '../logger';
+import { error as logError } from '../utils/logger';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
+import { IAuthOptions } from 'modepress';
+import * as mongodb from 'mongodb';
 
 /**
- * Main class to use for managing users
+ * Main class to use for managing user authentication
  */
 export class AuthController extends Controller {
-    private _config: Modepress.IConfig;
-    private _server: Modepress.IServer;
+    private _options: IAuthOptions;
 
 	/**
 	 * Creates an instance of the user manager
-	 * @param userCollection The mongo collection that stores the users
-	 * @param sessionCollection The mongo collection that stores the session data
-	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: Modepress.IConfig, server: Modepress.IServer ) {
+    constructor( options: IAuthOptions ) {
         super( [ Model.registerModel( UsersModel ) ] );
+        this._options = options;
+    }
 
-        this._config = config;
-        this._server = server;
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+
+        if ( !this._options.accountRedirectURL )
+            throw new Error( `When using an 'auth' controller, you must specifiy the 'accountRedirectURL' property. This is the url to re-direct to when a user has attempted to activate their account. The URL is appended with the query parameters 'message' and 'status' so that the response can be portrayed to the user.` );
+        if ( !this._options.activateAccountUrl )
+            throw new Error( `When using an 'auth' controller, you must specifiy the 'activateAccountUrl' property. This is the url sent to users when they register. The link should resolve to your {host}/auth/activate-account` );
+        if ( !this._options.passwordResetURL )
+            throw new Error( `When using an 'auth' controller, you must specifiy the 'passwordResetURL' property. This is the URL sent to users emails for when their password is reset. This URL should resolve to a page with a form that allows users to reset their password. The form can post to the auth/password-reset endpoint to start the process.` );
+
 
         // Setup the rest calls
         const router = express.Router();
@@ -48,14 +59,17 @@ export class AuthController extends Controller {
         router.put( '/:user/approve-activation', <any>[ ownerRights, this.approveActivation.bind( this ) ] );
 
         // Register the path
-        e.use( '/auth', router );
+        e.use(( this._options.rootPath || '' ) + '/auth', router );
+
+        await super.initialize( e, db );
+        return this;
     }
 
 	/**
 	 * Activates the user's account
 	 */
     private async activateAccount( req: express.Request, res: express.Response ) {
-        const redirectURL = this._server.accountRedirectURL;
+        const redirectURL = this._options.accountRedirectURL;
 
         try {
             // Check the user's activation and forward them onto the admin message page
@@ -77,8 +91,8 @@ export class AuthController extends Controller {
         try {
             const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
-            await UserManager.get.resendActivation( req.params.user, this._server.accountRedirectURL, origin );
-            okJson<Modepress.IResponse>( { error: false, message: 'An activation link has been sent, please check your email for further instructions' }, res );
+            await UserManager.get.resendActivation( req.params.user, this._options.accountRedirectURL, origin );
+            okJson<IResponse>( { error: false, message: 'An activation link has been sent, please check your email for further instructions' }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -92,9 +106,9 @@ export class AuthController extends Controller {
         try {
             const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
-            await UserManager.get.requestPasswordReset( req.params.user, this._server.passwordResetURL, origin );
+            await UserManager.get.requestPasswordReset( req.params.user, this._options.passwordResetURL, origin );
 
-            okJson<Modepress.IResponse>( { error: false, message: 'Instructions have been sent to your email on how to change your password' }, res );
+            okJson<IResponse>( { error: false, message: 'Instructions have been sent to your email on how to change your password' }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -118,7 +132,7 @@ export class AuthController extends Controller {
             // Check the user's activation and forward them onto the admin message page
             await UserManager.get.resetPassword( req.body.user, req.body.key, req.body.password );
 
-            okJson<Modepress.IResponse>( { error: false, message: 'Your password has been reset' }, res );
+            okJson<IResponse>( { error: false, message: 'Your password has been reset' }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -131,7 +145,7 @@ export class AuthController extends Controller {
     private async approveActivation( req: express.Request, res: express.Response ) {
         try {
             await UserManager.get.approveActivation( req.params.user );
-            okJson<Modepress.IResponse>( { error: false, message: 'Activation code has been approved' }, res );
+            okJson<IResponse>( { error: false, message: 'Activation code has been approved' }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -143,10 +157,10 @@ export class AuthController extends Controller {
 	 */
     private async login( req: express.Request, res: express.Response ) {
         try {
-            const token: Modepress.ILoginToken = req.body;
+            const token: ILoginToken = req.body;
             const user = await UserManager.get.logIn( token.username, token.password, token.rememberMe, req, res );
 
-            okJson<Modepress.IAuthenticationResponse>( {
+            okJson<IAuthenticationResponse>( {
                 message: ( user ? 'User is authenticated' : 'User is not authenticated' ),
                 authenticated: ( user ? true : false ),
                 user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} ),
@@ -155,7 +169,7 @@ export class AuthController extends Controller {
 
         } catch ( err ) {
 
-            okJson<Modepress.IAuthenticationResponse>( {
+            okJson<IAuthenticationResponse>( {
                 message: err.message,
                 authenticated: false,
                 error: true
@@ -169,7 +183,7 @@ export class AuthController extends Controller {
     private async logout( req: express.Request, res: express.Response ) {
         try {
             await UserManager.get.logOut( req, res );
-            okJson<Modepress.IResponse>( { error: false, message: 'Successfully logged out' }, res );
+            okJson<IResponse>( { error: false, message: 'Successfully logged out' }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -181,11 +195,11 @@ export class AuthController extends Controller {
 	 */
     private async register( req: express.Request, res: express.Response ) {
         try {
-            const token: Modepress.IRegisterToken = req.body;
-            const activationLink = ( this._server.ssl ? 'https://' : 'http://' ) + this._server.host + '/auth/activate-account';
+            const token: IRegisterToken = req.body;
+            const activationLink = this._options.activateAccountUrl;
             const user = await UserManager.get.register( token.username!, token.password!, token.email!, activationLink, {}, req );
 
-            return okJson<Modepress.IAuthenticationResponse>( {
+            return okJson<IAuthenticationResponse>( {
                 message: ( user ? 'Please activate your account with the link sent to your email address' : 'User is not authenticated' ),
                 authenticated: ( user ? true : false ),
                 user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} ),
@@ -203,7 +217,7 @@ export class AuthController extends Controller {
     private async authenticated( req: express.Request, res: express.Response ) {
         try {
             const user = await UserManager.get.loggedIn( req, res );
-            return okJson<Modepress.IAuthenticationResponse>( {
+            return okJson<IAuthenticationResponse>( {
                 message: ( user ? 'User is authenticated' : 'User is not authenticated' ),
                 authenticated: ( user ? true : false ),
                 error: false,
@@ -211,7 +225,7 @@ export class AuthController extends Controller {
             }, res );
 
         } catch ( error ) {
-            return okJson<Modepress.IAuthenticationResponse>( {
+            return okJson<IAuthenticationResponse>( {
                 message: error.message,
                 authenticated: false,
                 error: true

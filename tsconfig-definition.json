@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "module": "amd",
+        "removeComments": false,
+        "noEmitOnError": false,
+        "declaration": true,
+        "sourceMap": false,
+        "preserveConstEnums": true,
+        "noImplicitAny": false,
+        "target": "es2017",
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "es7"
+        ],
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "outFile": "modepress-api.js",
+        "outDir": "./modepress-api",
+        "noUnusedParameters": false,
+        "noUnusedLocals": true,
+        "strictNullChecks": true
+    },
+    "include": [
+        "src/types/**/*.ts",
+        "src/modepress-api.ts"
+    ],
+    "exclude": []
+}

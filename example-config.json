@@ -1,0 +1,53 @@
+{
+    "database": {
+        "host": "127.0.0.1",
+        "port": 27017,
+        "name": "test"
+    },
+    "clientsFolder": "./clients/",
+    "debug": true,
+    "adminUser": {
+        "username": "root",
+        "email": "root_email@host.com",
+        "password": "CHANGE_THIS_PASSWORD"
+    },
+    "userSettings": {
+        "userCollection": "users",
+        "sessionCollection": "sessions"
+    },
+    "sessionSettings": {
+        "path": "/",
+        "domain": ".webinate.dev",
+        "persistent": true,
+        "lifetime": 1800,
+        "secure": false
+    },
+    "websocket": {
+        "host": "localhost",
+        "port": 8020,
+        "socketApiKey": "ThisIsADinosaur1234!",
+        "approvedSocketDomains": [
+            "^.+\\.webinate\\.dev$",
+            "^hatchery.webinate.dev$",
+            "^localhost$"
+        ]
+    },
+    "mail": {
+        "type": "mailgun",
+        "from": "webinate",
+        "options": {
+            "domain": "",
+            "apiKey": ""
+        }
+    },
+    "google": {
+        "keyFile": "",
+        "bucket": {
+            "projectId": "",
+            "bucketsCollection": "buckets",
+            "filesCollection": "files",
+            "statsCollection": "storageAPI",
+            "cacheLifetime": 2592000000
+        }
+    }
+}

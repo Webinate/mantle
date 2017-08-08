@@ -11,7 +11,7 @@ describe( 'Getting user data', function() {
     } )
 
     it( 'should allow admin access to basic data', function( done ) {
-        admin.get( `/users/${config.adminUser.username}` )
+        admin.get( `/api/users/${config.adminUser.username}` )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.string( res.body.message ).is( "Found mat" )
@@ -29,7 +29,7 @@ describe( 'Getting user data', function() {
     } )
 
     it( 'should allow admin access to sensitive data', function( done ) {
-        admin.get( `/users/${config.adminUser.username}?verbose=true` )
+        admin.get( `/api/users/${config.adminUser.username}?verbose=true` )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.string( res.body.message ).is( "Found mat" )
@@ -47,7 +47,7 @@ describe( 'Getting user data', function() {
     } )
 
     it( 'should get admin user data by email without sensitive details', function( done ) {
-        admin.get( `/users/${config.adminUser.email}` )
+        admin.get( `/api/users/${config.adminUser.email}` )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.string( res.body.message ).is( "Found mat" )
@@ -65,7 +65,7 @@ describe( 'Getting user data', function() {
     } )
 
     it( 'should get admin user data by email with sensitive details', function( done ) {
-        admin.get( `/users/${config.adminUser.email}?verbose=true` )
+        admin.get( `/api/users/${config.adminUser.email}?verbose=true` )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.string( res.body.message ).is( "Found mat" )
@@ -83,7 +83,7 @@ describe( 'Getting user data', function() {
     } )
 
     it( 'should get no user with username', function( done ) {
-        guest.get( `/users/${config.adminUser.username}` )
+        guest.get( `/api/users/${config.adminUser.username}` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" )
                 test.bool( res.body.error ).isTrue()
@@ -94,7 +94,7 @@ describe( 'Getting user data', function() {
     } ).timeout( 20000 )
 
     it( 'should get no user with email or verbose', function( done ) {
-        guest.get( `/users/${config.adminUser.email}?verbose=true` )
+        guest.get( `/api/users/${config.adminUser.email}?verbose=true` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" )
                 test.bool( res.body.error ).isTrue()

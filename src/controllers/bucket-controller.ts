@@ -1,40 +1,43 @@
 ﻿'use strict';
 
+import { IFileEntry, IUploadToken, IAuthReq, IRemoveFiles, IGetBuckets, IResponse, IUploadResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import * as users from 'modepress-api';
 import * as mongodb from 'mongodb';
-import { UserManager } from '../users';
-import { ownerRights, requireUser } from '../permission-controllers';
+import { UserManager } from '../core/users';
+import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { BucketManager } from '../bucket-manager';
+import { BucketManager } from '../core/bucket-manager';
 import * as multiparty from 'multiparty';
 import * as compression from 'compression';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
-import { okJson, errJson } from '../serializers';
+import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
+import { IBaseControler } from 'modepress';
 
 /**
  * Main class to use for managing users
  */
 export class BucketController extends Controller {
-    private _config: Modepress.IConfig;
     private _allowedFileTypes: Array<string>;
+    private _options: IBaseControler;
 
 	/**
 	 * Creates an instance of the user manager
-	 * @param e The express app
-	 * @param The config options of this manager
 	 */
-    constructor( e: express.Express, config: Modepress.IConfig ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( BucketModel ) ] );
-
-        this._config = config;
-
         this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
+        this._options = options;
+    }
+
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
 
         // Setup the rest calls
         const router = express.Router();
@@ -49,13 +52,16 @@ export class BucketController extends Controller {
         router.post( '/user/:user/:name', <any>[ ownerRights, this.createBucket.bind( this ) ] );
 
         // Register the path
-        e.use( `/buckets`, router );
+        e.use(( this._options.rootPath || '' ) + `/buckets`, router );
+
+        await super.initialize( e, db );
+        return this;
     }
 
     /**
      * Removes buckets specified in the URL
      */
-    private async removeBuckets( req: Modepress.IAuthReq, res: express.Response ) {
+    private async removeBuckets( req: IAuthReq, res: express.Response ) {
         try {
             const manager = BucketManager.get;
             let buckets: Array<string>;
@@ -67,7 +73,7 @@ export class BucketController extends Controller {
 
             const filesRemoved = await manager.removeBucketsByName( buckets, req._user!.username! );
 
-            return okJson<users.IRemoveFiles>( {
+            return okJson<IRemoveFiles>( {
                 message: `Removed [${filesRemoved.length}] buckets`,
                 error: false,
                 data: filesRemoved,
@@ -82,7 +88,7 @@ export class BucketController extends Controller {
     /**
 	 * Fetches all bucket entries from the database
 	 */
-    private async getBuckets( req: Modepress.IAuthReq, res: express.Response ) {
+    private async getBuckets( req: IAuthReq, res: express.Response ) {
         const user = req.params.user;
         const manager = BucketManager.get;
         let searchTerm: RegExp | undefined;
@@ -94,7 +100,7 @@ export class BucketController extends Controller {
 
             const buckets = await manager.getBucketEntries( user, searchTerm );
 
-            return okJson<users.IGetBuckets>( {
+            return okJson<IGetBuckets>( {
                 message: `Found [${buckets.length}] buckets`,
                 error: false,
                 data: buckets,
@@ -116,7 +122,7 @@ export class BucketController extends Controller {
     /**
 	 * Creates a new user bucket based on the target provided
 	 */
-    private async createBucket( req: Modepress.IAuthReq, res: express.Response ) {
+    private async createBucket( req: IAuthReq, res: express.Response ) {
         const manager = BucketManager.get;
         const username: string = req.params.user;
         const bucketName: string = req.params.name;
@@ -138,7 +144,7 @@ export class BucketController extends Controller {
                 throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
 
             await manager.createBucket( bucketName, username );
-            okJson<users.IResponse>( { message: `Bucket '${bucketName}' created`, error: false }, res );
+            okJson<IResponse>( { message: `Bucket '${bucketName}' created`, error: false }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -219,23 +225,23 @@ export class BucketController extends Controller {
     /**
 	 * Attempts to upload a file to the user's bucket
 	 */
-    private uploadUserFiles( req: Modepress.IAuthReq, res: express.Response ) {
+    private uploadUserFiles( req: IAuthReq, res: express.Response ) {
         const form = new multiparty.Form( { maxFields: 8, maxFieldsSize: 5 * 1024 * 1024, maxFilesSize: 10 * 1024 * 1024 } );
         let numParts = 0;
         let completedParts = 0;
         let closed = false;
-        const uploadedTokens: Array<users.IUploadToken> = [];
+        const uploadedTokens: Array<IUploadToken> = [];
         const manager = BucketManager.get;
         const username = req._user!.username!;
         const parentFile = req.params.parentFile;
-        const filesUploaded: Array<users.IFileEntry> = [];
+        const filesUploaded: Array<IFileEntry> = [];
         const bucketName = req.params.bucket;
         if ( !bucketName || bucketName.trim() === '' )
-            return okJson<users.IUploadResponse>( { message: `Please specify a bucket`, error: true, tokens: [] }, res );
+            return okJson<IUploadResponse>( { message: `Please specify a bucket`, error: true, tokens: [] }, res );
 
         manager.getIBucket( bucketName, username ).then(( bucketEntry ) => {
             if ( !bucketEntry )
-                return okJson<users.IUploadResponse>( { message: `No bucket exists with the name '${bucketName}'`, error: true, tokens: [] }, res );
+                return okJson<IUploadResponse>( { message: `No bucket exists with the name '${bucketName}'`, error: true, tokens: [] }, res );
 
             let metaJson: any | Error;
 
@@ -251,11 +257,11 @@ export class BucketController extends Controller {
                         errorMsg: '',
                         url: '',
                         extension: ''
-                    } as users.IUploadToken;
+                    } as IUploadToken;
                 }
 
                 // Deal with error logic
-                const errFunc = function( errMsg: string, uploadToken: users.IUploadToken | null ) {
+                const errFunc = function( errMsg: string, uploadToken: IUploadToken | null ) {
                     if ( uploadToken ) {
                         uploadToken.error = true;
                         uploadToken.errorMsg = errMsg;
@@ -266,7 +272,7 @@ export class BucketController extends Controller {
                 }
 
                 // Deal with file upload logic
-                const fileUploaded = function( uploadedFile: users.IFileEntry, uploadToken: users.IUploadToken ) {
+                const fileUploaded = function( uploadedFile: IFileEntry, uploadToken: IUploadToken ) {
                     filesUploaded.push( uploadedFile );
                     completedParts++;
                     uploadToken.file = uploadedFile.identifier!;
@@ -344,16 +350,16 @@ export class BucketController extends Controller {
             const checkIfComplete = () => {
                 if ( closed && completedParts === numParts ) {
                     this.finalizeUploads( metaJson, filesUploaded, username, uploadedTokens ).then( function( token ) {
-                        return okJson<users.IUploadResponse>( token, res );
+                        return okJson<IUploadResponse>( token, res );
                     } );
                 }
             }
 
             // Parse req
-            form.parse( <express.Request><Express.Request>req );
+            form.parse( req );
 
         } ).catch( function( err ) {
-            return okJson<users.IUploadResponse>( { message: 'Could not get bucket: ' + err.toString(), error: true, tokens: [] }, res );
+            return okJson<IUploadResponse>( { message: 'Could not get bucket: ' + err.toString(), error: true, tokens: [] }, res );
         } );
     }
 
@@ -365,7 +371,7 @@ export class BucketController extends Controller {
      * @param user The user who uploaded the files
      * @param tokens The upload tokens to be sent back to the client
      */
-    private async finalizeUploads( meta: any | Error, files: Array<users.IFileEntry>, user: string, tokens: Array<users.IUploadToken> ): Promise<users.IUploadResponse> {
+    private async finalizeUploads( meta: any | Error, files: Array<IFileEntry>, user: string, tokens: Array<IUploadToken> ): Promise<IUploadResponse> {
         try {
             const manager = BucketManager.get;
             let error = false;
@@ -383,9 +389,9 @@ export class BucketController extends Controller {
             }
             // If we have any meta, then update the file entries with it
             else if ( meta && meta && files.length > 0 ) {
-                const query = { $or: [] as users.IFileEntry[] };
+                const query = { $or: [] as IFileEntry[] };
                 for ( let i = 0, l = files.length; i < l; i++ ) {
-                    query.$or.push( <users.IFileEntry>{ _id: new mongodb.ObjectID( files[ i ]._id ) } );
+                    query.$or.push( <IFileEntry>{ _id: new mongodb.ObjectID( files[ i ]._id ) } );
 
                     // Manually add the meta to the files
                     files[ i ].meta = meta;
@@ -397,7 +403,7 @@ export class BucketController extends Controller {
             // Notify the sockets of each file that was uploaded
             for ( let i = 0, l = files.length; i < l; i++ ) {
                 // Send file added events to sockets
-                const token: users.SocketTokens.IFileToken = { username: user, type: ClientInstructionType[ ClientInstructionType.FileUploaded ], file: files[ i ] };
+                const token = { username: user, type: ClientInstructionType[ ClientInstructionType.FileUploaded ], file: files[ i ] };
                 await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user ) )
             }
 
@@ -410,10 +416,10 @@ export class BucketController extends Controller {
                     break;
                 }
 
-            return <users.IUploadResponse>{ message: msg, error: error, tokens: tokens };
+            return <IUploadResponse>{ message: msg, error: error, tokens: tokens };
 
         } catch ( err ) {
-            return <users.IUploadResponse>{ message: err.toString(), error: true, tokens: [] };
+            return <IUploadResponse>{ message: err.toString(), error: true, tokens: [] };
         };
     }
 }

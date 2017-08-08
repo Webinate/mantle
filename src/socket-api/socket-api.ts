@@ -1,6 +1,6 @@
 'use strict';
 
-import { UserManager } from '../users';
+import { UserManager } from '../core/users';
 import { ServerInstruction } from './server-instruction';
 import { ClientInstruction } from './client-instruction';
 import { CommsController } from './comms-controller';
@@ -22,7 +22,7 @@ export class SocketAPI {
     /**
      * Responds to a meta request from a client
      */
-    private onMeta( e: ServerInstruction<Modepress.SocketTokens.IMetaToken> ) {
+    private onMeta( e: ServerInstruction<any> ) {
         const comms = this._comms;
 
         if ( !UserManager.get )
@@ -48,23 +48,23 @@ export class SocketAPI {
 
         } ).then( function( metaVal ) {
 
-            let responseToken: Modepress.SocketTokens.IMetaToken = {
+            let responseToken: any = {
                 type: ClientInstructionType[ ClientInstructionType.MetaRequest ],
                 val: metaVal,
                 property: e.token.property,
                 username: e.token.username
             };
 
-            comms.processClientInstruction( new ClientInstruction<Modepress.SocketTokens.IMetaToken>( responseToken, [ e.from ] ) );
+            comms.processClientInstruction( new ClientInstruction<any>( responseToken, [ e.from ] ) );
 
         } ).catch( function( err: Error ) {
 
-            let responseToken: Modepress.SocketTokens.IMetaToken = {
+            let responseToken: any = {
                 type: ClientInstructionType[ ClientInstructionType.MetaRequest ],
                 error: err.message
             };
 
-            comms.processClientInstruction( new ClientInstruction<Modepress.SocketTokens.IMetaToken>( responseToken, [ e.from ] ) );
+            comms.processClientInstruction( new ClientInstruction<any>( responseToken, [ e.from ] ) );
         } );
     }
 }

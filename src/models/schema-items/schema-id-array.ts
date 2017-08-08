@@ -1,8 +1,9 @@
-﻿import { SchemaItem } from './schema-item';
+﻿import { ISchemaOptions, IModelEntry } from 'modepress';
+import { SchemaItem } from './schema-item';
 import { SchemaForeignKey } from './schema-foreign-key';
 import { Model, ModelInstance } from '../model';
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
-import { Utils } from '../../utils';
+import { isValidObjectID } from '../../utils/utils';
 
 /**
  * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
@@ -11,12 +12,12 @@ import { Utils } from '../../utils';
  * Currently we only support Id lookups that exist in the same model - i.e. if the ids are of objects
  * in different models we cannot get the object values.
  */
-export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepress.IModelEntry>> {
+export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEntry>> {
     public targetCollection: string;
     public minItems: number;
     public maxItems: number;
     public curLevel: number;
-    private _targetDocs: Array<ModelInstance<Modepress.IModelEntry>> | null;
+    private _targetDocs: Array<ModelInstance<IModelEntry>> | null;
 
 	/**
 	 * Creates a new schema item that holds an array of id items
@@ -57,7 +58,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 
         for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
             if ( typeof this.value[ i ] === 'string' ) {
-                if ( Utils.isValidObjectID( <string>this.value[ i ] ) )
+                if ( isValidObjectID( <string>this.value[ i ] ) )
                     transformedValue[ i ] = new ObjectID( <string>this.value[ i ] );
                 else if ( ( <string>this.value[ i ] ).trim() !== '' )
                     throw new Error( `Please use a valid ID for '${this.name}'` );
@@ -85,13 +86,13 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
         // We can assume the value is object id by this point
-        const query = { $or: [] as Modepress.IModelEntry[] };
+        const query = { $or: [] as IModelEntry[] };
         const arr = this.value;
 
         for ( let i = 0, l = arr.length; i < l; i++ )
-            query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] } );
+            query.$or.push( <IModelEntry>{ _id: <ObjectID>arr[ i ] } );
 
-        const result = await model.findInstances<Modepress.IModelEntry>( { selector: query } );
+        const result = await model.findInstances<IModelEntry>( { selector: query } );
         this._targetDocs = result;
 
         return true;
@@ -103,7 +104,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
      * @param instance The model instance that was inserted or updated
      * @param collection The DB collection that the model was inserted into
 	 */
-    public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+    public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         if ( !this._targetDocs )
             return;
 
@@ -114,8 +115,8 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
         for ( let i = 0, l = this._targetDocs.length; i < l; i++ ) {
             let arrDeps = this._targetDocs[ i ].dbEntry._arrayDependencies || [];
             arrDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name } );
-            promises.push( model.collection.updateOne( <Modepress.IModelEntry>{ _id: this._targetDocs[ i ].dbEntry._id }, {
-                $set: <Modepress.IModelEntry>{ _arrayDependencies: arrDeps }
+            promises.push( model.collection.updateOne( <IModelEntry>{ _id: this._targetDocs[ i ].dbEntry._id }, {
+                $set: <IModelEntry>{ _arrayDependencies: arrDeps }
             } ) );
         }
 
@@ -130,7 +131,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
      * Called after a model instance is deleted. Useful for any schema item cleanups.
      * @param instance The model instance that was deleted
      */
-    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
+    public async postDelete<T extends IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
         if ( !this.targetCollection )
             return;
 
@@ -143,13 +144,13 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return;
 
         // Get all the instances
-        const query = { $or: [] as Modepress.IModelEntry[] };
+        const query = { $or: [] as IModelEntry[] };
         const arr = this.value;
 
         for ( let i = 0, l = arr.length; i < l; i++ )
-            query.$or.push( <Modepress.IModelEntry>{ _id: <ObjectID>arr[ i ] } );
+            query.$or.push( <IModelEntry>{ _id: <ObjectID>arr[ i ] } );
 
-        const results = await model.findInstances<Modepress.IModelEntry>( { selector: query } );
+        const results = await model.findInstances<IModelEntry>( { selector: query } );
         if ( !results || results.length === 0 )
             return;
 
@@ -157,7 +158,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 
         for ( let i = 0, l = results.length; i < l; i++ )
             pullQueries.push( model.collection.updateOne(
-                <Modepress.IModelEntry>{ _id: results[ i ].dbEntry._id },
+                <IModelEntry>{ _id: results[ i ].dbEntry._id },
                 { $pull: { _arrayDependencies: { _id: instance.dbEntry._id } } }
             ) );
 
@@ -169,7 +170,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
 	 * Gets the value of this item
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
 	 */
-    public async getValue( options: Modepress.ISchemaOptions ): Promise<Array<string | ObjectID | Modepress.IModelEntry>> {
+    public async getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | IModelEntry>> {
         if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
             throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
 
@@ -196,13 +197,13 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
             return this.value;
 
         // Create the query for fetching the instances
-        const query = { $or: [] as Modepress.IModelEntry[] };
+        const query = { $or: [] as IModelEntry[] };
         for ( let i = 0, l = this.value.length; i < l; i++ )
-            query.$or.push( <Modepress.IModelEntry>{ _id: this.value[ i ] } );
+            query.$or.push( <IModelEntry>{ _id: this.value[ i ] } );
 
-        const instances = await model.findInstances<Modepress.IModelEntry>( { selector: query } );
-        let instance: ModelInstance<Modepress.IModelEntry>;
-        const promises: Array<Promise<Modepress.IModelEntry>> = [];
+        const instances = await model.findInstances<IModelEntry>( { selector: query } );
+        let instance: ModelInstance<IModelEntry>;
+        const promises: Array<Promise<IModelEntry>> = [];
 
         // Get the models items are increase their level - this ensures we dont go too deep
         for ( let i = 0, l = instances.length; i < l; i++ ) {
@@ -214,7 +215,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | Modepres
                 if ( items[ ii ] instanceof SchemaForeignKey || items[ ii ] instanceof SchemaIdArray )
                     ( <SchemaForeignKey | SchemaIdArray>items[ ii ] ).curLevel = nextLevel;
 
-            promises.push( instance.schema.getAsJson<Modepress.IModelEntry>( instance.dbEntry._id, options ) );
+            promises.push( instance.schema.getAsJson<IModelEntry>( instance.dbEntry._id, options ) );
         }
 
         return await Promise.all( promises );

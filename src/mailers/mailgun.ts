@@ -1,11 +1,11 @@
 'use strict';
-
-import { error as logError, info } from '../logger';
+import { IMailer, IMailgun } from 'modepress';
+import { error as logError, info } from '../utils/logger';
 
 /**
  * A simple class for sending mail using Google Mail's API
  */
-export class Mailguner implements Modepress.IMailer {
+export class Mailguner implements IMailer {
     private _debugMode: boolean;
     private mailgun: MailGun.Instance;
 
@@ -20,7 +20,7 @@ export class Mailguner implements Modepress.IMailer {
      * Attempts to initialize the mailer
      * @param options The mailgun options for this mailer
      */
-    initialize( options: Modepress.IMailgun ): Promise<boolean> {
+    initialize( options: IMailgun ): Promise<boolean> {
 
         return new Promise(( resolve ) => {
             this.mailgun = require( 'mailgun-js' )( { apiKey: options.apiKey, domain: options.domain } );

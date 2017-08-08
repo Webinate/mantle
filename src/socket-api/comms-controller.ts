@@ -1,12 +1,12 @@
 ﻿'use strict';
-
-import * as bcrypt from 'bcryptjs';
+import { IConfig } from 'modepress';
+import * as bcrypt from 'bcrypt';
 import * as ws from 'ws';
 import * as events from 'events';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as mongodb from 'mongodb';
-import { error as logError, info } from '../logger';
+import { error as logError, info } from '../utils/logger';
 import { ServerInstructionType } from './socket-event-types';
 import { SocketAPI } from './socket-api';
 import { ClientConnection } from './client-connection';
@@ -21,12 +21,12 @@ export class CommsController extends events.EventEmitter {
     private _server: ws.Server;
     private _connections: ClientConnection[];
     private _hashedApiKey: string;
-    private _cfg: Modepress.IConfig;
+    private _cfg: IConfig;
 
     /**
 	 * Creates an instance of the Communication server
 	 */
-    constructor( cfg: Modepress.IConfig ) {
+    constructor( cfg: IConfig ) {
         super();
 
         CommsController.singleton = this;
@@ -52,7 +52,7 @@ export class CommsController extends events.EventEmitter {
 	 * Sends an instruction to the relevant client connections
      * @param instruction The instruction from the server
 	 */
-    processClientInstruction( instruction: ClientInstruction<Modepress.SocketTokens.IToken> ) {
+    processClientInstruction( instruction: ClientInstruction<any> ) {
         let recipients: ClientConnection[];
 
         if ( !instruction.recipients )
@@ -78,7 +78,7 @@ export class CommsController extends events.EventEmitter {
      * instruction - and in some cases might resond to the client with a ClientInstruction.
      * @param instruction The instruction from the client
 	 */
-    processServerInstruction( instruction: ServerInstruction<Modepress.SocketTokens.IToken> ) {
+    processServerInstruction( instruction: ServerInstruction<any> ) {
         if ( !instruction.token )
             return logError( `Websocket error: An instruction was sent from '${instruction.from.domain}' without a token` );
 
@@ -92,7 +92,7 @@ export class CommsController extends events.EventEmitter {
     /**
      * Attempts to send a token to a specific client
      */
-    private sendToken( connection: ClientConnection, token: Modepress.SocketTokens.IToken ): Promise<void> {
+    private sendToken( connection: ClientConnection, token: any ): Promise<void> {
         return new Promise<void>( function( resolve, reject ) {
             let serializedData: string;
 
@@ -164,7 +164,7 @@ export class CommsController extends events.EventEmitter {
         if ( !cfg.websocket.socketApiKey )
             throw new Error( 'The socketApiKey was not set in the config file. Make sure it exists (Check the example-config.json) ' );
 
-        this._hashedApiKey = bcrypt.hashSync( cfg.websocket.socketApiKey );
+        this._hashedApiKey = bcrypt.hashSync( cfg.websocket.socketApiKey, 10 );
 
         // dummy request processing - this is not actually called as its handed off to the socket api
         const processRequest = function( req, res ) {
@@ -177,12 +177,12 @@ export class CommsController extends events.EventEmitter {
         if ( cfg.websocket.ssl ) {
             info( 'Creating secure socket connection' );
             let httpsServer: https.Server;
-            const caChain = [ fs.readFileSync( cfg.websocket.ssl.sslIntermediate ), fs.readFileSync( cfg.websocket.ssl.sslRoot ) ];
-            const privkey = cfg.websocket.ssl.sslKey ? fs.readFileSync( cfg.websocket.ssl.sslKey ) : null;
-            const theCert = cfg.websocket.ssl.sslCert ? fs.readFileSync( cfg.websocket.ssl.sslCert ) : null;
+            const caChain = [ fs.readFileSync( cfg.websocket.ssl.intermediate ), fs.readFileSync( cfg.websocket.ssl.root ) ];
+            const privkey = cfg.websocket.ssl.key ? fs.readFileSync( cfg.websocket.ssl.key ) : null;
+            const theCert = cfg.websocket.ssl.cert ? fs.readFileSync( cfg.websocket.ssl.cert ) : null;
 
             info( `Attempting to start Websocket server with SSL...` );
-            httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: cfg.websocket.ssl.sslPassPhrase, ca: caChain }, processRequest );
+            httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: cfg.websocket.ssl.passPhrase, ca: caChain }, processRequest );
             httpsServer.listen( cfg.websocket.port );
             this._server = new ws.Server( { host: cfg.websocket.host, server: httpsServer } );
         }

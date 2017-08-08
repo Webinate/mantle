@@ -1,9 +1,9 @@
 'use strict';
-
+import { IMailer, IGMail } from 'modepress';
 import * as google from 'googleapis';
 import * as googleAuth from 'google-auth-library';
 import * as fs from 'fs';
-import { error as logError, info } from '../logger';
+import { error as logError, info } from '../utils/logger';
 import * as yargs from 'yargs';
 
 const args = yargs.argv;
@@ -11,7 +11,7 @@ const args = yargs.argv;
 /**
  * A simple class for sending mail using Google Mail's API
  */
-export class GMailer implements Modepress.IMailer {
+export class GMailer implements IMailer {
     public gmail: google.GMail;
     private _keyFile: any;
     private _apiEmail: string;
@@ -36,7 +36,7 @@ export class GMailer implements Modepress.IMailer {
      * Attempts to initialize the mailer
      * @param options The gmail options for this mailer
      */
-    initialize( options: Modepress.IGMail ): Promise<boolean> {
+    initialize( options: IGMail ): Promise<boolean> {
 
         return new Promise(( resolve ) => {
 

@@ -14,14 +14,14 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( `did remove any existing user called ${testUserName}`, function( done ) {
-        admin.delete( `/users/${testUserName}` )
+        admin.delete( `/api/users/${testUserName}` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'should not register with blank credentials', function( done ) {
-        admin.post( `/auth/register`, { username: "", password: "" } )
+        admin.post( `/api/auth/register`, { username: "", password: "" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -31,7 +31,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'should not register with existing username', function( done ) {
-        admin.post( `/auth/register`, { username: admin.username, password: "FakePass" } )
+        admin.post( `/api/auth/register`, { username: admin.username, password: "FakePass" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -41,7 +41,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'should not register with blank username', function( done ) {
-        admin.post( `/auth/register`, { username: "", password: "FakePass" } )
+        admin.post( `/api/auth/register`, { username: "", password: "FakePass" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -51,7 +51,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'should not register with blank password', function( done ) {
-        admin.post( `/auth/register`, { username: "sdfsdsdfsdfdf", password: "" } )
+        admin.post( `/api/auth/register`, { username: "sdfsdsdfsdfdf", password: "" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -61,7 +61,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'should not register with bad characters', function( done ) {
-        admin.post( `/auth/register`, { username: "!\"�$%^^&&*()-=~#}{}", password: "!\"./<>;�$$%^&*()_+" } )
+        admin.post( `/api/auth/register`, { username: "!\"�$%^^&&*()-=~#}{}", password: "!\"./<>;�$$%^&*()_+" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -71,7 +71,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'should not register with valid information but no email', function( done ) {
-        admin.post( `/auth/register`, { username: testUserName, password: "Password" } )
+        admin.post( `/api/auth/register`, { username: testUserName, password: "Password" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -81,7 +81,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'should not register with valid information but invalid email', function( done ) {
-        admin.post( `/auth/register`, { username: testUserName, password: "Password", email: "bad_email" } )
+        admin.post( `/api/auth/register`, { username: testUserName, password: "Password", email: "bad_email" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -91,7 +91,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'should register with valid information', function( done ) {
-        guest.post( `/auth/register`, { username: testUserName, password: "Password", email: testUserEmail } )
+        guest.post( `/api/auth/register`, { username: testUserName, password: "Password", email: testUserEmail } )
             .then( res => {
                 test.bool( res.body.error ).isFalse()
                 test.string( res.body.message ).is( "Please activate your account with the link sent to your email address" )
@@ -101,7 +101,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( `did create an activation key for ${testUserName}`, function( done ) {
-        admin.get( `/users/${testUserName}?verbose=true` )
+        admin.get( `/api/users/${testUserName}?verbose=true` )
             .then( res => {
                 test.object( res.body.data ).hasProperty( "registerKey" )
                 test.string( res.body.data.registerKey ).isNot( "" );
@@ -110,7 +110,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'did not approve activation as a regular user', function( done ) {
-        user1.put( `/auth/${testUserName}/approve-activation` )
+        user1.put( `/api/auth/${testUserName}/approve-activation` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -120,7 +120,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( `did allow an admin to activate ${testUserName}`, function( done ) {
-        admin.put( `/auth/${testUserName}/approve-activation` )
+        admin.put( `/api/auth/${testUserName}/approve-activation` )
             .then( res => {
                 test.bool( res.body.error ).isFalse()
                 done();
@@ -128,7 +128,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( `did approve ${testUserName}'s register key`, function( done ) {
-        admin.get( `/users/${testUserName}?verbose=true` )
+        admin.get( `/api/users/${testUserName}?verbose=true` )
             .then( res => {
                 test.object( res.body.data ).hasProperty( "registerKey" )
                 test.string( res.body.data.registerKey ).is( "" );
@@ -137,7 +137,7 @@ describe( 'Testing registering a user', function() {
     } )
 
     it( 'did cleanup the registered user', function( done ) {
-        admin.delete( `/users/${testUserName}` )
+        admin.delete( `/api/users/${testUserName}` )
             .then( res => {
                 test.string( res.body.message ).is( `User ${testUserName} has been removed` )
                 done();

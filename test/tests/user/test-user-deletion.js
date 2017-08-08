@@ -15,14 +15,14 @@ describe( 'Testing deleting users', function() {
     } )
 
     it( `did removing any existing user ${testUserName}`, function( done ) {
-        admin.delete( `/users/${testUserName}` )
+        admin.delete( `/api/users/${testUserName}` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'did get the number of users', function( done ) {
-        admin.get( `/users` )
+        admin.get( `/api/users` )
             .then( res => {
                 test.number( res.body.data.length )
                 numUsers = res.body.data.length;
@@ -31,7 +31,7 @@ describe( 'Testing deleting users', function() {
     } )
 
     it( 'did not allow a regular user to remove another user', function( done ) {
-        user1.delete( `/users/${user2.username}` )
+        user1.delete( `/api/users/${user2.username}` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -41,7 +41,7 @@ describe( 'Testing deleting users', function() {
     } )
 
     it( `did create & login regular user ${testUserName} with valid details`, function( done ) {
-        admin.post( `/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } )
+        admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } )
             .then( res => {
                 const header = require( '../header.js' );
                 return header.createUser( testUserName, 'password', testUserEmail );
@@ -52,7 +52,7 @@ describe( 'Testing deleting users', function() {
     } )
 
     it( 'did allow the regular user to delete its own account', function( done ) {
-        agent.delete( `/users/${testUserName}` )
+        agent.delete( `/api/users/${testUserName}` )
             .then( res => {
                 test.string( res.body.message ).is( `User ${testUserName} has been removed` )
                 done();
@@ -60,7 +60,7 @@ describe( 'Testing deleting users', function() {
     } )
 
     it( 'did have the same number of users as before the tests started', function( done ) {
-        admin.get( `/users` )
+        admin.get( `/api/users` )
             .then( res => {
                 test.bool( res.body.data.length === numUsers ).isTrue();
                 done();

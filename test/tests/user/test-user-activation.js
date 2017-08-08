@@ -14,14 +14,14 @@ describe( 'Testing user activation', function() {
     } )
 
     it( `did remove any existing user called ${testUserName}`, function( done ) {
-        admin.delete( `/users/${testUserName}` )
+        admin.delete( `/api/users/${testUserName}` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'should register with valid information', function( done ) {
-        guest.post( `/auth/register`, { username: testUserName, password: "Password", email: testUserEmail } )
+        guest.post( `/api/auth/register`, { username: testUserName, password: "Password", email: testUserEmail } )
             .then( res => {
                 test.bool( res.body.error ).isFalse()
                 test.string( res.body.message ).is( "Please activate your account with the link sent to your email address" )
@@ -31,7 +31,7 @@ describe( 'Testing user activation', function() {
     } )
 
     it( `did create an activation key for ${testUserName}`, function( done ) {
-        admin.get( `/users/${testUserName}?verbose=true` )
+        admin.get( `/api/users/${testUserName}?verbose=true` )
             .then( res => {
                 test.object( res.body.data ).hasProperty( "registerKey" )
                 test.string( res.body.data.registerKey ).isNot( "" );
@@ -41,7 +41,7 @@ describe( 'Testing user activation', function() {
     } )
 
     it( 'did not log in with an activation code present', function( done ) {
-        guest.post( `/auth/login`, { username: testUserName, password: "Password" } )
+        guest.post( `/api/auth/login`, { username: testUserName, password: "Password" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.bool( res.body.authenticated ).isFalse()
@@ -52,7 +52,7 @@ describe( 'Testing user activation', function() {
     } )
 
     it( 'did not resend an activation with an invalid user', function( done ) {
-        guest.get( `/auth/NONUSER5/resend-activation` )
+        guest.get( `/api/auth/NONUSER5/resend-activation` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -62,7 +62,7 @@ describe( 'Testing user activation', function() {
     } )
 
     it( 'did resend an activation email with a valid user', function( done ) {
-        guest.get( `/auth/${testUserName}/resend-activation` )
+        guest.get( `/api/auth/${testUserName}/resend-activation` )
             .then( res => {
                 test.bool( res.body.error ).isFalse()
                 test.object( res.body ).hasProperty( "message" )
@@ -74,7 +74,7 @@ describe( 'Testing user activation', function() {
     it( 'did not activate the account now that the activation key has changed', function( done ) {
         guest.code( 302 )
             .contentType( /text\/plain/ )
-            .get( `/auth/activate-account?user=${testUserName}&key=${activationKey}` )
+            .get( `/api/auth/activate-account?user=${testUserName}&key=${activationKey}` )
             .then( res => {
                 test.string( res.headers[ "location" ] ).contains( "error" )
                 done();
@@ -82,7 +82,7 @@ describe( 'Testing user activation', function() {
     } )
 
     it( `did get the renewed activation key for ${testUserName}`, function( done ) {
-        admin.get( `/users/${testUserName}?verbose=true` )
+        admin.get( `/api/users/${testUserName}?verbose=true` )
             .then( res => {
                 activationKey = res.body.data.registerKey;
                 done();
@@ -92,7 +92,7 @@ describe( 'Testing user activation', function() {
     it( 'did not activate with an invalid username', function( done ) {
         guest.code( 302 )
             .contentType( /text\/plain/ )
-            .get( `/auth/activate-account?user=NONUSER` )
+            .get( `/api/auth/activate-account?user=NONUSER` )
             .then( res => {
                 test.string( res.headers[ "location" ] ).contains( "error" )
                 done();
@@ -102,7 +102,7 @@ describe( 'Testing user activation', function() {
     it( 'did not activate with an valid username and no key', function( done ) {
         guest.code( 302 )
             .contentType( /text\/plain/ )
-            .get( `/auth/activate-account?user=${testUserName}` )
+            .get( `/api/auth/activate-account?user=${testUserName}` )
             .then( res => {
                 test.string( res.headers[ "location" ] ).contains( "error" )
                 done();
@@ -112,7 +112,7 @@ describe( 'Testing user activation', function() {
     it( 'did not activate with an valid username and invalid key', function( done ) {
         guest.code( 302 )
             .contentType( /text\/plain/ )
-            .get( `/auth/activate-account?user=${testUserName}&key=123` )
+            .get( `/api/auth/activate-account?user=${testUserName}&key=123` )
             .then( res => {
                 test.string( res.headers[ "location" ] ).contains( "error" );
                 done()
@@ -122,7 +122,7 @@ describe( 'Testing user activation', function() {
     it( 'did activate with a valid username and key', function( done ) {
         guest.code( 302 )
             .contentType( /text\/plain/ )
-            .get( `/auth/activate-account?user=${testUserName}&key=${activationKey}` )
+            .get( `/api/auth/activate-account?user=${testUserName}&key=${activationKey}` )
             .then( res => {
                 test.string( res.headers[ "location" ] ).contains( "success" )
                 done();
@@ -130,7 +130,7 @@ describe( 'Testing user activation', function() {
     } )
 
     it( 'did log in with valid details and an activated account', function( done ) {
-        guest.post( `/auth/login`, { username: testUserName, password: "Password" } )
+        guest.post( `/api/auth/login`, { username: testUserName, password: "Password" } )
             .then( res => {
                 test.bool( res.body.error ).isFalse()
                 test.bool( res.body.authenticated ).isTrue()
@@ -140,7 +140,7 @@ describe( 'Testing user activation', function() {
     } )
 
     it( 'did cleanup the registered user', function( done ) {
-        admin.delete( `/users/${testUserName}` )
+        admin.delete( `/api/users/${testUserName}` )
             .then( res => {
                 test.string( res.body.message ).is( `User ${testUserName} has been removed` )
                 done();

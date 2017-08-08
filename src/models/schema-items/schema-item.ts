@@ -1,4 +1,5 @@
-﻿import { ModelInstance } from '../model';
+﻿import { ISchemaOptions, IModelEntry } from 'modepress';
+import { ModelInstance } from '../model';
 
 /**
  * A definition of each item in the model
@@ -145,7 +146,7 @@ export class SchemaItem<T> {
      * @param instance The model instance that was inserted or updated
      * @param collection The DB collection that the model was inserted into
 	 */
-    public async postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+    public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         instance;   // Supress empty param warning
         collection; // Supress empty param warning
         return Promise.resolve();
@@ -156,7 +157,7 @@ export class SchemaItem<T> {
      * @param instance The model instance that was deleted
      * @param collection The DB collection that the model was deleted from
      */
-    public async postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+    public async postDelete<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
         instance;   // Supress empty param warning
         collection; // Supress empty param warning
         return Promise.resolve();
@@ -173,7 +174,7 @@ export class SchemaItem<T> {
      * Gets the value of this item
      * @param options [Optional] A set of options that can be passed to control how the data must be returned
      */
-    public async getValue( options?: Modepress.ISchemaOptions ): Promise<T> {
+    public async getValue( options?: ISchemaOptions ): Promise<T> {
         options;   // Supress empty param warning
         return this.value;
     }

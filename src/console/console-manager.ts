@@ -1,5 +1,5 @@
 import { createInterface, ReadLine } from 'readline';
-import { info } from '../logger';
+import { info } from '../utils/logger';
 import * as fs from 'fs';
 
 export const ConsoleCommands = {

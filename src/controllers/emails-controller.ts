@@ -1,18 +1,28 @@
-﻿import * as express from 'express';
-import * as controllerModule from './controller';
+﻿import { IMessage } from 'modepress';
+import * as express from 'express';
+import { Controller } from './controller';
 import * as bodyParser from 'body-parser';
-import { UserManager } from '../users'
-import { errJson } from '../serializers';
+import { UserManager } from '../core/users'
+import { errJson } from '../utils/serializers';
+import { IBaseControler } from 'modepress';
+import * as mongodb from 'mongodb';
 
-export default class EmailsController extends controllerModule.Controller {
+export class EmailsController extends Controller {
+    private _options: IBaseControler;
+
 	/**
 	 * Creates a new instance of the email controller
-	 * @param server The server configuration options
-     * @param config The configuration options
-     * @param e The express instance of this server
 	 */
-    constructor( server: Modepress.IServer, config: Modepress.IConfig, e: express.Express ) {
+    constructor( options: IBaseControler ) {
         super( null );
+        this._options = options;
+    }
+
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+
 
         const router = express.Router();
         router.use( bodyParser.urlencoded( { 'extended': true } ) );
@@ -23,7 +33,10 @@ export default class EmailsController extends controllerModule.Controller {
         router.post( '/', this.onPost.bind( this ) );
 
         // Register the path
-        e.use( '/api/message-admin', router );
+        e.use(( this._options.rootPath || '' ) + '/message-admin', router );
+
+        await super.initialize( e, db );
+        return this;
     }
 
 	/**
@@ -34,12 +47,12 @@ export default class EmailsController extends controllerModule.Controller {
         res.setHeader( 'Content-Type', 'application/json' );
 
         const message: string = [ `Hello admin,`,
-            `We have received a message from ${( <Modepress.IMessage>req.body ).name}:`,
-            `${( <Modepress.IMessage>req.body ).message}`,
+            `We have received a message from ${( <IMessage>req.body ).name}:`,
+            `${( <IMessage>req.body ).message}`,
             ``,
-            `Email: ${( <Modepress.IMessage>req.body ).email}`,
-            `Phone: ${( <Modepress.IMessage>req.body ).phone}`,
-            `Website: ${( <Modepress.IMessage>req.body ).website}` ].join( '\r\n' );
+            `Email: ${( <IMessage>req.body ).email}`,
+            `Phone: ${( <IMessage>req.body ).phone}`,
+            `Website: ${( <IMessage>req.body ).website}` ].join( '\r\n' );
 
         UserManager.get.sendAdminEmail( message ).then( function( body ) {
             res.end( body );

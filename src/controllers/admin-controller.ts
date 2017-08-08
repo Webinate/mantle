@@ -1,24 +1,31 @@
 ﻿'use strict';
-
+import { IResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../users';
+import { UserManager } from '../core/users';
 import { Controller } from './controller'
-import { okJson, errJson } from '../serializers';
+import { okJson, errJson } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
+import { IBaseControler } from 'modepress';
+import * as mongodb from 'mongodb';
 
 /**
  * Main class to use for managing users
  */
 export class AdminController extends Controller {
-    private _config: Modepress.IConfig;
+    private _options: IBaseControler;
 
-    constructor( e: express.Express, config: Modepress.IConfig ) {
+    constructor( options: IBaseControler ) {
         super( [ Model.registerModel( UsersModel ) ] );
+        this._options = options;
+    }
 
-        this._config = config;
+    /**
+	 * Called to initialize this controller and its related database objects
+	 */
+    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
 
         // Setup the rest calls
         const router = express.Router();
@@ -30,7 +37,10 @@ export class AdminController extends Controller {
         router.post( '/message-webmaster', this.messageWebmaster.bind( this ) );
 
         // Register the path
-        e.use( '/admin', router );
+        e.use(( this._options.rootPath || '' ) + '/admin', router );
+
+        await super.initialize( e, db );
+        return this;
     }
 
     /**
@@ -44,7 +54,7 @@ export class AdminController extends Controller {
                 throw new Error( 'Please specify a message to send' );
 
             await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
-            okJson<Modepress.IResponse>( { error: false, message: 'Your message has been sent to the support team' }, res );
+            okJson<IResponse>( { error: false, message: 'Your message has been sent to the support team' }, res );
 
         } catch ( err ) {
             return errJson( err, res );
