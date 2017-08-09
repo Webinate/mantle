@@ -21,46 +21,52 @@ describe( 'Testing creation of posts', function() {
     } )
 
     it( 'cannot create post when not logged in', function( done ) {
-        guest.post( `/api/posts`, { name: "" } )
+        guest
+            .code( 500 )
+            .post( `/api/posts`, { name: "" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.string( res.body.message ).is( "You must be logged in to make this request" );
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot create a post without title', function( done ) {
-        admin.post( `/api/posts`, { title: "", slug: "" } )
+        admin
+            .code( 500 )
+            .post( `/api/posts`, { title: "", slug: "" } )
             .then( res => {
                 test.string( res.body.message ).is( "title cannot be empty" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot create a post without a slug field', function( done ) {
-        admin.post( `/api/posts`, { title: "test" } )
+        admin
+            .code( 500 )
+            .post( `/api/posts`, { title: "test" } )
             .then( res => {
                 test.string( res.body.message ).is( "slug is required" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot create a post without slug', function( done ) {
-        admin.post( `/api/posts`, { title: "test", slug: "" } )
+        admin
+            .code( 500 )
+            .post( `/api/posts`, { title: "test", slug: "" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.string( res.body.message ).is( "slug cannot be empty" );
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'did delete any existing posts with the slug --simple--test--', function( done ) {
-        admin.get( `/api/posts/slug/--simple--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--simple--test--` )
             .then( res => {
                 if ( res.body.data ) {
-                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                    admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
                             test.bool( res.body.error ).isFalse();
                             done();
@@ -101,10 +107,12 @@ describe( 'Testing creation of posts', function() {
     } )
 
     it( 'did delete any existing posts with this slug --strip--test--', function( done ) {
-        admin.get( `/api/posts/slug/--strip--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--strip--test--` )
             .then( res => {
                 if ( res.body.data ) {
-                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                    admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
                             test.bool( res.body.error ).isFalse();
                             done();
@@ -129,7 +137,7 @@ describe( 'Testing creation of posts', function() {
     } )
 
     it( 'did delete the first post', function( done ) {
-        admin.delete( `/api/posts/${ lastPost }` )
+        admin.delete( `/api/posts/${lastPost}` )
             .then( res => {
                 test.bool( res.body.error ).isFalse();
                 done();
@@ -137,7 +145,7 @@ describe( 'Testing creation of posts', function() {
     } )
 
     it( 'did delete the second post', function( done ) {
-        admin.delete( `/api/posts/${ lastPost2 }` )
+        admin.delete( `/api/posts/${lastPost2}` )
             .then( res => {
                 test.bool( res.body.error ).isFalse();
                 done();

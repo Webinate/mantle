@@ -14,7 +14,8 @@ describe( 'Testing file uploads', function() {
     } )
 
     it( 'regular user did create a bucket dinosaurs', function( done ) {
-        user1.post( `/buckets/user/${user1.username}/dinosaurs` )
+        user1
+            .post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue();
                 done();
@@ -24,7 +25,7 @@ describe( 'Testing file uploads', function() {
     it( 'regular user has 0 files in the bucket', function( done ) {
         user1
             .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.string( res.body.message ).is( "Found [0] files" );
                 test.array( res.body.data ).hasLength( 0 );
                 test.bool( res.body.error ).isNotTrue();
@@ -35,7 +36,7 @@ describe( 'Testing file uploads', function() {
     it( 'regular user did not upload a file to a bucket that does not exist', function( done ) {
         user1.attach( '"�$^&&', filePath )
             .post( "/buckets/dinosaurs3/upload" )
-            .then( (res) => {
+            .then(( res ) => {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "No bucket exists with the name 'dinosaurs3'" );
@@ -47,11 +48,12 @@ describe( 'Testing file uploads', function() {
 
     it( 'regular user did not upload a file when the meta was invalid', function( done ) {
         user1
-            .setContentType('application/x-www-form-urlencoded')
-            .fields( {'meta': 'BAD META'} )
+            .code( 200 )
+            .setContentType( 'application/x-www-form-urlencoded' )
+            .fields( { 'meta': 'BAD META' } )
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "Error: Meta data is not a valid JSON: SyntaxError: Unexpected token B in JSON at position 0" );
@@ -63,11 +65,11 @@ describe( 'Testing file uploads', function() {
 
     it( 'regular user did upload a file when the meta was valid', function( done ) {
         user1
-            .setContentType('application/x-www-form-urlencoded')
-            .fields( {'meta':  '{ "meta" : "good" }'} )
+            .setContentType( 'application/x-www-form-urlencoded' )
+            .fields( { 'meta': '{ "meta" : "good" }' } )
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
@@ -81,7 +83,7 @@ describe( 'Testing file uploads', function() {
         user1
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
-            .then( (res) => {
+            .then(( res ) => {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
@@ -100,7 +102,7 @@ describe( 'Testing file uploads', function() {
         user1
             .attach( 'small-image', filePath )
             .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "data" );
                 test.string( res.body.message ).is( "Found [2] files" );

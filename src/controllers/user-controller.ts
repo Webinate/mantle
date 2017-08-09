@@ -30,7 +30,7 @@ export class UserController extends Controller {
     /**
      * Called to initialize this controller and its related database objects
      */
-    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+    async initialize( e: express.Express, db: mongodb.Db ) {
 
         // Setup the rest calls
         const router = express.Router();

@@ -13,7 +13,9 @@ describe( 'Testing bucket creation', function() {
     } )
 
     it( 'regular user did not create a bucket for another user', function( done ) {
-        user1.post( `/buckets/user/${config.adminUser.username} + "/test` )
+        user1
+            .code( 500 )
+            .post( `/buckets/user/${config.adminUser.username} + "/test` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
@@ -23,7 +25,9 @@ describe( 'Testing bucket creation', function() {
     } )
 
     it( 'regular user did not create a bucket with bad characters', function( done ) {
-        user1.post( `/buckets/user/${user1.username}/�BAD!CHARS` )
+        user1
+            .code( 500 )
+            .post( `/buckets/user/${user1.username}/�BAD!CHARS` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Please only use safe characters" );
@@ -43,7 +47,9 @@ describe( 'Testing bucket creation', function() {
     } )
 
     it( 'regular user did not create a bucket with the same name as an existing one', function( done ) {
-        user1.post( `/buckets/user/${user1.username}/dinosaurs` )
+        user1
+            .code( 500 )
+            .post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "A Bucket with the name 'dinosaurs' has already been registered" );

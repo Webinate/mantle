@@ -22,7 +22,9 @@ describe( 'Getting uploaded user files', function() {
     } )
 
     it( 'regular user did not get files for the admin user bucket', function( done ) {
-        user1.get( `/files/users/${config.adminUser.username}/buckets/BAD_ENTRY` )
+        user1
+            .code( 500 )
+            .get( `/files/users/${config.adminUser.username}/buckets/BAD_ENTRY` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
@@ -32,7 +34,9 @@ describe( 'Getting uploaded user files', function() {
     } )
 
     it( 'regular user did not get files for a non existant bucket', function( done ) {
-        user1.get( `/files/users/${user1.username}/buckets/test` )
+        user1
+            .code( 500 )
+            .get( `/files/users/${user1.username}/buckets/test` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Could not find the bucket 'test'" );
@@ -45,7 +49,7 @@ describe( 'Getting uploaded user files', function() {
         user1
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
@@ -55,7 +59,7 @@ describe( 'Getting uploaded user files', function() {
         user1
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
@@ -64,7 +68,7 @@ describe( 'Getting uploaded user files', function() {
     it( 'regular user fetched 2 files from the dinosaur bucket', function( done ) {
         user1
             .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "data" );
                 test.string( res.body.message ).is( "Found [2] files" );
@@ -88,7 +92,7 @@ describe( 'Getting uploaded user files', function() {
     it( 'admin fetched 2 files from the regular users dinosaur bucket', function( done ) {
         admin
             .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.string( res.body.message ).is( "Found [2] files" );
                 test.array( res.body.data ).hasLength( 2 );
                 test.bool( res.body.error ).isNotTrue();

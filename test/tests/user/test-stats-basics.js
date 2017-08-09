@@ -13,7 +13,9 @@ describe( 'Getting and setting user stats', function() {
     } )
 
     it( 'regular user did not get stats for admin', function( done ) {
-        user1.get( `/stats/users/${config.adminUser.username}/get-stats` )
+        user1
+            .code( 500 )
+            .get( `/stats/users/${config.adminUser.username}/get-stats` )
             .then( res => {
                 test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
@@ -23,7 +25,9 @@ describe( 'Getting and setting user stats', function() {
     } )
 
     it( 'regular user did not create stats for admin', function( done ) {
-        user1.post( `/stats/create-stats/${config.adminUser.username}`, {} )
+        user1
+            .code( 500 )
+            .post( `/stats/create-stats/${config.adminUser.username}`, {} )
             .then( res => {
                 test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
@@ -40,7 +44,7 @@ describe( 'Getting and setting user stats', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "data" );
                 test.object( res.body.data ).hasProperty( "_id" );
-                test.string( res.body.data.user ).is( user1.username);
+                test.string( res.body.data.user ).is( user1.username );
                 test.number( res.body.data.apiCallsAllocated ).is( 20000 );
                 test.number( res.body.data.memoryAllocated ).is( 500000000 );
                 test.number( res.body.data.apiCallsUsed ).is( 0 );

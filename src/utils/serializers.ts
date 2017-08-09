@@ -21,9 +21,9 @@ export function j200( errCode: number = 500 ) {
                 result.then( result => {
                     res.setHeader( 'Content-Type', 'application/json' );
                     res.status( 200 ).json( result );
-                } ).catch(( err: any ) => {
+                } ).catch(( err: Error ) => {
                     res.setHeader( 'Content-Type', 'application/json' );
-                    res.status( errCode ).json( err );
+                    res.status( errCode ).json( { message: err.message } );
                 } );
             }
         };
@@ -49,6 +49,7 @@ export function okJson<T extends IResponse>( data: T, res: express.Response ) {
  */
 export function errJson( err: Error, res: express.Response ) {
     logError( err.message );
+    res.status( 500 )
     res.setHeader( 'Content-Type', 'application/json' );
     res.end( JSON.stringify( <IResponse>{ error: true, message: err.message } ) );
 }

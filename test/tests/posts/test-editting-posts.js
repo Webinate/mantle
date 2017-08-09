@@ -21,10 +21,12 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'did delete any existing posts with the slug --edit--test--', function( done ) {
-        admin.get( `/api/posts/slug/--edit--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--edit--test--` )
             .then( res => {
                 if ( res.body.data ) {
-                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                    admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
                             test.bool( res.body.error ).isFalse();
                             done();
@@ -36,10 +38,12 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'did delete any existing posts with the slug --second--test--', function( done ) {
-        admin.get( `/api/posts/slug/--second--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--second--test--` )
             .then( res => {
                 if ( res.body.data ) {
-                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                    admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
                             test.bool( res.body.error ).isFalse();
                             done();
@@ -77,7 +81,9 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'cannot edit a post with an invalid ID', function( done ) {
-        admin.put( `/api/posts/woohoo`, { title: "Simple Test 3" } )
+        admin
+            .code( 500 )
+            .put( `/api/posts/woohoo`, { title: "Simple Test 3" } )
             .then( res => {
                 test.string( res.body.message ).is( "Invalid ID format" );
                 done();
@@ -85,7 +91,9 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'cannot edit a post with an valid ID but doesnt exist', function( done ) {
-        admin.put( `/api/posts/123456789012345678901234`, { title: "Simple Test 3" } )
+        admin
+            .code( 500 )
+            .put( `/api/posts/123456789012345678901234`, { title: "Simple Test 3" } )
             .then( res => {
                 test.string( res.body.message ).is( "Could not find post with that id" );
                 done();
@@ -93,7 +101,9 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'cannot edit a post without permission', function( done ) {
-        guest.put( `/api/posts/${ postId }`, { title: "Simple Test 3" } )
+        guest
+            .code( 500 )
+            .put( `/api/posts/${postId}`, { title: "Simple Test 3" } )
             .then( res => {
                 test.string( res.body.message ).is( "You must be logged in to make this request" );
                 done();
@@ -101,7 +111,9 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'cannot change an existing post with a slug already in use', function( done ) {
-        admin.put( `/api/posts/${ secondPostId }`, { slug: "--edit--test--" } )
+        admin
+            .code( 500 )
+            .put( `/api/posts/${secondPostId}`, { slug: "--edit--test--" } )
             .then( res => {
                 test.string( res.body.message ).is( "'slug' must be unique" );
                 done();
@@ -109,7 +121,7 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'can change a post slug with a slug already in use, if its the same post', function( done ) {
-        admin.put( `/api/posts/${ postId }`, { slug: "--edit--test--" } )
+        admin.put( `/api/posts/${postId}`, { slug: "--edit--test--" } )
             .then( res => {
                 test.string( res.body.message ).is( "Post Updated" );
                 done();
@@ -117,7 +129,7 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'can edit a post with valid details', function( done ) {
-        admin.put( `/api/posts/${ postId }`, { content: "Updated" } )
+        admin.put( `/api/posts/${postId}`, { content: "Updated" } )
             .then( res => {
                 test.string( res.body.message ).is( "Post Updated" );
                 done();
@@ -125,7 +137,7 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'did cleanup the test post', function( done ) {
-        admin.delete( `/api/posts/${ postId }` )
+        admin.delete( `/api/posts/${postId}` )
             .then( res => {
                 test.string( res.body.message ).is( "Post has been successfully removed" );
                 done();
@@ -133,7 +145,7 @@ describe( 'Testing editing of posts', function() {
     } )
 
     it( 'did cleanup the second test post', function( done ) {
-        admin.delete( `/api/posts/${ secondPostId }` )
+        admin.delete( `/api/posts/${secondPostId}` )
             .then( res => {
                 test.string( res.body.message ).is( "Post has been successfully removed" );
                 done();

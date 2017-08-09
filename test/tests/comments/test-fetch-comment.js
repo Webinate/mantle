@@ -13,7 +13,9 @@ describe( 'Testing fetching of comments', function() {
     } )
 
     it( 'did delete any existing posts with the slug --comments--test--', function( done ) {
-        admin.get( `/api/posts/slug/--comments--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--comments--test--` )
             .then( res => {
                 if ( res.body.data ) {
                     admin.delete( `/api/posts/${res.body.data._id}` )
@@ -98,19 +100,21 @@ describe( 'Testing fetching of comments', function() {
     } )
 
     it( 'cannot get a comment with an invalid id', function( done ) {
-        admin.get( `/api/comments/BADID` )
+        admin
+            .code( 500 )
+            .get( `/api/comments/BADID` )
             .then( res => {
                 test.string( res.body.message ).is( "Invalid ID format" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot get a comment that does not exist', function( done ) {
-        admin.get( `/api/comments/123456789012345678901234` )
+        admin
+            .code( 500 )
+            .get( `/api/comments/123456789012345678901234` )
             .then( res => {
                 test.string( res.body.message ).is( "Could not find comment" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -126,10 +130,11 @@ describe( 'Testing fetching of comments', function() {
     } )
 
     it( 'cannot get a private comment without being logged in', function( done ) {
-        guest.get( `/api/comments/${privateCommentId}` )
+        guest
+            .code( 500 )
+            .get( `/api/comments/${privateCommentId}` )
             .then( res => {
                 test.string( res.body.message ).is( "That comment is marked private" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

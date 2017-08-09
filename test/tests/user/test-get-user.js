@@ -83,7 +83,9 @@ describe( 'Getting user data', function() {
     } )
 
     it( 'should get no user with username', function( done ) {
-        guest.get( `/api/users/${config.adminUser.username}` )
+        guest
+            .code( 500 )
+            .get( `/api/users/${config.adminUser.username}` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" )
                 test.bool( res.body.error ).isTrue()
@@ -94,7 +96,9 @@ describe( 'Getting user data', function() {
     } ).timeout( 20000 )
 
     it( 'should get no user with email or verbose', function( done ) {
-        guest.get( `/api/users/${config.adminUser.email}?verbose=true` )
+        guest
+            .code( 500 )
+            .get( `/api/users/${config.adminUser.email}?verbose=true` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" )
                 test.bool( res.body.error ).isTrue()

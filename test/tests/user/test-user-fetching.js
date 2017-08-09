@@ -24,7 +24,9 @@ describe( 'Testing fetching users', function() {
     } )
 
     it( 'did not allow a regular user to access the admin user details', function( done ) {
-        user1.get( `/api/users/${admin.username}?verbose=true` )
+        user1
+            .code( 500 )
+            .get( `/api/users/${admin.username}?verbose=true` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -34,7 +36,9 @@ describe( 'Testing fetching users', function() {
     } )
 
     it( 'did not allow a regular user to access another user details', function( done ) {
-        user2.get( `/api/users/${admin.username}?verbose=true` )
+        user2
+            .code( 500 )
+            .get( `/api/users/${admin.username}?verbose=true` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )

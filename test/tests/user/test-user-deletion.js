@@ -15,7 +15,9 @@ describe( 'Testing deleting users', function() {
     } )
 
     it( `did removing any existing user ${testUserName}`, function( done ) {
-        admin.delete( `/api/users/${testUserName}` )
+        admin
+            .code( null )
+            .delete( `/api/users/${testUserName}` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );
@@ -31,7 +33,9 @@ describe( 'Testing deleting users', function() {
     } )
 
     it( 'did not allow a regular user to remove another user', function( done ) {
-        user1.delete( `/api/users/${user2.username}` )
+        user1
+            .code( 500 )
+            .delete( `/api/users/${user2.username}` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )

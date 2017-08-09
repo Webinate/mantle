@@ -9,7 +9,7 @@ import { Model } from '../models/model';
 import { PostsModel } from '../models/posts-model';
 import { CategoriesModel } from '../models/categories-model';
 import { adminRights, hasId } from '../utils/permission-controllers';
-import { okJson, errJson } from '../utils/serializers';
+import { j200 } from '../utils/serializers';
 import { IBaseControler } from 'modepress';
 
 /**
@@ -53,71 +53,59 @@ export class CategoriesController extends Controller {
     /**
      * Returns an array of ICategory items
      */
+    @j200()
     private async getCategories( req: IAuthReq, res: express.Response ) {
         const categories = this.getModel( 'categories' )!;
 
-        try {
-            const instances = await categories.findInstances<ICategory>( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
+        const instances = await categories.findInstances<ICategory>( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
 
-            const jsons: Array<Promise<ICategory>> = [];
-            for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<ICategory>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
+        const jsons: Array<Promise<ICategory>> = [];
+        for ( let i = 0, l = instances.length; i < l; i++ )
+            jsons.push( instances[ i ].schema.getAsJson<ICategory>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
 
-            const sanitizedData = await Promise.all( jsons );
+        const sanitizedData = await Promise.all( jsons );
 
-            okJson<IGetCategories>( {
-                error: false,
-                count: sanitizedData.length,
-                message: `Found ${sanitizedData.length} categories`,
-                data: sanitizedData
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
+        return {
+            error: false,
+            count: sanitizedData.length,
+            message: `Found ${sanitizedData.length} categories`,
+            data: sanitizedData
+        } as IGetCategories;
     }
 
     /**
      * Attempts to remove a category by ID
      */
+    @j200()
     private async removeCategory( req: IAuthReq, res: express.Response ) {
         const categories = this.getModel( 'categories' )!;
 
-        try {
-            const numRemoved = await categories.deleteInstances( <ICategory>{ _id: new mongodb.ObjectID( req.params.id ) } );
+        const numRemoved = await categories.deleteInstances( <ICategory>{ _id: new mongodb.ObjectID( req.params.id ) } );
 
-            if ( numRemoved === 0 )
-                return Promise.reject( new Error( 'Could not find a category with that ID' ) );
+        if ( numRemoved === 0 )
+            return Promise.reject( new Error( 'Could not find a category with that ID' ) );
 
-            okJson<IResponse>( {
-                error: false,
-                message: 'Category has been successfully removed'
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
+        return {
+            error: false,
+            message: 'Category has been successfully removed'
+        } as IResponse;
     }
 
     /**
      * Attempts to create a new category item
      */
+    @j200()
     private async createCategory( req: IAuthReq, res: express.Response ) {
         const token: ICategory = req.body;
         const categories = this.getModel( 'categories' )!;
 
-        try {
-            const instance = await categories.createInstance( token );
-            const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
+        const instance = await categories.createInstance( token );
+        const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
 
-            okJson<IGetCategory>( {
-                error: false,
-                message: 'New category created',
-                data: json
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
+        return {
+            error: false,
+            message: 'New category created',
+            data: json
+        } as IGetCategory;
     }
 }

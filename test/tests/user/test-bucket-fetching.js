@@ -32,7 +32,9 @@ describe( 'Testing bucket get requests', function() {
     } )
 
     it( 'regular user did not get buckets for admin', function( done ) {
-        user1.get( `/buckets/user/${config.adminUser.username}` )
+        user1
+            .code( 500 )
+            .get( `/buckets/user/${config.adminUser.username}` )
             .then( res => {
                 test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
@@ -42,7 +44,9 @@ describe( 'Testing bucket get requests', function() {
     } )
 
     it( 'other regular user did not get buckets for regular user', function( done ) {
-        user2.get( `/buckets/user/${config.adminUser.username}` )
+        user2
+            .code( 500 )
+            .get( `/buckets/user/${config.adminUser.username}` )
             .then( res => {
                 test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );

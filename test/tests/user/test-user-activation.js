@@ -14,7 +14,9 @@ describe( 'Testing user activation', function() {
     } )
 
     it( `did remove any existing user called ${testUserName}`, function( done ) {
-        admin.delete( `/api/users/${testUserName}` )
+        admin
+            .code( null )
+            .delete( `/api/users/${testUserName}` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );
@@ -45,19 +47,16 @@ describe( 'Testing user activation', function() {
             .code( 500 )
             .post( `/api/auth/login`, { username: testUserName, password: "Password" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
-                test.bool( res.body.authenticated ).isFalse()
-                test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "Please authorise your account by clicking on the link that was sent to your email" )
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'did not resend an activation with an invalid user', function( done ) {
-        guest.get( `/api/auth/NONUSER5/resend-activation` )
+        guest
+            .code( 500 )
+            .get( `/api/auth/NONUSER5/resend-activation` )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
-                test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "No user exists with the specified details" )
                 done();
             } ).catch( err => done( err ) );

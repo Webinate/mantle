@@ -15,8 +15,6 @@ describe( 'Testing user logging in', function() {
             .code( 500 )
             .post( '/api/auth/login', { username: "", password: "" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
-                test.bool( res.body.authenticated ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
                 done();
             } ).catch( err => done( err ) );
@@ -27,8 +25,6 @@ describe( 'Testing user logging in', function() {
             .code( 500 )
             .post( '/api/auth/login', { username: "$%^\}{}\"&*[]@~�&$", password: "$%^&*�&@#`{}/\"�%\"$" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
-                test.bool( res.body.authenticated ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
                 done();
             } ).catch( err => done( err ) );
@@ -39,8 +35,6 @@ describe( 'Testing user logging in', function() {
             .code( 500 )
             .post( '/api/auth/login', { username: "GeorgeTheTwat", password: "FakePass" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
-                test.bool( res.body.authenticated ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
                 done();
             } ).catch( err => done( err ) );
@@ -51,8 +45,6 @@ describe( 'Testing user logging in', function() {
             .code( 500 )
             .post( '/api/auth/login', { username: config.adminUser.username, password: "FakePass" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
-                test.bool( res.body.authenticated ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
                 done();
             } ).catch( err => done( err ) );
@@ -62,7 +54,6 @@ describe( 'Testing user logging in', function() {
         guest
             .post( '/api/auth/login', { username: config.adminUser.username, password: config.adminUser.password } )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue()
                 test.bool( res.body.authenticated ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 admin.updateCookie( res );

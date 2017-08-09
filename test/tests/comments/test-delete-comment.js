@@ -32,7 +32,9 @@ describe( 'Testing deletion of comments', function() {
     } )
 
     it( 'did delete any existing posts with the slug --comments--test--', function( done ) {
-        admin.get( `/api/posts/slug/--comments--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--comments--test--` )
             .then( res => {
                 if ( res.body.data ) {
                     admin.delete( `/api/posts/${res.body.data._id}` )
@@ -114,19 +116,21 @@ describe( 'Testing deletion of comments', function() {
     } )
 
     it( 'cannot delete a comment with a bad id', function( done ) {
-        admin.delete( `/api/comments/abc`, {} )
+        admin
+            .code( 500 )
+            .delete( `/api/comments/abc`, {} )
             .then( res => {
                 test.string( res.body.message ).is( "Invalid ID format" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot delete a comment with a valid id but doesn\'t exist', function( done ) {
-        admin.delete( `/api/comments/123456789012345678901234`, {} )
+        admin
+            .code( 500 )
+            .delete( `/api/comments/123456789012345678901234`, {} )
             .then( res => {
                 test.string( res.body.message ).is( "Could not find a comment with that ID" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

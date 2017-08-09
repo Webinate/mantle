@@ -15,7 +15,9 @@ describe( 'Testing users logout', function() {
     } )
 
     it( `did remove any existing user ${testUserName}`, function( done ) {
-        admin.delete( `/api/users/${testUserName}` )
+        admin
+            .code( null )
+            .delete( `/api/users/${testUserName}` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );

@@ -34,7 +34,9 @@ describe( 'Testing deletion of posts', function() {
     } )
 
     it( 'cannot delete a post with invalid ID format', function( done ) {
-        admin.delete( `/api/posts/WRONGWRONGWRONG` )
+        admin
+            .code( 500 )
+            .delete( `/api/posts/WRONGWRONGWRONG` )
             .then( res => {
                 test.string( res.body.message ).is( "Invalid ID format" );
                 done();
@@ -42,7 +44,9 @@ describe( 'Testing deletion of posts', function() {
     } )
 
     it( 'cannot delete a post with invalid ID', function( done ) {
-        admin.delete( `/api/posts/123456789012345678901234` )
+        admin
+            .code( 500 )
+            .delete( `/api/posts/123456789012345678901234` )
             .then( res => {
                 test.string( res.body.message ).is( "Could not find a post with that ID" );
                 done();
@@ -50,7 +54,9 @@ describe( 'Testing deletion of posts', function() {
     } )
 
     it( 'cannot delete a post without permission', function( done ) {
-        guest.delete( `/api/posts/${ postId }`, null )
+        guest
+            .code( 500 )
+            .delete( `/api/posts/${postId}`, null )
             .then( res => {
                 test.string( res.body.message ).is( "You must be logged in to make this request" );
                 done();
@@ -58,7 +64,7 @@ describe( 'Testing deletion of posts', function() {
     } )
 
     it( 'can delete a post with valid ID & admin permissions', function( done ) {
-        admin.delete( `/api/posts/${ postId }` )
+        admin.delete( `/api/posts/${postId}` )
             .then( res => {
                 test.string( res.body.message ).is( "Post has been successfully removed" );
                 done();

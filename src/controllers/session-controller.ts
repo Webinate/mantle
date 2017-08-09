@@ -6,7 +6,7 @@ import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';
 import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { okJson, errJson } from '../utils/serializers';
+import { j200 } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
@@ -52,33 +52,26 @@ export class SessionController extends Controller {
 	/**
 	 * Gets a list of active sessions. You can limit the haul by specifying the 'index' and 'limit' query parameters.
 	 */
+    @j200()
     private async getSessions( req: express.Request, res: express.Response ) {
-        try {
-            const numSessions = await UserManager.get.sessionManager.numActiveSessions();
-            const sessions = await UserManager.get.sessionManager.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
+        const numSessions = await UserManager.get.sessionManager.numActiveSessions();
+        const sessions = await UserManager.get.sessionManager.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
 
-            okJson<IGetSessions>( {
-                error: false,
-                message: `Found ${sessions.length} active sessions`,
-                data: sessions,
-                count: numSessions
-            }, res );
-
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+        return {
+            error: false,
+            message: `Found ${sessions.length} active sessions`,
+            data: sessions,
+            count: numSessions
+        } as IGetSessions;
     }
 
 	/**
  	 * Resends the activation link to the user
 	 */
+    @j200()
     private async deleteSession( req: express.Request, res: express.Response ) {
-        try {
-            await UserManager.get.sessionManager.clearSession( req.params.id, req, res );
-            okJson<IResponse>( { error: false, message: `Session ${req.params.id} has been removed` }, res );
+        await UserManager.get.sessionManager.clearSession( req.params.id, req, res );
+        return { error: false, message: `Session ${req.params.id} has been removed` } as IResponse;
 
-        } catch ( err ) {
-            return errJson( err, res );
-        };
     }
 }

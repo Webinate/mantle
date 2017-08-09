@@ -9,7 +9,7 @@ import { Model } from '../models/model';
 import { PostsModel } from '../models/posts-model';
 import { CategoriesModel } from '../models/categories-model';
 import { identifyUser, checkVerbosity, adminRights, hasId } from '../utils/permission-controllers';
-import { okJson, errJson } from '../utils/serializers';
+import { j200 } from '../utils/serializers';
 import { UserPrivileges } from '../core/users';
 import { IBaseControler } from 'modepress';
 
@@ -57,6 +57,7 @@ export class PostsController extends Controller {
     /**
      * Returns an array of IPost items
      */
+    @j200()
     private async getPosts( req: IAuthReq, res: express.Response ) {
         const posts = this.getModel( 'posts' );
         let count = 0;
@@ -151,137 +152,121 @@ export class PostsController extends Controller {
         if ( findToken.$or.length === 0 )
             delete findToken.$or;
 
-        try {
-            // First get the count
-            count = await posts!.count( findToken );
+        // First get the count
+        count = await posts!.count( findToken );
 
-            let index: number | undefined;
-            let limit: number | undefined;
-            if ( req.query.index !== undefined )
-                index = parseInt( req.query.index );
-            if ( req.query.limit !== undefined )
-                limit = parseInt( req.query.limit );
+        let index: number | undefined;
+        let limit: number | undefined;
+        if ( req.query.index !== undefined )
+            index = parseInt( req.query.index );
+        if ( req.query.limit !== undefined )
+            limit = parseInt( req.query.limit );
 
-            const instances = await posts!.findInstances<IPost>( {
-                selector: findToken,
-                sort: sort,
-                index: index,
-                limit: limit,
-                projection: ( getContent === false ? { content: 0 } : undefined )
-            } );
+        const instances = await posts!.findInstances<IPost>( {
+            selector: findToken,
+            sort: sort,
+            index: index,
+            limit: limit,
+            projection: ( getContent === false ? { content: 0 } : undefined )
+        } );
 
-            const jsons: Array<Promise<IPost>> = [];
-            for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
+        const jsons: Array<Promise<IPost>> = [];
+        for ( let i = 0, l = instances.length; i < l; i++ )
+            jsons.push( instances[ i ].schema.getAsJson<IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
 
-            const sanitizedData = await Promise.all( jsons );
+        const sanitizedData = await Promise.all( jsons );
 
-            okJson<IGetPosts>( {
-                error: false,
-                count: count,
-                message: `Found ${count} posts`,
-                data: sanitizedData
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
+        return {
+            error: false,
+            count: count,
+            message: `Found ${count} posts`,
+            data: sanitizedData
+        } as IGetPosts;
     }
 
     /**
      * Returns a single post
      */
+    @j200()
     private async getPost( req: IAuthReq, res: express.Response ) {
         const posts = this.getModel( 'posts' );
         let findToken: IPost;
         const user: IUserEntry = req._user!;
 
-        try {
-            if ( req.params.id )
-                findToken = { _id: new mongodb.ObjectID( req.params.id ) };
-            else
-                findToken = { slug: req.params.slug };
+        if ( req.params.id )
+            findToken = { _id: new mongodb.ObjectID( req.params.id ) };
+        else
+            findToken = { slug: req.params.slug };
 
-            const instances = await posts!.findInstances<IPost>( { selector: findToken, index: 0, limit: 1 } );
+        const instances = await posts!.findInstances<IPost>( { selector: findToken, index: 0, limit: 1 } );
 
-            if ( instances.length === 0 )
-                throw new Error( 'Could not find post' );
+        if ( instances.length === 0 )
+            throw new Error( 'Could not find post' );
 
 
-            const isPublic = await instances[ 0 ].schema.getByName( 'public' )!.getValue();
-            // Only admins are allowed to see private posts
-            if ( !isPublic && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
-                throw new Error( 'That post is marked private' );
+        const isPublic = await instances[ 0 ].schema.getByName( 'public' )!.getValue();
+        // Only admins are allowed to see private posts
+        if ( !isPublic && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
+            throw new Error( 'That post is marked private' );
 
-            const jsons: Array<Promise<IPost>> = [];
-            for ( let i = 0, l = instances.length; i < l; i++ )
-                jsons.push( instances[ i ].schema.getAsJson<IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
+        const jsons: Array<Promise<IPost>> = [];
+        for ( let i = 0, l = instances.length; i < l; i++ )
+            jsons.push( instances[ i ].schema.getAsJson<IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
 
-            const sanitizedData = await Promise.all( jsons );
+        const sanitizedData = await Promise.all( jsons );
 
-            okJson<IGetPost>( {
-                error: false,
-                message: `Found ${sanitizedData.length} posts`,
-                data: sanitizedData[ 0 ]
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
+        return {
+            error: false,
+            message: `Found ${sanitizedData.length} posts`,
+            data: sanitizedData[ 0 ]
+        } as IGetPosts;
     }
 
     /**
      * Attempts to remove a post by ID
      */
+    @j200()
     private async removePost( req: IAuthReq, res: express.Response ) {
         const posts = this.getModel( 'posts' )!;
 
-        try {
-            // Attempt to delete the instances
-            const numRemoved = await posts.deleteInstances( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) } );
+        // Attempt to delete the instances
+        const numRemoved = await posts.deleteInstances( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) } );
 
-            if ( numRemoved === 0 )
-                throw new Error( 'Could not find a post with that ID' );
+        if ( numRemoved === 0 )
+            throw new Error( 'Could not find a post with that ID' );
 
-            okJson<IResponse>( {
-                error: false,
-                message: 'Post has been successfully removed'
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
+        return {
+            error: false,
+            message: 'Post has been successfully removed'
+        } as IResponse;
     }
 
     /**
      * Attempts to update a post by ID
      */
+    @j200()
     private async updatePost( req: IAuthReq, res: express.Response ) {
         const token: IPost = req.body;
         const posts = this.getModel( 'posts' )!;
 
-        try {
-            const instance = await posts.update( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
+        const instance = await posts.update( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
 
-            if ( instance.error )
-                throw new Error( <string>instance.tokens[ 0 ].error );
+        if ( instance.error )
+            throw new Error( <string>instance.tokens[ 0 ].error );
 
-            if ( instance.tokens.length === 0 )
-                throw new Error( 'Could not find post with that id' );
+        if ( instance.tokens.length === 0 )
+            throw new Error( 'Could not find post with that id' );
 
-            okJson<IResponse>( {
-                error: false,
-                message: 'Post Updated'
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
+        return {
+            error: false,
+            message: 'Post Updated'
+        } as IResponse;
     }
 
     /**
      * Attempts to create a new post
      */
+    @j200()
     private async createPost( req: IAuthReq, res: express.Response ) {
         const token: IPost = req.body;
         const posts = this.getModel( 'posts' )!;
@@ -289,18 +274,13 @@ export class PostsController extends Controller {
         // User is passed from the authentication function
         token.author = req._user!.username;
 
-        try {
-            const instance = await posts.createInstance( token );
-            const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
+        const instance = await posts.createInstance( token );
+        const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
 
-            okJson<IGetPost>( {
-                error: false,
-                message: 'New post created',
-                data: json
-            }, res );
-
-        } catch ( err ) {
-            errJson( err, res );
-        };
+        return {
+            error: false,
+            message: 'New post created',
+            data: json
+        } as IGetPost;
     }
 }

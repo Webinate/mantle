@@ -4,7 +4,7 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';
 import { Controller } from './controller'
-import { okJson, errJson } from '../utils/serializers';
+import { j200 } from '../utils/serializers';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
@@ -46,18 +46,14 @@ export class AdminController extends Controller {
     /**
 	 * Attempts to send the webmaster an email message
 	 */
+    @j200()
     private async messageWebmaster( req: express.Request, res: express.Response ) {
-        try {
-            const token: any = req.body;
+        const token: any = req.body;
 
-            if ( !token.message )
-                throw new Error( 'Please specify a message to send' );
+        if ( !token.message )
+            throw new Error( 'Please specify a message to send' );
 
-            await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
-            okJson<IResponse>( { error: false, message: 'Your message has been sent to the support team' }, res );
-
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+        await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
+        return { error: false, message: 'Your message has been sent to the support team' } as IResponse;
     }
 }

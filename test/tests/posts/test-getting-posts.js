@@ -21,10 +21,12 @@ describe( 'Testing fetching of posts', function() {
     } )
 
     it( 'did delete any existing posts with the slug --public--test--', function( done ) {
-        admin.get( `/api/posts/slug/--public--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--public--test--` )
             .then( res => {
                 if ( res.body.data ) {
-                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                    admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
                             test.bool( res.body.error ).isFalse();
                             done();
@@ -36,10 +38,12 @@ describe( 'Testing fetching of posts', function() {
     } )
 
     it( 'did delete any existing posts with the slug --private--test--', function( done ) {
-        admin.get( `/api/posts/slug/--private--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--private--test--` )
             .then( res => {
                 if ( res.body.data ) {
-                    admin.delete( `/api/posts/${ res.body.data._id }` )
+                    admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
                             test.bool( res.body.error ).isFalse();
                             done();
@@ -79,7 +83,9 @@ describe( 'Testing fetching of posts', function() {
     } )
 
     it( 'cannot get a post that doesnt exist', function( done ) {
-        admin.get( `/api/posts/slug/--simple--test--2--` )
+        admin
+            .code( 500 )
+            .get( `/api/posts/slug/--simple--test--2--` )
             .then( res => {
                 test.string( res.body.message ).is( 'Could not find post' );
                 done();
@@ -95,7 +101,7 @@ describe( 'Testing fetching of posts', function() {
     } )
 
     it( 'can fetch posts and impose an index and limit', function( done ) {
-        admin.get( `/api/posts?index=${ numPosts ? numPosts - 1 : 0 }&limit=1` )
+        admin.get( `/api/posts?index=${numPosts ? numPosts - 1 : 0}&limit=1` )
             .then( res => {
                 test.array( res.body.data ).hasLength( 1 );
                 done();
@@ -167,7 +173,9 @@ describe( 'Testing fetching of posts', function() {
     } )
 
     it( 'cannot fetch single post by invalid slug', function( done ) {
-        admin.get( `/api/posts/slug/WRONGWRONGWRONG` )
+        admin
+            .code( 500 )
+            .get( `/api/posts/slug/WRONGWRONGWRONG` )
             .then( res => {
                 test.string( res.body.message ).is( "Could not find post" );
                 done();
@@ -183,7 +191,9 @@ describe( 'Testing fetching of posts', function() {
     } )
 
     it( 'cannot fetch a private post by slug when not logged in', function( done ) {
-        guest.get( `/api/posts/slug/--private--test--` )
+        guest
+            .code( 500 )
+            .get( `/api/posts/slug/--private--test--` )
             .then( res => {
                 test.string( res.body.message ).is( "That post is marked private" );
                 done();
@@ -199,7 +209,7 @@ describe( 'Testing fetching of posts', function() {
     } )
 
     it( 'did cleanup the test public post', function( done ) {
-        admin.delete( `/api/posts/${ publicPostId }` )
+        admin.delete( `/api/posts/${publicPostId}` )
             .then( res => {
                 test.string( res.body.message ).is( "Post has been successfully removed" );
                 done();
@@ -207,7 +217,7 @@ describe( 'Testing fetching of posts', function() {
     } )
 
     it( 'did cleanup the test private post', function( done ) {
-        admin.delete( `/api/posts/${ privatePostId }` )
+        admin.delete( `/api/posts/${privatePostId}` )
             .then( res => {
                 test.string( res.body.message ).is( "Post has been successfully removed" );
                 done();

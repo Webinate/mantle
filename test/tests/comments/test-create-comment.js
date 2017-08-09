@@ -12,7 +12,9 @@ describe( 'Testing creation of comments', function() {
     } )
 
     it( 'did delete any existing posts with the slug --comments--test--', function( done ) {
-        admin.get( `/api/posts/slug/--comments--test--` )
+        admin
+            .code( null )
+            .get( `/api/posts/slug/--comments--test--` )
             .then( res => {
                 if ( res.body.data ) {
                     admin.delete( `/api/posts/${res.body.data._id}` )
@@ -61,55 +63,61 @@ describe( 'Testing creation of comments', function() {
     } )
 
     it( 'cannot create a comment when not logged in', function( done ) {
-        guest.post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` )
+        guest
+            .code( 500 )
+            .post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` )
             .then( res => {
                 test.string( res.body.message ).is( "You must be logged in to make this request" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot create a comment with a badly formatted post id', function( done ) {
-        admin.post( `/api/posts/bad/comments/bad` )
+        admin
+            .code( 500 )
+            .post( `/api/posts/bad/comments/bad` )
             .then( res => {
                 test.string( res.body.message ).is( "Invalid ID format" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot create a comment with a badly formatted parent comment id', function( done ) {
-        admin.post( `/api/posts/123456789012345678901234/comments/bad` )
+        admin
+            .code( 500 )
+            .post( `/api/posts/123456789012345678901234/comments/bad` )
             .then( res => {
                 test.string( res.body.message ).is( "Invalid ID format" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot create a comment without a post that actually exists', function( done ) {
-        admin.post( `/api/posts/123456789012345678901234/comments` )
+        admin
+            .code( 500 )
+            .post( `/api/posts/123456789012345678901234/comments` )
             .then( res => {
                 test.string( res.body.message ).is( "post does not exist" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot create a comment without a post that actually exists', function( done ) {
-        admin.post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` )
+        admin
+            .code( 500 )
+            .post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` )
             .then( res => {
                 test.string( res.body.message ).is( "No comment exists with the id 123456789012345678901234" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'cannot create a comment on a post that does exist with illegal html', function( done ) {
-        admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } )
+        admin
+            .code( 500 )
+            .post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } )
             .then( res => {
                 test.string( res.body.message ).is( "'content' has html code that is not allowed" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

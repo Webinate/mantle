@@ -2413,6 +2413,12 @@ declare module "models/schema-items/schema-item-factory" {
 declare module "utils/serializers" {
     import { IResponse } from 'modepress';
     import * as express from 'express';
+    /**
+     * A decorator for transforming an async express function handler.
+     * Transforms the promise's response into a serialized json with
+     * a 200 response code.
+     * @param errCode The type of error code to raise for errors
+     */
     export function j200(errCode?: number): (target: any, propertyKey: string, descriptor: PropertyDescriptor) => PropertyDescriptor;
     /**
      * Helper function to return a status 200 json object of type T
@@ -2972,7 +2978,7 @@ declare module "controllers/user-controller" {
         /**
          * Called to initialize this controller and its related database objects
          */
-        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        initialize(e: express.Express, db: mongodb.Db): Promise<this>;
         /**
          * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
          * is specified. Specify the verbose=true parameter in order to get all user data.
@@ -3027,7 +3033,7 @@ declare module "controllers/auth-controller" {
         /**
          * Called to initialize this controller and its related database objects
          */
-        initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
+        initialize(e: express.Express, db: mongodb.Db): Promise<this>;
         /**
          * Activates the user's account
          */

@@ -46,7 +46,9 @@ describe( 'Testing file accessibility functions', function() {
     } )
 
     it( 'regular user did not make a non-file public', function( done ) {
-        user1.put( `/files/123/make-public`, {} )
+        user1
+            .code( 500 )
+            .put( `/files/123/make-public`, {} )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "File '123' does not exist" );
@@ -56,7 +58,9 @@ describe( 'Testing file accessibility functions', function() {
     } )
 
     it( 'regular user did not make a non-file private', function( done ) {
-        user1.put( `/files/123/make-private`, {} )
+        user1
+            .code( 500 )
+            .put( `/files/123/make-private`, {} )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "File '123' does not exist" )

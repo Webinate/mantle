@@ -14,14 +14,18 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( `did remove any existing user called ${testUserName}`, function( done ) {
-        admin.delete( `/api/users/${testUserName}` )
+        admin
+            .code( null )
+            .delete( `/api/users/${testUserName}` )
             .then( res => {
                 done();
             } ).catch( err => done( err ) );
     } )
 
     it( 'did not create a new user without a username', function( done ) {
-        admin.post( `/api/users`, { username: "", password: "" } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: "", password: "" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -31,7 +35,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( 'did not create a new user without a password', function( done ) {
-        admin.post( `/api/users`, { username: testUserName, password: "", email: testUserEmail } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: testUserName, password: "", email: testUserEmail } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -41,7 +47,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( 'did not create a new user with invalid characters', function( done ) {
-        admin.post( `/api/users`, { username: "!\"�$%^&*()", password: "password" } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: "!\"�$%^&*()", password: "password" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -51,7 +59,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( 'did not create a new user without email', function( done ) {
-        admin.post( `/api/users`, { username: testUserName, password: "password" } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: testUserName, password: "password" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -61,7 +71,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( 'did not create a new user with invalid email', function( done ) {
-        admin.post( `/api/users`, { username: testUserName, password: "password", email: "gahgah" } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: testUserName, password: "password", email: "gahgah" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -71,7 +83,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( 'did not create a new user with invalid privilege', function( done ) {
-        admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 4 } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 4 } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -81,7 +95,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( 'did not create a new user with an existing username', function( done ) {
-        admin.post( `/api/users`, { username: admin.username, password: "password", email: testUserEmail, privileges: 2 } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: admin.username, password: "password", email: testUserEmail, privileges: 2 } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -91,7 +107,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( 'did not create a new user with an existing email', function( done ) {
-        admin.post( `/api/users`, { username: testUserName, password: "password", email: admin.email, privileges: 2 } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: testUserName, password: "password", email: admin.email, privileges: 2 } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -101,7 +119,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( `did not create user ${testUserName} with super admin privileges`, function( done ) {
-        admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 1 } )
+        admin
+            .code( 500 )
+            .post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 1 } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
@@ -111,7 +131,9 @@ describe( 'Testing creating a user', function() {
     } )
 
     it( 'did not create a new user as a regular user', function( done ) {
-        user1.post( `/api/users` )
+        user1
+            .code( 500 )
+            .post( `/api/users` )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
