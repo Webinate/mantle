@@ -2413,6 +2413,7 @@ declare module "models/schema-items/schema-item-factory" {
 declare module "utils/serializers" {
     import { IResponse } from 'modepress';
     import * as express from 'express';
+    export function j200(errCode?: number): (target: any, propertyKey: string, descriptor: PropertyDescriptor) => PropertyDescriptor;
     /**
      * Helper function to return a status 200 json object of type T
      */

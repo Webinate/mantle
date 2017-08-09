@@ -11,7 +11,9 @@ describe( 'Testing user logging in', function() {
     } )
 
     it( 'did not log in with empty credentials', function( done ) {
-        guest.post( '/api/auth/login', { username: "", password: "" } )
+        guest
+            .code( 500 )
+            .post( '/api/auth/login', { username: "", password: "" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.bool( res.body.authenticated ).isNotTrue()
@@ -21,7 +23,9 @@ describe( 'Testing user logging in', function() {
     } )
 
     it( 'did not log in with bad credentials', function( done ) {
-        guest.post( '/api/auth/login', { username: "$%^\}{}\"&*[]@~�&$", password: "$%^&*�&@#`{}/\"�%\"$" } )
+        guest
+            .code( 500 )
+            .post( '/api/auth/login', { username: "$%^\}{}\"&*[]@~�&$", password: "$%^&*�&@#`{}/\"�%\"$" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.bool( res.body.authenticated ).isNotTrue()
@@ -31,7 +35,9 @@ describe( 'Testing user logging in', function() {
     } )
 
     it( 'did not log in with false credentials', function( done ) {
-        guest.post( '/api/auth/login', { username: "GeorgeTheTwat", password: "FakePass" } )
+        guest
+            .code( 500 )
+            .post( '/api/auth/login', { username: "GeorgeTheTwat", password: "FakePass" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.bool( res.body.authenticated ).isNotTrue()
@@ -41,7 +47,9 @@ describe( 'Testing user logging in', function() {
     } )
 
     it( 'did not log in with a valid username but invalid password', function( done ) {
-        guest.post( '/api/auth/login', { username: config.adminUser.username, password: "FakePass" } )
+        guest
+            .code( 500 )
+            .post( '/api/auth/login', { username: config.adminUser.username, password: "FakePass" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.bool( res.body.authenticated ).isNotTrue()
@@ -51,7 +59,8 @@ describe( 'Testing user logging in', function() {
     } )
 
     it( 'did log in with a valid username & valid password', function( done ) {
-        guest.post( '/api/auth/login', { username: config.adminUser.username, password: config.adminUser.password } )
+        guest
+            .post( '/api/auth/login', { username: config.adminUser.username, password: config.adminUser.password } )
             .then( res => {
                 test.bool( res.body.error ).isNotTrue()
                 test.bool( res.body.authenticated ).isTrue()

@@ -41,7 +41,9 @@ describe( 'Testing user activation', function() {
     } )
 
     it( 'did not log in with an activation code present', function( done ) {
-        guest.post( `/api/auth/login`, { username: testUserName, password: "Password" } )
+        guest
+            .code( 500 )
+            .post( `/api/auth/login`, { username: testUserName, password: "Password" } )
             .then( res => {
                 test.bool( res.body.error ).isTrue()
                 test.bool( res.body.authenticated ).isFalse()

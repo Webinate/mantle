@@ -6,7 +6,7 @@ import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/users';
 import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { okJson, errJson } from '../utils/serializers';
+import { okJson, errJson, j200 } from '../utils/serializers';
 import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
 import { Model } from '../models/model';
@@ -155,25 +155,25 @@ export class AuthController extends Controller {
 	/**
 	 * Attempts to log the user in. Expects the username, password and rememberMe parameters be set.
 	 */
+    @j200()
     private async login( req: express.Request, res: express.Response ) {
         try {
             const token: ILoginToken = req.body;
             const user = await UserManager.get.logIn( token.username, token.password, token.rememberMe, req, res );
 
-            okJson<IAuthenticationResponse>( {
+            return {
                 message: ( user ? 'User is authenticated' : 'User is not authenticated' ),
                 authenticated: ( user ? true : false ),
                 user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} ),
                 error: false
-            }, res );
+            } as IAuthenticationResponse;
 
         } catch ( err ) {
-
-            okJson<IAuthenticationResponse>( {
+            throw {
                 message: err.message,
                 authenticated: false,
                 error: true
-            }, res );
+            } as IAuthenticationResponse;
         };
     }
 

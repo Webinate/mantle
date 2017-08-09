@@ -19,7 +19,8 @@
         "outDir": "./modepress-api",
         "noUnusedParameters": false,
         "noUnusedLocals": true,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "experimentalDecorators": true
     },
     "include": [
         "src/types/**/*.ts",
