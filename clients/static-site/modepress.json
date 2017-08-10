@@ -1,0 +1,11 @@
+{
+  "name": "static-site",
+  "server": {
+    "port": 7000,
+    "host": "localhost",
+    "staticAssets": [
+      "html"
+    ]
+  },
+  "controllers": []
+}

@@ -4,3 +4,10 @@
 # But not these files...
 !readme.md
 !.gitignore
+
+# Not static site example
+!/static-site/
+!/static-site/*
+!static-site/modepress.json
+!/static-site/html/
+!/static-site/html/*
