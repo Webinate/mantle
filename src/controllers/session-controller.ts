@@ -58,7 +58,6 @@ export class SessionController extends Controller {
         const sessions = await UserManager.get.sessionManager.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
 
         return {
-            error: false,
             message: `Found ${sessions.length} active sessions`,
             data: sessions,
             count: numSessions
@@ -71,7 +70,7 @@ export class SessionController extends Controller {
     @j200()
     private async deleteSession( req: express.Request, res: express.Response ) {
         await UserManager.get.sessionManager.clearSession( req.params.id, req, res );
-        return { error: false, message: `Session ${req.params.id} has been removed` } as IResponse;
+        return { message: `Session ${req.params.id} has been removed` } as IResponse;
 
     }
 }

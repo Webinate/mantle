@@ -48,5 +48,5 @@ export function errJson( err: Error, res: express.Response ) {
     logError( err.message );
     res.status( 500 )
     res.setHeader( 'Content-Type', 'application/json' );
-    res.end( JSON.stringify( <IResponse>{ error: true, message: err.message } ) );
+    res.end( JSON.stringify( <IResponse>{ message: err.message } ) );
 }

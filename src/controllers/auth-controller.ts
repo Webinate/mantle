@@ -92,7 +92,7 @@ export class AuthController extends Controller {
         const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
         await UserManager.get.resendActivation( req.params.user, this._options.accountRedirectURL, origin );
-        return { error: false, message: 'An activation link has been sent, please check your email for further instructions' } as IResponse;
+        return { message: 'An activation link has been sent, please check your email for further instructions' } as IResponse;
     }
 
     /**
@@ -102,7 +102,7 @@ export class AuthController extends Controller {
     private async requestPasswordReset( req: express.Request, res: express.Response ) {
         const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
         await UserManager.get.requestPasswordReset( req.params.user, this._options.passwordResetURL, origin );
-        return { error: false, message: 'Instructions have been sent to your email on how to change your password' } as IResponse;
+        return { message: 'Instructions have been sent to your email on how to change your password' } as IResponse;
     }
 
     /**
@@ -122,7 +122,7 @@ export class AuthController extends Controller {
 
         // Check the user's activation and forward them onto the admin message page
         await UserManager.get.resetPassword( req.body.user, req.body.key, req.body.password );
-        return { error: false, message: 'Your password has been reset' } as IResponse
+        return { message: 'Your password has been reset' } as IResponse
     }
 
 	/**
@@ -131,7 +131,7 @@ export class AuthController extends Controller {
     @j200()
     private async approveActivation( req: express.Request, res: express.Response ) {
         await UserManager.get.approveActivation( req.params.user );
-        return { error: false, message: 'Activation code has been approved' } as IResponse;
+        return { message: 'Activation code has been approved' } as IResponse;
     }
 
 	/**
@@ -145,8 +145,7 @@ export class AuthController extends Controller {
         return {
             message: ( user ? 'User is authenticated' : 'User is not authenticated' ),
             authenticated: ( user ? true : false ),
-            user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} ),
-            error: false
+            user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
         } as IAuthenticationResponse;
     }
 
@@ -156,7 +155,7 @@ export class AuthController extends Controller {
     @j200()
     private async logout( req: express.Request, res: express.Response ) {
         await UserManager.get.logOut( req, res );
-        return { error: false, message: 'Successfully logged out' } as IResponse;
+        return { message: 'Successfully logged out' } as IResponse;
     }
 
 	/**
@@ -171,8 +170,7 @@ export class AuthController extends Controller {
         return {
             message: ( user ? 'Please activate your account with the link sent to your email address' : 'User is not authenticated' ),
             authenticated: ( user ? true : false ),
-            user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} ),
-            error: false
+            user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
         } as IAuthenticationResponse;
     }
 
@@ -185,7 +183,6 @@ export class AuthController extends Controller {
         return {
             message: ( user ? 'User is authenticated' : 'User is not authenticated' ),
             authenticated: ( user ? true : false ),
-            error: false,
             user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
         } as IAuthenticationResponse;
     }

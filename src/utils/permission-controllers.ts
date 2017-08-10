@@ -74,10 +74,7 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
     } catch ( error ) {
         res.setHeader( 'Content-Type', 'application/json' );
         res.status( 500 )
-        res.end( JSON.stringify( <IResponse>{
-            error: true,
-            message: error.message
-        } ) );
+        res.end( JSON.stringify( <IResponse>{ message: error.message } ) );
     };
 }
 

@@ -54,6 +54,6 @@ export class AdminController extends Controller {
             throw new Error( 'Please specify a message to send' );
 
         await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
-        return { error: false, message: 'Your message has been sent to the support team' } as IResponse;
+        return { message: 'Your message has been sent to the support team' } as IResponse;
     }
 }

@@ -144,7 +144,6 @@ export class CommentsController extends Controller {
         const sanitizedData = await Promise.all( jsons );
 
         return {
-            error: false,
             count: count,
             message: `Found ${count} comments`,
             data: sanitizedData
@@ -183,7 +182,6 @@ export class CommentsController extends Controller {
         const sanitizedData = await Promise.all( jsons );
 
         return {
-            error: false,
             message: `Found ${sanitizedData.length} comments`,
             data: sanitizedData[ 0 ]
         } as IGetComment;
@@ -213,10 +211,7 @@ export class CommentsController extends Controller {
 
         // Attempt to delete the instances
         await comments.deleteInstances( findToken );
-        return {
-            error: false,
-            message: 'Comment has been successfully removed'
-        } as IResponse;
+        return { message: 'Comment has been successfully removed' } as IResponse;
     }
 
     /**
@@ -248,10 +243,7 @@ export class CommentsController extends Controller {
         if ( instance.error )
             throw new Error( <string>instance.tokens[ 0 ].error );
 
-        return {
-            error: false,
-            message: 'Comment Updated'
-        } as IResponse
+        return { message: 'Comment Updated' } as IResponse
     }
 
     /**
@@ -286,10 +278,6 @@ export class CommentsController extends Controller {
             await parent.model.update<IComment>( <IComment>{ _id: parent.dbEntry._id }, { children: children } )
         }
 
-        return {
-            error: false,
-            message: 'New comment created',
-            data: json
-        } as IGetComment;
+        return { message: 'New comment created', data: json } as IGetComment;
     }
 }

@@ -66,7 +66,6 @@ export class CategoriesController extends Controller {
         const sanitizedData = await Promise.all( jsons );
 
         return {
-            error: false,
             count: sanitizedData.length,
             message: `Found ${sanitizedData.length} categories`,
             data: sanitizedData
@@ -85,10 +84,7 @@ export class CategoriesController extends Controller {
         if ( numRemoved === 0 )
             return Promise.reject( new Error( 'Could not find a category with that ID' ) );
 
-        return {
-            error: false,
-            message: 'Category has been successfully removed'
-        } as IResponse;
+        return { message: 'Category has been successfully removed' } as IResponse;
     }
 
     /**
@@ -103,7 +99,6 @@ export class CategoriesController extends Controller {
         const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
 
         return {
-            error: false,
             message: 'New category created',
             data: json
         } as IGetCategory;

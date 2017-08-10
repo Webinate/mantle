@@ -177,7 +177,6 @@ export class PostsController extends Controller {
         const sanitizedData = await Promise.all( jsons );
 
         return {
-            error: false,
             count: count,
             message: `Found ${count} posts`,
             data: sanitizedData
@@ -235,7 +234,6 @@ export class PostsController extends Controller {
             throw new Error( 'Could not find a post with that ID' );
 
         return {
-            error: false,
             message: 'Post has been successfully removed'
         } as IResponse;
     }
@@ -257,7 +255,6 @@ export class PostsController extends Controller {
             throw new Error( 'Could not find post with that id' );
 
         return {
-            error: false,
             message: 'Post Updated'
         } as IResponse;
     }
@@ -277,7 +274,6 @@ export class PostsController extends Controller {
         const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
 
         return {
-            error: false,
             message: 'New post created',
             data: json
         } as IGetPost;
