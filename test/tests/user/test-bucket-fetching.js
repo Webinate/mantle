@@ -15,7 +15,6 @@ describe( 'Testing bucket get requests', function() {
     it( 'regular user did create a bucket dinosaurs', function( done ) {
         user1.post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -26,7 +25,6 @@ describe( 'Testing bucket get requests', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Found [1] buckets" );
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -36,7 +34,6 @@ describe( 'Testing bucket get requests', function() {
             .code( 500 )
             .get( `/buckets/user/${config.adminUser.username}` )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -48,7 +45,6 @@ describe( 'Testing bucket get requests', function() {
             .code( 500 )
             .get( `/buckets/user/${config.adminUser.username}` )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -61,7 +57,6 @@ describe( 'Testing bucket get requests', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Found [1] buckets" );
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -69,7 +64,6 @@ describe( 'Testing bucket get requests', function() {
     it( 'regular user did remove the bucket dinosaurs', function( done ) {
         user1.delete( `/buckets/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

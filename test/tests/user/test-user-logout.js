@@ -37,7 +37,6 @@ describe( 'Testing users logout', function() {
     it( 'user should be logged in', function( done ) {
         agent.get( '/api/auth/authenticated' )
             .then( res => {
-                test.bool( res.body.error ).isFalse();
                 test.bool( res.body.authenticated ).isTrue();
                 done();
             } ).catch( err => done( err ) );
@@ -46,7 +45,6 @@ describe( 'Testing users logout', function() {
     it( 'should log out', function( done ) {
         agent.get( `/api/auth/logout` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue()
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -54,7 +52,6 @@ describe( 'Testing users logout', function() {
     it( 'user should be logged out', function( done ) {
         agent.get( '/api/auth/authenticated' )
             .then( res => {
-                test.bool( res.body.error ).isFalse();
                 test.bool( res.body.authenticated ).isFalse();
                 done();
             } ).catch( err => done( err ) );

@@ -13,7 +13,6 @@ describe( 'Testing deletion of posts', function() {
     it( 'fetched all posts', function( done ) {
         admin.get( `/api/posts` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.number( res.body.count );
                 numPosts = res.body.count;
                 done();
@@ -28,7 +27,6 @@ describe( 'Testing deletion of posts', function() {
             content: "Hello world"
         } ).then( res => {
             postId = res.body.data._id;
-            test.bool( res.body.error ).isNotTrue();
             done();
         } ).catch( err => done( err ) );
     } )
@@ -74,7 +72,6 @@ describe( 'Testing deletion of posts', function() {
     it( 'has cleaned up the posts successfully', function( done ) {
         admin.get( `/api/posts` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.count === numPosts ).isTrue();
                 done();
             } ).catch( err => done( err ) );

@@ -216,7 +216,6 @@ export class PostsController extends Controller {
         const sanitizedData = await Promise.all( jsons );
 
         return {
-            error: false,
             message: `Found ${sanitizedData.length} posts`,
             data: sanitizedData[ 0 ]
         } as IGetPosts;

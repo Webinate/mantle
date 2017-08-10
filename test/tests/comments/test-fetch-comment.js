@@ -20,7 +20,6 @@ describe( 'Testing fetching of comments', function() {
                 if ( res.body.data ) {
                     admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
-                            test.bool( res.body.error ).isFalse();
                             done();
                         } ).catch( err => done( err ) );
                 }
@@ -32,7 +31,6 @@ describe( 'Testing fetching of comments', function() {
     it( 'fetched all posts', function( done ) {
         admin.get( `/api/posts` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.number( res.body.count );
                 numPosts = res.body.count;
                 done();
@@ -42,7 +40,6 @@ describe( 'Testing fetching of comments', function() {
     it( 'fetched all comments', function( done ) {
         admin.get( `/api/comments` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.number( res.body.count );
                 numComments = res.body.count;
                 done();
@@ -67,7 +64,6 @@ describe( 'Testing fetching of comments', function() {
         admin.post( `/api/posts/${postId}/comments`, { content: "Hello world public! __filter__", public: true } )
             .then( res => {
                 publicCommentId = res.body.data._id;
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -76,7 +72,6 @@ describe( 'Testing fetching of comments', function() {
         admin.post( `/api/posts/${postId}/comments`, { content: "Hello world private! __filter__", public: false } )
             .then( res => {
                 privateCommentId = res.body.data._id;
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -85,7 +80,6 @@ describe( 'Testing fetching of comments', function() {
         admin.post( `/api/posts/${postId}/comments`, { content: "Parent Comment", public: true } )
             .then( res => {
                 parentCommentId = res.body.data._id;
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -94,7 +88,6 @@ describe( 'Testing fetching of comments', function() {
         admin.post( `/api/posts/${postId}/comments/${parentCommentId}`, { content: "Child Comment", public: true } )
             .then( res => {
                 childCommentId = res.body.data._id;
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -124,7 +117,6 @@ describe( 'Testing fetching of comments', function() {
             .then( res => {
                 test.string( res.body.message ).is( "Found 1 comments" );
                 test.string( res.body.data._id ).is( publicCommentId );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -144,7 +136,6 @@ describe( 'Testing fetching of comments', function() {
             .then( res => {
                 test.string( res.body.message ).is( "Found 1 comments" );
                 test.string( res.body.data._id ).is( publicCommentId );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -154,7 +145,6 @@ describe( 'Testing fetching of comments', function() {
             .then( res => {
                 test.number( res.body.count );
                 test.bool( res.body.count >= 2 ).isTrue();
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -164,7 +154,6 @@ describe( 'Testing fetching of comments', function() {
             .then( res => {
                 test.number( res.body.count );
                 test.array( res.body.data ).hasLength( 2 );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -174,7 +163,6 @@ describe( 'Testing fetching of comments', function() {
             .then( res => {
                 test.number( res.body.count );
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -184,7 +172,6 @@ describe( 'Testing fetching of comments', function() {
             .then( res => {
                 test.number( res.body.count );
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -195,7 +182,6 @@ describe( 'Testing fetching of comments', function() {
                 test.string( res.body.message ).is( "Found 1 comments" );
                 test.string( res.body.data._id ).is( parentCommentId );
                 test.array( res.body.data.children ).contains( [ childCommentId ] );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -207,7 +193,6 @@ describe( 'Testing fetching of comments', function() {
                 test.string( res.body.data._id ).is( childCommentId );
                 test.string( res.body.data.parent ).is( parentCommentId );
                 test.string( res.body.data.post ).is( postId );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -219,7 +204,6 @@ describe( 'Testing fetching of comments', function() {
                 test.string( res.body.data._id ).is( childCommentId );
                 test.string( res.body.data.parent ).is( parentCommentId );
                 test.string( res.body.data.post._id ).is( postId );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -227,7 +211,6 @@ describe( 'Testing fetching of comments', function() {
     it( 'did delete the test post', function( done ) {
         admin.delete( `/api/posts/${postId}` )
             .then( res => {
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -235,7 +218,6 @@ describe( 'Testing fetching of comments', function() {
     it( 'has cleaned up the posts successfully', function( done ) {
         admin.get( `/api/posts` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.count === numPosts ).isTrue();
                 done();
             } ).catch( err => done( err ) );
@@ -246,7 +228,6 @@ describe( 'Testing fetching of comments', function() {
             .then( res => {
                 test.number( res.body.count );
                 test.bool( numComments === res.body.count ).isTrue();
-                test.bool( res.body.error ).isNotTrue()
                 done();
             } ).catch( err => done( err ) );
     } )

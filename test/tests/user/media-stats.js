@@ -19,7 +19,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .then( res => {
                 test.number( res.body.data.apiCallsUsed ).is( 9 );
                 test.number( res.body.data.memoryUsed ).is( 226 * 2 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
 
@@ -39,7 +38,6 @@ describe( 'Getting and setting user media stat usage', function() {
                 test.bool( res.body.tokens[ 0 ].error ).isNotTrue();
                 test.string( res.body.tokens[ 0 ].errorMsg ).is( "" );
                 test.object( res.body.tokens[ 0 ] ).hasProperty( "file" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -49,7 +47,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .then( res => {
                 test.number( res.body.data.apiCallsUsed ).is( 10 );
                 test.number( res.body.data.memoryUsed ).is( 226 * 3 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
 
@@ -78,7 +75,6 @@ describe( 'Getting and setting user media stat usage', function() {
         user1.get( `/stats/users/${user1.username}/get-stats` )
             .then( res => {
                 test.number( res.body.data.apiCallsUsed ).is( 11 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
 
@@ -98,7 +94,6 @@ describe( 'Getting and setting user media stat usage', function() {
                 test.bool( res.body.tokens[ 0 ].error ).isNotTrue();
                 test.string( res.body.tokens[ 0 ].errorMsg ).is( "" );
                 test.object( res.body.tokens[ 0 ] ).hasProperty( "file" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
 
@@ -107,7 +102,6 @@ describe( 'Getting and setting user media stat usage', function() {
     it( 'regular user fetched the uploaded file Id of the dinosaur2 bucket', function( done ) {
         user1.get( `/files/users/${user1.username}/buckets/dinosaurs2` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue()
                 fileId = res.body.data[ 1 ].identifier;
                 done();
             } ).catch( err => done( err ) );
@@ -120,7 +114,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .then( res => {
                 test.number( res.body.data.apiCallsUsed ).is( 14 );
                 test.number( res.body.data.memoryUsed ).is( 226 * 3 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
 
@@ -131,7 +124,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .then( res => {
                 test.number( res.body.data.apiCallsUsed ).is( 16 );
                 test.number( res.body.data.memoryUsed ).is( 226 * 2 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
 

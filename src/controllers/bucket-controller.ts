@@ -75,7 +75,6 @@ export class BucketController extends Controller {
 
             return okJson<IRemoveFiles>( {
                 message: `Removed [${filesRemoved.length}] buckets`,
-                error: false,
                 data: filesRemoved,
                 count: filesRemoved.length
             }, res );
@@ -102,7 +101,6 @@ export class BucketController extends Controller {
 
             return okJson<IGetBuckets>( {
                 message: `Found [${buckets.length}] buckets`,
-                error: false,
                 data: buckets,
                 count: buckets.length
             }, res );
@@ -144,7 +142,7 @@ export class BucketController extends Controller {
                 throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
 
             await manager.createBucket( bucketName, username );
-            okJson<IResponse>( { message: `Bucket '${bucketName}' created`, error: false }, res );
+            okJson<IResponse>( { message: `Bucket '${bucketName}' created` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -237,11 +235,11 @@ export class BucketController extends Controller {
         const filesUploaded: Array<IFileEntry> = [];
         const bucketName = req.params.bucket;
         if ( !bucketName || bucketName.trim() === '' )
-            return okJson<IUploadResponse>( { message: `Please specify a bucket`, error: true, tokens: [] }, res );
+            return okJson<IUploadResponse>( { message: `Please specify a bucket`, tokens: [] }, res );
 
         manager.getIBucket( bucketName, username ).then(( bucketEntry ) => {
             if ( !bucketEntry )
-                return okJson<IUploadResponse>( { message: `No bucket exists with the name '${bucketName}'`, error: true, tokens: [] }, res );
+                return okJson<IUploadResponse>( { message: `No bucket exists with the name '${bucketName}'`, tokens: [] }, res );
 
             let metaJson: any | Error;
 
@@ -359,7 +357,7 @@ export class BucketController extends Controller {
             form.parse( req );
 
         } ).catch( function( err ) {
-            return okJson<IUploadResponse>( { message: 'Could not get bucket: ' + err.toString(), error: true, tokens: [] }, res );
+            return okJson<IUploadResponse>( { message: 'Could not get bucket: ' + err.toString(), tokens: [] }, res );
         } );
     }
 

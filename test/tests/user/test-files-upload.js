@@ -17,7 +17,6 @@ describe( 'Testing file uploads', function() {
         user1
             .post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -28,7 +27,6 @@ describe( 'Testing file uploads', function() {
             .then(( res ) => {
                 test.string( res.body.message ).is( "Found [0] files" );
                 test.array( res.body.data ).hasLength( 0 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -41,7 +39,6 @@ describe( 'Testing file uploads', function() {
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "No bucket exists with the name 'dinosaurs3'" );
                 test.array( res.body.tokens ).hasLength( 0 );
-                test.bool( res.body.error ).isTrue();
                 done()
             } ).catch( err => done( err ) );
     } )
@@ -58,7 +55,6 @@ describe( 'Testing file uploads', function() {
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "Error: Meta data is not a valid JSON: SyntaxError: Unexpected token B in JSON at position 0" );
                 test.array( res.body.tokens ).hasLength( 0 );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -74,7 +70,6 @@ describe( 'Testing file uploads', function() {
                 test.object( res.body ).hasProperty( "tokens" );
                 test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
                 test.array( res.body.tokens ).hasLength( 1 );
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -93,7 +88,6 @@ describe( 'Testing file uploads', function() {
                 test.bool( res.body.tokens[ 0 ].error ).isNotTrue();
                 test.string( res.body.tokens[ 0 ].errorMsg ).is( "" );
                 test.object( res.body.tokens[ 0 ] ).hasProperty( "file" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -109,7 +103,6 @@ describe( 'Testing file uploads', function() {
                 test.array( res.body.data ).hasLength( 2 );
                 test.object( res.body.data[ 0 ] ).hasProperty( "meta" );
                 test.string( res.body.data[ 0 ].meta.meta ).is( "good" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -117,7 +110,6 @@ describe( 'Testing file uploads', function() {
     it( 'regular user did remove the bucket dinosaurs', function( done ) {
         user1.delete( `/buckets/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

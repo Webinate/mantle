@@ -17,7 +17,6 @@ describe( 'Getting and setting user stats', function() {
             .code( 500 )
             .get( `/stats/users/${config.adminUser.username}/get-stats` )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -29,7 +28,6 @@ describe( 'Getting and setting user stats', function() {
             .code( 500 )
             .post( `/stats/create-stats/${config.adminUser.username}`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -40,7 +38,6 @@ describe( 'Getting and setting user stats', function() {
         user1.get( `/stats/users/${user1.username}/get-stats` )
             .then( res => {
                 test.string( res.body.message ).is( `Successfully retrieved ${user1.username}'s stats` );
-                test.bool( res.body.error ).isNotTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.object( res.body ).hasProperty( "data" );
                 test.object( res.body.data ).hasProperty( "_id" );

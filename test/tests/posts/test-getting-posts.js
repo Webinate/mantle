@@ -13,7 +13,6 @@ describe( 'Testing fetching of posts', function() {
     it( 'fetched all posts', function( done ) {
         admin.get( `/api/posts` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.number( res.body.count );
                 numPosts = res.body.count;
                 done();
@@ -28,7 +27,6 @@ describe( 'Testing fetching of posts', function() {
                 if ( res.body.data ) {
                     admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
-                            test.bool( res.body.error ).isFalse();
                             done();
                         } ).catch( err => done( err ) );
                 }
@@ -45,7 +43,6 @@ describe( 'Testing fetching of posts', function() {
                 if ( res.body.data ) {
                     admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
-                            test.bool( res.body.error ).isFalse();
                             done();
                         } ).catch( err => done( err ) );
                 }
@@ -64,7 +61,6 @@ describe( 'Testing fetching of posts', function() {
             tags: [ "super-tags-1234", "supert-tags-4321" ]
         } ).then( res => {
             publicPostId = res.body.data._id;
-            test.bool( res.body.error ).isNotTrue();
             done();
         } ).catch( err => done( err ) );
     } )
@@ -77,7 +73,6 @@ describe( 'Testing fetching of posts', function() {
             content: "Hello world"
         } ).then( res => {
             privatePostId = res.body.data._id;
-            test.bool( res.body.error ).isNotTrue();
             done();
         } ).catch( err => done( err ) );
     } )
@@ -227,7 +222,6 @@ describe( 'Testing fetching of posts', function() {
     it( 'has cleaned up the posts successfully', function( done ) {
         admin.get( `/api/posts` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.count === numPosts ).isTrue();
                 done();
             } ).catch( err => done( err ) );

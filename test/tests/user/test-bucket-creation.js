@@ -19,7 +19,6 @@ describe( 'Testing bucket creation', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -31,7 +30,6 @@ describe( 'Testing bucket creation', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Please only use safe characters" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -41,7 +39,6 @@ describe( 'Testing bucket creation', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Bucket 'dinosaurs' created" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -53,7 +50,6 @@ describe( 'Testing bucket creation', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "A Bucket with the name 'dinosaurs' has already been registered" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -63,7 +59,6 @@ describe( 'Testing bucket creation', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Bucket 'dinosaurs2' created" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -79,7 +74,6 @@ describe( 'Testing bucket creation', function() {
     it( 'regular user did remove the bucket dinosaurs', function( done ) {
         user1.delete( `/buckets/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -87,7 +81,6 @@ describe( 'Testing bucket creation', function() {
     it( 'regular user did remove the bucket dinosaurs', function( done ) {
         user1.delete( `/buckets/dinosaurs2` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

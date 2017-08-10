@@ -4,7 +4,6 @@ declare module 'modepress' {
      */
     export interface IResponse {
         message: string;
-        error: boolean;
     }
 
     /*

@@ -17,7 +17,6 @@ describe( 'Testing files deletion', function() {
     it( 'regular user did create a bucket dinosaurs', function( done ) {
         user1.post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -26,8 +25,7 @@ describe( 'Testing files deletion', function() {
         user1
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
-            .then( (res) => {
-                test.bool( res.body.error ).isNotTrue();
+            .then(( res ) => {
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -35,10 +33,9 @@ describe( 'Testing files deletion', function() {
     it( 'regular user has 1 file', function( done ) {
         user1
             .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-            .then( ( res ) => {
-                fileId = res.body.data[0].identifier;
+            .then(( res ) => {
+                fileId = res.body.data[ 0 ].identifier;
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -49,7 +46,6 @@ describe( 'Testing files deletion', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Removed [0] files" );
                 test.array( res.body.data ).hasLength( 0 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -60,7 +56,6 @@ describe( 'Testing files deletion', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Removed [1] files" );
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -68,9 +63,8 @@ describe( 'Testing files deletion', function() {
     it( 'regular user has 0 files', function( done ) {
         user1
             .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-            .then( ( res ) => {
+            .then(( res ) => {
                 test.array( res.body.data ).hasLength( 0 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -81,7 +75,6 @@ describe( 'Testing files deletion', function() {
     it( 'regular user did remove the bucket dinosaurs', function( done ) {
         user1.delete( `/buckets/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

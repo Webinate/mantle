@@ -16,7 +16,6 @@ describe( 'Testing setting stat values', function() {
         user1.get( `/stats/users/${user1.username}/get-stats` )
             .then( res => {
                 test.string( res.body.message ).is( `Successfully retrieved ${user1.username}'s stats` );
-                test.bool( res.body.error ).isNotTrue();
                 stats = res.body.data;
                 done();
             } ).catch( err => done( err ) );
@@ -27,7 +26,6 @@ describe( 'Testing setting stat values', function() {
             .code( 500 )
             .put( `/stats/storage-calls/${config.adminUser.username}/90000`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -39,7 +37,6 @@ describe( 'Testing setting stat values', function() {
             .code( 500 )
             .put( `/stats/storage-memory/${config.adminUser.username}/90000`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -51,7 +48,6 @@ describe( 'Testing setting stat values', function() {
             .code( 500 )
             .put( `/stats/storage-allocated-calls/${config.adminUser.username}/90000`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -63,7 +59,6 @@ describe( 'Testing setting stat values', function() {
             .code( 500 )
             .put( `/stats/storage-allocated-memory/${config.adminUser.username}/90000`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -75,7 +70,6 @@ describe( 'Testing setting stat values', function() {
             .code( 500 )
             .put( `/stats/storage-calls/${user1.username}/90000`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -87,7 +81,6 @@ describe( 'Testing setting stat values', function() {
             .code( 500 )
             .put( `/stats/storage-memory/${user1.username}/90000`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -99,7 +92,6 @@ describe( 'Testing setting stat values', function() {
             .code( 500 )
             .put( `/stats/storage-allocated-calls/${user1.username}/90000`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -111,7 +103,6 @@ describe( 'Testing setting stat values', function() {
             .code( 500 )
             .put( `/stats/storage-allocated-memory/${user1.username}/90000`, {} )
             .then( res => {
-                test.bool( res.body.error ).isTrue();
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
                 done();
@@ -122,7 +113,6 @@ describe( 'Testing setting stat values', function() {
         user1.get( `/stats/users/${user1.username}/get-stats` )
             .then( res => {
                 test.string( res.body.message ).is( `Successfully retrieved ${user1.username}'s stats` );
-                test.bool( res.body.error ).isNotTrue();
                 test.bool( stats.apiCallsAllocated == res.body.data.apiCallsAllocated ).isTrue();
                 test.bool( stats.memoryAllocated == res.body.data.memoryAllocated ).isTrue();
                 test.bool( stats.apiCallsUsed == res.body.data.apiCallsUsed ).isTrue();
@@ -134,7 +124,6 @@ describe( 'Testing setting stat values', function() {
     it( 'admin can set storage calls for a regular user to 50', function( done ) {
         admin.put( `/stats/storage-calls/${user1.username}/50`, {} )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.string( res.body.message ).is( "Updated the user API calls to [50]" );
                 done();
             } ).catch( err => done( err ) );
@@ -143,7 +132,6 @@ describe( 'Testing setting stat values', function() {
     it( 'admin can set storage memory for a regular user to 50', function( done ) {
         admin.put( `/stats/storage-memory/${user1.username}/50`, {} )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.string( res.body.message ).is( "Updated the user memory to [50] bytes" );
                 done();
             } ).catch( err => done( err ) );
@@ -152,7 +140,6 @@ describe( 'Testing setting stat values', function() {
     it( 'admin can set allocated storage calls for a regular user to 100', function( done ) {
         admin.put( `/stats/storage-allocated-calls/${user1.username}/100`, {} )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.string( res.body.message ).is( "Updated the user API calls to [100]" );
                 done();
             } ).catch( err => done( err ) );
@@ -161,7 +148,6 @@ describe( 'Testing setting stat values', function() {
     it( 'admin can set allocated memory for a regular user to 100', function( done ) {
         admin.put( `/stats/storage-allocated-memory/${user1.username}/100`, {} )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.string( res.body.message ).is( "Updated the user memory to [100] bytes" );
                 done();
             } ).catch( err => done( err ) );
@@ -171,7 +157,6 @@ describe( 'Testing setting stat values', function() {
         user1.get( `/stats/users/${user1.username}/get-stats` )
             .then( res => {
                 test.string( res.body.message ).is( `Successfully retrieved ${user1.username}'s stats` );
-                test.bool( res.body.error ).isNotTrue();
                 test.number( res.body.data.apiCallsAllocated ).is( 100 );
                 test.number( res.body.data.memoryAllocated ).is( 100 );
                 test.number( res.body.data.apiCallsUsed ).is( 50 );
@@ -183,7 +168,6 @@ describe( 'Testing setting stat values', function() {
     it( 'admin setting storage back to max', function( done ) {
         admin.put( `/stats/storage-allocated-memory/${user1.username}/${stats.memoryAllocated}`, {} )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

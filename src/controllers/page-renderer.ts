@@ -331,10 +331,7 @@ export class PageRenderer extends Controller {
             if ( numRemoved === 0 )
                 throw new Error( 'Could not find a cache with that ID' );
 
-            okJson<IResponse>( {
-                error: false,
-                message: 'Cache has been successfully removed'
-            }, res );
+            okJson<IResponse>( { message: 'Cache has been successfully removed' }, res );
 
         } catch ( err ) {
             errJson( err, res );
@@ -387,7 +384,6 @@ export class PageRenderer extends Controller {
             const sanitizedData = await Promise.all( jsons );
 
             okJson<IGetRenders>( {
-                error: false,
                 count: count,
                 message: `Found ${count} renders`,
                 data: sanitizedData
@@ -405,14 +401,10 @@ export class PageRenderer extends Controller {
         const renders = this.getModel( 'renders' );
 
         try {
+
             // First get the count
             const num = await renders!.deleteInstances( {} );
-
-            okJson<IResponse>( {
-                error: false,
-                message: `${num} Instances have been removed`
-            }, res );
-
+            okJson<IResponse>( { message: `${num} Instances have been removed` }, res );
         } catch ( err ) {
             errJson( err, res );
         };

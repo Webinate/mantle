@@ -16,7 +16,6 @@ describe( 'Testing file renaming', function() {
     it( 'regular user did create a bucket dinosaurs', function( done ) {
         user1.post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -26,7 +25,6 @@ describe( 'Testing file renaming', function() {
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
             .then(( res ) => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -39,7 +37,6 @@ describe( 'Testing file renaming', function() {
                 fileId = res.body.data[ 0 ].identifier;
                 test.string( res.body.message ).is( "Found [1] files" );
                 test.string( res.body.data[ 0 ].name ).is( "file.png" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -51,7 +48,6 @@ describe( 'Testing file renaming', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "File '123' does not exist" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -63,7 +59,6 @@ describe( 'Testing file renaming', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Please specify the new name of the file" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -73,7 +68,6 @@ describe( 'Testing file renaming', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Renamed file to 'testy'" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -84,7 +78,6 @@ describe( 'Testing file renaming', function() {
             .get( `/files/users/${user1.username}/buckets/dinosaurs` )
             .then(( res ) => {
                 test.string( res.body.data[ 0 ].name ).is( "testy" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -92,7 +85,6 @@ describe( 'Testing file renaming', function() {
     it( 'regular user did remove the bucket dinosaurs', function( done ) {
         user1.delete( `/buckets/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

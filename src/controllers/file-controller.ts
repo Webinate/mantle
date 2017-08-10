@@ -74,7 +74,6 @@ export class FileController extends Controller {
 
             okJson<IRemoveFiles>( {
                 message: `Removed [${filesRemoved.length}] files`,
-                error: false,
                 data: filesRemoved,
                 count: filesRemoved.length
             }, res );
@@ -102,7 +101,7 @@ export class FileController extends Controller {
                 throw new Error( `Could not find the file '${req.params.file}'` );
 
             await manager.renameFile( fileEntry, req.body.name );
-            okJson<IResponse>( { message: `Renamed file to '${req.body.name}'`, error: false }, res );
+            okJson<IResponse>( { message: `Renamed file to '${req.body.name}'` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -151,7 +150,7 @@ export class FileController extends Controller {
             let fileEntry = await manager.getFile( fileID, req._user!.username );
             fileEntry = await manager.makeFilePublic( fileEntry );
 
-            okJson<IGetFile>( { message: `File is now public`, error: false, data: fileEntry }, res );
+            okJson<IGetFile>( { message: `File is now public`, data: fileEntry }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -173,7 +172,7 @@ export class FileController extends Controller {
             fileEntry = await manager.getFile( fileID, req._user!.username );
             fileEntry = await manager.makeFilePrivate( fileEntry )
 
-            okJson<IGetFile>( { message: `File is now private`, error: false, data: fileEntry }, res );
+            okJson<IGetFile>( { message: `File is now private`, data: fileEntry }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -208,7 +207,6 @@ export class FileController extends Controller {
 
             return okJson<IGetFiles>( {
                 message: `Found [${count}] files`,
-                error: false,
                 data: files,
                 count: count
             }, res );

@@ -27,7 +27,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: "", password: "" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "Username cannot be empty" )
                 done();
@@ -39,7 +38,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: testUserName, password: "", email: testUserEmail } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "Password cannot be empty" )
                 done();
@@ -51,7 +49,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: "!\"�$%^&*()", password: "password" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "Username must be alphanumeric" )
                 done();
@@ -63,7 +60,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: testUserName, password: "password" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "Email cannot be empty" )
                 done();
@@ -75,7 +71,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: testUserName, password: "password", email: "gahgah" } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "Email must be valid" )
                 done();
@@ -87,7 +82,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 4 } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "Privilege type is unrecognised" )
                 done();
@@ -99,7 +93,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: admin.username, password: "password", email: testUserEmail, privileges: 2 } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "A user with that name or email already exists" )
                 done();
@@ -111,7 +104,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: testUserName, password: "password", email: admin.email, privileges: 2 } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "A user with that name or email already exists" )
                 done();
@@ -123,7 +115,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 1 } )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "You cannot create a user with super admin permissions" )
                 done();
@@ -135,7 +126,6 @@ describe( 'Testing creating a user', function() {
             .code( 500 )
             .post( `/api/users` )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "You don't have permission to make this request" )
                 done();

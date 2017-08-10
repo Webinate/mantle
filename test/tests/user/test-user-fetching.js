@@ -28,7 +28,6 @@ describe( 'Testing fetching users', function() {
             .code( 500 )
             .get( `/api/users/${admin.username}?verbose=true` )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "You don't have permission to make this request" )
                 done();
@@ -40,7 +39,6 @@ describe( 'Testing fetching users', function() {
             .code( 500 )
             .get( `/api/users/${admin.username}?verbose=true` )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "You don't have permission to make this request" )
                 done();
@@ -50,7 +48,6 @@ describe( 'Testing fetching users', function() {
     it( 'did get regular users own data', function( done ) {
         user1.get( `/api/users/${user1.username}?verbose=true` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.object( res.body ).hasProperty( "data" )
                 test.string( res.body.data._id )

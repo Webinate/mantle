@@ -67,7 +67,6 @@ export class UserController extends Controller {
                 throw new Error( 'No user found' );
 
             okJson<IGetUser>( {
-                error: false,
                 message: `Found ${user.dbEntry.username}`,
                 data: user.generateCleanedData( Boolean( req.query.verbose ) )
             }, res );
@@ -100,7 +99,6 @@ export class UserController extends Controller {
                 sanitizedData.push( users[ i ].generateCleanedData( verbose ) );
 
             okJson<IGetUsers>( {
-                error: false,
                 message: `Found ${users.length} users`,
                 data: sanitizedData,
                 count: totalNumUsers
@@ -122,7 +120,7 @@ export class UserController extends Controller {
 
         try {
             await UserManager.get.setMeta( user, val );
-            okJson<IResponse>( { message: `User's data has been updated`, error: false }, res );
+            okJson<IResponse>( { message: `User's data has been updated` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -138,7 +136,7 @@ export class UserController extends Controller {
 
         try {
             await UserManager.get.setMetaVal( user, name, req.body.value );
-            okJson<IResponse>( { message: `Value '${name}' has been updated`, error: false }, res );
+            okJson<IResponse>( { message: `Value '${name}' has been updated` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -187,7 +185,7 @@ export class UserController extends Controller {
 
             await UserManager.get.removeUser( toRemove );
 
-            return okJson<IResponse>( { message: `User ${toRemove} has been removed`, error: false }, res );
+            return okJson<IResponse>( { message: `User ${toRemove} has been removed` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -210,7 +208,6 @@ export class UserController extends Controller {
 
             const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
             okJson<IGetUser>( {
-                error: false,
                 message: `User ${user.dbEntry.username} has been created`,
                 data: user.dbEntry
             }, res );

@@ -16,7 +16,6 @@ describe( 'Getting uploaded user files', function() {
     it( 'regular user did create a bucket dinosaurs', function( done ) {
         user1.post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -28,7 +27,6 @@ describe( 'Getting uploaded user files', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "You don't have permission to make this request" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -40,7 +38,6 @@ describe( 'Getting uploaded user files', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Could not find the bucket 'test'" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -50,7 +47,6 @@ describe( 'Getting uploaded user files', function() {
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
             .then(( res ) => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -60,7 +56,6 @@ describe( 'Getting uploaded user files', function() {
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
             .then(( res ) => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -84,7 +79,6 @@ describe( 'Getting uploaded user files', function() {
                 test.object( res.body.data[ 0 ] ).hasProperty( "created" );
                 test.string( res.body.data[ 0 ].bucketName ).is( "dinosaurs" );
                 test.object( res.body.data[ 0 ] ).hasProperty( "_id" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -95,7 +89,6 @@ describe( 'Getting uploaded user files', function() {
             .then(( res ) => {
                 test.string( res.body.message ).is( "Found [2] files" );
                 test.array( res.body.data ).hasLength( 2 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -103,7 +96,6 @@ describe( 'Getting uploaded user files', function() {
     it( 'regular user did remove the bucket dinosaurs', function( done ) {
         user1.delete( `/buckets/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

@@ -15,7 +15,6 @@ describe( 'Testing bucket deletion', function() {
     it( 'regular user did create a bucket dinosaurs', function( done ) {
         user1.post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -26,7 +25,6 @@ describe( 'Testing bucket deletion', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Removed [0] buckets" );
                 test.array( res.body.data ).isEmpty();
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -37,7 +35,6 @@ describe( 'Testing bucket deletion', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Removed [0] buckets" );
                 test.array( res.body.data ).hasLength( 0 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -48,7 +45,6 @@ describe( 'Testing bucket deletion', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Found [1] buckets" );
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -59,7 +55,6 @@ describe( 'Testing bucket deletion', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Removed [1] buckets" );
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -70,7 +65,6 @@ describe( 'Testing bucket deletion', function() {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "Found [0] buckets" );
                 test.array( res.body.data ).hasLength( 0 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

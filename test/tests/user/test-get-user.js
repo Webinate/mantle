@@ -13,7 +13,6 @@ describe( 'Getting user data', function() {
     it( 'should allow admin access to basic data', function( done ) {
         admin.get( `/api/users/${config.adminUser.username}` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue()
                 test.string( res.body.message ).is( "Found mat" )
                 test.string( res.body.data._id )
                 test.value( res.body.data.email ).isUndefined()
@@ -31,7 +30,6 @@ describe( 'Getting user data', function() {
     it( 'should allow admin access to sensitive data', function( done ) {
         admin.get( `/api/users/${config.adminUser.username}?verbose=true` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue()
                 test.string( res.body.message ).is( "Found mat" )
                 test.string( res.body.data._id )
                 test.string( res.body.data.email ).is( config.adminUser.email )
@@ -49,7 +47,6 @@ describe( 'Getting user data', function() {
     it( 'should get admin user data by email without sensitive details', function( done ) {
         admin.get( `/api/users/${config.adminUser.email}` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue()
                 test.string( res.body.message ).is( "Found mat" )
                 test.string( res.body.data._id )
                 test.value( res.body.data.email ).isUndefined()
@@ -67,7 +64,6 @@ describe( 'Getting user data', function() {
     it( 'should get admin user data by email with sensitive details', function( done ) {
         admin.get( `/api/users/${config.adminUser.email}?verbose=true` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue()
                 test.string( res.body.message ).is( "Found mat" )
                 test.string( res.body.data._id )
                 test.string( res.body.data.email ).is( config.adminUser.email )
@@ -88,7 +84,6 @@ describe( 'Getting user data', function() {
             .get( `/api/users/${config.adminUser.username}` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" )
-                test.bool( res.body.error ).isTrue()
                 test.string( res.body.message ).is( "You must be logged in to make this request" )
                 done();
             } ).catch( err => done( err ) );
@@ -101,7 +96,6 @@ describe( 'Getting user data', function() {
             .get( `/api/users/${config.adminUser.email}?verbose=true` )
             .then( res => {
                 test.object( res.body ).hasProperty( "message" )
-                test.bool( res.body.error ).isTrue()
                 test.string( res.body.message ).is( "You must be logged in to make this request" )
                 done();
             } ).catch( err => done( err ) );

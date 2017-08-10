@@ -37,7 +37,6 @@ describe( 'Testing deleting users', function() {
             .code( 500 )
             .delete( `/api/users/${user2.username}` )
             .then( res => {
-                test.bool( res.body.error ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "You don't have permission to make this request" )
                 done();

@@ -13,7 +13,6 @@ describe( 'Checking basic authentication', function() {
     it( 'guest should not be logged in', function( done ) {
         guest.get( '/api/auth/authenticated' )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.authenticated ).isNotTrue();
                 test.string( res.body.message ).is( "User is not authenticated" );
                 done();
@@ -23,7 +22,6 @@ describe( 'Checking basic authentication', function() {
     it( 'admin should be logged in', function( done ) {
         admin.get( '/api/auth/authenticated' )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.authenticated ).isTrue();
                 test.string( res.body.message ).is( "User is authenticated" );
                 test.string( res.body.user._id );
@@ -43,7 +41,6 @@ describe( 'Checking basic authentication', function() {
     it( 'admin should be authenticated and pass verbose details', function( done ) {
         admin.get( '/api/auth/authenticated?verbose=true' )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.authenticated ).isTrue();
                 test.string( res.body.message ).is( "User is authenticated" );
                 test.string( res.body.user._id );

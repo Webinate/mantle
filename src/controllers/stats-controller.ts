@@ -93,7 +93,7 @@ export class StatsController extends Controller {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
             await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsUsed: value } );
-            okJson<IResponse>( { message: `Updated the user API calls to [${value}]`, error: false }, res );
+            okJson<IResponse>( { message: `Updated the user API calls to [${value}]` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -109,7 +109,7 @@ export class StatsController extends Controller {
             const manager = BucketManager.get;
             await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryUsed: value } );
 
-            okJson<IResponse>( { message: `Updated the user memory to [${value}] bytes`, error: false }, res );
+            okJson<IResponse>( { message: `Updated the user memory to [${value}] bytes` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -124,7 +124,7 @@ export class StatsController extends Controller {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
             await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsAllocated: value } );
-            okJson<IResponse>( { message: `Updated the user API calls to [${value}]`, error: false }, res );
+            okJson<IResponse>( { message: `Updated the user API calls to [${value}]` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -139,7 +139,7 @@ export class StatsController extends Controller {
             const value = parseInt( req.params.value );
             const manager = BucketManager.get;
             await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryAllocated: value } );
-            okJson<IResponse>( { message: `Updated the user memory to [${value}] bytes`, error: false }, res );
+            okJson<IResponse>( { message: `Updated the user memory to [${value}] bytes` }, res );
 
         } catch ( err ) {
             return errJson( err, res );
@@ -157,7 +157,6 @@ export class StatsController extends Controller {
 
             return okJson<IGetUserStorageData>( {
                 message: `Successfully retrieved ${req._user!.username}'s stats`,
-                error: false,
                 data: stats
             }, res );
 
@@ -175,7 +174,7 @@ export class StatsController extends Controller {
         try {
             const manager = BucketManager.get;
             await manager.createUserStats( req.params.target );
-            okJson<IResponse>( { message: `Stats for the user '${req.params.target}' have been created`, error: false }, res );
+            okJson<IResponse>( { message: `Stats for the user '${req.params.target}' have been created` }, res );
 
         } catch ( err ) {
             return errJson( err, res );

@@ -685,7 +685,6 @@ declare module 'modepress' {
 declare module 'modepress' {
     interface IResponse {
         message: string;
-        error: boolean;
     }
     interface IRemoveResponse extends IResponse {
         itemsRemoved: Array<{

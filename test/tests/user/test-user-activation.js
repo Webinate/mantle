@@ -25,7 +25,6 @@ describe( 'Testing user activation', function() {
     it( 'should register with valid information', function( done ) {
         guest.post( `/api/auth/register`, { username: testUserName, password: "Password", email: testUserEmail } )
             .then( res => {
-                test.bool( res.body.error ).isFalse()
                 test.string( res.body.message ).is( "Please activate your account with the link sent to your email address" )
                 test.object( res.body.user )
                 done();
@@ -65,7 +64,6 @@ describe( 'Testing user activation', function() {
     it( 'did resend an activation email with a valid user', function( done ) {
         guest.get( `/api/auth/${testUserName}/resend-activation` )
             .then( res => {
-                test.bool( res.body.error ).isFalse()
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "An activation link has been sent, please check your email for further instructions" )
                 done();
@@ -133,7 +131,6 @@ describe( 'Testing user activation', function() {
     it( 'did log in with valid details and an activated account', function( done ) {
         guest.post( `/api/auth/login`, { username: testUserName, password: "Password" } )
             .then( res => {
-                test.bool( res.body.error ).isFalse()
                 test.bool( res.body.authenticated ).isTrue()
                 test.object( res.body ).hasProperty( "message" )
                 done();

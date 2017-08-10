@@ -95,7 +95,6 @@ describe( 'Testing registering a user', function() {
     it( 'should register with valid information', function( done ) {
         guest.post( `/api/auth/register`, { username: testUserName, password: "Password", email: testUserEmail } )
             .then( res => {
-                test.bool( res.body.error ).isFalse()
                 test.string( res.body.message ).is( "Please activate your account with the link sent to your email address" )
                 test.object( res.body.user )
                 done();
@@ -124,7 +123,6 @@ describe( 'Testing registering a user', function() {
     it( `did allow an admin to activate ${testUserName}`, function( done ) {
         admin.put( `/api/auth/${testUserName}/approve-activation` )
             .then( res => {
-                test.bool( res.body.error ).isFalse()
                 done();
             } ).catch( err => done( err ) );
     } )

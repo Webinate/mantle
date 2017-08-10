@@ -18,7 +18,6 @@ describe( 'Getting and setting user media stat usage', function() {
     it( 'regular user did create a bucket dinosaurs', function( done ) {
         user1.post( `/buckets/user/${user1.username}/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -28,7 +27,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .attach( 'small-image', filePath )
             .post( "/buckets/dinosaurs/upload" )
             .then(( res ) => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -40,7 +38,6 @@ describe( 'Getting and setting user media stat usage', function() {
                 fileId = res.body.data[ 0 ].identifier;
                 fileUrl = res.body.data[ 0 ].publicURL;
                 test.array( res.body.data ).hasLength( 1 );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -52,7 +49,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "File '123' does not exist" );
-                test.bool( res.body.error ).isTrue();
                 done();
             } ).catch( err => done( err ) );
 
@@ -65,7 +61,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" )
                 test.string( res.body.message ).is( "File '123' does not exist" )
-                test.bool( res.body.error ).isTrue()
                 done()
             } ).catch( err => done( err ) );
     } )
@@ -75,7 +70,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "File is now public" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -114,7 +108,6 @@ describe( 'Getting and setting user media stat usage', function() {
             .then( res => {
                 test.object( res.body ).hasProperty( "message" );
                 test.string( res.body.message ).is( "File is now private" );
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -122,7 +115,6 @@ describe( 'Getting and setting user media stat usage', function() {
     it( 'regular user did remove the bucket dinosaurs', function( done ) {
         user1.delete( `/buckets/dinosaurs` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 done();
             } ).catch( err => done( err ) );
     } )

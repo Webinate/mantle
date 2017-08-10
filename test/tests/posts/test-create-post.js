@@ -13,7 +13,6 @@ describe( 'Testing creation of posts', function() {
     it( 'fetched all posts', function( done ) {
         admin.get( `/api/posts` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.number( res.body.count );
                 numPosts = res.body.count;
                 done();
@@ -68,7 +67,6 @@ describe( 'Testing creation of posts', function() {
                 if ( res.body.data ) {
                     admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
-                            test.bool( res.body.error ).isFalse();
                             done();
                         } ).catch( err => done( err ) );
                 }
@@ -114,7 +112,6 @@ describe( 'Testing creation of posts', function() {
                 if ( res.body.data ) {
                     admin.delete( `/api/posts/${res.body.data._id}` )
                         .then( res => {
-                            test.bool( res.body.error ).isFalse();
                             done();
                         } ).catch( err => done( err ) );
                 }
@@ -139,7 +136,6 @@ describe( 'Testing creation of posts', function() {
     it( 'did delete the first post', function( done ) {
         admin.delete( `/api/posts/${lastPost}` )
             .then( res => {
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -147,7 +143,6 @@ describe( 'Testing creation of posts', function() {
     it( 'did delete the second post', function( done ) {
         admin.delete( `/api/posts/${lastPost2}` )
             .then( res => {
-                test.bool( res.body.error ).isFalse();
                 done();
             } ).catch( err => done( err ) );
     } )
@@ -155,7 +150,6 @@ describe( 'Testing creation of posts', function() {
     it( 'has cleaned up the posts successfully', function( done ) {
         admin.get( `/api/posts` )
             .then( res => {
-                test.bool( res.body.error ).isNotTrue();
                 test.bool( res.body.count === numPosts ).isTrue();
                 done();
             } ).catch( err => done( err ) );
