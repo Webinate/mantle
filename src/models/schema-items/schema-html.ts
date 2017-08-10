@@ -34,10 +34,10 @@ export class SchemaHtml extends SchemaItem<string> {
  	 * Creates a new schema item
  	 * @param name The name of this item
 	 * @param val The text of this item
-     * @param allowedTags The tags allowed by the html parser
-     * @param allowedAttributes The attributes allowed by each attribute
-     * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
-     * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
+   * @param allowedTags The tags allowed by the html parser
+   * @param allowedAttributes The attributes allowed by each attribute
+   * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
+   * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
 	 * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
 	 */
   constructor( name: string, val: string, allowedTags: Array<string> = SchemaHtml.defaultTags,

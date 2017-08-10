@@ -6,6 +6,7 @@ import { isValidObjectID } from '../../utils/utils'
  * A mongodb ObjectID scheme item for use in Models
  */
 export class SchemaId extends SchemaItem<ObjectID | string | null> {
+
 	/**
 	 * Creates a new schema item
 	 * @param name The name of this item

@@ -13,9 +13,9 @@ export class SchemaText extends SchemaItem<string> {
 	 * Creates a new schema item
 	 * @param name The name of this item
 	 * @param val The text of this item
-     * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
+   * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
 	 * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-     * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
+   * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
 	 */
   constructor( name: string, val: string, minCharacters: number = 0, maxCharacters: number = 10000, htmlClean: boolean = true ) {
     super( name, val );

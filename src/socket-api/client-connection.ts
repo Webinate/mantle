@@ -61,8 +61,8 @@ export class ClientConnection {
   }
 
   /**
- * Called whenever an error has occurred
- */
+   * Called whenever an error has occurred
+   */
   private onError( err: Error ) {
     logError( `An error has occurred for web socket : '${err.message}'` )
   }

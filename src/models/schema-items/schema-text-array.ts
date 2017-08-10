@@ -14,9 +14,9 @@ export class SchemaTextArray extends SchemaItem<Array<string>> {
 	 * Creates a new schema item that holds an array of text items
 	 * @param name The name of this item
 	 * @param val The text array of this schema item
-     * @param minItems [Optional] Specify the minimum number of items that can be allowed
-     * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-     * @param minCharacters [Optional] Specify the minimum number of characters for each text item
+   * @param minItems [Optional] Specify the minimum number of items that can be allowed
+   * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+   * @param minCharacters [Optional] Specify the minimum number of characters for each text item
 	 * @param maxCharacters [Optional] Specify the maximum number of characters for each text item
 	 */
   constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, minCharacters: number = 0, maxCharacters: number = 10000 ) {

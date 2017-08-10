@@ -16,12 +16,12 @@ export class SchemaNumArray extends SchemaItem<Array<number>> {
 	 * Creates a new schema item that holds an array of number items
 	 * @param name The name of this item
 	 * @param val The number array of this schema item
-     * @param minItems [Optional] Specify the minimum number of items that can be allowed
-     * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-     * @param min [Optional] Specify the minimum a number can be
+   * @param minItems [Optional] Specify the minimum number of items that can be allowed
+   * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+   * @param min [Optional] Specify the minimum a number can be
 	 * @param max [Optional] Specify the maximum a number can be
-     * @param type [Optional] What type of numbers to expect
-     * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
+   * @param type [Optional] What type of numbers to expect
+   * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
 	 */
   constructor( name: string, val: Array<number>, minItems: number = 0, maxItems: number = Infinity, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2 ) {
     super( name, val );

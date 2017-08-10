@@ -177,10 +177,10 @@ export abstract class Model {
 	 * Gets an arrray of instances based on the selector search criteria
  	 * @param selector The mongodb selector
  	 * @param sort Specify an array of items to sort.
-     * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
-     * @param startIndex The start index of where to select from
+   * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
+   * @param startIndex The start index of where to select from
 	 * @param limit The number of results to fetch
-     * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
+   * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	 */
   async findInstances<T>( options: ISearchOptions<T> = {} ): Promise<Array<ModelInstance<T>>> {
     const collection = this.collection;
@@ -219,10 +219,10 @@ export abstract class Model {
   }
 
   /**
- * Gets a model instance based on the selector criteria
- * @param selector The mongodb selector
+   * Gets a model instance based on the selector criteria
+   * @param selector The mongodb selector
    * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
- */
+   */
   async findOne<T>( selector: any, projection?: any ): Promise<ModelInstance<T> | null> {
     const collection = this.collection;
 
@@ -384,10 +384,10 @@ export abstract class Model {
   }
 
   /**
- * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
- * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
- * by parsing the data object and setting each schema item's value by the name/value in the data object.
- */
+   * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
+   * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
+   * by parsing the data object and setting each schema item's value by the name/value in the data object.
+   */
   async checkUniqueness<T>( instance: ModelInstance<T> ): Promise<boolean> {
     const items = instance.schema.getItems();
     let hasUniqueField: boolean = false;

@@ -155,8 +155,8 @@ export class CommsController extends events.EventEmitter {
   }
 
   /**
- * Initializes the comms controller
- */
+   * Initializes the comms controller
+   */
   async initialize( db: mongodb.Db ): Promise<void> {
     let cfg = this._cfg;
 

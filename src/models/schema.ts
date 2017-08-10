@@ -27,10 +27,10 @@ export class Schema {
   }
 
   /**
- * Sets a schema value by name
- * @param data The data object we are setting
+   * Sets a schema value by name
+   * @param data The data object we are setting
    * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
- */
+   */
   set( data: any, allowReadOnlyValues: boolean ) {
     const items = this._items,
       l = items.length;
@@ -78,10 +78,10 @@ export class Schema {
   }
 
   /**
- * Serializes the schema items into a JSON
+   * Serializes the schema items into a JSON
    * @param id The models dont store the _id property directly, and so this has to be passed for serialization
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
- */
+   */
   public async getAsJson<T extends IModelEntry>( id: mongodb.ObjectID, options: ISchemaOptions ): Promise<T> {
     const toReturn: T = <T><IModelEntry>{ _id: id };
     const items = this._items;
@@ -111,7 +111,7 @@ export class Schema {
 	/**
 	 * Checks the values stored in the items to see if they are correct
 	 * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-     * @returns Returns true if successful
+   * @returns Returns true if successful
 	 */
   public async validate( checkForRequiredFields: boolean ): Promise<Schema> {
     const items = this._items;
@@ -129,11 +129,11 @@ export class Schema {
   }
 
   /**
- * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
+   * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
    * doing any post update/insert operations
    * @param instance The model instance that was inserted or updated
    * @param collection The DB collection that the model was inserted into
- */
+   */
   public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
     const items = this._items;
     const promises: Array<Promise<any>> = [];

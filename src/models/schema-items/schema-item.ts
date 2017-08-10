@@ -141,11 +141,11 @@ export class SchemaItem<T> {
   }
 
   /**
- * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+   * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
    * doing any post update/insert operations
    * @param instance The model instance that was inserted or updated
    * @param collection The DB collection that the model was inserted into
- */
+   */
   public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
     instance;   // Supress empty param warning
     collection; // Supress empty param warning
@@ -164,8 +164,8 @@ export class SchemaItem<T> {
   }
 
   /**
- * Gets the value of this item in a database safe format
- */
+   * Gets the value of this item in a database safe format
+   */
   public getDbValue(): T {
     return this.value;
   }
@@ -182,7 +182,7 @@ export class SchemaItem<T> {
   /**
    * Sets the value of this item
    * @param {T} val The value to set
- */
+   */
   public setValue( val: T ): T {
     this._modified = true;
     return this.value = val;

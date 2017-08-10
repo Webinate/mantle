@@ -135,7 +135,7 @@ declare module 'modepress' {
          * The administrative user. This is the root user that will have access to the information in the database.
          * This can be anything you like, but try to use passwords that are hard to guess
          * eg:
-
+    
             'adminUser': {
                     'username': 'root',
                     'email': 'root_email@host.com',
@@ -794,12 +794,12 @@ declare module "models/schema-items/schema-item" {
          */
         setReadOnly(val: boolean): SchemaItem<T>;
         /**
-         * Gets if this item represents a unique value in the database. An example might be a username
-         */
+       * Gets if this item represents a unique value in the database. An example might be a username
+       */
         getUnique(): boolean;
         /**
-         * Sets if this item represents a unique value in the database. An example might be a username
-         */
+       * Sets if this item represents a unique value in the database. An example might be a username
+       */
         setUnique(val: boolean): SchemaItem<T>;
         /**
          * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
@@ -808,10 +808,10 @@ declare module "models/schema-items/schema-item" {
          */
         getUniqueIndexer(): boolean;
         /**
-         * Sets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
+       * Sets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
          * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
          * a given project. In this case the project item is set as a uniqueIndexer
-         */
+       */
         setUniqueIndexer(val: boolean): SchemaItem<T>;
         /**
          * Gets if this item is sensitive
@@ -830,11 +830,11 @@ declare module "models/schema-items/schema-item" {
          */
         validate(): Promise<boolean | Error>;
         /**
-         * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+       * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
-         */
+       */
         postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
@@ -843,8 +843,8 @@ declare module "models/schema-items/schema-item" {
          */
         postDelete<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
-         * Gets the value of this item in a database safe format
-         */
+       * Gets the value of this item in a database safe format
+       */
         getDbValue(): T;
         /**
          * Gets the value of this item
@@ -854,7 +854,7 @@ declare module "models/schema-items/schema-item" {
         /**
          * Sets the value of this item
          * @param {T} val The value to set
-         */
+       */
         setValue(val: T): T;
     }
 }
@@ -874,10 +874,10 @@ declare module "models/schema" {
          */
         clone(): Schema;
         /**
-         * Sets a schema value by name
-         * @param data The data object we are setting
+       * Sets a schema value by name
+       * @param data The data object we are setting
          * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
-         */
+       */
         set(data: any, allowReadOnlyValues: boolean): void;
         /**
          * Sets a schema value by name
@@ -895,10 +895,10 @@ declare module "models/schema" {
          */
         serialize(): any;
         /**
-         * Serializes the schema items into a JSON
+       * Serializes the schema items into a JSON
          * @param id The models dont store the _id property directly, and so this has to be passed for serialization
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
-         */
+       */
         getAsJson<T extends IModelEntry>(id: mongodb.ObjectID, options: ISchemaOptions): Promise<T>;
         /**
          * Checks the values stored in the items to see if they are correct
@@ -907,11 +907,11 @@ declare module "models/schema" {
          */
         validate(checkForRequiredFields: boolean): Promise<Schema>;
         /**
-         * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
+       * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
-         */
+       */
         postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<Schema>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
@@ -1056,9 +1056,9 @@ declare module "models/model" {
          */
         initialize(db: mongodb.Db): Promise<Model>;
         /**
-         * Gets the number of DB entries based on the selector
-         * @param selector The mongodb selector
-         */
+       * Gets the number of DB entries based on the selector
+       * @param selector The mongodb selector
+       */
         count(selector: any): Promise<number>;
         /**
          * Gets an arrray of instances based on the selector search criteria
@@ -1071,10 +1071,10 @@ declare module "models/model" {
          */
         findInstances<T>(options?: ISearchOptions<T>): Promise<Array<ModelInstance<T>>>;
         /**
-         * Gets a model instance based on the selector criteria
-         * @param selector The mongodb selector
+       * Gets a model instance based on the selector criteria
+       * @param selector The mongodb selector
          * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
-         */
+       */
         findOne<T>(selector: any, projection?: any): Promise<ModelInstance<T> | null>;
         /**
          * Deletes a instance and all its dependencies are updated or deleted accordingly
@@ -1095,10 +1095,10 @@ declare module "models/model" {
          */
         update<T>(selector: any, data: T): Promise<UpdateRequest<T>>;
         /**
-         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
-         * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-         * by parsing the data object and setting each schema item's value by the name/value in the data object.
-         */
+       * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
+       * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
+       * by parsing the data object and setting each schema item's value by the name/value in the data object.
+       */
         checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>;
         /**
          * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
@@ -1213,12 +1213,12 @@ declare module "socket-api/client-connection" {
          */
         private onMessage(message);
         /**
-         * Called whenever a client disconnnects
-         */
+       * Called whenever a client disconnnects
+       */
         private onClose();
         /**
-         * Called whenever an error has occurred
-         */
+       * Called whenever an error has occurred
+       */
         private onError(err);
     }
 }
@@ -1292,23 +1292,23 @@ declare module "socket-api/comms-controller" {
         private _hashedApiKey;
         private _cfg;
         /**
-         * Creates an instance of the Communication server
-         */
+       * Creates an instance of the Communication server
+       */
         constructor(cfg: IConfig);
         /**
          * Checks the header api key against the hash generated from the config
          */
         checkApiKey(key: string): Promise<boolean>;
         /**
-         * Sends an instruction to the relevant client connections
+       * Sends an instruction to the relevant client connections
          * @param instruction The instruction from the server
-         */
+       */
         processClientInstruction(instruction: ClientInstruction<any>): void;
         /**
-         * Processes an instruction sent from a client. Any listeners of the comms controller will listen & react to the
+       * Processes an instruction sent from a client. Any listeners of the comms controller will listen & react to the
          * instruction - and in some cases might resond to the client with a ClientInstruction.
          * @param instruction The instruction from the client
-         */
+       */
         processServerInstruction(instruction: ServerInstruction<any>): Promise<{}> | undefined;
         /**
          * Attempts to send a token to a specific client
@@ -1319,8 +1319,8 @@ declare module "socket-api/comms-controller" {
          */
         onWsConnection(ws: ws): Promise<void>;
         /**
-         * Initializes the comms controller
-         */
+       * Initializes the comms controller
+       */
         initialize(db: mongodb.Db): Promise<void>;
     }
 }
@@ -1765,9 +1765,9 @@ declare module "core/users" {
          */
         constructor(dbEntry: IUserEntry);
         /**
-        * Generates an object that can be sent to clients.
+      * Generates an object that can be sent to clients.
         * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
-        */
+      */
         generateCleanedData(verbose?: boolean): IUserEntry;
         /**
          * Generates the object to be stored in the database
@@ -1796,8 +1796,8 @@ declare module "core/users" {
          */
         constructor(userCollection: mongodb.Collection, sessionCollection: mongodb.Collection, config: IConfig);
         /**
-         * Called whenever a session is removed from the database
-         */
+       * Called whenever a session is removed from the database
+       */
         onSessionRemoved(sessionId: string): Promise<void>;
         /**
          * Initializes the API
@@ -1833,11 +1833,11 @@ declare module "core/users" {
          */
         approveActivation(username: string): Promise<void>;
         /**
-         * Attempts to send the an email to the admin user
-         * @param message The message body
+       * Attempts to send the an email to the admin user
+       * @param message The message body
          * @param name The name of the sender
          * @param from The email of the sender
-         */
+       */
         sendAdminEmail(message: string, name?: string, from?: string): Promise<any>;
         /**
          * Attempts to resend the activation link
@@ -1847,29 +1847,29 @@ declare module "core/users" {
          */
         resendActivation(username: string, resetUrl: string, origin: string): Promise<boolean>;
         /**
-         * Sends the user an email with instructions on how to reset their password
-         * @param username The username of the user
+       * Sends the user an email with instructions on how to reset their password
+       * @param username The username of the user
          * @param resetUrl The url where the reset password link should direct to
          * @param origin The site where the request came from
-         */
+       */
         requestPasswordReset(username: string, resetUrl: string, origin: string): Promise<boolean>;
         /**
-         * Creates a hashed password
-         * @param pass The password to hash
-         */
+       * Creates a hashed password
+       * @param pass The password to hash
+       */
         private hashPassword(pass);
         /**
-         * Compares a password to the stored hash in the database
-         * @param pass The password to test
+       * Compares a password to the stored hash in the database
+       * @param pass The password to test
          * @param hash The hash stored in the DB
-         */
+       */
         private comparePassword(pass, hash);
         /**
-         * Attempts to reset a user's password.
-         * @param username The username of the user
+       * Attempts to reset a user's password.
+       * @param username The username of the user
          * @param code The password code
          * @param newPassword The new password
-         */
+       */
         resetPassword(username: string, code: string, newPassword: string): Promise<boolean>;
         /**
          * Checks the users activation code to see if its valid
@@ -1928,37 +1928,37 @@ declare module "core/users" {
          */
         remove(username?: string): Promise<boolean>;
         /**
-         * Sets the meta data associated with the user
-         * @param user The user
+       * Sets the meta data associated with the user
+       * @param user The user
          * @param data The meta data object to set
-         * @returns Returns the data set
-         */
+       * @returns Returns the data set
+       */
         setMeta(user: IUserEntry, data?: any): Promise<boolean | any>;
         /**
-         * Sets a meta value on the user. This updates the user's meta value by name
-         * @param user The user
+       * Sets a meta value on the user. This updates the user's meta value by name
+       * @param user The user
          * @param name The name of the meta to set
          * @param data The value of the meta to set
-         * @returns {Promise<boolean|any>} Returns the value of the set
-         */
+       * @returns {Promise<boolean|any>} Returns the value of the set
+       */
         setMetaVal(user: IUserEntry, name: string, val: any): Promise<boolean | any>;
         /**
-         * Gets the value of user's meta by name
-         * @param user The user
+       * Gets the value of user's meta by name
+       * @param user The user
          * @param name The name of the meta to get
-         * @returns The value to get
-         */
+       * @returns The value to get
+       */
         getMetaVal(user: IUserEntry, name: string): Promise<boolean | any>;
         /**
-         * Gets the meta data of a user
-         * @param user The user
-         * @returns The value to get
-         */
+       * Gets the meta data of a user
+       * @param user The user
+       * @returns The value to get
+       */
         getMetaData(user: IUserEntry): Promise<boolean | any>;
         /**
-         * Gets the total number of users
+       * Gets the total number of users
          * @param searchPhrases Search phrases
-         */
+       */
         numUsers(searchPhrases?: RegExp): Promise<number>;
         /**
          * Prints user objects from the database
@@ -2093,8 +2093,8 @@ declare module "models/schema-items/schema-date" {
          */
         validate(): Promise<boolean | Error>;
         /**
-         * Gets the value of this item
-         */
+       * Gets the value of this item
+       */
         getValue(): Promise<number>;
     }
 }
@@ -2198,11 +2198,11 @@ declare module "models/schema-items/schema-foreign-key" {
          */
         validate(): Promise<boolean | Error>;
         /**
-         * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+       * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
-         */
+       */
         postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
@@ -2210,9 +2210,9 @@ declare module "models/schema-items/schema-foreign-key" {
          */
         postDelete<T extends IModelEntry>(instance: ModelInstance<T>): Promise<void>;
         /**
-         * Gets the value of this item
+       * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
-         */
+       */
         getValue(options: ISchemaOptions): Promise<FKeyValues>;
     }
 }
@@ -2255,11 +2255,11 @@ declare module "models/schema-items/schema-id-array" {
          */
         validate(): Promise<boolean | Error>;
         /**
-         * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+       * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
-         */
+       */
         postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
@@ -2267,9 +2267,9 @@ declare module "models/schema-items/schema-id-array" {
          */
         postDelete<T extends IModelEntry>(instance: ModelInstance<T>): Promise<void>;
         /**
-         * Gets the value of this item
+       * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
-         */
+       */
         getValue(options: ISchemaOptions): Promise<Array<string | ObjectID | IModelEntry>>;
     }
 }
@@ -2490,12 +2490,12 @@ declare module "controllers/admin-controller" {
         private _options;
         constructor(options: IBaseControler);
         /**
-         * Called to initialize this controller and its related database objects
-         */
+       * Called to initialize this controller and its related database objects
+       */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
-         * Attempts to send the webmaster an email message
-         */
+       * Attempts to send the webmaster an email message
+       */
         private messageWebmaster(req, res);
     }
 }
@@ -2524,36 +2524,36 @@ declare module "controllers/bucket-controller" {
          */
         constructor(options: IBaseControler);
         /**
-         * Called to initialize this controller and its related database objects
-         */
+       * Called to initialize this controller and its related database objects
+       */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Removes buckets specified in the URL
          */
         private removeBuckets(req, res);
         /**
-         * Fetches all bucket entries from the database
-         */
+       * Fetches all bucket entries from the database
+       */
         private getBuckets(req, res);
         private alphaNumericDashSpace(str);
         /**
-         * Creates a new user bucket based on the target provided
-         */
+       * Creates a new user bucket based on the target provided
+       */
         private createBucket(req, res);
         /**
-         * Checks if a part is allowed to be uploaded
+       * Checks if a part is allowed to be uploaded
          * @returns {boolean}
-         */
+       */
         private isPartAllowed(part);
         /**
-         * Checks if a file part is allowed to be uploaded
+       * Checks if a file part is allowed to be uploaded
          * @returns {boolean}
-         */
+       */
         private isFileTypeAllowed(part);
         private uploadMetaPart(part);
         /**
-         * Attempts to upload a file to the user's bucket
-         */
+       * Attempts to upload a file to the user's bucket
+       */
         private uploadUserFiles(req, res);
         /**
          * After the uploads have been uploaded, we set any meta on the files and send file uploaded events
@@ -2590,8 +2590,8 @@ declare module "controllers/comments-controller" {
          */
         constructor(options: IBaseControler);
         /**
-         * Called to initialize this controller and its related database objects
-         */
+       * Called to initialize this controller and its related database objects
+       */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Returns an array of IComment items
@@ -2627,12 +2627,12 @@ declare module "controllers/cors-controller" {
         private _approvedDomains;
         private _options;
         /**
-         * Creates an instance of the user manager
-         */
+       * Creates an instance of the user manager
+       */
         constructor(approvedDomains: string[], options: IBaseControler);
         /**
-         * Called to initialize this controller and its related database objects
-         */
+       * Called to initialize this controller and its related database objects
+       */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
     }
 }
@@ -2648,8 +2648,8 @@ declare module "controllers/emails-controller" {
          */
         constructor(options: IBaseControler);
         /**
-         * Called to initialize this controller and its related database objects
-         */
+       * Called to initialize this controller and its related database objects
+       */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
          * Called whenever a post request is caught by this controller
@@ -2666,12 +2666,12 @@ declare module "controllers/error-controller" {
      */
     export class ErrorController extends Controller {
         /**
-         * Creates an instance
-         */
+       * Creates an instance
+       */
         constructor();
         /**
-         * Called to initialize this controller and its related database objects
-         */
+       * Called to initialize this controller and its related database objects
+       */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
     }
 }
@@ -2746,8 +2746,8 @@ declare module "controllers/page-renderer" {
         private static crawlerUserAgents;
         private static extensionsToIgnore;
         /**
-         * Creates a new instance of the email controller
-         */
+       * Creates a new instance of the email controller
+       */
         constructor(options: IRenderOptions);
         /**
          * Called to initialize this controller and its related database objects
@@ -2979,31 +2979,31 @@ declare module "controllers/user-controller" {
          */
         initialize(e: express.Express, db: mongodb.Db): Promise<this>;
         /**
-         * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
+       * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
          * is specified. Specify the verbose=true parameter in order to get all user data.
-         */
+       */
         private getUser(req, res);
         /**
-         * Gets a list of users. You can limit the haul by specifying the 'index' and 'limit' query parameters.
+       * Gets a list of users. You can limit the haul by specifying the 'index' and 'limit' query parameters.
          * Also specify the verbose=true parameter in order to get all user data. You can also filter usernames with the
          * search query
-         */
+       */
         private getUsers(req, res);
         /**
          * Sets a user's meta data
-         */
+       */
         private setData(req, res);
         /**
-         * Sets a user's meta value
-         */
+       * Sets a user's meta value
+       */
         private setVal(req, res);
         /**
-         * Gets a user's meta value
-         */
+       * Gets a user's meta value
+       */
         private getVal(req, res);
         /**
-         * Gets a user's meta data
-         */
+       * Gets a user's meta data
+       */
         private getData(req, res);
         /**
          * Removes a user from the database
@@ -3030,8 +3030,8 @@ declare module "controllers/auth-controller" {
          */
         constructor(options: IAuthOptions);
         /**
-         * Called to initialize this controller and its related database objects
-         */
+       * Called to initialize this controller and its related database objects
+       */
         initialize(e: express.Express, db: mongodb.Db): Promise<this>;
         /**
          * Activates the user's account
@@ -3042,12 +3042,12 @@ declare module "controllers/auth-controller" {
          */
         private resendActivation(req, res);
         /**
-         * Resends the activation link to the user
-         */
+       * Resends the activation link to the user
+       */
         private requestPasswordReset(req, res);
         /**
-         * resets the password if the user has a valid password token
-         */
+       * resets the password if the user has a valid password token
+       */
         private passwordReset(req, res);
         /**
          * Approves a user's activation code so they can login without email validation

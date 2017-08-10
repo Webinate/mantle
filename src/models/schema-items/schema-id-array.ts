@@ -23,10 +23,10 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
 	 * Creates a new schema item that holds an array of id items
 	 * @param name The name of this item
 	 * @param val The array of ids for this schema item
-     * @param minItems [Optional] Specify the minimum number of items that can be allowed
-     * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-     * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
-     * the item can expand objects on retreival.
+   * @param minItems [Optional] Specify the minimum number of items that can be allowed
+   * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+   * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
+   * the item can expand objects on retreival.
 	 */
   constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, targetCollection: string ) {
     super( name, val );
@@ -99,11 +99,11 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
   }
 
   /**
- * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+   * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
    * doing any post update/insert operations
    * @param instance The model instance that was inserted or updated
    * @param collection The DB collection that the model was inserted into
- */
+   */
   public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
     if ( !this._targetDocs )
       return;
@@ -167,9 +167,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
   }
 
   /**
- * Gets the value of this item
+   * Gets the value of this item
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
- */
+   */
   public async getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | IModelEntry>> {
     if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
       throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
