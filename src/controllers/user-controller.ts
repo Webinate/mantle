@@ -5,7 +5,7 @@ import bodyParser = require( 'body-parser' );
 import { UserManager, UserPrivileges } from '../core/users';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { okJson, errJson } from '../utils/serializers';
+import { j200 } from '../utils/serializers';
 import { IGetUser, IResponse, IGetUsers, IAuthReq, IUserEntry } from 'modepress';
 import * as compression from 'compression';
 import { Model } from '../models/model';
@@ -59,21 +59,20 @@ export class UserController extends Controller {
 	 * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
      * is specified. Specify the verbose=true parameter in order to get all user data.
 	 */
+    @j200()
     private async getUser( req: IAuthReq, res: express.Response ) {
-        try {
-            const user = await UserManager.get.getUser( req.params.username );
 
-            if ( !user )
-                throw new Error( 'No user found' );
+        const user = await UserManager.get.getUser( req.params.username );
 
-            okJson<IGetUser>( {
-                message: `Found ${user.dbEntry.username}`,
-                data: user.generateCleanedData( Boolean( req.query.verbose ) )
-            }, res );
+        if ( !user )
+            throw new Error( 'No user found' );
 
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+        return {
+            message: `Found ${user.dbEntry.username}`,
+            data: user.generateCleanedData( Boolean( req.query.verbose ) )
+        } as IGetUser;
+
+
     }
 
     /**
@@ -81,6 +80,7 @@ export class UserController extends Controller {
      * Also specify the verbose=true parameter in order to get all user data. You can also filter usernames with the
      * search query
 	 */
+    @j200()
     private async getUsers( req: IAuthReq, res: express.Response ) {
         let verbose = Boolean( req.query.verbose );
 
@@ -90,130 +90,105 @@ export class UserController extends Controller {
         else
             verbose = false;
 
-        try {
-            const totalNumUsers = await UserManager.get.numUsers( new RegExp( req.query.search ) );
-            const users = await UserManager.get.getUsers( parseInt( req.query.index ), parseInt( req.query.limit ), new RegExp( req.query.search ) );
-            const sanitizedData: IUserEntry[] = [];
+        const totalNumUsers = await UserManager.get.numUsers( new RegExp( req.query.search ) );
+        const users = await UserManager.get.getUsers( parseInt( req.query.index ), parseInt( req.query.limit ), new RegExp( req.query.search ) );
+        const sanitizedData: IUserEntry[] = [];
 
-            for ( let i = 0, l = users.length; i < l; i++ )
-                sanitizedData.push( users[ i ].generateCleanedData( verbose ) );
+        for ( let i = 0, l = users.length; i < l; i++ )
+            sanitizedData.push( users[ i ].generateCleanedData( verbose ) );
 
-            okJson<IGetUsers>( {
-                message: `Found ${users.length} users`,
-                data: sanitizedData,
-                count: totalNumUsers
-            }, res );
-
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+        return {
+            message: `Found ${users.length} users`,
+            data: sanitizedData,
+            count: totalNumUsers
+        } as IGetUsers;
     }
 
     /**
  	 * Sets a user's meta data
 	 */
+    @j200()
     private async setData( req: IAuthReq, res: express.Response ) {
         const user = req._user!;
         let val = req.body && req.body.value;
         if ( !val )
             val = {};
 
-        try {
-            await UserManager.get.setMeta( user, val );
-            okJson<IResponse>( { message: `User's data has been updated` }, res );
+        await UserManager.get.setMeta( user, val );
+        return { message: `User's data has been updated` } as IResponse;
 
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+
     }
 
     /**
 	 * Sets a user's meta value
 	 */
+    @j200()
     private async setVal( req: IAuthReq, res: express.Response ) {
         const user = req._user!;
         const name = req.params.name;
 
-        try {
-            await UserManager.get.setMetaVal( user, name, req.body.value );
-            okJson<IResponse>( { message: `Value '${name}' has been updated` }, res );
+        await UserManager.get.setMetaVal( user, name, req.body.value );
+        return { message: `Value '${name}' has been updated` } as IResponse;
 
-        } catch ( err ) {
-            return errJson( err, res );
-        };
     }
 
     /**
 	 * Gets a user's meta value
 	 */
+    @j200()
     private async getVal( req: IAuthReq, res: express.Response ) {
         const user = req._user!;
         const name = req.params.name;
 
-        try {
-            const val = await UserManager.get.getMetaVal( user, name );
-            okJson<any>( val, res );
-
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+        const val = await UserManager.get.getMetaVal( user, name );
+        return val;
     }
 
     /**
 	 * Gets a user's meta data
 	 */
+    @j200()
     private async getData( req: IAuthReq, res: express.Response ) {
         const user = req._user!;
-
-        try {
-            const val = await UserManager.get.getMetaData( user );
-            okJson<any>( val, res );
-
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+        const val = await UserManager.get.getMetaData( user );
+        return val;
     }
 
 	/**
 	 * Removes a user from the database
 	 */
+    @j200()
     private async removeUser( req: IAuthReq, res: express.Response ) {
-        try {
-            const toRemove = req.params.user;
-            if ( !toRemove )
-                throw new Error( 'No user found' );
 
-            await UserManager.get.removeUser( toRemove );
+        const toRemove = req.params.user;
+        if ( !toRemove )
+            throw new Error( 'No user found' );
 
-            return okJson<IResponse>( { message: `User ${toRemove} has been removed` }, res );
+        await UserManager.get.removeUser( toRemove );
 
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+        return { message: `User ${toRemove} has been removed` } as IResponse;
     }
 
 	/**
 	 * Allows an admin to create a new user without registration
 	 */
+    @j200()
     private async createUser( req: express.Request, res: express.Response ) {
-        try {
-            const token: IUserEntry = req.body;
 
-            // Set default privileges
-            token.privileges = token.privileges ? token.privileges : UserPrivileges.Regular;
+        const token: IUserEntry = req.body;
 
-            // Not allowed to create super users
-            if ( token.privileges === UserPrivileges.SuperAdmin )
-                throw new Error( 'You cannot create a user with super admin permissions' );
+        // Set default privileges
+        token.privileges = token.privileges ? token.privileges : UserPrivileges.Regular;
 
-            const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
-            okJson<IGetUser>( {
-                message: `User ${user.dbEntry.username} has been created`,
-                data: user.dbEntry
-            }, res );
+        // Not allowed to create super users
+        if ( token.privileges === UserPrivileges.SuperAdmin )
+            throw new Error( 'You cannot create a user with super admin permissions' );
 
-        } catch ( err ) {
-            return errJson( err, res );
-        };
+        const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
+        return {
+            message: `User ${user.dbEntry.username} has been created`,
+            data: user.dbEntry
+        } as IGetUser;
     }
 }
