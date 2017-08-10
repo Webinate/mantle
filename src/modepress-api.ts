@@ -28,32 +28,32 @@ export const BucketManager = bucketManager.BucketManager;
 export const isValidID = isValidObjectID;
 export const authentication = permissions;
 export const controllers = {
-    /** Endpoints for administritive tasks */
-    admin: AdminController,
-    /** Endpoints for authenticating users */
-    auth: AuthController,
-    /** Endpoints for managing posts */
-    posts: PostsController,
-    /** Endpoints for managing categories */
-    categories: CategoriesController,
-    /** Endpoints for managing comments of posts */
-    comments: CommentsController,
-    /** Endpoints for managing cross origin allowances */
-    cors: CORSController,
-    /** TODO: This must be removed in favour of the admin controller */
-    email: EmailsController,
-    /** Can be used to catch and return errors */
-    error: ErrorController,
-    /** Endpoints for managing user files */
-    file: FileController,
-    /** Endpoints for managing user buckets */
-    bucket: BucketController,
-    /** Endpoints for managing page renders */
-    renderer: PageRenderer,
-    /** Endpoints for managing active sessions */
-    session: SessionController,
-    /** Endpoints for managing user stats and allowances */
-    stats: StatsController,
-    /** Endpoints for managing users */
-    user: UserController
+  /** Endpoints for administritive tasks */
+  admin: AdminController,
+  /** Endpoints for authenticating users */
+  auth: AuthController,
+  /** Endpoints for managing posts */
+  posts: PostsController,
+  /** Endpoints for managing categories */
+  categories: CategoriesController,
+  /** Endpoints for managing comments of posts */
+  comments: CommentsController,
+  /** Endpoints for managing cross origin allowances */
+  cors: CORSController,
+  /** TODO: This must be removed in favour of the admin controller */
+  email: EmailsController,
+  /** Can be used to catch and return errors */
+  error: ErrorController,
+  /** Endpoints for managing user files */
+  file: FileController,
+  /** Endpoints for managing user buckets */
+  bucket: BucketController,
+  /** Endpoints for managing page renders */
+  renderer: PageRenderer,
+  /** Endpoints for managing active sessions */
+  session: SessionController,
+  /** Endpoints for managing user stats and allowances */
+  stats: StatsController,
+  /** Endpoints for managing users */
+  user: UserController
 }

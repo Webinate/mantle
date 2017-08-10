@@ -1,13 +1,13 @@
 {
-    "name": "test",
-    "server": {
-        "port": 8000,
-        "host": "localhost",
-        "staticAssets": []
-    },
-    "controllers": [
-        {
-            "path": "server.js"
-        }
-    ]
+  "name": "test",
+  "server": {
+    "port": 8000,
+    "host": "localhost",
+    "staticAssets": []
+  },
+  "controllers": [
+    {
+      "path": "server.js"
+    }
+  ]
 }

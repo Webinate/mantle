@@ -2,9 +2,9 @@
 
 declare module 'compressible' {
 
-    namespace e {
-    }
+  namespace e {
+  }
 
-    function e( type: string ): boolean;
-    export = e;
+  function e( type: string ): boolean;
+  export = e;
 }

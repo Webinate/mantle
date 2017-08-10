@@ -1,30 +1,30 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "removeComments": false,
-        "noEmitOnError": true,
-        "declaration": false,
-        "sourceMap": false,
-        "preserveConstEnums": true,
-        "noImplicitAny": false,
-        "target": "es2017",
-        "lib": [
-            "dom",
-            "dom.iterable",
-            "es7"
-        ],
-        "experimentalDecorators": true,
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
-        "outDir": "./dist",
-        "noUnusedParameters": false,
-        "noUnusedLocals": true,
-        "strictNullChecks": true,
-        "rootDir": "src"
-    },
-    "include": [
-        "src/references.d.ts",
-        "src/**/*.ts"
+  "compilerOptions": {
+    "module": "commonjs",
+    "removeComments": false,
+    "noEmitOnError": true,
+    "declaration": false,
+    "sourceMap": false,
+    "preserveConstEnums": true,
+    "noImplicitAny": false,
+    "target": "es2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es7"
     ],
-    "exclude": []
+    "experimentalDecorators": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "outDir": "./dist",
+    "noUnusedParameters": false,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "rootDir": "src"
+  },
+  "include": [
+    "src/references.d.ts",
+    "src/**/*.ts"
+  ],
+  "exclude": []
 }

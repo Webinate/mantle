@@ -3,13 +3,13 @@ var yargs = require( "yargs" );
 var args = yargs.argv;
 
 if ( !args.config || !fs.existsSync( args.config ) ) {
-    console.log( "Please specify a modepress --config file to use in the command line" );
-    process.exit();
+  console.log( "Please specify a modepress --config file to use in the command line" );
+  process.exit();
 }
 
 if ( args.server === undefined || isNaN( parseInt( args.server ) ) ) {
-    console.log( "Please specify a --server index in the cmd arguments to test. This index refers to the array item in the modepress config.servers array" );
-    process.exit();
+  console.log( "Please specify a --server index in the cmd arguments to test. This index refers to the array item in the modepress config.servers array" );
+  process.exit();
 }
 
 const startup = require( '../dist/core/initialization/startup.js' );
@@ -18,22 +18,22 @@ const header = require( './tests/header.js' );
 // Start the first test to initialize everything
 describe( 'Initializing tests', function() {
 
-    before( function( done ) {
-        // Initialize the server
-        startup.initialize().then(() => {
+  before( function( done ) {
+    // Initialize the server
+    startup.initialize().then(() => {
 
-            // Initialize the test suites
-            return header.initialize();
-        } ).then(() => {
-            done();
-        } ).catch( e => {
-            console.error( e.toString() );
-        } );
+      // Initialize the test suites
+      return header.initialize();
+    } ).then(() => {
+      done();
+    } ).catch( e => {
+      console.error( e.toString() );
     } );
+  } );
 
-    it( 'should be initialized', function( done ) {
-        return done();
-    } );
+  it( 'should be initialized', function( done ) {
+    return done();
+  } );
 } );
 
 require( './tests/user/test-authenticated.js' );

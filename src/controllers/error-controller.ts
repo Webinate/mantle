@@ -9,25 +9,25 @@ import * as mongodb from 'mongodb';
  */
 export class ErrorController extends Controller {
 
-    /**
-	 * Creates an instance
-	 */
-    constructor() {
-        super( null );
-    }
+  /**
+ * Creates an instance
+ */
+  constructor() {
+    super( null );
+  }
 
-    /**
-	 * Called to initialize this controller and its related database objects
-	 */
-    async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  /**
+ * Called to initialize this controller and its related database objects
+ */
+  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
 
-        // Handle all errors the same way
-        e.use( function( err: Error, req: express.Request, res: express.Response, next: Function ) {
-            res.setHeader( 'Content-Type', 'application/json' );
-            return res.end( JSON.stringify( <IResponse>{ message: err.toString() } ) );
-        } );
+    // Handle all errors the same way
+    e.use( function( err: Error, req: express.Request, res: express.Response, next: Function ) {
+      res.setHeader( 'Content-Type', 'application/json' );
+      return res.end( JSON.stringify( <IResponse>{ message: err.toString() } ) );
+    } );
 
-        await super.initialize( e, db );
-        return this;
-    }
+    await super.initialize( e, db );
+    return this;
+  }
 }
