@@ -74,9 +74,6 @@ export class Server {
       }
     }
 
-    // Setup the jade template engine
-    app.set( 'view engine', 'jade' );
-
     // log every request to the console
     if ( loggingEnabled() )
       app.use( morgan( 'dev' ) );

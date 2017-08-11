@@ -231,33 +231,6 @@ declare module 'modepress' {
     }
 }
 declare module 'modepress' {
-    /**
-     * Defines routes and the paths they take
-     */
-    interface IPath {
-        /**
-         * The express end point route to use. E.g. '*' or '/some-route'
-         */
-        path: string;
-        /**
-         * The file to be sent when the path resolves. This must be a file path and point to a file that exists.
-         * The file could be any valid html file. Alternatively it can be rendered as an express jade file (.jade)
-         */
-        index: string;
-        /**
-         * An array of javascript file paths that should be added to the page when it loads
-         * e.g. ['./plugins/my-plugin/index.js']
-         */
-        plugins: Array<string>;
-        /**
-         * An array of javascript variables that will be sent to any jade templates for a given path
-         */
-        variables: {
-            [name: string]: string;
-        };
-    }
-}
-declare module 'modepress' {
     interface ISession {
         path: string;
         /**
@@ -830,11 +803,11 @@ declare module "models/schema-items/schema-item" {
          */
         validate(): Promise<boolean | Error>;
         /**
-       * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+         * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
-       */
+         */
         postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
@@ -843,8 +816,8 @@ declare module "models/schema-items/schema-item" {
          */
         postDelete<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
-       * Gets the value of this item in a database safe format
-       */
+         * Gets the value of this item in a database safe format
+         */
         getDbValue(): T;
         /**
          * Gets the value of this item
@@ -854,7 +827,7 @@ declare module "models/schema-items/schema-item" {
         /**
          * Sets the value of this item
          * @param {T} val The value to set
-       */
+         */
         setValue(val: T): T;
     }
 }
@@ -874,10 +847,10 @@ declare module "models/schema" {
          */
         clone(): Schema;
         /**
-       * Sets a schema value by name
-       * @param data The data object we are setting
+         * Sets a schema value by name
+         * @param data The data object we are setting
          * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
-       */
+         */
         set(data: any, allowReadOnlyValues: boolean): void;
         /**
          * Sets a schema value by name
@@ -895,23 +868,23 @@ declare module "models/schema" {
          */
         serialize(): any;
         /**
-       * Serializes the schema items into a JSON
+         * Serializes the schema items into a JSON
          * @param id The models dont store the _id property directly, and so this has to be passed for serialization
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
-       */
+         */
         getAsJson<T extends IModelEntry>(id: mongodb.ObjectID, options: ISchemaOptions): Promise<T>;
         /**
          * Checks the values stored in the items to see if they are correct
          * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-         * @returns Returns true if successful
+       * @returns Returns true if successful
          */
         validate(checkForRequiredFields: boolean): Promise<Schema>;
         /**
-       * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
+         * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
-       */
+         */
         postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<Schema>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
@@ -1064,17 +1037,17 @@ declare module "models/model" {
          * Gets an arrray of instances based on the selector search criteria
          * @param selector The mongodb selector
          * @param sort Specify an array of items to sort.
-         * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
-         * @param startIndex The start index of where to select from
+       * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
+       * @param startIndex The start index of where to select from
          * @param limit The number of results to fetch
-         * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
+       * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
          */
         findInstances<T>(options?: ISearchOptions<T>): Promise<Array<ModelInstance<T>>>;
         /**
-       * Gets a model instance based on the selector criteria
-       * @param selector The mongodb selector
+         * Gets a model instance based on the selector criteria
+         * @param selector The mongodb selector
          * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
-       */
+         */
         findOne<T>(selector: any, projection?: any): Promise<ModelInstance<T> | null>;
         /**
          * Deletes a instance and all its dependencies are updated or deleted accordingly
@@ -1095,10 +1068,10 @@ declare module "models/model" {
          */
         update<T>(selector: any, data: T): Promise<UpdateRequest<T>>;
         /**
-       * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
-       * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-       * by parsing the data object and setting each schema item's value by the name/value in the data object.
-       */
+         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
+         * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
+         * by parsing the data object and setting each schema item's value by the name/value in the data object.
+         */
         checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>;
         /**
          * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
@@ -1217,8 +1190,8 @@ declare module "socket-api/client-connection" {
        */
         private onClose();
         /**
-       * Called whenever an error has occurred
-       */
+         * Called whenever an error has occurred
+         */
         private onError(err);
     }
 }
@@ -1319,8 +1292,8 @@ declare module "socket-api/comms-controller" {
          */
         onWsConnection(ws: ws): Promise<void>;
         /**
-       * Initializes the comms controller
-       */
+         * Initializes the comms controller
+         */
         initialize(db: mongodb.Db): Promise<void>;
     }
 }
@@ -2028,9 +2001,9 @@ declare module "models/schema-items/schema-text" {
          * Creates a new schema item
          * @param name The name of this item
          * @param val The text of this item
-         * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
+       * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
          * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-         * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
+       * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
          */
         constructor(name: string, val: string, minCharacters?: number, maxCharacters?: number, htmlClean?: boolean);
         /**
@@ -2112,9 +2085,9 @@ declare module "models/schema-items/schema-text-array" {
          * Creates a new schema item that holds an array of text items
          * @param name The name of this item
          * @param val The text array of this schema item
-         * @param minItems [Optional] Specify the minimum number of items that can be allowed
-         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-         * @param minCharacters [Optional] Specify the minimum number of characters for each text item
+       * @param minItems [Optional] Specify the minimum number of items that can be allowed
+       * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+       * @param minCharacters [Optional] Specify the minimum number of characters for each text item
          * @param maxCharacters [Optional] Specify the maximum number of characters for each text item
          */
         constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number);
@@ -2198,11 +2171,11 @@ declare module "models/schema-items/schema-foreign-key" {
          */
         validate(): Promise<boolean | Error>;
         /**
-       * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+         * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
-       */
+         */
         postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
@@ -2210,9 +2183,9 @@ declare module "models/schema-items/schema-foreign-key" {
          */
         postDelete<T extends IModelEntry>(instance: ModelInstance<T>): Promise<void>;
         /**
-       * Gets the value of this item
+         * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
-       */
+         */
         getValue(options: ISchemaOptions): Promise<FKeyValues>;
     }
 }
@@ -2238,10 +2211,10 @@ declare module "models/schema-items/schema-id-array" {
          * Creates a new schema item that holds an array of id items
          * @param name The name of this item
          * @param val The array of ids for this schema item
-         * @param minItems [Optional] Specify the minimum number of items that can be allowed
-         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-         * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
-         * the item can expand objects on retreival.
+       * @param minItems [Optional] Specify the minimum number of items that can be allowed
+       * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+       * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
+       * the item can expand objects on retreival.
          */
         constructor(name: string, val: Array<string>, minItems: number | undefined, maxItems: number | undefined, targetCollection: string);
         /**
@@ -2255,11 +2228,11 @@ declare module "models/schema-items/schema-id-array" {
          */
         validate(): Promise<boolean | Error>;
         /**
-       * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+         * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
-       */
+         */
         postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
@@ -2267,9 +2240,9 @@ declare module "models/schema-items/schema-id-array" {
          */
         postDelete<T extends IModelEntry>(instance: ModelInstance<T>): Promise<void>;
         /**
-       * Gets the value of this item
+         * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
-       */
+         */
         getValue(options: ISchemaOptions): Promise<Array<string | ObjectID | IModelEntry>>;
     }
 }
@@ -2290,12 +2263,12 @@ declare module "models/schema-items/schema-num-array" {
          * Creates a new schema item that holds an array of number items
          * @param name The name of this item
          * @param val The number array of this schema item
-         * @param minItems [Optional] Specify the minimum number of items that can be allowed
-         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-         * @param min [Optional] Specify the minimum a number can be
+       * @param minItems [Optional] Specify the minimum number of items that can be allowed
+       * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+       * @param min [Optional] Specify the minimum a number can be
          * @param max [Optional] Specify the maximum a number can be
-         * @param type [Optional] What type of numbers to expect
-         * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
+       * @param type [Optional] What type of numbers to expect
+       * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
          */
         constructor(name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number);
         /**
@@ -2363,10 +2336,10 @@ declare module "models/schema-items/schema-html" {
          * Creates a new schema item
          * @param name The name of this item
          * @param val The text of this item
-         * @param allowedTags The tags allowed by the html parser
-         * @param allowedAttributes The attributes allowed by each attribute
-         * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
-         * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
+       * @param allowedTags The tags allowed by the html parser
+       * @param allowedAttributes The attributes allowed by each attribute
+       * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
+       * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
          * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
          */
         constructor(name: string, val: string, allowedTags?: Array<string>, allowedAttributes?: {
