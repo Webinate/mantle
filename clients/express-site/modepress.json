@@ -1,0 +1,15 @@
+{
+  "name": "express-site",
+  "server": {
+    "port": 7001,
+    "host": "localhost",
+    "staticAssets": [
+      "media"
+    ]
+  },
+  "controllers": [
+    {
+      "path": "server.js"
+    }
+  ]
+}

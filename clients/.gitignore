@@ -5,9 +5,16 @@
 !readme.md
 !.gitignore
 
-# Not static site example
+# Ignore static site example
 !/static-site/
 !/static-site/*
 !static-site/modepress.json
 !/static-site/html/
 !/static-site/html/*
+
+# Ignore Express site example
+!/express-site/
+!/express-site/*
+!express-site/modepress.json
+!/express-site/media/
+!/express-site/media/*
