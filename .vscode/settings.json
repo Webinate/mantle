@@ -18,9 +18,13 @@
   "javascript.format.insertSpaceAfterCommaDelimiter": true,
   "javascript.format.insertSpaceBeforeFunctionParenthesis": false,
   "editor.detectIndentation": false,
-  "typescript.check.tscVersion": false,
   "window.zoomLevel": 0,
   "editor.minimap.enabled": true,
   "editor.minimap.renderCharacters": false,
-  "editor.codeLens": true
+  "editor.codeLens": true,
+  "emmet.showAbbreviationSuggestions": true,
+  "emmet.showExpandedAbbreviation": "always",
+  "emmet.includeLanguages": {
+    "typescript": "javascriptreact"
+  }
 }
