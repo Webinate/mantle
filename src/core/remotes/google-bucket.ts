@@ -56,6 +56,8 @@ export class GoogleBucket implements IRemote {
     catch ( err ) {
       throw new Error( `Could not create a new bucket: '${err.message}'` )
     }
+
+    return id;
   }
 
   /**
@@ -83,6 +85,9 @@ export class GoogleBucket implements IRemote {
       } );
 
       dest.on( 'finish', () => {
+        if ( earlyExit )
+          return;
+
         resolve();
       } );
     } );
@@ -105,6 +110,7 @@ export class GoogleBucket implements IRemote {
 
     await this.handleStreamsEvents( source, dest );
     await rawFile.makePublic();
+    return fileId;
   }
 
   async removeFile( bucket: string, id: string ) {

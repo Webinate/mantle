@@ -236,6 +236,12 @@ declare module 'modepress' {
      */
     interface IRemoteOptions {
     }
+    /**
+     * The properties for setting up a local bucket
+     */
+    interface ILocalBucket extends IRemoteOptions {
+        path: string;
+    }
 }
 declare module 'modepress' {
     interface ISession {
@@ -333,10 +339,10 @@ declare module "types/interfaces/i-remote" {
          */
         interface IRemote {
             initialize(options: IRemoteOptions): Promise<void>;
-            createBucket(id: string, options?: any): Promise<void>;
+            createBucket(id: string, options?: any): Promise<string>;
             uploadFile(bucket: string, fileId: string, source: Readable, uploadOptions: {
                 headers: any;
-            }): Promise<void>;
+            }): Promise<string>;
             removeFile(bucket: string, id: string): Promise<void>;
             removeBucket(id: string): Promise<void>;
         }
@@ -1444,12 +1450,12 @@ declare module "core/session-manager" {
 declare module "core/remotes/google-bucket" {
     import { Readable } from 'stream';
     import { IRemote, IGoogleProperties } from 'modepress';
-    export class GoogleRemote implements IRemote {
+    export class GoogleBucket implements IRemote {
         private _zipper;
         private _gcs;
         constructor();
         initialize(options: IGoogleProperties): Promise<void>;
-        createBucket(id: string, options?: any): Promise<void>;
+        createBucket(id: string, options?: any): Promise<string>;
         /**
          * Wraps a source and destination stream in a promise that catches error
          * and completion events
@@ -1457,11 +1463,34 @@ declare module "core/remotes/google-bucket" {
         private handleStreamsEvents(source, dest);
         uploadFile(bucket: string, fileId: string, source: Readable, uploadOptions: {
             headers: any;
-        }): Promise<void>;
+        }): Promise<string>;
         removeFile(bucket: string, id: string): Promise<void>;
         removeBucket(id: string): Promise<void>;
     }
-    export const googleRemote: GoogleRemote;
+    export const googleBucket: GoogleBucket;
+}
+declare module "core/remotes/local-bucket" {
+    import { Readable } from 'stream';
+    import { IRemote, ILocalBucket } from 'modepress';
+    export class LocalBucket implements IRemote {
+        private _zipper;
+        private _path;
+        constructor();
+        initialize(options: ILocalBucket): Promise<void>;
+        createBucket(id: string, options?: any): Promise<string>;
+        /**
+         * Wraps a source and destination stream in a promise that catches error
+         * and completion events
+         */
+        private handleStreamsEvents(source, dest);
+        uploadFile(bucket: string, fileId: string, source: Readable, uploadOptions: {
+            headers: any;
+        }): Promise<string>;
+        removeFile(bucket: string, id: string): Promise<void>;
+        private deletePath(path);
+        removeBucket(id: string): Promise<void>;
+    }
+    export const localBucket: LocalBucket;
 }
 declare module "core/bucket-manager" {
     import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
@@ -1480,6 +1509,7 @@ declare module "core/bucket-manager" {
         private _zipper;
         private _unzipper;
         private _deflater;
+        private _activeManager;
         constructor(buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig);
         /**
          * Fetches all bucket entries from the database

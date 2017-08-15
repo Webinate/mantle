@@ -24,7 +24,8 @@ export class LocalBucket implements IRemote {
     if ( fs.existsSync( path ) )
       throw new Error( `The folder '${path}' already exists` );
 
-    await fs.mkdir( id );
+    await fs.mkdirSync( path );
+    return id;
   }
 
   /**
@@ -52,43 +53,45 @@ export class LocalBucket implements IRemote {
       } );
 
       dest.on( 'finish', () => {
+        if ( earlyExit )
+          return;
+
         resolve();
       } );
     } );
   }
 
   async uploadFile( bucket: string, fileId: string, source: Readable, uploadOptions: { headers: any } ) {
-    const b = this._gcs.bucket( bucket );
-    const rawFile = b.file( fileId );
 
-    let dest: Writable;
+    const file = `${this._path}/${bucket}/${fileId}`;
+    const writeStream = fs.createWriteStream( file );
 
     // Check if the stream content type is something that can be compressed
     // if so, then compress it before sending it to
     // Google and set the content encoding
     if ( compressible( uploadOptions.headers[ 'content-type' ] ) )
-      dest = source.pipe( this._zipper ).pipe( rawFile.createWriteStream( <any>{ metadata: { contentEncoding: 'gzip', contentType: uploadOptions.headers[ 'content-type' ], metadata: { encoded: true } } } ) );
+      source.pipe( this._zipper ).pipe( writeStream );
     else
-      dest = source.pipe( rawFile.createWriteStream( <any>{ metadata: { contentType: uploadOptions.headers[ 'content-type' ] } } ) );
+      source.pipe( writeStream );
 
-    await this.handleStreamsEvents( source, dest );
-    await rawFile.makePublic();
+    await this.handleStreamsEvents( source, writeStream );
+    return fileId;
   }
 
   async removeFile( bucket: string, id: string ) {
     const file = `${this._path}/${id}/${id}`;
 
     if ( !fs.existsSync( file ) )
-      throw new Error( `The file '${file}' does not exist` );
+      return;
 
-    await this.raf( `${file}` );
+    await this.deletePath( file );
   }
 
-  private async raf( path ) {
+  private async deletePath( path ) {
     return new Promise( function( resolve, reject ) {
       rimraf( path, function( err ) {
         if ( err )
-          return reject();
+          return reject( err );
 
         return resolve();
       } );
@@ -98,9 +101,9 @@ export class LocalBucket implements IRemote {
   async removeBucket( id: string ) {
     const path = `${this._path}/${id}`;
     if ( !fs.existsSync( path ) )
-      throw new Error( `The folder '$path}' does not exist` );
+      return;
 
-    await this.raf( `${path}` );
+    await this.deletePath( `${path}` );
   }
 }
 

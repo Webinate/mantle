@@ -11,9 +11,9 @@ declare module 'modepress' {
 
     initialize( options: IRemoteOptions ): Promise<void>;
 
-    createBucket( id: string, options?: any ): Promise<void>;
+    createBucket( id: string, options?: any ): Promise<string>;
 
-    uploadFile( bucket: string, fileId: string, source: Readable, uploadOptions: { headers: any } ): Promise<void>;
+    uploadFile( bucket: string, fileId: string, source: Readable, uploadOptions: { headers: any } ): Promise<string>;
 
     removeFile( bucket: string, id: string ): Promise<void>;
 

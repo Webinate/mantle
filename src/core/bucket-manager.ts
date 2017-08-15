@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
+import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote } from 'modepress';
 import * as mongodb from 'mongodb';
 import * as multiparty from 'multiparty';
 import * as zlib from 'zlib';
@@ -8,6 +8,7 @@ import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { googleBucket } from './remotes/google-bucket';
+import { localBucket } from './remotes/local-bucket';
 
 /**
  * Class responsible for managing buckets and uploads to Google storage
@@ -23,10 +24,15 @@ export class BucketManager {
   private _zipper: zlib.Gzip;
   private _unzipper: zlib.Gunzip;
   private _deflater: zlib.Deflate;
+  private _activeManager: IRemote;
 
   constructor( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig ) {
     BucketManager._singleton = this;
     googleBucket.initialize( config.google );
+    localBucket.initialize( { path: './temp-uploads' } );
+
+    this._activeManager = localBucket;
+
     this._buckets = buckets;
     this._files = files;
     this._stats = stats;
@@ -181,7 +187,7 @@ export class BucketManager {
       throw new Error( `A Bucket with the name '${name}' has already been registered` );
 
     // Attempt to create a new Google bucket
-    await googleBucket.createBucket( bucketID );
+    await this._activeManager.createBucket( bucketID );
 
     // Create the new bucket
     bucketEntry = {
@@ -275,7 +281,7 @@ export class BucketManager {
       throw new Error( `Could not remove the bucket: '${err.toString()}'` );
     }
 
-    await googleBucket.removeBucket( bucketEntry.identifier! );
+    await this._activeManager.removeBucket( bucketEntry.identifier! );
 
     // Remove the bucket entry
     await bucketCollection.deleteOne( <IBucketEntry>{ _id: bucketEntry._id } );
@@ -302,7 +308,7 @@ export class BucketManager {
       throw new Error( `Could not find the bucket '${fileEntry.bucketName}'` );
 
     // Get the bucket and delete the file
-    await googleBucket.removeFile( bucketEntry.identifier!, fileEntry.identifier! );
+    await this._activeManager.removeFile( bucketEntry.identifier!, fileEntry.identifier! );
 
     // Update the bucket data usage
     await bucketCollection.updateOne( <IBucketEntry>{ identifier: bucketEntry.identifier }, { $inc: <IBucketEntry>{ memoryUsed: -fileEntry.size! } } );
@@ -504,7 +510,7 @@ export class BucketManager {
     const statCollection = this._stats;
     const fileID = this.generateRandString( 16 );
 
-    await googleBucket.uploadFile( bucketEntry.identifier!, fileID, part, { headers: part.headers } );
+    await this._activeManager.uploadFile( bucketEntry.identifier!, fileID, part, { headers: part.headers } );
 
     await bucketCollection.updateOne( <IBucketEntry>{ identifier: bucketEntry.identifier },
       { $inc: <IBucketEntry>{ memoryUsed: part.byteCount } } );
