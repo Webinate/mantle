@@ -1,19 +1,13 @@
 ﻿'use strict';
 
 import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
-import * as fs from 'fs';
-import * as gcloud from 'gcloud';
 import * as mongodb from 'mongodb';
 import * as multiparty from 'multiparty';
 import * as zlib from 'zlib';
-import * as compressible from 'compressible';
-import express = require( 'express' );
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
-import * as yargs from 'yargs';
-
-const args = yargs.argv;
+import { googleBucket } from './remotes/google-bucket';
 
 /**
  * Class responsible for managing buckets and uploads to Google storage
@@ -23,7 +17,6 @@ export class BucketManager {
   private static API_CALLS_ALLOCATED: number = 20000; // 20,000
 
   private static _singleton: BucketManager;
-  private _gcs: gcloud.IGCS;
   private _buckets: mongodb.Collection;
   private _files: mongodb.Collection;
   private _stats: mongodb.Collection;
@@ -33,7 +26,7 @@ export class BucketManager {
 
   constructor( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig ) {
     BucketManager._singleton = this;
-    this._gcs = gcloud.storage( { projectId: config.google.bucket.projectId, keyFilename: args.keyFile || config.google.keyFile } );
+    googleBucket.initialize( config.google );
     this._buckets = buckets;
     this._files = files;
     this._stats = stats;
@@ -171,46 +164,11 @@ export class BucketManager {
   }
 
   /**
-   * Attempts to create a new google storage bucket
-   * @param bucketID The id of the bucket entry
-   */
-  private createGBucket( bucketID: string ): Promise<gcloud.IBucket> {
-    const gcs = this._gcs;
-    const cors = {
-      location: 'EU',
-      cors: [
-        {
-          'origin': [
-            '*'
-          ],
-          'method': [
-            'GET', 'OPTIONS'
-          ],
-          'responseHeader': [
-            'content-type', 'authorization', 'content-length', 'x-requested-with', 'x-mime-type', 'x-file-name', 'cache-control'
-          ],
-          'maxAgeSeconds': 1
-        }
-      ]
-    };
-
-    return new Promise<gcloud.IBucket>( function( resolve, reject ) {
-      // Attempt to create a new Google bucket
-      gcs.createBucket( bucketID, cors, function( err: Error, bucket: gcloud.IBucket ) {
-        if ( err )
-          return reject( new Error( `Could not create a new bucket: '${err.message}'` ) );
-
-        resolve( bucket );
-      } );
-    } );
-  }
-
-  /**
    * Attempts to create a new user bucket by first creating the storage on the cloud and then updating the internal DB
    * @param name The name of the bucket
    * @param user The user associated with this bucket
    */
-  async createBucket( name: string, user: string ): Promise<gcloud.IBucket> {
+  async createBucket( name: string, user: string ) {
     const bucketID = `webinate-bucket-${this.generateRandString( 8 ).toLowerCase()}`;
     const bucketCollection = this._buckets;
     const stats = this._stats;
@@ -223,7 +181,7 @@ export class BucketManager {
       throw new Error( `A Bucket with the name '${name}' has already been registered` );
 
     // Attempt to create a new Google bucket
-    const gBucket = await this.createGBucket( bucketID );
+    await googleBucket.createBucket( bucketID );
 
     // Create the new bucket
     bucketEntry = {
@@ -244,7 +202,6 @@ export class BucketManager {
     // Send bucket added events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.BucketUploaded ], bucket: bucketEntry!, username: user };
     await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user ) );
-    return gBucket;
   }
 
   /**
@@ -304,24 +261,6 @@ export class BucketManager {
     return this.removeBuckets( <IBucketEntry>{ user: user } );
   }
 
-  private deleteGBucket( bucketId: string ): Promise<void> {
-    const gcs = this._gcs;
-
-    // Now remove the bucket itself
-    const bucket: gcloud.IBucket = gcs.bucket( bucketId );
-
-    return new Promise<void>( function( resolve, reject ) {
-      bucket.delete( function( err: Error ) {
-        // If there is an error then return - but not if the file is not found. More than likely
-        // it was removed by an admin
-        if ( err && ( <any>err ).code !== 404 )
-          return reject( new Error( `Could not remove bucket from storage system: '${err.message}'` ) );
-        else
-          return resolve();
-      } );
-    } );
-  }
-
   /**
    * Deletes the bucket from storage and updates the databases
    */
@@ -336,7 +275,7 @@ export class BucketManager {
       throw new Error( `Could not remove the bucket: '${err.toString()}'` );
     }
 
-    await this.deleteGBucket( bucketEntry.identifier! );
+    await googleBucket.removeBucket( bucketEntry.identifier! );
 
     // Remove the bucket entry
     await bucketCollection.deleteOne( <IBucketEntry>{ _id: bucketEntry._id } );
@@ -347,29 +286,6 @@ export class BucketManager {
     await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, bucketEntry.user ) );
 
     return bucketEntry;
-  }
-
-  /**
-   * Deletes a file from google storage
-   * @param bucketId
-   * @param fileId
-   */
-  private deleteGFile( bucketId: string, fileId: string ): Promise<void> {
-    const gcs = this._gcs;
-    const bucket: gcloud.IBucket = gcs.bucket( bucketId );
-
-    return new Promise<void>( function( resolve, reject ) {
-
-      // Get the bucket and delete the file
-      bucket.file( fileId ).delete( function( err ) {
-        // If there is an error then return - but not if the file is not found. More than likely
-        // it was removed by an admin
-        if ( err && ( <any>err ).code !== 404 )
-          return reject( new Error( `Could not remove file '${fileId}' from storage system: '${err.toString()}'` ) );
-
-        resolve();
-      } );
-    } );
   }
 
   /**
@@ -386,7 +302,7 @@ export class BucketManager {
       throw new Error( `Could not find the bucket '${fileEntry.bucketName}'` );
 
     // Get the bucket and delete the file
-    await this.deleteGFile( bucketEntry.identifier!, fileEntry.identifier! );
+    await googleBucket.removeFile( bucketEntry.identifier!, fileEntry.identifier! );
 
     // Update the bucket data usage
     await bucketCollection.updateOne( <IBucketEntry>{ identifier: bucketEntry.identifier }, { $inc: <IBucketEntry>{ memoryUsed: -fileEntry.size! } } );
@@ -527,69 +443,6 @@ export class BucketManager {
   }
 
   /**
-   * Makes a google file publicly or private
-   * @param bucketId
-   * @param fileId
-   * @param val
-   */
-  private makeGFilePublic( bucketId: string, fileId: string, val: boolean ): Promise<void> {
-    const bucket = this._gcs.bucket( bucketId );
-    const rawFile = bucket.file( fileId );
-
-    return new Promise<void>( function( resolve, reject ) {
-      if ( val ) {
-        rawFile.makePublic( function( err ) {
-          if ( err )
-            return reject( err );
-
-          resolve();
-        } );
-      }
-      else {
-        rawFile.makePrivate( function( err ) {
-          if ( err )
-            return reject( err );
-
-          resolve();
-        } );
-      }
-    } );
-  }
-
-  /**
-   * Makes a file publicly available
-   * @param file
-   */
-  async makeFilePublic( file: IFileEntry ): Promise<IFileEntry> {
-    const val = await this.withinAPILimit( file.user! );
-
-    if ( !val )
-      throw new Error( 'You do not have enough API calls left to make this request' );
-
-    await this.incrementAPI( file.user! );
-    await this.makeGFilePublic( file.bucketId!, file.identifier!, true );
-    await this._files.updateOne( <IFileEntry>{ bucketId: file.bucketId, identifier: file.identifier }, { $set: <IFileEntry>{ isPublic: true } } );
-    return file;
-
-  }
-
-  /**
-   * Makes a file private
-   * @param file
-   */
-  async makeFilePrivate( file: IFileEntry ): Promise<IFileEntry> {
-    const val = await this.withinAPILimit( file.user! );
-
-    if ( !val )
-      throw new Error( 'You do not have enough API calls left to make this request' );
-
-    await this.incrementAPI( file.user! );
-    await this.makeGFilePublic( file.bucketId!, file.identifier!, false );
-    await this._files.updateOne( <IFileEntry>{ bucketId: file.bucketId, identifier: file.identifier }, { $set: <IFileEntry>{ isPublic: true } } );
-    return file;
-  }
-
-  /**
    * Registers an uploaded part as a new user file in the local dbs
    * @param fileID The id of the file on the bucket
    * @param bucketID The id of the bucket this file belongs to
@@ -643,71 +496,24 @@ export class BucketManager {
    * @param makePublic Makes this uploaded file public to the world
    * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
    */
-  uploadStream( part: multiparty.Part, bucketEntry: IBucketEntry, user: string, makePublic: boolean = true, parentFile: string | null = null ): Promise<IFileEntry> {
+  async uploadStream( part: multiparty.Part, bucketEntry: IBucketEntry, user: string, makePublic: boolean = true, parentFile: string | null = null ) {
+
+    await this.canUpload( user, part );
 
     const bucketCollection = this._buckets;
     const statCollection = this._stats;
-    let storageStats: IStorageStats;
+    const fileID = this.generateRandString( 16 );
 
-    return new Promise<IFileEntry>(( resolve, reject ) => {
-      this.canUpload( user, part ).then(( stats ) => {
-        storageStats = stats;
-        const bucket = this._gcs.bucket( bucketEntry.identifier! );
-        const fileID = this.generateRandString( 16 );
-        const rawFile = bucket.file( fileID );
+    await googleBucket.uploadFile( bucketEntry.identifier!, fileID, part, { headers: part.headers } );
 
-        // We look for part errors so that we can cleanup any faults with the upload if it cuts out
-        // on the user's side.
-        part.on( 'error', function( err: Error ) {
-          // Delete the file on the bucket
-          rawFile.delete( function( bucketErr ) {
-            if ( bucketErr )
-              return reject( new Error( `While uploading a user part an error occurred while cleaning the bucket: ${bucketErr.toString()}` ) )
-            else
-              return reject( new Error( `Could not upload a user part: ${err.toString()}` ) )
-          } );
-        } );
+    await bucketCollection.updateOne( <IBucketEntry>{ identifier: bucketEntry.identifier },
+      { $inc: <IBucketEntry>{ memoryUsed: part.byteCount } } );
 
-        let stream: fs.WriteStream;
+    await statCollection.updateOne( <IStorageStats>{ user: user },
+      { $inc: <IStorageStats>{ memoryUsed: part.byteCount, apiCallsUsed: 1 } } );
 
-        // Check if the stream content type is something that can be compressed - if so, then compress it before sending it to
-        // Google and set the content encoding
-        if ( compressible( part.headers[ 'content-type' ] ) )
-          stream = part.pipe( this._zipper ).pipe( rawFile.createWriteStream( <any>{ metadata: { contentEncoding: 'gzip', contentType: part.headers[ 'content-type' ], metadata: { encoded: true } } } ) );
-        else
-          stream = part.pipe( rawFile.createWriteStream( <any>{ metadata: { contentType: part.headers[ 'content-type' ] } } ) );
-
-        // Pipe the file to the bucket
-        stream.on( 'error', function( err: Error ) {
-          return reject( new Error( `Could not upload the file '${part.filename}' to bucket: ${err.toString()}` ) )
-
-        } ).on( 'finish', () => {
-          bucketCollection.updateOne( <IBucketEntry>{ identifier: bucketEntry.identifier }, { $inc: <IBucketEntry>{ memoryUsed: part.byteCount } } ).then( function() {
-            return statCollection.updateOne( <IStorageStats>{ user: user }, { $inc: <IStorageStats>{ memoryUsed: part.byteCount, apiCallsUsed: 1 } } );
-          } ).then(() => {
-            return this.registerFile( fileID, bucketEntry, part, user, makePublic, parentFile )
-          } ).then(( file ) => {
-
-            if ( makePublic ) {
-              rawFile.makePublic( function( err ) {
-                if ( err )
-                  return reject( err );
-                else
-                  return resolve( file );
-              } );
-            }
-            else
-              return resolve( file );
-
-          } ).catch( function( err: Error ) {
-            return reject( err );
-          } );
-        } );
-
-      } ).catch( function( err: Error ) {
-        return reject( err );
-      } );
-    } );
+    const file = await this.registerFile( fileID, bucketEntry, part, user, makePublic, parentFile );
+    return file;
   }
 
   /**
@@ -744,63 +550,6 @@ export class BucketManager {
 
     await files.updateOne( <IFileEntry>{ _id: file._id! }, { $set: <IFileEntry>{ name: name } } );
     return file;
-  }
-
-  /**
-   * Downloads the data from the cloud and sends it to the requester. This checks the request for encoding and
-   * sets the appropriate headers if and when supported
-   * @param request The request being made
-   * @param response The response stream to return the data
-   * @param file The file to download
-   */
-  downloadFile( request: express.Request, response: express.Response, file: IFileEntry ) {
-
-    const iBucket = this._gcs.bucket( file.bucketId! );
-    const iFile = iBucket.file( file.identifier! );
-
-    iFile.getMetadata(( err, meta ) => {
-      if ( err )
-        return response.status( 500 ).send( err.toString() );
-
-      // Get the client encoding support - if any
-      let acceptEncoding = request.headers[ 'accept-encoding' ];
-      if ( !acceptEncoding )
-        acceptEncoding = '';
-
-      const stream: fs.ReadStream = iFile.createReadStream();
-      let encoded = false;
-      if ( meta.metadata )
-        encoded = meta.metadata.encoded;
-
-      // Request is expecting a deflate
-      if ( acceptEncoding.match( /\bgzip\b/ ) ) {
-        // If already gzipped and expeting gzip
-        if ( encoded ) {
-          // Simply return the raw pipe
-          response.setHeader( 'content-encoding', 'gzip' );
-          stream.pipe( response );
-        }
-        else
-          stream.pipe( response );
-      }
-      else if ( acceptEncoding.match( /\bdeflate\b/ ) ) {
-        response.setHeader( 'content-encoding', 'deflate' );
-
-        // If its encoded - then its encoded in gzip and needs to be
-        if ( encoded )
-          stream.pipe( this._unzipper ).pipe( this._deflater ).pipe( response );
-        else
-          stream.pipe( this._deflater ).pipe( response );
-      }
-      else {
-        // No encoding supported
-        // Unzip GZIP and send raw if already compressed
-        if ( encoded )
-          stream.pipe( this._unzipper ).pipe( response );
-        else
-          stream.pipe( response );
-      }
-    } );
   }
 
   /**

@@ -614,6 +614,7 @@ declare module 'gcloud' {
     * file.delete(function(err, apiResponse) {});
     */
     delete( callback?: ( err: Error, apiResponse: any ) => any );
+    delete(): Promise<any[]>;
 
     /**
     * Convenience method to download a file into memory or to a local destination.
@@ -1198,6 +1199,7 @@ declare module 'gcloud' {
     * bucket.delete(function(err, apiResponse) {});
     */
     delete( callback: ( err?: Error, apiResponse?: any ) => any )
+    delete(): Promise<any>
   }
 
   export interface IGCS {
@@ -1258,6 +1260,7 @@ declare module 'gcloud' {
     */
     createBucket( bucketName: string, callback: ( err: Error, bucket: IBucket ) => any ): any;
     createBucket( bucketName: string, metadata: any, callback: ( err: Error, bucket: IBucket ) => any ): any;
+    createBucket( bucketName: string, metadata: any ): Promise<any[]>;
 
     /**
     * Get Bucket objects for all of the buckets in your project.
@@ -1298,3 +1301,10 @@ declare module 'gcloud' {
 
   export function storage( options: { keyFilename?: string, credentials?: { client_email: string; private_key: string; }, projectId: string } ): IGCS;
 }
+
+declare module '@google-cloud/storage';
+// {
+//   import * as gcloud from 'gcloud';
+
+//   export function ( options: any ): gcloud.IGCS;
+// }

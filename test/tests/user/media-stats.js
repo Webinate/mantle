@@ -49,26 +49,6 @@ describe( 'Getting and setting user media stat usage', function() {
         test.number( res.body.data.memoryUsed ).is( 226 * 3 );
         done();
       } ).catch( err => done( err ) );
-
-  } )
-
-  it( 'guest did not download a file with an invalid id anonomously', function( done ) {
-    guest.code( 404 )
-      .get( `/files/123/download` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
-
-  } )
-
-  it( 'guest did download an image file with a valid id anonomously', function( done ) {
-    guest
-      .contentLength( "226" )
-      .contentType( /image/ )
-      .get( "/files/" + fileId + "/download" )
-      .then(( res ) => {
-        done();
-      } ).catch( err => done( err ) );
   } )
 
   it( 'regular user did update the api calls to 5', function( done ) {
@@ -77,7 +57,6 @@ describe( 'Getting and setting user media stat usage', function() {
         test.number( res.body.data.apiCallsUsed ).is( 11 );
         done();
       } ).catch( err => done( err ) );
-
   } )
 
   it( 'regular user did upload another file to dinosaurs2', function( done ) {
@@ -96,7 +75,6 @@ describe( 'Getting and setting user media stat usage', function() {
         test.object( res.body.tokens[ 0 ] ).hasProperty( "file" );
         done();
       } ).catch( err => done( err ) );
-
   } )
 
   it( 'regular user fetched the uploaded file Id of the dinosaur2 bucket', function( done ) {
@@ -105,9 +83,7 @@ describe( 'Getting and setting user media stat usage', function() {
         fileId = res.body.data[ 1 ].identifier;
         done();
       } ).catch( err => done( err ) );
-
   } )
-
 
   it( 'regular user updated its stats to reflect a file was deleted', function( done ) {
     user1.get( `/stats/users/${user1.username}/get-stats` )
@@ -126,6 +102,5 @@ describe( 'Getting and setting user media stat usage', function() {
         test.number( res.body.data.memoryUsed ).is( 226 * 2 );
         done();
       } ).catch( err => done( err ) );
-
   } )
 } )

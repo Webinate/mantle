@@ -1,6 +1,6 @@
+/// <reference types="node" />
 /// <reference types="express" />
 /// <reference types="ws" />
-/// <reference types="node" />
 declare module 'modepress' {
     interface IControllerOptions {
         path?: string;
@@ -167,7 +167,7 @@ declare module 'modepress' {
     }
 }
 declare module 'modepress' {
-    interface IGoogleProperties {
+    interface IGoogleProperties extends IRemoteOptions {
         keyFile: string;
         bucket: {
             projectId: string;
@@ -228,6 +228,13 @@ declare module 'modepress' {
          * The api key for your mailgun account
          */
         apiKey: string;
+    }
+}
+declare module 'modepress' {
+    /**
+     * The base interface for all remote options
+     */
+    interface IRemoteOptions {
     }
 }
 declare module 'modepress' {
@@ -314,6 +321,25 @@ declare module 'modepress' {
          * The password to use for the SSL (optional). Only applicable if ssl is true.
          */
         passPhrase: string;
+    }
+}
+declare module "types/interfaces/i-remote" {
+    import { Readable } from 'stream';
+    module 'modepress' {
+        /**
+         * This interface describes a remote destination that is used to upload
+         * files sent from modepress. Remote's can be thought of as drives on a
+         * computer or buckets in a cloud.
+         */
+        interface IRemote {
+            initialize(options: IRemoteOptions): Promise<void>;
+            createBucket(id: string, options?: any): Promise<void>;
+            uploadFile(bucket: string, fileId: string, source: Readable, uploadOptions: {
+                headers: any;
+            }): Promise<void>;
+            removeFile(bucket: string, id: string): Promise<void>;
+            removeBucket(id: string): Promise<void>;
+        }
     }
 }
 declare module 'modepress' {
@@ -1415,12 +1441,32 @@ declare module "core/session-manager" {
         private createID();
     }
 }
+declare module "core/remotes/google-bucket" {
+    import { Readable } from 'stream';
+    import { IRemote, IGoogleProperties } from 'modepress';
+    export class GoogleRemote implements IRemote {
+        private _zipper;
+        private _gcs;
+        constructor();
+        initialize(options: IGoogleProperties): Promise<void>;
+        createBucket(id: string, options?: any): Promise<void>;
+        /**
+         * Wraps a source and destination stream in a promise that catches error
+         * and completion events
+         */
+        private handleStreamsEvents(source, dest);
+        uploadFile(bucket: string, fileId: string, source: Readable, uploadOptions: {
+            headers: any;
+        }): Promise<void>;
+        removeFile(bucket: string, id: string): Promise<void>;
+        removeBucket(id: string): Promise<void>;
+    }
+    export const googleRemote: GoogleRemote;
+}
 declare module "core/bucket-manager" {
     import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
-    import * as gcloud from 'gcloud';
     import * as mongodb from 'mongodb';
     import * as multiparty from 'multiparty';
-    import express = require('express');
     /**
      * Class responsible for managing buckets and uploads to Google storage
      */
@@ -1428,7 +1474,6 @@ declare module "core/bucket-manager" {
         private static MEMORY_ALLOCATED;
         private static API_CALLS_ALLOCATED;
         private static _singleton;
-        private _gcs;
         private _buckets;
         private _files;
         private _stats;
@@ -1488,16 +1533,11 @@ declare module "core/bucket-manager" {
          */
         removeUser(user: string): Promise<void>;
         /**
-         * Attempts to create a new google storage bucket
-         * @param bucketID The id of the bucket entry
-         */
-        private createGBucket(bucketID);
-        /**
          * Attempts to create a new user bucket by first creating the storage on the cloud and then updating the internal DB
          * @param name The name of the bucket
          * @param user The user associated with this bucket
          */
-        createBucket(name: string, user: string): Promise<gcloud.IBucket>;
+        createBucket(name: string, user: string): Promise<void>;
         /**
          * Attempts to remove buckets of the given search result. This will also update the file and stats collection.
          * @param searchQuery A valid mongodb search query
@@ -1517,17 +1557,10 @@ declare module "core/bucket-manager" {
          * @returns An array of ID's of the buckets removed
          */
         removeBucketsByUser(user: string): Promise<Array<string>>;
-        private deleteGBucket(bucketId);
         /**
          * Deletes the bucket from storage and updates the databases
          */
         private deleteBucket(bucketEntry);
-        /**
-         * Deletes a file from google storage
-         * @param bucketId
-         * @param fileId
-         */
-        private deleteGFile(bucketId, fileId);
         /**
          * Deletes the file from storage and updates the databases
          * @param fileEntry
@@ -1575,23 +1608,6 @@ declare module "core/bucket-manager" {
          */
         incrementAPI(user: string): Promise<boolean>;
         /**
-         * Makes a google file publicly or private
-         * @param bucketId
-         * @param fileId
-         * @param val
-         */
-        private makeGFilePublic(bucketId, fileId, val);
-        /**
-         * Makes a file publicly available
-         * @param file
-         */
-        makeFilePublic(file: IFileEntry): Promise<IFileEntry>;
-        /**
-         * Makes a file private
-         * @param file
-         */
-        makeFilePrivate(file: IFileEntry): Promise<IFileEntry>;
-        /**
          * Registers an uploaded part as a new user file in the local dbs
          * @param fileID The id of the file on the bucket
          * @param bucketID The id of the bucket this file belongs to
@@ -1624,14 +1640,6 @@ declare module "core/bucket-manager" {
          * @param name The new name of the file
          */
         renameFile(file: IFileEntry, name: string): Promise<IFileEntry>;
-        /**
-         * Downloads the data from the cloud and sends it to the requester. This checks the request for encoding and
-         * sets the appropriate headers if and when supported
-         * @param request The request being made
-         * @param response The response stream to return the data
-         * @param file The file to download
-         */
-        downloadFile(request: express.Request, response: express.Response, file: IFileEntry): void;
         /**
          * Finds and downloads a file
          * @param fileID The file ID of the file on the bucket
@@ -2156,10 +2164,10 @@ declare module "models/schema-items/schema-foreign-key" {
          * Creates a new schema item
          * @param name The name of this item
          * @param val The string representation of the foreign key's _id
-         * @param targetCollection The name of the collection to which the target exists
-         * @param keyCanBeNull If true, then the key is allowed to be null
-         * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
-         * owns this item must be removed as it cannot exist without the target.
+       * @param targetCollection The name of the collection to which the target exists
+       * @param keyCanBeNull If true, then the key is allowed to be null
+       * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
+       * owns this item must be removed as it cannot exist without the target.
          */
         constructor(name: string, val: string, targetCollection: string, keyCanBeNull: boolean, canAdapt: boolean);
         /**
@@ -2676,18 +2684,6 @@ declare module "controllers/file-controller" {
          * Renames a file
          */
         private renameFile(req, res);
-        /**
-         * Attempts to download a file from the server
-         */
-        private getFile(req, res);
-        /**
-         * Attempts to make a file public
-         */
-        private makePublic(req, res);
-        /**
-         * Attempts to make a file private
-         */
-        private makePrivate(req, res);
         /**
          * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
          */

@@ -1,12 +1,11 @@
 ﻿'use strict';
-import { IAuthReq, IFileEntry, IBucketEntry, IRemoveFiles, IResponse, IGetFile, IGetFiles } from 'modepress';
+import { IAuthReq, IBucketEntry, IRemoveFiles, IResponse, IGetFiles } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { BucketManager } from '../core/bucket-manager';
 import * as compression from 'compression';
-import { error as logError } from '../utils/logger';
 import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
@@ -44,12 +43,9 @@ export class FileController extends Controller {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/:id/download', <any>[ this.getFile.bind( this ) ] );
     router.get( '/users/:user/buckets/:bucket', <any>[ ownerRights, this.getFiles.bind( this ) ] );
     router.delete( '/:files', <any>[ requireUser, this.removeFiles.bind( this ) ] );
     router.put( '/:file/rename-file', <any>[ requireUser, this.renameFile.bind( this ) ] );
-    router.put( '/:id/make-public', <any>[ requireUser, this.makePublic.bind( this ) ] );
-    router.put( '/:id/make-private', <any>[ requireUser, this.makePrivate.bind( this ) ] );
 
     // Register the path
     e.use(( this._options.rootPath || '' ) + `/files`, router );
@@ -108,76 +104,6 @@ export class FileController extends Controller {
     };
   }
 
-  /**
-   * Attempts to download a file from the server
-   */
-  private async getFile( req: IAuthReq, res: express.Response ) {
-    try {
-      const manager = BucketManager.get;
-      const fileID = req.params.id;
-      let file: IFileEntry;
-      const cache = this._cacheLifetime;
-
-      if ( !fileID || fileID.trim() === '' )
-        throw new Error( `Please specify a file ID` );
-
-      file = await manager.getFile( fileID );
-      res.setHeader( 'Content-Type', file.mimeType! );
-      res.setHeader( 'Content-Length', file.size!.toString() );
-      if ( cache )
-        res.setHeader( 'Cache-Control', 'public, max-age=' + cache );
-
-      manager.downloadFile( req, res, file );
-      manager.incrementAPI( file.user! );
-
-    } catch ( err ) {
-      logError( err.toString() );
-      return res.status( 404 ).send( 'File not found' );
-    }
-  }
-
-  /**
-   * Attempts to make a file public
-   */
-  private async makePublic( req: IAuthReq, res: express.Response ) {
-    try {
-      const manager = BucketManager.get;
-      const fileID = req.params.id;
-
-      if ( !fileID || fileID.trim() === '' )
-        throw new Error( `Please specify a file ID` );
-
-      let fileEntry = await manager.getFile( fileID, req._user!.username );
-      fileEntry = await manager.makeFilePublic( fileEntry );
-
-      okJson<IGetFile>( { message: `File is now public`, data: fileEntry }, res );
-
-    } catch ( err ) {
-      return errJson( err, res );
-    }
-  }
-
-  /**
-   * Attempts to make a file private
-   */
-  private async makePrivate( req: IAuthReq, res: express.Response ) {
-    try {
-      const manager = BucketManager.get;
-      const fileID = req.params.id;
-      let fileEntry: IFileEntry;
-
-      if ( !fileID || fileID.trim() === '' )
-        throw new Error( `Please specify a file ID` );
-
-      fileEntry = await manager.getFile( fileID, req._user!.username );
-      fileEntry = await manager.makeFilePrivate( fileEntry )
-
-      okJson<IGetFile>( { message: `File is now private`, data: fileEntry }, res );
-
-    } catch ( err ) {
-      return errJson( err, res );
-    }
-  }
 
   /**
    * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
