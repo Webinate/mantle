@@ -1,7 +1,7 @@
 const test = require( 'unit.js' );
 let guest, admin, config, user1, user2;
 
-describe( '14. Getting and setting user stats', function() {
+describe( '1. Getting and setting user stats', function() {
 
   before( function() {
     const header = require( '../header.js' );
