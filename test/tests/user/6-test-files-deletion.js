@@ -1,8 +1,9 @@
 const test = require( 'unit.js' );
 let guest, admin, config, user1, user2;
 const filePath = './test/media/file.png';
+let fileId;
 
-describe( 'Testing file renaming', function() {
+describe( '6. Testing files deletion', function() {
 
   before( function() {
     const header = require( '../header.js' );
@@ -29,58 +30,47 @@ describe( 'Testing file renaming', function() {
       } ).catch( err => done( err ) );
   } )
 
-  it( 'uploaded file has the name "file.png"', function( done ) {
+  it( 'regular user has 1 file', function( done ) {
     user1
-      .attach( 'small-image', filePath )
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
       .then(( res ) => {
         fileId = res.body.data[ 0 ].identifier;
-        test.string( res.body.message ).is( "Found [1] files" );
-        test.string( res.body.data[ 0 ].name ).is( "file.png" );
+        test.array( res.body.data ).hasLength( 1 );
         done();
       } ).catch( err => done( err ) );
   } )
 
-  it( 'regular user did not rename an incorrect file to testy', function( done ) {
-    user1
-      .code( 500 )
-      .put( `/files/123/rename-file`, { name: "testy" } )
+  it( 'regular user did not remove a file with a bad id', function( done ) {
+    user1.delete( `/files/123` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "File '123' does not exist" );
+        test.string( res.body.message ).is( "Removed [0] files" );
+        test.array( res.body.data ).hasLength( 0 );
         done();
       } ).catch( err => done( err ) );
   } )
 
-  it( 'regular user regular user did not rename a correct file with an empty name', function( done ) {
-    user1
-      .code( 500 )
-      .put( `/files/${fileId}/rename-file`, { name: "" } )
+  it( 'regular user did remove a file with a valid id', function( done ) {
+    user1.delete( `/files/${fileId}` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Please specify the new name of the file" );
+        test.string( res.body.message ).is( "Removed [1] files" );
+        test.array( res.body.data ).hasLength( 1 );
         done();
       } ).catch( err => done( err ) );
   } )
 
-  it( 'regular user did rename a correct file to testy', function( done ) {
-    user1.put( `/files/${fileId}/rename-file`, { name: "testy" } )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Renamed file to 'testy'" );
-        done();
-      } ).catch( err => done( err ) );
-  } )
-
-  it( 'did rename the file to "testy" as reflected in the GET', function( done ) {
+  it( 'regular user has 0 files', function( done ) {
     user1
-      .attach( 'small-image', filePath )
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
       .then(( res ) => {
-        test.string( res.body.data[ 0 ].name ).is( "testy" );
+        test.array( res.body.data ).hasLength( 0 );
         done();
       } ).catch( err => done( err ) );
   } )
+
+  // TODO: Add a test for regular user deletion permission denial?
+  // TODO: Add a test for admin deletion of user file?
 
   it( 'regular user did remove the bucket dinosaurs', function( done ) {
     user1.delete( `/buckets/dinosaurs` )

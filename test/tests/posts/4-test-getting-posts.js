@@ -1,7 +1,7 @@
 const test = require( 'unit.js' );
 let guest, admin, config, numPosts, publicPostId, privatePostId;
 
-describe( 'Testing fetching of posts', function() {
+describe( '4. Testing fetching of posts', function() {
 
   before( function() {
     const header = require( '../header.js' );

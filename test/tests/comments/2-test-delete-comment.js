@@ -2,7 +2,7 @@ const test = require( 'unit.js' );
 let guest, admin, config, numPosts, numComments,
   postId, commentId, parentCommentId;
 
-describe( 'Testing deletion of comments', function() {
+describe( '2. Testing deletion of comments', function() {
 
   before( function() {
     const header = require( '../header.js' );

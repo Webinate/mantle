@@ -3,7 +3,7 @@ let guest, admin, config, numPosts,
   numComments, postId, publicCommentId,
   privateCommentId, parentCommentId, childCommentId;
 
-describe( 'Testing fetching of comments', function() {
+describe( '3. Testing fetching of comments', function() {
 
   before( function() {
     const header = require( '../header.js' );

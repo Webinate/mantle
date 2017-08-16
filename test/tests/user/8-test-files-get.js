@@ -2,7 +2,7 @@ const test = require( 'unit.js' );
 let guest, admin, config, user1, user2;
 const filePath = './test/media/file.png';
 
-describe( 'Getting uploaded user files', function() {
+describe( '8. Getting uploaded user files', function() {
 
   before( function() {
     const header = require( '../header.js' );

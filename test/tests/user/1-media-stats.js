@@ -3,7 +3,7 @@ let guest, admin, config, user1, user2;
 const filePath = './test/media/file.png';
 let fileId = '';
 
-describe( 'Getting and setting user media stat usage', function() {
+describe( '1. Getting and setting user media stat usage', function() {
 
   before( function() {
     const header = require( '../header.js' );

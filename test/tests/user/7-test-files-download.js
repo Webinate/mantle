@@ -1,12 +1,13 @@
 const test = require( 'unit.js' );
 let guest, admin, config, user1, user2;
 const filePath = './test/media/file.png';
-let fileId;
+let fileUrl;
+let fileId = '';
+const header = require( '../header.js' );
 
-describe( 'Testing files deletion', function() {
+describe( '7. Getting and setting user media stat usage', function() {
 
   before( function() {
-    const header = require( '../header.js' );
     guest = header.users.guest;
     admin = header.users.admin;
     user1 = header.users.user1;
@@ -35,42 +36,20 @@ describe( 'Testing files deletion', function() {
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
       .then(( res ) => {
         fileId = res.body.data[ 0 ].identifier;
+        fileUrl = res.body.data[ 0 ].publicURL;
         test.array( res.body.data ).hasLength( 1 );
         done();
       } ).catch( err => done( err ) );
   } )
 
-  it( 'regular user did not remove a file with a bad id', function( done ) {
-    user1.delete( `/files/123` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Removed [0] files" );
-        test.array( res.body.data ).hasLength( 0 );
-        done();
-      } ).catch( err => done( err ) );
-  } )
-
-  it( 'regular user did remove a file with a valid id', function( done ) {
-    user1.delete( `/files/${fileId}` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Removed [1] files" );
-        test.array( res.body.data ).hasLength( 1 );
-        done();
-      } ).catch( err => done( err ) );
-  } )
-
-  it( 'regular user has 0 files', function( done ) {
-    user1
-      .get( `/files/users/${user1.username}/buckets/dinosaurs` )
+  it( 'did download the file off the bucket', function( done ) {
+    header.createAgent( fileUrl )
+      .contentType( /image/ )
+      .get( '' )
       .then(( res ) => {
-        test.array( res.body.data ).hasLength( 0 );
         done();
       } ).catch( err => done( err ) );
   } )
-
-  // TODO: Add a test for regular user deletion permission denial?
-  // TODO: Add a test for admin deletion of user file?
 
   it( 'regular user did remove the bucket dinosaurs', function( done ) {
     user1.delete( `/buckets/dinosaurs` )

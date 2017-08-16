@@ -3,7 +3,7 @@ let guest, admin, config, user1, user2, numUsers,
   testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com';
 
-describe( 'Testing fetching users', function() {
+describe( '19. Testing fetching users', function() {
 
   before( function() {
     const header = require( '../header.js' );

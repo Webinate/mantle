@@ -1,7 +1,7 @@
 const test = require( 'unit.js' );
 let guest, admin, config;
 
-describe( 'Getting and setting user meta data', function() {
+describe( '21. Getting and setting user meta data', function() {
 
   before( function() {
     const header = require( '../header.js' );

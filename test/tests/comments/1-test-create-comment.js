@@ -2,7 +2,7 @@ const test = require( 'unit.js' );
 let guest, admin, config, numPosts,
   numComments, postId, commentId;
 
-describe( 'Testing creation of comments', function() {
+describe( '1. Testing creation of comments', function() {
 
   before( function() {
     const header = require( '../header.js' );

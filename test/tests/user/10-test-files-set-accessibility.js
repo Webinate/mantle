@@ -1,11 +1,11 @@
 const test = require( 'unit.js' );
 let guest, admin, config, user1, user2;
 const filePath = './test/media/file.png';
-let fileUrl;
-let fileId = '';
 const header = require( '../header.js' );
+let fileId = '';
+let fileUrl = '';
 
-describe( 'Getting and setting user media stat usage', function() {
+describe( '10. Testing file accessibility functions', function() {
 
   before( function() {
     guest = header.users.guest;

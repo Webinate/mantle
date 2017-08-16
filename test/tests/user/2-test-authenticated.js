@@ -1,7 +1,7 @@
 const test = require( 'unit.js' );
 let guest, admin, config;
 
-describe( 'Checking basic authentication', function() {
+describe( '2. Checking basic authentication', function() {
 
   before( function() {
     const header = require( '../header.js' );

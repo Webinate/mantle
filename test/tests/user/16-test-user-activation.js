@@ -4,7 +4,7 @@ let guest, admin, config,
   testUserEmail = 'fancyUser123@fancy.com',
   activationKey;
 
-describe( 'Testing user activation', function() {
+describe( '16. Testing user activation', function() {
 
   before( function() {
     const header = require( '../header.js' );

@@ -1,7 +1,7 @@
 const test = require( 'unit.js' );
 let guest, admin, config, user1, user2;
 
-describe( 'Testing bucket deletion', function() {
+describe( '4. Testing bucket deletion', function() {
 
   before( function() {
     const header = require( '../header.js' );

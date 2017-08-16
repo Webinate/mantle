@@ -1,7 +1,7 @@
 const test = require( 'unit.js' );
 let guest, admin, config, numPosts, lastPost, lastPost2;
 
-describe( 'Testing creation of posts', function() {
+describe( '1. Testing creation of posts', function() {
 
   before( function() {
     const header = require( '../header.js' );
