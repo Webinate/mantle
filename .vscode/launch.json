@@ -43,7 +43,9 @@
         "--logging=false",
         "--keyFile=./bucket-credentials.json",
         "--runningTests=true",
-        "--clientsFolder=./test/"
+        "--clientsFolder=./test/",
+        "--remotes.local.url=http://localhost:8000",
+        "--remotes.local.path=test/test-server/media"
       ],
       "cwd": "${workspaceRoot}",
       "preLaunchTask": null,

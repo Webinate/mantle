@@ -7,6 +7,8 @@ import { Server as MongoServer, Db } from 'mongodb';
 import { Server } from '../server';
 import { ConsoleManager } from '../../console/console-manager';
 import { prepare } from './db-preparation';
+import * as merge from 'deepmerge';
+
 const args = yargs.argv;
 
 
@@ -40,7 +42,10 @@ function loadConfig(): IConfig | null {
     // Override any of the config settings with the yargs if they exist
     for ( const i in args )
       if ( config.hasOwnProperty( i ) )
-        config[ i ] = args[ i ];
+        if ( typeof args[ i ] === 'string' )
+          config[ i ] = args[ i ];
+        else
+          config[ i ] = merge( config[ i ], args[ i ] );
 
     return config;
   }
@@ -51,7 +56,6 @@ function loadConfig(): IConfig | null {
 
   return null;
 }
-
 
 /**
  * Traverses a directory and each of its folders to find any modepress.json config files

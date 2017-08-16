@@ -3,7 +3,9 @@
   "server": {
     "port": 8000,
     "host": "localhost",
-    "staticAssets": []
+    "staticAssets": [
+      "media"
+    ]
   },
   "controllers": [
     {
