@@ -9,6 +9,7 @@ import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { googleBucket } from './remotes/google-bucket';
 import { localBucket } from './remotes/local-bucket';
+import { generateRandString } from '../utils/utils';
 
 /**
  * Class responsible for managing buckets and uploads to Google storage
@@ -28,10 +29,10 @@ export class BucketManager {
 
   constructor( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig ) {
     BucketManager._singleton = this;
-    googleBucket.initialize( config.google );
-    localBucket.initialize( { path: './temp-uploads' } );
+    googleBucket.initialize( config.remotes.google );
+    localBucket.initialize( config.remotes.local );
 
-    this._activeManager = localBucket;
+    this._activeManager = googleBucket;
 
     this._buckets = buckets;
     this._files = files;
@@ -175,7 +176,7 @@ export class BucketManager {
    * @param user The user associated with this bucket
    */
   async createBucket( name: string, user: string ) {
-    const bucketID = `webinate-bucket-${this.generateRandString( 8 ).toLowerCase()}`;
+    const bucketID = `webinate-bucket-${generateRandString( 8 ).toLowerCase()}`;
     const bucketCollection = this._buckets;
     const stats = this._stats;
 
@@ -450,21 +451,21 @@ export class BucketManager {
 
   /**
    * Registers an uploaded part as a new user file in the local dbs
-   * @param fileID The id of the file on the bucket
+   * @param identifier The id of the file on the bucket
    * @param bucketID The id of the bucket this file belongs to
    * @param part
    * @param user The username
    * @param isPublic IF true, the file will be set as public
    * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
    */
-  private registerFile( fileID: string, bucket: IBucketEntry, part: multiparty.Part, user: string, isPublic: boolean, parentFile: string | null ): Promise<IFileEntry> {
+  private registerFile( identifier: string, bucket: IBucketEntry, part: multiparty.Part, user: string, isPublic: boolean, parentFile: string | null ): Promise<IFileEntry> {
     const files = this._files;
 
     return new Promise<IFileEntry>( function( resolve, reject ) {
       const entry: IFileEntry = {
         name: ( part.filename || part.name ),
         user: user,
-        identifier: fileID,
+        identifier: identifier,
         bucketId: bucket.identifier,
         bucketName: bucket.name!,
         parentFile: ( parentFile ? parentFile : null ),
@@ -472,7 +473,7 @@ export class BucketManager {
         numDownloads: 0,
         size: part.byteCount,
         isPublic: isPublic,
-        publicURL: `https://storage.googleapis.com/${bucket.identifier}/${fileID}`,
+        publicURL: `https://storage.googleapis.com/${bucket.identifier}/${identifier}`,
         mimeType: part.headers[ 'content-type' ]
       };
 
@@ -484,15 +485,7 @@ export class BucketManager {
     } );
   }
 
-  private generateRandString( len: number ): string {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-    for ( let i = 0; i < len; i++ )
-      text += possible.charAt( Math.floor( Math.random() * possible.length ) );
-
-    return text;
-  }
 
   /**
    * Uploads a part stream as a new user file. This checks permissions, updates the local db and uploads the stream to the bucket
@@ -508,9 +501,7 @@ export class BucketManager {
 
     const bucketCollection = this._buckets;
     const statCollection = this._stats;
-    const fileID = this.generateRandString( 16 );
-
-    await this._activeManager.uploadFile( bucketEntry.identifier!, fileID, part, { headers: part.headers } );
+    const fileIdentifier = await this._activeManager.uploadFile( bucketEntry.identifier!, part, { headers: part.headers, filename: part.filename } );
 
     await bucketCollection.updateOne( <IBucketEntry>{ identifier: bucketEntry.identifier },
       { $inc: <IBucketEntry>{ memoryUsed: part.byteCount } } );
@@ -518,7 +509,7 @@ export class BucketManager {
     await statCollection.updateOne( <IStorageStats>{ user: user },
       { $inc: <IStorageStats>{ memoryUsed: part.byteCount, apiCallsUsed: 1 } } );
 
-    const file = await this.registerFile( fileID, bucketEntry, part, user, makePublic, parentFile );
+    const file = await this.registerFile( fileIdentifier, bucketEntry, part, user, makePublic, parentFile );
     return file;
   }
 

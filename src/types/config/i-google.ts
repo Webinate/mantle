@@ -4,37 +4,13 @@ declare module 'modepress' {
    */
   export interface IGoogleProperties extends IRemoteOptions {
     /*
-    * Path to the key file
-    */
+     * Path to the key file
+     */
     keyFile: string;
 
     /*
-    * Describes the bucket details
-    */
-    bucket: {
-
-      /*
-      * Project ID
-      */
-      projectId: string;
-
-      /**
-       * The name of the mongodb collection for storing bucket details
-       * eg: 'buckets'
-       */
-      bucketsCollection: string;
-
-      /**
-       * The name of the mongodb collection for storing file details
-       * eg: 'files'
-       */
-      filesCollection: string;
-
-      /**
-       * The name of the mongodb collection for storing user stats
-       * eg: 'storageAPI'
-       */
-      statsCollection: string;
-    }
+     * Project ID
+     */
+    projectId: string;
   }
 }

@@ -69,6 +69,14 @@ declare module 'modepress' {
          */
         clientsFolder: string;
         /**
+         * Describes each of the media buckets available to the
+         * modepress servers.
+         */
+        remotes: {
+            'google': IGoogleProperties;
+            'local': ILocalBucket;
+        };
+        /**
          * The length of time a render is kept in the DB before being updated. Stored in seconds.
          * e.g. 86400 (1 day)
          */
@@ -112,20 +120,32 @@ declare module 'modepress' {
              */
             options: IGMail | IMailgun;
         };
-        /**
-         * User related settings
-         */
-        userSettings: {
+        collections: {
             /**
-            * The name of the mongodb collection for storing user details
-            * eg: 'users'
-            */
+             * The name of the mongodb collection for storing user details
+             * eg: 'users'
+             */
             userCollection: string;
             /**
              * The name of the mongodb collection for storing session details
              * eg: 'sessions'
              */
             sessionCollection: string;
+            /**
+             * The name of the mongodb collection for storing bucket details
+             * eg: 'buckets'
+             */
+            bucketsCollection: string;
+            /**
+             * The name of the mongodb collection for storing file details
+             * eg: 'files'
+             */
+            filesCollection: string;
+            /**
+             * The name of the mongodb collection for storing user stats
+             * eg: 'storageAPI'
+             */
+            statsCollection: string;
         };
         /**
          * Describes the session settings
@@ -144,23 +164,6 @@ declare module 'modepress' {
             */
         adminUser: IAdminUser;
         /**
-         * Information relating to the Google storage platform
-         *
-         'google': {
-             'keyFile': '',
-             'mail':{
-                 'apiEmail': '',
-                 'from': ''
-             },
-             'bucket': {
-                     'projectId': '',
-                     'bucketsCollection': 'buckets',
-                     'filesCollection': 'files'
-                 }
-             }
-         */
-        google: IGoogleProperties;
-        /**
          * Information regarding the websocket communication. Used for events and IPC
          */
         websocket: IWebsocket;
@@ -169,24 +172,7 @@ declare module 'modepress' {
 declare module 'modepress' {
     interface IGoogleProperties extends IRemoteOptions {
         keyFile: string;
-        bucket: {
-            projectId: string;
-            /**
-             * The name of the mongodb collection for storing bucket details
-             * eg: 'buckets'
-             */
-            bucketsCollection: string;
-            /**
-             * The name of the mongodb collection for storing file details
-             * eg: 'files'
-             */
-            filesCollection: string;
-            /**
-             * The name of the mongodb collection for storing user stats
-             * eg: 'storageAPI'
-             */
-            statsCollection: string;
-        };
+        projectId: string;
     }
 }
 declare module 'modepress' {
@@ -332,6 +318,10 @@ declare module 'modepress' {
 declare module "types/interfaces/i-remote" {
     import { Readable } from 'stream';
     module 'modepress' {
+        type IUploadOptions = {
+            headers: any;
+            filename: string;
+        };
         /**
          * This interface describes a remote destination that is used to upload
          * files sent from modepress. Remote's can be thought of as drives on a
@@ -340,9 +330,7 @@ declare module "types/interfaces/i-remote" {
         interface IRemote {
             initialize(options: IRemoteOptions): Promise<void>;
             createBucket(id: string, options?: any): Promise<string>;
-            uploadFile(bucket: string, fileId: string, source: Readable, uploadOptions: {
-                headers: any;
-            }): Promise<string>;
+            uploadFile(bucket: string, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
             removeFile(bucket: string, id: string): Promise<void>;
             removeBucket(id: string): Promise<void>;
         }
@@ -1447,9 +1435,22 @@ declare module "core/session-manager" {
         private createID();
     }
 }
+declare module "utils/utils" {
+    /**
+     * Checks a string to see if its a valid mongo id
+     * @param str
+     * @returns True if the string is valid
+     */
+    export function isValidObjectID(str?: string): boolean;
+    /**
+     * Generates a random string
+     * @param len The size of the string
+     */
+    export function generateRandString(len: number): string;
+}
 declare module "core/remotes/google-bucket" {
     import { Readable } from 'stream';
-    import { IRemote, IGoogleProperties } from 'modepress';
+    import { IRemote, IGoogleProperties, IUploadOptions } from 'modepress';
     export class GoogleBucket implements IRemote {
         private _zipper;
         private _gcs;
@@ -1461,9 +1462,7 @@ declare module "core/remotes/google-bucket" {
          * and completion events
          */
         private handleStreamsEvents(source, dest);
-        uploadFile(bucket: string, fileId: string, source: Readable, uploadOptions: {
-            headers: any;
-        }): Promise<string>;
+        uploadFile(bucket: string, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
         removeFile(bucket: string, id: string): Promise<void>;
         removeBucket(id: string): Promise<void>;
     }
@@ -1471,21 +1470,20 @@ declare module "core/remotes/google-bucket" {
 }
 declare module "core/remotes/local-bucket" {
     import { Readable } from 'stream';
-    import { IRemote, ILocalBucket } from 'modepress';
+    import { IRemote, IUploadOptions, ILocalBucket } from 'modepress';
     export class LocalBucket implements IRemote {
         private _zipper;
         private _path;
         constructor();
         initialize(options: ILocalBucket): Promise<void>;
         createBucket(id: string, options?: any): Promise<string>;
+        private exists(path);
         /**
          * Wraps a source and destination stream in a promise that catches error
          * and completion events
          */
         private handleStreamsEvents(source, dest);
-        uploadFile(bucket: string, fileId: string, source: Readable, uploadOptions: {
-            headers: any;
-        }): Promise<string>;
+        uploadFile(bucket: string, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
         removeFile(bucket: string, id: string): Promise<void>;
         private deletePath(path);
         removeBucket(id: string): Promise<void>;
@@ -1639,15 +1637,14 @@ declare module "core/bucket-manager" {
         incrementAPI(user: string): Promise<boolean>;
         /**
          * Registers an uploaded part as a new user file in the local dbs
-         * @param fileID The id of the file on the bucket
+         * @param identifier The id of the file on the bucket
          * @param bucketID The id of the bucket this file belongs to
          * @param part
          * @param user The username
          * @param isPublic IF true, the file will be set as public
          * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
          */
-        private registerFile(fileID, bucket, part, user, isPublic, parentFile);
-        private generateRandString(len);
+        private registerFile(identifier, bucket, part, user, isPublic, parentFile);
         /**
          * Uploads a part stream as a new user file. This checks permissions, updates the local db and uploads the stream to the bucket
          * @param part
@@ -2163,14 +2160,6 @@ declare module "models/schema-items/schema-json" {
          */
         validate(): Promise<boolean | Error>;
     }
-}
-declare module "utils/utils" {
-    /**
-     * Checks a string to see if its a valid mongo id
-     * @param str
-     * @returns True if the string is valid
-     */
-    export function isValidObjectID(str?: string): boolean;
 }
 declare module "models/schema-items/schema-foreign-key" {
     import { ISchemaOptions, IModelEntry } from 'modepress';

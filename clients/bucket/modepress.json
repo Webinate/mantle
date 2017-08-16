@@ -1,0 +1,11 @@
+{
+  "name": "bucket",
+  "server": {
+    "port": 7002,
+    "host": "localhost",
+    "staticAssets": [
+      "media"
+    ]
+  },
+  "controllers": []
+}

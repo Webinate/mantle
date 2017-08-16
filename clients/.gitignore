@@ -18,3 +18,10 @@
 !express-site/modepress.json
 !/express-site/media/
 !/express-site/media/*
+
+# Ignore bucket example
+!/bucket/
+!/bucket/*
+!bucket/modepress.json
+!/bucket/media/
+!/bucket/media/*

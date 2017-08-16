@@ -12,3 +12,17 @@ export function isValidObjectID( str: string = '' ): boolean {
 
   return valid;
 }
+
+/**
+ * Generates a random string
+ * @param len The size of the string
+ */
+export function generateRandString( len: number ): string {
+  let text = '';
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for ( let i = 0; i < len; i++ )
+    text += possible.charAt( Math.floor( Math.random() * possible.length ) );
+
+  return text;
+}

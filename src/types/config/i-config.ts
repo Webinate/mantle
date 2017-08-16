@@ -21,6 +21,15 @@ declare module 'modepress' {
     clientsFolder: string;
 
     /**
+     * Describes each of the media buckets available to the
+     * modepress servers.
+     */
+    remotes: {
+      'google': IGoogleProperties;
+      'local': ILocalBucket;
+    }
+
+    /**
      * The length of time a render is kept in the DB before being updated. Stored in seconds.
      * e.g. 86400 (1 day)
      */
@@ -76,14 +85,11 @@ declare module 'modepress' {
       options: IGMail | IMailgun;
     }
 
-    /**
-     * User related settings
-     */
-    userSettings: {
+    collections: {
       /**
-      * The name of the mongodb collection for storing user details
-      * eg: 'users'
-      */
+       * The name of the mongodb collection for storing user details
+       * eg: 'users'
+       */
       userCollection: string;
 
       /**
@@ -91,6 +97,24 @@ declare module 'modepress' {
        * eg: 'sessions'
        */
       sessionCollection: string;
+
+      /**
+       * The name of the mongodb collection for storing bucket details
+       * eg: 'buckets'
+       */
+      bucketsCollection: string;
+
+      /**
+       * The name of the mongodb collection for storing file details
+       * eg: 'files'
+       */
+      filesCollection: string;
+
+      /**
+       * The name of the mongodb collection for storing user stats
+       * eg: 'storageAPI'
+       */
+      statsCollection: string;
     }
 
     /**
@@ -110,24 +134,6 @@ declare module 'modepress' {
             }
         */
     adminUser: IAdminUser;
-
-    /**
-     * Information relating to the Google storage platform
-     *
-     'google': {
-         'keyFile': '',
-         'mail':{
-             'apiEmail': '',
-             'from': ''
-         },
-         'bucket': {
-                 'projectId': '',
-                 'bucketsCollection': 'buckets',
-                 'filesCollection': 'files'
-             }
-         }
-     */
-    google: IGoogleProperties;
 
     /**
      * Information regarding the websocket communication. Used for events and IPC

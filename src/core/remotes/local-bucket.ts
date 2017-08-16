@@ -1,9 +1,9 @@
 import { Readable, Writable } from 'stream';
-import { resolve } from 'path';
+import { resolve, basename, extname } from 'path';
 import * as rimraf from 'rimraf';
 import * as fs from 'fs';
 import * as zlib from 'zlib';
-import { IRemote, ILocalBucket } from 'modepress';
+import { IRemote, IUploadOptions, ILocalBucket } from 'modepress';
 import * as compressible from 'compressible';
 
 export class LocalBucket implements IRemote {
@@ -20,12 +20,20 @@ export class LocalBucket implements IRemote {
 
   async createBucket( id: string, options?: any ) {
     const path = `${this._path}/${id}`;
-
-    if ( fs.existsSync( path ) )
+    const exists = await this.exists( path );
+    if ( exists )
       throw new Error( `The folder '${path}' already exists` );
 
     await fs.mkdirSync( path );
     return id;
+  }
+
+  private exists( path: string ) {
+    return new Promise<boolean>( function( resolve, reject ) {
+      fs.exists( path, function( e ) {
+        resolve( e );
+      } )
+    } )
   }
 
   /**
@@ -61,10 +69,23 @@ export class LocalBucket implements IRemote {
     } );
   }
 
-  async uploadFile( bucket: string, fileId: string, source: Readable, uploadOptions: { headers: any } ) {
+  async uploadFile( bucket: string, source: Readable, uploadOptions: IUploadOptions ) {
 
-    const file = `${this._path}/${bucket}/${fileId}`;
-    const writeStream = fs.createWriteStream( file );
+    let filename = uploadOptions.filename;
+    let fileExists = await this.exists( `${this._path}/${bucket}/${filename}` );
+    let counter = 1;
+
+    while ( fileExists ) {
+      let ext = extname( uploadOptions.filename );
+      let base = basename( uploadOptions.filename, ext )
+      base += counter.toString();
+      counter++;
+
+      filename = base + ext;
+      fileExists = await this.exists( `${this._path}/${bucket}/${filename}` );
+    }
+
+    const writeStream = fs.createWriteStream( `${this._path}/${bucket}/${filename}` );
 
     // Check if the stream content type is something that can be compressed
     // if so, then compress it before sending it to
@@ -75,13 +96,13 @@ export class LocalBucket implements IRemote {
       source.pipe( writeStream );
 
     await this.handleStreamsEvents( source, writeStream );
-    return fileId;
+    return filename;
   }
 
   async removeFile( bucket: string, id: string ) {
     const file = `${this._path}/${id}/${id}`;
-
-    if ( !fs.existsSync( file ) )
+    const exists = await this.exists( file );
+    if ( !exists )
       return;
 
     await this.deletePath( file );
@@ -100,7 +121,8 @@ export class LocalBucket implements IRemote {
 
   async removeBucket( id: string ) {
     const path = `${this._path}/${id}`;
-    if ( !fs.existsSync( path ) )
+    const exists = await this.exists( path );
+    if ( !exists )
       return;
 
     await this.deletePath( `${path}` );

@@ -9,11 +9,11 @@ import { CommsController } from '../../socket-api/comms-controller'
  */
 export async function prepare( db: mongodb.Db, config: IConfig ) {
 
-  const usersCollection = await db.createCollection( config.userSettings.userCollection );
-  const sessionsCollection = await db.createCollection( config.userSettings.sessionCollection );
-  const statsCollection = await db.createCollection( config.google.bucket.statsCollection );
-  const bucketsCollection = await db.createCollection( config.google.bucket.bucketsCollection );
-  const filesCollection = await db.createCollection( config.google.bucket.filesCollection );
+  const usersCollection = await db.createCollection( config.collections.userCollection );
+  const sessionsCollection = await db.createCollection( config.collections.sessionCollection );
+  const statsCollection = await db.createCollection( config.collections.statsCollection );
+  const bucketsCollection = await db.createCollection( config.collections.bucketsCollection );
+  const filesCollection = await db.createCollection( config.collections.filesCollection );
 
   await Promise.all( [
     usersCollection.createIndex( 'username' ),
