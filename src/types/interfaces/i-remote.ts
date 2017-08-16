@@ -23,5 +23,7 @@ declare module 'modepress' {
     removeFile( bucket: string, id: string ): Promise<void>;
 
     removeBucket( id: string ): Promise<void>;
+
+    generateUrl( bucketIdentifier: string, fileIdentifier: string ): string;
   }
 }

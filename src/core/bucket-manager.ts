@@ -32,7 +32,7 @@ export class BucketManager {
     googleBucket.initialize( config.remotes.google );
     localBucket.initialize( config.remotes.local );
 
-    this._activeManager = googleBucket;
+    this._activeManager = localBucket;
 
     this._buckets = buckets;
     this._files = files;
@@ -461,7 +461,7 @@ export class BucketManager {
   private registerFile( identifier: string, bucket: IBucketEntry, part: multiparty.Part, user: string, isPublic: boolean, parentFile: string | null ): Promise<IFileEntry> {
     const files = this._files;
 
-    return new Promise<IFileEntry>( function( resolve, reject ) {
+    return new Promise<IFileEntry>(( resolve, reject ) => {
       const entry: IFileEntry = {
         name: ( part.filename || part.name ),
         user: user,
@@ -473,7 +473,7 @@ export class BucketManager {
         numDownloads: 0,
         size: part.byteCount,
         isPublic: isPublic,
-        publicURL: `https://storage.googleapis.com/${bucket.identifier}/${identifier}`,
+        publicURL: this._activeManager.generateUrl( bucket.identifier!, identifier ),
         mimeType: part.headers[ 'content-type' ]
       };
 

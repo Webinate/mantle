@@ -226,7 +226,15 @@ declare module 'modepress' {
      * The properties for setting up a local bucket
      */
     interface ILocalBucket extends IRemoteOptions {
+        /**
+         * The system path to a system directory to store the media in.
+         * The directory must have write access
+         */
         path: string;
+        /**
+         * The public URL for downloading the media
+         */
+        url: string;
     }
 }
 declare module 'modepress' {
@@ -333,6 +341,7 @@ declare module "types/interfaces/i-remote" {
             uploadFile(bucket: string, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
             removeFile(bucket: string, id: string): Promise<void>;
             removeBucket(id: string): Promise<void>;
+            generateUrl(bucketIdentifier: string, fileIdentifier: string): string;
         }
     }
 }
@@ -1456,6 +1465,7 @@ declare module "core/remotes/google-bucket" {
         private _gcs;
         constructor();
         initialize(options: IGoogleProperties): Promise<void>;
+        generateUrl(bucketIdentifier: string, fileIdentifier: string): string;
         createBucket(id: string, options?: any): Promise<string>;
         /**
          * Wraps a source and destination stream in a promise that catches error
@@ -1474,10 +1484,12 @@ declare module "core/remotes/local-bucket" {
     export class LocalBucket implements IRemote {
         private _zipper;
         private _path;
+        private _url;
         constructor();
         initialize(options: ILocalBucket): Promise<void>;
         createBucket(id: string, options?: any): Promise<string>;
         private exists(path);
+        generateUrl(bucketIdentifier: string, fileIdentifier: string): string;
         /**
          * Wraps a source and destination stream in a promise that catches error
          * and completion events

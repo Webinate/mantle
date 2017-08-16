@@ -9,6 +9,7 @@ import * as compressible from 'compressible';
 export class LocalBucket implements IRemote {
   private _zipper: zlib.Gzip;
   private _path: string;
+  private _url: string;
 
   constructor() {
     this._zipper = zlib.createGzip();
@@ -16,6 +17,7 @@ export class LocalBucket implements IRemote {
 
   async initialize( options: ILocalBucket ) {
     this._path = resolve( options.path );
+    this._url = options.url;
   }
 
   async createBucket( id: string, options?: any ) {
@@ -34,6 +36,10 @@ export class LocalBucket implements IRemote {
         resolve( e );
       } )
     } )
+  }
+
+  generateUrl( bucketIdentifier: string, fileIdentifier: string ) {
+    return `${this._url}/${bucketIdentifier}/${fileIdentifier}`;
   }
 
   /**

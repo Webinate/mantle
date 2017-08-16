@@ -22,6 +22,10 @@ export class GoogleBucket implements IRemote {
     } );
   }
 
+  generateUrl( bucketIdentifier: string, fileIdentifier: string ) {
+    return `https://storage.googleapis.com/${bucketIdentifier}/${fileIdentifier}`;
+  }
+
   async createBucket( id: string, options?: any ) {
     const gcs = this._gcs;
     const cors = {
