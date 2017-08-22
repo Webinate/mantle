@@ -1,12 +1,4 @@
 declare module 'modepress' {
-  /*
-   * Represents the details of the admin user
-   */
-  export interface IAdminUser {
-    username: string;
-    email: string;
-    password: string;
-  }
 
   /**
    * A server configuration
@@ -36,27 +28,7 @@ declare module 'modepress' {
     ajaxRenderExpiration: number;
 
 
-    database: {
-      /**
-       * The name of the mongo database to use
-       */
-      name: string;
-
-      /**
-       * The database host we are listening on
-       */
-      host: string;
-
-      /**
-       * The port number the mongo database is listening on
-       */
-      port: number;
-    }
-
-    /**
-     * An array of servers for each host / route that modepress is supporting
-     */
-    // servers: Array<IClient>;
+    database: IDatabase;
 
     /**
      * If debug is true, certain functions will be emulated and more information logged
@@ -66,56 +38,12 @@ declare module 'modepress' {
     /**
      * Settings related to sending emails
      */
-    mail: {
+    mail: IMailProperties;
 
-      /**
-       * The from field sent to recipients
-       */
-      from: string;
-
-      /**
-       * Specify the type of mailer to use.
-       * Currently we support either 'gmail' or 'mailgun'
-       */
-      type: 'gmail' | 'mailgun';
-
-      /**
-       * Options to be sent to the desired mailer
-       */
-      options: IGMail | IMailgun;
-    }
-
-    collections: {
-      /**
-       * The name of the mongodb collection for storing user details
-       * eg: 'users'
-       */
-      userCollection: string;
-
-      /**
-       * The name of the mongodb collection for storing session details
-       * eg: 'sessions'
-       */
-      sessionCollection: string;
-
-      /**
-       * The name of the mongodb collection for storing bucket details
-       * eg: 'buckets'
-       */
-      bucketsCollection: string;
-
-      /**
-       * The name of the mongodb collection for storing file details
-       * eg: 'files'
-       */
-      filesCollection: string;
-
-      /**
-       * The name of the mongodb collection for storing user stats
-       * eg: 'storageAPI'
-       */
-      statsCollection: string;
-    }
+    /**
+     * A list of collection names
+     */
+    collections: ICollectionProperties;
 
     /**
      * Describes the session settings
@@ -126,13 +54,12 @@ declare module 'modepress' {
      * The administrative user. This is the root user that will have access to the information in the database.
      * This can be anything you like, but try to use passwords that are hard to guess
      * eg:
-
-        'adminUser': {
-                'username': 'root',
-                'email': 'root_email@host.com',
-                'password': 'CHANGE_THIS_PASSWORD'
-            }
-        */
+     * 'adminUser': {
+     *  'username': 'root',
+     *  'email': 'root_email@host.com',
+     *  'password': 'CHANGE_THIS_PASSWORD'
+     * }
+     */
     adminUser: IAdminUser;
 
     /**

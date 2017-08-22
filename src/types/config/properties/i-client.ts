@@ -1,10 +1,6 @@
 declare module 'modepress' {
 
-  // export type ControllerType = 'posts' | 'comments' | 'buckets' | 'files' | 'admin' |
-  //     'auth' | 'emails' | 'renders' | 'stats' | 'users' | 'sessions';
-
   export interface IControllerOptions {
-    // type: ControllerType;
     path?: string;
   }
 

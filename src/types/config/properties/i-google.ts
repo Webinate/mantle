@@ -1,4 +1,5 @@
 declare module 'modepress' {
+
   /*
    * Users stores data on an external cloud bucket with Google
    */

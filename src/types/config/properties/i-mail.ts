@@ -1,4 +1,24 @@
 declare module 'modepress' {
+
+  export interface IMailProperties {
+
+    /**
+     * The from field sent to recipients
+     */
+    from: string;
+
+    /**
+     * Specify the type of mailer to use.
+     * Currently we support either 'gmail' or 'mailgun'
+     */
+    type: 'gmail' | 'mailgun';
+
+    /**
+     * Options to be sent to the desired mailer
+     */
+    options: IGMail | IMailgun;
+  }
+
   export interface IMailOptions { }
 
   export interface IMailer {

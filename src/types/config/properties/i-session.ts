@@ -1,4 +1,5 @@
 declare module 'modepress' {
+
   /*
   * Describes the options for the session
   */
