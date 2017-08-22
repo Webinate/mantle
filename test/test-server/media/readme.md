@@ -1,0 +1,1 @@
+Media folder where uploads are stored for tests
