@@ -19,9 +19,9 @@ export class BucketManager {
   private static API_CALLS_ALLOCATED: number = 20000; // 20,000
 
   private static _singleton: BucketManager;
-  private _buckets: mongodb.Collection;
-  private _files: mongodb.Collection;
-  private _stats: mongodb.Collection;
+  private _buckets: mongodb.Collection<IBucketEntry>;
+  private _files: mongodb.Collection<IFileEntry>;
+  private _stats: mongodb.Collection<IStorageStats>;
   private _zipper: zlib.Gzip;
   private _unzipper: zlib.Gunzip;
   private _deflater: zlib.Deflate;
@@ -47,7 +47,7 @@ export class BucketManager {
    * @param user [Optional] Specify the user. If none provided, then all buckets are retrieved
    * @param searchTerm [Optional] Specify a search term
    */
-  async getBucketEntries( user?: string, searchTerm?: RegExp ): Promise<Array<IBucketEntry>> {
+  async getBucketEntries( user?: string, searchTerm?: RegExp ) {
     const bucketCollection = this._buckets;
     const search: IBucketEntry = {};
     if ( user )
@@ -57,7 +57,7 @@ export class BucketManager {
       ( <any>search ).name = searchTerm;
 
     // Save the new entry into the database
-    const buckets: Array<IBucketEntry> = await bucketCollection.find( search ).toArray();
+    const buckets = await bucketCollection.find( search ).toArray();
     return buckets;
   }
 
@@ -65,7 +65,7 @@ export class BucketManager {
    * Fetches the file count based on the given query
    * @param searchQuery The search query to idenfify files
    */
-  async numFiles( searchQuery: IFileEntry ): Promise<number> {
+  async numFiles( searchQuery: IFileEntry ) {
     const filesCollection = this._files;
     const count = await filesCollection.count( searchQuery );
     return count;
@@ -75,11 +75,11 @@ export class BucketManager {
    * Fetches all file entries by a given query
    * @param searchQuery The search query to idenfify files
    */
-  async getFiles( searchQuery: any, startIndex?: number, limit: number = -1 ): Promise<Array<IFileEntry>> {
+  async getFiles( searchQuery: any, startIndex?: number, limit: number = -1 ) {
     const filesCollection = this._files;
 
     // Save the new entry into the database
-    const files: Array<IFileEntry> = await filesCollection.find( searchQuery ).skip( startIndex! ).limit( limit ).toArray();
+    const files = await filesCollection.find( searchQuery ).skip( startIndex! ).limit( limit ).toArray();
     return files;
   }
 
@@ -88,11 +88,11 @@ export class BucketManager {
    * @param searchQuery The search query to idenfify files
    * @param meta Optional meta data to associate with the files
    */
-  async setMeta( searchQuery: any, meta: any ): Promise<boolean> {
+  async setMeta( searchQuery: any, meta: any ) {
     const filesCollection = this._files;
 
     // Save the new entry into the database
-    await filesCollection.updateMany( searchQuery, { $set: <IFileEntry>{ meta: meta } } );
+    await filesCollection.updateMany( searchQuery, { $set: { meta: meta } as IFileEntry } );
     return true;
   }
 
@@ -103,7 +103,7 @@ export class BucketManager {
    * @param limit Specify the number of files to retrieve
    * @param searchTerm Specify a search term
    */
-  getFilesByBucket( bucket: IBucketEntry, startIndex?: number, limit?: number, searchTerm?: RegExp ): Promise<Array<IFileEntry>> {
+  getFilesByBucket( bucket: IBucketEntry, startIndex?: number, limit?: number, searchTerm?: RegExp ) {
     const searchQuery: IFileEntry = { bucketId: bucket.identifier };
 
     if ( searchTerm )
@@ -116,11 +116,11 @@ export class BucketManager {
    * Fetches the storage/api data for a given user
    * @param user The user whos data we are fetching
    */
-  async getUserStats( user?: string ): Promise<IStorageStats> {
+  async getUserStats( user?: string ) {
     const stats = this._stats;
 
     // Save the new entry into the database
-    const result: IStorageStats = await stats.find( <IStorageStats>{ user: user } ).limit( 1 ).next();
+    const result = await stats.find( { user: user } as IStorageStats ).limit( 1 ).next();
 
     if ( !result )
       throw new Error( `Could not find storage data for the user '${user}'` );
@@ -132,7 +132,7 @@ export class BucketManager {
    * Attempts to create a user usage statistics
    * @param user The user associated with this bucket
    */
-  async createUserStats( user: string ): Promise<IStorageStats> {
+  async createUserStats( user: string ) {
     const stats = this._stats;
 
     const storage: IStorageStats = {
@@ -144,7 +144,7 @@ export class BucketManager {
     }
 
     const insertResult = await stats.insertOne( storage );
-    return <IStorageStats>insertResult.ops[ 0 ];
+    return insertResult.ops[ 0 ] as IStorageStats;
   }
 
   /**
@@ -152,10 +152,10 @@ export class BucketManager {
    * @param user The user associated with this bucket
    * @returns A promise of the number of stats removed
    */
-  async removeUserStats( user: string ): Promise<number> {
+  async removeUserStats( user: string ) {
     const stats = this._stats;
 
-    const deleteResult = await stats.deleteOne( <IStorageStats>{ user: user } );
+    const deleteResult = await stats.deleteOne( { user: user } as IStorageStats );
     return deleteResult.deletedCount!;
   }
 
@@ -163,7 +163,7 @@ export class BucketManager {
    * Attempts to remove all data associated with a user
    * @param user The user we are removing
    */
-  async removeUser( user: string ): Promise<void> {
+  async removeUser( user: string ) {
     this._stats;
     await this.removeBucketsByUser( user );
     await this.removeUserStats( user );
@@ -204,7 +204,7 @@ export class BucketManager {
     bucketEntry = insertResult.ops[ 0 ];
 
     // Increments the API calls
-    await stats.updateOne( <IStorageStats>{ user: user }, { $inc: <IStorageStats>{ apiCallsUsed: 1 } } );
+    await stats.updateOne( { user: user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
 
     // Send bucket added events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.BucketUploaded ], bucket: bucketEntry!, username: user };
@@ -220,10 +220,10 @@ export class BucketManager {
     const bucketCollection = this._buckets;
     this._files;
     this._stats;
-    const toRemove: Array<string> = [];
+    const toRemove: string[] = [];
 
     // Get all the buckets
-    const buckets: Array<IBucketEntry> = await bucketCollection.find( searchQuery ).toArray();
+    const buckets = await bucketCollection.find( searchQuery ).toArray();
 
     // Now delete each one
     try {
@@ -254,7 +254,7 @@ export class BucketManager {
     // Create the search query for each of the files
     const searchQuery = { $or: [] as IBucketEntry[], user: user };
     for ( let i = 0, l = buckets.length; i < l; i++ )
-      searchQuery.$or.push( <IBucketEntry>{ name: buckets[ i ] } );
+      searchQuery.$or.push( { name: buckets[ i ] } as IBucketEntry );
 
     return this.removeBuckets( searchQuery );
   }
@@ -265,13 +265,13 @@ export class BucketManager {
    * @returns An array of ID's of the buckets removed
    */
   removeBucketsByUser( user: string ): Promise<Array<string>> {
-    return this.removeBuckets( <IBucketEntry>{ user: user } );
+    return this.removeBuckets( { user: user } as IBucketEntry );
   }
 
   /**
    * Deletes the bucket from storage and updates the databases
    */
-  private async deleteBucket( bucketEntry: IBucketEntry ): Promise<IBucketEntry> {
+  private async deleteBucket( bucketEntry: IBucketEntry ) {
     const bucketCollection = this._buckets;
     const stats = this._stats;
 
@@ -285,8 +285,8 @@ export class BucketManager {
     await this._activeManager.removeBucket( bucketEntry.identifier! );
 
     // Remove the bucket entry
-    await bucketCollection.deleteOne( <IBucketEntry>{ _id: bucketEntry._id } );
-    await stats.updateOne( <IStorageStats>{ user: bucketEntry.user }, { $inc: <IStorageStats>{ apiCallsUsed: 1 } } );
+    await bucketCollection.deleteOne( { _id: bucketEntry._id } as IBucketEntry );
+    await stats.updateOne( { user: bucketEntry.user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
 
     // Send events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.BucketRemoved ], bucket: bucketEntry, username: bucketEntry.user! };
@@ -299,7 +299,7 @@ export class BucketManager {
    * Deletes the file from storage and updates the databases
    * @param fileEntry
    */
-  private async deleteFile( fileEntry: IFileEntry ): Promise<IFileEntry> {
+  private async deleteFile( fileEntry: IFileEntry ) {
     const bucketCollection = this._buckets;
     const files = this._files;
     const stats = this._stats;
@@ -312,9 +312,9 @@ export class BucketManager {
     await this._activeManager.removeFile( bucketEntry.identifier!, fileEntry.identifier! );
 
     // Update the bucket data usage
-    await bucketCollection.updateOne( <IBucketEntry>{ identifier: bucketEntry.identifier }, { $inc: <IBucketEntry>{ memoryUsed: -fileEntry.size! } } );
-    await files.deleteOne( <IFileEntry>{ _id: fileEntry._id } );
-    await stats.updateOne( <IStorageStats>{ user: bucketEntry.user }, { $inc: <IStorageStats>{ memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } } );
+    await bucketCollection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
+    await files.deleteOne( { _id: fileEntry._id } as IFileEntry );
+    await stats.updateOne( { user: bucketEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats } as IStorageStats );
 
     // Update any listeners on the sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };
@@ -328,7 +328,7 @@ export class BucketManager {
    * @param searchQuery The query we use to select the files
    * @returns Returns the file IDs of the files removed
    */
-  async removeFiles( searchQuery: any ): Promise<Array<string>> {
+  async removeFiles( searchQuery: any ) {
     const files = this._files;
     const filesRemoved: Array<string> = [];
 
@@ -349,17 +349,17 @@ export class BucketManager {
   * @param user Optionally pass in the user to refine the search
   * @returns Returns the file IDs of the files removed
   */
-  removeFilesByIdentifiers( fileIDs: Array<string>, user?: string ): Promise<Array<string>> {
+  removeFilesByIdentifiers( fileIDs: string[], user?: string ) {
     if ( fileIDs.length === 0 )
       return Promise.resolve( [] );
 
     // Create the search query for each of the files
     const searchQuery = { $or: [] as IFileEntry[] };
     for ( let i = 0, l = fileIDs.length; i < l; i++ )
-      searchQuery.$or.push( <IFileEntry>{ identifier: fileIDs[ i ] }, <IFileEntry>{ parentFile: fileIDs[ i ] } );
+      searchQuery.$or.push( { identifier: fileIDs[ i ] } as IFileEntry, { parentFile: fileIDs[ i ] } as IFileEntry );
 
     if ( user )
-      ( <IFileEntry>searchQuery ).user = user;
+      ( searchQuery as IFileEntry ).user = user;
 
     return this.removeFiles( searchQuery );
   }
@@ -369,12 +369,12 @@ export class BucketManager {
    * @param bucket The id or name of the bucket to remove
    * @returns Returns the file IDs of the files removed
    */
-  removeFilesByBucket( bucket: string ): Promise<Array<string> | Error> {
+  removeFilesByBucket( bucket: string ) {
     if ( !bucket || bucket.trim() === '' )
-      return Promise.reject<Error>( new Error( 'Please specify a valid bucket' ) );
+      throw new Error( 'Please specify a valid bucket' );
 
     // Create the search query for each of the files
-    const searchQuery = { $or: <Array<IFileEntry>>[ { bucketId: bucket }, { bucketName: bucket }] };
+    const searchQuery = { $or: [ { bucketId: bucket }, { bucketName: bucket }] as IFileEntry[] };
     return this.removeFiles( searchQuery );
   }
 
@@ -383,7 +383,7 @@ export class BucketManager {
    * @param bucket The id of the bucket. You can also use the name if you provide the user
    * @param user The username associated with the bucket (Only applicable if bucket is a name and not an ID)
    */
-  async getIBucket( bucket: string, user?: string ): Promise<IBucketEntry | null> {
+  async getIBucket( bucket: string, user?: string ) {
     const bucketCollection = this._buckets;
     const searchQuery: IBucketEntry = {};
 
@@ -394,7 +394,7 @@ export class BucketManager {
     else
       searchQuery.identifier = bucket;
 
-    const result: IBucketEntry = await bucketCollection.find( searchQuery ).limit( 1 ).next();
+    const result = await bucketCollection.find( searchQuery ).limit( 1 ).next();
 
     if ( !result )
       return null;
@@ -407,7 +407,7 @@ export class BucketManager {
    * @param user The username
    * @param part
    */
-  private async canUpload( user: string, part: multiparty.Part ): Promise<IStorageStats> {
+  private async canUpload( user: string, part: multiparty.Part ) {
     const stats = this._stats;
 
     const result: IStorageStats = await stats.find( <IStorageStats>{ user: user } ).limit( 1 ).next();
@@ -426,9 +426,9 @@ export class BucketManager {
    * Checks to see the user's api limit and make sure they can make calls
    * @param user The username
    */
-  async withinAPILimit( user: string ): Promise<boolean> {
+  async withinAPILimit( user: string ) {
     const stats = this._stats;
-    const result: IStorageStats = await stats.find( <IStorageStats>{ user: user } ).limit( 1 ).next();
+    const result: IStorageStats = await stats.find( { user: user } as IStorageStats ).limit( 1 ).next();
 
     if ( !result )
       throw new Error( `Could not find the user ${user}` );
@@ -443,9 +443,9 @@ export class BucketManager {
    * Adds an API call to a user
    * @param user The username
    */
-  async incrementAPI( user: string ): Promise<boolean> {
+  async incrementAPI( user: string ) {
     const stats = this._stats;
-    await stats.updateOne( <IStorageStats>{ user: user }, { $inc: <IStorageStats>{ apiCallsUsed: 1 } } );
+    await stats.updateOne( { user: user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
     return true;
   }
 
@@ -458,7 +458,7 @@ export class BucketManager {
    * @param isPublic IF true, the file will be set as public
    * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
    */
-  private registerFile( identifier: string, bucket: IBucketEntry, part: multiparty.Part, user: string, isPublic: boolean, parentFile: string | null ): Promise<IFileEntry> {
+  private registerFile( identifier: string, bucket: IBucketEntry, part: multiparty.Part, user: string, isPublic: boolean, parentFile: string | null ) {
     const files = this._files;
 
     return new Promise<IFileEntry>(( resolve, reject ) => {
@@ -503,11 +503,11 @@ export class BucketManager {
     const statCollection = this._stats;
     const fileIdentifier = await this._activeManager.uploadFile( bucketEntry.identifier!, part, { headers: part.headers, filename: part.filename } );
 
-    await bucketCollection.updateOne( <IBucketEntry>{ identifier: bucketEntry.identifier },
-      { $inc: <IBucketEntry>{ memoryUsed: part.byteCount } } );
+    await bucketCollection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry,
+      { $inc: { memoryUsed: part.byteCount } as IBucketEntry } );
 
-    await statCollection.updateOne( <IStorageStats>{ user: user },
-      { $inc: <IStorageStats>{ memoryUsed: part.byteCount, apiCallsUsed: 1 } } );
+    await statCollection.updateOne( { user: user } as IStorageStats,
+      { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats } );
 
     const file = await this.registerFile( fileIdentifier, bucketEntry, part, user, makePublic, parentFile );
     return file;
@@ -519,7 +519,7 @@ export class BucketManager {
    * @param user Optionally specify the user of the file
    * @param searchTerm Specify a search term
    */
-  async getFile( fileID: string, user?: string, searchTerm?: RegExp ): Promise<IFileEntry> {
+  async getFile( fileID: string, user?: string, searchTerm?: RegExp ) {
     const files = this._files;
     const searchQuery: IFileEntry = { identifier: fileID };
     if ( user )
@@ -541,11 +541,11 @@ export class BucketManager {
    * @param file The file to rename
    * @param name The new name of the file
    */
-  async renameFile( file: IFileEntry, name: string ): Promise<IFileEntry> {
+  async renameFile( file: IFileEntry, name: string ) {
     const files = this._files;
     await this.incrementAPI( file.user! );
 
-    await files.updateOne( <IFileEntry>{ _id: file._id! }, { $set: <IFileEntry>{ name: name } } );
+    await files.updateOne( { _id: file._id! } as IFileEntry, { $set: { name: name } as IFileEntry } );
     return file;
   }
 
@@ -554,9 +554,9 @@ export class BucketManager {
    * @param fileID The file ID of the file on the bucket
    * @returns Returns the number of results affected
    */
-  async updateStorage( user: string, value: IStorageStats ): Promise<number> {
+  async updateStorage( user: string, value: IStorageStats ) {
     const stats = this._stats;
-    const updateResult = await stats.updateOne( <IStorageStats>{ user: user }, { $set: value } );
+    const updateResult = await stats.updateOne( { user: user } as IStorageStats, { $set: value } );
     if ( updateResult.matchedCount === 0 )
       throw new Error( `Could not find user '${user}'` );
     else

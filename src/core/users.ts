@@ -113,7 +113,7 @@ export class UserManager {
   private static _singleton: UserManager;
 
   public sessionManager: SessionManager;
-  private _userCollection: mongodb.Collection;
+  private _userCollection: mongodb.Collection<IUserEntry>;
   private _config: IConfig;
   private _mailer: IMailer;
 
@@ -147,7 +147,7 @@ export class UserManager {
     if ( !sessionId || sessionId === '' )
       return;
 
-    const useEntry: IUserEntry = await this._userCollection.find( <IUserEntry>{ sessionId: sessionId } ).limit( 1 ).next();
+    const useEntry = await this._userCollection.find( { sessionId: sessionId } as IUserEntry ).limit( 1 ).next();
     if ( useEntry ) {
       // Send logged out event to socket
       const token = { username: useEntry.username!, type: ClientInstructionType[ ClientInstructionType.Logout ] };
@@ -161,7 +161,7 @@ export class UserManager {
 	/**
 	 * Initializes the API
 	 */
-  async initialize(): Promise<void> {
+  async initialize() {
     const config = this._config;
 
     if ( config.mail ) {
@@ -183,7 +183,7 @@ export class UserManager {
     await this._userCollection.dropIndexes();
 
     // Make sure the user collection has an index to search the username field
-    await this._userCollection.createIndex( <IUserEntry>{ username: 'text', email: 'text' } );
+    await this._userCollection.createIndex( { username: 'text', email: 'text' } as IUserEntry );
 
     // See if we have an admin user
     let user = await this.getUser( config.adminUser.username );
@@ -204,7 +204,7 @@ export class UserManager {
 	 * @param request
 	 * @param response
 	 */
-  async register( username: string = '', pass: string = '', email: string = '', activationUrl: string = '', meta: any = {}, request: express.Request ): Promise<User> {
+  async register( username: string = '', pass: string = '', email: string = '', activationUrl: string = '', meta: any = {}, request: express.Request ) {
     const origin = encodeURIComponent( request.headers[ 'origin' ] || request.headers[ 'referer' ] );
 
     // First check if user exists, make sure the details supplied are ok, then create the new user
@@ -274,7 +274,7 @@ export class UserManager {
       throw new Error( 'No user exists with the specified details' );
 
     // Clear the user's activation
-    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <IUserEntry>{ registerKey: '' } } );
+    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { registerKey: '' } as IUserEntry } );
 
     // Send activated event
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
@@ -290,7 +290,7 @@ export class UserManager {
    * @param name The name of the sender
    * @param from The email of the sender
  */
-  async sendAdminEmail( message: string, name?: string, from?: string ): Promise<any> {
+  async sendAdminEmail( message: string, name?: string, from?: string ) {
     if ( !this._mailer )
       throw new Error( `No email account has been setup` );
 
@@ -310,7 +310,7 @@ export class UserManager {
      * @param resetUrl The url where the reset password link should direct to
      * @param origin The origin of where the request came from (this is emailed to the user)
 	 */
-  async resendActivation( username: string, resetUrl: string, origin: string ): Promise<boolean> {
+  async resendActivation( username: string, resetUrl: string, origin: string ) {
     // Get the user
     const user: User | null = await this.getUser( username );
 
@@ -324,7 +324,7 @@ export class UserManager {
     user.dbEntry.registerKey = newKey;
 
     // Update the collection with a new key
-    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <IUserEntry>{ registerKey: newKey } } );
+    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { registerKey: newKey } as IUserEntry } );
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string = 'Thank you for registering with Webinate!\nTo activate your account please click the link below:' +
@@ -352,7 +352,7 @@ export class UserManager {
    * @param resetUrl The url where the reset password link should direct to
    * @param origin The site where the request came from
  */
-  async requestPasswordReset( username: string, resetUrl: string, origin: string ): Promise<boolean> {
+  async requestPasswordReset( username: string, resetUrl: string, origin: string ) {
     // Get the user
     const user: User | null = await this.getUser( username );
 
@@ -365,7 +365,7 @@ export class UserManager {
     user.dbEntry.passwordTag = newKey;
 
     // Update the collection with a new key
-    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: <IUserEntry>{ passwordTag: newKey } } );
+    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { passwordTag: newKey } as IUserEntry } );
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string = 'A request has been made to reset your password. To change your password please click the link below:\n\n' +
@@ -392,7 +392,7 @@ export class UserManager {
  * Creates a hashed password
  * @param pass The password to hash
  */
-  private hashPassword( pass: string ): Promise<string> {
+  private hashPassword( pass: string ) {
     return new Promise<string>( function( resolve, reject ) {
       bcrypt.hash( pass, 8, function( err, encrypted: string ) {
         if ( err )
@@ -408,7 +408,7 @@ export class UserManager {
  * @param pass The password to test
    * @param hash The hash stored in the DB
  */
-  private comparePassword( pass: string, hash: string ): Promise<boolean> {
+  private comparePassword( pass: string, hash: string ) {
     return new Promise<boolean>( function( resolve, reject ) {
       bcrypt.compare( pass, hash, function( err, same: boolean ) {
         if ( err )
@@ -425,7 +425,7 @@ export class UserManager {
    * @param code The password code
    * @param newPassword The new password
  */
-  async resetPassword( username: string, code: string, newPassword: string ): Promise<boolean> {
+  async resetPassword( username: string, code: string, newPassword: string ) {
     // Get the user
     const user: User | null = await this.getUser( username );
 
@@ -444,7 +444,7 @@ export class UserManager {
     const hashed = await this.hashPassword( newPassword );
 
     // Update the key to be blank
-    await this._userCollection.updateOne( <IUserEntry>{ _id: user.dbEntry._id }, { $set: <IUserEntry>{ passwordTag: '', password: hashed } } );
+    await this._userCollection.updateOne( { _id: user.dbEntry._id } as IUserEntry, { $set: { passwordTag: '', password: hashed } as IUserEntry } );
 
     // All done :)
     return true;
@@ -454,7 +454,7 @@ export class UserManager {
 	 * Checks the users activation code to see if its valid
 	 * @param username The username of the user
 	 */
-  async checkActivation( username: string, code: string ): Promise<boolean> {
+  async checkActivation( username: string, code: string ) {
     // Get the user
     const user = await this.getUser( username );
 
@@ -471,7 +471,7 @@ export class UserManager {
       throw new Error( 'Activation key is not valid. Please try send another.' );
 
     // Update the key to be blank
-    await this._userCollection.updateOne( <IUserEntry>{ _id: user.dbEntry._id }, { $set: <IUserEntry>{ registerKey: '' } } );
+    await this._userCollection.updateOne( { _id: user.dbEntry._id } as IUserEntry, { $set: { registerKey: '' } as IUserEntry } );
 
     // Send activated event
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
@@ -487,7 +487,7 @@ export class UserManager {
 	 * @param response
 	 * @param Gets the user or null if the user is not logged in
 	 */
-  async loggedIn( request: http.ServerRequest, response: http.ServerResponse | null ): Promise<User | null> {
+  async loggedIn( request: http.ServerRequest, response: http.ServerResponse | null ) {
     // If no request or response, then assume its an admin user
     const session = await this.sessionManager.getSession( request, response );
     if ( !session )
@@ -505,7 +505,7 @@ export class UserManager {
 	 * @param request
 	 * @param response
 	 */
-  async logOut( request: http.ServerRequest, response: http.ServerResponse ): Promise<boolean> {
+  async logOut( request: http.ServerRequest, response: http.ServerResponse ) {
     const sessionCleaered = await this.sessionManager.clearSession( null, request, response );
     return sessionCleaered;
   }
@@ -520,7 +520,7 @@ export class UserManager {
      * @param meta Any optional data associated with this user
      * @param allowAdmin Should this be allowed to create a super user
 	 */
-  async createUser( user: string, email: string, password: string, activateAccount: boolean, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ): Promise<User> {
+  async createUser( user: string, email: string, password: string, activateAccount: boolean, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ) {
     // Basic checks
     if ( !user || validator.trim( user ) === '' )
       throw new Error( 'Username cannot be empty' );
@@ -571,7 +571,7 @@ export class UserManager {
 	 * Deletes a user from the database
 	 * @param user The unique username or email of the user to remove
 	 */
-  async removeUser( user: string ): Promise<void> {
+  async removeUser( user: string ) {
     let username: string = '';
     const userInstance = await this.getUser( user );
 
@@ -584,7 +584,7 @@ export class UserManager {
     username = userInstance.dbEntry.username!;
 
     await BucketManager.get.removeUser( username );
-    const result = await this._userCollection.deleteOne( <IUserEntry>{ _id: userInstance.dbEntry._id! } );
+    const result = await this._userCollection.deleteOne( { _id: userInstance.dbEntry._id! } as IUserEntry );
 
     if ( result.deletedCount === 0 )
       throw new Error( 'Could not remove the user from the database' );
@@ -604,7 +604,7 @@ export class UserManager {
 	 * @param email [Optional] Do a check if the email exists as well
 	 * @returns Resolves with either a valid user or null if none exists
 	 */
-  async getUser( user: string, email?: string ): Promise<User | null> {
+  async getUser( user: string, email?: string ) {
     email = email !== undefined ? email : user;
 
     // Validate user string
@@ -619,7 +619,7 @@ export class UserManager {
     const target = [ { email: email }, { username: user }];
 
     // Search the collection for the user
-    const userEntry: IUserEntry = await this._userCollection.find( { $or: target } ).limit( 1 ).next();
+    const userEntry = await this._userCollection.find( { $or: target } ).limit( 1 ).next();
     if ( !userEntry )
       return null;
     else
@@ -634,7 +634,7 @@ export class UserManager {
 	 * @param request
 	 * @param response
 	 */
-  async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: http.ServerRequest, response: http.ServerResponse ): Promise<User> {
+  async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: http.ServerRequest, response: http.ServerResponse ) {
     await this.logOut( request, response );
     const user: User | null = await this.getUser( username );
 
@@ -681,7 +681,7 @@ export class UserManager {
 	 * @param username The username or email of the user
 	 * @returns True if the user was in the DB or false if they were not
 	 */
-  async remove( username: string = '' ): Promise<boolean> {
+  async remove( username: string = '' ) {
     const user = await this.getUser( username );
 
     // There was no user
@@ -702,14 +702,14 @@ export class UserManager {
    * @param data The meta data object to set
  * @returns Returns the data set
  */
-  async setMeta( user: IUserEntry, data?: any ): Promise<boolean | any> {
+  async setMeta( user: IUserEntry, data?: any ) {
 
     // There was no user
     if ( !user )
       return false;
 
     // Remove the user from the DB
-    await this._userCollection.updateOne( <IUserEntry>{ _id: user._id }, { $set: <IUserEntry>{ meta: ( data ? data : {} ) } } );
+    await this._userCollection.updateOne( { _id: user._id } as IUserEntry, { $set: { meta: ( data ? data : {} ) } as IUserEntry } );
     return data;
   }
 
@@ -720,7 +720,7 @@ export class UserManager {
    * @param data The value of the meta to set
  * @returns {Promise<boolean|any>} Returns the value of the set
  */
-  async setMetaVal( user: IUserEntry, name: string, val: any ): Promise<boolean | any> {
+  async setMetaVal( user: IUserEntry, name: string, val: any ) {
     // There was no user
     if ( !user )
       return false;
@@ -730,7 +730,7 @@ export class UserManager {
     updateToken.$set[ datum ] = val;
 
     // Remove the user from the DB
-    await this._userCollection.updateOne( <IUserEntry>{ _id: user._id }, updateToken );
+    await this._userCollection.updateOne( { _id: user._id } as IUserEntry, updateToken );
     return val;
   }
 
@@ -740,14 +740,14 @@ export class UserManager {
    * @param name The name of the meta to get
  * @returns The value to get
  */
-  async getMetaVal( user: IUserEntry, name: string ): Promise<boolean | any> {
+  async getMetaVal( user: IUserEntry, name: string ) {
 
     // There was no user
     if ( !user )
       return false;
 
     // Remove the user from the DB
-    const result: IUserEntry = await this._userCollection.find( <IUserEntry>{ _id: user._id } ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
+    const result = await this._userCollection.find( { _id: user._id } as IUserEntry ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
     return result.meta[ name ];
   }
 
@@ -756,14 +756,14 @@ export class UserManager {
  * @param user The user
  * @returns The value to get
  */
-  async getMetaData( user: IUserEntry ): Promise<boolean | any> {
+  async getMetaData( user: IUserEntry ) {
 
     // There was no user
     if ( !user )
       return false;
 
     // Remove the user from the DB
-    const result: IUserEntry = await this._userCollection.find( <IUserEntry>{ _id: user._id } ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
+    const result = await this._userCollection.find( { _id: user._id } as IUserEntry ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
     return result.meta;
   }
 
@@ -771,9 +771,9 @@ export class UserManager {
  * Gets the total number of users
    * @param searchPhrases Search phrases
  */
-  async numUsers( searchPhrases?: RegExp ): Promise<number> {
+  async numUsers( searchPhrases?: RegExp ) {
 
-    const findToken = { $or: [ <IUserEntry>{ username: <any>searchPhrases }, <IUserEntry>{ email: <any>searchPhrases }] };
+    const findToken = { $or: [ { username: <any>searchPhrases } as IUserEntry, { email: <any>searchPhrases } as IUserEntry ] };
     const result: number = await this._userCollection.count( findToken );
     return result;
   }
@@ -784,7 +784,7 @@ export class UserManager {
 	 * @param startIndex The starting index from where we are fetching users from
      * @param searchPhrases Search phrases
 	 */
-  async getUsers( startIndex: number = 0, limit: number = 0, searchPhrases?: RegExp ): Promise<Array<User>> {
+  async getUsers( startIndex: number = 0, limit: number = 0, searchPhrases?: RegExp ) {
     const findToken: { $or?: Partial<IUserEntry>[] } = {};
 
     if ( searchPhrases ) {
@@ -793,8 +793,8 @@ export class UserManager {
       findToken.$or.push( { email: <any>searchPhrases } );
     }
 
-    const results: Array<IUserEntry> = await this._userCollection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
-    const users: Array<User> = [];
+    const results = await this._userCollection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
+    const users: User[] = [];
     for ( let i = 0, l = results.length; i < l; i++ )
       users.push( new User( results[ i ] ) );
 
@@ -804,14 +804,14 @@ export class UserManager {
   /**
    * Creates the user manager singlton
    */
-  static create( users: mongodb.Collection, sessions: mongodb.Collection, config: IConfig ): UserManager {
+  static create( users: mongodb.Collection, sessions: mongodb.Collection, config: IConfig ) {
     return new UserManager( users, sessions, config );
   }
 
   /**
    * Gets the user manager singlton
    */
-  static get get(): UserManager {
+  static get get() {
     return UserManager._singleton;
   }
 }

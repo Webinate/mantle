@@ -8,7 +8,7 @@ import { Session } from './session';
 * A class that manages session data for active users
  */
 export class SessionManager extends EventEmitter {
-  private _dbCollection: Collection;
+  private _dbCollection: Collection<ISessionEntry>;
   private _timeout: NodeJS.Timer | null;
   private _cleanupProxy: any;
   private _options: ISession;
@@ -33,7 +33,7 @@ export class SessionManager extends EventEmitter {
   /**
    * Gets an array of all active sessions
    */
-  async numActiveSessions(): Promise<number> {
+  async numActiveSessions() {
     const result = await this._dbCollection.count( {} );
     return result;
   }
@@ -43,8 +43,8 @@ export class SessionManager extends EventEmitter {
    * @param startIndex
    * @param limit
    */
-  async getActiveSessions( startIndex: number = 0, limit: number = -1 ): Promise<Array<ISessionEntry>> {
-    const results: Array<ISessionEntry> = await this._dbCollection.find( {} ).skip( startIndex ).limit( limit ).toArray();
+  async getActiveSessions( startIndex: number = 0, limit: number = -1 ) {
+    const results = await this._dbCollection.find( {} ).skip( startIndex ).limit( limit ).toArray();
     return results;
   }
 
@@ -54,20 +54,20 @@ export class SessionManager extends EventEmitter {
    * @param request
    * @param response
    */
-  async clearSession( sessionId: string | null, request: ServerRequest, response: ServerResponse ): Promise<boolean> {
+  async clearSession( sessionId: string | null, request: ServerRequest, response: ServerResponse ) {
     // Check if the request has a valid session ID
     const sId: string = sessionId || this.getIDFromRequest( request );
 
     if ( sId !== '' ) {
       // We have a session ID, lets try to find it in the DB
-      await this._dbCollection.find( <ISessionEntry>{ sessionId: sId } ).limit( 1 ).next();
+      await this._dbCollection.find( { sessionId: sId } as ISessionEntry ).limit( 1 ).next();
 
       // Create a new session
       const session = new Session( sId, this._options );
       session.expiration = -1;
 
       // Deletes the session entry
-      await this._dbCollection.deleteOne( <ISessionEntry>{ sessionId: session.sessionId } );
+      await this._dbCollection.deleteOne( { sessionId: session.sessionId } as ISessionEntry );
 
       this.emit( 'sessionRemoved', sId );
 
@@ -87,13 +87,13 @@ export class SessionManager extends EventEmitter {
    * @param response
    * @returns Returns a session or null if none can be found
    */
-  async getSession( request: ServerRequest, response: ServerResponse | null ): Promise<Session | null> {
+  async getSession( request: ServerRequest, response: ServerResponse | null ) {
     // Check if the request has a valid session ID
     const sessionId: string = this.getIDFromRequest( request );
 
     if ( sessionId !== '' ) {
       // We have a session ID, lets try to find it in the DB
-      const sessionDB: ISessionEntry = await this._dbCollection.find( { sessionId: sessionId } ).limit( 1 ).next();
+      const sessionDB = await this._dbCollection.find( { sessionId: sessionId } ).limit( 1 ).next();
 
       // Cant seem to find any session - so create a new one
       if ( !sessionDB )
@@ -125,7 +125,7 @@ export class SessionManager extends EventEmitter {
   /**
    * Attempts to create a session from the request object of the client
    */
-  async createSession( request: ServerRequest, response: ServerResponse ): Promise<Session> {
+  async createSession( request: ServerRequest, response: ServerResponse ) {
     const session = new Session( this.createID(), this._options );
 
     // Adds / updates the DB with the new session
@@ -153,17 +153,17 @@ export class SessionManager extends EventEmitter {
       // TODO: We need to replace the findToken with one where mongo looks at the conditions
       const findToken = {};
 
-      const sessions: Array<ISessionEntry> = await this._dbCollection.find( findToken ).toArray();
+      const sessions = await this._dbCollection.find( findToken ).toArray();
 
       // Remove query
-      const toRemoveQuery: { $or: Array<ISessionEntry> } = { $or: [] };
+      const toRemoveQuery: { $or: ISessionEntry[] } = { $or: [] };
 
       for ( let i = 0, l = sessions.length; i < l; i++ ) {
         const expiration: number = parseFloat( sessions[ i ].expiration.toString() );
 
         // If the session's time is up
         if ( expiration < now || force )
-          toRemoveQuery.$or.push( <ISessionEntry>{ _id: sessions[ i ]._id, sessionId: sessions[ i ].sessionId } );
+          toRemoveQuery.$or.push( { _id: sessions[ i ]._id, sessionId: sessions[ i ].sessionId } as ISessionEntry );
         else
           // Session time is not up, but may be the next time target
           next = next < expiration ? next : expiration;
@@ -194,7 +194,7 @@ export class SessionManager extends EventEmitter {
    * @param req
    * @returns The ID of the user session, or an empty string
    */
-  private getIDFromRequest( req: ServerRequest ): string {
+  private getIDFromRequest( req: ServerRequest ) {
     let m: RegExpExecArray | null;
 
     // look for an existing SID in the Cookie header for which we have a session
@@ -210,7 +210,7 @@ export class SessionManager extends EventEmitter {
    * the return value is a string of length [bits/6] of characters from the base64 alphabet
    * @returns A user session ID
    */
-  private createID(): string {
+  private createID() {
     let bits: number = 64;
 
     let chars: string, rand: number, i: number, ret: string;

@@ -2,6 +2,71 @@
 /// <reference types="express" />
 /// <reference types="ws" />
 declare module 'modepress' {
+    /**
+     * A server configuration
+     */
+    interface IConfig {
+        /**
+         * The folder where modepress will search for client projects to add to the runtime.
+         * This setting must represent a path string. Each folder in the path will be analyzed
+         * and any with a valid modepress.json will be added.
+         */
+        clientsFolder: string;
+        /**
+         * Describes each of the media buckets available to the
+         * modepress servers.
+         */
+        remotes: {
+            'google': IGoogleProperties;
+            'local': ILocalBucket;
+        };
+        /**
+         * The length of time a render is kept in the DB before being updated. Stored in seconds.
+         * e.g. 86400 (1 day)
+         */
+        ajaxRenderExpiration: number;
+        database: IDatabase;
+        /**
+         * If debug is true, certain functions will be emulated and more information logged
+         */
+        debug: boolean;
+        /**
+         * Settings related to sending emails
+         */
+        mail: IMailProperties;
+        /**
+         * A list of collection names
+         */
+        collections: ICollectionProperties;
+        /**
+         * Describes the session settings
+         */
+        sessionSettings: ISession;
+        /**
+         * The administrative user. This is the root user that will have access to the information in the database.
+         * This can be anything you like, but try to use passwords that are hard to guess
+         * eg:
+         * 'adminUser': {
+         *  'username': 'root',
+         *  'email': 'root_email@host.com',
+         *  'password': 'CHANGE_THIS_PASSWORD'
+         * }
+         */
+        adminUser: IAdminUser;
+        /**
+         * Information regarding the websocket communication. Used for events and IPC
+         */
+        websocket: IWebsocket;
+    }
+}
+declare module 'modepress' {
+    interface IAdminUser {
+        username: string;
+        email: string;
+        password: string;
+    }
+}
+declare module 'modepress' {
     interface IControllerOptions {
         path?: string;
     }
@@ -53,120 +118,48 @@ declare module 'modepress' {
     }
 }
 declare module 'modepress' {
-    interface IAdminUser {
-        username: string;
-        email: string;
-        password: string;
+    interface ICollectionProperties {
+        /**
+         * The name of the mongodb collection for storing user details
+         * eg: 'users'
+         */
+        userCollection: string;
+        /**
+         * The name of the mongodb collection for storing session details
+         * eg: 'sessions'
+         */
+        sessionCollection: string;
+        /**
+         * The name of the mongodb collection for storing bucket details
+         * eg: 'buckets'
+         */
+        bucketsCollection: string;
+        /**
+         * The name of the mongodb collection for storing file details
+         * eg: 'files'
+         */
+        filesCollection: string;
+        /**
+         * The name of the mongodb collection for storing user stats
+         * eg: 'storageAPI'
+         */
+        statsCollection: string;
     }
-    /**
-     * A server configuration
-     */
-    interface IConfig {
+}
+declare module 'modepress' {
+    interface IDatabase {
         /**
-         * The folder where modepress will search for client projects to add to the runtime.
-         * This setting must represent a path string. Each folder in the path will be analyzed
-         * and any with a valid modepress.json will be added.
+         * The name of the mongo database to use
          */
-        clientsFolder: string;
+        name: string;
         /**
-         * Describes each of the media buckets available to the
-         * modepress servers.
+         * The database host we are listening on
          */
-        remotes: {
-            'google': IGoogleProperties;
-            'local': ILocalBucket;
-        };
+        host: string;
         /**
-         * The length of time a render is kept in the DB before being updated. Stored in seconds.
-         * e.g. 86400 (1 day)
+         * The port number the mongo database is listening on
          */
-        ajaxRenderExpiration: number;
-        database: {
-            /**
-             * The name of the mongo database to use
-             */
-            name: string;
-            /**
-             * The database host we are listening on
-             */
-            host: string;
-            /**
-             * The port number the mongo database is listening on
-             */
-            port: number;
-        };
-        /**
-         * An array of servers for each host / route that modepress is supporting
-         */
-        /**
-         * If debug is true, certain functions will be emulated and more information logged
-         */
-        debug: boolean;
-        /**
-         * Settings related to sending emails
-         */
-        mail: {
-            /**
-             * The from field sent to recipients
-             */
-            from: string;
-            /**
-             * Specify the type of mailer to use.
-             * Currently we support either 'gmail' or 'mailgun'
-             */
-            type: 'gmail' | 'mailgun';
-            /**
-             * Options to be sent to the desired mailer
-             */
-            options: IGMail | IMailgun;
-        };
-        collections: {
-            /**
-             * The name of the mongodb collection for storing user details
-             * eg: 'users'
-             */
-            userCollection: string;
-            /**
-             * The name of the mongodb collection for storing session details
-             * eg: 'sessions'
-             */
-            sessionCollection: string;
-            /**
-             * The name of the mongodb collection for storing bucket details
-             * eg: 'buckets'
-             */
-            bucketsCollection: string;
-            /**
-             * The name of the mongodb collection for storing file details
-             * eg: 'files'
-             */
-            filesCollection: string;
-            /**
-             * The name of the mongodb collection for storing user stats
-             * eg: 'storageAPI'
-             */
-            statsCollection: string;
-        };
-        /**
-         * Describes the session settings
-         */
-        sessionSettings: ISession;
-        /**
-         * The administrative user. This is the root user that will have access to the information in the database.
-         * This can be anything you like, but try to use passwords that are hard to guess
-         * eg:
-    
-            'adminUser': {
-                    'username': 'root',
-                    'email': 'root_email@host.com',
-                    'password': 'CHANGE_THIS_PASSWORD'
-                }
-            */
-        adminUser: IAdminUser;
-        /**
-         * Information regarding the websocket communication. Used for events and IPC
-         */
-        websocket: IWebsocket;
+        port: number;
     }
 }
 declare module 'modepress' {
@@ -176,6 +169,21 @@ declare module 'modepress' {
     }
 }
 declare module 'modepress' {
+    interface IMailProperties {
+        /**
+         * The from field sent to recipients
+         */
+        from: string;
+        /**
+         * Specify the type of mailer to use.
+         * Currently we support either 'gmail' or 'mailgun'
+         */
+        type: 'gmail' | 'mailgun';
+        /**
+         * Options to be sent to the desired mailer
+         */
+        options: IGMail | IMailgun;
+    }
     interface IMailOptions {
     }
     interface IMailer {
@@ -1404,7 +1412,7 @@ declare module "core/session-manager" {
          * @param startIndex
          * @param limit
          */
-        getActiveSessions(startIndex?: number, limit?: number): Promise<Array<ISessionEntry>>;
+        getActiveSessions(startIndex?: number, limit?: number): Promise<ISessionEntry[]>;
         /**
          * Clears the users session cookie so that its no longer tracked
          * @param sessionId The session ID to remove, if null then the currently authenticated session will be used
@@ -1526,7 +1534,7 @@ declare module "core/bucket-manager" {
          * @param user [Optional] Specify the user. If none provided, then all buckets are retrieved
          * @param searchTerm [Optional] Specify a search term
          */
-        getBucketEntries(user?: string, searchTerm?: RegExp): Promise<Array<IBucketEntry>>;
+        getBucketEntries(user?: string, searchTerm?: RegExp): Promise<IBucketEntry[]>;
         /**
          * Fetches the file count based on the given query
          * @param searchQuery The search query to idenfify files
@@ -1536,7 +1544,7 @@ declare module "core/bucket-manager" {
          * Fetches all file entries by a given query
          * @param searchQuery The search query to idenfify files
          */
-        getFiles(searchQuery: any, startIndex?: number, limit?: number): Promise<Array<IFileEntry>>;
+        getFiles(searchQuery: any, startIndex?: number, limit?: number): Promise<IFileEntry[]>;
         /**
          * Updates all file entries for a given search criteria with custom meta data
          * @param searchQuery The search query to idenfify files
@@ -1550,7 +1558,7 @@ declare module "core/bucket-manager" {
          * @param limit Specify the number of files to retrieve
          * @param searchTerm Specify a search term
          */
-        getFilesByBucket(bucket: IBucketEntry, startIndex?: number, limit?: number, searchTerm?: RegExp): Promise<Array<IFileEntry>>;
+        getFilesByBucket(bucket: IBucketEntry, startIndex?: number, limit?: number, searchTerm?: RegExp): Promise<IFileEntry[]>;
         /**
          * Fetches the storage/api data for a given user
          * @param user The user whos data we are fetching
@@ -1611,20 +1619,20 @@ declare module "core/bucket-manager" {
          * @param searchQuery The query we use to select the files
          * @returns Returns the file IDs of the files removed
          */
-        removeFiles(searchQuery: any): Promise<Array<string>>;
+        removeFiles(searchQuery: any): Promise<string[]>;
         /**
          * Attempts to remove files from the cloud and database
         * @param fileIDs The file IDs to remove
         * @param user Optionally pass in the user to refine the search
         * @returns Returns the file IDs of the files removed
         */
-        removeFilesByIdentifiers(fileIDs: Array<string>, user?: string): Promise<Array<string>>;
+        removeFilesByIdentifiers(fileIDs: string[], user?: string): Promise<string[]>;
         /**
          * Attempts to remove files from the cloud and database that are in a given bucket
          * @param bucket The id or name of the bucket to remove
          * @returns Returns the file IDs of the files removed
          */
-        removeFilesByBucket(bucket: string): Promise<Array<string> | Error>;
+        removeFilesByBucket(bucket: string): Promise<string[]>;
         /**
          * Gets a bucket entry by its name or ID
          * @param bucket The id of the bucket. You can also use the name if you provide the user
@@ -1858,7 +1866,7 @@ declare module "core/users" {
          * @param name The name of the sender
          * @param from The email of the sender
        */
-        sendAdminEmail(message: string, name?: string, from?: string): Promise<any>;
+        sendAdminEmail(message: string, name?: string, from?: string): Promise<boolean>;
         /**
          * Attempts to resend the activation link
          * @param username The username of the user
@@ -1953,7 +1961,7 @@ declare module "core/users" {
          * @param data The meta data object to set
        * @returns Returns the data set
        */
-        setMeta(user: IUserEntry, data?: any): Promise<boolean | any>;
+        setMeta(user: IUserEntry, data?: any): Promise<any>;
         /**
        * Sets a meta value on the user. This updates the user's meta value by name
        * @param user The user
@@ -1961,20 +1969,20 @@ declare module "core/users" {
          * @param data The value of the meta to set
        * @returns {Promise<boolean|any>} Returns the value of the set
        */
-        setMetaVal(user: IUserEntry, name: string, val: any): Promise<boolean | any>;
+        setMetaVal(user: IUserEntry, name: string, val: any): Promise<any>;
         /**
        * Gets the value of user's meta by name
        * @param user The user
          * @param name The name of the meta to get
        * @returns The value to get
        */
-        getMetaVal(user: IUserEntry, name: string): Promise<boolean | any>;
+        getMetaVal(user: IUserEntry, name: string): Promise<any>;
         /**
        * Gets the meta data of a user
        * @param user The user
        * @returns The value to get
        */
-        getMetaData(user: IUserEntry): Promise<boolean | any>;
+        getMetaData(user: IUserEntry): Promise<any>;
         /**
        * Gets the total number of users
          * @param searchPhrases Search phrases
@@ -1986,7 +1994,7 @@ declare module "core/users" {
          * @param startIndex The starting index from where we are fetching users from
          * @param searchPhrases Search phrases
          */
-        getUsers(startIndex?: number, limit?: number, searchPhrases?: RegExp): Promise<Array<User>>;
+        getUsers(startIndex?: number, limit?: number, searchPhrases?: RegExp): Promise<User[]>;
         /**
          * Creates the user manager singlton
          */
