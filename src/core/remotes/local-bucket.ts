@@ -16,6 +16,16 @@ export class LocalBucket implements IRemote {
   }
 
   async initialize( options: ILocalBucket ) {
+
+    if ( !options.path )
+      throw new Error( `Please specify the 'path' variable to your local remote options` );
+
+    if ( !fs.existsSync( resolve( options.path ) ) )
+      throw new Error( `The path '${resolve( options.path )}' specified in the local remote does not resolve to a folder` );
+
+    if ( !options.url )
+      throw new Error( `Please specify the 'url' variable to your local remote options` );
+
     this._path = resolve( options.path );
     this._url = options.url;
   }
