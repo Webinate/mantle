@@ -88,6 +88,30 @@ export class SessionManager extends EventEmitter {
   }
 
   /**
+   * Gets and initializes a session by its id
+   */
+  async getSessionById( sessionId: string ) {
+
+    // We have a session ID, lets try to find it in the DB
+    const sessionEntry = await this._sessions.find( { sessionId: sessionId } ).limit( 1 ).next();
+
+    // Cant seem to find any session - so create a new one
+    if ( !sessionEntry )
+      return null;
+
+    const userEntry = await this._users.find( { sessionId: sessionId } as IUserEntry ).limit( 1 ).next();
+
+    if ( !userEntry )
+      return null;
+
+    // Create a new session
+    const session = new Session( sessionId, this._options, userEntry );
+    session.deserialize( sessionEntry );
+
+    return session;
+  }
+
+  /**
    * Attempts to get a session from the request object of the client
    */
   async getSession( request: ServerRequest ) {
@@ -97,37 +121,19 @@ export class SessionManager extends EventEmitter {
 
     if ( sessionId !== '' ) {
 
-      // We have a session ID, lets try to find it in the DB
-      const sessionEntry = await this._sessions.find( { sessionId: sessionId } ).limit( 1 ).next();
+      const session = this.getSessionById( sessionId );
 
-      // Cant seem to find any session - so create a new one
-      if ( !sessionEntry )
+      if ( !session )
         return null;
-
-      const userEntry = await this._users.find( { sessionId: sessionId } as IUserEntry ).limit( 1 ).next();
-
-      if ( !userEntry )
-        return null;
-
-      // Create a new session
-      const session = new Session( sessionId, this._options, userEntry );
-      session.deserialize( sessionEntry );
 
       // make sure a timeout is pending for the expired session reaper
       if ( !this._timeout )
         this._timeout = global.setTimeout( this._cleanupProxy, 60000 );
 
-
-
-      // Set the session cookie header
-      // if ( response )
-      //   session.setSessionHeader( request, response );
-
       // Resolve the request
       return session;
     }
     else
-      // Resolve with no session data
       return null;
   }
 
