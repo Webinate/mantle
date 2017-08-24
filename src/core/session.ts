@@ -1,11 +1,14 @@
-﻿import { ISessionEntry, ISession } from 'modepress';
+﻿import { ISessionEntry, ISession, IUserEntry } from 'modepress';
 import { ServerRequest } from 'http';
 import { ObjectID } from 'mongodb';
+import { User } from './user';
 
 /**
  * A class to represent session data
  */
 export class Session {
+
+  user: User
   _id: ObjectID;
 
   /*
@@ -30,12 +33,10 @@ export class Session {
 
   /**
    * Creates an instance of the session
-   * @param sessionId The ID of the session
-   * @param options The options associated with this session
-   * @param data The data of the session in the database
    */
-  constructor( sessionId: string, options: ISession ) {
+  constructor( sessionId: string, options: ISession, userEntry: IUserEntry ) {
     this.sessionId = sessionId;
+    this.user = new User( userEntry );
     this.data = {};
     this.options = options;
     this.expiration = ( new Date( Date.now() + options.lifetime * 1000 ) ).getTime();

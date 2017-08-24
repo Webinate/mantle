@@ -33,7 +33,7 @@ export async function prepare( db: Db, config: IConfig ) {
   ] );
 
   // Create the managers
-  SessionManager.create( sessionsCollection, config.sessionSettings );
+  SessionManager.create( sessionsCollection, usersCollection, config.sessionSettings );
   UserManager.create( usersCollection, config );
   await UserManager.get.initialize();
 

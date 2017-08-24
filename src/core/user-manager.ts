@@ -9,11 +9,11 @@ import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
-import { Session } from './session';
 import { SessionManager } from './session-manager';
 import { BucketManager } from './bucket-manager';
-import { GMailer } from '../mailers/gmail'
-import { Mailguner } from '../mailers/mailgun'
+import { GMailer } from '../mailers/gmail';
+import { Mailguner } from '../mailers/mailgun';
+import { Session } from './session';
 
 /**
  * Main class to use for managing users
@@ -376,24 +376,25 @@ export class UserManager {
     return true;
   }
 
-	/**
-	 * Checks to see if a user is logged in
-	 * @param request
-	 * @param response
-	 * @param Gets the user or null if the user is not logged in
-	 */
-  async loggedIn( request: ServerRequest, response: ServerResponse | null ) {
-    // If no request or response, then assume its an admin user
-    const session = await SessionManager.get.getSession( request, response );
-    if ( !session )
-      return null;
+  // /**
+  //  * Checks to see if a user is logged in
+  //  * @param request
+  //  * @param response
+  //  * @param Gets the user or null if the user is not logged in
+  //  */
+  // async loggedIn( request: ServerRequest ) {
 
-    const useEntry = await this._collection.find( { sessionId: session.sessionId } ).limit( 1 ).next();
-    if ( !useEntry )
-      return null;
-    else
-      return new User( useEntry );
-  }
+  //   // If no request or response, then assume its an admin user
+  //   const session = await SessionManager.get.getSession( request );
+  //   if ( !session )
+  //     return null;
+
+  //   const useEntry = await this._collection.find( { sessionId: session.sessionId } ).limit( 1 ).next();
+  //   if ( !useEntry )
+  //     return null;
+  //   else
+  //     return new User( useEntry );
+  // }
 
 	/**
 	 * Attempts to log the user out
@@ -529,7 +530,7 @@ export class UserManager {
 	 * @param request
 	 * @param response
 	 */
-  async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: ServerRequest, response: ServerResponse ) {
+  async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: ServerRequest, response: ServerResponse ): Promise<Session> {
     await this.logOut( request, response );
     const user: User | null = await this.getUser( username );
 
@@ -559,16 +560,12 @@ export class UserManager {
     if ( result.matchedCount === 0 )
       throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
-    const session: Session = await SessionManager.get.createSession( request, response );
-    result = await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { sessionId: session.sessionId } } );
-
-    if ( result.matchedCount === 0 )
-      throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
+    const session = await SessionManager.get.createSession( request, response, user.dbEntry._id );
 
     // Send logged in event to socket
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Login ] };
     await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
-    return user;
+    return session;
   }
 
 	/**
@@ -677,7 +674,7 @@ export class UserManager {
 	 * Prints user objects from the database
 	 * @param limit The number of users to fetch
 	 * @param startIndex The starting index from where we are fetching users from
-     * @param searchPhrases Search phrases
+   * @param searchPhrases Search phrases
 	 */
   async getUsers( startIndex: number = 0, limit: number = 0, searchPhrases?: RegExp ) {
     const findToken: { $or?: Partial<IUserEntry>[] } = {};

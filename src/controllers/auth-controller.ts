@@ -4,6 +4,7 @@ import { IResponse, IAuthenticationResponse, ILoginToken, IRegisterToken } from 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/user-manager';
+import { SessionManager } from '../core/session-manager';
 import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { j200 } from '../utils/serializers';
@@ -140,12 +141,15 @@ export class AuthController extends Controller {
   @j200()
   private async login( req: express.Request, res: express.Response ) {
     const token: ILoginToken = req.body;
-    const user = await UserManager.get.logIn( token.username, token.password, token.rememberMe, req, res );
+    const session = await UserManager.get.logIn( token.username, token.password, token.rememberMe, req, res );
+
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
 
     return {
-      message: ( user ? 'User is authenticated' : 'User is not authenticated' ),
-      authenticated: ( user ? true : false ),
-      user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
+      message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
+      authenticated: ( session ? true : false ),
+      user: ( session ? session.user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
     } as IAuthenticationResponse;
   }
 
@@ -179,11 +183,13 @@ export class AuthController extends Controller {
 	 */
   @j200()
   private async authenticated( req: express.Request, res: express.Response ) {
-    const user = await UserManager.get.loggedIn( req, res );
+    const session = await SessionManager.get.getSession( req );
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
     return {
-      message: ( user ? 'User is authenticated' : 'User is not authenticated' ),
-      authenticated: ( user ? true : false ),
-      user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
+      message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
+      authenticated: ( session ? true : false ),
+      user: ( session ? session.user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
     } as IAuthenticationResponse;
   }
 }

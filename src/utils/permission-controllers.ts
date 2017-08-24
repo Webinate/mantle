@@ -3,6 +3,7 @@ import * as express from 'express';
 import * as mongodb from 'mongodb';
 import { UserPrivileges, User } from '../core/user';
 import { UserManager } from '../core/user-manager';
+import { SessionManager } from '../core/session-manager';
 import { errJson } from './serializers';
 
 /**
@@ -43,9 +44,12 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
   const targetUser: string = req.params.user;
 
   try {
-    const user = await UserManager.get.loggedIn( req, res );
+    const session = await SessionManager.get.getSession( req );
 
-    if ( !user )
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
+
+    if ( !session )
       throw new Error( 'You must be logged in to make this request' );
 
 
@@ -59,11 +63,11 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
     }
 
 
-    else if ( !hasPermission( user, 2, targetUser ) )
+    else if ( !hasPermission( session.user, 2, targetUser ) )
       throw new Error( 'You do not have permission' );
     else {
-      req._user = user.dbEntry;
-      req._isAdmin = ( user.dbEntry.privileges === 1 || user.dbEntry.privileges === 2 ? true : false );
+      req._user = session.user.dbEntry;
+      req._isAdmin = ( session.user.dbEntry.privileges === 1 || session.user.dbEntry.privileges === 2 ? true : false );
       req._verbose = ( req.query.verbose ? true : false );
 
       if ( next )
@@ -96,18 +100,27 @@ export function ownerRights( req: IAuthReq, res: express.Response, next?: Functi
 /**
  * Checks if the request has admin rights. If not, an error is sent back to the user
  */
-export function adminRights( req: IAuthReq, res: express.Response, next?: Function ): any {
-  UserManager.get.loggedIn( req, res ).then( function( user ) {
-    if ( !user )
+export async function adminRights( req: IAuthReq, res: express.Response, next?: Function ) {
+  try {
+    const session = await SessionManager.get.getSession( req );
+
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
+
+    if ( !session )
       return errJson( new Error( 'You must be logged in to make this request' ), res );
 
-    req._user = user.dbEntry;
-    if ( user.dbEntry.privileges! > UserPrivileges.Admin )
+    req._user = session.user.dbEntry;
+    if ( session.user.dbEntry.privileges! > UserPrivileges.Admin )
       return errJson( new Error( `You don't have permission to make this request` ), res );
     else
       if ( next )
         next();
-  } );
+  }
+  catch ( err ) {
+    if ( next )
+      next( err );
+  }
 }
 
 export function checkVerbosity( req: IAuthReq, res: express.Response, next?: Function ): any {
@@ -128,38 +141,52 @@ export function checkVerbosity( req: IAuthReq, res: express.Response, next?: Fun
 /**
  * Checks for session data and fetches the user. Does not throw an error if the user is not present.
  */
-export function identifyUser( req: IAuthReq, res: express.Response, next?: Function ): any {
-  UserManager.get.loggedIn( req, res ).then( function( user ) {
-    if ( user ) {
-      req._user = user.dbEntry;
-      req._isAdmin = ( user.dbEntry.privileges! > UserPrivileges.Admin ? true : false );
+export async function identifyUser( req: IAuthReq, res: express.Response, next?: Function ) {
+
+  try {
+    const session = await SessionManager.get.getSession( req );
+
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
+
+    if ( session ) {
+      req._user = session.user.dbEntry;
+      req._isAdmin = ( session.user.dbEntry.privileges! > UserPrivileges.Admin ? true : false );
     }
 
     if ( next )
       next();
 
-  } ).catch( function() {
+  }
+  catch ( err ) {
     if ( next )
-      next();
-  } );
+      next( err );
+  }
 }
 
 /**
  * Checks for session data and fetches the user. Sends back an error if no user present
  */
-export function requireUser( req: IAuthReq, res: express.Response, next?: Function ): any {
-  UserManager.get.loggedIn( req, res ).then( function( user ) {
-    if ( !user )
+export async function requireUser( req: IAuthReq, res: express.Response, next?: Function ) {
+  try {
+    const session = await SessionManager.get.getSession( req );
+
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
+
+
+    if ( !session )
       return errJson( new Error( `You must be logged in to make this request` ), res );
 
-    req._user = user.dbEntry;
+    req._user = session.user.dbEntry;
     if ( next )
       next();
 
-  } ).catch( function() {
+  }
+  catch ( err ) {
     if ( next )
-      next();
-  } );
+      next( err );
+  }
 }
 
 /**
@@ -171,21 +198,27 @@ export function requireUser( req: IAuthReq, res: express.Response, next?: Functi
  * @param next
  */
 export async function requestHasPermission( level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string ): Promise<boolean> {
-  const user = await UserManager.get.loggedIn( req, res );
+  const session = await SessionManager.get.getSession( req );
 
-  if ( !user )
+  if ( session )
+    await SessionManager.get.setSessionHeader( session, req, res );
+
+  if ( !session )
     throw new Error( 'You must be logged in to make this request' );
 
   if ( existingUser !== undefined ) {
-    if ( ( user.dbEntry.email !== existingUser && user.dbEntry.username !== existingUser ) && user.dbEntry.privileges! > level )
+    if ( (
+      session.user.dbEntry.email !== existingUser &&
+      session.user.dbEntry.username !== existingUser ) &&
+      session.user.dbEntry.privileges! > level )
       throw new Error( 'You don\'t have permission to make this request' );
   }
-  else if ( user.dbEntry.privileges! > level )
+  else if ( session.user.dbEntry.privileges! > level )
     throw new Error( 'You don\'t have permission to make this request' );
 
-  req._user = user.dbEntry;
-  if ( user )
-    req._isAdmin = ( user.dbEntry.privileges! > UserPrivileges.Admin ? true : false );
+  req._user = session.user.dbEntry;
+  if ( session )
+    req._isAdmin = ( session.user.dbEntry.privileges! > UserPrivileges.Admin ? true : false );
 
   return true;
 }

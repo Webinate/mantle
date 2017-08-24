@@ -1233,6 +1233,131 @@ declare module "socket-api/socket-event-types" {
         MetaRequest = 9,
     }
 }
+declare module "core/session" {
+    import { ISessionEntry, ISession, IUserEntry } from 'modepress';
+    import { ServerRequest } from 'http';
+    import { ObjectID } from 'mongodb';
+    import { User } from "core/user";
+    /**
+     * A class to represent session data
+     */
+    export class Session {
+        user: User;
+        _id: ObjectID;
+        sessionId: string;
+        data: any;
+        /**
+         * The specific time when this session will expire
+         */
+        expiration: number;
+        /**
+         * The options of this session system
+         */
+        options: ISession;
+        /**
+         * Creates an instance of the session
+         */
+        constructor(sessionId: string, options: ISession, userEntry: IUserEntry);
+        /**
+         * Fills in the data of this session from the data saved in the database
+         * @param data The data fetched from the database
+         */
+        deserialize(data: ISessionEntry): void;
+        /**
+         * Creates an object that represents this session to be saved in the database
+         */
+        serialize(): ISessionEntry;
+        private getHost(request);
+        /**
+         * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
+         * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
+         */
+        getSetCookieHeaderValue(request: ServerRequest): any;
+        /**
+         * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
+         */
+        private dateCookieString(ms);
+        /**
+         * Pads a string with 0's
+         */
+        private pad(n);
+    }
+}
+declare module "core/session-manager" {
+    import { EventEmitter } from 'events';
+    import { ISessionEntry, ISession } from 'modepress';
+    import { ServerRequest, ServerResponse } from 'http';
+    import { Collection } from 'mongodb';
+    import { Session } from "core/session";
+    /**
+    * A class that manages session data for active users
+     */
+    export class SessionManager extends EventEmitter {
+        private static _singleton;
+        private _sessions;
+        private _users;
+        private _timeout;
+        private _cleanupProxy;
+        private _options;
+        /**
+         * Creates an instance of a session manager
+         */
+        constructor(sessionCollection: Collection, userCollection: Collection, options: ISession);
+        /**
+         * Gets an array of all active sessions
+         */
+        numActiveSessions(): Promise<number>;
+        /**
+         * Gets an array of all active sessions
+         * @param startIndex
+         * @param limit
+         */
+        getActiveSessions(startIndex?: number, limit?: number): Promise<ISessionEntry[]>;
+        /**
+         * Clears the users session cookie so that its no longer tracked
+         * @param sessionId The session ID to remove, if null then the currently authenticated session will be used
+         * @param request
+         * @param response
+         */
+        clearSession(sessionId: string | null, request: ServerRequest, response: ServerResponse): Promise<boolean>;
+        /**
+         * Attempts to get a session from the request object of the client
+         */
+        getSession(request: ServerRequest): Promise<Session | null>;
+        setSessionHeader(session: Session, request: ServerRequest, response: ServerResponse): Promise<void>;
+        /**
+         * Attempts to create a session from the request object of the client
+         */
+        createSession(request: ServerRequest, response: ServerResponse, userId: string): Promise<Session>;
+        /**
+         * Each time a session is created, a timer is started to check all sessions in the DB.
+         * Once the lifetime of a session is up its then removed from the DB and we check for any remaining sessions.
+         * @param force If true, this will force a cleanup instead of waiting on the next timer
+         */
+        cleanup(force?: boolean): Promise<void>;
+        /**
+         * Looks at the headers from the HTTP request to determine if a session cookie has been asssigned and returns the ID.
+         * @param req
+         * @returns The ID of the user session, or an empty string
+         */
+        private getIDFromRequest(req);
+        /**
+         * Creates a random session ID.
+         * The ID is a pseude-random ASCII string which contains at least the specified number of bits of entropy (64 in this case)
+         * the return value is a string of length [bits/6] of characters from the base64 alphabet
+         * @returns A user session ID
+         */
+        private createID();
+        /**
+         * Creates the singlton
+         */
+        static create(sessionCollection: Collection, userCollection: Collection, options: ISession): SessionManager;
+        /**
+         * Gets the singleton
+         */
+        static readonly get: SessionManager;
+    }
+}
 declare module "socket-api/client-connection" {
     import * as ws from 'ws';
     import { User } from "core/user";
@@ -1362,134 +1487,6 @@ declare module "socket-api/comms-controller" {
          * Initializes the comms controller
          */
         initialize(db: mongodb.Db): Promise<void>;
-    }
-}
-declare module "core/session" {
-    import { ISessionEntry, ISession } from 'modepress';
-    import { ServerRequest, ServerResponse } from 'http';
-    import { ObjectID } from 'mongodb';
-    /**
-     * A class to represent session data
-     */
-    export class Session {
-        _id: ObjectID;
-        sessionId: string;
-        data: any;
-        /**
-         * The specific time when this session will expire
-         */
-        expiration: number;
-        /**
-         * The options of this session system
-         */
-        options: ISession;
-        /**
-         * Creates an instance of the session
-         * @param sessionId The ID of the session
-         * @param options The options associated with this session
-         * @param data The data of the session in the database
-         */
-        constructor(sessionId: string, options: ISession);
-        /**
-         * Fills in the data of this session from the data saved in the database
-         * @param data The data fetched from the database
-         */
-        deserialize(data: ISessionEntry): void;
-        /**
-         * Creates an object that represents this session to be saved in the database
-         */
-        serialize(): ISessionEntry;
-        setSessionHeader(request: ServerRequest, response: ServerResponse): void;
-        private getHost(request);
-        /**
-         * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
-         * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
-         */
-        private getSetCookieHeaderValue(request);
-        /**
-         * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
-         */
-        private dateCookieString(ms);
-        /**
-         * Pads a string with 0's
-         */
-        private pad(n);
-    }
-}
-declare module "core/session-manager" {
-    import { EventEmitter } from 'events';
-    import { ISessionEntry, ISession } from 'modepress';
-    import { ServerRequest, ServerResponse } from 'http';
-    import { Collection } from 'mongodb';
-    import { Session } from "core/session";
-    /**
-    * A class that manages session data for active users
-     */
-    export class SessionManager extends EventEmitter {
-        private static _singleton;
-        private _dbCollection;
-        private _timeout;
-        private _cleanupProxy;
-        private _options;
-        /**
-         * Creates an instance of a session manager
-         */
-        constructor(dbCollection: Collection, options: ISession);
-        /**
-         * Gets an array of all active sessions
-         */
-        numActiveSessions(): Promise<number>;
-        /**
-         * Gets an array of all active sessions
-         * @param startIndex
-         * @param limit
-         */
-        getActiveSessions(startIndex?: number, limit?: number): Promise<ISessionEntry[]>;
-        /**
-         * Clears the users session cookie so that its no longer tracked
-         * @param sessionId The session ID to remove, if null then the currently authenticated session will be used
-         * @param request
-         * @param response
-         */
-        clearSession(sessionId: string | null, request: ServerRequest, response: ServerResponse): Promise<boolean>;
-        /**
-         * Attempts to get a session from the request object of the client
-         * @param request
-         * @param response
-         * @returns Returns a session or null if none can be found
-         */
-        getSession(request: ServerRequest, response: ServerResponse | null): Promise<Session | null>;
-        /**
-         * Attempts to create a session from the request object of the client
-         */
-        createSession(request: ServerRequest, response: ServerResponse): Promise<Session>;
-        /**
-         * Each time a session is created, a timer is started to check all sessions in the DB.
-         * Once the lifetime of a session is up its then removed from the DB and we check for any remaining sessions.
-         * @param force If true, this will force a cleanup instead of waiting on the next timer
-         */
-        cleanup(force?: boolean): Promise<void>;
-        /**
-         * Looks at the headers from the HTTP request to determine if a session cookie has been asssigned and returns the ID.
-         * @param req
-         * @returns The ID of the user session, or an empty string
-         */
-        private getIDFromRequest(req);
-        /**
-         * Creates a random session ID.
-         * The ID is a pseude-random ASCII string which contains at least the specified number of bits of entropy (64 in this case)
-         * the return value is a string of length [bits/6] of characters from the base64 alphabet
-         * @returns A user session ID
-         */
-        private createID();
-        /**
-         * Creates the singlton
-         */
-        static create(dbCollection: Collection, options: ISession): SessionManager;
-        /**
-         * Gets the singleton
-         */
-        static readonly get: SessionManager;
     }
 }
 declare module "utils/utils" {
@@ -1820,6 +1817,7 @@ declare module "core/user-manager" {
     import { ServerRequest, ServerResponse } from 'http';
     import { Request } from 'express';
     import { User, UserPrivileges } from "core/user";
+    import { Session } from "core/session";
     /**
      * Main class to use for managing users
      */
@@ -1914,13 +1912,6 @@ declare module "core/user-manager" {
          */
         checkActivation(username: string, code: string): Promise<boolean>;
         /**
-         * Checks to see if a user is logged in
-         * @param request
-         * @param response
-         * @param Gets the user or null if the user is not logged in
-         */
-        loggedIn(request: ServerRequest, response: ServerResponse | null): Promise<User | null>;
-        /**
          * Attempts to log the user out
          * @param request
          * @param response
@@ -1957,7 +1948,7 @@ declare module "core/user-manager" {
          * @param request
          * @param response
          */
-        logIn(username: string | undefined, pass: string | undefined, rememberMe: boolean | undefined, request: ServerRequest, response: ServerResponse): Promise<User>;
+        logIn(username: string | undefined, pass: string | undefined, rememberMe: boolean | undefined, request: ServerRequest, response: ServerResponse): Promise<Session>;
         /**
          * Removes a user by his email or username
          * @param username The username or email of the user
@@ -2001,7 +1992,7 @@ declare module "core/user-manager" {
          * Prints user objects from the database
          * @param limit The number of users to fetch
          * @param startIndex The starting index from where we are fetching users from
-         * @param searchPhrases Search phrases
+       * @param searchPhrases Search phrases
          */
         getUsers(startIndex?: number, limit?: number, searchPhrases?: RegExp): Promise<User[]>;
         /**
@@ -2478,16 +2469,16 @@ declare module "utils/permission-controllers" {
     /**
      * Checks if the request has admin rights. If not, an error is sent back to the user
      */
-    export function adminRights(req: IAuthReq, res: express.Response, next?: Function): any;
+    export function adminRights(req: IAuthReq, res: express.Response, next?: Function): Promise<void>;
     export function checkVerbosity(req: IAuthReq, res: express.Response, next?: Function): any;
     /**
      * Checks for session data and fetches the user. Does not throw an error if the user is not present.
      */
-    export function identifyUser(req: IAuthReq, res: express.Response, next?: Function): any;
+    export function identifyUser(req: IAuthReq, res: express.Response, next?: Function): Promise<void>;
     /**
      * Checks for session data and fetches the user. Sends back an error if no user present
      */
-    export function requireUser(req: IAuthReq, res: express.Response, next?: Function): any;
+    export function requireUser(req: IAuthReq, res: express.Response, next?: Function): Promise<void>;
     /**
      * Checks a user is logged in and has permission
      * @param level
