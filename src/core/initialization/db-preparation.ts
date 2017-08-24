@@ -1,6 +1,7 @@
 import { IConfig } from 'modepress';
 import * as mongodb from 'mongodb';
-import { UserManager } from '../../core/users';
+import { UserManager } from '../../core/user-manager';
+import { SessionManager } from '../../core/session-manager';
 import { BucketManager } from '../../core/bucket-manager';
 import { CommsController } from '../../socket-api/comms-controller'
 
@@ -31,8 +32,9 @@ export async function prepare( db: mongodb.Db, config: IConfig ) {
     filesCollection.createIndex( 'numDownloads' )
   ] );
 
-  // Create the user manager
-  UserManager.create( usersCollection, sessionsCollection, config );
+  // Create the managers
+  SessionManager.create( sessionsCollection, config.sessionSettings );
+  UserManager.create( usersCollection, config );
   await UserManager.get.initialize();
 
   // Create the bucket controller

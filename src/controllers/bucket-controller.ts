@@ -4,7 +4,7 @@ import { IFileEntry, IUploadToken, IAuthReq, IRemoveFiles, IGetBuckets, IRespons
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
-import { UserManager } from '../core/users';
+import { UserManager } from '../core/user-manager';
 import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { BucketManager } from '../core/bucket-manager';

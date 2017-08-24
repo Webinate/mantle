@@ -8,7 +8,7 @@ import { Model, ModelInstance } from '../models/model';
 import { CommentsModel } from '../models/comments-model';
 import { identifyUser, checkVerbosity, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
-import { UserPrivileges } from '../core/users';
+import { UserPrivileges } from '../core/user';
 import { IBaseControler } from 'modepress';
 
 /**

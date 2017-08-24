@@ -10,7 +10,7 @@ import { PostsModel } from '../models/posts-model';
 import { CategoriesModel } from '../models/categories-model';
 import { identifyUser, checkVerbosity, adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
-import { UserPrivileges } from '../core/users';
+import { UserPrivileges } from '../core/user';
 import { IBaseControler } from 'modepress';
 
 /**

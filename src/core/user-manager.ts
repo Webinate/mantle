@@ -5,6 +5,7 @@ import * as http from 'http';
 import * as validator from 'validator';
 import * as bcrypt from 'bcrypt';
 import * as express from 'express';
+import { User, UserPrivileges } from './user';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
@@ -15,129 +16,24 @@ import { BucketManager } from './bucket-manager';
 import { GMailer } from '../mailers/gmail'
 import { Mailguner } from '../mailers/mailgun'
 
-/*
- * Describes what kind of privileges the user has
- */
-export enum UserPrivileges {
-  SuperAdmin = 1,
-  Admin = 2,
-  Regular = 3
-}
-
-/*
- * Class that represents a user and its database entry
- */
-export class User {
-  dbEntry: IUserEntry;
-
-	/**
-	 * Creates a new User instance
-	 * @param dbEntry The data object that represents the user in the DB
-	 */
-  constructor( dbEntry: IUserEntry ) {
-    this.dbEntry = dbEntry;
-  }
-
-  /**
-* Generates an object that can be sent to clients.
-  * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
-*/
-  generateCleanedData( verbose: boolean = false ): IUserEntry {
-    if ( !this.dbEntry.passwordTag )
-      this.dbEntry.passwordTag = '';
-
-    if ( !this.dbEntry.sessionId )
-      this.dbEntry.sessionId = '';
-
-    if ( verbose )
-      return {
-        _id: this.dbEntry._id,
-        email: this.dbEntry.email,
-        lastLoggedIn: this.dbEntry.lastLoggedIn,
-        createdOn: this.dbEntry.createdOn,
-        password: this.dbEntry.password,
-        registerKey: this.dbEntry.registerKey,
-        sessionId: this.dbEntry.sessionId,
-        username: this.dbEntry.username,
-        privileges: this.dbEntry.privileges,
-        passwordTag: this.dbEntry.passwordTag,
-        meta: this.dbEntry.meta
-      };
-    else
-      return {
-        _id: this.dbEntry._id,
-        lastLoggedIn: this.dbEntry.lastLoggedIn,
-        createdOn: this.dbEntry.createdOn,
-        username: this.dbEntry.username,
-        privileges: this.dbEntry.privileges
-      };
-  }
-
-	/**
-	 * Generates the object to be stored in the database
-	 */
-  generateDbEntry(): IUserEntry {
-    return {
-      email: this.dbEntry.email,
-      lastLoggedIn: Date.now(),
-      createdOn: Date.now(),
-      password: this.dbEntry.password,
-      registerKey: ( this.dbEntry.registerKey !== undefined || this.dbEntry.privileges === UserPrivileges.SuperAdmin ? '' : this.generateKey( 10 ) ),
-      sessionId: this.dbEntry.sessionId,
-      username: this.dbEntry.username,
-      privileges: this.dbEntry.privileges,
-      passwordTag: this.dbEntry.passwordTag,
-      meta: this.dbEntry.meta
-    };
-  }
-
-	/**
-	 * Creates a random string that is assigned to the dbEntry registration key
-	 * @param length The length of the password
-	 */
-  generateKey( length: number = 10 ): string {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-    for ( let i = 0; i < length; i++ )
-      text += possible.charAt( Math.floor( Math.random() * possible.length ) );
-
-    return text;
-  }
-}
-
 /**
  * Main class to use for managing users
  */
 export class UserManager {
   private static _singleton: UserManager;
 
-  public sessionManager: SessionManager;
   private _userCollection: mongodb.Collection<IUserEntry>;
   private _config: IConfig;
   private _mailer: IMailer;
 
 	/**
 	 * Creates an instance of the user manager
-	 * @param userCollection The mongo collection that stores the users
-	 * @param sessionCollection The mongo collection that stores the session data
-	 * @param The config options of this manager
 	 */
-  constructor( userCollection: mongodb.Collection, sessionCollection: mongodb.Collection, config: IConfig ) {
+  constructor( userCollection: mongodb.Collection, config: IConfig ) {
     this._userCollection = userCollection;
     this._config = config;
     UserManager._singleton = this;
-
-    // Create the session manager
-    this.sessionManager = new SessionManager( sessionCollection, {
-      domain: config.sessionSettings.domain,
-      lifetime: config.sessionSettings.lifetime,
-      path: config.sessionSettings.path,
-      persistent: config.sessionSettings.persistent,
-      secure: config.sessionSettings.secure
-    } );
-
-    this.sessionManager.on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
+    SessionManager.get.on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
   }
 
   /**
@@ -489,7 +385,7 @@ export class UserManager {
 	 */
   async loggedIn( request: http.ServerRequest, response: http.ServerResponse | null ) {
     // If no request or response, then assume its an admin user
-    const session = await this.sessionManager.getSession( request, response );
+    const session = await SessionManager.get.getSession( request, response );
     if ( !session )
       return null;
 
@@ -506,7 +402,7 @@ export class UserManager {
 	 * @param response
 	 */
   async logOut( request: http.ServerRequest, response: http.ServerResponse ) {
-    const sessionCleaered = await this.sessionManager.clearSession( null, request, response );
+    const sessionCleaered = await SessionManager.get.clearSession( null, request, response );
     return sessionCleaered;
   }
 
@@ -664,7 +560,7 @@ export class UserManager {
     if ( result.matchedCount === 0 )
       throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
-    const session: Session = await this.sessionManager.createSession( request, response );
+    const session: Session = await SessionManager.get.createSession( request, response );
     result = await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { sessionId: session.sessionId } } );
 
     if ( result.matchedCount === 0 )
@@ -804,8 +700,8 @@ export class UserManager {
   /**
    * Creates the user manager singlton
    */
-  static create( users: mongodb.Collection, sessions: mongodb.Collection, config: IConfig ) {
-    return new UserManager( users, sessions, config );
+  static create( users: mongodb.Collection, config: IConfig ) {
+    return new UserManager( users, config );
   }
 
   /**

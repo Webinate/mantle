@@ -1141,6 +1141,36 @@ declare module "controllers/controller" {
         getModel(collectionName: string): Model | null;
     }
 }
+declare module "core/user" {
+    import { IUserEntry } from 'modepress';
+    export enum UserPrivileges {
+        SuperAdmin = 1,
+        Admin = 2,
+        Regular = 3,
+    }
+    export class User {
+        dbEntry: IUserEntry;
+        /**
+         * Creates a new User instance
+         * @param dbEntry The data object that represents the user in the DB
+         */
+        constructor(dbEntry: IUserEntry);
+        /**
+         * Generates an object that can be sent to clients.
+         * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
+         */
+        generateCleanedData(verbose?: boolean): IUserEntry;
+        /**
+         * Generates the object to be stored in the database
+         */
+        generateDbEntry(): IUserEntry;
+        /**
+         * Creates a random string that is assigned to the dbEntry registration key
+         * @param length The length of the password
+         */
+        generateKey(length?: number): string;
+    }
+}
 declare module "socket-api/socket-event-types" {
     /**
      * Describes the type of token data being sent to connected clients
@@ -1205,7 +1235,7 @@ declare module "socket-api/socket-event-types" {
 }
 declare module "socket-api/client-connection" {
     import * as ws from 'ws';
-    import { User } from "core/users";
+    import { User } from "core/user";
     import { CommsController } from "socket-api/comms-controller";
     /**
      * A wrapper class for client connections made to the CommsController
@@ -1395,6 +1425,7 @@ declare module "core/session-manager" {
     * A class that manages session data for active users
      */
     export class SessionManager extends EventEmitter {
+        private static _singleton;
         private _dbCollection;
         private _timeout;
         private _cleanupProxy;
@@ -1450,6 +1481,14 @@ declare module "core/session-manager" {
          * @returns A user session ID
          */
         private createID();
+        /**
+         * Creates the singlton
+         */
+        static create(dbCollection: Collection, options: ISession): SessionManager;
+        /**
+         * Gets the singleton
+         */
+        static readonly get: SessionManager;
     }
 }
 declare module "utils/utils" {
@@ -1774,55 +1813,24 @@ declare module "mailers/mailgun" {
         sendMail(to: string, from: string, subject: string, msg: string): Promise<boolean>;
     }
 }
-declare module "core/users" {
+declare module "core/user-manager" {
     import { IUserEntry, IConfig } from 'modepress';
     import * as mongodb from 'mongodb';
     import * as http from 'http';
     import * as express from 'express';
-    import { SessionManager } from "core/session-manager";
-    export enum UserPrivileges {
-        SuperAdmin = 1,
-        Admin = 2,
-        Regular = 3,
-    }
-    export class User {
-        dbEntry: IUserEntry;
-        /**
-         * Creates a new User instance
-         * @param dbEntry The data object that represents the user in the DB
-         */
-        constructor(dbEntry: IUserEntry);
-        /**
-      * Generates an object that can be sent to clients.
-        * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
-      */
-        generateCleanedData(verbose?: boolean): IUserEntry;
-        /**
-         * Generates the object to be stored in the database
-         */
-        generateDbEntry(): IUserEntry;
-        /**
-         * Creates a random string that is assigned to the dbEntry registration key
-         * @param length The length of the password
-         */
-        generateKey(length?: number): string;
-    }
+    import { User, UserPrivileges } from "core/user";
     /**
      * Main class to use for managing users
      */
     export class UserManager {
         private static _singleton;
-        sessionManager: SessionManager;
         private _userCollection;
         private _config;
         private _mailer;
         /**
          * Creates an instance of the user manager
-         * @param userCollection The mongo collection that stores the users
-         * @param sessionCollection The mongo collection that stores the session data
-         * @param The config options of this manager
          */
-        constructor(userCollection: mongodb.Collection, sessionCollection: mongodb.Collection, config: IConfig);
+        constructor(userCollection: mongodb.Collection, config: IConfig);
         /**
        * Called whenever a session is removed from the database
        */
@@ -1998,7 +2006,7 @@ declare module "core/users" {
         /**
          * Creates the user manager singlton
          */
-        static create(users: mongodb.Collection, sessions: mongodb.Collection, config: IConfig): UserManager;
+        static create(users: mongodb.Collection, config: IConfig): UserManager;
         /**
          * Gets the user manager singlton
          */
@@ -2451,7 +2459,7 @@ declare module "utils/serializers" {
 declare module "utils/permission-controllers" {
     import { IAuthReq } from 'modepress';
     import * as express from 'express';
-    import { UserPrivileges } from "core/users";
+    import { UserPrivileges } from "core/user";
     /**
      * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
      * @param idName The name of the ID to check for
@@ -3081,7 +3089,7 @@ declare module "controllers/auth-controller" {
 }
 declare module "modepress-api" {
     import * as _Controller from "controllers/controller";
-    import * as users from "core/users";
+    import * as users from "core/user-manager";
     import * as bucketManager from "core/bucket-manager";
     import * as _Models from "models/model";
     import * as _SchemaFactory from "models/schema-items/schema-item-factory";

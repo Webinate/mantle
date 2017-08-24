@@ -3,7 +3,7 @@
 import { IResponse, IAuthenticationResponse, ILoginToken, IRegisterToken } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../core/users';
+import { UserManager } from '../core/user-manager';
 import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { j200 } from '../utils/serializers';

@@ -2,7 +2,8 @@
 
 import * as ws from 'ws';
 import { error as logError, info } from '../utils/logger';
-import { UserManager, User } from '../core/users';
+import { User } from '../core/user';
+import { UserManager } from '../core/user-manager';
 import { CommsController } from './comms-controller';
 import { ServerInstruction } from './server-instruction';
 

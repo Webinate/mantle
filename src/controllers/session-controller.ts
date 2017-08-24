@@ -3,7 +3,7 @@
 import { IGetSessions, IResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../core/users';
+import { SessionManager } from '../core/session-manager';
 import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { j200 } from '../utils/serializers';
@@ -54,8 +54,8 @@ export class SessionController extends Controller {
 	 */
   @j200()
   private async getSessions( req: express.Request, res: express.Response ) {
-    const numSessions = await UserManager.get.sessionManager.numActiveSessions();
-    const sessions = await UserManager.get.sessionManager.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
+    const numSessions = await SessionManager.get.numActiveSessions();
+    const sessions = await SessionManager.get.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
 
     return {
       message: `Found ${sessions.length} active sessions`,
@@ -69,8 +69,7 @@ export class SessionController extends Controller {
 	 */
   @j200()
   private async deleteSession( req: express.Request, res: express.Response ) {
-    await UserManager.get.sessionManager.clearSession( req.params.id, req, res );
+    await SessionManager.get.clearSession( req.params.id, req, res );
     return { message: `Session ${req.params.id} has been removed` } as IResponse;
-
   }
 }

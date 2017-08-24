@@ -2,7 +2,7 @@
 import * as express from 'express';
 import { Controller } from './controller';
 import * as bodyParser from 'body-parser';
-import { UserManager } from '../core/users'
+import { UserManager } from '../core/user-manager'
 import { errJson } from '../utils/serializers';
 import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';

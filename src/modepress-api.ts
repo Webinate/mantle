@@ -1,5 +1,5 @@
 ﻿import * as _Controller from './controllers/controller';
-import * as users from './core/users';
+import * as users from './core/user-manager';
 import * as bucketManager from './core/bucket-manager';
 import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';

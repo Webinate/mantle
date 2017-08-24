@@ -8,6 +8,8 @@ import { Session } from './session';
 * A class that manages session data for active users
  */
 export class SessionManager extends EventEmitter {
+  private static _singleton: SessionManager;
+
   private _dbCollection: Collection<ISessionEntry>;
   private _timeout: NodeJS.Timer | null;
   private _cleanupProxy: any;
@@ -18,6 +20,7 @@ export class SessionManager extends EventEmitter {
    */
   constructor( dbCollection: Collection, options: ISession ) {
     super();
+    SessionManager._singleton = this;
     this._dbCollection = dbCollection;
     this._cleanupProxy = this.cleanup.bind( this );
     this._timeout = null;
@@ -227,5 +230,19 @@ export class SessionManager extends EventEmitter {
     }
 
     return ret
+  }
+
+  /**
+   * Creates the singlton
+   */
+  static create( dbCollection: Collection, options: ISession ) {
+    return new SessionManager( dbCollection, options );
+  }
+
+  /**
+   * Gets the singleton
+   */
+  static get get() {
+    return SessionManager._singleton;
   }
 }

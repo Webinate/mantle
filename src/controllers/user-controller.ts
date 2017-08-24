@@ -2,7 +2,8 @@
 
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager, UserPrivileges } from '../core/users';
+import { UserPrivileges } from '../core/user';
+import { UserManager } from '../core/user-manager';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { j200 } from '../utils/serializers';

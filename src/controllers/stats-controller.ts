@@ -2,7 +2,7 @@
 import { IGetUserStorageData, IResponse, IAuthReq, IStorageStats } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../core/users';
+import { UserManager } from '../core/user-manager';
 import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { BucketManager } from '../core/bucket-manager';

@@ -1,6 +1,6 @@
 'use strict';
 
-import { UserManager } from '../core/users';
+import { UserManager } from '../core/user-manager';
 import { ServerInstruction } from './server-instruction';
 import { ClientInstruction } from './client-instruction';
 import { CommsController } from './comms-controller';

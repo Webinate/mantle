@@ -1,7 +1,8 @@
 ﻿import { IResponse, IAuthReq } from 'modepress';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
-import { UserManager, UserPrivileges, User } from '../core/users';
+import { UserPrivileges, User } from '../core/user';
+import { UserManager } from '../core/user-manager';
 import { errJson } from './serializers';
 
 /**

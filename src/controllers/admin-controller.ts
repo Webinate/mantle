@@ -2,7 +2,7 @@
 import { IResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../core/users';
+import { UserManager } from '../core/user-manager';
 import { Controller } from './controller'
 import { j200 } from '../utils/serializers';
 import * as compression from 'compression';
