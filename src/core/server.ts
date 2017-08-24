@@ -1,10 +1,10 @@
 ﻿import { IClient, IServer } from 'modepress';
 import * as express from 'express';
 import * as morgan from 'morgan';
-import * as mongodb from 'mongodb';
-import * as http from 'http';
-import * as https from 'https';
-import * as fs from 'fs';
+import { Db } from 'mongodb';
+import { createServer } from 'http';
+import { createServer as createSecureServer } from 'https';
+import { existsSync, readFileSync } from 'fs';
 import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
 import { Controller } from '../controllers/controller'
@@ -48,7 +48,7 @@ export class Server {
     }
   }
 
-  async initialize( db: mongodb.Db ): Promise<Server> {
+  async initialize( db: Db ): Promise<Server> {
 
     const controllerPromises: Array<Promise<any>> = [];
     const server = this.server;
@@ -64,7 +64,7 @@ export class Server {
     if ( server.staticAssets ) {
       for ( let i = 0, l: number = server.staticAssets.length; i < l; i++ ) {
         let localStaticFolder = `${this._path}/${server.staticAssets[ i ]}`;
-        if ( !fs.existsSync( localStaticFolder ) ) {
+        if ( !existsSync( localStaticFolder ) ) {
           await error( `Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'` );
           process.exit();
         }
@@ -81,40 +81,40 @@ export class Server {
     info( `Attempting to start HTTP server...` );
 
     // Start app with node server.js
-    const httpServer = http.createServer( app );
+    const httpServer = createServer( app );
     httpServer.listen( { port: server.port, host: server.host || 'localhost' } );
     info( `Listening on HTTP port ${server.port}` );
 
     // If we use SSL then start listening for that as well
     if ( server.ssl ) {
-      if ( server.ssl.intermediate !== '' && !fs.existsSync( server.ssl.intermediate ) ) {
+      if ( server.ssl.intermediate !== '' && !existsSync( server.ssl.intermediate ) ) {
         await error( `Could not find ssl.intermediate: '${server.ssl.intermediate}'` );
         process.exit();
       }
 
-      if ( server.ssl.cert !== '' && !fs.existsSync( server.ssl.cert ) ) {
+      if ( server.ssl.cert !== '' && !existsSync( server.ssl.cert ) ) {
         await error( `Could not find ssl.cert: '${server.ssl.cert}'` );
         process.exit();
       }
 
-      if ( server.ssl.root !== '' && !fs.existsSync( server.ssl.root ) ) {
+      if ( server.ssl.root !== '' && !existsSync( server.ssl.root ) ) {
         await error( `Could not find ssl.root: '${server.ssl.root}'` );
         process.exit();
       }
 
-      if ( server.ssl.key !== '' && !fs.existsSync( server.ssl.key ) ) {
+      if ( server.ssl.key !== '' && !existsSync( server.ssl.key ) ) {
         await error( `Could not find ssl.key: '${server.ssl.key}'` );
         process.exit();
       }
 
-      const caChain = [ fs.readFileSync( server.ssl.intermediate ), fs.readFileSync( server.ssl.root ) ];
-      const privkey = server.ssl.key ? fs.readFileSync( server.ssl.key ) : null;
-      const theCert = server.ssl.cert ? fs.readFileSync( server.ssl.cert ) : null;
+      const caChain = [ readFileSync( server.ssl.intermediate ), readFileSync( server.ssl.root ) ];
+      const privkey = server.ssl.key ? readFileSync( server.ssl.key ) : null;
+      const theCert = server.ssl.cert ? readFileSync( server.ssl.cert ) : null;
       const port = server.ssl.port ? server.ssl.port : 443;
 
       info( `Attempting to start SSL server...` );
 
-      const httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: server.ssl.passPhrase, ca: caChain }, app );
+      const httpsServer = createSecureServer( { key: privkey, cert: theCert, passphrase: server.ssl.passPhrase, ca: caChain }, app );
       httpsServer.listen( { port: port, host: server.host || 'localhost' } );
 
       info( `Listening on HTTPS port ${port}` );

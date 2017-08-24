@@ -2,7 +2,7 @@
 import { IMailer, IGMail } from 'modepress';
 import * as google from 'googleapis';
 import * as googleAuth from 'google-auth-library';
-import * as fs from 'fs';
+import { readFileSync } from 'fs';
 import { error as logError, info } from '../utils/logger';
 import * as yargs from 'yargs';
 
@@ -41,7 +41,7 @@ export class GMailer implements IMailer {
     return new Promise(( resolve ) => {
 
       this.gmail = google.gmail( 'v1' );
-      this._keyFile = args.keyFile || JSON.parse( fs.readFileSync( options.keyFile, 'utf8' ) );
+      this._keyFile = args.keyFile || JSON.parse( readFileSync( options.keyFile, 'utf8' ) );
       this._apiEmail = options.apiEmail;
 
       // Authorize a client with the loaded credentials

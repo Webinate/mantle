@@ -1,5 +1,5 @@
 import { IConfig } from 'modepress';
-import * as mongodb from 'mongodb';
+import { Db } from 'mongodb';
 import { UserManager } from '../../core/user-manager';
 import { SessionManager } from '../../core/session-manager';
 import { BucketManager } from '../../core/bucket-manager';
@@ -8,7 +8,7 @@ import { CommsController } from '../../socket-api/comms-controller'
 /**
  * Prepares the database and any dependencies of the collections
  */
-export async function prepare( db: mongodb.Db, config: IConfig ) {
+export async function prepare( db: Db, config: IConfig ) {
 
   const usersCollection = await db.createCollection( config.collections.userCollection );
   const sessionsCollection = await db.createCollection( config.collections.sessionCollection );

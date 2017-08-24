@@ -1,18 +1,18 @@
 import { Readable, Writable } from 'stream';
 import { resolve, basename, extname } from 'path';
 import * as rimraf from 'rimraf';
-import * as fs from 'fs';
-import * as zlib from 'zlib';
+import { mkdirSync, exists, existsSync, createWriteStream } from 'fs';
+import { createGzip, Gzip } from 'zlib';
 import { IRemote, IUploadOptions, ILocalBucket } from 'modepress';
 import * as compressible from 'compressible';
 
 export class LocalBucket implements IRemote {
-  private _zipper: zlib.Gzip;
+  private _zipper: Gzip;
   private _path: string;
   private _url: string;
 
   constructor() {
-    this._zipper = zlib.createGzip();
+    this._zipper = createGzip();
   }
 
   async initialize( options: ILocalBucket ) {
@@ -20,7 +20,7 @@ export class LocalBucket implements IRemote {
     if ( !options.path )
       throw new Error( `Please specify the 'path' variable to your local remote options` );
 
-    if ( !fs.existsSync( resolve( options.path ) ) )
+    if ( !existsSync( resolve( options.path ) ) )
       throw new Error( `The path '${resolve( options.path )}' specified in the local remote does not resolve to a folder` );
 
     if ( !options.url )
@@ -36,13 +36,13 @@ export class LocalBucket implements IRemote {
     if ( exists )
       throw new Error( `The folder '${path}' already exists` );
 
-    await fs.mkdirSync( path );
+    await mkdirSync( path );
     return id;
   }
 
   private exists( path: string ) {
     return new Promise<boolean>( function( resolve, reject ) {
-      fs.exists( path, function( e ) {
+      exists( path, function( e ) {
         resolve( e );
       } )
     } )
@@ -101,7 +101,7 @@ export class LocalBucket implements IRemote {
       fileExists = await this.exists( `${this._path}/${bucket}/${filename}` );
     }
 
-    const writeStream = fs.createWriteStream( `${this._path}/${bucket}/${filename}` );
+    const writeStream = createWriteStream( `${this._path}/${bucket}/${filename}` );
 
     // Check if the stream content type is something that can be compressed
     // if so, then compress it before sending it to

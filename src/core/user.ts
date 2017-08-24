@@ -1,5 +1,4 @@
-﻿'use strict';
-import { IUserEntry } from 'modepress';
+﻿import { IUserEntry } from 'modepress';
 
 /*
  * Describes what kind of privileges the user has

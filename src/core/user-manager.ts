@@ -1,10 +1,9 @@
-﻿'use strict';
-import { IUserEntry, IConfig, IMailer, IGMail, IMailgun } from 'modepress';
-import * as mongodb from 'mongodb';
-import * as http from 'http';
-import * as validator from 'validator';
-import * as bcrypt from 'bcrypt';
-import * as express from 'express';
+﻿import { IUserEntry, IConfig, IMailer, IGMail, IMailgun } from 'modepress';
+import { Collection } from 'mongodb';
+import { ServerRequest, ServerResponse } from 'http';
+import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
+import { hash, compare } from 'bcrypt';
+import { Request } from 'express';
 import { User, UserPrivileges } from './user';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
@@ -22,15 +21,15 @@ import { Mailguner } from '../mailers/mailgun'
 export class UserManager {
   private static _singleton: UserManager;
 
-  private _userCollection: mongodb.Collection<IUserEntry>;
+  private _collection: Collection<IUserEntry>;
   private _config: IConfig;
   private _mailer: IMailer;
 
 	/**
 	 * Creates an instance of the user manager
 	 */
-  constructor( userCollection: mongodb.Collection, config: IConfig ) {
-    this._userCollection = userCollection;
+  constructor( userCollection: Collection, config: IConfig ) {
+    this._collection = userCollection;
     this._config = config;
     UserManager._singleton = this;
     SessionManager.get.on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
@@ -43,7 +42,7 @@ export class UserManager {
     if ( !sessionId || sessionId === '' )
       return;
 
-    const useEntry = await this._userCollection.find( { sessionId: sessionId } as IUserEntry ).limit( 1 ).next();
+    const useEntry = await this._collection.find( { sessionId: sessionId } as IUserEntry ).limit( 1 ).next();
     if ( useEntry ) {
       // Send logged out event to socket
       const token = { username: useEntry.username!, type: ClientInstructionType[ ClientInstructionType.Logout ] };
@@ -76,10 +75,10 @@ export class UserManager {
 
 
     // Clear all existing indices and then re-add them
-    await this._userCollection.dropIndexes();
+    await this._collection.dropIndexes();
 
     // Make sure the user collection has an index to search the username field
-    await this._userCollection.createIndex( { username: 'text', email: 'text' } as IUserEntry );
+    await this._collection.createIndex( { username: 'text', email: 'text' } as IUserEntry );
 
     // See if we have an admin user
     let user = await this.getUser( config.adminUser.username );
@@ -100,7 +99,7 @@ export class UserManager {
 	 * @param request
 	 * @param response
 	 */
-  async register( username: string = '', pass: string = '', email: string = '', activationUrl: string = '', meta: any = {}, request: express.Request ) {
+  async register( username: string = '', pass: string = '', email: string = '', activationUrl: string = '', meta: any = {}, request: Request ) {
     const origin = encodeURIComponent( request.headers[ 'origin' ] || request.headers[ 'referer' ] );
 
     // First check if user exists, make sure the details supplied are ok, then create the new user
@@ -113,7 +112,7 @@ export class UserManager {
     // Validate other data
     if ( !pass || pass === '' ) throw new Error( 'Password cannot be null or empty' );
     if ( !email || email === '' ) throw new Error( 'Email cannot be null or empty' );
-    if ( !validator.isEmail( email ) ) throw new Error( 'Please use a valid email address' );
+    if ( !isEmail( email ) ) throw new Error( 'Please use a valid email address' );
 
     user = await this.createUser( username, email, pass, false, UserPrivileges.Regular, meta );
 
@@ -170,7 +169,7 @@ export class UserManager {
       throw new Error( 'No user exists with the specified details' );
 
     // Clear the user's activation
-    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { registerKey: '' } as IUserEntry } );
+    await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { registerKey: '' } as IUserEntry } );
 
     // Send activated event
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
@@ -220,7 +219,7 @@ export class UserManager {
     user.dbEntry.registerKey = newKey;
 
     // Update the collection with a new key
-    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { registerKey: newKey } as IUserEntry } );
+    await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { registerKey: newKey } as IUserEntry } );
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string = 'Thank you for registering with Webinate!\nTo activate your account please click the link below:' +
@@ -261,7 +260,7 @@ export class UserManager {
     user.dbEntry.passwordTag = newKey;
 
     // Update the collection with a new key
-    await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { passwordTag: newKey } as IUserEntry } );
+    await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { passwordTag: newKey } as IUserEntry } );
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string = 'A request has been made to reset your password. To change your password please click the link below:\n\n' +
@@ -290,7 +289,7 @@ export class UserManager {
  */
   private hashPassword( pass: string ) {
     return new Promise<string>( function( resolve, reject ) {
-      bcrypt.hash( pass, 8, function( err, encrypted: string ) {
+      hash( pass, 8, function( err, encrypted: string ) {
         if ( err )
           return reject( err )
         else
@@ -306,7 +305,7 @@ export class UserManager {
  */
   private comparePassword( pass: string, hash: string ) {
     return new Promise<boolean>( function( resolve, reject ) {
-      bcrypt.compare( pass, hash, function( err, same: boolean ) {
+      compare( pass, hash, function( err, same: boolean ) {
         if ( err )
           return reject( err );
         else
@@ -334,13 +333,13 @@ export class UserManager {
       throw new Error( 'Password codes do not match. Please try resetting your password again' );
 
     // Make sure password is valid
-    if ( newPassword === undefined || newPassword === '' || validator.blacklist( newPassword, '@\'\'{}' ) !== newPassword )
+    if ( newPassword === undefined || newPassword === '' || blacklist( newPassword, '@\'\'{}' ) !== newPassword )
       throw new Error( 'Please enter a valid password' );
 
     const hashed = await this.hashPassword( newPassword );
 
     // Update the key to be blank
-    await this._userCollection.updateOne( { _id: user.dbEntry._id } as IUserEntry, { $set: { passwordTag: '', password: hashed } as IUserEntry } );
+    await this._collection.updateOne( { _id: user.dbEntry._id } as IUserEntry, { $set: { passwordTag: '', password: hashed } as IUserEntry } );
 
     // All done :)
     return true;
@@ -367,7 +366,7 @@ export class UserManager {
       throw new Error( 'Activation key is not valid. Please try send another.' );
 
     // Update the key to be blank
-    await this._userCollection.updateOne( { _id: user.dbEntry._id } as IUserEntry, { $set: { registerKey: '' } as IUserEntry } );
+    await this._collection.updateOne( { _id: user.dbEntry._id } as IUserEntry, { $set: { registerKey: '' } as IUserEntry } );
 
     // Send activated event
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
@@ -383,13 +382,13 @@ export class UserManager {
 	 * @param response
 	 * @param Gets the user or null if the user is not logged in
 	 */
-  async loggedIn( request: http.ServerRequest, response: http.ServerResponse | null ) {
+  async loggedIn( request: ServerRequest, response: ServerResponse | null ) {
     // If no request or response, then assume its an admin user
     const session = await SessionManager.get.getSession( request, response );
     if ( !session )
       return null;
 
-    const useEntry = await this._userCollection.find( { sessionId: session.sessionId } ).limit( 1 ).next();
+    const useEntry = await this._collection.find( { sessionId: session.sessionId } ).limit( 1 ).next();
     if ( !useEntry )
       return null;
     else
@@ -401,7 +400,7 @@ export class UserManager {
 	 * @param request
 	 * @param response
 	 */
-  async logOut( request: http.ServerRequest, response: http.ServerResponse ) {
+  async logOut( request: ServerRequest, response: ServerResponse ) {
     const sessionCleaered = await SessionManager.get.clearSession( null, request, response );
     return sessionCleaered;
   }
@@ -418,15 +417,15 @@ export class UserManager {
 	 */
   async createUser( user: string, email: string, password: string, activateAccount: boolean, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ) {
     // Basic checks
-    if ( !user || validator.trim( user ) === '' )
+    if ( !user || trim( user ) === '' )
       throw new Error( 'Username cannot be empty' );
-    if ( !validator.isAlphanumeric( user ) )
+    if ( !isAlphanumeric( user ) )
       throw new Error( 'Username must be alphanumeric' );
-    if ( !email || validator.trim( email ) === '' )
+    if ( !email || trim( email ) === '' )
       throw new Error( 'Email cannot be empty' );
-    if ( !validator.isEmail( email ) )
+    if ( !isEmail( email ) )
       throw new Error( 'Email must be valid' );
-    if ( !password || validator.trim( password ) === '' )
+    if ( !password || trim( password ) === '' )
       throw new Error( 'Password cannot be empty' );
     if ( privilege > 3 )
       throw new Error( 'Privilege type is unrecognised' );
@@ -452,7 +451,7 @@ export class UserManager {
     } );
 
     // Update the database
-    const insertResult = await this._userCollection.insertOne( newUser.generateDbEntry() );
+    const insertResult = await this._collection.insertOne( newUser.generateDbEntry() );
 
     // Assing the ID and pass the user on
     newUser.dbEntry = insertResult.ops[ 0 ];
@@ -480,7 +479,7 @@ export class UserManager {
     username = userInstance.dbEntry.username!;
 
     await BucketManager.get.removeUser( username );
-    const result = await this._userCollection.deleteOne( { _id: userInstance.dbEntry._id! } as IUserEntry );
+    const result = await this._collection.deleteOne( { _id: userInstance.dbEntry._id! } as IUserEntry );
 
     if ( result.deletedCount === 0 )
       throw new Error( 'Could not remove the user from the database' );
@@ -504,18 +503,18 @@ export class UserManager {
     email = email !== undefined ? email : user;
 
     // Validate user string
-    user = validator.trim( user );
+    user = trim( user );
 
     if ( !user || user === '' )
       throw new Error( 'Please enter a valid username' );
 
-    if ( !validator.isAlphanumeric( user ) && !validator.isEmail( user ) )
+    if ( !isAlphanumeric( user ) && !isEmail( user ) )
       throw new Error( 'Please only use alpha numeric characters for your username' );
 
     const target = [ { email: email }, { username: user }];
 
     // Search the collection for the user
-    const userEntry = await this._userCollection.find( { $or: target } ).limit( 1 ).next();
+    const userEntry = await this._collection.find( { $or: target } ).limit( 1 ).next();
     if ( !userEntry )
       return null;
     else
@@ -530,7 +529,7 @@ export class UserManager {
 	 * @param request
 	 * @param response
 	 */
-  async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: http.ServerRequest, response: http.ServerResponse ) {
+  async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: ServerRequest, response: ServerResponse ) {
     await this.logOut( request, response );
     const user: User | null = await this.getUser( username );
 
@@ -539,7 +538,7 @@ export class UserManager {
       throw new Error( 'The username or password is incorrect.' );
 
     // Validate password
-    pass = validator.trim( pass );
+    pass = trim( pass );
     if ( !pass || pass === '' )
       throw new Error( 'Please enter a valid password' );
 
@@ -555,13 +554,13 @@ export class UserManager {
     user.dbEntry.lastLoggedIn = Date.now();
 
     // Update the collection
-    let result = await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { lastLoggedIn: user.dbEntry.lastLoggedIn } } );
+    let result = await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { lastLoggedIn: user.dbEntry.lastLoggedIn } } );
 
     if ( result.matchedCount === 0 )
       throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
     const session: Session = await SessionManager.get.createSession( request, response );
-    result = await this._userCollection.updateOne( { _id: user.dbEntry._id }, { $set: { sessionId: session.sessionId } } );
+    result = await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { sessionId: session.sessionId } } );
 
     if ( result.matchedCount === 0 )
       throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
@@ -585,7 +584,7 @@ export class UserManager {
       return false;
 
     // Remove the user from the DB
-    const result = await this._userCollection.deleteOne( { _id: user.dbEntry._id } );
+    const result = await this._collection.deleteOne( { _id: user.dbEntry._id } );
     if ( result.deletedCount === 0 )
       return false;
     else
@@ -605,7 +604,7 @@ export class UserManager {
       return false;
 
     // Remove the user from the DB
-    await this._userCollection.updateOne( { _id: user._id } as IUserEntry, { $set: { meta: ( data ? data : {} ) } as IUserEntry } );
+    await this._collection.updateOne( { _id: user._id } as IUserEntry, { $set: { meta: ( data ? data : {} ) } as IUserEntry } );
     return data;
   }
 
@@ -626,7 +625,7 @@ export class UserManager {
     updateToken.$set[ datum ] = val;
 
     // Remove the user from the DB
-    await this._userCollection.updateOne( { _id: user._id } as IUserEntry, updateToken );
+    await this._collection.updateOne( { _id: user._id } as IUserEntry, updateToken );
     return val;
   }
 
@@ -643,7 +642,7 @@ export class UserManager {
       return false;
 
     // Remove the user from the DB
-    const result = await this._userCollection.find( { _id: user._id } as IUserEntry ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
+    const result = await this._collection.find( { _id: user._id } as IUserEntry ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
     return result.meta[ name ];
   }
 
@@ -659,7 +658,7 @@ export class UserManager {
       return false;
 
     // Remove the user from the DB
-    const result = await this._userCollection.find( { _id: user._id } as IUserEntry ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
+    const result = await this._collection.find( { _id: user._id } as IUserEntry ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
     return result.meta;
   }
 
@@ -670,7 +669,7 @@ export class UserManager {
   async numUsers( searchPhrases?: RegExp ) {
 
     const findToken = { $or: [ { username: <any>searchPhrases } as IUserEntry, { email: <any>searchPhrases } as IUserEntry ] };
-    const result: number = await this._userCollection.count( findToken );
+    const result: number = await this._collection.count( findToken );
     return result;
   }
 
@@ -689,7 +688,7 @@ export class UserManager {
       findToken.$or.push( { email: <any>searchPhrases } );
     }
 
-    const results = await this._userCollection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
+    const results = await this._collection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
     const users: User[] = [];
     for ( let i = 0, l = results.length; i < l; i++ )
       users.push( new User( results[ i ] ) );
@@ -700,7 +699,7 @@ export class UserManager {
   /**
    * Creates the user manager singlton
    */
-  static create( users: mongodb.Collection, config: IConfig ) {
+  static create( users: Collection, config: IConfig ) {
     return new UserManager( users, config );
   }
 

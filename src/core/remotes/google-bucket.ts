@@ -1,6 +1,6 @@
 import { Readable, Writable } from 'stream';
 import { IGCS, IBucket } from 'gcloud';
-import * as zlib from 'zlib';
+import { createGzip, Gzip } from 'zlib';
 import { IRemote, IGoogleProperties, IUploadOptions } from 'modepress';
 import * as compressible from 'compressible';
 import * as storage from '@google-cloud/storage';
@@ -8,11 +8,11 @@ import { generateRandString } from '../../utils/utils';
 import { extname } from 'path';
 
 export class GoogleBucket implements IRemote {
-  private _zipper: zlib.Gzip;
+  private _zipper: Gzip;
   private _gcs: IGCS;
 
   constructor() {
-    this._zipper = zlib.createGzip();
+    this._zipper = createGzip();
   }
 
   async initialize( options: IGoogleProperties ) {

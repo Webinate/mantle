@@ -1,5 +1,5 @@
 ﻿import { IConfig, IClient, IServer } from 'modepress';
-import * as fs from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 import { error, info, clear, initializeLogger } from '../../utils/logger';
 import * as yargs from 'yargs';
@@ -30,14 +30,14 @@ function loadConfig(): IConfig | null {
   }
 
   // Make sure the file exists
-  if ( !fs.existsSync( args.config ) ) {
+  if ( !existsSync( args.config ) ) {
     error( `Could not locate the config file at '${args.config}'` );
     process.exit();
   }
 
   try {
     // Try load and parse the config
-    config = JSON.parse( fs.readFileSync( args.config, 'utf8' ) );
+    config = JSON.parse( readFileSync( args.config, 'utf8' ) );
 
     // Override any of the config settings with the yargs if they exist
     for ( const i in args )
@@ -64,16 +64,16 @@ export async function discoverClients( config: IConfig ) {
   if ( !config.clientsFolder )
     throw new Error( 'The property clientsFolder is not present in the config file' );
 
-  if ( !fs.existsSync( config.clientsFolder ) )
+  if ( !existsSync( config.clientsFolder ) )
     throw new Error( 'Cannot resolve clientsFolder property. Make sure the folder exists and is accessible' );
 
-  const directories = fs.readdirSync( config.clientsFolder, { encoding: 'utf8' } );
+  const directories = readdirSync( config.clientsFolder, { encoding: 'utf8' } );
   const clientDefinitions: ( IClient & { path: string } )[] = [];
   for ( const dir of directories ) {
     let localDir = ( config.clientsFolder + dir ).replace( /\/\//, '/' );
-    if ( fs.existsSync( `${localDir}/modepress.json` ) ) {
+    if ( existsSync( `${localDir}/modepress.json` ) ) {
       try {
-        const client = JSON.parse( fs.readFileSync( `${localDir}/modepress.json` ).toString() );
+        const client = JSON.parse( readFileSync( `${localDir}/modepress.json` ).toString() );
         client.path = resolve( localDir );
         clientDefinitions.push( client );
       }

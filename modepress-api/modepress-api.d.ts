@@ -1366,7 +1366,7 @@ declare module "socket-api/comms-controller" {
 }
 declare module "core/session" {
     import { ISessionEntry, ISession } from 'modepress';
-    import { ServerRequest } from 'http';
+    import { ServerRequest, ServerResponse } from 'http';
     import { ObjectID } from 'mongodb';
     /**
      * A class to represent session data
@@ -1399,12 +1399,13 @@ declare module "core/session" {
          * Creates an object that represents this session to be saved in the database
          */
         serialize(): ISessionEntry;
+        setSessionHeader(request: ServerRequest, response: ServerResponse): void;
         private getHost(request);
         /**
          * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
          * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
          */
-        getSetCookieHeaderValue(request: ServerRequest): any;
+        private getSetCookieHeaderValue(request);
         /**
          * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
          */
@@ -1551,8 +1552,8 @@ declare module "core/remotes/local-bucket" {
 }
 declare module "core/bucket-manager" {
     import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
-    import * as mongodb from 'mongodb';
-    import * as multiparty from 'multiparty';
+    import { Collection } from 'mongodb';
+    import { Part } from 'multiparty';
     /**
      * Class responsible for managing buckets and uploads to Google storage
      */
@@ -1567,7 +1568,7 @@ declare module "core/bucket-manager" {
         private _unzipper;
         private _deflater;
         private _activeManager;
-        constructor(buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig);
+        constructor(buckets: Collection, files: Collection, stats: Collection, config: IConfig);
         /**
          * Fetches all bucket entries from the database
          * @param user [Optional] Specify the user. If none provided, then all buckets are retrieved
@@ -1712,7 +1713,7 @@ declare module "core/bucket-manager" {
          * @param makePublic Makes this uploaded file public to the world
          * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
          */
-        uploadStream(part: multiparty.Part, bucketEntry: IBucketEntry, user: string, makePublic?: boolean, parentFile?: string | null): Promise<IFileEntry>;
+        uploadStream(part: Part, bucketEntry: IBucketEntry, user: string, makePublic?: boolean, parentFile?: string | null): Promise<IFileEntry>;
         /**
          * Fetches a file by its ID
          * @param fileID The file ID of the file on the bucket
@@ -1735,7 +1736,7 @@ declare module "core/bucket-manager" {
         /**
          * Creates the bucket manager singleton
          */
-        static create(buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig): BucketManager;
+        static create(buckets: Collection, files: Collection, stats: Collection, config: IConfig): BucketManager;
         /**
          * Gets the bucket singleton
          */
@@ -1815,22 +1816,22 @@ declare module "mailers/mailgun" {
 }
 declare module "core/user-manager" {
     import { IUserEntry, IConfig } from 'modepress';
-    import * as mongodb from 'mongodb';
-    import * as http from 'http';
-    import * as express from 'express';
+    import { Collection } from 'mongodb';
+    import { ServerRequest, ServerResponse } from 'http';
+    import { Request } from 'express';
     import { User, UserPrivileges } from "core/user";
     /**
      * Main class to use for managing users
      */
     export class UserManager {
         private static _singleton;
-        private _userCollection;
+        private _collection;
         private _config;
         private _mailer;
         /**
          * Creates an instance of the user manager
          */
-        constructor(userCollection: mongodb.Collection, config: IConfig);
+        constructor(userCollection: Collection, config: IConfig);
         /**
        * Called whenever a session is removed from the database
        */
@@ -1848,7 +1849,7 @@ declare module "core/user-manager" {
          * @param request
          * @param response
          */
-        register(username: string | undefined, pass: string | undefined, email: string | undefined, activationUrl: string | undefined, meta: any, request: express.Request): Promise<User>;
+        register(username: string | undefined, pass: string | undefined, email: string | undefined, activationUrl: string | undefined, meta: any, request: Request): Promise<User>;
         /**
          * Creates the link to send to the user for activation
          * @param user The user we are activating
@@ -1918,13 +1919,13 @@ declare module "core/user-manager" {
          * @param response
          * @param Gets the user or null if the user is not logged in
          */
-        loggedIn(request: http.ServerRequest, response: http.ServerResponse | null): Promise<User | null>;
+        loggedIn(request: ServerRequest, response: ServerResponse | null): Promise<User | null>;
         /**
          * Attempts to log the user out
          * @param request
          * @param response
          */
-        logOut(request: http.ServerRequest, response: http.ServerResponse): Promise<boolean>;
+        logOut(request: ServerRequest, response: ServerResponse): Promise<boolean>;
         /**
          * Creates a new user
          * @param user The unique username
@@ -1956,7 +1957,7 @@ declare module "core/user-manager" {
          * @param request
          * @param response
          */
-        logIn(username: string | undefined, pass: string | undefined, rememberMe: boolean | undefined, request: http.ServerRequest, response: http.ServerResponse): Promise<User>;
+        logIn(username: string | undefined, pass: string | undefined, rememberMe: boolean | undefined, request: ServerRequest, response: ServerResponse): Promise<User>;
         /**
          * Removes a user by his email or username
          * @param username The username or email of the user
@@ -2006,7 +2007,7 @@ declare module "core/user-manager" {
         /**
          * Creates the user manager singlton
          */
-        static create(users: mongodb.Collection, config: IConfig): UserManager;
+        static create(users: Collection, config: IConfig): UserManager;
         /**
          * Gets the user manager singlton
          */

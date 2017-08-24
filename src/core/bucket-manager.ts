@@ -1,9 +1,9 @@
 ﻿'use strict';
 
 import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote } from 'modepress';
-import * as mongodb from 'mongodb';
-import * as multiparty from 'multiparty';
-import * as zlib from 'zlib';
+import { Collection } from 'mongodb';
+import { Part } from 'multiparty';
+import { createGzip, createGunzip, createDeflate, Gzip, Gunzip, Deflate } from 'zlib';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
@@ -19,15 +19,15 @@ export class BucketManager {
   private static API_CALLS_ALLOCATED: number = 20000; // 20,000
 
   private static _singleton: BucketManager;
-  private _buckets: mongodb.Collection<IBucketEntry>;
-  private _files: mongodb.Collection<IFileEntry>;
-  private _stats: mongodb.Collection<IStorageStats>;
-  private _zipper: zlib.Gzip;
-  private _unzipper: zlib.Gunzip;
-  private _deflater: zlib.Deflate;
+  private _buckets: Collection<IBucketEntry>;
+  private _files: Collection<IFileEntry>;
+  private _stats: Collection<IStorageStats>;
+  private _zipper: Gzip;
+  private _unzipper: Gunzip;
+  private _deflater: Deflate;
   private _activeManager: IRemote;
 
-  constructor( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig ) {
+  constructor( buckets: Collection, files: Collection, stats: Collection, config: IConfig ) {
     BucketManager._singleton = this;
     googleBucket.initialize( config.remotes.google );
     localBucket.initialize( config.remotes.local );
@@ -37,9 +37,9 @@ export class BucketManager {
     this._buckets = buckets;
     this._files = files;
     this._stats = stats;
-    this._zipper = zlib.createGzip();
-    this._unzipper = zlib.createGunzip();
-    this._deflater = zlib.createDeflate();
+    this._zipper = createGzip();
+    this._unzipper = createGunzip();
+    this._deflater = createDeflate();
   }
 
   /**
@@ -407,7 +407,7 @@ export class BucketManager {
    * @param user The username
    * @param part
    */
-  private async canUpload( user: string, part: multiparty.Part ) {
+  private async canUpload( user: string, part: Part ) {
     const stats = this._stats;
 
     const result: IStorageStats = await stats.find( <IStorageStats>{ user: user } ).limit( 1 ).next();
@@ -458,7 +458,7 @@ export class BucketManager {
    * @param isPublic IF true, the file will be set as public
    * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
    */
-  private registerFile( identifier: string, bucket: IBucketEntry, part: multiparty.Part, user: string, isPublic: boolean, parentFile: string | null ) {
+  private registerFile( identifier: string, bucket: IBucketEntry, part: Part, user: string, isPublic: boolean, parentFile: string | null ) {
     const files = this._files;
 
     return new Promise<IFileEntry>(( resolve, reject ) => {
@@ -495,7 +495,7 @@ export class BucketManager {
    * @param makePublic Makes this uploaded file public to the world
    * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
    */
-  async uploadStream( part: multiparty.Part, bucketEntry: IBucketEntry, user: string, makePublic: boolean = true, parentFile: string | null = null ) {
+  async uploadStream( part: Part, bucketEntry: IBucketEntry, user: string, makePublic: boolean = true, parentFile: string | null = null ) {
 
     await this.canUpload( user, part );
 
@@ -566,7 +566,7 @@ export class BucketManager {
   /**
    * Creates the bucket manager singleton
    */
-  static create( buckets: mongodb.Collection, files: mongodb.Collection, stats: mongodb.Collection, config: IConfig ): BucketManager {
+  static create( buckets: Collection, files: Collection, stats: Collection, config: IConfig ): BucketManager {
     return new BucketManager( buckets, files, stats, config );
   }
 
