@@ -46,12 +46,11 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
   try {
     const session = await SessionManager.get.getSession( req );
 
-    if ( session )
-      await SessionManager.get.setSessionHeader( session, req, res );
-
     if ( !session )
       throw new Error( 'You must be logged in to make this request' );
 
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
 
     let target: User | null = null;
 
@@ -104,11 +103,11 @@ export async function adminRights( req: IAuthReq, res: express.Response, next?: 
   try {
     const session = await SessionManager.get.getSession( req );
 
-    if ( session )
-      await SessionManager.get.setSessionHeader( session, req, res );
-
     if ( !session )
       return errJson( new Error( 'You must be logged in to make this request' ), res );
+
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
 
     req._user = session.user.dbEntry;
     if ( session.user.dbEntry.privileges! > UserPrivileges.Admin )
@@ -171,12 +170,11 @@ export async function requireUser( req: IAuthReq, res: express.Response, next?: 
   try {
     const session = await SessionManager.get.getSession( req );
 
-    if ( session )
-      await SessionManager.get.setSessionHeader( session, req, res );
-
-
     if ( !session )
       return errJson( new Error( `You must be logged in to make this request` ), res );
+
+    if ( session )
+      await SessionManager.get.setSessionHeader( session, req, res );
 
     req._user = session.user.dbEntry;
     if ( next )
@@ -200,11 +198,11 @@ export async function requireUser( req: IAuthReq, res: express.Response, next?: 
 export async function requestHasPermission( level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string ): Promise<boolean> {
   const session = await SessionManager.get.getSession( req );
 
-  if ( session )
-    await SessionManager.get.setSessionHeader( session, req, res );
-
   if ( !session )
     throw new Error( 'You must be logged in to make this request' );
+
+  if ( session )
+    await SessionManager.get.setSessionHeader( session, req, res );
 
   if ( existingUser !== undefined ) {
     if ( (

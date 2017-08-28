@@ -1321,6 +1321,10 @@ declare module "core/session-manager" {
          */
         clearSession(sessionId: string | null, request: ServerRequest, response: ServerResponse): Promise<boolean>;
         /**
+         * Gets and initializes a session by its id
+         */
+        getSessionById(sessionId: string): Promise<Session | null>;
+        /**
          * Attempts to get a session from the request object of the client
          */
         getSession(request: ServerRequest): Promise<Session | null>;

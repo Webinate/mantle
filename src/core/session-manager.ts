@@ -139,10 +139,10 @@ export class SessionManager extends EventEmitter {
 
   async setSessionHeader( session: Session, request: ServerRequest, response: ServerResponse ) {
 
+    response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue( request ) );
+
     // Adds / updates the DB with the new session
     await this._sessions.updateOne( { sessionId: session.sessionId }, session.serialize() );
-
-    response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue( request ) );
   }
 
   /**
