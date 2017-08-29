@@ -1,4 +1,4 @@
-﻿import { IConfig, IClient, IServer } from 'modepress';
+﻿import { IConfig, IClient } from 'modepress';
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 import { error, info, clear, initializeLogger } from '../../utils/logger';
@@ -117,7 +117,7 @@ export async function initialize() {
   // First create the servers
   for ( const client of clients ) {
     if ( typeof client.server !== 'string' )
-      servers.push( new Server( client.server, client.path ) );
+      servers.push( new Server( client.server, client.path, client.name ) );
   }
 
   // Now go through the add on clients and add the controllers
@@ -127,9 +127,9 @@ export async function initialize() {
     let clientServer = client.server;
 
     if ( typeof clientServer === 'string' )
-      server = servers.find( s => s.server.host === clientServer );
+      server = servers.find( s => s.name === clientServer );
     else
-      server = servers.find( s => s.server.host === ( clientServer as IServer ).host );
+      server = servers.find( s => s.name === client.name );
 
     if ( !server ) {
       error( `Could not find an existing server with the name ${client.server}` );

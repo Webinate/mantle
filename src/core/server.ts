@@ -14,11 +14,13 @@ export class Server {
   server: IServer;
   private _controllers: Controller[];
   private _path: string;
+  public name: string;
 
-  constructor( server: IServer, path: string ) {
+  constructor( server: IServer, path: string, name: string ) {
     this.server = server;
     this._controllers = [];
     this._path = path;
+    this.name = name;
   }
 
   /**
