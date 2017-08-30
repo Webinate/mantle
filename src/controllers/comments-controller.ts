@@ -6,7 +6,7 @@ import * as compression from 'compression';
 import { Controller } from './controller';
 import { Model, ModelInstance } from '../models/model';
 import { CommentsModel } from '../models/comments-model';
-import { identifyUser, checkVerbosity, adminRights, canEdit, hasId } from '../utils/permission-controllers';
+import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { UserPrivileges } from '../core/user';
 import { IBaseControler } from 'modepress';
@@ -38,12 +38,12 @@ export class CommentsController extends Controller {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/comments', <any>[ adminRights, this.getComments.bind( this ) ] );
-    router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, checkVerbosity, this.getComment.bind( this ) ] );
-    router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), identifyUser, checkVerbosity, this.getComments.bind( this ) ] );
-    router.get( '/users/:user/comments', <any>[ identifyUser, checkVerbosity, this.getComments.bind( this ) ] );
-    router.delete( '/comments/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
-    router.put( '/comments/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
-    router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, checkVerbosity, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
+    router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, this.getComment.bind( this ) ] );
+    router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), identifyUser, this.getComments.bind( this ) ] );
+    router.get( '/users/:user/comments', <any>[ identifyUser, this.getComments.bind( this ) ] );
+    router.delete( '/comments/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
+    router.put( '/comments/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
+    router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
 
     // Register the path
     e.use(( this._options.rootPath || '' ) + '/', router );

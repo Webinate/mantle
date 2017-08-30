@@ -8,7 +8,7 @@ import { Controller } from './controller';
 import { Model } from '../models/model';
 import { PostsModel } from '../models/posts-model';
 import { CategoriesModel } from '../models/categories-model';
-import { identifyUser, checkVerbosity, adminRights, hasId } from '../utils/permission-controllers';
+import { identifyUser, adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { UserPrivileges } from '../core/user';
 import { IBaseControler } from 'modepress';
@@ -40,9 +40,9 @@ export class PostsController extends Controller {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/', <any>[ identifyUser, checkVerbosity, this.getPosts.bind( this ) ] );
-    router.get( '/slug/:slug', <any>[ identifyUser, checkVerbosity, this.getPost.bind( this ) ] );
-    router.get( '/:id', <any>[ identifyUser, checkVerbosity, hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
+    router.get( '/', <any>[ identifyUser, this.getPosts.bind( this ) ] );
+    router.get( '/slug/:slug', <any>[ identifyUser, this.getPost.bind( this ) ] );
+    router.get( '/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
     router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removePost.bind( this ) ] );
     router.put( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.updatePost.bind( this ) ] );
     router.post( '/', <any>[ adminRights, this.createPost.bind( this ) ] );

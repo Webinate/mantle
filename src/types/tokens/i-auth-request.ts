@@ -7,7 +7,6 @@ declare module 'modepress' {
    */
   export interface IAuthReq extends Request {
     _isAdmin: boolean;
-    _verbose: boolean;
     _user: IUserEntry | null;
     _target: IUserEntry | null;
     body: any;

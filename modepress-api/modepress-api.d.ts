@@ -616,7 +616,6 @@ declare module "types/tokens/i-auth-request" {
          */
         interface IAuthReq extends Request {
             _isAdmin: boolean;
-            _verbose: boolean;
             _user: IUserEntry | null;
             _target: IUserEntry | null;
             body: any;
@@ -2474,7 +2473,6 @@ declare module "utils/permission-controllers" {
      * Checks if the request has admin rights. If not, an error is sent back to the user
      */
     export function adminRights(req: IAuthReq, res: express.Response, next?: Function): Promise<void>;
-    export function checkVerbosity(req: IAuthReq, res: express.Response, next?: Function): any;
     /**
      * Checks for session data and fetches the user. Does not throw an error if the user is not present.
      */

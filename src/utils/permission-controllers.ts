@@ -67,7 +67,7 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
     else {
       req._user = session.user.dbEntry;
       req._isAdmin = ( session.user.dbEntry.privileges === 1 || session.user.dbEntry.privileges === 2 ? true : false );
-      req._verbose = ( req.query.verbose ? true : false );
+      // req._verbose = ( req.query.verbose ? true : false );
 
       if ( next )
         next();
@@ -120,21 +120,6 @@ export async function adminRights( req: IAuthReq, res: express.Response, next?: 
     if ( next )
       next( err );
   }
-}
-
-export function checkVerbosity( req: IAuthReq, res: express.Response, next?: Function ): any {
-
-  // Check if this must be cleaned or not
-  let verbose = req.query.verbose ? true : false;
-  if ( verbose )
-    if ( !req._isAdmin )
-      if ( req.params.user !== undefined && req.params.user !== req._user!.username )
-        verbose = false;
-
-  req._verbose = verbose;
-
-  if ( next )
-    next();
 }
 
 /**
