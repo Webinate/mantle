@@ -1,5 +1,5 @@
 ﻿import { ISchemaOptions, IModelEntry } from 'modepress';
-import { ModelInstance } from '../model';
+import { ModelInstance } from '../model-instance';
 
 /**
  * A definition of each item in the model

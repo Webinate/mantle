@@ -1,7 +1,8 @@
 ﻿import { ISchemaOptions, IModelEntry } from 'modepress';
 import { SchemaItem } from './schema-item';
 import { SchemaForeignKey } from './schema-foreign-key';
-import { Model, ModelInstance } from '../model';
+import { ModelInstance } from '../model-instance';
+import { Model } from '../model';
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 

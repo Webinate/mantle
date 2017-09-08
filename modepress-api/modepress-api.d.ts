@@ -749,9 +749,33 @@ declare module 'modepress' {
     interface IRemoveFiles extends IGetArrayResponse<string> {
     }
 }
+declare module "models/model-instance" {
+    import { IModelEntry } from 'modepress';
+    import { ObjectID } from 'mongodb';
+    import { Schema } from "models/schema";
+    import { Model } from "models/model";
+    /**
+     * An instance of a model with its own unique schema and ID. The initial schema is a clone
+     * the parent model's
+     */
+    export class ModelInstance<T extends IModelEntry | null> {
+        model: Model;
+        schema: Schema;
+        _id: ObjectID;
+        dbEntry: T;
+        /**
+         * Creates a model instance
+         */
+        constructor(model: Model, dbEntry: T);
+        /**
+         * Gets a string representation of all fields that are unique
+         */
+        uniqueFieldNames(): string;
+    }
+}
 declare module "models/schema-items/schema-item" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
-    import { ModelInstance } from "models/model";
+    import { ModelInstance } from "models/model-instance";
     /**
      * A definition of each item in the model
      */
@@ -866,7 +890,7 @@ declare module "models/schema" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
     import { SchemaItem } from "models/schema-items/schema-item";
     import * as mongodb from 'mongodb';
-    import { ModelInstance } from "models/model";
+    import { ModelInstance } from "models/model-instance";
     /**
      * Gives an overall description of each property in a model
      */
@@ -977,9 +1001,9 @@ declare module "utils/logger" {
     export function clear(): void;
 }
 declare module "models/model" {
-    import { IModelEntry } from 'modepress';
-    import * as mongodb from 'mongodb';
+    import { Collection, Db } from 'mongodb';
     import { Schema } from "models/schema";
+    import { ModelInstance } from "models/model-instance";
     export interface UpdateToken<T> {
         error: string | boolean;
         instance: ModelInstance<T>;
@@ -1000,28 +1024,10 @@ declare module "models/model" {
         };
     }
     /**
-     * An instance of a model with its own unique schema and ID. The initial schema is a clone
-     * the parent model's
-     */
-    export class ModelInstance<T extends IModelEntry | null> {
-        model: Model;
-        schema: Schema;
-        _id: mongodb.ObjectID;
-        dbEntry: T;
-        /**
-         * Creates a model instance
-         */
-        constructor(model: Model, dbEntry: T);
-        /**
-         * Gets a string representation of all fields that are unique
-         */
-        uniqueFieldNames(): string;
-    }
-    /**
      * Models map data in the application/client to data in the database
      */
     export abstract class Model {
-        collection: mongodb.Collection;
+        collection: Collection;
         defaultSchema: Schema;
         private _collectionName;
         private _initialized;
@@ -1058,7 +1064,7 @@ declare module "models/model" {
          * Initializes the model by setting up the database collections
          * @param db The database used to create this model
          */
-        initialize(db: mongodb.Db): Promise<Model>;
+        initialize(db: Db): Promise<Model>;
         /**
        * Gets the number of DB entries based on the selector
        * @param selector The mongodb selector
@@ -2182,7 +2188,7 @@ declare module "models/schema-items/schema-json" {
 declare module "models/schema-items/schema-foreign-key" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
     import { SchemaItem } from "models/schema-items/schema-item";
-    import { ModelInstance } from "models/model";
+    import { ModelInstance } from "models/model-instance";
     import { ObjectID } from 'mongodb';
     export type FKeyValues = ObjectID | string | IModelEntry | null;
     /**
@@ -2237,7 +2243,7 @@ declare module "models/schema-items/schema-foreign-key" {
 declare module "models/schema-items/schema-id-array" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
     import { SchemaItem } from "models/schema-items/schema-item";
-    import { ModelInstance } from "models/model";
+    import { ModelInstance } from "models/model-instance";
     import { ObjectID } from 'mongodb';
     /**
      * An ID array scheme item for use in Models. Optionally can be used as a foreign key array

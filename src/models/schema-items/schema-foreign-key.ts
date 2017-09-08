@@ -1,7 +1,8 @@
 ﻿import { ISchemaOptions, IModelEntry } from 'modepress';
 
 import { SchemaItem } from './schema-item';
-import { Model, ModelInstance } from '../model';
+import { Model } from '../model';
+import { ModelInstance } from '../model-instance';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { SchemaIdArray } from './schema-id-array';

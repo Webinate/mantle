@@ -1,8 +1,8 @@
 ﻿import { IModelEntry } from 'modepress';
-import * as mongodb from 'mongodb';
+import { Collection, Db } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
-
+import { ModelInstance } from './model-instance';
 
 export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
 
@@ -19,49 +19,11 @@ export interface ISearchOptions<T> {
   projection?: { [ name: string ]: number }
 }
 
-
-/**
- * An instance of a model with its own unique schema and ID. The initial schema is a clone
- * the parent model's
- */
-export class ModelInstance<T extends IModelEntry | null> {
-  public model: Model;
-  public schema: Schema;
-  public _id: mongodb.ObjectID;
-  public dbEntry: T;
-
-	/**
-	 * Creates a model instance
-	 */
-  constructor( model: Model, dbEntry: T ) {
-    this.model = model;
-    this.schema = model.defaultSchema.clone();
-    this.dbEntry = dbEntry;
-  }
-
-  /**
-   * Gets a string representation of all fields that are unique
-   */
-  uniqueFieldNames(): string {
-    let uniqueNames = '';
-    const items = this.schema.getItems();
-
-    for ( let i = 0, l = items.length; i < l; i++ )
-      if ( items[ i ].getUnique() )
-        uniqueNames += items[ i ].name + ', ';
-
-    if ( uniqueNames !== '' )
-      uniqueNames = uniqueNames.slice( 0, uniqueNames.length - 2 );
-
-    return uniqueNames;
-  }
-}
-
 /**
  * Models map data in the application/client to data in the database
  */
 export abstract class Model {
-  public collection: mongodb.Collection;
+  public collection: Collection;
   public defaultSchema: Schema;
   private _collectionName: string;
   private _initialized: boolean;
@@ -115,7 +77,7 @@ export abstract class Model {
    * @param name The name of the field we are setting an index of
    * @param collection The collection we are setting the index on
    */
-  private async createIndex( name: string, collection: mongodb.Collection ): Promise<string> {
+  private async createIndex( name: string, collection: Collection ): Promise<string> {
     const index = await collection.createIndex( name );
     return index;
   }
@@ -129,7 +91,7 @@ export abstract class Model {
 	 * Initializes the model by setting up the database collections
 	 * @param db The database used to create this model
 	 */
-  async initialize( db: mongodb.Db ): Promise<Model> {
+  async initialize( db: Db ): Promise<Model> {
     // If the collection already exists - then we do not have to create it
     if ( this._initialized )
       return this;

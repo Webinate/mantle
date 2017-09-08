@@ -1,7 +1,7 @@
 ﻿import { ISchemaOptions, IModelEntry } from 'modepress';
 import { SchemaItem } from './schema-items/schema-item';
 import * as mongodb from 'mongodb'
-import { ModelInstance } from './model'
+import { ModelInstance } from './model-instance'
 
 /**
  * Gives an overall description of each property in a model
