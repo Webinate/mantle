@@ -66,9 +66,6 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
       throw new Error( 'You do not have permission' );
     else {
       req._user = session.user.dbEntry;
-      req._isAdmin = ( session.user.dbEntry.privileges === 1 || session.user.dbEntry.privileges === 2 ? true : false );
-      // req._verbose = ( req.query.verbose ? true : false );
-
       if ( next )
         next();
 
@@ -133,10 +130,8 @@ export async function identifyUser( req: IAuthReq, res: express.Response, next?:
     if ( session )
       await SessionManager.get.setSessionHeader( session, req, res );
 
-    if ( session ) {
+    if ( session )
       req._user = session.user.dbEntry;
-      req._isAdmin = ( session.user.dbEntry.privileges! > UserPrivileges.Admin ? true : false );
-    }
 
     if ( next )
       next();
@@ -200,8 +195,6 @@ export async function requestHasPermission( level: UserPrivileges, req: IAuthReq
     throw new Error( 'You don\'t have permission to make this request' );
 
   req._user = session.user.dbEntry;
-  if ( session )
-    req._isAdmin = ( session.user.dbEntry.privileges! > UserPrivileges.Admin ? true : false );
 
   return true;
 }
