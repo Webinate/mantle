@@ -23,7 +23,7 @@ describe( '15. Testing setting stat values', function() {
 
   it( 'regular user did not create storage calls for admin', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/stats/storage-calls/${config.adminUser.username}/90000`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -34,7 +34,7 @@ describe( '15. Testing setting stat values', function() {
 
   it( 'regular user did not create storage memory for admin', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/stats/storage-memory/${config.adminUser.username}/90000`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -45,7 +45,7 @@ describe( '15. Testing setting stat values', function() {
 
   it( 'regular user did not create allocated calls for admin', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/stats/storage-allocated-calls/${config.adminUser.username}/90000`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -56,7 +56,7 @@ describe( '15. Testing setting stat values', function() {
 
   it( 'regular user did not create allocated memory for admin', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/stats/storage-allocated-memory/${config.adminUser.username}/90000`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -67,7 +67,7 @@ describe( '15. Testing setting stat values', function() {
 
   it( 'regular user did not create storage calls for itself', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/stats/storage-calls/${user1.username}/90000`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -78,7 +78,7 @@ describe( '15. Testing setting stat values', function() {
 
   it( 'regular user did not create storage memory for itself', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/stats/storage-memory/${user1.username}/90000`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -89,7 +89,7 @@ describe( '15. Testing setting stat values', function() {
 
   it( 'regular user did not create storage allocated calls for itself', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/stats/storage-allocated-calls/${user1.username}/90000`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -100,7 +100,7 @@ describe( '15. Testing setting stat values', function() {
 
   it( 'regular user did not create storage allocated memory for itself', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/stats/storage-allocated-memory/${user1.username}/90000`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );

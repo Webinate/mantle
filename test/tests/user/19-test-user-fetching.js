@@ -25,7 +25,7 @@ describe( '19. Testing fetching users', function() {
 
   it( 'did not allow a regular user to access the admin user details', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .get( `/api/users/${admin.username}?verbose=true` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" )
@@ -36,7 +36,7 @@ describe( '19. Testing fetching users', function() {
 
   it( 'did not allow a regular user to access another user details', function( done ) {
     user2
-      .code( 500 )
+      .code( 403 )
       .get( `/api/users/${admin.username}?verbose=true` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" )

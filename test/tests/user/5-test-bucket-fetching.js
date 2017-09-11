@@ -31,7 +31,7 @@ describe( '5. Testing bucket get requests', function() {
 
   it( 'regular user did not get buckets for admin', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .get( `/buckets/user/${config.adminUser.username}` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -42,7 +42,7 @@ describe( '5. Testing bucket get requests', function() {
 
   it( 'other regular user did not get buckets for regular user', function( done ) {
     user2
-      .code( 500 )
+      .code( 403 )
       .get( `/buckets/user/${config.adminUser.username}` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );

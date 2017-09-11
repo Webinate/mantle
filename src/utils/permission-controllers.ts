@@ -5,6 +5,7 @@ import { UserPrivileges, User } from '../core/user';
 import { UserManager } from '../core/user-manager';
 import { SessionManager } from '../core/session-manager';
 import { errJson } from './serializers';
+import { Error401, Error403 } from './errors';
 
 /**
  * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
@@ -47,7 +48,7 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
     const session = await SessionManager.get.getSession( req );
 
     if ( !session )
-      throw new Error( 'You must be logged in to make this request' );
+      throw new Error401( 'You must be logged in to make this request' );
 
     if ( session )
       await SessionManager.get.setSessionHeader( session, req, res );
@@ -63,7 +64,7 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
 
 
     else if ( !hasPermission( session.user, 2, targetUser ) )
-      throw new Error( 'You do not have permission' );
+      throw new Error403( 'You do not have permission' );
     else {
       req._user = session.user.dbEntry;
       if ( next )
@@ -89,7 +90,7 @@ export function ownerRights( req: IAuthReq, res: express.Response, next?: Functi
       next();
 
   } ).catch( function( error: Error ) {
-    return errJson( new Error( error.message ), res );
+    return errJson( error, res );
   } );
 }
 
@@ -101,14 +102,14 @@ export async function adminRights( req: IAuthReq, res: express.Response, next?: 
     const session = await SessionManager.get.getSession( req );
 
     if ( !session )
-      return errJson( new Error( 'You must be logged in to make this request' ), res );
+      return errJson( new Error401( 'You must be logged in to make this request' ), res );
 
     if ( session )
       await SessionManager.get.setSessionHeader( session, req, res );
 
     req._user = session.user.dbEntry;
     if ( session.user.dbEntry.privileges! > UserPrivileges.Admin )
-      return errJson( new Error( `You don't have permission to make this request` ), res );
+      return errJson( new Error403( `You don't have permission to make this request` ), res );
     else
       if ( next )
         next();
@@ -151,7 +152,7 @@ export async function requireUser( req: IAuthReq, res: express.Response, next?: 
     const session = await SessionManager.get.getSession( req );
 
     if ( !session )
-      return errJson( new Error( `You must be logged in to make this request` ), res );
+      return errJson( new Error401( `You must be logged in to make this request` ), res );
 
     if ( session )
       await SessionManager.get.setSessionHeader( session, req, res );
@@ -179,7 +180,7 @@ export async function requestHasPermission( level: UserPrivileges, req: IAuthReq
   const session = await SessionManager.get.getSession( req );
 
   if ( !session )
-    throw new Error( 'You must be logged in to make this request' );
+    throw new Error401( 'You must be logged in to make this request' );
 
   if ( session )
     await SessionManager.get.setSessionHeader( session, req, res );
@@ -189,10 +190,10 @@ export async function requestHasPermission( level: UserPrivileges, req: IAuthReq
       session.user.dbEntry.email !== existingUser &&
       session.user.dbEntry.username !== existingUser ) &&
       session.user.dbEntry.privileges! > level )
-      throw new Error( 'You don\'t have permission to make this request' );
+      throw new Error403( 'You don\'t have permission to make this request' );
   }
   else if ( session.user.dbEntry.privileges! > level )
-    throw new Error( 'You don\'t have permission to make this request' );
+    throw new Error403( 'You don\'t have permission to make this request' );
 
   req._user = session.user.dbEntry;
 

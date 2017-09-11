@@ -21,7 +21,7 @@ describe( '1. Testing creation of posts', function() {
 
   it( 'cannot create post when not logged in', function( done ) {
     guest
-      .code( 500 )
+      .code( 401 )
       .post( `/api/posts`, { name: "" } )
       .then( res => {
         test.string( res.body.message ).is( "You must be logged in to make this request" );

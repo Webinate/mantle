@@ -34,7 +34,7 @@ describe( '18. Testing deleting users', function() {
 
   it( 'did not allow a regular user to remove another user', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .delete( `/api/users/${user2.username}` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" )

@@ -80,7 +80,7 @@ describe( '12. Getting user data', function() {
 
   it( 'should get no user with username', function( done ) {
     guest
-      .code( 500 )
+      .code( 401 )
       .get( `/api/users/${config.adminUser.username}` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" )
@@ -92,7 +92,7 @@ describe( '12. Getting user data', function() {
 
   it( 'should get no user with email or verbose', function( done ) {
     guest
-      .code( 500 )
+      .code( 401 )
       .get( `/api/users/${config.adminUser.email}?verbose=true` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" )

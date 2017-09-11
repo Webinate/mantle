@@ -123,7 +123,7 @@ describe( '17. Testing creating a user', function() {
 
   it( 'did not create a new user as a regular user', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .post( `/api/users` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" )

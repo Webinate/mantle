@@ -2433,6 +2433,36 @@ declare module "models/schema-items/schema-item-factory" {
     export const html: typeof SchemaHtml;
     export const foreignKey: typeof SchemaForeignKey;
 }
+declare module "utils/errors" {
+    /**
+     * 403 Forbidden errors: The request was valid, but the server is refusing action.
+     * The user might not have the necessary permissions for a resource, or may need an account of some sort.
+     */
+    export class Error403 extends Error {
+        constructor(message: string);
+    }
+    /**
+     * 401 Unorthorized: Similar to 403 Forbidden, but specifically for use when authentication
+     * is required and has failed or has not yet been provided.
+     */
+    export class Error401 extends Error {
+        constructor(message: string);
+    }
+    /**
+     * 404 Not Found errors: The requested resource could not be
+     * found but may be available in the future. Subsequent requests by the client are permissible.
+     */
+    export class Error404 extends Error {
+        constructor(message: string);
+    }
+    /**
+     * 500 Internal Server Error: A generic error message, given when an unexpected condition was
+     * encountered and no more specific message is suitable.
+     */
+    export class Error500 extends Error {
+        constructor(message: string);
+    }
+}
 declare module "utils/serializers" {
     import { IResponse } from 'modepress';
     import * as express from 'express';
@@ -2448,7 +2478,7 @@ declare module "utils/serializers" {
      */
     export function okJson<T extends IResponse>(data: T, res: express.Response): void;
     /**
-     * Helper function to return a status 200 json object of type T
+     * Helper function to return a status 500 json object of type T
      */
     export function errJson(err: Error, res: express.Response): void;
 }
@@ -2693,8 +2723,8 @@ declare module "controllers/error-controller" {
        */
         constructor();
         /**
-       * Called to initialize this controller and its related database objects
-       */
+         * Called to initialize this controller and its related database objects
+         */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
     }
 }

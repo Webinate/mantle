@@ -22,7 +22,7 @@ describe( '8. Getting uploaded user files', function() {
 
   it( 'regular user did not get files for the admin user bucket', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .get( `/files/users/${config.adminUser.username}/buckets/BAD_ENTRY` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );

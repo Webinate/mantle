@@ -2,6 +2,7 @@
 import { IResponse } from 'modepress';
 import * as express from 'express';
 import { error as logError } from './logger';
+import { Error401, Error403, Error404 } from './errors';
 
 /**
  * A decorator for transforming an async express function handler.
@@ -42,11 +43,20 @@ export function okJson<T extends IResponse>( data: T, res: express.Response ) {
 }
 
 /**
- * Helper function to return a status 200 json object of type T
+ * Helper function to return a status 500 json object of type T
  */
 export function errJson( err: Error, res: express.Response ) {
   logError( err.message );
-  res.status( 500 )
+
+  if ( err instanceof Error401 )
+    res.status( 401 );
+  else if ( err instanceof Error403 )
+    res.status( 403 );
+  else if ( err instanceof Error404 )
+    res.status( 404 );
+  else
+    res.status( 500 );
+
   res.setHeader( 'Content-Type', 'application/json' );
   res.end( JSON.stringify( <IResponse>{ message: err.message } ) );
 }

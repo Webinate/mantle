@@ -17,8 +17,8 @@ export class ErrorController extends Controller {
   }
 
   /**
- * Called to initialize this controller and its related database objects
- */
+   * Called to initialize this controller and its related database objects
+   */
   async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
 
     // Handle all errors the same way

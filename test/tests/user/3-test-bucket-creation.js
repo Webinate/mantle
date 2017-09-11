@@ -14,7 +14,7 @@ describe( '3. Testing bucket creation', function() {
 
   it( 'regular user did not create a bucket for another user', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .post( `/buckets/user/${config.adminUser.username} + "/test` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );

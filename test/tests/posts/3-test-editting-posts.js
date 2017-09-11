@@ -97,7 +97,7 @@ describe( '3. Testing editing of posts', function() {
 
   it( 'cannot edit a post without permission', function( done ) {
     guest
-      .code( 500 )
+      .code( 401 )
       .put( `/api/posts/${postId}`, { title: "Simple Test 3" } )
       .then( res => {
         test.string( res.body.message ).is( "You must be logged in to make this request" );

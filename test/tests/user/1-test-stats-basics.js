@@ -14,7 +14,7 @@ describe( '1. Getting and setting user stats', function() {
 
   it( 'regular user did not get stats for admin', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .get( `/stats/users/${config.adminUser.username}/get-stats` )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );
@@ -25,7 +25,7 @@ describe( '1. Getting and setting user stats', function() {
 
   it( 'regular user did not create stats for admin', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .post( `/stats/create-stats/${config.adminUser.username}`, {} )
       .then( res => {
         test.object( res.body ).hasProperty( "message" );

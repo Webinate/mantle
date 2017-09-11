@@ -53,7 +53,7 @@ describe( '2. Testing deletion of posts', function() {
 
   it( 'cannot delete a post without permission', function( done ) {
     guest
-      .code( 500 )
+      .code( 401 )
       .delete( `/api/posts/${postId}`, null )
       .then( res => {
         test.string( res.body.message ).is( "You must be logged in to make this request" );

@@ -112,7 +112,7 @@ describe( '22. Testing registering a user', function() {
 
   it( 'did not approve activation as a regular user', function( done ) {
     user1
-      .code( 500 )
+      .code( 403 )
       .put( `/api/auth/${testUserName}/approve-activation` )
       .then( res => {
         test.string( res.body.message ).is( "You don't have permission to make this request" )
