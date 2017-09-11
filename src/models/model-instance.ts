@@ -13,7 +13,7 @@ export class ModelInstance<T extends IModelEntry | null> {
   public _id: ObjectID;
   public dbEntry: T;
 
-	/**
+  /**
 	 * Creates a model instance
 	 */
   constructor( model: Model, dbEntry: T ) {

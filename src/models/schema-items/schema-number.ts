@@ -17,15 +17,15 @@ export class SchemaNumber extends SchemaItem<number> {
   public type: NumberType;
   public decimalPlaces: number;
 
-	/**
-	 * Creates a new schema item
-	 * @param name The name of this item
-	 * @param val The default value of this item
-	 * @param min [Optional] The minimum value the value can be
-	 * @param max [Optional] The maximum value the value can be
-	 * @param type [Optional] The type of number the schema represents
-	 * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
-	 */
+  /**
+   * Creates a new schema item
+   * @param name The name of this item
+   * @param val The default value of this item
+   * @param min [Optional] The minimum value the value can be
+   * @param max [Optional] The maximum value the value can be
+   * @param type [Optional] The type of number the schema represents
+   * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
+   */
   constructor( name: string, val: number, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2 ) {
     super( name, val );
     this.min = min;
@@ -38,10 +38,10 @@ export class SchemaNumber extends SchemaItem<number> {
     this.decimalPlaces = decimalPlaces;
   }
 
-	/**
-	 * Creates a clone of this item
-	 * @returns copy A sub class of the copy
-	 */
+  /**
+   * Creates a clone of this item
+   * @returns copy A sub class of the copy
+   */
   public clone( copy?: SchemaNumber ): SchemaNumber {
     copy = copy === undefined ? new SchemaNumber( this.name, <number>this.value ) : copy;
     super.clone( copy );
@@ -53,9 +53,9 @@ export class SchemaNumber extends SchemaItem<number> {
     return copy;
   }
 
-	/**
-	 * Checks the value stored to see if its correct in its current form
-	 */
+  /**
+   * Checks the value stored to see if its correct in its current form
+   */
   public validate(): Promise<boolean | Error> {
     const type = this.type;
     const decimalPlaces = this.decimalPlaces;

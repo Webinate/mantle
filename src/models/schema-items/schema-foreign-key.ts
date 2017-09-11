@@ -23,15 +23,15 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
 
   private _targetDoc: ModelInstance<IModelEntry> | null;
 
-	/**
-	 * Creates a new schema item
-	 * @param name The name of this item
-	 * @param val The string representation of the foreign key's _id
+  /**
+   * Creates a new schema item
+   * @param name The name of this item
+   * @param val The string representation of the foreign key's _id
    * @param targetCollection The name of the collection to which the target exists
    * @param keyCanBeNull If true, then the key is allowed to be null
    * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
    * owns this item must be removed as it cannot exist without the target.
-	 */
+   */
   constructor( name: string, val: string, targetCollection: string, keyCanBeNull: boolean, canAdapt: boolean ) {
     super( name, val );
     this.targetCollection = targetCollection;
@@ -40,18 +40,18 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
     this.keyCanBeNull = keyCanBeNull;
   }
 
-	/**
-	 * Creates a clone of this item
-	 */
+  /**
+   * Creates a clone of this item
+   */
   public clone( copy?: SchemaForeignKey ): SchemaForeignKey {
     copy = copy === undefined ? new SchemaForeignKey( this.name, <string>this.value, this.targetCollection, this.keyCanBeNull, this.canAdapt ) : copy;
     super.clone( copy );
     return copy;
   }
 
-	/**
-	 * Checks the value stored to see if its correct in its current form
-	 */
+  /**
+   * Checks the value stored to see if its correct in its current form
+   */
   public async validate(): Promise<boolean | Error> {
     let transformedValue = this.value;
 

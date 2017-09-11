@@ -25,7 +25,7 @@ export class BucketController extends Controller {
   private _allowedFileTypes: Array<string>;
   private _options: IBaseControler;
 
-	/**
+  /**
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IBaseControler ) {

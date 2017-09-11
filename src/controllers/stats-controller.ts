@@ -20,7 +20,7 @@ export class StatsController extends Controller {
   private _allowedFileTypes: Array<string>;
   private _options: IBaseControler;
 
-	/**
+  /**
 	 * Creates an instance of the user manager
 	 * @param e The express app
 	 * @param The config options of this manager

@@ -21,7 +21,7 @@ import * as mongodb from 'mongodb';
 export class AuthController extends Controller {
   private _options: IAuthOptions;
 
-	/**
+  /**
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IAuthOptions ) {
@@ -66,7 +66,7 @@ export class AuthController extends Controller {
     return this;
   }
 
-	/**
+  /**
 	 * Activates the user's account
 	 */
   private async activateAccount( req: express.Request, res: express.Response ) {
@@ -85,7 +85,7 @@ export class AuthController extends Controller {
     };
   }
 
-	/**
+  /**
 	 * Resends the activation link to the user
 	 */
   @j200()
@@ -126,7 +126,7 @@ export class AuthController extends Controller {
     return { message: 'Your password has been reset' } as IResponse
   }
 
-	/**
+  /**
 	 * Approves a user's activation code so they can login without email validation
 	 */
   @j200()
@@ -135,7 +135,7 @@ export class AuthController extends Controller {
     return { message: 'Activation code has been approved' } as IResponse;
   }
 
-	/**
+  /**
 	 * Attempts to log the user in. Expects the username, password and rememberMe parameters be set.
 	 */
   @j200()
@@ -153,7 +153,7 @@ export class AuthController extends Controller {
     } as IAuthenticationResponse;
   }
 
-	/**
+  /**
 	 * Attempts to log the user out
 	 */
   @j200()
@@ -162,7 +162,7 @@ export class AuthController extends Controller {
     return { message: 'Successfully logged out' } as IResponse;
   }
 
-	/**
+  /**
 	 * Attempts to register a new user
 	 */
   @j200()
@@ -178,7 +178,7 @@ export class AuthController extends Controller {
     } as IAuthenticationResponse;
   }
 
-	/**
+  /**
 	 * Checks to see if the current session is logged in. If the user is, it will be returned redacted. You can specify the 'verbose' query parameter
 	 */
   @j200()

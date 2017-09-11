@@ -30,16 +30,16 @@ export class SchemaHtml extends SchemaItem<string> {
   public minCharacters: number;
   public maxCharacters: number;
 
-	/**
- 	 * Creates a new schema item
- 	 * @param name The name of this item
-	 * @param val The text of this item
+  /**
+    * Creates a new schema item
+    * @param name The name of this item
+   * @param val The text of this item
    * @param allowedTags The tags allowed by the html parser
    * @param allowedAttributes The attributes allowed by each attribute
    * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
    * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
-	 * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-	 */
+   * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
+   */
   constructor( name: string, val: string, allowedTags: Array<string> = SchemaHtml.defaultTags,
     allowedAttributes: { [ name: string ]: Array<string> } = SchemaHtml.defaultAllowedAttributes,
     errorBadHTML: boolean = true, minCharacters: number = 0, maxCharacters: number = 10000 ) {
@@ -52,10 +52,10 @@ export class SchemaHtml extends SchemaItem<string> {
     this.minCharacters = minCharacters;
   }
 
-	/**
-	 * Creates a clone of this item
-	 * @returns copy A sub class of the copy
-	 */
+  /**
+   * Creates a clone of this item
+   * @returns copy A sub class of the copy
+   */
   public clone( copy?: SchemaHtml ): SchemaHtml {
     copy = copy === undefined ? new SchemaHtml( this.name, <string>this.value ) : copy;
     super.clone( copy );
@@ -67,10 +67,10 @@ export class SchemaHtml extends SchemaItem<string> {
     return copy;
   }
 
-	/**
-	 * Checks the value stored to see if its correct in its current form
-	 * @returns Returns true if successful or an error message string if unsuccessful
-	 */
+  /**
+   * Checks the value stored to see if its correct in its current form
+   * @returns Returns true if successful or an error message string if unsuccessful
+   */
   public validate(): Promise<boolean | Error> {
     const maxCharacters = this.maxCharacters;
     const minCharacters = this.minCharacters;

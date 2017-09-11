@@ -15,7 +15,7 @@ export enum UserPrivileges {
 export class User {
   dbEntry: IUserEntry;
 
-	/**
+  /**
 	 * Creates a new User instance
 	 * @param dbEntry The data object that represents the user in the DB
 	 */
@@ -58,7 +58,7 @@ export class User {
       };
   }
 
-	/**
+  /**
 	 * Generates the object to be stored in the database
 	 */
   generateDbEntry(): IUserEntry {
@@ -76,7 +76,7 @@ export class User {
     };
   }
 
-	/**
+  /**
 	 * Creates a random string that is assigned to the dbEntry registration key
 	 * @param length The length of the password
 	 */

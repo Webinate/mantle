@@ -18,7 +18,7 @@ import { IBaseControler } from 'modepress';
 export class CommentsController extends Controller {
   private _options: IBaseControler;
 
-	/**
+  /**
 	 * Creates a new instance of the controller
 	 */
   constructor( options: IBaseControler ) {

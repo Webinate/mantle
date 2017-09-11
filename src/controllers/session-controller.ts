@@ -19,7 +19,7 @@ import * as mongodb from 'mongodb';
 export class SessionController extends Controller {
   private _options: IBaseControler;
 
-	/**
+  /**
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IBaseControler ) {
@@ -49,7 +49,7 @@ export class SessionController extends Controller {
     return this;
   }
 
-	/**
+  /**
 	 * Gets a list of active sessions. You can limit the haul by specifying the 'index' and 'limit' query parameters.
 	 */
   @j200()
@@ -64,7 +64,7 @@ export class SessionController extends Controller {
     } as IGetSessions;
   }
 
-	/**
+  /**
  	 * Resends the activation link to the user
 	 */
   @j200()

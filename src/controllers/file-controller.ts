@@ -20,7 +20,7 @@ export class FileController extends Controller {
   private _cacheLifetime: number;
   private _options: IFileOptions;
 
-	/**
+  /**
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IFileOptions ) {

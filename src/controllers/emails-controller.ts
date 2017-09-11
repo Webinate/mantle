@@ -10,7 +10,7 @@ import * as mongodb from 'mongodb';
 export class EmailsController extends Controller {
   private _options: IBaseControler;
 
-	/**
+  /**
 	 * Creates a new instance of the email controller
 	 */
   constructor( options: IBaseControler ) {
@@ -39,7 +39,7 @@ export class EmailsController extends Controller {
     return this;
   }
 
-	/**
+  /**
 	 * Called whenever a post request is caught by this controller
 	 */
   protected onPost( req: express.Request, res: express.Response ): any {

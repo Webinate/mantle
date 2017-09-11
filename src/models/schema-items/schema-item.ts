@@ -27,10 +27,10 @@ export class SchemaItem<T> {
     this._readOnly = false;
   }
 
-	/**
-	 * Creates a clone of this item
-	 * @returns copy A sub class of the copy
-	 */
+  /**
+   * Creates a clone of this item
+   * @returns copy A sub class of the copy
+   */
   public clone( copy?: SchemaItem<T> ): SchemaItem<T> {
     copy = copy === undefined ? new SchemaItem( this.name, this.value ) : copy;
     copy._unique = this._unique;
@@ -133,9 +133,9 @@ export class SchemaItem<T> {
     return this;
   }
 
-	/**
-	 * Checks the value stored to see if its correct in its current form
-	 */
+  /**
+   * Checks the value stored to see if its correct in its current form
+   */
   public validate(): Promise<boolean | Error> {
     return Promise.resolve( true );
   }

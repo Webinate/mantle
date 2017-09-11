@@ -30,7 +30,7 @@ export abstract class Model {
 
   private static _registeredModels: { [ name: string ]: Model } = {};
 
-	/**
+  /**
 	 * Creates an instance of a Model
 	 * @param collection The collection name associated with this model
 	 */
@@ -82,12 +82,12 @@ export abstract class Model {
     return index;
   }
 
-	/**
+  /**
 	 * Gets the name of the collection associated with this model
 	 */
   get collectionName(): string { return this._collectionName; }
 
-	/**
+  /**
 	 * Initializes the model by setting up the database collections
 	 * @param db The database used to create this model
 	 */
@@ -135,7 +135,7 @@ export abstract class Model {
     return await collection.count( selector );
   }
 
-	/**
+  /**
 	 * Gets an arrray of instances based on the selector search criteria
  	 * @param selector The mongodb selector
  	 * @param sort Specify an array of items to sort.
@@ -266,7 +266,7 @@ export abstract class Model {
     return deleteResult.deletedCount!;
   }
 
-	/**
+  /**
 	 * Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	 */
   async deleteInstances( selector: any ): Promise<number> {
@@ -381,7 +381,7 @@ export abstract class Model {
   }
 
 
-	/**
+  /**
 	 * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
 	 * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object
@@ -405,7 +405,7 @@ export abstract class Model {
     return instance[ 0 ];
   }
 
-	/**
+  /**
 	 * Attempts to insert an array of instances of this model into the database.
 	 * @param instances An array of instances to save
 	 */

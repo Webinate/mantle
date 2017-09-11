@@ -27,7 +27,7 @@ export class Controller {
     }
   }
 
-	/**
+  /**
 	 * Called to initialize this controller and its related database objects
 	 */
   async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
@@ -43,7 +43,7 @@ export class Controller {
     return this;
   }
 
-	/**
+  /**
 	 * Gets a model by its collection name
 	 */
   getModel( collectionName: string ): Model | null {

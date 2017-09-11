@@ -20,7 +20,7 @@ import * as mongodb from 'mongodb';
 export class UserController extends Controller {
   private _options: IBaseControler;
 
-	/**
+  /**
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IBaseControler ) {
@@ -151,7 +151,7 @@ export class UserController extends Controller {
     return val;
   }
 
-	/**
+  /**
 	 * Removes a user from the database
 	 */
   @j200()
@@ -164,7 +164,7 @@ export class UserController extends Controller {
     return { message: `User ${toRemove} has been removed` } as IResponse;
   }
 
-	/**
+  /**
 	 * Allows an admin to create a new user without registration
 	 */
   @j200()

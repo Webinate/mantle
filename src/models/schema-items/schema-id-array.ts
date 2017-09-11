@@ -20,15 +20,15 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
   public curLevel: number;
   private _targetDocs: Array<ModelInstance<IModelEntry>> | null;
 
-	/**
-	 * Creates a new schema item that holds an array of id items
-	 * @param name The name of this item
-	 * @param val The array of ids for this schema item
+  /**
+   * Creates a new schema item that holds an array of id items
+   * @param name The name of this item
+   * @param val The array of ids for this schema item
    * @param minItems [Optional] Specify the minimum number of items that can be allowed
    * @param maxItems [Optional] Specify the maximum number of items that can be allowed
    * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
    * the item can expand objects on retreival.
-	 */
+   */
   constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, targetCollection: string ) {
     super( name, val );
     this.maxItems = maxItems;
@@ -37,10 +37,10 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
     this.curLevel = 1;
   }
 
-	/**
-	 * Creates a clone of this item
-	 * @returns copy A sub class of the copy
-	 */
+  /**
+   * Creates a clone of this item
+   * @returns copy A sub class of the copy
+   */
   public clone( copy?: SchemaIdArray ): SchemaIdArray {
     copy = copy === undefined ? new SchemaIdArray( this.name, <Array<string>>this.value, undefined, undefined, this.targetCollection ) : copy;
     super.clone( copy );
@@ -50,10 +50,10 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
     return copy;
   }
 
-	/**
-	 * Checks the value stored to see if its correct in its current form
-	 * @returns Returns true if successful or an error message string if unsuccessful
-	 */
+  /**
+   * Checks the value stored to see if its correct in its current form
+   * @returns Returns true if successful or an error message string if unsuccessful
+   */
   public async validate(): Promise<boolean | Error> {
     const transformedValue = this.value;
 

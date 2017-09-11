@@ -25,7 +25,7 @@ export class UserManager {
   private _config: IConfig;
   private _mailer: IMailer;
 
-	/**
+  /**
 	 * Creates an instance of the user manager
 	 */
   constructor( userCollection: Collection, config: IConfig ) {
@@ -53,7 +53,7 @@ export class UserManager {
     return;
   }
 
-	/**
+  /**
 	 * Initializes the API
 	 */
   async initialize() {
@@ -90,7 +90,7 @@ export class UserManager {
     return;
   }
 
-	/**
+  /**
 	 * Attempts to register a new user
 	 * @param username The username of the user
 	 * @param pass The users secret password
@@ -137,7 +137,7 @@ export class UserManager {
     return user;
   }
 
-	/**
+  /**
 	 * Creates the link to send to the user for activation
 	 * @param user The user we are activating
      * @param resetUrl The url of where the activation link should go
@@ -147,7 +147,7 @@ export class UserManager {
     return `${resetUrl}?key=${user.dbEntry.registerKey}&user=${user.dbEntry.username}&origin=${origin}`;
   }
 
-	/**
+  /**
 	 * Creates the link to send to the user for password reset
 	 * @param username The username of the user
      * @param origin The origin of where the password reset link came from
@@ -157,7 +157,7 @@ export class UserManager {
     return `${resetUrl}?key=${user.dbEntry.passwordTag}&user=${user.dbEntry.username}&origin=${origin}`;
   }
 
-	/**
+  /**
 	 * Approves a user's activation code so they can login without email validation
 	 * @param username The username or email of the user
 	 */
@@ -199,7 +199,7 @@ export class UserManager {
     return true;
   }
 
-	/**
+  /**
 	 * Attempts to resend the activation link
 	 * @param username The username of the user
      * @param resetUrl The url where the reset password link should direct to
@@ -345,7 +345,7 @@ export class UserManager {
     return true;
   }
 
-	/**
+  /**
 	 * Checks the users activation code to see if its valid
 	 * @param username The username of the user
 	 */
@@ -396,7 +396,7 @@ export class UserManager {
   //     return new User( useEntry );
   // }
 
-	/**
+  /**
 	 * Attempts to log the user out
 	 * @param request
 	 * @param response
@@ -406,7 +406,7 @@ export class UserManager {
     return sessionCleaered;
   }
 
-	/**
+  /**
 	 * Creates a new user
 	 * @param user The unique username
 	 * @param email The unique email
@@ -463,7 +463,7 @@ export class UserManager {
     return newUser;
   }
 
-	/**
+  /**
 	 * Deletes a user from the database
 	 * @param user The unique username or email of the user to remove
 	 */
@@ -494,7 +494,7 @@ export class UserManager {
     return;
   }
 
-	/**
+  /**
 	 * Gets a user by a username or email
 	 * @param user The username or email of the user to get
 	 * @param email [Optional] Do a check if the email exists as well
@@ -522,7 +522,7 @@ export class UserManager {
       return new User( userEntry );
   }
 
-	/**
+  /**
 	 * Attempts to log a user in
 	 * @param username The username or email of the user
 	 * @param pass The password of the user
@@ -568,7 +568,7 @@ export class UserManager {
     return session;
   }
 
-	/**
+  /**
 	 * Removes a user by his email or username
 	 * @param username The username or email of the user
 	 * @returns True if the user was in the DB or false if they were not
@@ -670,7 +670,7 @@ export class UserManager {
     return result;
   }
 
-	/**
+  /**
 	 * Prints user objects from the database
 	 * @param limit The number of users to fetch
 	 * @param startIndex The starting index from where we are fetching users from

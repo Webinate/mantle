@@ -764,8 +764,8 @@ declare module "models/model-instance" {
         _id: ObjectID;
         dbEntry: T;
         /**
-         * Creates a model instance
-         */
+           * Creates a model instance
+           */
         constructor(model: Model, dbEntry: T);
         /**
          * Gets a string representation of all fields that are unique
@@ -914,8 +914,8 @@ declare module "models/schema" {
          */
         setVal(name: string, val: any): void;
         /**
-         * De-serializes the schema items from the mongodb data entry.
-         * I.e. the data is the document from the DB and the schema item sets its values from the document
+          * De-serializes the schema items from the mongodb data entry.
+           * I.e. the data is the document from the DB and the schema item sets its values from the document
          */
         deserialize(data: any): any;
         /**
@@ -931,7 +931,7 @@ declare module "models/schema" {
         /**
          * Checks the values stored in the items to see if they are correct
          * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-       * @returns Returns true if successful
+         * @returns Returns true if successful
          */
         validate(checkForRequiredFields: boolean): Promise<Schema>;
         /**
@@ -1033,9 +1033,9 @@ declare module "models/model" {
         private _initialized;
         private static _registeredModels;
         /**
-         * Creates an instance of a Model
-         * @param collection The collection name associated with this model
-         */
+           * Creates an instance of a Model
+           * @param collection The collection name associated with this model
+           */
         constructor(collection: string);
         /**
          * Returns a new model of a given type. However if the model was already registered before,
@@ -1057,13 +1057,13 @@ declare module "models/model" {
          */
         private createIndex(name, collection);
         /**
-         * Gets the name of the collection associated with this model
-         */
+           * Gets the name of the collection associated with this model
+           */
         readonly collectionName: string;
         /**
-         * Initializes the model by setting up the database collections
-         * @param db The database used to create this model
-         */
+           * Initializes the model by setting up the database collections
+           * @param db The database used to create this model
+           */
         initialize(db: Db): Promise<Model>;
         /**
        * Gets the number of DB entries based on the selector
@@ -1071,14 +1071,14 @@ declare module "models/model" {
        */
         count(selector: any): Promise<number>;
         /**
-         * Gets an arrray of instances based on the selector search criteria
-         * @param selector The mongodb selector
-         * @param sort Specify an array of items to sort.
-       * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
-       * @param startIndex The start index of where to select from
-         * @param limit The number of results to fetch
-       * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
-         */
+           * Gets an arrray of instances based on the selector search criteria
+           * @param selector The mongodb selector
+           * @param sort Specify an array of items to sort.
+         * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
+         * @param startIndex The start index of where to select from
+           * @param limit The number of results to fetch
+         * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
+           */
         findInstances<T>(options?: ISearchOptions<T>): Promise<Array<ModelInstance<T>>>;
         /**
          * Gets a model instance based on the selector criteria
@@ -1091,8 +1091,8 @@ declare module "models/model" {
          */
         private deleteInstance(instance);
         /**
-         * Deletes a number of instances based on the selector. The promise reports how many items were deleted
-         */
+           * Deletes a number of instances based on the selector. The promise reports how many items were deleted
+           */
         deleteInstances(selector: any): Promise<number>;
         /**
          * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
@@ -1111,15 +1111,15 @@ declare module "models/model" {
          */
         checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>;
         /**
-         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
-         * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-         * by parsing the data object and setting each schema item's value by the name/value in the data object
-         */
+           * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
+           * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
+           * by parsing the data object and setting each schema item's value by the name/value in the data object
+           */
         createInstance<T>(data?: T): Promise<ModelInstance<T | null>>;
         /**
-         * Attempts to insert an array of instances of this model into the database.
-         * @param instances An array of instances to save
-         */
+           * Attempts to insert an array of instances of this model into the database.
+           * @param instances An array of instances to save
+           */
         insert<T>(instances: Array<ModelInstance<T>>): Promise<Array<ModelInstance<T>>>;
     }
 }
@@ -1132,12 +1132,12 @@ declare module "controllers/controller" {
         private _models;
         constructor(models: Array<Model> | null);
         /**
-         * Called to initialize this controller and its related database objects
-         */
+           * Called to initialize this controller and its related database objects
+           */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
-         * Gets a model by its collection name
-         */
+           * Gets a model by its collection name
+           */
         getModel(collectionName: string): Model | null;
     }
 }
@@ -1151,9 +1151,9 @@ declare module "core/user" {
     export class User {
         dbEntry: IUserEntry;
         /**
-         * Creates a new User instance
-         * @param dbEntry The data object that represents the user in the DB
-         */
+           * Creates a new User instance
+           * @param dbEntry The data object that represents the user in the DB
+           */
         constructor(dbEntry: IUserEntry);
         /**
          * Generates an object that can be sent to clients.
@@ -1161,13 +1161,13 @@ declare module "core/user" {
          */
         generateCleanedData(verbose?: boolean): IUserEntry;
         /**
-         * Generates the object to be stored in the database
-         */
+           * Generates the object to be stored in the database
+           */
         generateDbEntry(): IUserEntry;
         /**
-         * Creates a random string that is assigned to the dbEntry registration key
-         * @param length The length of the password
-         */
+           * Creates a random string that is assigned to the dbEntry registration key
+           * @param length The length of the password
+           */
         generateKey(length?: number): string;
     }
 }
@@ -1831,45 +1831,45 @@ declare module "core/user-manager" {
         private _config;
         private _mailer;
         /**
-         * Creates an instance of the user manager
-         */
+           * Creates an instance of the user manager
+           */
         constructor(userCollection: Collection, config: IConfig);
         /**
        * Called whenever a session is removed from the database
        */
         onSessionRemoved(sessionId: string): Promise<void>;
         /**
-         * Initializes the API
-         */
+           * Initializes the API
+           */
         initialize(): Promise<void>;
         /**
-         * Attempts to register a new user
-         * @param username The username of the user
-         * @param pass The users secret password
-         * @param email The users email address
-         * @param meta Any optional data associated with this user
-         * @param request
-         * @param response
-         */
+           * Attempts to register a new user
+           * @param username The username of the user
+           * @param pass The users secret password
+           * @param email The users email address
+           * @param meta Any optional data associated with this user
+           * @param request
+           * @param response
+           */
         register(username: string | undefined, pass: string | undefined, email: string | undefined, activationUrl: string | undefined, meta: any, request: Request): Promise<User>;
         /**
-         * Creates the link to send to the user for activation
-         * @param user The user we are activating
-         * @param resetUrl The url of where the activation link should go
-         * @param origin The origin of where the activation link came from
-         */
+           * Creates the link to send to the user for activation
+           * @param user The user we are activating
+           * @param resetUrl The url of where the activation link should go
+           * @param origin The origin of where the activation link came from
+           */
         private createActivationLink(user, resetUrl, origin);
         /**
-         * Creates the link to send to the user for password reset
-         * @param username The username of the user
-         * @param origin The origin of where the password reset link came from
-         * @param resetUrl The url of where the password reset link should go
-         */
+           * Creates the link to send to the user for password reset
+           * @param username The username of the user
+           * @param origin The origin of where the password reset link came from
+           * @param resetUrl The url of where the password reset link should go
+           */
         private createResetLink(user, origin, resetUrl);
         /**
-         * Approves a user's activation code so they can login without email validation
-         * @param username The username or email of the user
-         */
+           * Approves a user's activation code so they can login without email validation
+           * @param username The username or email of the user
+           */
         approveActivation(username: string): Promise<void>;
         /**
        * Attempts to send the an email to the admin user
@@ -1879,11 +1879,11 @@ declare module "core/user-manager" {
        */
         sendAdminEmail(message: string, name?: string, from?: string): Promise<boolean>;
         /**
-         * Attempts to resend the activation link
-         * @param username The username of the user
-         * @param resetUrl The url where the reset password link should direct to
-         * @param origin The origin of where the request came from (this is emailed to the user)
-         */
+           * Attempts to resend the activation link
+           * @param username The username of the user
+           * @param resetUrl The url where the reset password link should direct to
+           * @param origin The origin of where the request came from (this is emailed to the user)
+           */
         resendActivation(username: string, resetUrl: string, origin: string): Promise<boolean>;
         /**
        * Sends the user an email with instructions on how to reset their password
@@ -1911,53 +1911,53 @@ declare module "core/user-manager" {
        */
         resetPassword(username: string, code: string, newPassword: string): Promise<boolean>;
         /**
-         * Checks the users activation code to see if its valid
-         * @param username The username of the user
-         */
+           * Checks the users activation code to see if its valid
+           * @param username The username of the user
+           */
         checkActivation(username: string, code: string): Promise<boolean>;
         /**
-         * Attempts to log the user out
-         * @param request
-         * @param response
-         */
+           * Attempts to log the user out
+           * @param request
+           * @param response
+           */
         logOut(request: ServerRequest, response: ServerResponse): Promise<boolean>;
         /**
-         * Creates a new user
-         * @param user The unique username
-         * @param email The unique email
-         * @param password The password for the user
-         * @param activateAccount If true, the account will be automatically activated (no need for email verification)
-         * @param privilege The type of privileges the user has. Defaults to regular
-         * @param meta Any optional data associated with this user
-         * @param allowAdmin Should this be allowed to create a super user
-         */
+           * Creates a new user
+           * @param user The unique username
+           * @param email The unique email
+           * @param password The password for the user
+           * @param activateAccount If true, the account will be automatically activated (no need for email verification)
+           * @param privilege The type of privileges the user has. Defaults to regular
+           * @param meta Any optional data associated with this user
+           * @param allowAdmin Should this be allowed to create a super user
+           */
         createUser(user: string, email: string, password: string, activateAccount: boolean, privilege?: UserPrivileges, meta?: any, allowAdmin?: boolean): Promise<User>;
         /**
-         * Deletes a user from the database
-         * @param user The unique username or email of the user to remove
-         */
+           * Deletes a user from the database
+           * @param user The unique username or email of the user to remove
+           */
         removeUser(user: string): Promise<void>;
         /**
-         * Gets a user by a username or email
-         * @param user The username or email of the user to get
-         * @param email [Optional] Do a check if the email exists as well
-         * @returns Resolves with either a valid user or null if none exists
-         */
+           * Gets a user by a username or email
+           * @param user The username or email of the user to get
+           * @param email [Optional] Do a check if the email exists as well
+           * @returns Resolves with either a valid user or null if none exists
+           */
         getUser(user: string, email?: string): Promise<User | null>;
         /**
-         * Attempts to log a user in
-         * @param username The username or email of the user
-         * @param pass The password of the user
-         * @param rememberMe True if the cookie persistence is required
-         * @param request
-         * @param response
-         */
+           * Attempts to log a user in
+           * @param username The username or email of the user
+           * @param pass The password of the user
+           * @param rememberMe True if the cookie persistence is required
+           * @param request
+           * @param response
+           */
         logIn(username: string | undefined, pass: string | undefined, rememberMe: boolean | undefined, request: ServerRequest, response: ServerResponse): Promise<Session>;
         /**
-         * Removes a user by his email or username
-         * @param username The username or email of the user
-         * @returns True if the user was in the DB or false if they were not
-         */
+           * Removes a user by his email or username
+           * @param username The username or email of the user
+           * @returns True if the user was in the DB or false if they were not
+           */
         remove(username?: string): Promise<boolean>;
         /**
        * Sets the meta data associated with the user
@@ -1993,11 +1993,11 @@ declare module "core/user-manager" {
        */
         numUsers(searchPhrases?: RegExp): Promise<number>;
         /**
-         * Prints user objects from the database
-         * @param limit The number of users to fetch
-         * @param startIndex The starting index from where we are fetching users from
-       * @param searchPhrases Search phrases
-         */
+           * Prints user objects from the database
+           * @param limit The number of users to fetch
+           * @param startIndex The starting index from where we are fetching users from
+         * @param searchPhrases Search phrases
+           */
         getUsers(startIndex?: number, limit?: number, searchPhrases?: RegExp): Promise<User[]>;
         /**
          * Creates the user manager singlton
@@ -2060,9 +2060,9 @@ declare module "models/schema-items/schema-text" {
          * Creates a new schema item
          * @param name The name of this item
          * @param val The text of this item
-       * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
+         * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
          * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-       * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
+         * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
          */
         constructor(name: string, val: string, minCharacters?: number, maxCharacters?: number, htmlClean?: boolean);
         /**
@@ -2092,7 +2092,7 @@ declare module "models/schema-items/schema-bool" {
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
-         */
+          */
         clone(copy?: SchemaBool): SchemaBool;
         /**
          * Always true
@@ -2144,9 +2144,9 @@ declare module "models/schema-items/schema-text-array" {
          * Creates a new schema item that holds an array of text items
          * @param name The name of this item
          * @param val The text array of this schema item
-       * @param minItems [Optional] Specify the minimum number of items that can be allowed
-       * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-       * @param minCharacters [Optional] Specify the minimum number of characters for each text item
+         * @param minItems [Optional] Specify the minimum number of items that can be allowed
+         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+         * @param minCharacters [Optional] Specify the minimum number of characters for each text item
          * @param maxCharacters [Optional] Specify the maximum number of characters for each text item
          */
         constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number);
@@ -2207,10 +2207,10 @@ declare module "models/schema-items/schema-foreign-key" {
          * Creates a new schema item
          * @param name The name of this item
          * @param val The string representation of the foreign key's _id
-       * @param targetCollection The name of the collection to which the target exists
-       * @param keyCanBeNull If true, then the key is allowed to be null
-       * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
-       * owns this item must be removed as it cannot exist without the target.
+         * @param targetCollection The name of the collection to which the target exists
+         * @param keyCanBeNull If true, then the key is allowed to be null
+         * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
+         * owns this item must be removed as it cannot exist without the target.
          */
         constructor(name: string, val: string, targetCollection: string, keyCanBeNull: boolean, canAdapt: boolean);
         /**
@@ -2262,10 +2262,10 @@ declare module "models/schema-items/schema-id-array" {
          * Creates a new schema item that holds an array of id items
          * @param name The name of this item
          * @param val The array of ids for this schema item
-       * @param minItems [Optional] Specify the minimum number of items that can be allowed
-       * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-       * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
-       * the item can expand objects on retreival.
+         * @param minItems [Optional] Specify the minimum number of items that can be allowed
+         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+         * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
+         * the item can expand objects on retreival.
          */
         constructor(name: string, val: Array<string>, minItems: number | undefined, maxItems: number | undefined, targetCollection: string);
         /**
@@ -2314,12 +2314,12 @@ declare module "models/schema-items/schema-num-array" {
          * Creates a new schema item that holds an array of number items
          * @param name The name of this item
          * @param val The number array of this schema item
-       * @param minItems [Optional] Specify the minimum number of items that can be allowed
-       * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-       * @param min [Optional] Specify the minimum a number can be
+         * @param minItems [Optional] Specify the minimum number of items that can be allowed
+         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
+         * @param min [Optional] Specify the minimum a number can be
          * @param max [Optional] Specify the maximum a number can be
-       * @param type [Optional] What type of numbers to expect
-       * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
+         * @param type [Optional] What type of numbers to expect
+         * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
          */
         constructor(name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number);
         /**
@@ -2384,13 +2384,13 @@ declare module "models/schema-items/schema-html" {
         minCharacters: number;
         maxCharacters: number;
         /**
-         * Creates a new schema item
-         * @param name The name of this item
+          * Creates a new schema item
+          * @param name The name of this item
          * @param val The text of this item
-       * @param allowedTags The tags allowed by the html parser
-       * @param allowedAttributes The attributes allowed by each attribute
-       * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
-       * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
+         * @param allowedTags The tags allowed by the html parser
+         * @param allowedAttributes The attributes allowed by each attribute
+         * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
+         * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
          * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
          */
         constructor(name: string, val: string, allowedTags?: Array<string>, allowedAttributes?: {
@@ -2573,8 +2573,8 @@ declare module "controllers/bucket-controller" {
         private _allowedFileTypes;
         private _options;
         /**
-         * Creates an instance of the user manager
-         */
+           * Creates an instance of the user manager
+           */
         constructor(options: IBaseControler);
         /**
        * Called to initialize this controller and its related database objects
@@ -2639,8 +2639,8 @@ declare module "controllers/comments-controller" {
     export class CommentsController extends Controller {
         private _options;
         /**
-         * Creates a new instance of the controller
-         */
+           * Creates a new instance of the controller
+           */
         constructor(options: IBaseControler);
         /**
        * Called to initialize this controller and its related database objects
@@ -2697,16 +2697,16 @@ declare module "controllers/emails-controller" {
     export class EmailsController extends Controller {
         private _options;
         /**
-         * Creates a new instance of the email controller
-         */
+           * Creates a new instance of the email controller
+           */
         constructor(options: IBaseControler);
         /**
        * Called to initialize this controller and its related database objects
        */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
-         * Called whenever a post request is caught by this controller
-         */
+           * Called whenever a post request is caught by this controller
+           */
         protected onPost(req: express.Request, res: express.Response): any;
     }
 }
@@ -2741,8 +2741,8 @@ declare module "controllers/file-controller" {
         private _cacheLifetime;
         private _options;
         /**
-         * Creates an instance of the user manager
-         */
+           * Creates an instance of the user manager
+           */
         constructor(options: IFileOptions);
         /**
          * Called to initialize this controller and its related database objects
@@ -2861,8 +2861,8 @@ declare module "controllers/posts-controller" {
     export class PostsController extends Controller {
         private _options;
         /**
-         * Creates a new instance of the controller
-         */
+           * Creates a new instance of the controller
+           */
         constructor(options: IBaseControler);
         /**
          * Called to initialize this controller and its related database objects
@@ -2901,8 +2901,8 @@ declare module "controllers/categories-controller" {
     export class CategoriesController extends Controller {
         private _options;
         /**
-         * Creates a new instance of the controller
-         */
+           * Creates a new instance of the controller
+           */
         constructor(options: IBaseControler);
         /**
          * Called to initialize this controller and its related database objects
@@ -2933,20 +2933,20 @@ declare module "controllers/session-controller" {
     export class SessionController extends Controller {
         private _options;
         /**
-         * Creates an instance of the user manager
-         */
+           * Creates an instance of the user manager
+           */
         constructor(options: IBaseControler);
         /**
          * Called to initialize this controller and its related database objects
          */
         initialize(e: express.Express, db: mongodb.Db): Promise<Controller>;
         /**
-         * Gets a list of active sessions. You can limit the haul by specifying the 'index' and 'limit' query parameters.
-         */
+           * Gets a list of active sessions. You can limit the haul by specifying the 'index' and 'limit' query parameters.
+           */
         private getSessions(req, res);
         /**
-         * Resends the activation link to the user
-         */
+           * Resends the activation link to the user
+           */
         private deleteSession(req, res);
     }
 }
@@ -2962,10 +2962,10 @@ declare module "controllers/stats-controller" {
         private _allowedFileTypes;
         private _options;
         /**
-         * Creates an instance of the user manager
-         * @param e The express app
-         * @param The config options of this manager
-         */
+           * Creates an instance of the user manager
+           * @param e The express app
+           * @param The config options of this manager
+           */
         constructor(options: IBaseControler);
         /**
          * Called to initialize this controller and its related database objects
@@ -3012,8 +3012,8 @@ declare module "controllers/user-controller" {
     export class UserController extends Controller {
         private _options;
         /**
-         * Creates an instance of the user manager
-         */
+           * Creates an instance of the user manager
+           */
         constructor(options: IBaseControler);
         /**
          * Called to initialize this controller and its related database objects
@@ -3047,12 +3047,12 @@ declare module "controllers/user-controller" {
        */
         private getData(req, res);
         /**
-         * Removes a user from the database
-         */
+           * Removes a user from the database
+           */
         private removeUser(req, res);
         /**
-         * Allows an admin to create a new user without registration
-         */
+           * Allows an admin to create a new user without registration
+           */
         private createUser(req, res);
     }
 }
@@ -3067,20 +3067,20 @@ declare module "controllers/auth-controller" {
     export class AuthController extends Controller {
         private _options;
         /**
-         * Creates an instance of the user manager
-         */
+           * Creates an instance of the user manager
+           */
         constructor(options: IAuthOptions);
         /**
        * Called to initialize this controller and its related database objects
        */
         initialize(e: express.Express, db: mongodb.Db): Promise<this>;
         /**
-         * Activates the user's account
-         */
+           * Activates the user's account
+           */
         private activateAccount(req, res);
         /**
-         * Resends the activation link to the user
-         */
+           * Resends the activation link to the user
+           */
         private resendActivation(req, res);
         /**
        * Resends the activation link to the user
@@ -3091,24 +3091,24 @@ declare module "controllers/auth-controller" {
        */
         private passwordReset(req, res);
         /**
-         * Approves a user's activation code so they can login without email validation
-         */
+           * Approves a user's activation code so they can login without email validation
+           */
         private approveActivation(req, res);
         /**
-         * Attempts to log the user in. Expects the username, password and rememberMe parameters be set.
-         */
+           * Attempts to log the user in. Expects the username, password and rememberMe parameters be set.
+           */
         private login(req, res);
         /**
-         * Attempts to log the user out
-         */
+           * Attempts to log the user out
+           */
         private logout(req, res);
         /**
-         * Attempts to register a new user
-         */
+           * Attempts to register a new user
+           */
         private register(req, res);
         /**
-         * Checks to see if the current session is logged in. If the user is, it will be returned redacted. You can specify the 'verbose' query parameter
-         */
+           * Checks to see if the current session is logged in. If the user is, it will be returned redacted. You can specify the 'verbose' query parameter
+           */
         private authenticated(req, res);
     }
 }

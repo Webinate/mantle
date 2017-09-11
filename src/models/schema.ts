@@ -13,9 +13,9 @@ export class Schema {
     this._items = [];
   }
 
-	/**
-	 * Creates a copy of the schema
-	 */
+  /**
+   * Creates a copy of the schema
+   */
   public clone(): Schema {
     const items = this._items;
     const copy = new Schema();
@@ -42,11 +42,11 @@ export class Schema {
     }
   }
 
-	/**
-	 * Sets a schema value by name
-	 * @param name The name of the schema item
-	 * @param val The new value of the item
-	 */
+  /**
+   * Sets a schema value by name
+   * @param name The name of the schema item
+   * @param val The new value of the item
+   */
   setVal( name: string, val: any ) {
     const items = this._items;
 
@@ -55,18 +55,18 @@ export class Schema {
         items[ i ].setValue( val );
   }
 
-	/**
- 	 * De-serializes the schema items from the mongodb data entry.
+  /**
+    * De-serializes the schema items from the mongodb data entry.
      * I.e. the data is the document from the DB and the schema item sets its values from the document
-	 */
+   */
   public deserialize( data: any ): any {
     for ( let i in data )
       this.setVal( i, data[ i ] );
   }
 
-	/**
-	 * Serializes the schema items into the JSON format for mongodb
-	 */
+  /**
+   * Serializes the schema items into the JSON format for mongodb
+   */
   public serialize(): any {
     const toReturn = {};
     const items = this._items;
@@ -108,11 +108,11 @@ export class Schema {
     return Promise.resolve( toReturn );
   }
 
-	/**
-	 * Checks the values stored in the items to see if they are correct
-	 * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
+  /**
+   * Checks the values stored in the items to see if they are correct
+   * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
    * @returns Returns true if successful
-	 */
+   */
   public async validate( checkForRequiredFields: boolean ): Promise<Schema> {
     const items = this._items;
     const promises: Array<Promise<any>> = [];
@@ -161,10 +161,10 @@ export class Schema {
     return this;
   }
 
-	/**
-	 * Gets a schema item from this schema by name
-	 * @param val The name of the item
-	 */
+  /**
+   * Gets a schema item from this schema by name
+   * @param val The name of the item
+   */
   public getByName( val: string ): SchemaItem<any> | null {
     const items = this._items;
     for ( let i = 0, l = items.length; i < l; i++ )
@@ -174,10 +174,10 @@ export class Schema {
     return null;
   }
 
-	/**
-	 * Adds a schema item to this schema
-	 * @param val The new item to add
-	 */
+  /**
+   * Adds a schema item to this schema
+   * @param val The new item to add
+   */
   public add( val: SchemaItem<any> ): SchemaItem<any> {
     if ( val.name === '_id' )
       throw new Error( `You cannot use the schema item name _id as its a reserved keyword` );
@@ -192,10 +192,10 @@ export class Schema {
     return val;
   }
 
-	/**
-	 * Removes a schema item from this schema
-	 * @param val The name of the item or the item itself
-	 */
+  /**
+   * Removes a schema item from this schema
+   * @param val The name of the item or the item itself
+   */
   public remove( val: SchemaItem<any> | string ) {
     const items = this._items;
     let name = '';

@@ -17,11 +17,11 @@ export class SchemaDate extends SchemaItem<number> {
     this.useNow = useNow;
   }
 
-	/**
-	 * Creates a clone of this item
-	 * @returns copy A sub class of the copy
-	 * @returns
-	 */
+  /**
+   * Creates a clone of this item
+   * @returns copy A sub class of the copy
+   * @returns
+   */
   public clone( copy?: SchemaDate ): SchemaDate {
     copy = !copy ? new SchemaDate( this.name, <number>this.value ) : copy;
     copy.useNow = this.useNow;

@@ -20,7 +20,7 @@ export class PostsController extends Controller {
 
   private _options: IBaseControler;
 
-	/**
+  /**
 	 * Creates a new instance of the controller
 	 */
   constructor( options: IBaseControler ) {
