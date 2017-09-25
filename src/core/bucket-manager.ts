@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote } from 'modepress';
+import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote, ILocalBucket, IGoogleProperties } from 'modepress';
 import { Collection } from 'mongodb';
 import { Part } from 'multiparty';
 import { createGzip, createGunzip, createDeflate, Gzip, Gunzip, Deflate } from 'zlib';
@@ -29,8 +29,8 @@ export class BucketManager {
 
   constructor( buckets: Collection, files: Collection, stats: Collection, config: IConfig ) {
     BucketManager._singleton = this;
-    googleBucket.initialize( config.remotes.google );
-    localBucket.initialize( config.remotes.local );
+    googleBucket.initialize( config.remotes.google as IGoogleProperties );
+    localBucket.initialize( config.remotes.local as ILocalBucket );
 
     this._activeManager = localBucket;
 
@@ -461,7 +461,7 @@ export class BucketManager {
   private registerFile( identifier: string, bucket: IBucketEntry, part: Part, user: string, isPublic: boolean, parentFile: string | null ) {
     const files = this._files;
 
-    return new Promise<IFileEntry>(( resolve, reject ) => {
+    return new Promise<IFileEntry>( ( resolve, reject ) => {
       const entry: IFileEntry = {
         name: ( part.filename || part.name ),
         user: user,

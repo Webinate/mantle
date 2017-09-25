@@ -1,4 +1,4 @@
-﻿import { IUserEntry, IConfig, IMailer, IGMail, IMailgun } from 'modepress';
+﻿import { IUserEntry, IConfig, IMailer, IGMail, IMailgun, IMailOptions, IAdminUser } from 'modepress';
 import { Collection } from 'mongodb';
 import { ServerRequest, ServerResponse } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
@@ -80,12 +80,14 @@ export class UserManager {
     // Make sure the user collection has an index to search the username field
     await this._collection.createIndex( { username: 'text', email: 'text' } as IUserEntry );
 
+    const adminUser = config.adminUser as IAdminUser;
+
     // See if we have an admin user
-    let user = await this.getUser( config.adminUser.username );
+    let user = await this.getUser( adminUser.username );
 
     // If no admin user exists, so lets try to create one
     if ( !user )
-      user = await this.createUser( config.adminUser.username, config.adminUser.email, config.adminUser.password, true, UserPrivileges.SuperAdmin, {}, true );
+      user = await this.createUser( adminUser.username, adminUser.email, adminUser.password, true, UserPrivileges.SuperAdmin, {}, true );
 
     return;
   }
@@ -129,7 +131,7 @@ export class UserManager {
     // Send mail using the mailer
     await this._mailer.sendMail(
       user.dbEntry.email!,
-      this._config.mail.from,
+      ( this._config.mail.options as IMailOptions ).from,
       'Activate your account',
       message
     );
@@ -190,7 +192,8 @@ export class UserManager {
       throw new Error( `No email account has been setup` );
 
     try {
-      await this._mailer.sendMail( this._config.adminUser.email, this._config.mail.from, `Message from ${( name ? name : 'a user' )}`,
+      const adminUser = this._config.adminUser as IAdminUser;
+      await this._mailer.sendMail( adminUser.email, ( this._config.mail.options as IMailOptions ).from, `Message from ${( name ? name : 'a user' )}`,
         message + '<br /><br />Email: ' + ( from ? from : '' ) );
     } catch ( err ) {
       new Error( `Could not send email to user: ${err.message}` )
@@ -233,7 +236,7 @@ export class UserManager {
 
     try {
       // Send mail using the mailer
-      await this._mailer.sendMail( user.dbEntry.email!, this._config.mail.from, 'Activate your account', message );
+      await this._mailer.sendMail( user.dbEntry.email!, ( this._config.mail.options as IMailOptions ).from, 'Activate your account', message );
     } catch ( err ) {
       new Error( `Could not send email to user: ${err.message}` )
     }
@@ -274,7 +277,7 @@ export class UserManager {
 
     // Send mail using the mailer
     try {
-      await this._mailer.sendMail( user.dbEntry.email!, this._config.mail.from, 'Reset Password', message );
+      await this._mailer.sendMail( user.dbEntry.email!, ( this._config.mail.options as IMailOptions ).from, 'Reset Password', message );
     }
     catch ( err ) {
       throw new Error( `Could not send email to user: ${err.message}` )

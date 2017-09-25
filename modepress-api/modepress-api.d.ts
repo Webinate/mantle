@@ -17,15 +17,27 @@ declare module 'modepress' {
          * modepress servers.
          */
         remotes: {
-            'google': IGoogleProperties;
-            'local': ILocalBucket;
+            /**
+             * If the property is a string, it must point
+             * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as IGoogleProperties.
+             */
+            'google': string | IGoogleProperties;
+            /**
+             * If the property is a string, it must point
+             * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as ILocalBucket.
+             */
+            'local': string | ILocalBucket;
         };
         /**
          * The length of time a render is kept in the DB before being updated. Stored in seconds.
          * e.g. 86400 (1 day)
          */
         ajaxRenderExpiration: number;
-        database: IDatabase;
+        /**
+         * If the property is a string, it must point
+         * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as IDatabase.
+         */
+        database: string | IDatabase;
         /**
          * If debug is true, certain functions will be emulated and more information logged
          */
@@ -44,7 +56,8 @@ declare module 'modepress' {
         sessionSettings: ISession;
         /**
          * The administrative user. This is the root user that will have access to the information in the database.
-         * This can be anything you like, but try to use passwords that are hard to guess
+         * This can be anything you like, but try to use passwords that are hard to guess. If the property is a string, it must point
+         * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as below.
          * eg:
          * 'adminUser': {
          *  'username': 'root',
@@ -52,7 +65,7 @@ declare module 'modepress' {
          *  'password': 'CHANGE_THIS_PASSWORD'
          * }
          */
-        adminUser: IAdminUser;
+        adminUser: string | IAdminUser;
         /**
          * Information regarding the websocket communication. Used for events and IPC
          */
@@ -171,10 +184,6 @@ declare module 'modepress' {
 declare module 'modepress' {
     interface IMailProperties {
         /**
-         * The from field sent to recipients
-         */
-        from: string;
-        /**
          * Specify the type of mailer to use.
          * Currently we support either 'gmail' or 'mailgun'
          */
@@ -182,9 +191,13 @@ declare module 'modepress' {
         /**
          * Options to be sent to the desired mailer
          */
-        options: IGMail | IMailgun;
+        options: string | IGMail | IMailgun;
     }
     interface IMailOptions {
+        /**
+         * The from field sent to recipients
+         */
+        from: string;
     }
     interface IMailer {
         /**

@@ -1,4 +1,4 @@
-﻿import { IConfig, IClient } from 'modepress';
+﻿import { IConfig, IClient, IDatabase } from 'modepress';
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 import { error, info, clear, initializeLogger } from '../../utils/logger';
@@ -11,6 +11,24 @@ import * as merge from 'deepmerge';
 
 const args = yargs.argv;
 
+function loadSensitiveProps( config: IConfig ) {
+
+  function loadProp( parentProp: any, prop: string, path: string ) {
+    if ( typeof ( path ) === 'string' ) {
+      if ( !existsSync( path ) )
+        throw new Error( `Property file '${path}' cannot be found` );
+      else
+        parentProp[ prop ] = JSON.parse( readFileSync( path, 'utf8' ) );
+    }
+  }
+
+  // Load and merge any sensitive json files
+  loadProp( config, 'adminUser', config.adminUser as string );
+  loadProp( config.remotes, 'google', config.remotes.google as string );
+  loadProp( config.remotes, 'local', config.remotes.local as string );
+  loadProp( config.mail, 'options', config.mail.options as string );
+  loadProp( config, 'database', config.database as string );
+}
 
 /**
  * Loads the config file
@@ -38,6 +56,8 @@ function loadConfig(): IConfig | null {
   try {
     // Try load and parse the config
     config = JSON.parse( readFileSync( args.config, 'utf8' ) );
+
+    loadSensitiveProps( config );
 
     // Override any of the config settings with the yargs if they exist
     for ( const i in args )
@@ -99,11 +119,12 @@ export async function initialize() {
   if ( !config.database )
     throw new Error( 'No database object defined in the config file' );
 
-  const mongoServer = new MongoServer( config.database.host, config.database.port, { servername: config.database.name } );
-  const mongoDB = new Db( config.database.name, mongoServer, { w: 1 } );
+  const dbProps = config.database as IDatabase;
+  const mongoServer = new MongoServer( dbProps.host, dbProps.port, { servername: dbProps.name } );
+  const mongoDB = new Db( dbProps.name, mongoServer, { w: 1 } );
   const db = await mongoDB.open();
 
-  info( `Successfully connected to '${config.database.name}' at ${config.database.host}:${config.database.port}` );
+  info( `Successfully connected to '${dbProps.name}' at ${dbProps.host}:${dbProps.port}` );
   info( `Starting up HTTP servers...` );
 
   // Create each of your servers here
@@ -154,7 +175,7 @@ export async function initialize() {
 
 if ( !args.runningTests ) {
   // Start the server initialization
-  initialize().catch(( err: Error ) => {
-    error( err.message ).then(() => process.exit() );
+  initialize().catch( ( err: Error ) => {
+    error( err.message ).then( () => process.exit() );
   } );
 }

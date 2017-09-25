@@ -38,7 +38,7 @@ export class CommsController extends events.EventEmitter {
    * Checks the header api key against the hash generated from the config
    */
   checkApiKey( key: string ): Promise<boolean> {
-    return new Promise<boolean>(( resolve, reject ) => {
+    return new Promise<boolean>( ( resolve, reject ) => {
       bcrypt.compare( key, this._hashedApiKey, function( err, same: boolean ) {
         if ( err )
           return reject( err );
@@ -162,7 +162,7 @@ export class CommsController extends events.EventEmitter {
 
     // Throw error if no socket api key
     if ( !cfg.websocket.socketApiKey )
-      throw new Error( 'The socketApiKey was not set in the config file. Make sure it exists (Check the example-config.json) ' );
+      throw new Error( 'The socketApiKey was not set in the config file' );
 
     this._hashedApiKey = bcrypt.hashSync( cfg.websocket.socketApiKey, 10 );
 

@@ -17,8 +17,18 @@ declare module 'modepress' {
      * modepress servers.
      */
     remotes: {
-      'google': IGoogleProperties;
-      'local': ILocalBucket;
+
+      /**
+       * If the property is a string, it must point
+       * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as IGoogleProperties.
+       */
+      'google': string | IGoogleProperties;
+
+      /**
+       * If the property is a string, it must point
+       * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as ILocalBucket.
+       */
+      'local': string | ILocalBucket;
     }
 
     /**
@@ -28,7 +38,11 @@ declare module 'modepress' {
     ajaxRenderExpiration: number;
 
 
-    database: IDatabase;
+    /**
+     * If the property is a string, it must point
+     * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as IDatabase.
+     */
+    database: string | IDatabase;
 
     /**
      * If debug is true, certain functions will be emulated and more information logged
@@ -52,7 +66,8 @@ declare module 'modepress' {
 
     /**
      * The administrative user. This is the root user that will have access to the information in the database.
-     * This can be anything you like, but try to use passwords that are hard to guess
+     * This can be anything you like, but try to use passwords that are hard to guess. If the property is a string, it must point
+     * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as below.
      * eg:
      * 'adminUser': {
      *  'username': 'root',
@@ -60,7 +75,7 @@ declare module 'modepress' {
      *  'password': 'CHANGE_THIS_PASSWORD'
      * }
      */
-    adminUser: IAdminUser;
+    adminUser: string | IAdminUser;
 
     /**
      * Information regarding the websocket communication. Used for events and IPC

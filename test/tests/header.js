@@ -75,7 +75,7 @@ class Agent {
   }
 
   go( url, data, type ) {
-    return new Promise(( resolve, reject ) => {
+    return new Promise( ( resolve, reject ) => {
       let req = null;
       if ( type === 'post' )
         req = this.agent.post( url );
@@ -113,7 +113,7 @@ class Agent {
       if ( this.cookie )
         req.set( 'Cookie', this.cookie )
 
-      req.end(( err, res ) => {
+      req.end( ( err, res ) => {
         this.setDefaults()
 
         if ( err )
@@ -157,13 +157,13 @@ function createAgent( url, options = {} ) {
  * @param {string} host The host url
  */
 function post( url, json, host ) {
-  return new Promise(( resolve, reject ) => {
+  return new Promise( ( resolve, reject ) => {
     const agent = test.httpAgent( host );
     agent.post( url )
       .set( 'Accept', 'application/json' )
       .expect( 200 ).expect( 'Content-Type', /json/ )
       .send( json )
-      .end(( err, res ) => {
+      .end( ( err, res ) => {
         if ( err )
           return reject( err );
 
@@ -217,11 +217,34 @@ async function removeUser( username ) {
 }
 
 /**
+ * Loads any of the sensitive props in the config json
+ */
+function loadSensitiveProps( config ) {
+  function loadProp( parentProp, prop, path ) {
+    if ( typeof ( path ) === 'string' ) {
+      if ( !fs.existsSync( path ) )
+        throw new Error( `Property file '${path}' cannot be found` );
+      else
+        parentProp[ prop ] = JSON.parse( fs.readFileSync( path, 'utf8' ) );
+    }
+  }
+
+  // Load and merge any sensitive json files
+  loadProp( config, 'adminUser', config.adminUser );
+  loadProp( config.remotes, 'google', config.remotes.google );
+  loadProp( config.remotes, 'local', config.remotes.local );
+  loadProp( config.mail, 'options', config.mail.options );
+  loadProp( config, 'database', config.database );
+}
+
+/**
  * Initialize the manager
  */
 async function initialize() {
   try {
     const config = JSON.parse( fs.readFileSync( args.config ) );
+    loadSensitiveProps( config );
+
     // const serverConfig = config.servers[ parseInt( args.server ) ];
     const host = "http://localhost:8000";
     const resp = await post( '/api/auth/login', { username: config.adminUser.username, password: config.adminUser.password }, host );
