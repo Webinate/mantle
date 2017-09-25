@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "command": "gulp",
+  "command": "npm",
   "isShellCommand": true,
   "args": [
     "--dir=../modepress/dist/plugins/app-engine"
@@ -10,7 +10,12 @@
       "taskName": "build",
       "isBuildCommand": true,
       "showOutput": "always",
-      "problemMatcher": "$tsc"
+      "problemMatcher": "$tsc",
+      "suppressTaskName": true,
+      "args": [
+        "run",
+        "build"
+      ]
     }
   ]
 }
