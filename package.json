@@ -7,7 +7,10 @@
   "license": "MIT",
   "scripts": {
     "build": "gulp build",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "bump-patch": "gulp bump-patch",
+    "bump-minor": "gulp bump-minor",
+    "bump-major": "gulp bump-major"
   },
   "devDependencies": {
     "unit.js": "~2.0.0",
