@@ -1,6 +1,6 @@
 ﻿import { IConfig, IClient, IDatabase } from 'modepress';
 import { readFileSync, existsSync, readdirSync } from 'fs';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
 import { error, info, clear, initializeLogger } from '../../utils/logger';
 import * as yargs from 'yargs';
 import { Server as MongoServer, Db } from 'mongodb';
@@ -11,14 +11,14 @@ import * as merge from 'deepmerge';
 
 const args = yargs.argv;
 
-function loadSensitiveProps( config: IConfig ) {
+function loadSensitiveProps( config: IConfig, rootPath: string ) {
 
   function loadProp( parentProp: any, prop: string, path: string ) {
     if ( typeof ( path ) === 'string' ) {
-      if ( !existsSync( path ) )
-        throw new Error( `Property file '${path}' cannot be found` );
+      if ( !existsSync( rootPath + '/' + path ) )
+        throw new Error( `Property file '${rootPath + '/' + path}' cannot be found` );
       else
-        parentProp[ prop ] = JSON.parse( readFileSync( path, 'utf8' ) );
+        parentProp[ prop ] = JSON.parse( readFileSync( rootPath + '/' + path, 'utf8' ) );
     }
   }
 
@@ -57,7 +57,7 @@ function loadConfig(): IConfig | null {
     // Try load and parse the config
     config = JSON.parse( readFileSync( args.config, 'utf8' ) );
 
-    loadSensitiveProps( config );
+    loadSensitiveProps( config, dirname( args.config ) );
 
     // Override any of the config settings with the yargs if they exist
     for ( const i in args )
