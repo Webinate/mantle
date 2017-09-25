@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IAuthReq, IBucketEntry, IRemoveFiles, IResponse, IGetFiles } from 'modepress';
+import { IAuthReq, IBucketEntry, FileTokens } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
@@ -48,7 +48,7 @@ export class FileController extends Controller {
     router.put( '/:file/rename-file', <any>[ requireUser, this.renameFile.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + `/files`, router );
+    e.use( ( this._options.rootPath || '' ) + `/files`, router );
 
     await super.initialize( e, db );
     return this;
@@ -68,7 +68,7 @@ export class FileController extends Controller {
       files = req.params.files.split( ',' );
       const filesRemoved = await manager.removeFilesByIdentifiers( files, req._user!.username );
 
-      okJson<IRemoveFiles>( {
+      okJson<FileTokens.DeleteAll.Response>( {
         message: `Removed [${filesRemoved.length}] files`,
         data: filesRemoved,
         count: filesRemoved.length
@@ -96,8 +96,9 @@ export class FileController extends Controller {
       if ( !fileEntry )
         throw new Error( `Could not find the file '${req.params.file}'` );
 
-      await manager.renameFile( fileEntry, req.body.name );
-      okJson<IResponse>( { message: `Renamed file to '${req.body.name}'` }, res );
+      const file = req.body as FileTokens.Put.Body;
+      await manager.renameFile( fileEntry, file.name );
+      okJson<FileTokens.Put.Response>( { message: `Renamed file to '${req.body.name}'` }, res );
 
     } catch ( err ) {
       return errJson( err, res );
@@ -131,7 +132,7 @@ export class FileController extends Controller {
       const count = await manager.numFiles( { bucketId: bucketEntry.identifier } );
       const files = await manager.getFilesByBucket( bucketEntry, index, limit, searchTerm );
 
-      return okJson<IGetFiles>( {
+      return okJson<FileTokens.GetAll.Response>( {
         message: `Found [${count}] files`,
         data: files,
         count: count

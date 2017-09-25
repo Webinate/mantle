@@ -1,4 +1,4 @@
-﻿import { IAuthReq, IComment, IModelEntry, IGetComment, IGetComments, IResponse } from 'modepress';
+﻿import { IAuthReq, IComment, IModelEntry, CommentTokens } from 'modepress';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
@@ -47,7 +47,7 @@ export class CommentsController extends Controller {
     router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/', router );
+    e.use( ( this._options.rootPath || '' ) + '/', router );
 
     await super.initialize( e, db );
     return this;
@@ -148,7 +148,7 @@ export class CommentsController extends Controller {
       count: count,
       message: `Found ${count} comments`,
       data: sanitizedData
-    } as IGetComments;
+    } as CommentTokens.GetAll.Response;
   }
 
   /**
@@ -185,7 +185,7 @@ export class CommentsController extends Controller {
     return {
       message: `Found ${sanitizedData.length} comments`,
       data: sanitizedData[ 0 ]
-    } as IGetComment;
+    } as CommentTokens.GetOne.Response;
   }
 
   /**
@@ -212,7 +212,7 @@ export class CommentsController extends Controller {
 
     // Attempt to delete the instances
     await comments.deleteInstances( findToken );
-    return { message: 'Comment has been successfully removed' } as IResponse;
+    return { message: 'Comment has been successfully removed' } as CommentTokens.DeleteOne.Response;
   }
 
   /**
@@ -220,7 +220,7 @@ export class CommentsController extends Controller {
    */
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
-    const token: IComment = req.body;
+    const token: CommentTokens.PutOne.Body = req.body;
     const comments = this.getModel( 'comments' )!;
     const findToken: IComment = {
       _id: new mongodb.ObjectID( req.params.id )
@@ -244,7 +244,7 @@ export class CommentsController extends Controller {
     if ( instance.error )
       throw new Error( <string>instance.tokens[ 0 ].error );
 
-    return { message: 'Comment Updated' } as IResponse
+    return { message: 'Comment Updated' } as CommentTokens.PutOne.Response
   }
 
   /**
@@ -252,7 +252,7 @@ export class CommentsController extends Controller {
    */
   @j200()
   private async create( req: IAuthReq, res: express.Response ) {
-    const token: IComment = req.body;
+    const token: CommentTokens.Post.Body = req.body;
     const comments = this.getModel( 'comments' )!;
 
     // User is passed from the authentication function
@@ -279,6 +279,6 @@ export class CommentsController extends Controller {
       await parent.model.update<IComment>( <IComment>{ _id: parent.dbEntry._id }, { children: children } )
     }
 
-    return { message: 'New comment created', data: json } as IGetComment;
+    return { message: 'New comment created', data: json } as CommentTokens.Post.Response;
   }
 }

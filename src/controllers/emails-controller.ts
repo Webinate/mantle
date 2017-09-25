@@ -1,4 +1,4 @@
-﻿import { IMessage } from 'modepress';
+﻿import { EmailTokens } from 'modepress';
 import * as express from 'express';
 import { Controller } from './controller';
 import * as bodyParser from 'body-parser';
@@ -33,7 +33,7 @@ export class EmailsController extends Controller {
     router.post( '/', this.onPost.bind( this ) );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/message-admin', router );
+    e.use( ( this._options.rootPath || '' ) + '/message-admin', router );
 
     await super.initialize( e, db );
     return this;
@@ -46,16 +46,18 @@ export class EmailsController extends Controller {
     // Set the content type
     res.setHeader( 'Content-Type', 'application/json' );
 
+    const body = req.body as EmailTokens.Post.Body;
+
     const message: string = [ `Hello admin,`,
-      `We have received a message from ${( <IMessage>req.body ).name}:`,
-      `${( <IMessage>req.body ).message}`,
+      `We have received a message from ${body.name}:`,
+      `${body.message}`,
       ``,
-      `Email: ${( <IMessage>req.body ).email}`,
-      `Phone: ${( <IMessage>req.body ).phone}`,
-      `Website: ${( <IMessage>req.body ).website}` ].join( '\r\n' );
+      `Email: ${body.email}`,
+      `Phone: ${body.phone}`,
+      `Website: ${body.website}` ].join( '\r\n' );
 
     UserManager.get.sendAdminEmail( message ).then( function( body ) {
-      res.end( body );
+      res.end( body as EmailTokens.Post.Response );
 
     } ).catch( function( err ) {
       errJson( err, res );

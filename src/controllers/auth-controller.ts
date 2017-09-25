@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { IResponse, IAuthenticationResponse, ILoginToken, IRegisterToken } from 'modepress';
+import { AuthTokens } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/user-manager';
@@ -60,7 +60,7 @@ export class AuthController extends Controller {
     router.put( '/:user/approve-activation', <any>[ ownerRights, this.approveActivation.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/auth', router );
+    e.use( ( this._options.rootPath || '' ) + '/auth', router );
 
     await super.initialize( e, db );
     return this;
@@ -93,7 +93,7 @@ export class AuthController extends Controller {
     const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
     await UserManager.get.resendActivation( req.params.user, this._options.accountRedirectURL, origin );
-    return { message: 'An activation link has been sent, please check your email for further instructions' } as IResponse;
+    return { message: 'An activation link has been sent, please check your email for further instructions' } as AuthTokens.ResendActivation.Response;
   }
 
   /**
@@ -103,7 +103,7 @@ export class AuthController extends Controller {
   private async requestPasswordReset( req: express.Request, res: express.Response ) {
     const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
     await UserManager.get.requestPasswordReset( req.params.user, this._options.passwordResetURL, origin );
-    return { message: 'Instructions have been sent to your email on how to change your password' } as IResponse;
+    return { message: 'Instructions have been sent to your email on how to change your password' } as AuthTokens.RequestPasswordReset.Response;
   }
 
   /**
@@ -123,7 +123,7 @@ export class AuthController extends Controller {
 
     // Check the user's activation and forward them onto the admin message page
     await UserManager.get.resetPassword( req.body.user, req.body.key, req.body.password );
-    return { message: 'Your password has been reset' } as IResponse
+    return { message: 'Your password has been reset' } as AuthTokens.PasswordReset.Response;
   }
 
   /**
@@ -132,7 +132,7 @@ export class AuthController extends Controller {
   @j200()
   private async approveActivation( req: express.Request, res: express.Response ) {
     await UserManager.get.approveActivation( req.params.user );
-    return { message: 'Activation code has been approved' } as IResponse;
+    return { message: 'Activation code has been approved' } as AuthTokens.ApproveActivation.Response;
   }
 
   /**
@@ -140,7 +140,7 @@ export class AuthController extends Controller {
 	 */
   @j200()
   private async login( req: express.Request, res: express.Response ) {
-    const token: ILoginToken = req.body;
+    const token: AuthTokens.Login.Body = req.body;
     const session = await UserManager.get.logIn( token.username, token.password, token.rememberMe, req, res );
 
     if ( session )
@@ -150,7 +150,7 @@ export class AuthController extends Controller {
       message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
       authenticated: ( session ? true : false ),
       user: ( session ? session.user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
-    } as IAuthenticationResponse;
+    } as AuthTokens.Login.Response;
   }
 
   /**
@@ -159,7 +159,7 @@ export class AuthController extends Controller {
   @j200()
   private async logout( req: express.Request, res: express.Response ) {
     await UserManager.get.logOut( req, res );
-    return { message: 'Successfully logged out' } as IResponse;
+    return { message: 'Successfully logged out' } as AuthTokens.Logout.Response;
   }
 
   /**
@@ -167,7 +167,7 @@ export class AuthController extends Controller {
 	 */
   @j200()
   private async register( req: express.Request, res: express.Response ) {
-    const token: IRegisterToken = req.body;
+    const token: AuthTokens.Register.Body = req.body;
     const activationLink = this._options.activateAccountUrl;
     const user = await UserManager.get.register( token.username!, token.password!, token.email!, activationLink, {}, req );
 
@@ -175,7 +175,7 @@ export class AuthController extends Controller {
       message: ( user ? 'Please activate your account with the link sent to your email address' : 'User is not authenticated' ),
       authenticated: ( user ? true : false ),
       user: ( user ? user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
-    } as IAuthenticationResponse;
+    } as AuthTokens.Register.Response;
   }
 
   /**
@@ -190,6 +190,6 @@ export class AuthController extends Controller {
       message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
       authenticated: ( session ? true : false ),
       user: ( session ? session.user.generateCleanedData( Boolean( req.query.verbose ) ) : {} )
-    } as IAuthenticationResponse;
+    } as AuthTokens.Authenticated.Response;
   }
 }

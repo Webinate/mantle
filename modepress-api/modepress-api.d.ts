@@ -717,36 +717,277 @@ declare module 'modepress' {
         count: number;
         data: Array<T>;
     }
-    interface IGetRenders extends IGetArrayResponse<IRender> {
+    namespace AuthTokens {
+        /** GET /auth/authenticated */
+        namespace Authenticated {
+            type Body = void;
+            type Response = IAuthenticationResponse;
+        }
+        /** GET /auth/logout */
+        namespace Logout {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** GET /auth/activate-account */
+        namespace ActivateAccount {
+            type Body = void;
+            type Response = void;
+        }
+        /** POST /auth/login */
+        namespace Login {
+            type Body = ILoginToken;
+            type Response = IAuthenticationResponse;
+        }
+        /** POST /auth/register */
+        namespace Register {
+            type Body = IRegisterToken;
+            type Response = IAuthenticationResponse;
+        }
+        /** PUT /auth/password-reset */
+        namespace PasswordReset {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** PUT /auth/:user/approve-activation */
+        namespace ApproveActivation {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** GET /auth/:user/resend-activation */
+        namespace ResendActivation {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** GET /auth/:user/request-password-reset */
+        namespace RequestPasswordReset {
+            type Body = void;
+            type Response = IResponse;
+        }
     }
-    interface IGetPosts extends IGetArrayResponse<IPost> {
+    namespace UserTokens {
+        /** GET /users/ */
+        namespace GetAll {
+            type Body = void;
+            type Response = IGetArrayResponse<IUserEntry>;
+        }
+        /** POST /users/ */
+        namespace Post {
+            type Body = IUserEntry;
+            type Response = IGetResponse<IUserEntry>;
+        }
+        /** GET /users/:user/meta */
+        namespace GetUserMeta {
+            type Body = void;
+            type Response = any;
+        }
+        /** GET /users/:user/meta/:name */
+        namespace GetUserMetaVal {
+            type Body = void;
+            type Response = any;
+        }
+        /** GET /users/:username */
+        namespace GetOne {
+            type Body = void;
+            type Response = IGetResponse<IUserEntry>;
+        }
+        /** DELETE /users/:username */
+        namespace DeleteOne {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** POST /users/:user/meta/:name */
+        namespace PostUserMeta {
+            type Body = any;
+            type Response = IResponse;
+        }
+        /** POST /users/:user/meta */
+        namespace PostUserMetaVal {
+            type Body = any;
+            type Response = IResponse;
+        }
     }
-    interface IGetComments extends IGetArrayResponse<IComment> {
+    namespace StatTokens {
+        /** GET /stats/users/:user/get-stats */
+        namespace GetOne {
+            type Body = void;
+            type Response = IGetResponse<IStorageStats>;
+        }
+        /** POST /stats/create-stats/:target */
+        namespace Post {
+            type Body = void;
+            type Response = IStorageStats;
+        }
+        /** PUT /stats/storage-calls/:target/:value */
+        namespace PutStorageCalls {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** PUT /stats/storage-memory/:target/:value */
+        namespace PutStorageMemory {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** PUT /stats/storage-allocated-calls/:target/:value */
+        namespace PutStorageAlocCalls {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** PUT /stats/storage-allocated-memory/:target/:value */
+        namespace PutStorageAlocMemory {
+            type Body = void;
+            type Response = IResponse;
+        }
     }
-    interface IGetPost extends IGetResponse<IPost> {
+    namespace SessionTokens {
+        /** GET /sessions/ */
+        namespace GetAll {
+            type Body = void;
+            type Response = IGetArrayResponse<ISessionEntry>;
+        }
+        /** DELETE /sessions/:id */
+        namespace DeleteOne {
+            type Body = void;
+            type Response = IResponse;
+        }
     }
-    interface IGetComment extends IGetResponse<IComment> {
+    namespace PostTokens {
+        /** GET /posts/ */
+        namespace GetAll {
+            type Body = void;
+            type Response = IGetArrayResponse<IPost>;
+        }
+        /**
+         * GET /posts/slug/:slug or
+         * GET /posts/:id
+         * */
+        namespace GetOne {
+            type Body = void;
+            type Response = IGetResponse<IPost>;
+        }
+        /** DELETE /posts/:id */
+        namespace DeleteOne {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** PUT /posts/:id */
+        namespace PutOne {
+            type Body = IPost;
+            type Response = IResponse;
+        }
+        /** POST /posts/ */
+        namespace Post {
+            type Body = IPost;
+            type Response = IGetResponse<IPost>;
+        }
     }
-    interface IGetCategory extends IGetResponse<ICategory> {
+    namespace CommentTokens {
+        /** GET /comments/ */
+        namespace GetAll {
+            type Body = void;
+            type Response = IGetArrayResponse<IComment>;
+        }
+        /** GET /comments/:id */
+        namespace GetOne {
+            type Body = void;
+            type Response = IGetResponse<IComment>;
+        }
+        /** DELETE /comments/:id */
+        namespace DeleteOne {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** PUT /comments/:id */
+        namespace PutOne {
+            type Body = IComment;
+            type Response = IResponse;
+        }
+        /** POST /posts/:postId/comments/:parent? */
+        namespace Post {
+            type Body = IComment;
+            type Response = IGetResponse<IComment>;
+        }
     }
-    interface IGetCategories extends IGetArrayResponse<ICategory> {
+    namespace CategoriesTokens {
+        /** GET /categories/ */
+        namespace GetAll {
+            type Body = void;
+            type Response = IGetArrayResponse<ICategory>;
+        }
+        /** DELETE /categories/:id */
+        namespace DeleteOne {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** POST /categories */
+        namespace Post {
+            type Body = ICategory;
+            type Response = IGetResponse<ICategory>;
+        }
     }
-    interface IGetUser extends IGetResponse<IUserEntry> {
+    namespace RenderTokens {
+        /** GET /renders/ */
+        namespace GetAll {
+            type Body = void;
+            type Response = IGetArrayResponse<IRender>;
+        }
+        /** DELETE /renders/:id */
+        namespace DeleteOne {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** DELETE /renders/clear */
+        namespace DeleteAll {
+            type Body = void;
+            type Response = IResponse;
+        }
     }
-    interface IGetUserStorageData extends IGetResponse<IStorageStats> {
+    namespace FileTokens {
+        /** GET /files/users/:user/buckets/:bucket */
+        namespace GetAll {
+            type Body = void;
+            type Response = IGetArrayResponse<IFileEntry>;
+        }
+        /** PUT /files/:file/rename-file */
+        namespace Put {
+            type Body = {
+                name: string;
+            };
+            type Response = IResponse;
+        }
+        /** DELETE /files/:files */
+        namespace DeleteAll {
+            type Body = void;
+            type Response = IGetArrayResponse<string>;
+        }
     }
-    interface IGetUsers extends IGetArrayResponse<IUserEntry> {
-        count: number;
+    namespace BucketTokens {
+        /** GET /buckets/user/:user */
+        namespace GetAll {
+            type Body = void;
+            type Response = IGetArrayResponse<IBucketEntry>;
+        }
+        /** POST /buckets/user/:user/:name */
+        namespace Post {
+            type Body = void;
+            type Response = IResponse;
+        }
+        /** POST /buckets/:bucket/upload/:parentFile? */
+        namespace PostFile {
+            type Body = any;
+            type Response = IUploadResponse;
+        }
+        /** DELETE /buckets/:buckets */
+        namespace DeleteAll {
+            type Body = void;
+            type Response = IGetArrayResponse<string>;
+        }
     }
-    interface IGetSessions extends IGetArrayResponse<ISessionEntry> {
-    }
-    interface IGetBuckets extends IGetArrayResponse<IBucketEntry> {
-    }
-    interface IGetFile extends IGetResponse<IFileEntry> {
-    }
-    interface IGetFiles extends IGetArrayResponse<IFileEntry> {
-    }
-    interface IRemoveFiles extends IGetArrayResponse<string> {
+    namespace EmailTokens {
+        /** POST /message-admin */
+        namespace Post {
+            type Body = IMessage;
+            type Response = boolean;
+        }
     }
 }
 declare module "models/model-instance" {
@@ -2585,8 +2826,8 @@ declare module "controllers/bucket-controller" {
          */
         private removeBuckets(req, res);
         /**
-       * Fetches all bucket entries from the database
-       */
+         * Fetches all bucket entries from the database
+         */
         private getBuckets(req, res);
         private alphaNumericDashSpace(str);
         /**
@@ -2594,19 +2835,19 @@ declare module "controllers/bucket-controller" {
        */
         private createBucket(req, res);
         /**
-       * Checks if a part is allowed to be uploaded
+         * Checks if a part is allowed to be uploaded
          * @returns {boolean}
-       */
+         */
         private isPartAllowed(part);
         /**
-       * Checks if a file part is allowed to be uploaded
+         * Checks if a file part is allowed to be uploaded
          * @returns {boolean}
-       */
+         */
         private isFileTypeAllowed(part);
         private uploadMetaPart(part);
         /**
-       * Attempts to upload a file to the user's bucket
-       */
+         * Attempts to upload a file to the user's bucket
+         */
         private uploadUserFiles(req, res);
         /**
          * After the uploads have been uploaded, we set any meta on the files and send file uploaded events
@@ -2951,9 +3192,9 @@ declare module "controllers/session-controller" {
     }
 }
 declare module "controllers/stats-controller" {
+    import { IBaseControler } from 'modepress';
     import express = require('express');
     import { Controller } from "controllers/controller";
-    import { IBaseControler } from 'modepress';
     import * as mongodb from 'mongodb';
     /**
      * Main class to use for managing users

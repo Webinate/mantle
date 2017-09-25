@@ -1,4 +1,4 @@
-﻿import { IAuthReq, IPost, IUserEntry, IGetPost, IGetPosts, IResponse } from 'modepress';
+﻿import { IAuthReq, IPost, IUserEntry, PostTokens } from 'modepress';
 
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
@@ -48,7 +48,7 @@ export class PostsController extends Controller {
     router.post( '/', <any>[ adminRights, this.createPost.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/posts', router );
+    e.use( ( this._options.rootPath || '' ) + '/posts', router );
 
     await super.initialize( e, db );
     return this;
@@ -180,7 +180,7 @@ export class PostsController extends Controller {
       count: count,
       message: `Found ${count} posts`,
       data: sanitizedData
-    } as IGetPosts;
+    } as PostTokens.GetAll.Response;
   }
 
   /**
@@ -217,7 +217,7 @@ export class PostsController extends Controller {
     return {
       message: `Found ${sanitizedData.length} posts`,
       data: sanitizedData[ 0 ]
-    } as IGetPosts;
+    } as PostTokens.GetOne.Response;
   }
 
   /**
@@ -235,7 +235,7 @@ export class PostsController extends Controller {
 
     return {
       message: 'Post has been successfully removed'
-    } as IResponse;
+    } as PostTokens.DeleteOne.Response;
   }
 
   /**
@@ -243,7 +243,7 @@ export class PostsController extends Controller {
    */
   @j200()
   private async updatePost( req: IAuthReq, res: express.Response ) {
-    const token: IPost = req.body;
+    const token: PostTokens.Post.Body = req.body;
     const posts = this.getModel( 'posts' )!;
 
     const instance = await posts.update( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
@@ -256,7 +256,7 @@ export class PostsController extends Controller {
 
     return {
       message: 'Post Updated'
-    } as IResponse;
+    } as PostTokens.PutOne.Response;
   }
 
   /**
@@ -264,7 +264,7 @@ export class PostsController extends Controller {
    */
   @j200()
   private async createPost( req: IAuthReq, res: express.Response ) {
-    const token: IPost = req.body;
+    const token: PostTokens.Post.Body = req.body;
     const posts = this.getModel( 'posts' )!;
 
     // User is passed from the authentication function
@@ -276,6 +276,6 @@ export class PostsController extends Controller {
     return {
       message: 'New post created',
       data: json
-    } as IGetPost;
+    } as PostTokens.Post.Response;
   }
 }

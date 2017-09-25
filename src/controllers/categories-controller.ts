@@ -1,4 +1,4 @@
-﻿import { IAuthReq, ICategory, IGetCategory, IGetCategories, IResponse } from 'modepress';
+﻿import { IAuthReq, ICategory, CategoriesTokens } from 'modepress';
 
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
@@ -44,7 +44,7 @@ export class CategoriesController extends Controller {
     router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removeCategory.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/categories', router );
+    e.use( ( this._options.rootPath || '' ) + '/categories', router );
 
     await super.initialize( e, db );
     return this;
@@ -69,7 +69,7 @@ export class CategoriesController extends Controller {
       count: sanitizedData.length,
       message: `Found ${sanitizedData.length} categories`,
       data: sanitizedData
-    } as IGetCategories;
+    } as CategoriesTokens.GetAll.Response;
   }
 
   /**
@@ -84,7 +84,7 @@ export class CategoriesController extends Controller {
     if ( numRemoved === 0 )
       return Promise.reject( new Error( 'Could not find a category with that ID' ) );
 
-    return { message: 'Category has been successfully removed' } as IResponse;
+    return { message: 'Category has been successfully removed' } as CategoriesTokens.DeleteOne.Response;
   }
 
   /**
@@ -92,7 +92,7 @@ export class CategoriesController extends Controller {
    */
   @j200()
   private async createCategory( req: IAuthReq, res: express.Response ) {
-    const token: ICategory = req.body;
+    const token: CategoriesTokens.Post.Body = req.body;
     const categories = this.getModel( 'categories' )!;
 
     const instance = await categories.createInstance( token );
@@ -101,6 +101,6 @@ export class CategoriesController extends Controller {
     return {
       message: 'New category created',
       data: json
-    } as IGetCategory;
+    } as CategoriesTokens.Post.Response;
   }
 }

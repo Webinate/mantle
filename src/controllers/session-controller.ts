@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { IGetSessions, IResponse } from 'modepress';
+import { SessionTokens } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { SessionManager } from '../core/session-manager';
@@ -43,7 +43,7 @@ export class SessionController extends Controller {
     router.delete( '/:id', <any>[ ownerRights, this.deleteSession.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/sessions', router );
+    e.use( ( this._options.rootPath || '' ) + '/sessions', router );
 
     await super.initialize( e, db );
     return this;
@@ -61,7 +61,7 @@ export class SessionController extends Controller {
       message: `Found ${sessions.length} active sessions`,
       data: sessions,
       count: numSessions
-    } as IGetSessions;
+    } as SessionTokens.GetAll.Response;
   }
 
   /**
@@ -70,6 +70,6 @@ export class SessionController extends Controller {
   @j200()
   private async deleteSession( req: express.Request, res: express.Response ) {
     await SessionManager.get.clearSession( req.params.id, req, res );
-    return { message: `Session ${req.params.id} has been removed` } as IResponse;
+    return { message: `Session ${req.params.id} has been removed` } as SessionTokens.DeleteOne.Response;
   }
 }

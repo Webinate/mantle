@@ -1,4 +1,4 @@
-﻿import { IAuthReq, IRender, IGetRenders, IResponse } from 'modepress';
+﻿import { IAuthReq, IRender, RenderTokens } from 'modepress';
 import * as mongodb from 'mongodb';
 import { error as logError, info } from '../utils/logger';
 import * as express from 'express';
@@ -124,7 +124,7 @@ export class PageRenderer extends Controller {
     router.delete( '/:id', <any>[ adminRights, this.removeRender.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/api/renders', router );
+    e.use( ( this._options.rootPath || '' ) + '/api/renders', router );
 
     await super.initialize( e, db );
     return this;
@@ -166,7 +166,7 @@ export class PageRenderer extends Controller {
    * Fetches a page and strips it of all its script tags
    */
   private renderPage( url: string ): Promise<string> {
-    return new Promise<string>(( resolve, reject ) => {
+    return new Promise<string>( ( resolve, reject ) => {
       let timer: NodeJS.Timer;
       let win;
       const maxTries = 50;
@@ -332,7 +332,7 @@ export class PageRenderer extends Controller {
       if ( numRemoved === 0 )
         throw new Error( 'Could not find a cache with that ID' );
 
-      okJson<IResponse>( { message: 'Cache has been successfully removed' }, res );
+      okJson<RenderTokens.DeleteOne.Response>( { message: 'Cache has been successfully removed' }, res );
 
     } catch ( err ) {
       errJson( err, res );
@@ -384,7 +384,7 @@ export class PageRenderer extends Controller {
 
       const sanitizedData = await Promise.all( jsons );
 
-      okJson<IGetRenders>( {
+      okJson<RenderTokens.GetAll.Response>( {
         count: count,
         message: `Found ${count} renders`,
         data: sanitizedData
@@ -405,7 +405,7 @@ export class PageRenderer extends Controller {
 
       // First get the count
       const num = await renders!.deleteInstances( {} );
-      okJson<IResponse>( { message: `${num} Instances have been removed` }, res );
+      okJson<RenderTokens.DeleteAll.Response>( { message: `${num} Instances have been removed` }, res );
     } catch ( err ) {
       errJson( err, res );
     };

@@ -7,11 +7,10 @@ import { UserManager } from '../core/user-manager';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { j200 } from '../utils/serializers';
-import { IGetUser, IResponse, IGetUsers, IAuthReq, IUserEntry } from 'modepress';
+import { UserTokens, IAuthReq, IUserEntry, IBaseControler } from 'modepress';
 import * as compression from 'compression';
 import { Model } from '../models/model';
 import { UsersModel } from '../models/users-model';
-import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
 
 /**
@@ -50,7 +49,7 @@ export class UserController extends Controller {
     router.post( '/:user/meta', <any>[ adminRights, this.setData.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/users', router );
+    e.use( ( this._options.rootPath || '' ) + '/users', router );
 
     await super.initialize( e, db );
     return this;
@@ -71,7 +70,7 @@ export class UserController extends Controller {
     return {
       message: `Found ${user.dbEntry.username}`,
       data: user.generateCleanedData( Boolean( req.query.verbose ) )
-    } as IGetUser;
+    } as UserTokens.GetOne.Response;
   }
 
   /**
@@ -100,7 +99,7 @@ export class UserController extends Controller {
       message: `Found ${users.length} users`,
       data: sanitizedData,
       count: totalNumUsers
-    } as IGetUsers;
+    } as UserTokens.GetAll.Response;
   }
 
   /**
@@ -114,7 +113,7 @@ export class UserController extends Controller {
       val = {};
 
     await UserManager.get.setMeta( user, val );
-    return { message: `User's data has been updated` } as IResponse;
+    return { message: `User's data has been updated` } as UserTokens.PostUserMeta.Response;
   }
 
   /**
@@ -126,7 +125,7 @@ export class UserController extends Controller {
     const name = req.params.name;
 
     await UserManager.get.setMetaVal( user, name, req.body.value );
-    return { message: `Value '${name}' has been updated` } as IResponse;
+    return { message: `Value '${name}' has been updated` } as UserTokens.PostUserMetaVal.Response;
   }
 
   /**
@@ -138,7 +137,7 @@ export class UserController extends Controller {
     const name = req.params.name;
 
     const val = await UserManager.get.getMetaVal( user, name );
-    return val;
+    return val as UserTokens.GetUserMetaVal.Response;
   }
 
   /**
@@ -148,7 +147,7 @@ export class UserController extends Controller {
   private async getData( req: IAuthReq, res: express.Response ) {
     const user = req._user!;
     const val = await UserManager.get.getMetaData( user );
-    return val;
+    return val as UserTokens.GetUserMeta.Response;
   }
 
   /**
@@ -161,7 +160,7 @@ export class UserController extends Controller {
       throw new Error( 'No user found' );
 
     await UserManager.get.removeUser( toRemove );
-    return { message: `User ${toRemove} has been removed` } as IResponse;
+    return { message: `User ${toRemove} has been removed` } as UserTokens.DeleteOne.Response;
   }
 
   /**
@@ -169,7 +168,7 @@ export class UserController extends Controller {
 	 */
   @j200()
   private async createUser( req: express.Request, res: express.Response ) {
-    const token: IUserEntry = req.body;
+    const token: UserTokens.Post.Body = req.body;
     token.privileges = token.privileges ? token.privileges : UserPrivileges.Regular;
 
     // Not allowed to create super users
@@ -180,6 +179,6 @@ export class UserController extends Controller {
     return {
       message: `User ${user.dbEntry.username} has been created`,
       data: user.dbEntry
-    } as IGetUser;
+    } as UserTokens.Post.Response;
   }
 }

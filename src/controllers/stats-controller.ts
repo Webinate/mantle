@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IGetUserStorageData, IResponse, IAuthReq, IStorageStats } from 'modepress';
+import { StatTokens, IAuthReq, IStorageStats, IBaseControler } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/user-manager';
@@ -10,7 +10,6 @@ import * as compression from 'compression';
 import { okJson, errJson } from '../utils/serializers';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
-import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
 
 /**
@@ -51,7 +50,7 @@ export class StatsController extends Controller {
     router.put( '/storage-allocated-memory/:target/:value', <any>[ ownerRights, this.verifyTargetValue, this.updateAllocatedMemory.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + `/stats`, router );
+    e.use( ( this._options.rootPath || '' ) + `/stats`, router );
 
     await super.initialize( e, db );
     return this;
@@ -93,7 +92,7 @@ export class StatsController extends Controller {
       const value = parseInt( req.params.value );
       const manager = BucketManager.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsUsed: value } );
-      okJson<IResponse>( { message: `Updated the user API calls to [${value}]` }, res );
+      okJson<StatTokens.PutStorageCalls.Response>( { message: `Updated the user API calls to [${value}]` }, res );
 
     } catch ( err ) {
       return errJson( err, res );
@@ -109,7 +108,7 @@ export class StatsController extends Controller {
       const manager = BucketManager.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryUsed: value } );
 
-      okJson<IResponse>( { message: `Updated the user memory to [${value}] bytes` }, res );
+      okJson<StatTokens.PutStorageMemory.Response>( { message: `Updated the user memory to [${value}] bytes` }, res );
 
     } catch ( err ) {
       return errJson( err, res );
@@ -124,7 +123,7 @@ export class StatsController extends Controller {
       const value = parseInt( req.params.value );
       const manager = BucketManager.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsAllocated: value } );
-      okJson<IResponse>( { message: `Updated the user API calls to [${value}]` }, res );
+      okJson<StatTokens.PutStorageAlocCalls.Response>( { message: `Updated the user API calls to [${value}]` }, res );
 
     } catch ( err ) {
       return errJson( err, res );
@@ -139,13 +138,12 @@ export class StatsController extends Controller {
       const value = parseInt( req.params.value );
       const manager = BucketManager.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryAllocated: value } );
-      okJson<IResponse>( { message: `Updated the user memory to [${value}] bytes` }, res );
+      okJson<StatTokens.PutStorageAlocMemory.Response>( { message: `Updated the user memory to [${value}] bytes` }, res );
 
     } catch ( err ) {
       return errJson( err, res );
     };
   }
-
 
   /**
    * Fetches the statistic information for the specified user
@@ -155,7 +153,7 @@ export class StatsController extends Controller {
       const manager = BucketManager.get;
       const stats = await manager.getUserStats( req._user!.username );
 
-      return okJson<IGetUserStorageData>( {
+      return okJson<StatTokens.GetOne.Response>( {
         message: `Successfully retrieved ${req._user!.username}'s stats`,
         data: stats
       }, res );
@@ -165,17 +163,15 @@ export class StatsController extends Controller {
     };
   }
 
-
-
   /**
    * Creates a new user stat entry. This is usually done for you when creating a new user
    */
   private async createStats( req: IAuthReq, res: express.Response ) {
     try {
       const manager = BucketManager.get;
-      await manager.createUserStats( req.params.target );
-      okJson<IResponse>( { message: `Stats for the user '${req.params.target}' have been created` }, res );
-
+      const stats = await manager.createUserStats( req.params.target );
+      res.setHeader( 'Content-Type', 'application/json' );
+      res.end( JSON.stringify( stats ) );
     } catch ( err ) {
       return errJson( err, res );
     };

@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { IFileEntry, IUploadToken, IAuthReq, IRemoveFiles, IGetBuckets, IResponse, IUploadResponse } from 'modepress';
+import { IFileEntry, IUploadToken, IAuthReq, BucketTokens, IUploadResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
@@ -52,7 +52,7 @@ export class BucketController extends Controller {
     router.post( '/user/:user/:name', <any>[ ownerRights, this.createBucket.bind( this ) ] );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + `/buckets`, router );
+    e.use( ( this._options.rootPath || '' ) + `/buckets`, router );
 
     await super.initialize( e, db );
     return this;
@@ -73,7 +73,7 @@ export class BucketController extends Controller {
 
       const filesRemoved = await manager.removeBucketsByName( buckets, req._user!.username! );
 
-      return okJson<IRemoveFiles>( {
+      return okJson<BucketTokens.DeleteAll.Response>( {
         message: `Removed [${filesRemoved.length}] buckets`,
         data: filesRemoved,
         count: filesRemoved.length
@@ -85,8 +85,8 @@ export class BucketController extends Controller {
   }
 
   /**
- * Fetches all bucket entries from the database
- */
+   * Fetches all bucket entries from the database
+   */
   private async getBuckets( req: IAuthReq, res: express.Response ) {
     const user = req.params.user;
     const manager = BucketManager.get;
@@ -99,7 +99,7 @@ export class BucketController extends Controller {
 
       const buckets = await manager.getBucketEntries( user, searchTerm );
 
-      return okJson<IGetBuckets>( {
+      return okJson<BucketTokens.GetAll.Response>( {
         message: `Found [${buckets.length}] buckets`,
         data: buckets,
         count: buckets.length
@@ -142,7 +142,7 @@ export class BucketController extends Controller {
         throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
 
       await manager.createBucket( bucketName, username );
-      okJson<IResponse>( { message: `Bucket '${bucketName}' created` }, res );
+      okJson<BucketTokens.Post.Response>( { message: `Bucket '${bucketName}' created` }, res );
 
     } catch ( err ) {
       return errJson( err, res );
@@ -150,9 +150,9 @@ export class BucketController extends Controller {
   }
 
   /**
- * Checks if a part is allowed to be uploaded
+   * Checks if a part is allowed to be uploaded
    * @returns {boolean}
- */
+   */
   private isPartAllowed( part: multiparty.Part ): boolean {
     if ( !part.headers )
       return false;
@@ -169,9 +169,9 @@ export class BucketController extends Controller {
   }
 
   /**
- * Checks if a file part is allowed to be uploaded
+   * Checks if a file part is allowed to be uploaded
    * @returns {boolean}
- */
+   */
   private isFileTypeAllowed( part: multiparty.Part ): boolean {
     if ( !part.headers )
       return false;
@@ -193,8 +193,6 @@ export class BucketController extends Controller {
 
     return true;
   }
-
-
 
   private uploadMetaPart( part: multiparty.Part ): Promise<any> {
     let data = '';
@@ -221,8 +219,8 @@ export class BucketController extends Controller {
   }
 
   /**
- * Attempts to upload a file to the user's bucket
- */
+   * Attempts to upload a file to the user's bucket
+   */
   private uploadUserFiles( req: IAuthReq, res: express.Response ) {
     const form = new multiparty.Form( { maxFields: 8, maxFieldsSize: 5 * 1024 * 1024, maxFilesSize: 10 * 1024 * 1024 } );
     let numParts = 0;
@@ -234,10 +232,11 @@ export class BucketController extends Controller {
     const parentFile = req.params.parentFile;
     const filesUploaded: Array<IFileEntry> = [];
     const bucketName = req.params.bucket;
+
     if ( !bucketName || bucketName.trim() === '' )
       return okJson<IUploadResponse>( { message: `Please specify a bucket`, tokens: [] }, res );
 
-    manager.getIBucket( bucketName, username ).then(( bucketEntry ) => {
+    manager.getIBucket( bucketName, username ).then( ( bucketEntry ) => {
       if ( !bucketEntry )
         return okJson<IUploadResponse>( { message: `No bucket exists with the name '${bucketName}'`, tokens: [] }, res );
 
@@ -348,7 +347,7 @@ export class BucketController extends Controller {
       const checkIfComplete = () => {
         if ( closed && completedParts === numParts ) {
           this.finalizeUploads( metaJson, filesUploaded, username, uploadedTokens ).then( function( token ) {
-            return okJson<IUploadResponse>( token, res );
+            return okJson<BucketTokens.PostFile.Response>( token, res );
           } );
         }
       }
