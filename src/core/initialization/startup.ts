@@ -7,6 +7,7 @@ import { Server as MongoServer, Db } from 'mongodb';
 import { Server } from '../server';
 import { ConsoleManager } from '../../console/console-manager';
 import { prepare } from './db-preparation';
+import ControllerFactory from '../../core/controller-factory';
 import * as merge from 'deepmerge';
 
 const args = yargs.argv;
@@ -123,6 +124,8 @@ export async function initialize() {
   const mongoServer = new MongoServer( dbProps.host, dbProps.port, { servername: dbProps.name } );
   const mongoDB = new Db( dbProps.name, mongoServer, { w: 1 } );
   const db = await mongoDB.open();
+
+  ControllerFactory.initialize( config, db );
 
   info( `Successfully connected to '${dbProps.name}' at ${dbProps.host}:${dbProps.port}` );
   info( `Starting up HTTP servers...` );
