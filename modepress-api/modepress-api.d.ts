@@ -367,6 +367,81 @@ declare module "types/interfaces/i-remote" {
     }
 }
 declare module 'modepress' {
+    type ITextOptions = {
+        /** Specify the minimum number of characters for use with this text item */
+        minCharacters?: number;
+        /** Specify the maximum number of characters for use with this text item */
+        maxCharacters?: number;
+        /** If true, the text is cleaned of HTML before insertion. The default is true */
+        htmlClean?: boolean;
+    };
+    type ITextArrOptions = {
+        /** Specify the minimum number of items that can be allowed */
+        minItems?: number;
+        /** Specify the maximum number of items that can be allowed */
+        maxItems?: number;
+        /** Specify the minimum number of characters for each text item */
+        minCharacters?: number;
+        /** Specify the maximum number of characters for each text item */
+        maxCharacters?: number;
+    };
+    type NumType = 'Int' | 'Float';
+    type INumOptions = {
+        /** The minimum value the value can be */
+        min?: number;
+        /** The maximum value the value can be */
+        max?: number;
+        /** The type of number the schema represents */
+        type?: NumType;
+        /** The number of decimal places to use if the type is a Float */
+        decimalPlaces?: number;
+    };
+    type INumArrOptions = {
+        /** Specify the minimum number of items that can be allowed */
+        minItems?: number;
+        /** Specify the maximum number of items that can be allowed */
+        maxItems?: number;
+        /** Specify the minimum a number can be */
+        min?: number;
+        /** Specify the maximum a number can be */
+        max?: number;
+        /** What type of numbers to expect */
+        type?: 'Int' | 'Float';
+        /** The number of decimal places to use if the type is a Float */
+        decimalPlaces?: number;
+    };
+    type IIdArrOptions = {
+        /** Specify the minimum number of items that can be allowed */
+        minItems?: number;
+        /** Specify the maximum number of items that can be allowed */
+        maxItems?: number;
+    };
+    type IHtmlOptions = {
+        /** The tags allowed by the html parser */
+        allowedTags?: string[];
+        /** The attributes allowed by each attribute */
+        allowedAttributes?: {
+            [name: string]: Array<string>;
+        };
+        /** If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you */
+        errorBadHTML?: boolean;
+        /** Specify the minimum number of characters for use with this text item */
+        minCharacters?: number;
+        /** Specify the maximum number of characters for use with this text item */
+        maxCharacters?: number;
+    };
+    type IForeignKeyOptions = {
+        /** If true, then the key is allowed to be null */
+        keyCanBeNull?: boolean;
+        /** If true, then key will only be nullified if the target is removed. If false, then the instance that owns this item must be removed as it cannot exist without the target. */
+        canAdapt?: boolean;
+    };
+    type IDateOptions = {
+        /** If true, the date will always be updated to use the current date */
+        useNow?: boolean;
+    };
+}
+declare module 'modepress' {
     interface IAuthOptions extends IBaseControler {
         /**
          * The URL to redirect to after the user attempts to activate their account.
@@ -2265,31 +2340,21 @@ declare module "core/user-manager" {
 }
 declare module "models/schema-items/schema-number" {
     import { SchemaItem } from "models/schema-items/schema-item";
-    /**
-     * Describes the type of number to store
-     */
-    export enum NumberType {
-        Integer = 0,
-        Float = 1,
-    }
+    import { INumOptions, NumType } from 'modepress';
     /**
      * A numeric schema item for use in Models
      */
     export class SchemaNumber extends SchemaItem<number> {
         min: number;
         max: number;
-        type: NumberType;
+        type: NumType;
         decimalPlaces: number;
         /**
          * Creates a new schema item
          * @param name The name of this item
          * @param val The default value of this item
-         * @param min [Optional] The minimum value the value can be
-         * @param max [Optional] The maximum value the value can be
-         * @param type [Optional] The type of number the schema represents
-         * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
          */
-        constructor(name: string, val: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number);
+        constructor(name: string, val: number, options?: INumOptions);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
@@ -2303,6 +2368,7 @@ declare module "models/schema-items/schema-number" {
 }
 declare module "models/schema-items/schema-text" {
     import { SchemaItem } from "models/schema-items/schema-item";
+    import { ITextOptions } from 'modepress';
     /**
      * A text scheme item for use in Models
      */
@@ -2314,11 +2380,9 @@ declare module "models/schema-items/schema-text" {
          * Creates a new schema item
          * @param name The name of this item
          * @param val The text of this item
-         * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
-         * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
-         * @param htmlClean [Optional] If true, the text is cleaned of HTML before insertion. The default is true
+         * @param options Optional params
          */
-        constructor(name: string, val: string, minCharacters?: number, maxCharacters?: number, htmlClean?: boolean);
+        constructor(name: string, val: string, options?: ITextOptions);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
@@ -2356,6 +2420,7 @@ declare module "models/schema-items/schema-bool" {
 }
 declare module "models/schema-items/schema-date" {
     import { SchemaItem } from "models/schema-items/schema-item";
+    import { IDateOptions } from 'modepress';
     /**
      * A date scheme item for use in Models
      */
@@ -2365,9 +2430,8 @@ declare module "models/schema-items/schema-date" {
          * Creates a new schema item
          * @param name The name of this item
          * @param val The date of this item. If none is specified the Date.now() number is used.
-         * @param useNow [Optional] If true, the date will always be updated to use the current date
          */
-        constructor(name: string, val?: number, useNow?: boolean);
+        constructor(name: string, val?: number, options?: IDateOptions);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
@@ -2386,6 +2450,7 @@ declare module "models/schema-items/schema-date" {
 }
 declare module "models/schema-items/schema-text-array" {
     import { SchemaItem } from "models/schema-items/schema-item";
+    import { ITextArrOptions } from 'modepress';
     /**
      * A text scheme item for use in Models
      */
@@ -2398,12 +2463,8 @@ declare module "models/schema-items/schema-text-array" {
          * Creates a new schema item that holds an array of text items
          * @param name The name of this item
          * @param val The text array of this schema item
-         * @param minItems [Optional] Specify the minimum number of items that can be allowed
-         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-         * @param minCharacters [Optional] Specify the minimum number of characters for each text item
-         * @param maxCharacters [Optional] Specify the maximum number of characters for each text item
          */
-        constructor(name: string, val: Array<string>, minItems?: number, maxItems?: number, minCharacters?: number, maxCharacters?: number);
+        constructor(name: string, val: Array<string>, options?: ITextArrOptions);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
@@ -2440,7 +2501,7 @@ declare module "models/schema-items/schema-json" {
     }
 }
 declare module "models/schema-items/schema-foreign-key" {
-    import { ISchemaOptions, IModelEntry } from 'modepress';
+    import { ISchemaOptions, IModelEntry, IForeignKeyOptions } from 'modepress';
     import { SchemaItem } from "models/schema-items/schema-item";
     import { ModelInstance } from "models/model-instance";
     import { ObjectID } from 'mongodb';
@@ -2462,11 +2523,8 @@ declare module "models/schema-items/schema-foreign-key" {
          * @param name The name of this item
          * @param val The string representation of the foreign key's _id
          * @param targetCollection The name of the collection to which the target exists
-         * @param keyCanBeNull If true, then the key is allowed to be null
-         * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
-         * owns this item must be removed as it cannot exist without the target.
          */
-        constructor(name: string, val: string, targetCollection: string, keyCanBeNull: boolean, canAdapt: boolean);
+        constructor(name: string, val: string, targetCollection: string, options?: IForeignKeyOptions);
         /**
          * Creates a clone of this item
          */
@@ -2499,6 +2557,7 @@ declare module "models/schema-items/schema-id-array" {
     import { SchemaItem } from "models/schema-items/schema-item";
     import { ModelInstance } from "models/model-instance";
     import { ObjectID } from 'mongodb';
+    import { IIdArrOptions } from 'modepress';
     /**
      * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
      * and return objects of the specified ids. In order for the array to return objects you must
@@ -2516,12 +2575,9 @@ declare module "models/schema-items/schema-id-array" {
          * Creates a new schema item that holds an array of id items
          * @param name The name of this item
          * @param val The array of ids for this schema item
-         * @param minItems [Optional] Specify the minimum number of items that can be allowed
-         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-         * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
-         * the item can expand objects on retreival.
+         * @param targetCollection Specify the model name to which all the ids belong. If set the item can expand objects on retreival.
          */
-        constructor(name: string, val: Array<string>, minItems: number | undefined, maxItems: number | undefined, targetCollection: string);
+        constructor(name: string, val: Array<string>, targetCollection: string, options?: IIdArrOptions);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
@@ -2553,7 +2609,7 @@ declare module "models/schema-items/schema-id-array" {
 }
 declare module "models/schema-items/schema-num-array" {
     import { SchemaItem } from "models/schema-items/schema-item";
-    import { NumberType } from "models/schema-items/schema-number";
+    import { NumType, INumArrOptions } from 'modepress';
     /**
      * A number array scheme item for use in Models
      */
@@ -2562,20 +2618,14 @@ declare module "models/schema-items/schema-num-array" {
         maxItems: number;
         min: number;
         max: number;
-        type: NumberType;
+        type: NumType;
         decimalPlaces: number;
         /**
          * Creates a new schema item that holds an array of number items
          * @param name The name of this item
          * @param val The number array of this schema item
-         * @param minItems [Optional] Specify the minimum number of items that can be allowed
-         * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-         * @param min [Optional] Specify the minimum a number can be
-         * @param max [Optional] Specify the maximum a number can be
-         * @param type [Optional] What type of numbers to expect
-         * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
          */
-        constructor(name: string, val: Array<number>, minItems?: number, maxItems?: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number);
+        constructor(name: string, val: Array<number>, options?: INumArrOptions);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
@@ -2613,6 +2663,7 @@ declare module "models/schema-items/schema-id" {
 }
 declare module "models/schema-items/schema-html" {
     import { SchemaItem } from "models/schema-items/schema-item";
+    import { IHtmlOptions } from 'modepress';
     /**
     * An html scheme item for use in Models
     */
@@ -2638,18 +2689,11 @@ declare module "models/schema-items/schema-html" {
         minCharacters: number;
         maxCharacters: number;
         /**
-          * Creates a new schema item
-          * @param name The name of this item
+         * Creates a new schema item
+         * @param name The name of this item
          * @param val The text of this item
-         * @param allowedTags The tags allowed by the html parser
-         * @param allowedAttributes The attributes allowed by each attribute
-         * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
-         * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
-         * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
          */
-        constructor(name: string, val: string, allowedTags?: Array<string>, allowedAttributes?: {
-            [name: string]: Array<string>;
-        }, errorBadHTML?: boolean, minCharacters?: number, maxCharacters?: number);
+        constructor(name: string, val: string, options?: IHtmlOptions);
         /**
          * Creates a clone of this item
          * @returns copy A sub class of the copy
@@ -2674,7 +2718,6 @@ declare module "models/schema-items/schema-item-factory" {
     import { SchemaId } from "models/schema-items/schema-id";
     import { SchemaHtml } from "models/schema-items/schema-html";
     import { SchemaForeignKey } from "models/schema-items/schema-foreign-key";
-    export const NumberType: typeof numbers.NumberType;
     export const num: typeof numbers.SchemaNumber;
     export const text: typeof SchemaText;
     export const textArray: typeof SchemaTextArray;

@@ -1,5 +1,4 @@
-﻿import { ISchemaOptions, IModelEntry } from 'modepress';
-
+﻿import { ISchemaOptions, IModelEntry, IForeignKeyOptions } from 'modepress';
 import { SchemaItem } from './schema-item';
 import { Model } from '../model';
 import { ModelInstance } from '../model-instance';
@@ -28,24 +27,29 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    * @param name The name of this item
    * @param val The string representation of the foreign key's _id
    * @param targetCollection The name of the collection to which the target exists
-   * @param keyCanBeNull If true, then the key is allowed to be null
-   * @param canAdapt If true, then key will only be nullified if the target is removed. If false, then the instance that
-   * owns this item must be removed as it cannot exist without the target.
    */
-  constructor( name: string, val: string, targetCollection: string, keyCanBeNull: boolean, canAdapt: boolean ) {
+  constructor( name: string, val: string, targetCollection: string, options?: IForeignKeyOptions ) {
     super( name, val );
+    options = { keyCanBeNull: true, canAdapt: true, ...options };
+
+    if ( !targetCollection )
+      throw new Error( `You must specify a targetCollection property for model option '${name}'` );
+
     this.targetCollection = targetCollection;
-    this.canAdapt = canAdapt;
+    this.canAdapt = options.canAdapt!;
     this.curLevel = 1;
-    this.keyCanBeNull = keyCanBeNull;
+    this.keyCanBeNull = options.keyCanBeNull!;
   }
 
   /**
    * Creates a clone of this item
    */
   public clone( copy?: SchemaForeignKey ): SchemaForeignKey {
-    copy = copy === undefined ? new SchemaForeignKey( this.name, <string>this.value, this.targetCollection, this.keyCanBeNull, this.canAdapt ) : copy;
+    copy = copy === undefined ? new SchemaForeignKey( this.name, <string>this.value, this.targetCollection ) : copy;
     super.clone( copy );
+    copy.targetCollection = this.targetCollection;
+    copy.keyCanBeNull = this.keyCanBeNull;
+    copy.canAdapt = this.canAdapt;
     return copy;
   }
 

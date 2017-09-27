@@ -1,4 +1,5 @@
 ﻿import { SchemaItem } from './schema-item';
+import { IDateOptions } from 'modepress';
 
 /**
  * A date scheme item for use in Models
@@ -10,11 +11,11 @@ export class SchemaDate extends SchemaItem<number> {
    * Creates a new schema item
    * @param name The name of this item
    * @param val The date of this item. If none is specified the Date.now() number is used.
-   * @param useNow [Optional] If true, the date will always be updated to use the current date
    */
-  constructor( name: string, val: number = 0, useNow: boolean = true ) {
+  constructor( name: string, val: number = 0, options?: IDateOptions ) {
     super( name, val );
-    this.useNow = useNow;
+    options = { useNow: true, ...options };
+    this.useNow = options.useNow!;
   }
 
   /**

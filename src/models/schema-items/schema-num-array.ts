@@ -1,5 +1,5 @@
 ﻿import { SchemaItem } from './schema-item';
-import { NumberType } from './schema-number';
+import { NumType, INumArrOptions } from 'modepress';
 
 /**
  * A number array scheme item for use in Models
@@ -9,32 +9,36 @@ export class SchemaNumArray extends SchemaItem<Array<number>> {
   public maxItems: number;
   public min: number;
   public max: number;
-  public type: NumberType;
+  public type: NumType;
   public decimalPlaces: number;
 
   /**
    * Creates a new schema item that holds an array of number items
    * @param name The name of this item
    * @param val The number array of this schema item
-   * @param minItems [Optional] Specify the minimum number of items that can be allowed
-   * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-   * @param min [Optional] Specify the minimum a number can be
-   * @param max [Optional] Specify the maximum a number can be
-   * @param type [Optional] What type of numbers to expect
-   * @param decimalPlaces [Optional] The number of decimal places to use if the type is a Float
    */
-  constructor( name: string, val: Array<number>, minItems: number = 0, maxItems: number = Infinity, min: number = -Infinity, max: number = Infinity, type: NumberType = NumberType.Integer, decimalPlaces: number = 2 ) {
+  constructor( name: string, val: Array<number>, options?: INumArrOptions ) {
     super( name, val );
-    this.max = max;
-    this.min = min;
-    this.maxItems = maxItems;
-    this.minItems = minItems;
-    this.type = type;
+    options = {
+      minItems: 0,
+      maxItems: Infinity,
+      min: -Infinity,
+      max: Infinity,
+      type: 'Int',
+      decimalPlaces: 2,
+      ...options
+    };
 
-    if ( decimalPlaces > 20 )
+    this.max = options.max!;
+    this.min = options.min!;
+    this.maxItems = options.maxItems!;
+    this.minItems = options.minItems!;
+    this.type = options.type!;
+
+    if ( options.decimalPlaces! > 20 )
       throw new Error( `Decimal palces for ${name} cannot be more than 20` );
 
-    this.decimalPlaces = decimalPlaces;
+    this.decimalPlaces = options.decimalPlaces!;
 
   }
 
@@ -67,10 +71,10 @@ export class SchemaNumArray extends SchemaItem<Array<number>> {
     const decimalPlaces = this.decimalPlaces;
 
     for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
-      if ( type === NumberType.Integer )
+      if ( type === 'Int' )
         temp = parseInt( transformedValue.toString() );
       else
-        temp = parseFloat(( parseFloat( transformedValue.toString() ).toFixed( decimalPlaces ) ) );
+        temp = parseFloat( ( parseFloat( transformedValue.toString() ).toFixed( decimalPlaces ) ) );
 
       if ( temp < min || temp > max )
         return Promise.reject<Error>( new Error( `The value of ${this.name} is not within the range of ${this.min} and ${this.max}` ) );

@@ -17,6 +17,6 @@ export class UsersModel extends Model {
     this.defaultSchema.add( new num( 'privileges', 0 ) );
     this.defaultSchema.add( new json( 'meta', {} ) );
     this.defaultSchema.add( new date( 'createdOn' ) ).setIndexable( true );
-    this.defaultSchema.add( new date( 'lastLoggedIn', undefined, true ) ).setIndexable( true );
+    this.defaultSchema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true );
   }
 }

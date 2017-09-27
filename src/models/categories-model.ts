@@ -8,8 +8,8 @@ export class CategoriesModel extends Model {
   constructor() {
     super( 'categories' );
 
-    this.defaultSchema.add( new text( 'title', '', 1 ) );
-    this.defaultSchema.add( new text( 'slug', '', 1, 20 ) ).setUnique( true );
+    this.defaultSchema.add( new text( 'title', '', { minCharacters: 1 } ) );
+    this.defaultSchema.add( new text( 'slug', '', { maxCharacters: 20, minCharacters: 1 } ) ).setUnique( true );
     this.defaultSchema.add( new text( 'description', '' ) );
     this.defaultSchema.add( new text( 'parent', '' ) );
   }

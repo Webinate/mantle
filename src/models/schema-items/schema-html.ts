@@ -1,5 +1,6 @@
 import { SchemaItem } from './schema-item';
 import * as sanitizeHtml from 'sanitize-html';
+import { IHtmlOptions } from 'modepress';
 
 /**
 * An html scheme item for use in Models
@@ -31,25 +32,27 @@ export class SchemaHtml extends SchemaItem<string> {
   public maxCharacters: number;
 
   /**
-    * Creates a new schema item
-    * @param name The name of this item
+   * Creates a new schema item
+   * @param name The name of this item
    * @param val The text of this item
-   * @param allowedTags The tags allowed by the html parser
-   * @param allowedAttributes The attributes allowed by each attribute
-   * @param errorBadHTML If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you
-   * @param minCharacters [Optional] Specify the minimum number of characters for use with this text item
-   * @param maxCharacters [Optional] Specify the maximum number of characters for use with this text item
    */
-  constructor( name: string, val: string, allowedTags: Array<string> = SchemaHtml.defaultTags,
-    allowedAttributes: { [ name: string ]: Array<string> } = SchemaHtml.defaultAllowedAttributes,
-    errorBadHTML: boolean = true, minCharacters: number = 0, maxCharacters: number = 10000 ) {
+  constructor( name: string, val: string, options?: IHtmlOptions ) {
     super( name, val );
 
-    this.errorBadHTML = errorBadHTML;
-    this.allowedAttributes = allowedAttributes;
-    this.allowedTags = allowedTags;
-    this.maxCharacters = maxCharacters;
-    this.minCharacters = minCharacters;
+    options = {
+      allowedTags: SchemaHtml.defaultTags,
+      allowedAttributes: SchemaHtml.defaultAllowedAttributes,
+      errorBadHTML: true,
+      minCharacters: 0,
+      maxCharacters: 10000,
+      ...options
+    };
+
+    this.errorBadHTML = options.errorBadHTML!;
+    this.allowedAttributes = options.allowedAttributes!;
+    this.allowedTags = options.allowedTags!;
+    this.maxCharacters = options.maxCharacters!;
+    this.minCharacters = options.minCharacters!;
   }
 
   /**

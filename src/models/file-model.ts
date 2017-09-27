@@ -21,6 +21,6 @@ export class FileModel extends Model {
     this.defaultSchema.add( new bool( 'isPublic', true ) );
     this.defaultSchema.add( new json( 'meta', {} ) );
     this.defaultSchema.add( new date( 'created' ) ).setIndexable( true );
-    this.defaultSchema.add( new date( 'lastLoggedIn', undefined, true ) ).setIndexable( true );
+    this.defaultSchema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true );
   }
 }

@@ -14,6 +14,6 @@ export class StorageStatsModel extends Model {
     this.defaultSchema.add( new num( 'apiCallsUsed', 0 ) );
     this.defaultSchema.add( new num( 'apiCallsAllocated', 0 ) );
     this.defaultSchema.add( new date( 'created' ) ).setIndexable( true );
-    this.defaultSchema.add( new date( 'lastLoggedIn', undefined, true ) ).setIndexable( true );
+    this.defaultSchema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true );
   }
 }

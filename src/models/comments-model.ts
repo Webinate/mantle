@@ -10,12 +10,12 @@ export class CommentsModel extends Model {
     super( 'comments' );
 
     this.defaultSchema.add( new text( 'author', '' ) ).setRequired( true )
-    this.defaultSchema.add( new foreignKey( 'post', '', 'posts', false, false ) ).setRequired( true )
-    this.defaultSchema.add( new foreignKey( 'parent', '', 'comments', true, false ) )
-    this.defaultSchema.add( new idArray( 'children', [], 0, undefined, 'comments' ) )
-    this.defaultSchema.add( new html( 'content', '', SchemaHtml.defaultTags.concat( 'img' ), undefined, true ) );
+    this.defaultSchema.add( new foreignKey( 'post', '', 'posts', { keyCanBeNull: false, canAdapt: false } ) ).setRequired( true )
+    this.defaultSchema.add( new foreignKey( 'parent', '', 'comments', { keyCanBeNull: true, canAdapt: false } ) )
+    this.defaultSchema.add( new idArray( 'children', [], 'comments' ) )
+    this.defaultSchema.add( new html( 'content', '', { allowedTags: SchemaHtml.defaultTags.concat( 'img' ), errorBadHTML: true } ) );
     this.defaultSchema.add( new bool( 'public', true ) );
     this.defaultSchema.add( new date( 'createdOn' ) ).setIndexable( true );
-    this.defaultSchema.add( new date( 'lastUpdated', undefined, true ) ).setIndexable( true );
+    this.defaultSchema.add( new date( 'lastUpdated', undefined, ) ).setIndexable( true );
   }
 }

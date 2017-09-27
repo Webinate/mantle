@@ -5,6 +5,7 @@ import { ModelInstance } from '../model-instance';
 import { Model } from '../model';
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
+import { IIdArrOptions } from 'modepress';
 
 /**
  * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
@@ -24,15 +25,18 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
    * Creates a new schema item that holds an array of id items
    * @param name The name of this item
    * @param val The array of ids for this schema item
-   * @param minItems [Optional] Specify the minimum number of items that can be allowed
-   * @param maxItems [Optional] Specify the maximum number of items that can be allowed
-   * @param targetCollection [Optional] Specify the model name to which all the ids belong. If set
-   * the item can expand objects on retreival.
+   * @param targetCollection Specify the model name to which all the ids belong. If set the item can expand objects on retreival.
    */
-  constructor( name: string, val: Array<string>, minItems: number = 0, maxItems: number = 10000, targetCollection: string ) {
+  constructor( name: string, val: Array<string>, targetCollection: string, options?: IIdArrOptions ) {
     super( name, val );
-    this.maxItems = maxItems;
-    this.minItems = minItems;
+    options = {
+      minItems: 0,
+      maxItems: 10000,
+      ...options
+    };
+
+    this.maxItems = options.maxItems!;
+    this.minItems = options.minItems!;
     this.targetCollection = targetCollection;
     this.curLevel = 1;
   }
@@ -42,7 +46,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
    * @returns copy A sub class of the copy
    */
   public clone( copy?: SchemaIdArray ): SchemaIdArray {
-    copy = copy === undefined ? new SchemaIdArray( this.name, <Array<string>>this.value, undefined, undefined, this.targetCollection ) : copy;
+    copy = copy === undefined ? new SchemaIdArray( this.name, <Array<string>>this.value, this.targetCollection ) : copy;
     super.clone( copy );
     copy.maxItems = this.maxItems;
     copy.minItems = this.minItems;

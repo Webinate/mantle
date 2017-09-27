@@ -10,7 +10,6 @@ import { SchemaId } from './schema-id';
 import { SchemaHtml } from './schema-html';
 import { SchemaForeignKey } from './schema-foreign-key';
 
-export const NumberType = numbers.NumberType;
 export const num = numbers.SchemaNumber;
 export const text = SchemaText;
 export const textArray = SchemaTextArray;
