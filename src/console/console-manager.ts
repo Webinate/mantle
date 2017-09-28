@@ -16,9 +16,6 @@ export class ConsoleManager {
    * Creates an instance of the manager
    */
   constructor() {
-
-
-    // Create the readline interface
     this._rl = createInterface( {
       input: process.stdin,
       output: process.stdout

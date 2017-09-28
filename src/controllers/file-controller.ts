@@ -7,10 +7,9 @@ import { Controller } from './controller'
 import { BucketManager } from '../core/bucket-manager';
 import * as compression from 'compression';
 import { okJson, errJson } from '../utils/serializers';
-import { Model } from '../models/model';
-import { BucketModel } from '../models/bucket-model';
 import { IFileOptions } from 'modepress';
 import * as mongodb from 'mongodb';
+import Factory from '../core/controller-factory';
 
 /**
  * Main class to use for managing users
@@ -24,14 +23,14 @@ export class FileController extends Controller {
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IFileOptions ) {
-    super( [ Model.registerModel( BucketModel ) ] );
+    super( [ Factory.get( 'bucket' ) ] );
     this._options = options;
   }
 
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
     this._cacheLifetime = this._options.cacheLifetime;
     this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];

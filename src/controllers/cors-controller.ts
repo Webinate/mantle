@@ -25,7 +25,7 @@ export class CORSController extends Controller {
   /**
  * Called to initialize this controller and its related database objects
  */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
     const matches: Array<RegExp> = [];
     for ( let i = 0, l = this._approvedDomains.length; i < l; i++ )

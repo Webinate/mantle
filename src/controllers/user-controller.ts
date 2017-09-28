@@ -9,9 +9,8 @@ import { Controller } from './controller'
 import { j200 } from '../utils/serializers';
 import { UserTokens, IAuthReq, IUserEntry, IBaseControler } from 'modepress';
 import * as compression from 'compression';
-import { Model } from '../models/model';
-import { UsersModel } from '../models/users-model';
 import * as mongodb from 'mongodb';
+import Factory from '../core/controller-factory';
 
 /**
  * Main class to use for managing user data
@@ -23,7 +22,7 @@ export class UserController extends Controller {
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Model.registerModel( UsersModel ) ] );
+    super( [ Factory.get( 'users' ) ] );
     this._options = options;
   }
 

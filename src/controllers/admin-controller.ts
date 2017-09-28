@@ -6,10 +6,9 @@ import { UserManager } from '../core/user-manager';
 import { Controller } from './controller'
 import { j200 } from '../utils/serializers';
 import * as compression from 'compression';
-import { Model } from '../models/model';
-import { UsersModel } from '../models/users-model';
 import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
+import Factory from '../core/controller-factory';
 
 /**
  * Main class to use for managing users
@@ -18,14 +17,14 @@ export class AdminController extends Controller {
   private _options: IBaseControler;
 
   constructor( options: IBaseControler ) {
-    super( [ Model.registerModel( UsersModel ) ] );
+    super( [ Factory.get( 'users' ) ] );
     this._options = options;
   }
 
   /**
  * Called to initialize this controller and its related database objects
  */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
     // Setup the rest calls
     const router = express.Router();
@@ -37,7 +36,7 @@ export class AdminController extends Controller {
     router.post( '/message-webmaster', this.messageWebmaster.bind( this ) );
 
     // Register the path
-    e.use(( this._options.rootPath || '' ) + '/admin', router );
+    e.use( ( this._options.rootPath || '' ) + '/admin', router );
 
     await super.initialize( e, db );
     return this;

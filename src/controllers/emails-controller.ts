@@ -21,7 +21,7 @@ export class EmailsController extends Controller {
   /**
  * Called to initialize this controller and its related database objects
  */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
 
     const router = express.Router();

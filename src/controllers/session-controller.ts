@@ -8,10 +8,9 @@ import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { j200 } from '../utils/serializers';
 import * as compression from 'compression';
-import { Model } from '../models/model';
-import { UsersModel } from '../models/users-model';
 import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
+import Factory from '../core/controller-factory';
 
 /**
  * Main class to use for managing users
@@ -23,14 +22,14 @@ export class SessionController extends Controller {
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Model.registerModel( UsersModel ) ] );
+    super( [ Factory.get( 'session' ) ] );
     this._options = options;
   }
 
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
     // Setup the rest calls
     const router = express.Router();

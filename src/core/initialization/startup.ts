@@ -126,6 +126,7 @@ export async function initialize() {
   const db = await mongoDB.open();
 
   ControllerFactory.initialize( config, db );
+  ControllerFactory.addBaseControllers();
 
   info( `Successfully connected to '${dbProps.name}' at ${dbProps.host}:${dbProps.port}` );
   info( `Starting up HTTP servers...` );

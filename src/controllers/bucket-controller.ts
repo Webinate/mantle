@@ -14,9 +14,8 @@ import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { okJson, errJson } from '../utils/serializers';
-import { Model } from '../models/model';
-import { BucketModel } from '../models/bucket-model';
 import { IBaseControler } from 'modepress';
+import Factory from '../core/controller-factory';
 
 /**
  * Main class to use for managing users
@@ -29,7 +28,7 @@ export class BucketController extends Controller {
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Model.registerModel( BucketModel ) ] );
+    super( [ Factory.get( 'bucket' ) ] );
     this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
     this._options = options;
   }
@@ -37,7 +36,7 @@ export class BucketController extends Controller {
   /**
  * Called to initialize this controller and its related database objects
  */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
     // Setup the rest calls
     const router = express.Router();

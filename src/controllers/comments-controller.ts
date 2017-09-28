@@ -4,13 +4,12 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Controller } from './controller';
-import { Model } from '../models/model';
 import { ModelInstance } from '../models/model-instance';
-import { CommentsModel } from '../models/comments-model';
 import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { UserPrivileges } from '../core/user';
 import { IBaseControler } from 'modepress';
+import Factory from '../core/controller-factory';
 
 /**
  * A controller that deals with the management of comments
@@ -22,14 +21,14 @@ export class CommentsController extends Controller {
 	 * Creates a new instance of the controller
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Model.registerModel( CommentsModel ) ] );
+    super( [ Factory.get( 'comments' ) ] );
     this._options = options;
   }
 
   /**
  * Called to initialize this controller and its related database objects
  */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
     const router = express.Router();
 

@@ -2,10 +2,10 @@
 import { SchemaItem } from './schema-item';
 import { SchemaForeignKey } from './schema-foreign-key';
 import { ModelInstance } from '../model-instance';
-import { Model } from '../model';
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { IIdArrOptions } from 'modepress';
+import Factory from '../../core/controller-factory';
 
 /**
  * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
@@ -85,7 +85,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
       return true;
 
     // If they collection is not empty, then it must exist
-    const model = Model.getByName( this.targetCollection );
+    const model = Factory.get( this.targetCollection );
 
     if ( !model )
       throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
@@ -114,7 +114,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
       return;
 
     // If they key is required then it must exist
-    const model = Model.getByName( this.targetCollection );
+    const model = Factory.get( this.targetCollection );
     const promises: Array<Promise<UpdateWriteOpResult>> = [];
 
     for ( let i = 0, l = this._targetDocs.length; i < l; i++ ) {
@@ -141,7 +141,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
       return;
 
     // If they key is required then it must exist
-    const model = Model.getByName( this.targetCollection );
+    const model = Factory.get( this.targetCollection );
     if ( !model )
       return;
 
@@ -188,7 +188,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
     if ( !this.targetCollection )
       return this.value;
 
-    const model = Model.getByName( this.targetCollection );
+    const model = Factory.get( this.targetCollection );
     if ( !model )
       throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 

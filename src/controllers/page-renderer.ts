@@ -4,14 +4,13 @@ import { error as logError, info } from '../utils/logger';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Controller } from './controller';
-import { RendersModel } from '../models/renders-model';
-import { Model } from '../models/model';
 import { ModelInstance } from '../models/model-instance';
 import * as url from 'url';
 import * as jsdom from 'jsdom';
 import { okJson, errJson } from '../utils/serializers';
 import { adminRights } from '../utils/permission-controllers'
 import { IRenderOptions } from 'modepress';
+import Factory from '../core/controller-factory';
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -101,14 +100,14 @@ export class PageRenderer extends Controller {
  * Creates a new instance of the email controller
  */
   constructor( options: IRenderOptions ) {
-    super( [ Model.registerModel( RendersModel ) ] );
+    super( [ Factory.get( 'renders' ) ] );
     this._options = options;
   }
 
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
     this.renderQueryFlag = '__render__request';
     this.expiration = this._options.cacheLifetime * 1000;
 

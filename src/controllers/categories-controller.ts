@@ -5,12 +5,10 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Controller } from './controller';
-import { Model } from '../models/model';
-import { PostsModel } from '../models/posts-model';
-import { CategoriesModel } from '../models/categories-model';
 import { adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { IBaseControler } from 'modepress';
+import Factory from '../core/controller-factory';
 
 /**
  * A controller that deals with the management of categories
@@ -23,14 +21,14 @@ export class CategoriesController extends Controller {
 	 * Creates a new instance of the controller
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Model.registerModel( PostsModel ), Model.registerModel( CategoriesModel ) ] );
+    super( [ Factory.get( 'posts' ), Factory.get( 'categories' ) ] );
     this._options = options;
   }
 
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
     const router = express.Router();
 

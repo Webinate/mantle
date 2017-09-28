@@ -8,9 +8,8 @@ import { Controller } from './controller'
 import { BucketManager } from '../core/bucket-manager';
 import * as compression from 'compression';
 import { okJson, errJson } from '../utils/serializers';
-import { Model } from '../models/model';
-import { BucketModel } from '../models/bucket-model';
 import * as mongodb from 'mongodb';
+import Factory from '../core/controller-factory';
 
 /**
  * Main class to use for managing users
@@ -25,7 +24,7 @@ export class StatsController extends Controller {
 	 * @param The config options of this manager
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Model.registerModel( BucketModel ) ] );
+    super( [ Factory.get( 'bucket' ) ] );
     this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
     this._options = options;
   }
@@ -33,7 +32,7 @@ export class StatsController extends Controller {
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize( e: express.Express, db: mongodb.Db ): Promise<Controller> {
+  async initialize( e: express.Express, db: mongodb.Db ) {
 
     // Setup the rest calls
     const router = express.Router();

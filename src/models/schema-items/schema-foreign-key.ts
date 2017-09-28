@@ -1,10 +1,10 @@
 ﻿import { ISchemaOptions, IModelEntry, IForeignKeyOptions } from 'modepress';
 import { SchemaItem } from './schema-item';
-import { Model } from '../model';
 import { ModelInstance } from '../model-instance';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { SchemaIdArray } from './schema-id-array';
+import Factory from '../../core/controller-factory';
 
 export type FKeyValues = ObjectID | string | IModelEntry | null;
 
@@ -60,7 +60,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
     let transformedValue = this.value;
 
     // If they key is required then it must exist
-    const model = Model.getByName( this.targetCollection );
+    const model = Factory.get( this.targetCollection );
 
     if ( !model )
       throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
@@ -102,7 +102,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       return;
 
     // If they key is required then it must exist
-    const model = Model.getByName( this.targetCollection );
+    const model = Factory.get( this.targetCollection );
 
     let optionalDeps = this._targetDoc.dbEntry._optionalDependencies;
     let requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
@@ -139,7 +139,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    */
   public async postDelete<T extends IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
     // If they key is required then it must exist
-    const model = Model.getByName( this.targetCollection );
+    const model = Factory.get( this.targetCollection );
     if ( !model )
       return;
 
@@ -177,7 +177,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
     if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
       return <ObjectID>this.value;
 
-    const model = Model.getByName( this.targetCollection );
+    const model = Factory.get( this.targetCollection );
     if ( !model )
       throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 

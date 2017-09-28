@@ -10,10 +10,9 @@ import { Controller } from './controller'
 import { j200 } from '../utils/serializers';
 import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
-import { Model } from '../models/model';
-import { UsersModel } from '../models/users-model';
 import { IAuthOptions } from 'modepress';
 import * as mongodb from 'mongodb';
+import Factory from '../core/controller-factory';
 
 /**
  * Main class to use for managing user authentication
@@ -25,7 +24,7 @@ export class AuthController extends Controller {
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IAuthOptions ) {
-    super( [ Model.registerModel( UsersModel ) ] );
+    super( [ Factory.get( 'users' ) ] );
     this._options = options;
   }
 

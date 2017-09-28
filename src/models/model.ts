@@ -3,6 +3,7 @@ import { Collection, Db } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
 import { ModelInstance } from './model-instance';
+import Factory from '../core/controller-factory';
 
 export interface UpdateToken<T> { error: string | boolean; instance: ModelInstance<T> }
 
@@ -26,9 +27,6 @@ export abstract class Model {
   public collection: Collection;
   public defaultSchema: Schema;
   private _collectionName: string;
-  private _initialized: boolean;
-
-  private static _registeredModels: { [ name: string ]: Model } = {};
 
   /**
 	 * Creates an instance of a Model
@@ -36,50 +34,7 @@ export abstract class Model {
 	 */
   constructor( collection: string ) {
     this._collectionName = collection;
-    this._initialized = false;
     this.defaultSchema = new Schema();
-
-    if ( Model._registeredModels[ collection ] )
-      throw new Error( `You cannot create model '${collection}' as its already been registered` );
-
-    // Register the model
-    Model._registeredModels[ collection ] = this;
-  }
-
-
-  /**
-   * Returns a new model of a given type. However if the model was already registered before,
-   * then the previously created model is returned.
-   * @param modelConstructor The model class
-   * @returns Returns the registered model
-   */
-  static registerModel<T extends Model>( modelConstructor: any ): T {
-    const models = Model._registeredModels;
-    for ( const i in models )
-      if ( modelConstructor === models[ i ].constructor )
-        return <T>models[ i ];
-
-    return new modelConstructor();
-  }
-
-
-  /**
-   * Returns a registered model by its name
-   * @param name The name of the model to fetch
-   * @returns Returns the registered model or null if none exists
-   */
-  static getByName( name: string ): Model {
-    return Model._registeredModels[ name ];
-  }
-
-  /**
-   * Creates an index for a collection
-   * @param name The name of the field we are setting an index of
-   * @param collection The collection we are setting the index on
-   */
-  private async createIndex( name: string, collection: Collection ): Promise<string> {
-    const index = await collection.createIndex( name );
-    return index;
   }
 
   /**
@@ -89,36 +44,11 @@ export abstract class Model {
 
   /**
 	 * Initializes the model by setting up the database collections
-	 * @param db The database used to create this model
 	 */
-  async initialize( db: Db ): Promise<Model> {
-    // If the collection already exists - then we do not have to create it
-    if ( this._initialized )
-      return this;
-
-    // The collection does not exist - so create it
-    this.collection = await db.createCollection( this._collectionName );
-
-    if ( !this.collection )
-      throw new Error( 'Error creating collection: ' + this._collectionName );
-
-    // First remove all existing indices
-    await this.collection.dropIndexes();
-
-    // Now re-create the models who need index supports
-    const promises: Array<Promise<string>> = [];
-    const items = this.defaultSchema.getItems();
-    for ( let i = 0, l = items.length; i < l; i++ )
-      if ( items[ i ].getIndexable() )
-        promises.push( this.createIndex( items[ i ].name, this.collection ) );
-
-    if ( promises.length === 0 )
-      this._initialized = true;
-
-    await Promise.all( promises );
-
-    this._initialized = true;
+  async initialize( collection: Collection, db: Db ): Promise<Model> {
     info( `Successfully created model '${this._collectionName}'` );
+    this.collection = collection;
+
     return this;
   }
 
@@ -129,7 +59,7 @@ export abstract class Model {
   async count( selector: any ): Promise<number> {
     const collection = this.collection;
 
-    if ( !collection || !this._initialized )
+    if ( !collection )
       throw new Error( 'The model has not been initialized' );
 
     return await collection.count( selector );
@@ -147,7 +77,7 @@ export abstract class Model {
   async findInstances<T>( options: ISearchOptions<T> = {} ): Promise<Array<ModelInstance<T>>> {
     const collection = this.collection;
 
-    if ( !collection || !this._initialized )
+    if ( !collection )
       throw new Error( 'The model has not been initialized' );
 
     // Attempt to save the data to mongo collection
@@ -188,7 +118,7 @@ export abstract class Model {
   async findOne<T>( selector: any, projection?: any ): Promise<ModelInstance<T> | null> {
     const collection = this.collection;
 
-    if ( !collection || !this._initialized )
+    if ( !collection )
       throw new Error( 'The model has not been initialized' );
 
     // Attempt to save the data to mongo collection
@@ -224,7 +154,7 @@ export abstract class Model {
     // Nullify all dependencies that are optional
     if ( optionalDependencies )
       for ( let i = 0, l = optionalDependencies.length; i < l; i++ ) {
-        foreignModel = Model.getByName( optionalDependencies[ i ].collection );
+        foreignModel = Factory.get( optionalDependencies[ i ].collection );
         if ( !foreignModel )
           continue;
 
@@ -236,7 +166,7 @@ export abstract class Model {
     // Remove any dependencies that are in arrays
     if ( arrayDependencies )
       for ( let i = 0, l = arrayDependencies.length; i < l; i++ ) {
-        foreignModel = Model.getByName( arrayDependencies[ i ].collection );
+        foreignModel = Factory.get( arrayDependencies[ i ].collection );
         if ( !foreignModel )
           continue;
 
@@ -248,7 +178,7 @@ export abstract class Model {
     // For those dependencies that are required, we delete the instances
     if ( requiredDependencies )
       for ( let i = 0, l = requiredDependencies.length; i < l; i++ ) {
-        foreignModel = Model.getByName( requiredDependencies[ i ].collection );
+        foreignModel = Factory.get( requiredDependencies[ i ].collection );
         if ( !foreignModel )
           continue;
 
@@ -413,7 +343,7 @@ export abstract class Model {
     const model = this;
     const collection = model.collection;
 
-    if ( !collection || !model._initialized )
+    if ( !collection )
       throw new Error( 'The model has not been initialized' );
 
     const documents: Array<any> = [];
