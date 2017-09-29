@@ -1096,10 +1096,6 @@ declare module "models/model-instance" {
            * Creates a model instance
            */
         constructor(model: Model, dbEntry: T);
-        /**
-         * Gets a string representation of all fields that are unique
-         */
-        uniqueFieldNames(): string;
     }
 }
 declare module "models/schema-items/schema-item" {
@@ -1295,6 +1291,10 @@ declare module "models/schema" {
          * Gets the schema items associated with this schema
          */
         getItems(): Array<SchemaItem<any>>;
+        /**
+         * Gets a string representation of all fields that are unique
+         */
+        uniqueFieldNames(): string;
     }
 }
 declare module "utils/logger" {
@@ -1865,7 +1865,7 @@ declare module "core/controller-factory" {
     export default _default;
 }
 declare module "models/model" {
-    import { Collection, Db } from 'mongodb';
+    import { Collection, Db, ObjectID } from 'mongodb';
     import { Schema } from "models/schema";
     import { ModelInstance } from "models/model-instance";
     export interface UpdateToken<T> {
@@ -1908,9 +1908,9 @@ declare module "models/model" {
            */
         initialize(collection: Collection, db: Db): Promise<Model>;
         /**
-       * Gets the number of DB entries based on the selector
-       * @param selector The mongodb selector
-       */
+         * Gets the number of DB entries based on the selector
+         * @param selector The mongodb selector
+         */
         count(selector: any): Promise<number>;
         /**
            * Gets an arrray of instances based on the selector search criteria
@@ -1921,7 +1921,7 @@ declare module "models/model" {
            * @param limit The number of results to fetch
          * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
            */
-        findInstances<T>(options?: ISearchOptions<T>): Promise<Array<ModelInstance<T>>>;
+        findInstances<T>(options?: ISearchOptions<T>): Promise<ModelInstance<T>[]>;
         /**
          * Gets a model instance based on the selector criteria
          * @param selector The mongodb selector
@@ -1947,11 +1947,9 @@ declare module "models/model" {
          */
         update<T>(selector: any, data: T): Promise<UpdateRequest<T>>;
         /**
-         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
-         * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-         * by parsing the data object and setting each schema item's value by the name/value in the data object.
+         * Checks if the schema item being ammended is unique
          */
-        checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>;
+        checkUniqueness(schema: Schema, id?: ObjectID): Promise<boolean>;
         /**
            * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
            * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
@@ -2663,19 +2661,19 @@ declare module "core/user-manager" {
            */
         constructor(userCollection: Collection, config: IConfig);
         /**
-       * Called whenever a session is removed from the database
-       */
+         * Called whenever a session is removed from the database
+         */
         onSessionRemoved(sessionId: string): Promise<void>;
         /**
            * Initializes the API
            */
-        initialize(): Promise<void>;
+        initialize(): Promise<this>;
         /**
            * Attempts to register a new user
            * @param username The username of the user
            * @param pass The users secret password
            * @param email The users email address
-           * @param meta Any optional data associated with this user
+         * @param meta Any optional data associated with this user
            * @param request
            * @param response
            */
@@ -2683,15 +2681,15 @@ declare module "core/user-manager" {
         /**
            * Creates the link to send to the user for activation
            * @param user The user we are activating
-           * @param resetUrl The url of where the activation link should go
-           * @param origin The origin of where the activation link came from
+         * @param resetUrl The url of where the activation link should go
+         * @param origin The origin of where the activation link came from
            */
         private createActivationLink(user, resetUrl, origin);
         /**
            * Creates the link to send to the user for password reset
            * @param username The username of the user
-           * @param origin The origin of where the password reset link came from
-           * @param resetUrl The url of where the password reset link should go
+         * @param origin The origin of where the password reset link came from
+         * @param resetUrl The url of where the password reset link should go
            */
         private createResetLink(user, origin, resetUrl);
         /**
@@ -2700,43 +2698,43 @@ declare module "core/user-manager" {
            */
         approveActivation(username: string): Promise<void>;
         /**
-       * Attempts to send the an email to the admin user
-       * @param message The message body
+         * Attempts to send the an email to the admin user
+         * @param message The message body
          * @param name The name of the sender
          * @param from The email of the sender
-       */
+         */
         sendAdminEmail(message: string, name?: string, from?: string): Promise<boolean>;
         /**
            * Attempts to resend the activation link
            * @param username The username of the user
-           * @param resetUrl The url where the reset password link should direct to
-           * @param origin The origin of where the request came from (this is emailed to the user)
+         * @param resetUrl The url where the reset password link should direct to
+         * @param origin The origin of where the request came from (this is emailed to the user)
            */
         resendActivation(username: string, resetUrl: string, origin: string): Promise<boolean>;
         /**
-       * Sends the user an email with instructions on how to reset their password
-       * @param username The username of the user
+         * Sends the user an email with instructions on how to reset their password
+         * @param username The username of the user
          * @param resetUrl The url where the reset password link should direct to
          * @param origin The site where the request came from
-       */
+         */
         requestPasswordReset(username: string, resetUrl: string, origin: string): Promise<boolean>;
         /**
-       * Creates a hashed password
-       * @param pass The password to hash
-       */
+         * Creates a hashed password
+         * @param pass The password to hash
+         */
         private hashPassword(pass);
         /**
-       * Compares a password to the stored hash in the database
-       * @param pass The password to test
+         * Compares a password to the stored hash in the database
+         * @param pass The password to test
          * @param hash The hash stored in the DB
-       */
+         */
         private comparePassword(pass, hash);
         /**
-       * Attempts to reset a user's password.
-       * @param username The username of the user
+         * Attempts to reset a user's password.
+         * @param username The username of the user
          * @param code The password code
          * @param newPassword The new password
-       */
+         */
         resetPassword(username: string, code: string, newPassword: string): Promise<boolean>;
         /**
            * Checks the users activation code to see if its valid
@@ -2754,10 +2752,10 @@ declare module "core/user-manager" {
            * @param user The unique username
            * @param email The unique email
            * @param password The password for the user
-           * @param activateAccount If true, the account will be automatically activated (no need for email verification)
+         * @param activateAccount If true, the account will be automatically activated (no need for email verification)
            * @param privilege The type of privileges the user has. Defaults to regular
-           * @param meta Any optional data associated with this user
-           * @param allowAdmin Should this be allowed to create a super user
+         * @param meta Any optional data associated with this user
+         * @param allowAdmin Should this be allowed to create a super user
            */
         createUser(user: string, email: string, password: string, activateAccount: boolean, privilege?: UserPrivileges, meta?: any, allowAdmin?: boolean): Promise<User>;
         /**
@@ -2788,37 +2786,37 @@ declare module "core/user-manager" {
            */
         remove(username?: string): Promise<boolean>;
         /**
-       * Sets the meta data associated with the user
-       * @param user The user
+         * Sets the meta data associated with the user
+         * @param user The user
          * @param data The meta data object to set
-       * @returns Returns the data set
-       */
+         * @returns Returns the data set
+         */
         setMeta(user: IUserEntry, data?: any): Promise<any>;
         /**
-       * Sets a meta value on the user. This updates the user's meta value by name
-       * @param user The user
+         * Sets a meta value on the user. This updates the user's meta value by name
+         * @param user The user
          * @param name The name of the meta to set
          * @param data The value of the meta to set
-       * @returns {Promise<boolean|any>} Returns the value of the set
-       */
+         * @returns {Promise<boolean|any>} Returns the value of the set
+         */
         setMetaVal(user: IUserEntry, name: string, val: any): Promise<any>;
         /**
-       * Gets the value of user's meta by name
-       * @param user The user
+         * Gets the value of user's meta by name
+         * @param user The user
          * @param name The name of the meta to get
-       * @returns The value to get
-       */
+         * @returns The value to get
+         */
         getMetaVal(user: IUserEntry, name: string): Promise<any>;
         /**
-       * Gets the meta data of a user
-       * @param user The user
-       * @returns The value to get
-       */
+         * Gets the meta data of a user
+         * @param user The user
+         * @returns The value to get
+         */
         getMetaData(user: IUserEntry): Promise<any>;
         /**
-       * Gets the total number of users
+         * Gets the total number of users
          * @param searchPhrases Search phrases
-       */
+         */
         numUsers(searchPhrases?: RegExp): Promise<number>;
         /**
            * Prints user objects from the database

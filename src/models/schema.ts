@@ -215,4 +215,21 @@ export class Schema {
   public getItems(): Array<SchemaItem<any>> {
     return this._items;
   }
+
+  /**
+   * Gets a string representation of all fields that are unique
+   */
+  uniqueFieldNames(): string {
+    let uniqueNames = '';
+    const items = this._items;
+
+    for ( let i = 0, l = items.length; i < l; i++ )
+      if ( items[ i ].getUnique() )
+        uniqueNames += items[ i ].name + ', ';
+
+    if ( uniqueNames !== '' )
+      uniqueNames = uniqueNames.slice( 0, uniqueNames.length - 2 );
+
+    return uniqueNames;
+  }
 }

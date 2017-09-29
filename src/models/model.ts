@@ -1,5 +1,5 @@
 ﻿import { IModelEntry } from 'modepress';
-import { Collection, Db } from 'mongodb';
+import { Collection, Db, ObjectID } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
 import { ModelInstance } from './model-instance';
@@ -53,16 +53,11 @@ export abstract class Model {
   }
 
   /**
- * Gets the number of DB entries based on the selector
- * @param selector The mongodb selector
- */
-  async count( selector: any ): Promise<number> {
-    const collection = this.collection;
-
-    if ( !collection )
-      throw new Error( 'The model has not been initialized' );
-
-    return await collection.count( selector );
+   * Gets the number of DB entries based on the selector
+   * @param selector The mongodb selector
+   */
+  count( selector: any ) {
+    return this.collection.count( selector );
   }
 
   /**
@@ -74,7 +69,7 @@ export abstract class Model {
 	 * @param limit The number of results to fetch
    * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	 */
-  async findInstances<T>( options: ISearchOptions<T> = {} ): Promise<Array<ModelInstance<T>>> {
+  async findInstances<T>( options: ISearchOptions<T> = {} ) {
     const collection = this.collection;
 
     if ( !collection )
@@ -248,11 +243,11 @@ export abstract class Model {
         await instance.schema.validate( false );
 
         // Make sure any unique fields are still being respected
-        const unique = await this.checkUniqueness( instance );
+        const unique = await this.checkUniqueness( instance.schema, instance._id );
 
         if ( !unique ) {
           toRet.error = true;
-          toRet.tokens.push( { error: `'${instance.uniqueFieldNames()}' must be unique`, instance: instance } );
+          toRet.tokens.push( { error: `'${this.defaultSchema.uniqueFieldNames()}' must be unique`, instance: instance } );
           continue;
         }
 
@@ -276,17 +271,15 @@ export abstract class Model {
   }
 
   /**
-   * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
-   * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-   * by parsing the data object and setting each schema item's value by the name/value in the data object.
+   * Checks if the schema item being ammended is unique
    */
-  async checkUniqueness<T>( instance: ModelInstance<T> ): Promise<boolean> {
-    const items = instance.schema.getItems();
+  async checkUniqueness( schema: Schema, id?: ObjectID ): Promise<boolean> {
+    const items = schema.getItems();
     let hasUniqueField: boolean = false;
     const searchToken = { $or: [] as any[] };
 
-    if ( instance._id )
-      searchToken[ '_id' ] = { $ne: instance._id };
+    if ( id )
+      searchToken[ '_id' ] = { $ne: id };
 
     for ( let i = 0, l = items.length; i < l; i++ ) {
       if ( items[ i ].getUnique() ) {
@@ -323,10 +316,10 @@ export abstract class Model {
     if ( data )
       newInstance.schema.set( data, true );
 
-    const unique = await this.checkUniqueness( newInstance );
+    const unique = await this.checkUniqueness( newInstance.schema );
 
     if ( !unique )
-      throw new Error( `'${newInstance.uniqueFieldNames()}' must be unique` );
+      throw new Error( `'${this.defaultSchema.uniqueFieldNames()}' must be unique` );
 
     // Now try to create a new instance
     const instance = await this.insert( [ newInstance ] );

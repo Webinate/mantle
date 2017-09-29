@@ -29,7 +29,6 @@ export class UserManager {
 	 * Creates an instance of the user manager
 	 */
   constructor( userCollection: Collection, config: IConfig ) {
-    super();
     this._collection = userCollection;
     this._config = config;
     UserManager._singleton = this;
