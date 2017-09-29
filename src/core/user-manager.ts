@@ -29,6 +29,7 @@ export class UserManager {
 	 * Creates an instance of the user manager
 	 */
   constructor( userCollection: Collection, config: IConfig ) {
+    super();
     this._collection = userCollection;
     this._config = config;
     UserManager._singleton = this;
@@ -36,8 +37,8 @@ export class UserManager {
   }
 
   /**
- * Called whenever a session is removed from the database
- */
+   * Called whenever a session is removed from the database
+   */
   async onSessionRemoved( sessionId: string ) {
     if ( !sessionId || sessionId === '' )
       return;
@@ -73,13 +74,6 @@ export class UserManager {
     if ( !this._mailer )
       warn( 'No mailer has been specified and so the API cannot send emails. Please check your config.' )
 
-
-    // Clear all existing indices and then re-add them
-    await this._collection.dropIndexes();
-
-    // Make sure the user collection has an index to search the username field
-    await this._collection.createIndex( { username: 'text', email: 'text' } as IUserEntry );
-
     const adminUser = config.adminUser as IAdminUser;
 
     // See if we have an admin user
@@ -89,7 +83,7 @@ export class UserManager {
     if ( !user )
       user = await this.createUser( adminUser.username, adminUser.email, adminUser.password, true, UserPrivileges.SuperAdmin, {}, true );
 
-    return;
+    return this;
   }
 
   /**
@@ -97,7 +91,7 @@ export class UserManager {
 	 * @param username The username of the user
 	 * @param pass The users secret password
 	 * @param email The users email address
-     * @param meta Any optional data associated with this user
+   * @param meta Any optional data associated with this user
 	 * @param request
 	 * @param response
 	 */
@@ -142,8 +136,8 @@ export class UserManager {
   /**
 	 * Creates the link to send to the user for activation
 	 * @param user The user we are activating
-     * @param resetUrl The url of where the activation link should go
-     * @param origin The origin of where the activation link came from
+   * @param resetUrl The url of where the activation link should go
+   * @param origin The origin of where the activation link came from
 	 */
   private createActivationLink( user: User, resetUrl: string, origin: string ): string {
     return `${resetUrl}?key=${user.dbEntry.registerKey}&user=${user.dbEntry.username}&origin=${origin}`;
@@ -152,8 +146,8 @@ export class UserManager {
   /**
 	 * Creates the link to send to the user for password reset
 	 * @param username The username of the user
-     * @param origin The origin of where the password reset link came from
-     * @param resetUrl The url of where the password reset link should go
+   * @param origin The origin of where the password reset link came from
+   * @param resetUrl The url of where the password reset link should go
 	 */
   private createResetLink( user: User, origin: string, resetUrl: string ): string {
     return `${resetUrl}?key=${user.dbEntry.passwordTag}&user=${user.dbEntry.username}&origin=${origin}`;
@@ -182,11 +176,11 @@ export class UserManager {
   }
 
   /**
- * Attempts to send the an email to the admin user
- * @param message The message body
+   * Attempts to send the an email to the admin user
+   * @param message The message body
    * @param name The name of the sender
    * @param from The email of the sender
- */
+   */
   async sendAdminEmail( message: string, name?: string, from?: string ) {
     if ( !this._mailer )
       throw new Error( `No email account has been setup` );
@@ -205,8 +199,8 @@ export class UserManager {
   /**
 	 * Attempts to resend the activation link
 	 * @param username The username of the user
-     * @param resetUrl The url where the reset password link should direct to
-     * @param origin The origin of where the request came from (this is emailed to the user)
+   * @param resetUrl The url where the reset password link should direct to
+   * @param origin The origin of where the request came from (this is emailed to the user)
 	 */
   async resendActivation( username: string, resetUrl: string, origin: string ) {
     // Get the user
@@ -245,11 +239,11 @@ export class UserManager {
   }
 
   /**
- * Sends the user an email with instructions on how to reset their password
- * @param username The username of the user
+   * Sends the user an email with instructions on how to reset their password
+   * @param username The username of the user
    * @param resetUrl The url where the reset password link should direct to
    * @param origin The site where the request came from
- */
+   */
   async requestPasswordReset( username: string, resetUrl: string, origin: string ) {
     // Get the user
     const user: User | null = await this.getUser( username );
@@ -287,9 +281,9 @@ export class UserManager {
   }
 
   /**
- * Creates a hashed password
- * @param pass The password to hash
- */
+   * Creates a hashed password
+   * @param pass The password to hash
+   */
   private hashPassword( pass: string ) {
     return new Promise<string>( function( resolve, reject ) {
       hash( pass, 8, function( err, encrypted: string ) {
@@ -302,10 +296,10 @@ export class UserManager {
   }
 
   /**
- * Compares a password to the stored hash in the database
- * @param pass The password to test
+   * Compares a password to the stored hash in the database
+   * @param pass The password to test
    * @param hash The hash stored in the DB
- */
+   */
   private comparePassword( pass: string, hash: string ) {
     return new Promise<boolean>( function( resolve, reject ) {
       compare( pass, hash, function( err, same: boolean ) {
@@ -318,11 +312,11 @@ export class UserManager {
   }
 
   /**
- * Attempts to reset a user's password.
- * @param username The username of the user
+   * Attempts to reset a user's password.
+   * @param username The username of the user
    * @param code The password code
    * @param newPassword The new password
- */
+   */
   async resetPassword( username: string, code: string, newPassword: string ) {
     // Get the user
     const user: User | null = await this.getUser( username );
@@ -379,26 +373,6 @@ export class UserManager {
     return true;
   }
 
-  // /**
-  //  * Checks to see if a user is logged in
-  //  * @param request
-  //  * @param response
-  //  * @param Gets the user or null if the user is not logged in
-  //  */
-  // async loggedIn( request: ServerRequest ) {
-
-  //   // If no request or response, then assume its an admin user
-  //   const session = await SessionManager.get.getSession( request );
-  //   if ( !session )
-  //     return null;
-
-  //   const useEntry = await this._collection.find( { sessionId: session.sessionId } ).limit( 1 ).next();
-  //   if ( !useEntry )
-  //     return null;
-  //   else
-  //     return new User( useEntry );
-  // }
-
   /**
 	 * Attempts to log the user out
 	 * @param request
@@ -414,10 +388,10 @@ export class UserManager {
 	 * @param user The unique username
 	 * @param email The unique email
 	 * @param password The password for the user
-     * @param activateAccount If true, the account will be automatically activated (no need for email verification)
+   * @param activateAccount If true, the account will be automatically activated (no need for email verification)
 	 * @param privilege The type of privileges the user has. Defaults to regular
-     * @param meta Any optional data associated with this user
-     * @param allowAdmin Should this be allowed to create a super user
+   * @param meta Any optional data associated with this user
+   * @param allowAdmin Should this be allowed to create a super user
 	 */
   async createUser( user: string, email: string, password: string, activateAccount: boolean, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ) {
     // Basic checks
@@ -592,11 +566,11 @@ export class UserManager {
   }
 
   /**
- * Sets the meta data associated with the user
- * @param user The user
+   * Sets the meta data associated with the user
+   * @param user The user
    * @param data The meta data object to set
- * @returns Returns the data set
- */
+   * @returns Returns the data set
+   */
   async setMeta( user: IUserEntry, data?: any ) {
 
     // There was no user
@@ -609,12 +583,12 @@ export class UserManager {
   }
 
   /**
- * Sets a meta value on the user. This updates the user's meta value by name
- * @param user The user
+   * Sets a meta value on the user. This updates the user's meta value by name
+   * @param user The user
    * @param name The name of the meta to set
    * @param data The value of the meta to set
- * @returns {Promise<boolean|any>} Returns the value of the set
- */
+   * @returns {Promise<boolean|any>} Returns the value of the set
+   */
   async setMetaVal( user: IUserEntry, name: string, val: any ) {
     // There was no user
     if ( !user )
@@ -630,11 +604,11 @@ export class UserManager {
   }
 
   /**
- * Gets the value of user's meta by name
- * @param user The user
+   * Gets the value of user's meta by name
+   * @param user The user
    * @param name The name of the meta to get
- * @returns The value to get
- */
+   * @returns The value to get
+   */
   async getMetaVal( user: IUserEntry, name: string ) {
 
     // There was no user
@@ -647,10 +621,10 @@ export class UserManager {
   }
 
   /**
- * Gets the meta data of a user
- * @param user The user
- * @returns The value to get
- */
+   * Gets the meta data of a user
+   * @param user The user
+   * @returns The value to get
+   */
   async getMetaData( user: IUserEntry ) {
 
     // There was no user
@@ -663,12 +637,18 @@ export class UserManager {
   }
 
   /**
- * Gets the total number of users
+   * Gets the total number of users
    * @param searchPhrases Search phrases
- */
+   */
   async numUsers( searchPhrases?: RegExp ) {
 
-    const findToken = { $or: [ { username: <any>searchPhrases } as IUserEntry, { email: <any>searchPhrases } as IUserEntry ] };
+    const findToken = {
+      $or: [
+        { username: <any>searchPhrases } as IUserEntry,
+        { email: <any>searchPhrases } as IUserEntry
+      ]
+    };
+
     const result: number = await this._collection.count( findToken );
     return result;
   }
@@ -682,11 +662,8 @@ export class UserManager {
   async getUsers( startIndex: number = 0, limit: number = 0, searchPhrases?: RegExp ) {
     const findToken: { $or?: Partial<IUserEntry>[] } = {};
 
-    if ( searchPhrases ) {
-      findToken.$or = [];
-      findToken.$or.push( { username: <any>searchPhrases } );
-      findToken.$or.push( { email: <any>searchPhrases } );
-    }
+    if ( searchPhrases )
+      findToken.$or = [ { username: <any>searchPhrases }, { email: <any>searchPhrases }];
 
     const results = await this._collection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
     const users: User[] = [];
