@@ -1828,6 +1828,9 @@ declare module "core/controller-factory" {
     import { SessionModel } from "models/session-model";
     import { StorageStatsModel } from "models/storage-stats-model";
     import { UsersModel } from "models/users-model";
+    /**
+     * Factory classs for creating & getting models
+     */
     export class ControllerFactory {
         private _config;
         private _db;
@@ -1858,8 +1861,8 @@ declare module "core/controller-factory" {
          */
         private create(type);
     }
-    const factory: ControllerFactory;
-    export default factory;
+    const _default: ControllerFactory;
+    export default _default;
 }
 declare module "models/model" {
     import { Collection, Db } from 'mongodb';

@@ -11,11 +11,9 @@ import { SessionModel } from '../models/session-model';
 import { StorageStatsModel } from '../models/storage-stats-model';
 import { UsersModel } from '../models/users-model';
 
-type Index = {
-  name: string;
-  key: { [ name: string ]: number }
-};
-
+/**
+ * Factory classs for creating & getting models
+ */
 export class ControllerFactory {
   private _config: IConfig;
   private _db: Db;
@@ -53,41 +51,39 @@ export class ControllerFactory {
     // The collection does not exist - so create it
     let collection: Collection = await this._db.createCollection( model.collectionName );
 
+    const indexInfo = await collection.indexInformation( { full: true } );
+    indexInfo;
+
     // Now re-create the models who need index supports
     let promises: Array<Promise<string>> = [];
     const items = model.defaultSchema.getItems();
-    const indices = await collection.listIndexes();
-    const indexArr: Index[] = await indices.toArray();
+    const indices = await collection.indexInformation();
+    const activeIndices = Object.keys( indices );
 
     // Remove any unused indexes
-    for ( const indexObj of indexArr ) {
-      const keys = Object.keys( indexObj.key );
-      const key = keys[ 0 ];
-
+    for ( const key of activeIndices ) {
       let indexNeeded = false;
       for ( const item of items ) {
-        if ( item.getIndexable() && item.name === key ) {
+        if ( item.getIndexable() && item.name === indices[ key ][ 0 ][ 0 ] ) {
           indexNeeded = true;
           break;
         }
       }
 
-      if ( !indexNeeded && key !== '_id' )
-        promises.push( collection.dropIndex( indexObj.name ) );
+      if ( !indexNeeded && key !== '_id_' )
+        promises.push( collection.dropIndex( key ) );
     }
 
-    try {
-      await Promise.all( promises );
-    } catch ( err ) {
-      await collection.dropIndexes();
-    }
+    await Promise.all( promises );
 
-    promises = promises.slice( 0 );
+    promises = [];
 
     // Now add the indices we do need
     for ( const item of items )
-      if ( item.getIndexable() && !indexArr.find( i => i.key.hasOwnProperty( item.name ) ) ) {
-        promises.push( collection.createIndex( item.name ) );
+      if ( item.getIndexable() && !activeIndices.find( key => indices[ key ][ 0 ][ 0 ] === item.name ) ) {
+        const index = {};
+        index[ item.name ] = 1;
+        promises.push( collection.createIndex( index ) );
       }
 
     await Promise.all( promises );
@@ -162,5 +158,5 @@ export class ControllerFactory {
   }
 }
 
-const factory = new ControllerFactory();
-export default factory;
+
+export default new ControllerFactory();

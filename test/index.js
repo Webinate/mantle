@@ -18,17 +18,18 @@ const header = require( './tests/header.js' );
 // Start the first test to initialize everything
 describe( 'Initializing tests', function() {
 
-  before( function( done ) {
-    // Initialize the server
-    startup.initialize().then(() => {
+  before( async function() {
+    try {
+      // Initialize the server
+      await startup.initialize();
+    }
+    catch ( err ) {
+      console.error( err );
+      process.exit();
+    }
 
-      // Initialize the test suites
-      return header.initialize();
-    } ).then(() => {
-      done();
-    } ).catch( e => {
-      console.error( e.toString() );
-    } );
+    // Initialize the test suites
+    await header.initialize();
   } );
 
   it( 'should be initialized', function( done ) {

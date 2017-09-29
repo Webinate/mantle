@@ -16,22 +16,6 @@ export async function prepare( db: Db, config: IConfig ) {
   const bucketsCollection = await db.createCollection( config.collections.bucketsCollection );
   const filesCollection = await db.createCollection( config.collections.filesCollection );
 
-  await Promise.all( [
-    usersCollection.createIndex( 'username' ),
-    usersCollection.createIndex( 'createdOn' ),
-    usersCollection.createIndex( 'lastLoggedIn' ),
-    bucketsCollection.createIndex( 'name' ),
-    bucketsCollection.createIndex( 'user' ),
-    bucketsCollection.createIndex( 'created' ),
-    bucketsCollection.createIndex( 'memoryUsed' ),
-    filesCollection.createIndex( 'name' ),
-    filesCollection.createIndex( 'user' ),
-    filesCollection.createIndex( 'created' ),
-    filesCollection.createIndex( 'size' ),
-    filesCollection.createIndex( 'mimeType' ),
-    filesCollection.createIndex( 'numDownloads' )
-  ] );
-
   // Create the managers
   SessionManager.create( sessionsCollection, usersCollection, config.sessionSettings );
   UserManager.create( usersCollection, config );
