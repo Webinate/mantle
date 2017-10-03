@@ -1,22 +1,23 @@
 ﻿import { Model } from './model';
+import { IUserEntry } from 'modepress';
 import { text, num, date, json } from './schema-items/schema-item-factory';
 
 /**
  * A model for describing comments
  */
-export class UsersModel extends Model {
+export class UsersModel extends Model<IUserEntry> {
   constructor() {
     super( 'users' );
 
-    this.defaultSchema.add( new text( 'username', '' ) ).setRequired( true ).setUnique( true );
-    this.defaultSchema.add( new text( 'email', '' ) ).setRequired( true ).setUnique( true );
-    this.defaultSchema.add( new text( 'password', '' ) ).setRequired( true );
-    this.defaultSchema.add( new text( 'registerKey', '' ) );
-    this.defaultSchema.add( new text( 'sessionId', '' ) );
-    this.defaultSchema.add( new text( 'passwordTag', '' ) );
-    this.defaultSchema.add( new num( 'privileges', 0 ) );
-    this.defaultSchema.add( new json( 'meta', {} ) );
-    this.defaultSchema.add( new date( 'createdOn' ) ).setIndexable( true );
-    this.defaultSchema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true );
+    this.schema.add( new text( 'username', '' ) ).setRequired( true ).setUnique( true );
+    this.schema.add( new text( 'email', '' ) ).setRequired( true ).setUnique( true );
+    this.schema.add( new text( 'password', '' ) ).setRequired( true );
+    this.schema.add( new text( 'registerKey', '' ) );
+    this.schema.add( new text( 'sessionId', '' ) );
+    this.schema.add( new text( 'passwordTag', '' ) );
+    this.schema.add( new num( 'privileges', 0 ) );
+    this.schema.add( new json( 'meta', {} ) );
+    this.schema.add( new date( 'createdOn' ) ).setIndexable( true );
+    this.schema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true );
   }
 }

@@ -1,4 +1,4 @@
-import { IConfig } from 'modepress';
+import { IConfig, IModelEntry } from 'modepress';
 import { Db, Collection } from 'mongodb';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';
@@ -17,7 +17,7 @@ import { UsersModel } from '../models/users-model';
 export class ControllerFactory {
   private _config: IConfig;
   private _db: Db;
-  private _controllers: { [ name: string ]: Model };
+  private _controllers: { [ name: string ]: Model<IModelEntry> };
 
   initialize( config: IConfig, database: Db ) {
     this._config = config;
@@ -46,7 +46,7 @@ export class ControllerFactory {
    * Sets up a model's indices
    * @param model The model to setup
    */
-  async setupIndices( model: Model ) {
+  async setupIndices( model: Model<IModelEntry> ) {
 
     // The collection does not exist - so create it
     let collection: Collection = await this._db.createCollection( model.collectionName );
@@ -56,7 +56,7 @@ export class ControllerFactory {
 
     // Now re-create the models who need index supports
     let promises: Array<Promise<string>> = [];
-    const items = model.defaultSchema.getItems();
+    const items = model.schema.getItems();
     const indices = await collection.indexInformation();
     const activeIndices = Object.keys( indices );
 
@@ -99,8 +99,8 @@ export class ControllerFactory {
   get( type: 'session' ): SessionModel
   get( type: 'storage' ): StorageStatsModel
   get( type: 'users' ): UsersModel
-  get( type: string ): Model
-  get( type: string ): Model {
+  get( type: string ): Model<IModelEntry>
+  get( type: string ): Model<IModelEntry> {
     const toRet = this._controllers[ type ];
     if ( !toRet )
       throw new Error( `Cannot find controller '${type}'` );
@@ -112,8 +112,8 @@ export class ControllerFactory {
    * A factory method for creating controllers
    * @param type The type of controller to create
    */
-  private async create( type: string ): Promise<Model> {
-    let newController: Model;
+  private async create( type: string ): Promise<Model<IModelEntry>> {
+    let newController: Model<IModelEntry>;
 
     if ( this._controllers[ type ] )
       return this._controllers[ type ];

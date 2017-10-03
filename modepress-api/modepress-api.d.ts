@@ -662,7 +662,7 @@ declare module 'modepress' {
     }
 }
 declare module 'modepress' {
-    interface ISessionEntry {
+    interface ISessionEntry extends IModelEntry {
         _id?: any;
         sessionId: string;
         data: any;
@@ -673,7 +673,7 @@ declare module 'modepress' {
     /**
       * The interface for describing each user's bucket
       */
-    interface IStorageStats {
+    interface IStorageStats extends IModelEntry {
         user?: string;
         memoryUsed?: number;
         memoryAllocated?: number;
@@ -684,16 +684,16 @@ declare module 'modepress' {
 declare module 'modepress' {
     interface IUserEntry {
         _id?: any;
-        username?: string;
-        email?: string;
-        password?: string;
-        registerKey?: string;
-        sessionId?: string;
-        createdOn?: number;
-        lastLoggedIn?: number;
-        privileges?: number;
-        passwordTag?: string;
-        meta?: any;
+        username: string;
+        email: string;
+        password: string;
+        registerKey: string;
+        sessionId: string;
+        createdOn: number;
+        lastLoggedIn: number;
+        privileges: number;
+        passwordTag: string;
+        meta: any;
     }
 }
 declare module "types/tokens/i-auth-request" {
@@ -1711,87 +1711,96 @@ declare module "models/schema-items/schema-item-factory" {
 }
 declare module "models/bucket-model" {
     import { Model } from "models/model";
+    import { IBucketEntry } from 'modepress';
     /**
      * A model for describing comments
      */
-    export class BucketModel extends Model {
+    export class BucketModel extends Model<IBucketEntry> {
         constructor();
     }
 }
 declare module "models/categories-model" {
     import { Model } from "models/model";
+    import { ICategory } from 'modepress';
     /**
      * A model for describing post categories
      */
-    export class CategoriesModel extends Model {
+    export class CategoriesModel extends Model<ICategory> {
         constructor();
     }
 }
 declare module "models/comments-model" {
     import { Model } from "models/model";
+    import { IComment } from 'modepress';
     /**
      * A model for describing comments
      */
-    export class CommentsModel extends Model {
+    export class CommentsModel extends Model<IComment> {
         constructor();
     }
 }
 declare module "models/file-model" {
     import { Model } from "models/model";
+    import { IFileEntry } from 'modepress';
     /**
      * A model for describing comments
      */
-    export class FileModel extends Model {
+    export class FileModel extends Model<IFileEntry> {
         constructor();
     }
 }
 declare module "models/posts-model" {
     import { Model } from "models/model";
+    import { IPost } from 'modepress';
     /**
      * A model for describing posts
      */
-    export class PostsModel extends Model {
+    export class PostsModel extends Model<IPost> {
         constructor();
     }
 }
 declare module "models/renders-model" {
     import { Model } from "models/model";
+    import { IRender } from 'modepress';
     /**
      * Describes a model for page renders that can be served to bots or crawlers
      */
-    export class RendersModel extends Model {
+    export class RendersModel extends Model<IRender> {
         constructor();
     }
 }
 declare module "models/session-model" {
     import { Model } from "models/model";
+    import { ISessionEntry } from 'modepress';
     /**
      * A model for describing comments
      */
-    export class SessionModel extends Model {
+    export class SessionModel extends Model<ISessionEntry> {
         constructor();
     }
 }
 declare module "models/storage-stats-model" {
     import { Model } from "models/model";
+    import { IStorageStats } from 'modepress';
     /**
      * A model for describing comments
      */
-    export class StorageStatsModel extends Model {
+    export class StorageStatsModel extends Model<IStorageStats> {
         constructor();
     }
 }
 declare module "models/users-model" {
     import { Model } from "models/model";
+    import { IUserEntry } from 'modepress';
     /**
      * A model for describing comments
      */
-    export class UsersModel extends Model {
+    export class UsersModel extends Model<IUserEntry> {
         constructor();
     }
 }
 declare module "core/controller-factory" {
-    import { IConfig } from 'modepress';
+    import { IConfig, IModelEntry } from 'modepress';
     import { Db, Collection } from 'mongodb';
     import { Model } from "models/model";
     import { BucketModel } from "models/bucket-model";
@@ -1819,7 +1828,7 @@ declare module "core/controller-factory" {
          * Sets up a model's indices
          * @param model The model to setup
          */
-        setupIndices(model: Model): Promise<Collection<any>>;
+        setupIndices(model: Model<IModelEntry>): Promise<Collection<any>>;
         get(type: 'bucket'): BucketModel;
         get(type: 'categories'): CategoriesModel;
         get(type: 'comments'): CommentsModel;
@@ -1829,7 +1838,7 @@ declare module "core/controller-factory" {
         get(type: 'session'): SessionModel;
         get(type: 'storage'): StorageStatsModel;
         get(type: 'users'): UsersModel;
-        get(type: string): Model;
+        get(type: string): Model<IModelEntry>;
         /**
          * A factory method for creating controllers
          * @param type The type of controller to create
@@ -1865,9 +1874,9 @@ declare module "models/model" {
     /**
      * Models map data in the application/client to data in the database
      */
-    export abstract class Model {
-        collection: Collection;
-        defaultSchema: Schema<IModelEntry>;
+    export abstract class Model<T extends IModelEntry> {
+        collection: Collection<T>;
+        schema: Schema<T>;
         private _collectionName;
         /**
            * Creates an instance of a Model
@@ -1881,7 +1890,7 @@ declare module "models/model" {
         /**
            * Initializes the model by setting up the database collections
            */
-        initialize(collection: Collection, db: Db): Promise<Model>;
+        initialize(collection: Collection, db: Db): Promise<Model<T>>;
         /**
          * Gets the number of DB entries based on the selector
          * @param selector The mongodb selector
@@ -1889,20 +1898,14 @@ declare module "models/model" {
         count(selector: any): Promise<number>;
         /**
            * Gets an arrray of instances based on the selector search criteria
-           * @param selector The mongodb selector
-           * @param sort Specify an array of items to sort.
-         * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
-         * @param startIndex The start index of where to select from
-           * @param limit The number of results to fetch
-         * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
            */
-        findInstances<T>(options?: ISearchOptions<T>): Promise<Schema<IModelEntry>[]>;
+        findInstances(options?: ISearchOptions<T>): Promise<Schema<T>[]>;
         /**
          * Gets a model instance based on the selector criteria
          * @param selector The mongodb selector
          * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
          */
-        findOne(selector: any, projection?: any): Promise<Schema<IModelEntry> | null>;
+        findOne(selector: any, projection?: any): Promise<Schema<T> | null>;
         /**
          * Deletes a instance and all its dependencies are updated or deleted accordingly
          */
@@ -1920,7 +1923,7 @@ declare module "models/model" {
          * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
          * went wrong when updating the specific instance, and a string message if something did in fact go wrong
          */
-        update<T extends IModelEntry>(selector: any, data: T): Promise<UpdateRequest<T>>;
+        update(selector: any, data: T): Promise<UpdateRequest<T>>;
         /**
          * Checks if the schema item being ammended is unique
          */
@@ -1930,7 +1933,7 @@ declare module "models/model" {
            * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
            * by parsing the data object and setting each schema item's value by the name/value in the data object
            */
-        createInstance<T>(data?: T): Promise<Schema<IModelEntry>>;
+        createInstance(data?: T): Promise<Schema<IModelEntry>>;
         /**
            * Attempts to insert an array of instances of this model into the database.
            * @param instances An array of instances to save
@@ -1942,9 +1945,10 @@ declare module "controllers/controller" {
     import { Model } from "models/model";
     import * as mongodb from 'mongodb';
     import * as express from 'express';
+    import { IModelEntry } from 'modepress';
     export class Controller {
         private _models;
-        constructor(models: Array<Model> | null);
+        constructor(models: Model<IModelEntry>[] | null);
         /**
            * Called to initialize this controller and its related database objects
            */
@@ -1952,7 +1956,7 @@ declare module "controllers/controller" {
         /**
            * Gets a model by its collection name
            */
-        getModel(collectionName: string): Model | null;
+        getModel(collectionName: string): Model<IModelEntry> | null;
     }
 }
 declare module "core/user" {

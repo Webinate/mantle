@@ -5,6 +5,7 @@ import * as express from 'express';
 import * as compression from 'compression';
 import { Controller } from './controller';
 import { Schema } from '../models/schema';
+import { Model } from '../models/model';
 import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { UserPrivileges } from '../core/user';
@@ -57,7 +58,7 @@ export class CommentsController extends Controller {
    */
   @j200()
   private async getComments( req: IAuthReq, res: express.Response ) {
-    const comments = this.getModel( 'comments' )!;
+    const comments = this.getModel( 'comments' )! as Model<IComment>;
     let count = 0;
     const user = req._user;
     const findToken = { $or: [] as IComment[] };
@@ -130,7 +131,7 @@ export class CommentsController extends Controller {
     if ( req.query.limit !== undefined )
       limit = parseInt( req.query.limit );
 
-    const schemas = await comments.findInstances<IComment>( { selector: findToken, sort: sort, index: index, limit: limit } );
+    const schemas = await comments.findInstances( { selector: findToken, sort: sort, index: index, limit: limit } );
 
     const jsons: Array<Promise<IComment>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
@@ -155,11 +156,11 @@ export class CommentsController extends Controller {
    */
   @j200()
   private async getComment( req: IAuthReq, res: express.Response ) {
-    const comments = this.getModel( 'comments' )!;
+    const comments = this.getModel( 'comments' )! as Model<IComment>;
     const findToken: IComment = { _id: new mongodb.ObjectID( req.params.id ) };
     const user = req._user;
 
-    const schemas = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
+    const schemas = await comments.findInstances( { selector: findToken, index: 0, limit: 1 } );
 
     if ( schemas.length === 0 )
       throw new Error( 'Could not find comment' );
@@ -192,12 +193,12 @@ export class CommentsController extends Controller {
    */
   @j200()
   private async remove( req: IAuthReq, res: express.Response ) {
-    const comments = this.getModel( 'comments' )!;
+    const comments = this.getModel( 'comments' )! as Model<IComment>;
     const findToken: IComment = {
       _id: new mongodb.ObjectID( req.params.id )
     }
     const user = req._user;
-    const schemas = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
+    const schemas = await comments.findInstances( { selector: findToken, index: 0, limit: 1 } );
 
     if ( schemas.length === 0 )
       throw new Error( 'Could not find a comment with that ID' );
@@ -220,13 +221,13 @@ export class CommentsController extends Controller {
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
     const token: CommentTokens.PutOne.Body = req.body;
-    const comments = this.getModel( 'comments' )!;
+    const comments = this.getModel( 'comments' )! as Model<IComment>;
     const findToken: IComment = {
       _id: new mongodb.ObjectID( req.params.id )
     }
 
     const user = req._user;
-    const schemas = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
+    const schemas = await comments.findInstances( { selector: findToken, index: 0, limit: 1 } );
 
     if ( schemas.length === 0 )
       throw new Error( 'Could not find comment with that id' );
@@ -252,7 +253,7 @@ export class CommentsController extends Controller {
   @j200()
   private async create( req: IAuthReq, res: express.Response ) {
     const token: CommentTokens.Post.Body = req.body;
-    const comments = this.getModel( 'comments' )!;
+    const comments = this.getModel( 'comments' )! as Model<IComment>;
 
     // User is passed from the authentication function
     token.author = req._user!.username;
@@ -275,7 +276,7 @@ export class CommentsController extends Controller {
     if ( parent ) {
       const children: Array<string | mongodb.ObjectID> = parent.getByName( 'children' )!.value;
       children.push( instance.dbEntry._id );
-      await comments.update<IComment>( <IComment>{ _id: parent.dbEntry._id }, { children: children } )
+      await comments.update( { _id: parent.dbEntry._id }, { children: children } )
     }
 
     return { message: 'New comment created', data: json } as CommentTokens.Post.Response;

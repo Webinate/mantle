@@ -9,6 +9,7 @@ import { adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/controller-factory';
+import { Model } from '../models/model';
 
 /**
  * A controller that deals with the management of categories
@@ -53,13 +54,13 @@ export class CategoriesController extends Controller {
    */
   @j200()
   private async getCategories( req: IAuthReq, res: express.Response ) {
-    const categories = this.getModel( 'categories' )!;
+    const categories = this.getModel( 'categories' )! as Model<ICategory>;
 
-    const schemas = await categories.findInstances<ICategory>( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
+    const schemas = await categories.findInstances( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
 
     const jsons: Array<Promise<ICategory>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson<ICategory>( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
+      jsons.push( schemas[ i ].getAsJson( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
 
     const sanitizedData = await Promise.all( jsons );
 

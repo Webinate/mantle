@@ -55,7 +55,7 @@ export class User {
         createdOn: this.dbEntry.createdOn,
         username: this.dbEntry.username,
         privileges: this.dbEntry.privileges
-      };
+      } as IUserEntry;
   }
 
   /**

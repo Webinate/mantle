@@ -425,7 +425,7 @@ export class UserManager {
       passwordTag: '',
       meta: meta,
       registerKey: ( activateAccount ? '' : undefined )
-    } );
+    } as IUserEntry );
 
     // Update the database
     const insertResult = await this._collection.insertOne( newUser.generateDbEntry() );

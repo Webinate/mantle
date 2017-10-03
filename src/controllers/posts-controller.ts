@@ -8,6 +8,7 @@ import { Controller } from './controller';
 import { identifyUser, adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { UserPrivileges } from '../core/user';
+import { Model } from '../models/model';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/controller-factory';
 
@@ -57,7 +58,7 @@ export class PostsController extends Controller {
    */
   @j200()
   private async getPosts( req: IAuthReq, res: express.Response ) {
-    const posts = this.getModel( 'posts' );
+    const posts = this.getModel( 'posts' ) as Model<IPost>;
     let count = 0;
     let visibility: string | undefined = undefined;
     const user = req._user;
@@ -160,7 +161,7 @@ export class PostsController extends Controller {
     if ( req.query.limit !== undefined )
       limit = parseInt( req.query.limit );
 
-    const schemas = await posts!.findInstances<IPost>( {
+    const schemas = await posts!.findInstances( {
       selector: findToken,
       sort: sort,
       index: index,
@@ -170,7 +171,7 @@ export class PostsController extends Controller {
 
     const jsons: Array<Promise<IPost>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson<IPost>( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
+      jsons.push( schemas[ i ].getAsJson( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
 
     const sanitizedData = await Promise.all( jsons );
 
@@ -186,7 +187,7 @@ export class PostsController extends Controller {
    */
   @j200()
   private async getPost( req: IAuthReq, res: express.Response ) {
-    const posts = this.getModel( 'posts' );
+    const posts = this.getModel( 'posts' ) as Model<IPost>;
     let findToken: IPost;
     const user: IUserEntry = req._user!;
 
@@ -195,7 +196,7 @@ export class PostsController extends Controller {
     else
       findToken = { slug: req.params.slug };
 
-    const schemas = await posts!.findInstances<IPost>( { selector: findToken, index: 0, limit: 1 } );
+    const schemas = await posts!.findInstances( { selector: findToken, index: 0, limit: 1 } );
 
     if ( schemas.length === 0 )
       throw new Error( 'Could not find post' );
@@ -208,7 +209,7 @@ export class PostsController extends Controller {
 
     const jsons: Array<Promise<IPost>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson<IPost>( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
+      jsons.push( schemas[ i ].getAsJson( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
 
     const sanitizedData = await Promise.all( jsons );
 

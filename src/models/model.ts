@@ -22,9 +22,9 @@ export interface ISearchOptions<T> {
 /**
  * Models map data in the application/client to data in the database
  */
-export abstract class Model {
-  public collection: Collection;
-  public defaultSchema: Schema<IModelEntry>;
+export abstract class Model<T extends IModelEntry> {
+  public collection: Collection<T>;
+  public schema: Schema<T>;
   private _collectionName: string;
 
   /**
@@ -33,7 +33,7 @@ export abstract class Model {
 	 */
   constructor( collection: string ) {
     this._collectionName = collection;
-    this.defaultSchema = new Schema();
+    this.schema = new Schema();
   }
 
   /**
@@ -44,7 +44,7 @@ export abstract class Model {
   /**
 	 * Initializes the model by setting up the database collections
 	 */
-  async initialize( collection: Collection, db: Db ): Promise<Model> {
+  async initialize( collection: Collection, db: Db ): Promise<Model<T>> {
     info( `Successfully created model '${this._collectionName}'` );
     this.collection = collection;
 
@@ -61,14 +61,8 @@ export abstract class Model {
 
   /**
 	 * Gets an arrray of instances based on the selector search criteria
- 	 * @param selector The mongodb selector
- 	 * @param sort Specify an array of items to sort.
-   * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
-   * @param startIndex The start index of where to select from
-	 * @param limit The number of results to fetch
-   * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
 	 */
-  async findInstances<T>( options: ISearchOptions<T> = {} ) {
+  async findInstances( options: ISearchOptions<T> = {} ) {
     const collection = this.collection;
 
     // Attempt to save the data to mongo collection
@@ -91,14 +85,14 @@ export abstract class Model {
 
     // For each data entry, create a new instance
     for ( let i = 0, l = result.length; i < l; i++ ) {
-      schema = this.defaultSchema.clone();
+      schema = this.schema.clone();
       schema.set( result[ i ], true );
       schema.deserialize( result[ i ] );
       schemas.push( schema );
     }
 
     // Complete
-    return schemas;
+    return schemas as Schema<T>[];
   }
 
   /**
@@ -120,7 +114,7 @@ export abstract class Model {
       return null;
     else {
       // Create the instance array
-      let schema = this.defaultSchema.clone();
+      let schema = this.schema.clone();
       schema.set( result, true );
       schema.deserialize( result );
 
@@ -133,7 +127,7 @@ export abstract class Model {
    * Deletes a instance and all its dependencies are updated or deleted accordingly
    */
   private async deleteInstance( schema: Schema<IModelEntry> ) {
-    let foreignModel: Model;
+    let foreignModel: Model<IModelEntry>;
     const optionalDependencies = schema.dbEntry._optionalDependencies;
     const requiredDependencies = schema.dbEntry._requiredDependencies;
     const arrayDependencies = schema.dbEntry._arrayDependencies;
@@ -189,7 +183,7 @@ export abstract class Model {
 	 * Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	 */
   async deleteInstances( selector: any ): Promise<number> {
-    const schemas = await this.findInstances<IModelEntry>( { selector: selector } );
+    const schemas = await this.findInstances( { selector: selector } );
 
     if ( !schemas || schemas.length === 0 )
       return 0;
@@ -214,13 +208,13 @@ export abstract class Model {
    * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
    * went wrong when updating the specific instance, and a string message if something did in fact go wrong
    */
-  async update<T extends IModelEntry>( selector: any, data: T ) {
+  async update( selector: any, data: T ) {
     const toRet: UpdateRequest<T> = {
       error: false,
       tokens: []
     };
 
-    const schemas = await this.findInstances<T>( { selector: selector } );
+    const schemas = await this.findInstances( { selector: selector } );
 
     if ( !schemas || schemas.length === 0 )
       return toRet;
@@ -241,7 +235,7 @@ export abstract class Model {
         if ( !unique ) {
           toRet.error = true;
           toRet.tokens.push( {
-            error: `'${this.defaultSchema.uniqueFieldNames()}' must be unique`,
+            error: `'${this.schema.uniqueFieldNames()}' must be unique`,
             instance: schema
           } as UpdateToken<T> );
           continue;
@@ -305,8 +299,8 @@ export abstract class Model {
 	 * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object
 	 */
-  async createInstance<T>( data?: T ) {
-    const schema = this.defaultSchema.clone();
+  async createInstance( data?: T ) {
+    const schema = this.schema.clone();
 
     // If we have data, then set the variables
     if ( data )
@@ -315,7 +309,7 @@ export abstract class Model {
     const unique = await this.checkUniqueness( schema );
 
     if ( !unique )
-      throw new Error( `'${this.defaultSchema.uniqueFieldNames()}' must be unique` );
+      throw new Error( `'${this.schema.uniqueFieldNames()}' must be unique` );
 
     // Now try to create a new instance
     const schemas = await this.insert( [ schema ] );

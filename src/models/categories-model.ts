@@ -1,16 +1,17 @@
 ﻿import { Model } from './model';
 import { text } from './schema-items/schema-item-factory';
+import { ICategory } from 'modepress';
 
 /**
  * A model for describing post categories
  */
-export class CategoriesModel extends Model {
+export class CategoriesModel extends Model<ICategory> {
   constructor() {
     super( 'categories' );
 
-    this.defaultSchema.add( new text( 'title', '', { minCharacters: 1 } ) );
-    this.defaultSchema.add( new text( 'slug', '', { maxCharacters: 20, minCharacters: 1 } ) ).setUnique( true );
-    this.defaultSchema.add( new text( 'description', '' ) );
-    this.defaultSchema.add( new text( 'parent', '' ) );
+    this.schema.add( new text( 'title', '', { minCharacters: 1 } ) );
+    this.schema.add( new text( 'slug', '', { maxCharacters: 20, minCharacters: 1 } ) ).setUnique( true );
+    this.schema.add( new text( 'description', '' ) );
+    this.schema.add( new text( 'parent', '' ) );
   }
 }

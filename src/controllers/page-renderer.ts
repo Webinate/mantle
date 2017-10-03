@@ -11,6 +11,7 @@ import { okJson, errJson } from '../utils/serializers';
 import { adminRights } from '../utils/permission-controllers'
 import { IRenderOptions } from 'modepress';
 import Factory from '../core/controller-factory';
+import { Model } from '../models/model';
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -223,7 +224,7 @@ export class PageRenderer extends Controller {
     if ( !this.shouldShowPrerenderedPage( req ) )
       return next();
 
-    const model = this.getModel( 'renders' )!;
+    const model = this.getModel( 'renders' )! as Model<IRender>;
     const url = this.getUrl( req );
     let schema: Schema<IRender> | null = null;
     let expiration = 0;
@@ -246,11 +247,11 @@ export class PageRenderer extends Controller {
 
       if ( !schema ) {
         info( `Saving render '${url}'` );
-        await model.createInstance<IRender>( <IRender>{ expiration: Date.now() + this.expiration, html: html, url: url } );
+        await model.createInstance( { expiration: Date.now() + this.expiration, html: html, url: url } );
       }
       else if ( Date.now() > expiration ) {
         info( `Updating render '${url}'` );
-        await model.update<IRender>( <IRender>{ _id: schema.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
+        await model.update( { _id: schema.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
       }
 
       info( 'Sending back render without script tags' );
@@ -296,10 +297,10 @@ export class PageRenderer extends Controller {
    */
   private async previewRender( req: express.Request, res: express.Response ) {
     res.setHeader( 'Content-Type', 'text/html' );
-    const renders = this.getModel( 'renders' );
+    const renders = this.getModel( 'renders' ) as Model<IRender>;
 
     try {
-      const schemas = await renders!.findInstances<IRender>( { selector: <IRender>{ _id: new mongodb.ObjectID( req.params.id ) } } );
+      const schemas = await renders!.findInstances( { selector: { _id: new mongodb.ObjectID( req.params.id ) } } );
 
       if ( schemas.length === 0 )
         throw new Error( 'Could not find a render with that ID' );
@@ -342,7 +343,7 @@ export class PageRenderer extends Controller {
    * Returns an array of IPost items
    */
   private async getRenders( req: IAuthReq, res: express.Response ) {
-    const renders = this.getModel( 'renders' );
+    const renders = this.getModel( 'renders' ) as Model<IRender>;
     let count = 0;
     const findToken = {};
 
@@ -369,7 +370,7 @@ export class PageRenderer extends Controller {
     try {
       // First get the count
       count = await renders!.count( findToken );
-      const schemas = await renders!.findInstances<IRender>( {
+      const schemas = await renders!.findInstances( {
         selector: findToken,
         sort: sort,
         index: parseInt( req.query.index ),
@@ -379,7 +380,7 @@ export class PageRenderer extends Controller {
 
       const jsons: Array<Promise<IRender>> = [];
       for ( let i = 0, l = schemas.length; i < l; i++ )
-        jsons.push( schemas[ i ].getAsJson<IRender>( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
+        jsons.push( schemas[ i ].getAsJson( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
 
       const sanitizedData = await Promise.all( jsons );
 

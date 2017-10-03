@@ -99,7 +99,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     for ( let i = 0, l = arr.length; i < l; i++ )
       query.$or.push( <IModelEntry>{ _id: <ObjectID>arr[ i ] } );
 
-    const result = await model.findInstances<IModelEntry>( { selector: query } );
+    const result = await model.findInstances( { selector: query } );
     this._targetDocs = result;
 
     return true;
@@ -156,7 +156,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     for ( let i = 0, l = arr.length; i < l; i++ )
       query.$or.push( <IModelEntry>{ _id: <ObjectID>arr[ i ] } );
 
-    const results = await model.findInstances<IModelEntry>( { selector: query } );
+    const results = await model.findInstances( { selector: query } );
     if ( !results || results.length === 0 )
       return;
 
@@ -207,7 +207,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     for ( let i = 0, l = this.value.length; i < l; i++ )
       query.$or.push( <IModelEntry>{ _id: this.value[ i ] } );
 
-    const instances = await model.findInstances<IModelEntry>( { selector: query } );
+    const instances = await model.findInstances( { selector: query } );
     let instance: Schema<IModelEntry>;
     const promises: Array<Promise<IModelEntry>> = [];
 

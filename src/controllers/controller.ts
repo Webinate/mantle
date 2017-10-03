@@ -1,11 +1,12 @@
 ﻿import { Model } from '../models/model';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
+import { IModelEntry } from 'modepress';
 
 export class Controller {
-  private _models: Array<Model>;
+  private _models: Model<IModelEntry>[];
 
-  constructor( models: Array<Model> | null ) {
+  constructor( models: Model<IModelEntry>[] | null ) {
     this._models = models || [];
   }
 
@@ -19,7 +20,7 @@ export class Controller {
   /**
 	 * Gets a model by its collection name
 	 */
-  getModel( collectionName: string ): Model | null {
+  getModel( collectionName: string ): Model<IModelEntry> | null {
     const models = this._models;
     for ( let i = 0, l = models.length; i < l; i++ )
       if ( models[ i ].collectionName === collectionName )
