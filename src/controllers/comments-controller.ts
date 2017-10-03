@@ -135,7 +135,7 @@ export class CommentsController extends Controller {
 
     const jsons: Array<Promise<IComment>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson<IComment>( schemas[ i ].dbEntry._id, {
+      jsons.push( schemas[ i ].getAsJson( {
         verbose: Boolean( req.query.verbose ),
         expandForeignKeys: Boolean( req.query.expanded ),
         expandMaxDepth: parseInt( req.query.depth || 1 ),
@@ -173,7 +173,7 @@ export class CommentsController extends Controller {
 
     const jsons: Array<Promise<IComment>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson<IComment>( schemas[ i ].dbEntry._id, {
+      jsons.push( schemas[ i ].getAsJson( {
         verbose: Boolean( req.query.verbose ),
         expandForeignKeys: Boolean( req.query.expanded ),
         expandMaxDepth: parseInt( req.query.depth || 1 ),
@@ -269,7 +269,7 @@ export class CommentsController extends Controller {
     }
 
     const instance = await comments.createInstance( token );
-    const json = await instance.getAsJson( instance.dbEntry._id, { verbose: true } );
+    const json = await instance.getAsJson( { verbose: true } );
 
 
     // Assign this comment as a child to its parent comment if it exists

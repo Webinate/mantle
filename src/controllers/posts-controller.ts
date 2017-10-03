@@ -171,7 +171,7 @@ export class PostsController extends Controller {
 
     const jsons: Array<Promise<IPost>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
+      jsons.push( schemas[ i ].getAsJson( { verbose: Boolean( req.query.verbose ) } ) );
 
     const sanitizedData = await Promise.all( jsons );
 
@@ -209,7 +209,7 @@ export class PostsController extends Controller {
 
     const jsons: Array<Promise<IPost>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
+      jsons.push( schemas[ i ].getAsJson( { verbose: Boolean( req.query.verbose ) } ) );
 
     const sanitizedData = await Promise.all( jsons );
 
@@ -270,7 +270,7 @@ export class PostsController extends Controller {
     token.author = req._user!.username;
 
     const schema = await posts.createInstance( token );
-    const json = await schema.getAsJson( schema.dbEntry._id, { verbose: true } );
+    const json = await schema.getAsJson( { verbose: true } );
 
     return {
       message: 'New post created',

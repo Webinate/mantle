@@ -1192,7 +1192,6 @@ declare module "models/schema-items/schema-item" {
 declare module "models/schema" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
     import { SchemaItem } from "models/schema-items/schema-item";
-    import * as mongodb from 'mongodb';
     /**
      * Gives an overall description of each property in a model
      */
@@ -1227,10 +1226,9 @@ declare module "models/schema" {
         serialize(): any;
         /**
          * Serializes the schema items into a JSON
-         * @param id The models dont store the _id property directly, and so this has to be passed for serialization
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
          */
-        getAsJson<T extends IModelEntry>(id: mongodb.ObjectID, options: ISchemaOptions): Promise<T>;
+        getAsJson(options: ISchemaOptions): Promise<T>;
         /**
          * Checks the values stored in the items to see if they are correct
          * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged

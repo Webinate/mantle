@@ -203,6 +203,6 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
         ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
 
-    return await result.getAsJson<IModelEntry>( result.dbEntry._id, options );
+    return await result.getAsJson( options );
   }
 }

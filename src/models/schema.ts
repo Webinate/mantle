@@ -1,6 +1,5 @@
 ﻿import { ISchemaOptions, IModelEntry } from 'modepress';
 import { SchemaItem } from './schema-items/schema-item';
-import * as mongodb from 'mongodb'
 
 /**
  * Gives an overall description of each property in a model
@@ -80,11 +79,10 @@ export class Schema<T extends IModelEntry> {
 
   /**
    * Serializes the schema items into a JSON
-   * @param id The models dont store the _id property directly, and so this has to be passed for serialization
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async getAsJson<T extends IModelEntry>( id: mongodb.ObjectID, options: ISchemaOptions ): Promise<T> {
-    const toReturn: T = <T><IModelEntry>{ _id: id };
+  public async getAsJson( options: ISchemaOptions ): Promise<T> {
+    const toReturn: T = { _id: this.dbEntry._id } as T;
     const items = this._items;
     const promises: Array<Promise<any>> = [];
     const itemsInUse: SchemaItem<any>[] = [];

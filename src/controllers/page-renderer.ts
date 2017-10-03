@@ -380,7 +380,7 @@ export class PageRenderer extends Controller {
 
       const jsons: Array<Promise<IRender>> = [];
       for ( let i = 0, l = schemas.length; i < l; i++ )
-        jsons.push( schemas[ i ].getAsJson( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
+        jsons.push( schemas[ i ].getAsJson( { verbose: Boolean( req.query.verbose ) } ) );
 
       const sanitizedData = await Promise.all( jsons );
 
