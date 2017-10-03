@@ -1,11 +1,13 @@
 ﻿import { ISchemaOptions, IModelEntry } from 'modepress';
 import { SchemaItem } from './schema-item';
 import { SchemaForeignKey } from './schema-foreign-key';
-import { ModelInstance } from '../model-instance';
 import { ObjectID, UpdateWriteOpResult } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { IIdArrOptions } from 'modepress';
+import { Schema } from '../schema';
 import Factory from '../../core/controller-factory';
+
+export type IdTypes = string | ObjectID | IModelEntry;
 
 /**
  * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
@@ -14,12 +16,12 @@ import Factory from '../../core/controller-factory';
  * Currently we only support Id lookups that exist in the same model - i.e. if the ids are of objects
  * in different models we cannot get the object values.
  */
-export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEntry>> {
+export class SchemaIdArray extends SchemaItem<IdTypes[]> {
   public targetCollection: string;
   public minItems: number;
   public maxItems: number;
   public curLevel: number;
-  private _targetDocs: Array<ModelInstance<IModelEntry>> | null;
+  private _targetDocs: Array<Schema<IModelEntry>> | null;
 
   /**
    * Creates a new schema item that holds an array of id items
@@ -45,7 +47,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
    * Creates a clone of this item
    * @returns copy A sub class of the copy
    */
-  public clone( copy?: SchemaIdArray ): SchemaIdArray {
+  public clone( copy?: SchemaIdArray ) {
     copy = copy === undefined ? new SchemaIdArray( this.name, <Array<string>>this.value, this.targetCollection ) : copy;
     super.clone( copy );
     copy.maxItems = this.maxItems;
@@ -106,10 +108,9 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
   /**
    * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
    * doing any post update/insert operations
-   * @param instance The model instance that was inserted or updated
    * @param collection The DB collection that the model was inserted into
    */
-  public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+  public async postUpsert( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
     if ( !this._targetDocs )
       return;
 
@@ -119,7 +120,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
 
     for ( let i = 0, l = this._targetDocs.length; i < l; i++ ) {
       let arrDeps = this._targetDocs[ i ].dbEntry._arrayDependencies || [];
-      arrDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name } );
+      arrDeps.push( { _id: schema.dbEntry._id, collection: collection, propertyName: this.name } );
       promises.push( model.collection.updateOne( <IModelEntry>{ _id: this._targetDocs[ i ].dbEntry._id }, {
         $set: <IModelEntry>{ _arrayDependencies: arrDeps }
       } ) );
@@ -136,7 +137,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
    * Called after a model instance is deleted. Useful for any schema item cleanups.
    * @param instance The model instance that was deleted
    */
-  public async postDelete<T extends IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
+  public async postDelete( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
     if ( !this.targetCollection )
       return;
 
@@ -164,7 +165,7 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
     for ( let i = 0, l = results.length; i < l; i++ )
       pullQueries.push( model.collection.updateOne(
         <IModelEntry>{ _id: results[ i ].dbEntry._id },
-        { $pull: { _arrayDependencies: { _id: instance.dbEntry._id } } }
+        { $pull: { _arrayDependencies: { _id: schema.dbEntry._id } } }
       ) );
 
     await Promise.all( pullQueries );
@@ -207,20 +208,20 @@ export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEn
       query.$or.push( <IModelEntry>{ _id: this.value[ i ] } );
 
     const instances = await model.findInstances<IModelEntry>( { selector: query } );
-    let instance: ModelInstance<IModelEntry>;
+    let instance: Schema<IModelEntry>;
     const promises: Array<Promise<IModelEntry>> = [];
 
     // Get the models items are increase their level - this ensures we dont go too deep
     for ( let i = 0, l = instances.length; i < l; i++ ) {
       instance = instances[ i ];
-      const items = instance.schema.getItems();
+      const items = instance.getItems();
       const nextLevel = this.curLevel + 1;
 
-      for ( let ii = 0, il = items.length; ii < il; ii++ )
-        if ( items[ ii ] instanceof SchemaForeignKey || items[ ii ] instanceof SchemaIdArray )
-          ( <SchemaForeignKey | SchemaIdArray>items[ ii ] ).curLevel = nextLevel;
+      for ( const item of items )
+        if ( item instanceof SchemaForeignKey || item instanceof SchemaIdArray )
+          item.curLevel = nextLevel;
 
-      promises.push( instance.schema.getAsJson<IModelEntry>( instance.dbEntry._id, options ) );
+      promises.push( instance.getAsJson<IModelEntry>( instance.dbEntry._id, options ) );
     }
 
     return await Promise.all( promises );

@@ -1,13 +1,13 @@
 ﻿import { ISchemaOptions, IModelEntry } from 'modepress';
 import { SchemaItem } from './schema-items/schema-item';
 import * as mongodb from 'mongodb'
-import { ModelInstance } from './model-instance'
 
 /**
  * Gives an overall description of each property in a model
  */
-export class Schema {
+export class Schema<T extends IModelEntry> {
   private _items: Array<SchemaItem<any>>;
+  public dbEntry: T;
 
   constructor() {
     this._items = [];
@@ -16,14 +16,14 @@ export class Schema {
   /**
    * Creates a copy of the schema
    */
-  public clone(): Schema {
+  public clone(): Schema<T> {
     const items = this._items;
     const copy = new Schema();
 
     for ( let i = 0, l = items.length; i < l; i++ )
       copy._items.push( items[ i ].clone() );
 
-    return copy;
+    return copy as Schema<T>;
   }
 
   /**
@@ -31,14 +31,15 @@ export class Schema {
    * @param data The data object we are setting
    * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
    */
-  set( data: any, allowReadOnlyValues: boolean ) {
-    const items = this._items,
-      l = items.length;
+  set( data: T, allowReadOnlyValues: boolean ) {
+    const items = this._items;
+
+    this.dbEntry = { ...this.dbEntry as any, ...data as any };
 
     for ( const i in data ) {
-      for ( let ii = 0; ii < l; ii++ )
-        if ( items[ ii ].name === i && ( items[ ii ].getReadOnly() === false || allowReadOnlyValues ) )
-          items[ ii ].setValue( data[ i ] );
+      for ( const item of items )
+        if ( item.name === i && ( allowReadOnlyValues || item.getReadOnly() === false ) )
+          item.setValue( data[ i ] );
     }
   }
 
@@ -111,9 +112,8 @@ export class Schema {
   /**
    * Checks the values stored in the items to see if they are correct
    * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-   * @returns Returns true if successful
    */
-  public async validate( checkForRequiredFields: boolean ): Promise<Schema> {
+  public async validate( checkForRequiredFields: boolean ) {
     const items = this._items;
     const promises: Array<Promise<any>> = [];
 
@@ -131,15 +131,14 @@ export class Schema {
   /**
    * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
    * doing any post update/insert operations
-   * @param instance The model instance that was inserted or updated
    * @param collection The DB collection that the model was inserted into
    */
-  public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
+  public async postUpsert( collection: string ) {
     const items = this._items;
     const promises: Array<Promise<any>> = [];
 
     for ( let i = 0, l = items.length; i < l; i++ )
-      promises.push( items[ i ].postUpsert( instance, collection ) );
+      promises.push( items[ i ].postUpsert( this, collection ) );
 
     await Promise.all( promises );
     return this;
@@ -147,15 +146,14 @@ export class Schema {
 
   /**
    * Called after a model instance is deleted. Useful for any schema item cleanups.
-   * @param instance The model instance that was deleted
    * @param collection The DB collection that the model was deleted from
    */
-  public async postDelete<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<Schema> {
+  public async postDelete( collection: string ) {
     const items = this._items;
     const promises: Array<Promise<any>> = [];
 
     for ( let i = 0, l = items.length; i < l; i++ )
-      promises.push( items[ i ].postUpsert( instance, collection ) );
+      promises.push( items[ i ].postUpsert( this, collection ) );
 
     await Promise.all( promises );
     return this;

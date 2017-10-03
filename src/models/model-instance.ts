@@ -9,7 +9,7 @@ import { Model } from './model';
  */
 export class ModelInstance<T extends IModelEntry | null> {
   public model: Model;
-  public schema: Schema;
+  public schema: Schema<IModelEntry>;
   public _id: ObjectID;
   public dbEntry: T;
 

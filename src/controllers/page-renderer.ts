@@ -4,7 +4,7 @@ import { error as logError, info } from '../utils/logger';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Controller } from './controller';
-import { ModelInstance } from '../models/model-instance';
+import { Schema } from '../models/schema';
 import * as url from 'url';
 import * as jsdom from 'jsdom';
 import { okJson, errJson } from '../utils/serializers';
@@ -225,16 +225,16 @@ export class PageRenderer extends Controller {
 
     const model = this.getModel( 'renders' )!;
     const url = this.getUrl( req );
-    let instance: ModelInstance<IRender> | null = null;
+    let schema: Schema<IRender> | null = null;
     let expiration = 0;
 
     try {
-      instance = await model.findOne<IRender>( { url: url } );
+      schema = await model.findOne( { url: url } );
       let html = '';
 
-      if ( instance ) {
-        expiration = instance.dbEntry.expiration!;
-        let html = instance.dbEntry.html!;
+      if ( schema ) {
+        expiration = schema.dbEntry.expiration!;
+        let html = schema.dbEntry.html!;
 
         if ( Date.now() > expiration )
           html = await this.renderPage( url );
@@ -244,13 +244,13 @@ export class PageRenderer extends Controller {
       else
         html = await this.renderPage( url );
 
-      if ( !instance ) {
+      if ( !schema ) {
         info( `Saving render '${url}'` );
         await model.createInstance<IRender>( <IRender>{ expiration: Date.now() + this.expiration, html: html, url: url } );
       }
       else if ( Date.now() > expiration ) {
         info( `Updating render '${url}'` );
-        await model.update<IRender>( <IRender>{ _id: instance.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
+        await model.update<IRender>( <IRender>{ _id: schema.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
       }
 
       info( 'Sending back render without script tags' );
@@ -299,12 +299,12 @@ export class PageRenderer extends Controller {
     const renders = this.getModel( 'renders' );
 
     try {
-      const instances = await renders!.findInstances<IRender>( { selector: <IRender>{ _id: new mongodb.ObjectID( req.params.id ) } } );
+      const schemas = await renders!.findInstances<IRender>( { selector: <IRender>{ _id: new mongodb.ObjectID( req.params.id ) } } );
 
-      if ( instances.length === 0 )
+      if ( schemas.length === 0 )
         throw new Error( 'Could not find a render with that ID' );
 
-      let html: string = await instances[ 0 ].schema.getByName( 'html' )!.getValue();
+      let html: string = await schemas[ 0 ].getByName( 'html' )!.getValue();
       const matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
       for ( let i = 0; matches && i < matches.length; i++ )
         if ( matches[ i ].indexOf( 'application/ld+json' ) === -1 ) {
@@ -369,7 +369,7 @@ export class PageRenderer extends Controller {
     try {
       // First get the count
       count = await renders!.count( findToken );
-      const instances = await renders!.findInstances<IRender>( {
+      const schemas = await renders!.findInstances<IRender>( {
         selector: findToken,
         sort: sort,
         index: parseInt( req.query.index ),
@@ -378,8 +378,8 @@ export class PageRenderer extends Controller {
       } );
 
       const jsons: Array<Promise<IRender>> = [];
-      for ( let i = 0, l = instances.length; i < l; i++ )
-        jsons.push( instances[ i ].schema.getAsJson<IRender>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
+      for ( let i = 0, l = schemas.length; i < l; i++ )
+        jsons.push( schemas[ i ].getAsJson<IRender>( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
 
       const sanitizedData = await Promise.all( jsons );
 

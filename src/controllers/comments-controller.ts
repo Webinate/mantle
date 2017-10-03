@@ -4,7 +4,7 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Controller } from './controller';
-import { ModelInstance } from '../models/model-instance';
+import { Schema } from '../models/schema';
 import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { UserPrivileges } from '../core/user';
@@ -130,11 +130,11 @@ export class CommentsController extends Controller {
     if ( req.query.limit !== undefined )
       limit = parseInt( req.query.limit );
 
-    const instances = await comments.findInstances<IComment>( { selector: findToken, sort: sort, index: index, limit: limit } );
+    const schemas = await comments.findInstances<IComment>( { selector: findToken, sort: sort, index: index, limit: limit } );
 
     const jsons: Array<Promise<IComment>> = [];
-    for ( let i = 0, l = instances.length; i < l; i++ )
-      jsons.push( instances[ i ].schema.getAsJson<IComment>( instances[ i ]._id, {
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      jsons.push( schemas[ i ].getAsJson<IComment>( schemas[ i ].dbEntry._id, {
         verbose: Boolean( req.query.verbose ),
         expandForeignKeys: Boolean( req.query.expanded ),
         expandMaxDepth: parseInt( req.query.depth || 1 ),
@@ -159,20 +159,20 @@ export class CommentsController extends Controller {
     const findToken: IComment = { _id: new mongodb.ObjectID( req.params.id ) };
     const user = req._user;
 
-    const instances = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
+    const schemas = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
 
-    if ( instances.length === 0 )
+    if ( schemas.length === 0 )
       throw new Error( 'Could not find comment' );
 
-    const isPublic = await instances[ 0 ].schema.getByName( 'public' )!.getValue()
+    const isPublic = await schemas[ 0 ].getByName( 'public' )!.getValue()
 
     // Only admins are allowed to see private comments
     if ( !isPublic && ( !user || user.privileges! >= UserPrivileges.Admin ) )
       throw new Error( 'That comment is marked private' );
 
     const jsons: Array<Promise<IComment>> = [];
-    for ( let i = 0, l = instances.length; i < l; i++ )
-      jsons.push( instances[ i ].schema.getAsJson<IComment>( instances[ i ]._id, {
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      jsons.push( schemas[ i ].getAsJson<IComment>( schemas[ i ].dbEntry._id, {
         verbose: Boolean( req.query.verbose ),
         expandForeignKeys: Boolean( req.query.expanded ),
         expandMaxDepth: parseInt( req.query.depth || 1 ),
@@ -197,12 +197,12 @@ export class CommentsController extends Controller {
       _id: new mongodb.ObjectID( req.params.id )
     }
     const user = req._user;
-    const instances = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
+    const schemas = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
 
-    if ( instances.length === 0 )
+    if ( schemas.length === 0 )
       throw new Error( 'Could not find a comment with that ID' );
     else {
-      const author = await instances[ 0 ].schema.getByName( 'author' )!.getValue();
+      const author = await schemas[ 0 ].getByName( 'author' )!.getValue();
 
       // Only admins are allowed to see private comments
       if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== author ) )
@@ -226,12 +226,12 @@ export class CommentsController extends Controller {
     }
 
     const user = req._user;
-    const instances = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
+    const schemas = await comments.findInstances<IComment>( { selector: findToken, index: 0, limit: 1 } );
 
-    if ( instances.length === 0 )
+    if ( schemas.length === 0 )
       throw new Error( 'Could not find comment with that id' );
     else {
-      const author = await instances[ 0 ].schema.getByName( 'author' )!.getValue();
+      const author = await schemas[ 0 ].getByName( 'author' )!.getValue();
 
       // Only admins are allowed to see private comments
       if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== author ) )
@@ -258,24 +258,24 @@ export class CommentsController extends Controller {
     token.author = req._user!.username;
     token.post = req.params.postId;
     token.parent = req.params.parent;
-    let parent: ModelInstance<IComment> | null = null;
+    let parent: Schema<IComment> | null = null;
 
 
     if ( token.parent ) {
-      parent = await comments.findOne<IComment>( <IModelEntry>{ _id: new mongodb.ObjectID( token.parent ) } );
+      parent = await comments.findOne( <IModelEntry>{ _id: new mongodb.ObjectID( token.parent ) } );
       if ( !parent )
         throw new Error( `No comment exists with the id ${token.parent}` );
     }
 
     const instance = await comments.createInstance( token );
-    const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
+    const json = await instance.getAsJson( instance.dbEntry._id, { verbose: true } );
 
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
-      const children: Array<string> = parent.schema.getByName( 'children' )!.value;
-      children.push( instance.dbEntry!._id );
-      await parent.model.update<IComment>( <IComment>{ _id: parent.dbEntry._id }, { children: children } )
+      const children: Array<string | mongodb.ObjectID> = parent.getByName( 'children' )!.value;
+      children.push( instance.dbEntry._id );
+      await comments.update<IComment>( <IComment>{ _id: parent.dbEntry._id }, { children: children } )
     }
 
     return { message: 'New comment created', data: json } as CommentTokens.Post.Response;

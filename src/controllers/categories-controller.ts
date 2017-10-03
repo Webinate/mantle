@@ -55,11 +55,11 @@ export class CategoriesController extends Controller {
   private async getCategories( req: IAuthReq, res: express.Response ) {
     const categories = this.getModel( 'categories' )!;
 
-    const instances = await categories.findInstances<ICategory>( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
+    const schemas = await categories.findInstances<ICategory>( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
 
     const jsons: Array<Promise<ICategory>> = [];
-    for ( let i = 0, l = instances.length; i < l; i++ )
-      jsons.push( instances[ i ].schema.getAsJson<ICategory>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      jsons.push( schemas[ i ].getAsJson<ICategory>( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
 
     const sanitizedData = await Promise.all( jsons );
 
@@ -93,8 +93,8 @@ export class CategoriesController extends Controller {
     const token: CategoriesTokens.Post.Body = req.body;
     const categories = this.getModel( 'categories' )!;
 
-    const instance = await categories.createInstance( token );
-    const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
+    const schema = await categories.createInstance( token );
+    const json = await schema.getAsJson( schema.dbEntry._id, { verbose: true } );
 
     return {
       message: 'New category created',

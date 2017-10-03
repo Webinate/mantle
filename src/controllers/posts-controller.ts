@@ -160,7 +160,7 @@ export class PostsController extends Controller {
     if ( req.query.limit !== undefined )
       limit = parseInt( req.query.limit );
 
-    const instances = await posts!.findInstances<IPost>( {
+    const schemas = await posts!.findInstances<IPost>( {
       selector: findToken,
       sort: sort,
       index: index,
@@ -169,8 +169,8 @@ export class PostsController extends Controller {
     } );
 
     const jsons: Array<Promise<IPost>> = [];
-    for ( let i = 0, l = instances.length; i < l; i++ )
-      jsons.push( instances[ i ].schema.getAsJson<IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      jsons.push( schemas[ i ].getAsJson<IPost>( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
 
     const sanitizedData = await Promise.all( jsons );
 
@@ -195,20 +195,20 @@ export class PostsController extends Controller {
     else
       findToken = { slug: req.params.slug };
 
-    const instances = await posts!.findInstances<IPost>( { selector: findToken, index: 0, limit: 1 } );
+    const schemas = await posts!.findInstances<IPost>( { selector: findToken, index: 0, limit: 1 } );
 
-    if ( instances.length === 0 )
+    if ( schemas.length === 0 )
       throw new Error( 'Could not find post' );
 
 
-    const isPublic = await instances[ 0 ].schema.getByName( 'public' )!.getValue();
+    const isPublic = await schemas[ 0 ].getByName( 'public' )!.getValue();
     // Only admins are allowed to see private posts
     if ( !isPublic && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
       throw new Error( 'That post is marked private' );
 
     const jsons: Array<Promise<IPost>> = [];
-    for ( let i = 0, l = instances.length; i < l; i++ )
-      jsons.push( instances[ i ].schema.getAsJson<IPost>( instances[ i ]._id, { verbose: Boolean( req.query.verbose ) } ) );
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      jsons.push( schemas[ i ].getAsJson<IPost>( schemas[ i ].dbEntry._id, { verbose: Boolean( req.query.verbose ) } ) );
 
     const sanitizedData = await Promise.all( jsons );
 
@@ -244,12 +244,12 @@ export class PostsController extends Controller {
     const token: PostTokens.Post.Body = req.body;
     const posts = this.getModel( 'posts' )!;
 
-    const instance = await posts.update( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
+    const schema = await posts.update( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
 
-    if ( instance.error )
-      throw new Error( <string>instance.tokens[ 0 ].error );
+    if ( schema.error )
+      throw new Error( <string>schema.tokens[ 0 ].error );
 
-    if ( instance.tokens.length === 0 )
+    if ( schema.tokens.length === 0 )
       throw new Error( 'Could not find post with that id' );
 
     return {
@@ -268,8 +268,8 @@ export class PostsController extends Controller {
     // User is passed from the authentication function
     token.author = req._user!.username;
 
-    const instance = await posts.createInstance( token );
-    const json = await instance.schema.getAsJson( instance._id, { verbose: true } );
+    const schema = await posts.createInstance( token );
+    const json = await schema.getAsJson( schema.dbEntry._id, { verbose: true } );
 
     return {
       message: 'New post created',

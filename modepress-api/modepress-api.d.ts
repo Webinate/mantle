@@ -551,7 +551,7 @@ declare module 'modepress' {
         parent?: string;
         public?: boolean;
         content?: string;
-        children?: Array<string>;
+        children?: Array<string | any>;
         createdOn?: number;
         lastUpdated?: number;
     }
@@ -1078,29 +1078,9 @@ declare module 'modepress' {
         }
     }
 }
-declare module "models/model-instance" {
-    import { IModelEntry } from 'modepress';
-    import { ObjectID } from 'mongodb';
-    import { Schema } from "models/schema";
-    import { Model } from "models/model";
-    /**
-     * An instance of a model with its own unique schema and ID. The initial schema is a clone
-     * the parent model's
-     */
-    export class ModelInstance<T extends IModelEntry | null> {
-        model: Model;
-        schema: Schema;
-        _id: ObjectID;
-        dbEntry: T;
-        /**
-           * Creates a model instance
-           */
-        constructor(model: Model, dbEntry: T);
-    }
-}
 declare module "models/schema-items/schema-item" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
-    import { ModelInstance } from "models/model-instance";
+    import { Schema } from "models/schema";
     /**
      * A definition of each item in the model
      */
@@ -1185,16 +1165,14 @@ declare module "models/schema-items/schema-item" {
         /**
          * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
-         * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
          */
-        postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
+        postUpsert(schema: Schema<IModelEntry>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
-         * @param instance The model instance that was deleted
          * @param collection The DB collection that the model was deleted from
          */
-        postDelete<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
+        postDelete(schema: Schema<IModelEntry>, collection: string): Promise<void>;
         /**
          * Gets the value of this item in a database safe format
          */
@@ -1215,23 +1193,23 @@ declare module "models/schema" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
     import { SchemaItem } from "models/schema-items/schema-item";
     import * as mongodb from 'mongodb';
-    import { ModelInstance } from "models/model-instance";
     /**
      * Gives an overall description of each property in a model
      */
-    export class Schema {
+    export class Schema<T extends IModelEntry> {
         private _items;
+        dbEntry: T;
         constructor();
         /**
          * Creates a copy of the schema
          */
-        clone(): Schema;
+        clone(): Schema<T>;
         /**
          * Sets a schema value by name
          * @param data The data object we are setting
          * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
          */
-        set(data: any, allowReadOnlyValues: boolean): void;
+        set(data: T, allowReadOnlyValues: boolean): void;
         /**
          * Sets a schema value by name
          * @param name The name of the schema item
@@ -1256,22 +1234,19 @@ declare module "models/schema" {
         /**
          * Checks the values stored in the items to see if they are correct
          * @param checkForRequiredFields If true, then required fields must be present otherwise an error is flagged
-         * @returns Returns true if successful
          */
-        validate(checkForRequiredFields: boolean): Promise<Schema>;
+        validate(checkForRequiredFields: boolean): Promise<this>;
         /**
          * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
-         * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
          */
-        postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<Schema>;
+        postUpsert(collection: string): Promise<this>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
-         * @param instance The model instance that was deleted
          * @param collection The DB collection that the model was deleted from
          */
-        postDelete<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<Schema>;
+        postDelete(collection: string): Promise<this>;
         /**
          * Gets a schema item from this schema by name
          * @param val The name of the item
@@ -1328,6 +1303,26 @@ declare module "utils/logger" {
      * Clears the console
      */
     export function clear(): void;
+}
+declare module "models/model-instance" {
+    import { IModelEntry } from 'modepress';
+    import { ObjectID } from 'mongodb';
+    import { Schema } from "models/schema";
+    import { Model } from "models/model";
+    /**
+     * An instance of a model with its own unique schema and ID. The initial schema is a clone
+     * the parent model's
+     */
+    export class ModelInstance<T extends IModelEntry | null> {
+        model: Model;
+        schema: Schema<IModelEntry>;
+        _id: ObjectID;
+        dbEntry: T;
+        /**
+           * Creates a model instance
+           */
+        constructor(model: Model, dbEntry: T);
+    }
 }
 declare module "models/schema-items/schema-number" {
     import { SchemaItem } from "models/schema-items/schema-item";
@@ -1507,8 +1502,8 @@ declare module "utils/utils" {
 declare module "models/schema-items/schema-foreign-key" {
     import { ISchemaOptions, IModelEntry, IForeignKeyOptions } from 'modepress';
     import { SchemaItem } from "models/schema-items/schema-item";
-    import { ModelInstance } from "models/model-instance";
     import { ObjectID } from 'mongodb';
+    import { Schema } from "models/schema";
     export type FKeyValues = ObjectID | string | IModelEntry | null;
     /**
      * Represents a mongodb ObjectID of a document in separate collection.
@@ -1543,12 +1538,12 @@ declare module "models/schema-items/schema-foreign-key" {
          * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
          */
-        postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
+        postUpsert(schema: Schema<IModelEntry>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
          * @param instance The model instance that was deleted
          */
-        postDelete<T extends IModelEntry>(instance: ModelInstance<T>): Promise<void>;
+        postDelete(schema: Schema<IModelEntry>, collection: string): Promise<void>;
         /**
          * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
@@ -1559,9 +1554,10 @@ declare module "models/schema-items/schema-foreign-key" {
 declare module "models/schema-items/schema-id-array" {
     import { ISchemaOptions, IModelEntry } from 'modepress';
     import { SchemaItem } from "models/schema-items/schema-item";
-    import { ModelInstance } from "models/model-instance";
     import { ObjectID } from 'mongodb';
     import { IIdArrOptions } from 'modepress';
+    import { Schema } from "models/schema";
+    export type IdTypes = string | ObjectID | IModelEntry;
     /**
      * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
      * and return objects of the specified ids. In order for the array to return objects you must
@@ -1569,7 +1565,7 @@ declare module "models/schema-items/schema-id-array" {
      * Currently we only support Id lookups that exist in the same model - i.e. if the ids are of objects
      * in different models we cannot get the object values.
      */
-    export class SchemaIdArray extends SchemaItem<Array<string | ObjectID | IModelEntry>> {
+    export class SchemaIdArray extends SchemaItem<IdTypes[]> {
         targetCollection: string;
         minItems: number;
         maxItems: number;
@@ -1595,15 +1591,14 @@ declare module "models/schema-items/schema-id-array" {
         /**
          * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
          * doing any post update/insert operations
-         * @param instance The model instance that was inserted or updated
          * @param collection The DB collection that the model was inserted into
          */
-        postUpsert<T extends IModelEntry>(instance: ModelInstance<T>, collection: string): Promise<void>;
+        postUpsert(schema: Schema<IModelEntry>, collection: string): Promise<void>;
         /**
          * Called after a model instance is deleted. Useful for any schema item cleanups.
          * @param instance The model instance that was deleted
          */
-        postDelete<T extends IModelEntry>(instance: ModelInstance<T>): Promise<void>;
+        postDelete(schema: Schema<IModelEntry>, collection: string): Promise<void>;
         /**
          * Gets the value of this item
          * @param options [Optional] A set of options that can be passed to control how the data must be returned
@@ -1865,12 +1860,12 @@ declare module "core/controller-factory" {
     export default _default;
 }
 declare module "models/model" {
+    import { IModelEntry } from 'modepress';
     import { Collection, Db, ObjectID } from 'mongodb';
     import { Schema } from "models/schema";
-    import { ModelInstance } from "models/model-instance";
-    export interface UpdateToken<T> {
+    export interface UpdateToken<T extends IModelEntry> {
         error: string | boolean;
-        instance: ModelInstance<T>;
+        instance: Schema<T>;
     }
     export interface UpdateRequest<T> {
         error: boolean;
@@ -1892,7 +1887,7 @@ declare module "models/model" {
      */
     export abstract class Model {
         collection: Collection;
-        defaultSchema: Schema;
+        defaultSchema: Schema<IModelEntry>;
         private _collectionName;
         /**
            * Creates an instance of a Model
@@ -1921,17 +1916,17 @@ declare module "models/model" {
            * @param limit The number of results to fetch
          * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
            */
-        findInstances<T>(options?: ISearchOptions<T>): Promise<ModelInstance<T>[]>;
+        findInstances<T>(options?: ISearchOptions<T>): Promise<Schema<IModelEntry>[]>;
         /**
          * Gets a model instance based on the selector criteria
          * @param selector The mongodb selector
          * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
          */
-        findOne<T>(selector: any, projection?: any): Promise<ModelInstance<T> | null>;
+        findOne(selector: any, projection?: any): Promise<Schema<IModelEntry> | null>;
         /**
          * Deletes a instance and all its dependencies are updated or deleted accordingly
          */
-        private deleteInstance(instance);
+        private deleteInstance(schema);
         /**
            * Deletes a number of instances based on the selector. The promise reports how many items were deleted
            */
@@ -1945,22 +1940,22 @@ declare module "models/model" {
          * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
          * went wrong when updating the specific instance, and a string message if something did in fact go wrong
          */
-        update<T>(selector: any, data: T): Promise<UpdateRequest<T>>;
+        update<T extends IModelEntry>(selector: any, data: T): Promise<UpdateRequest<T>>;
         /**
          * Checks if the schema item being ammended is unique
          */
-        checkUniqueness(schema: Schema, id?: ObjectID): Promise<boolean>;
+        checkUniqueness(schema: Schema<IModelEntry>, id?: ObjectID): Promise<boolean>;
         /**
            * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
            * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
            * by parsing the data object and setting each schema item's value by the name/value in the data object
            */
-        createInstance<T>(data?: T): Promise<ModelInstance<T | null>>;
+        createInstance<T>(data?: T): Promise<Schema<IModelEntry>>;
         /**
            * Attempts to insert an array of instances of this model into the database.
            * @param instances An array of instances to save
            */
-        insert<T>(instances: Array<ModelInstance<T>>): Promise<Array<ModelInstance<T>>>;
+        insert(instances: Schema<IModelEntry>[]): Promise<Schema<IModelEntry>[]>;
     }
 }
 declare module "controllers/controller" {

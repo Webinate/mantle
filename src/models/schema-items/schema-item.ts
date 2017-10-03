@@ -1,5 +1,5 @@
 ﻿import { ISchemaOptions, IModelEntry } from 'modepress';
-import { ModelInstance } from '../model-instance';
+import { Schema } from '../schema';
 
 /**
  * A definition of each item in the model
@@ -31,7 +31,7 @@ export class SchemaItem<T> {
    * Creates a clone of this item
    * @returns copy A sub class of the copy
    */
-  public clone( copy?: SchemaItem<T> ): SchemaItem<T> {
+  public clone( copy?: SchemaItem<T> ) {
     copy = copy === undefined ? new SchemaItem( this.name, this.value ) : copy;
     copy._unique = this._unique;
     copy._uniqueIndexer = this._uniqueIndexer;
@@ -143,22 +143,18 @@ export class SchemaItem<T> {
   /**
    * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
    * doing any post update/insert operations
-   * @param instance The model instance that was inserted or updated
    * @param collection The DB collection that the model was inserted into
    */
-  public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
-    instance;   // Supress empty param warning
+  public async postUpsert( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
     collection; // Supress empty param warning
     return Promise.resolve();
   }
 
   /**
    * Called after a model instance is deleted. Useful for any schema item cleanups.
-   * @param instance The model instance that was deleted
    * @param collection The DB collection that the model was deleted from
    */
-  public async postDelete<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
-    instance;   // Supress empty param warning
+  public async postDelete( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
     collection; // Supress empty param warning
     return Promise.resolve();
   }

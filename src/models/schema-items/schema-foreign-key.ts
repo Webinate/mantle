@@ -1,10 +1,10 @@
 ﻿import { ISchemaOptions, IModelEntry, IForeignKeyOptions } from 'modepress';
 import { SchemaItem } from './schema-item';
-import { ModelInstance } from '../model-instance';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { SchemaIdArray } from './schema-id-array';
 import Factory from '../../core/controller-factory';
+import { Schema } from '../schema';
 
 export type FKeyValues = ObjectID | string | IModelEntry | null;
 
@@ -20,7 +20,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
   public canAdapt: boolean;
   public curLevel: number;
 
-  private _targetDoc: ModelInstance<IModelEntry> | null;
+  private _targetDoc: Schema<IModelEntry> | null;
 
   /**
    * Creates a new schema item
@@ -81,7 +81,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       throw new Error( `${this.name} does not exist` );
 
     // We can assume the value is object id by this point
-    const result = await model.findOne<IModelEntry>( { _id: <ObjectID>this.value } );
+    const result = await model.findOne( { _id: <ObjectID>this.value } );
 
     if ( !this.keyCanBeNull && !result )
       throw new Error( `${this.name} does not exist` );
@@ -97,7 +97,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    * @param instance The model instance that was inserted or updated
    * @param collection The DB collection that the model was inserted into
    */
-  public async postUpsert<T extends IModelEntry>( instance: ModelInstance<T>, collection: string ): Promise<void> {
+  public async postUpsert( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
     if ( !this._targetDoc )
       return;
 
@@ -112,13 +112,13 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       if ( !optionalDeps )
         optionalDeps = [];
 
-      optionalDeps.push( { _id: instance.dbEntry._id, collection: collection, propertyName: this.name } );
+      optionalDeps.push( { _id: schema.dbEntry._id, collection: collection, propertyName: this.name } );
     }
     else {
       if ( !requiredDeps )
         requiredDeps = [];
 
-      requiredDeps.push( { _id: instance.dbEntry._id, collection: collection } )
+      requiredDeps.push( { _id: schema.dbEntry._id, collection: collection } )
     }
 
     await model.collection.updateOne( <IModelEntry>{ _id: this._targetDoc.dbEntry._id }, {
@@ -137,7 +137,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    * Called after a model instance is deleted. Useful for any schema item cleanups.
    * @param instance The model instance that was deleted
    */
-  public async postDelete<T extends IModelEntry>( instance: ModelInstance<T> ): Promise<void> {
+  public async postDelete( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
     // If they key is required then it must exist
     const model = Factory.get( this.targetCollection );
     if ( !model )
@@ -147,16 +147,16 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       return;
 
     // We can assume the value is object id by this point
-    const result = await model.findOne<IModelEntry>( { _id: <ObjectID>this.value } );
+    const result = await model.findOne( { _id: <ObjectID>this.value } );
     if ( !result )
       return;
 
     let query;
 
     if ( this.canAdapt )
-      query = { $pull: { _optionalDependencies: { _id: instance.dbEntry._id } } };
+      query = { $pull: { _optionalDependencies: { _id: schema.dbEntry._id } } };
     else
-      query = { $pull: { _requiredDependencies: { _id: instance.dbEntry._id } } };
+      query = { $pull: { _requiredDependencies: { _id: schema.dbEntry._id } } };
 
     await model.collection.updateOne( <IModelEntry>{ _id: this._targetDoc!.dbEntry._id }, query );
     return;
@@ -190,19 +190,19 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
         return this.value;
     }
 
-    const result = await model.findOne<IModelEntry>( { _id: <ObjectID>this.value } );
+    const result = await model.findOne( { _id: <ObjectID>this.value } );
 
     if ( !result )
       throw new Error( `Could not find instance of ${this.name} references with foreign key '${this.targetCollection}'` );
 
     // Get the models items are increase their level - this ensures we dont go too deep
-    const items = result.schema.getItems()!;
+    const items = result.getItems()!;
     const nextLevel = this.curLevel + 1;
 
     for ( let i = 0, l = items.length; i < l; i++ )
       if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
         ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
 
-    return await result.schema.getAsJson<IModelEntry>( result.dbEntry._id, options );
+    return await result.getAsJson<IModelEntry>( result.dbEntry._id, options );
   }
 }

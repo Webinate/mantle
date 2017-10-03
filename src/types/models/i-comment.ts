@@ -9,7 +9,7 @@ declare module 'modepress' {
     parent?: string;
     public?: boolean;
     content?: string;
-    children?: Array<string>;
+    children?: Array<string | any>;
     createdOn?: number;
     lastUpdated?: number;
   }
