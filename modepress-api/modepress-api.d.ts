@@ -1304,26 +1304,6 @@ declare module "utils/logger" {
      */
     export function clear(): void;
 }
-declare module "models/model-instance" {
-    import { IModelEntry } from 'modepress';
-    import { ObjectID } from 'mongodb';
-    import { Schema } from "models/schema";
-    import { Model } from "models/model";
-    /**
-     * An instance of a model with its own unique schema and ID. The initial schema is a clone
-     * the parent model's
-     */
-    export class ModelInstance<T extends IModelEntry | null> {
-        model: Model;
-        schema: Schema<IModelEntry>;
-        _id: ObjectID;
-        dbEntry: T;
-        /**
-           * Creates a model instance
-           */
-        constructor(model: Model, dbEntry: T);
-    }
-}
 declare module "models/schema-items/schema-number" {
     import { SchemaItem } from "models/schema-items/schema-item";
     import { INumOptions, NumType } from 'modepress';

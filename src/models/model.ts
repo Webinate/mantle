@@ -2,7 +2,6 @@
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
-import { ModelInstance } from './model-instance';
 import Factory from '../core/controller-factory';
 
 export interface UpdateToken<T extends IModelEntry> { error: string | boolean; instance: Schema<T> }
@@ -307,22 +306,22 @@ export abstract class Model {
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object
 	 */
   async createInstance<T>( data?: T ) {
-    const newInstance = new ModelInstance<T | null>( this, null );
+    const schema = this.defaultSchema.clone();
 
     // If we have data, then set the variables
     if ( data )
-      newInstance.schema.set( data, true );
+      schema.set( data, true );
 
-    const unique = await this.checkUniqueness( newInstance.schema );
+    const unique = await this.checkUniqueness( schema );
 
     if ( !unique )
       throw new Error( `'${this.defaultSchema.uniqueFieldNames()}' must be unique` );
 
     // Now try to create a new instance
-    const schema = await this.insert( [ newInstance.schema ] );
+    const schemas = await this.insert( [ schema ] );
 
     // All ok
-    return schema[ 0 ];
+    return schemas[ 0 ];
   }
 
   /**
