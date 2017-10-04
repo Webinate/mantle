@@ -8,7 +8,7 @@ import { Controller } from './controller';
 import { adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/serializers';
 import { IBaseControler } from 'modepress';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 import { Model } from '../models/model';
 
 /**

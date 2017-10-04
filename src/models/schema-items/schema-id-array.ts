@@ -5,7 +5,7 @@ import { ObjectID, UpdateWriteOpResult } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { IIdArrOptions } from 'modepress';
 import { Schema } from '../schema';
-import Factory from '../../core/controller-factory';
+import Factory from '../../core/model-factory';
 
 export type IdTypes = string | ObjectID | IModelEntry;
 

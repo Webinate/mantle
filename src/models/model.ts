@@ -2,7 +2,7 @@
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 
 export interface UpdateToken<T extends IModelEntry> { error: string | boolean; instance: Schema<T> }
 

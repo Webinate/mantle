@@ -12,7 +12,7 @@ import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
 import { IAuthOptions } from 'modepress';
 import * as mongodb from 'mongodb';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 
 /**
  * Main class to use for managing user authentication

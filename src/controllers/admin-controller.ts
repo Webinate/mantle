@@ -8,7 +8,7 @@ import { j200 } from '../utils/serializers';
 import * as compression from 'compression';
 import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 
 /**
  * Main class to use for managing users

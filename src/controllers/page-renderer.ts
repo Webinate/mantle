@@ -10,7 +10,7 @@ import * as jsdom from 'jsdom';
 import { okJson, errJson } from '../utils/serializers';
 import { adminRights } from '../utils/permission-controllers'
 import { IRenderOptions } from 'modepress';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 import { Model } from '../models/model';
 
 /**

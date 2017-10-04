@@ -15,7 +15,7 @@ import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { okJson, errJson } from '../utils/serializers';
 import { IBaseControler } from 'modepress';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 
 /**
  * Main class to use for managing users

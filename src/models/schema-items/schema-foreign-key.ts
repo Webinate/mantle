@@ -3,7 +3,7 @@ import { SchemaItem } from './schema-item';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { SchemaIdArray } from './schema-id-array';
-import Factory from '../../core/controller-factory';
+import Factory from '../../core/model-factory';
 import { Schema } from '../schema';
 
 export type FKeyValues = ObjectID | string | IModelEntry | null;

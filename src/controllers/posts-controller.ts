@@ -10,7 +10,7 @@ import { j200 } from '../utils/serializers';
 import { UserPrivileges } from '../core/user';
 import { Model } from '../models/model';
 import { IBaseControler } from 'modepress';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 
 /**
  * A controller that deals with the management of posts
