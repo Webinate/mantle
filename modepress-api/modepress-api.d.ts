@@ -1821,7 +1821,7 @@ declare module "core/model-factory" {
         /**
          * Adds the default models to the system
          */
-        addBaseModelFactorys(): Promise<void>;
+        addBaseModelFactories(): Promise<void>;
         /**
          * Sets up a model's indices
          * @param model The model to setup
