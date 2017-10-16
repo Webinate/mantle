@@ -1,0 +1,39 @@
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: local("Roboto Light"), local("Roboto-Light"), url(../fonts/Roboto-300.woff2) format("woff2"); }
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local("Roboto"), local("Roboto-Regular"), url(../fonts/Roboto-400.woff2) format("woff2"); }
+
+html {
+  font-family: 'Roboto', sans-serif;
+  color: #444;
+}
+
+html, body, div {
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+}
+a {
+  text-decoration: none;
+  font-weight: 300;
+}
+a:focus, a:hover {
+  color: #111;
+}
+a:hover {
+  text-decoration: underline;
+}
+a:active, a:visited {
+  color: inherit;
+
+}

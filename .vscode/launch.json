@@ -1,0 +1,62 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "program": "${workspaceRoot}/../../dist/main.js",
+      "stopOnEntry": false,
+      "args": [
+        "--config=${workspaceRoot}/../../config.json",
+        "--numThreads=1",
+        "--logging=true",
+        "--inspect=true"
+      ],
+      "cwd": "${workspaceRoot}/../..",
+      "preLaunchTask": "",
+      "runtimeExecutable": null,
+      "runtimeArgs": [
+        "--nolazy"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": false,
+      "outFiles": []
+    },
+    {
+      "name": "Debug Tests",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+      "stopOnEntry": false,
+      "args": [
+        "-t",
+        "100000",
+        "./test/index.js",
+        "--config=../../config.json",
+        "--logging=false",
+        "--runningTests=true",
+        "--clientsFolder=../../clients/",
+        "--remotes.local.url=http://localhost:8001",
+        "--remotes.local.path=../../clients/modepress-ssr/test/media-uploads"
+      ],
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "runtimeExecutable": null,
+      "runtimeArgs": [
+        "--nolazy"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": false,
+      "outFiles": []
+    }
+  ]
+}

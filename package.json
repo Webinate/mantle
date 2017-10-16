@@ -1,0 +1,70 @@
+{
+  "name": "modepress-ssr",
+  "version": "0.1.0",
+  "description": "An admin panel for the Modepress server",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Webinate/modepress-ssr.git"
+  },
+  "author": "Mathew Henson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Webinate/modepress-ssr/issues"
+  },
+  "scripts": {
+    "postinstall": "gulp update-modepress-def",
+    "build": "gulp build",
+    "clean": "rimraf dist",
+    "patch": "npm version patch --no-git-tag-version",
+    "major": "npm version major --no-git-tag-version",
+    "minor": "npm version minor --no-git-tag-version",
+    "start": "cd ../../ && node dist/main.js --config=config.json --numThreads=1 --logging=true --inspect=true",
+    "test": "mocha -t 100000 ./test/index.js --config=../../config.json --logging=false --runningTests=true --clientsFolder=../../clients/ --remotes.local.url=http://localhost:8001 --remotes.local.path=../../clients/modepress-ssr/test/media-uploads"
+  },
+  "homepage": "https://github.com/Webinate/modepress-ssr#readme",
+  "devDependencies": {
+    "mocha": "^3.5.3",
+    "puppeteer": "^0.10.2",
+    "yargs": "^9.0.1",
+    "rimraf": "~2.6.2"
+  },
+  "dependencies": {
+    "@types/bson": "~1.0.3",
+    "@types/history": "^4.5.2",
+    "@types/material-ui": "^0.17.15",
+    "@types/mongodb": "~2.2.7",
+    "@types/node": "^7.0.34",
+    "@types/react": "^15.0.36",
+    "@types/react-dom": "~0.14.23",
+    "@types/react-redux": "^4.4.46",
+    "@types/react-router": "^4.0.14",
+    "@types/react-router-dom": "^4.0.6",
+    "@types/react-router-redux": "~5.0.3",
+    "@types/react-tap-event-plugin": "0.0.30",
+    "@types/redux": "~3.6.31",
+    "@types/redux-thunk": "~2.1.32",
+    "@types/ws": "^3.0.2",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-sass": "~3.1.0",
+    "gulp-tslint": "~8.1.2",
+    "gulp-typescript": "~3.2.2",
+    "history": "~4.6.3",
+    "material-ui": "~0.18.6",
+    "react": "~15.6.1",
+    "react-dom": "~15.6.1",
+    "react-redux": "~5.0.5",
+    "react-router": "~4.1.1",
+    "react-router-dom": "~4.1.1",
+    "react-router-redux": "~4.0.8",
+    "react-tap-event-plugin": "~2.0.1",
+    "redux": "~3.7.1",
+    "redux-thunk": "~2.2.0",
+    "source-map-loader": "~0.2.1",
+    "styled-components": "~2.1.1",
+    "ts-loader": "^2.3.7",
+    "tslint": "^5.7.0",
+    "typescript": "~2.5.2",
+    "webpack": "~3.5.6"
+  }
+}

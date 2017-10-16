@@ -1,0 +1,15 @@
+{
+  "name": "modepress-ssr",
+  "server": {
+    "port": 9000,
+    "host": "localhost",
+    "staticAssets": [
+      "dist/client"
+    ]
+  },
+  "controllers": [
+    {
+      "path": "dist/server/server.js"
+    }
+  ]
+}

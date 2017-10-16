@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es7"
+    ],
+    "sourceMap": false,
+    "outDir": "./dist/server",
+    "allowUnusedLabels": false,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "rootDir": "src",
+    "jsx": "react",
+    "experimentalDecorators": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
