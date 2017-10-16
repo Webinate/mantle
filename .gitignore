@@ -1,0 +1,16 @@
+# Logs
+logs
+*.log
+*.bak
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Dependency directory
+node_modules
+
+# Build directory
+dist
+temp
