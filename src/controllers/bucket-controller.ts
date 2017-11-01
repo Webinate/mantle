@@ -73,9 +73,10 @@ export class BucketController extends Controller {
       const filesRemoved = await manager.removeBucketsByName( buckets, req._user!.username! );
 
       return okJson<BucketTokens.DeleteAll.Response>( {
-        message: `Removed [${filesRemoved.length}] buckets`,
         data: filesRemoved,
-        count: filesRemoved.length
+        count: filesRemoved.length,
+        limit: -1,
+        index: 0
       }, res );
 
     } catch ( err ) {
@@ -99,9 +100,10 @@ export class BucketController extends Controller {
       const buckets = await manager.getBucketEntries( user, searchTerm );
 
       return okJson<BucketTokens.GetAll.Response>( {
-        message: `Found [${buckets.length}] buckets`,
         data: buckets,
-        count: buckets.length
+        count: buckets.length,
+        limit: -1,
+        index: 0
       }, res );
 
     } catch ( err ) {

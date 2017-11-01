@@ -123,7 +123,6 @@ describe( '1. Testing creation of comments', function() {
     admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__", public: false } )
       .then( res => {
         commentId = res.body.data._id;
-        test.string( res.body.message ).is( "New comment created" );
         test.string( res.body.data._id );
         test.string( res.body.data.author );
         test.value( res.body.data.parent ).isNull();
@@ -140,7 +139,7 @@ describe( '1. Testing creation of comments', function() {
   it( 'can create a another comment on the same post, with a parent comment', function( done ) {
     admin.post( `/api/posts/${postId}/comments/${commentId}`, { content: "Hello world 2", public: true } )
       .then( res => {
-        test.string( res.body.message ).is( "New comment created" );
+        test.object( res.body.data ).hasProperty( "_id" )
         done();
       } ).catch( err => done( err ) );
   } )

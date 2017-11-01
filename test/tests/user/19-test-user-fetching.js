@@ -48,7 +48,6 @@ describe( '19. Testing fetching users', function() {
   it( 'did get regular users own data', function( done ) {
     user1.get( `/api/users/${user1.username}?verbose=true` )
       .then( res => {
-        test.object( res.body ).hasProperty( "message" )
         test.object( res.body ).hasProperty( "data" )
         test.string( res.body.data._id )
         test.string( res.body.data.email ).is( user1.email )

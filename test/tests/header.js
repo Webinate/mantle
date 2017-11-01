@@ -183,10 +183,14 @@ function post( url, json, host ) {
 async function createUser( username, password, email, priviledge = 3 ) {
 
   // Remove the user if they already exist
-  let response = await exports.users.admin.delete( `/api/users/${username}` );
+  let response = await exports.users.admin
+    .code( null )
+    .delete( `/api/users/${username}` );
 
   // Now create the user using the admin account
-  response = await exports.users.admin.post( `/api/users`, { username: username, password: password, email: email, privileges: priviledge } );
+  response = await exports.users.admin
+    .code( 200 )
+    .post( `/api/users`, { username: username, password: password, email: email, privileges: priviledge } );
 
   if ( response.body.error )
     throw new Error( response.body.message );

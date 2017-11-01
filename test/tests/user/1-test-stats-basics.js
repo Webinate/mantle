@@ -37,8 +37,6 @@ describe( '1. Getting and setting user stats', function() {
   it( 'regular user did get default stats for itself', function( done ) {
     user1.get( `/stats/users/${user1.username}/get-stats` )
       .then( res => {
-        test.string( res.body.message ).is( `Successfully retrieved ${user1.username}'s stats` );
-        test.object( res.body ).hasProperty( "message" );
         test.object( res.body ).hasProperty( "data" );
         test.object( res.body.data ).hasProperty( "_id" );
         test.string( res.body.data.user ).is( user1.username );

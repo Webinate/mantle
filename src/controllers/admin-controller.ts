@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IResponse } from 'modepress';
+import { ISimpleResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/user-manager';
@@ -53,6 +53,7 @@ export class AdminController extends Controller {
       throw new Error( 'Please specify a message to send' );
 
     await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
-    return { message: 'Your message has been sent to the support team' } as IResponse;
+    const response: ISimpleResponse = { message: 'Your message has been sent to the support team' };
+    return response;
   }
 }

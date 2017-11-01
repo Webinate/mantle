@@ -332,8 +332,8 @@ export class PageRenderer extends Controller {
       if ( numRemoved === 0 )
         throw new Error( 'Could not find a cache with that ID' );
 
-      okJson<RenderTokens.DeleteOne.Response>( { message: 'Cache has been successfully removed' }, res );
-
+      const response: RenderTokens.DeleteOne.Response = { message: 'Cache has been successfully removed' };
+      okJson<RenderTokens.DeleteOne.Response>( response, res );
     } catch ( err ) {
       errJson( err, res );
     };
@@ -367,14 +367,17 @@ export class PageRenderer extends Controller {
     if ( req.query.search )
       ( <IRender>findToken ).url = <any>new RegExp( req.query.search, 'i' );
 
+    let index = parseInt( req.query.index );
+    let limit = parseInt( req.query.limit );
+
     try {
       // First get the count
       count = await renders!.count( findToken );
       const schemas = await renders!.findInstances( {
         selector: findToken,
         sort: sort,
-        index: parseInt( req.query.index ),
-        limit: parseInt( req.query.limit ),
+        index: index,
+        limit: limit,
         projection: ( getContent === false ? { html: 0 } : undefined )
       } );
 
@@ -386,7 +389,8 @@ export class PageRenderer extends Controller {
 
       okJson<RenderTokens.GetAll.Response>( {
         count: count,
-        message: `Found ${count} renders`,
+        index: index,
+        limit: limit,
         data: sanitizedData
       }, res );
 

@@ -124,8 +124,8 @@ export class CommentsController extends Controller {
     // First get the count
     count = await comments.count( findToken );
 
-    let index: number | undefined;
-    let limit: number | undefined;
+    let index: number = 0;
+    let limit: number = 10;
     if ( req.query.index !== undefined )
       index = parseInt( req.query.index );
     if ( req.query.limit !== undefined )
@@ -144,11 +144,13 @@ export class CommentsController extends Controller {
 
     const sanitizedData = await Promise.all( jsons );
 
-    return {
+    const response: CommentTokens.GetAll.Response = {
       count: count,
-      message: `Found ${count} comments`,
-      data: sanitizedData
-    } as CommentTokens.GetAll.Response;
+      data: sanitizedData,
+      index: index,
+      limit: limit
+    };
+    return response;
   }
 
   /**
@@ -182,10 +184,10 @@ export class CommentsController extends Controller {
 
     const sanitizedData = await Promise.all( jsons );
 
-    return {
-      message: `Found ${sanitizedData.length} comments`,
+    const response: CommentTokens.GetOne.Response = {
       data: sanitizedData[ 0 ]
-    } as CommentTokens.GetOne.Response;
+    };
+    return response;
   }
 
   /**
@@ -212,7 +214,8 @@ export class CommentsController extends Controller {
 
     // Attempt to delete the instances
     await comments.deleteInstances( findToken );
-    return { message: 'Comment has been successfully removed' } as CommentTokens.DeleteOne.Response;
+    const response: CommentTokens.DeleteOne.Response = { message: 'Comment has been successfully removed' };
+    return response;
   }
 
   /**
@@ -244,7 +247,8 @@ export class CommentsController extends Controller {
     if ( instance.error )
       throw new Error( <string>instance.tokens[ 0 ].error );
 
-    return { message: 'Comment Updated' } as CommentTokens.PutOne.Response
+    const response: CommentTokens.PutOne.Response = { message: 'Comment Updated' };
+    return response;
   }
 
   /**
@@ -279,6 +283,7 @@ export class CommentsController extends Controller {
       await comments.update( { _id: parent.dbEntry._id }, { children: children } )
     }
 
-    return { message: 'New comment created', data: json } as CommentTokens.Post.Response;
+    const response: CommentTokens.Post.Response = { data: json };
+    return response;
   }
 }

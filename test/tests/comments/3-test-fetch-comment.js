@@ -115,7 +115,6 @@ describe( '3. Testing fetching of comments', function() {
   it( 'can get a valid comment by ID', function( done ) {
     admin.get( `/api/comments/${publicCommentId}` )
       .then( res => {
-        test.string( res.body.message ).is( "Found 1 comments" );
         test.string( res.body.data._id ).is( publicCommentId );
         done();
       } ).catch( err => done( err ) );
@@ -134,7 +133,6 @@ describe( '3. Testing fetching of comments', function() {
   it( 'can get a public comment without being logged in', function( done ) {
     guest.get( `/api/comments/${publicCommentId}` )
       .then( res => {
-        test.string( res.body.message ).is( "Found 1 comments" );
         test.string( res.body.data._id ).is( publicCommentId );
         done();
       } ).catch( err => done( err ) );
@@ -179,7 +177,6 @@ describe( '3. Testing fetching of comments', function() {
   it( 'can get the parent comment and has previously created comment as child', function( done ) {
     admin.get( `/api/comments/${parentCommentId}` )
       .then( res => {
-        test.string( res.body.message ).is( "Found 1 comments" );
         test.string( res.body.data._id ).is( parentCommentId );
         test.array( res.body.data.children ).contains( [ childCommentId ] );
         done();
@@ -189,7 +186,6 @@ describe( '3. Testing fetching of comments', function() {
   it( 'can get a comment with parent & post, and both properties are just ids (not expanded)', function( done ) {
     admin.get( `/api/comments/${childCommentId}` )
       .then( res => {
-        test.string( res.body.message ).is( "Found 1 comments" );
         test.string( res.body.data._id ).is( childCommentId );
         test.string( res.body.data.parent ).is( parentCommentId );
         test.string( res.body.data.post ).is( postId );
@@ -200,7 +196,6 @@ describe( '3. Testing fetching of comments', function() {
   it( 'can get a comment with parent & post, and both properties are the respective objects (expanded)', function( done ) {
     admin.get( `/api/comments/${childCommentId}?expanded=true` )
       .then( res => {
-        test.string( res.body.message ).is( "Found 1 comments" );
         test.string( res.body.data._id ).is( childCommentId );
         test.string( res.body.data.parent ).is( parentCommentId );
         test.string( res.body.data.post._id ).is( postId );

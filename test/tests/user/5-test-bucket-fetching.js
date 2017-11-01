@@ -22,8 +22,6 @@ describe( '5. Testing bucket get requests', function() {
   it( 'regular user has 1 bucket', function( done ) {
     user1.get( `/buckets/user/${user1.username}` )
       .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Found [1] buckets" );
         test.array( res.body.data ).hasLength( 1 );
         done();
       } ).catch( err => done( err ) );
@@ -54,8 +52,6 @@ describe( '5. Testing bucket get requests', function() {
   it( 'admin can see regular user has 1 bucket', function( done ) {
     admin.get( `/buckets/user/${user1.username}` )
       .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Found [1] buckets" );
         test.array( res.body.data ).hasLength( 1 );
         done();
       } ).catch( err => done( err ) );

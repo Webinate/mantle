@@ -1,5 +1,5 @@
 'use strict';
-import { IResponse } from 'modepress';
+import { IResponse, ISimpleResponse } from 'modepress';
 import * as express from 'express';
 import { error as logError } from './logger';
 import { Error401, Error403, Error404 } from './errors';
@@ -22,7 +22,7 @@ export function j200( errCode: number = 500 ) {
         result.then( result => {
           res.setHeader( 'Content-Type', 'application/json' );
           res.status( 200 ).json( result );
-        } ).catch(( err: Error ) => {
+        } ).catch( ( err: Error ) => {
           res.setHeader( 'Content-Type', 'application/json' );
           res.status( errCode ).json( { message: err.message } );
         } );
@@ -58,5 +58,6 @@ export function errJson( err: Error, res: express.Response ) {
     res.status( 500 );
 
   res.setHeader( 'Content-Type', 'application/json' );
-  res.end( JSON.stringify( <IResponse>{ message: err.message } ) );
+  const response: ISimpleResponse = { message: err.message };
+  res.end( JSON.stringify( response ) );
 }

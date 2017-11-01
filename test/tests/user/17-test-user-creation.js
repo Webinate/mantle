@@ -135,7 +135,6 @@ describe( '17. Testing creating a user', function() {
   it( `did create regular user ${testUserName} with valid details`, function( done ) {
     admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } )
       .then( res => {
-        test.string( res.body.message ).is( `User ${testUserName} has been created` )
         userId = res.body.data._id;
         done();
       } ).catch( err => done( err ) );

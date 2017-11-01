@@ -54,13 +54,17 @@ export class SessionController extends Controller {
   @j200()
   private async getSessions( req: express.Request, res: express.Response ) {
     const numSessions = await SessionManager.get.numActiveSessions();
-    const sessions = await SessionManager.get.getActiveSessions( parseInt( req.query.index ), parseInt( req.query.limit ) )
+    const index = parseInt( req.query.index );
+    const limit = parseInt( req.query.limit );
+    const sessions = await SessionManager.get.getActiveSessions( index, limit )
 
-    return {
-      message: `Found ${sessions.length} active sessions`,
+    const response: SessionTokens.GetAll.Response = {
       data: sessions,
-      count: numSessions
-    } as SessionTokens.GetAll.Response;
+      count: numSessions,
+      index: index,
+      limit: limit
+    };
+    return response;
   }
 
   /**
@@ -69,6 +73,7 @@ export class SessionController extends Controller {
   @j200()
   private async deleteSession( req: express.Request, res: express.Response ) {
     await SessionManager.get.clearSession( req.params.id, req, res );
-    return { message: `Session ${req.params.id} has been removed` } as SessionTokens.DeleteOne.Response;
+    const response: SessionTokens.DeleteOne.Response = { message: `Session ${req.params.id} has been removed` };
+    return response;
   }
 }

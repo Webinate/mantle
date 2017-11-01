@@ -153,7 +153,6 @@ export class StatsController extends Controller {
       const stats = await manager.getUserStats( req._user!.username );
 
       return okJson<StatTokens.GetOne.Response>( {
-        message: `Successfully retrieved ${req._user!.username}'s stats`,
         data: stats
       }, res );
 

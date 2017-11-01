@@ -641,12 +641,12 @@ export class UserManager {
    */
   async numUsers( searchPhrases?: RegExp ) {
 
-    const findToken = {
+    const findToken = searchPhrases ? {
       $or: [
         { username: <any>searchPhrases } as IUserEntry,
         { email: <any>searchPhrases } as IUserEntry
       ]
-    };
+    } : {};
 
     const result: number = await this._collection.count( findToken );
     return result;

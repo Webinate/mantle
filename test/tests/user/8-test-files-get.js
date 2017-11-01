@@ -46,7 +46,7 @@ describe( '8. Getting uploaded user files', function() {
     user1
       .attach( 'small-image', filePath )
       .post( "/buckets/dinosaurs/upload" )
-      .then(( res ) => {
+      .then( ( res ) => {
         done();
       } ).catch( err => done( err ) );
   } )
@@ -55,7 +55,7 @@ describe( '8. Getting uploaded user files', function() {
     user1
       .attach( 'small-image', filePath )
       .post( "/buckets/dinosaurs/upload" )
-      .then(( res ) => {
+      .then( ( res ) => {
         done();
       } ).catch( err => done( err ) );
   } )
@@ -63,10 +63,8 @@ describe( '8. Getting uploaded user files', function() {
   it( 'regular user fetched 2 files from the dinosaur bucket', function( done ) {
     user1
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then(( res ) => {
-        test.object( res.body ).hasProperty( "message" );
+      .then( ( res ) => {
         test.object( res.body ).hasProperty( "data" );
-        test.string( res.body.message ).is( "Found [2] files" );
         test.array( res.body.data ).hasLength( 2 );
         test.number( res.body.data[ 0 ].numDownloads ).is( 0 );
         test.number( res.body.data[ 0 ].size ).is( 226 );
@@ -86,8 +84,7 @@ describe( '8. Getting uploaded user files', function() {
   it( 'admin fetched 2 files from the regular users dinosaur bucket', function( done ) {
     admin
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then(( res ) => {
-        test.string( res.body.message ).is( "Found [2] files" );
+      .then( ( res ) => {
         test.array( res.body.data ).hasLength( 2 );
         done();
       } ).catch( err => done( err ) );

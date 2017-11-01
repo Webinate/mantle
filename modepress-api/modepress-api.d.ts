@@ -776,6 +776,8 @@ declare module 'modepress' {
 }
 declare module 'modepress' {
     interface IResponse {
+    }
+    interface ISimpleResponse extends IResponse {
         message: string;
     }
     interface IRemoveResponse extends IResponse {
@@ -786,8 +788,9 @@ declare module 'modepress' {
         }>;
     }
     interface IAuthenticationResponse extends IResponse {
+        message: string;
         authenticated: boolean;
-        user?: IUserEntry;
+        user?: IUserEntry | null;
     }
     interface IUploadTextResponse extends IResponse {
         token: IUploadToken;
@@ -796,14 +799,17 @@ declare module 'modepress' {
         token: IUploadToken;
     }
     interface IUploadResponse extends IResponse {
+        message: string;
         tokens: Array<IUploadToken>;
     }
     interface IGetResponse<T> extends IResponse {
         data: T;
     }
-    interface IGetArrayResponse<T> extends IResponse {
+    interface Page<T> {
         count: number;
         data: Array<T>;
+        index: number;
+        limit: number;
     }
     namespace AuthTokens {
         /** GET /auth/authenticated */
@@ -814,7 +820,7 @@ declare module 'modepress' {
         /** GET /auth/logout */
         namespace Logout {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** GET /auth/activate-account */
         namespace ActivateAccount {
@@ -834,29 +840,29 @@ declare module 'modepress' {
         /** PUT /auth/password-reset */
         namespace PasswordReset {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** PUT /auth/:user/approve-activation */
         namespace ApproveActivation {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** GET /auth/:user/resend-activation */
         namespace ResendActivation {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** GET /auth/:user/request-password-reset */
         namespace RequestPasswordReset {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
     }
     namespace UserTokens {
         /** GET /users/ */
         namespace GetAll {
             type Body = void;
-            type Response = IGetArrayResponse<IUserEntry>;
+            type Response = Page<IUserEntry>;
         }
         /** POST /users/ */
         namespace Post {
@@ -881,17 +887,17 @@ declare module 'modepress' {
         /** DELETE /users/:username */
         namespace DeleteOne {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** POST /users/:user/meta/:name */
         namespace PostUserMeta {
             type Body = any;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** POST /users/:user/meta */
         namespace PostUserMetaVal {
             type Body = any;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
     }
     namespace StatTokens {
@@ -908,41 +914,41 @@ declare module 'modepress' {
         /** PUT /stats/storage-calls/:target/:value */
         namespace PutStorageCalls {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** PUT /stats/storage-memory/:target/:value */
         namespace PutStorageMemory {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** PUT /stats/storage-allocated-calls/:target/:value */
         namespace PutStorageAlocCalls {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** PUT /stats/storage-allocated-memory/:target/:value */
         namespace PutStorageAlocMemory {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
     }
     namespace SessionTokens {
         /** GET /sessions/ */
         namespace GetAll {
             type Body = void;
-            type Response = IGetArrayResponse<ISessionEntry>;
+            type Response = Page<ISessionEntry>;
         }
         /** DELETE /sessions/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
     }
     namespace PostTokens {
         /** GET /posts/ */
         namespace GetAll {
             type Body = void;
-            type Response = IGetArrayResponse<IPost>;
+            type Response = Page<IPost>;
         }
         /**
          * GET /posts/slug/:slug or
@@ -955,12 +961,12 @@ declare module 'modepress' {
         /** DELETE /posts/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** PUT /posts/:id */
         namespace PutOne {
             type Body = IPost;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** POST /posts/ */
         namespace Post {
@@ -972,7 +978,7 @@ declare module 'modepress' {
         /** GET /comments/ */
         namespace GetAll {
             type Body = void;
-            type Response = IGetArrayResponse<IComment>;
+            type Response = Page<IComment>;
         }
         /** GET /comments/:id */
         namespace GetOne {
@@ -982,12 +988,12 @@ declare module 'modepress' {
         /** DELETE /comments/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** PUT /comments/:id */
         namespace PutOne {
             type Body = IComment;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** POST /posts/:postId/comments/:parent? */
         namespace Post {
@@ -999,12 +1005,12 @@ declare module 'modepress' {
         /** GET /categories/ */
         namespace GetAll {
             type Body = void;
-            type Response = IGetArrayResponse<ICategory>;
+            type Response = Page<ICategory>;
         }
         /** DELETE /categories/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** POST /categories */
         namespace Post {
@@ -1016,48 +1022,48 @@ declare module 'modepress' {
         /** GET /renders/ */
         namespace GetAll {
             type Body = void;
-            type Response = IGetArrayResponse<IRender>;
+            type Response = Page<IRender>;
         }
         /** DELETE /renders/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** DELETE /renders/clear */
         namespace DeleteAll {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
     }
     namespace FileTokens {
         /** GET /files/users/:user/buckets/:bucket */
         namespace GetAll {
             type Body = void;
-            type Response = IGetArrayResponse<IFileEntry>;
+            type Response = Page<IFileEntry>;
         }
         /** PUT /files/:file/rename-file */
         namespace Put {
             type Body = {
                 name: string;
             };
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** DELETE /files/:files */
         namespace DeleteAll {
             type Body = void;
-            type Response = IGetArrayResponse<string>;
+            type Response = Page<string>;
         }
     }
     namespace BucketTokens {
         /** GET /buckets/user/:user */
         namespace GetAll {
             type Body = void;
-            type Response = IGetArrayResponse<IBucketEntry>;
+            type Response = Page<IBucketEntry>;
         }
         /** POST /buckets/user/:user/:name */
         namespace Post {
             type Body = void;
-            type Response = IResponse;
+            type Response = ISimpleResponse;
         }
         /** POST /buckets/:bucket/upload/:parentFile? */
         namespace PostFile {
@@ -1067,7 +1073,7 @@ declare module 'modepress' {
         /** DELETE /buckets/:buckets */
         namespace DeleteAll {
             type Body = void;
-            type Response = IGetArrayResponse<string>;
+            type Response = Page<string>;
         }
     }
     namespace EmailTokens {
@@ -2866,7 +2872,7 @@ declare module "utils/permission-controllers" {
     import * as express from 'express';
     import { UserPrivileges } from "core/user";
     /**
-     * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
+     * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IMessage if no ID is detected, or its invalid
      * @param idName The name of the ID to check for
      * @param optional If true, then an error wont be thrown if it doesnt exist
      */

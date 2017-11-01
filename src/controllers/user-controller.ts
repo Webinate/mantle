@@ -66,10 +66,11 @@ export class UserController extends Controller {
     if ( !user )
       throw new Error( 'No user found' );
 
-    return {
-      message: `Found ${user.dbEntry.username}`,
+    const response: UserTokens.GetOne.Response = {
       data: user.generateCleanedData( Boolean( req.query.verbose ) )
-    } as UserTokens.GetOne.Response;
+    };
+
+    return response;
   }
 
   /**
@@ -87,18 +88,24 @@ export class UserController extends Controller {
     else
       verbose = false;
 
+    const index = parseInt( req.query.index );
+    const limit = parseInt( req.query.limit );
+
     const totalNumUsers = await UserManager.get.numUsers( new RegExp( req.query.search ) );
-    const users = await UserManager.get.getUsers( parseInt( req.query.index ), parseInt( req.query.limit ), new RegExp( req.query.search ) );
+    const users = await UserManager.get.getUsers( index, limit, new RegExp( req.query.search ) );
     const sanitizedData: IUserEntry[] = [];
 
     for ( let i = 0, l = users.length; i < l; i++ )
       sanitizedData.push( users[ i ].generateCleanedData( verbose ) );
 
-    return {
-      message: `Found ${users.length} users`,
+    const response: UserTokens.GetAll.Response = {
       data: sanitizedData,
-      count: totalNumUsers
-    } as UserTokens.GetAll.Response;
+      count: totalNumUsers,
+      index: index,
+      limit: limit
+    };
+
+    return response;
   }
 
   /**
@@ -112,7 +119,8 @@ export class UserController extends Controller {
       val = {};
 
     await UserManager.get.setMeta( user, val );
-    return { message: `User's data has been updated` } as UserTokens.PostUserMeta.Response;
+    const response: UserTokens.PostUserMeta.Response = { message: `User's data has been updated` };
+    return response;
   }
 
   /**
@@ -124,7 +132,8 @@ export class UserController extends Controller {
     const name = req.params.name;
 
     await UserManager.get.setMetaVal( user, name, req.body.value );
-    return { message: `Value '${name}' has been updated` } as UserTokens.PostUserMetaVal.Response;
+    const response: UserTokens.PostUserMetaVal.Response = { message: `Value '${name}' has been updated` };
+    return response;
   }
 
   /**
@@ -135,8 +144,8 @@ export class UserController extends Controller {
     const user = req._user!;
     const name = req.params.name;
 
-    const val = await UserManager.get.getMetaVal( user, name );
-    return val as UserTokens.GetUserMetaVal.Response;
+    const response: UserTokens.GetUserMetaVal.Response = await UserManager.get.getMetaVal( user, name );
+    return response;
   }
 
   /**
@@ -145,8 +154,8 @@ export class UserController extends Controller {
   @j200()
   private async getData( req: IAuthReq, res: express.Response ) {
     const user = req._user!;
-    const val = await UserManager.get.getMetaData( user );
-    return val as UserTokens.GetUserMeta.Response;
+    const response: UserTokens.GetUserMeta.Response = await UserManager.get.getMetaData( user );
+    return response;
   }
 
   /**
@@ -159,7 +168,8 @@ export class UserController extends Controller {
       throw new Error( 'No user found' );
 
     await UserManager.get.removeUser( toRemove );
-    return { message: `User ${toRemove} has been removed` } as UserTokens.DeleteOne.Response;
+    const response: UserTokens.DeleteOne.Response = { message: `User ${toRemove} has been removed` };
+    return response;
   }
 
   /**
@@ -175,9 +185,9 @@ export class UserController extends Controller {
       throw new Error( 'You cannot create a user with super admin permissions' );
 
     const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
-    return {
-      message: `User ${user.dbEntry.username} has been created`,
+    const response: UserTokens.Post.Response = {
       data: user.dbEntry
-    } as UserTokens.Post.Response;
+    };
+    return response;
   }
 }

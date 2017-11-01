@@ -55,8 +55,10 @@ export class CategoriesController extends Controller {
   @j200()
   private async getCategories( req: IAuthReq, res: express.Response ) {
     const categories = this.getModel( 'categories' )! as Model<ICategory>;
+    const index = parseInt( req.query.index );
+    const limit = parseInt( req.query.limit );
 
-    const schemas = await categories.findInstances( { index: parseInt( req.query.index ), limit: parseInt( req.query.limit ) } );
+    const schemas = await categories.findInstances( { index: index, limit: limit } );
 
     const jsons: Array<Promise<ICategory>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
@@ -64,11 +66,13 @@ export class CategoriesController extends Controller {
 
     const sanitizedData = await Promise.all( jsons );
 
-    return {
+    const response: CategoriesTokens.GetAll.Response = {
       count: sanitizedData.length,
-      message: `Found ${sanitizedData.length} categories`,
-      data: sanitizedData
-    } as CategoriesTokens.GetAll.Response;
+      data: sanitizedData,
+      index: index,
+      limit: limit
+    };
+    return response;
   }
 
   /**
@@ -83,7 +87,8 @@ export class CategoriesController extends Controller {
     if ( numRemoved === 0 )
       return Promise.reject( new Error( 'Could not find a category with that ID' ) );
 
-    return { message: 'Category has been successfully removed' } as CategoriesTokens.DeleteOne.Response;
+    const response: CategoriesTokens.DeleteOne.Response = { message: 'Category has been successfully removed' };
+    return response;
   }
 
   /**
@@ -97,9 +102,9 @@ export class CategoriesController extends Controller {
     const schema = await categories.createInstance( token );
     const json = await schema.getAsJson( { verbose: true } );
 
-    return {
-      message: 'New category created',
+    const response: CategoriesTokens.Post.Response = {
       data: json
-    } as CategoriesTokens.Post.Response;
+    };
+    return response;
   }
 }

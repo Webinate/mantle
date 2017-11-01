@@ -1,4 +1,4 @@
-﻿import { IResponse, IAuthReq } from 'modepress';
+﻿import { ISimpleResponse, IAuthReq } from 'modepress';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
 import { UserPrivileges, User } from '../core/user';
@@ -8,7 +8,7 @@ import { errJson } from './serializers';
 import { Error401, Error403 } from './errors';
 
 /**
- * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IResponse if no ID is detected, or its invalid
+ * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IMessage if no ID is detected, or its invalid
  * @param idName The name of the ID to check for
  * @param optional If true, then an error wont be thrown if it doesnt exist
  */
@@ -76,7 +76,8 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
   } catch ( error ) {
     res.setHeader( 'Content-Type', 'application/json' );
     res.status( 500 )
-    res.end( JSON.stringify( <IResponse>{ message: error.message } ) );
+    const response: ISimpleResponse = { message: error.message };
+    res.end( JSON.stringify( response ) );
   };
 }
 

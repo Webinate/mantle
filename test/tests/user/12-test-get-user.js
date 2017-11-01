@@ -13,7 +13,6 @@ describe( '12. Getting user data', function() {
   it( 'should allow admin access to basic data', function( done ) {
     admin.get( `/api/users/${config.adminUser.username}` )
       .then( res => {
-        test.string( res.body.message ).is( "Found mat" )
         test.string( res.body.data._id )
         test.value( res.body.data.email ).isUndefined()
         test.number( res.body.data.lastLoggedIn ).isNotNaN()
@@ -30,7 +29,6 @@ describe( '12. Getting user data', function() {
   it( 'should allow admin access to sensitive data', function( done ) {
     admin.get( `/api/users/${config.adminUser.username}?verbose=true` )
       .then( res => {
-        test.string( res.body.message ).is( "Found mat" )
         test.string( res.body.data._id )
         test.string( res.body.data.email ).is( config.adminUser.email )
         test.number( res.body.data.lastLoggedIn ).isNotNaN()
@@ -47,7 +45,6 @@ describe( '12. Getting user data', function() {
   it( 'should get admin user data by email without sensitive details', function( done ) {
     admin.get( `/api/users/${config.adminUser.email}` )
       .then( res => {
-        test.string( res.body.message ).is( "Found mat" )
         test.string( res.body.data._id )
         test.value( res.body.data.email ).isUndefined()
         test.number( res.body.data.lastLoggedIn ).isNotNaN()
@@ -64,7 +61,6 @@ describe( '12. Getting user data', function() {
   it( 'should get admin user data by email with sensitive details', function( done ) {
     admin.get( `/api/users/${config.adminUser.email}?verbose=true` )
       .then( res => {
-        test.string( res.body.message ).is( "Found mat" )
         test.string( res.body.data._id )
         test.string( res.body.data.email ).is( config.adminUser.email )
         test.number( res.body.data.lastLoggedIn ).isNotNaN()

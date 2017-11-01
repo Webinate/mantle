@@ -15,7 +15,6 @@ describe( '15. Testing setting stat values', function() {
   it( 'regular did get its stat information', function( done ) {
     user1.get( `/stats/users/${user1.username}/get-stats` )
       .then( res => {
-        test.string( res.body.message ).is( `Successfully retrieved ${user1.username}'s stats` );
         stats = res.body.data;
         done();
       } ).catch( err => done( err ) );
@@ -112,7 +111,6 @@ describe( '15. Testing setting stat values', function() {
   it( 'did not update the regular stats', function( done ) {
     user1.get( `/stats/users/${user1.username}/get-stats` )
       .then( res => {
-        test.string( res.body.message ).is( `Successfully retrieved ${user1.username}'s stats` );
         test.bool( stats.apiCallsAllocated == res.body.data.apiCallsAllocated ).isTrue();
         test.bool( stats.memoryAllocated == res.body.data.memoryAllocated ).isTrue();
         test.bool( stats.apiCallsUsed == res.body.data.apiCallsUsed ).isTrue();
@@ -156,7 +154,6 @@ describe( '15. Testing setting stat values', function() {
   it( 'regular user stats have been updated', function( done ) {
     user1.get( `/stats/users/${user1.username}/get-stats` )
       .then( res => {
-        test.string( res.body.message ).is( `Successfully retrieved ${user1.username}'s stats` );
         test.number( res.body.data.apiCallsAllocated ).is( 100 );
         test.number( res.body.data.memoryAllocated ).is( 100 );
         test.number( res.body.data.apiCallsUsed ).is( 50 );

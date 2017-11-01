@@ -24,8 +24,7 @@ describe( '11. Testing file uploads', function() {
   it( 'regular user has 0 files in the bucket', function( done ) {
     user1
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then(( res ) => {
-        test.string( res.body.message ).is( "Found [0] files" );
+      .then( ( res ) => {
         test.array( res.body.data ).hasLength( 0 );
         done();
       } ).catch( err => done( err ) );
@@ -34,7 +33,7 @@ describe( '11. Testing file uploads', function() {
   it( 'regular user did not upload a file to a bucket that does not exist', function( done ) {
     user1.attach( '"�$^&&', filePath )
       .post( "/buckets/dinosaurs3/upload" )
-      .then(( res ) => {
+      .then( ( res ) => {
         test.object( res.body ).hasProperty( "message" );
         test.object( res.body ).hasProperty( "tokens" );
         test.string( res.body.message ).is( "No bucket exists with the name 'dinosaurs3'" );
@@ -50,7 +49,7 @@ describe( '11. Testing file uploads', function() {
       .fields( { 'meta': 'BAD META' } )
       .attach( 'small-image', filePath )
       .post( "/buckets/dinosaurs/upload" )
-      .then(( res ) => {
+      .then( ( res ) => {
         test.object( res.body ).hasProperty( "message" );
         test.object( res.body ).hasProperty( "tokens" );
         test.string( res.body.message ).is( "Error: Meta data is not a valid JSON: SyntaxError: Unexpected token B in JSON at position 0" );
@@ -65,7 +64,7 @@ describe( '11. Testing file uploads', function() {
       .fields( { 'meta': '{ "meta" : "good" }' } )
       .attach( 'small-image', filePath )
       .post( "/buckets/dinosaurs/upload" )
-      .then(( res ) => {
+      .then( ( res ) => {
         test.object( res.body ).hasProperty( "message" );
         test.object( res.body ).hasProperty( "tokens" );
         test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
@@ -78,7 +77,7 @@ describe( '11. Testing file uploads', function() {
     user1
       .attach( 'small-image', filePath )
       .post( "/buckets/dinosaurs/upload" )
-      .then(( res ) => {
+      .then( ( res ) => {
         test.object( res.body ).hasProperty( "message" );
         test.object( res.body ).hasProperty( "tokens" );
         test.string( res.body.message ).is( "Upload complete. [1] Files have been saved." );
@@ -96,10 +95,8 @@ describe( '11. Testing file uploads', function() {
     user1
       .attach( 'small-image', filePath )
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then(( res ) => {
-        test.object( res.body ).hasProperty( "message" );
+      .then( ( res ) => {
         test.object( res.body ).hasProperty( "data" );
-        test.string( res.body.message ).is( "Found [2] files" );
         test.array( res.body.data ).hasLength( 2 );
         test.object( res.body.data[ 0 ] ).hasProperty( "meta" );
         test.string( res.body.data[ 0 ].meta.meta ).is( "good" );

@@ -180,7 +180,6 @@ describe( '4. Testing fetching of posts', function() {
   it( 'can fetch single post by slug', function( done ) {
     admin.get( `/api/posts/slug/--public--test--` )
       .then( res => {
-        test.string( res.body.message ).is( "Found 1 posts" );
         done();
       } ).catch( err => done( err ) );
   } )
@@ -198,7 +197,7 @@ describe( '4. Testing fetching of posts', function() {
   it( 'can fetch a public post by slug when not logged in', function( done ) {
     guest.get( `/api/posts/slug/--public--test--` )
       .then( res => {
-        test.string( res.body.message ).is( "Found 1 posts" );
+        test.object( res.body.data ).hasProperty( "_id" )
         done();
       } ).catch( err => done( err ) );
   } )

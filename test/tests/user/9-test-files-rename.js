@@ -24,7 +24,7 @@ describe( '9. Testing file renaming', function() {
     user1
       .attach( 'small-image', filePath )
       .post( "/buckets/dinosaurs/upload" )
-      .then(( res ) => {
+      .then( ( res ) => {
         done();
       } ).catch( err => done( err ) );
   } )
@@ -33,9 +33,8 @@ describe( '9. Testing file renaming', function() {
     user1
       .attach( 'small-image', filePath )
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then(( res ) => {
+      .then( ( res ) => {
         fileId = res.body.data[ 0 ].identifier;
-        test.string( res.body.message ).is( "Found [1] files" );
         test.string( res.body.data[ 0 ].name ).is( "file.png" );
         done();
       } ).catch( err => done( err ) );
@@ -76,7 +75,7 @@ describe( '9. Testing file renaming', function() {
     user1
       .attach( 'small-image', filePath )
       .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then(( res ) => {
+      .then( ( res ) => {
         test.string( res.body.data[ 0 ].name ).is( "testy" );
         done();
       } ).catch( err => done( err ) );

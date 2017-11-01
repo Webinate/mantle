@@ -68,9 +68,10 @@ export class FileController extends Controller {
       const filesRemoved = await manager.removeFilesByIdentifiers( files, req._user!.username );
 
       okJson<FileTokens.DeleteAll.Response>( {
-        message: `Removed [${filesRemoved.length}] files`,
         data: filesRemoved,
-        count: filesRemoved.length
+        count: filesRemoved.length,
+        index: 0,
+        limit: -1
       }, res );
 
     } catch ( err ) {
@@ -132,9 +133,10 @@ export class FileController extends Controller {
       const files = await manager.getFilesByBucket( bucketEntry, index, limit, searchTerm );
 
       return okJson<FileTokens.GetAll.Response>( {
-        message: `Found [${count}] files`,
         data: files,
-        count: count
+        count: count,
+        index: index,
+        limit: limit
       }, res );
 
     } catch ( err ) {

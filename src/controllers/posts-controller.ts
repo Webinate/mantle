@@ -154,8 +154,8 @@ export class PostsController extends Controller {
     // First get the count
     count = await posts!.count( findToken );
 
-    let index: number | undefined;
-    let limit: number | undefined;
+    let index: number = 0;
+    let limit: number = 10;
     if ( req.query.index !== undefined )
       index = parseInt( req.query.index );
     if ( req.query.limit !== undefined )
@@ -175,11 +175,13 @@ export class PostsController extends Controller {
 
     const sanitizedData = await Promise.all( jsons );
 
-    return {
+    const response: PostTokens.GetAll.Response = {
       count: count,
-      message: `Found ${count} posts`,
-      data: sanitizedData
-    } as PostTokens.GetAll.Response;
+      data: sanitizedData,
+      index: index,
+      limit: limit
+    };
+    return response;
   }
 
   /**
@@ -213,10 +215,10 @@ export class PostsController extends Controller {
 
     const sanitizedData = await Promise.all( jsons );
 
-    return {
-      message: `Found ${sanitizedData.length} posts`,
+    const response: PostTokens.GetOne.Response = {
       data: sanitizedData[ 0 ]
-    } as PostTokens.GetOne.Response;
+    };
+    return response;
   }
 
   /**
@@ -232,9 +234,10 @@ export class PostsController extends Controller {
     if ( numRemoved === 0 )
       throw new Error( 'Could not find a post with that ID' );
 
-    return {
+    const response: PostTokens.DeleteOne.Response = {
       message: 'Post has been successfully removed'
-    } as PostTokens.DeleteOne.Response;
+    };
+    return response;
   }
 
   /**
@@ -253,9 +256,11 @@ export class PostsController extends Controller {
     if ( schema.tokens.length === 0 )
       throw new Error( 'Could not find post with that id' );
 
-    return {
+    const response: PostTokens.PutOne.Response = {
       message: 'Post Updated'
-    } as PostTokens.PutOne.Response;
+    };
+
+    return response;
   }
 
   /**
@@ -272,9 +277,11 @@ export class PostsController extends Controller {
     const schema = await posts.createInstance( token );
     const json = await schema.getAsJson( { verbose: true } );
 
-    return {
+    const response: PostTokens.Post.Response = {
       message: 'New post created',
       data: json
     } as PostTokens.Post.Response;
+
+    return response;
   }
 }
