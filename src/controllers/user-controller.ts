@@ -10,7 +10,7 @@ import { j200 } from '../utils/serializers';
 import { UserTokens, IAuthReq, IUserEntry, IBaseControler } from 'modepress';
 import * as compression from 'compression';
 import * as mongodb from 'mongodb';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 
 /**
  * Main class to use for managing user data

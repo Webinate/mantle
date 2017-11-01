@@ -2,7 +2,7 @@
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 
 export interface UpdateToken<T extends IModelEntry> { error: string | boolean; instance: Schema<T> }
 
@@ -101,26 +101,11 @@ export abstract class Model<T extends IModelEntry> {
    * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
    */
   async findOne( selector: any, projection?: any ) {
-    const collection = this.collection;
-
-    if ( !collection )
-      throw new Error( 'The model has not been initialized' );
-
-    // Attempt to save the data to mongo collection
-    const result = await collection.find( selector ).limit( 1 ).project( projection || {} ).next();
-
-    // Check for errors
-    if ( !result )
+    const instances = await this.findInstances( { selector: selector, projection: projection, limit: 1 } );
+    if ( !instances || instances.length === 0 )
       return null;
-    else {
-      // Create the instance array
-      let schema = this.schema.clone();
-      schema.set( result, true );
-      schema.deserialize( result );
-
-      // Complete
-      return schema;
-    }
+    else
+      return instances[ 0 ];
   }
 
   /**

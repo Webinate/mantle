@@ -14,21 +14,21 @@ import { UsersModel } from '../models/users-model';
 /**
  * Factory classs for creating & getting models
  */
-export class ControllerFactory {
+export class ModelFactory {
   private _config: IConfig;
   private _db: Db;
-  private _controllers: { [ name: string ]: Model<IModelEntry> };
+  private _models: { [ name: string ]: Model<IModelEntry> };
 
   initialize( config: IConfig, database: Db ) {
     this._config = config;
     this._db = database;
-    this._controllers = {};
+    this._models = {};
   }
 
   /**
-   * Adds the default controllers to the system
+   * Adds the default models to the system
    */
-  async addBaseControllers() {
+  async addBaseModelFactories() {
     await Promise.all( [
       this.create( 'bucket' ),
       this.create( 'categories' ),
@@ -101,62 +101,62 @@ export class ControllerFactory {
   get( type: 'users' ): UsersModel
   get( type: string ): Model<IModelEntry>
   get( type: string ): Model<IModelEntry> {
-    const toRet = this._controllers[ type ];
+    const toRet = this._models[ type ];
     if ( !toRet )
-      throw new Error( `Cannot find controller '${type}'` );
+      throw new Error( `Cannot find model '${type}'` );
 
     return toRet;
   }
 
   /**
-   * A factory method for creating controllers
-   * @param type The type of controller to create
+   * A factory method for creating models
+   * @param type The type of model to create
    */
   private async create( type: string ): Promise<Model<IModelEntry>> {
-    let newController: Model<IModelEntry>;
+    let newModel: Model<IModelEntry>;
 
-    if ( this._controllers[ type ] )
-      return this._controllers[ type ];
+    if ( this._models[ type ] )
+      return this._models[ type ];
 
     switch ( type ) {
       case 'bucket':
-        newController = new BucketModel();
+        newModel = new BucketModel();
         break;
       case 'categories':
-        newController = new CategoriesModel();
+        newModel = new CategoriesModel();
         break;
       case 'comments':
-        newController = new CommentsModel();
+        newModel = new CommentsModel();
         break;
       case 'file':
-        newController = new FileModel();
+        newModel = new FileModel();
         break;
       case 'posts':
-        newController = new PostsModel();
+        newModel = new PostsModel();
         break;
       case 'renders':
-        newController = new RendersModel();
+        newModel = new RendersModel();
         break;
       case 'session':
-        newController = new SessionModel();
+        newModel = new SessionModel();
         break;
       case 'storage':
-        newController = new StorageStatsModel();
+        newModel = new StorageStatsModel();
         break;
       case 'users':
-        newController = new UsersModel();
+        newModel = new UsersModel();
         break;
       default:
         throw new Error( `Controller '${type}' cannot be created` );
     }
 
-    const collection = await this.setupIndices( newController );
-    await newController.initialize( collection, this._db );
-    this._controllers[ type ] = newController;
+    const collection = await this.setupIndices( newModel );
+    await newModel.initialize( collection, this._db );
+    this._models[ type ] = newModel;
 
-    return newController;
+    return newModel;
   }
 }
 
 
-export default new ControllerFactory();
+export default new ModelFactory();

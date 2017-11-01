@@ -1803,7 +1803,7 @@ declare module "models/users-model" {
         constructor();
     }
 }
-declare module "core/controller-factory" {
+declare module "core/model-factory" {
     import { IConfig, IModelEntry } from 'modepress';
     import { Db, Collection } from 'mongodb';
     import { Model } from "models/model";
@@ -1819,15 +1819,15 @@ declare module "core/controller-factory" {
     /**
      * Factory classs for creating & getting models
      */
-    export class ControllerFactory {
+    export class ModelFactory {
         private _config;
         private _db;
-        private _controllers;
+        private _models;
         initialize(config: IConfig, database: Db): void;
         /**
-         * Adds the default controllers to the system
+         * Adds the default models to the system
          */
-        addBaseControllers(): Promise<void>;
+        addBaseModelFactories(): Promise<void>;
         /**
          * Sets up a model's indices
          * @param model The model to setup
@@ -1844,12 +1844,12 @@ declare module "core/controller-factory" {
         get(type: 'users'): UsersModel;
         get(type: string): Model<IModelEntry>;
         /**
-         * A factory method for creating controllers
-         * @param type The type of controller to create
+         * A factory method for creating models
+         * @param type The type of model to create
          */
         private create(type);
     }
-    const _default: ControllerFactory;
+    const _default: ModelFactory;
     export default _default;
 }
 declare module "models/model" {

@@ -9,7 +9,7 @@ import * as compression from 'compression';
 import { okJson, errJson } from '../utils/serializers';
 import { IFileOptions } from 'modepress';
 import * as mongodb from 'mongodb';
-import Factory from '../core/controller-factory';
+import Factory from '../core/model-factory';
 
 /**
  * Main class to use for managing users
