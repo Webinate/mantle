@@ -44,6 +44,6 @@ describe( '13. Testing user logging in', function() {
     const json = await resp.json();
     test.bool( json.authenticated ).isTrue();
     test.object( json ).hasProperty( "message" );
-    admin.updateCookie( res );
+    admin.updateCookie( resp );
   } )
 } )

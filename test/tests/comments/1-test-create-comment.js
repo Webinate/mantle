@@ -11,160 +11,127 @@ describe( '1. Testing creation of comments', function() {
     config = header.config;
   } )
 
-  it( 'did delete any existing posts with the slug --comments--test--', function( done ) {
-    admin
-      .code( null )
-      .get( `/api/posts/slug/--comments--test--` )
-      .then( res => {
-        if ( res.body.data ) {
-          admin.delete( `/api/posts/${res.body.data._id}` )
-            .then( res => {
-              done();
-            } ).catch( err => done( err ) );
-        }
-        else
-          done();
-      } ).catch( err => done( err ) );
+  it( 'did delete any existing posts with the slug --comments--test--', async function() {
+    resp = await admin.get( `/api/posts/slug/--comments--test--` );
+
+    if ( json.data )
+      resp = await admin.delete( `/api/posts/${json.data._id}` );
+
   } )
 
-  it( 'fetched all posts', function( done ) {
-    admin.get( `/api/posts` )
-      .then( res => {
-        test.number( res.body.count );
-        numPosts = res.body.count;
-        done();
-      } ).catch( err => done( err ) );
+  it( 'fetched all posts', async function() {
+    const resp = await admin.get( `/api/posts` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.number( json.count );
+    numPosts = json.count;
   } )
 
-  it( 'fetched all comments', function( done ) {
-    admin.get( `/api/comments` )
-      .then( res => {
-        test.number( res.body.count );
-        numComments = res.body.count;
-        done();
-      } ).catch( err => done( err ) );
+  it( 'fetched all comments', async function() {
+    const resp = await admin.get( `/api/comments` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.number( json.count );
+    numComments = json.count;
   } )
 
-  it( 'can create a temp post', function( done ) {
-    admin.post( `/api/posts`, {
+  it( 'can create a temp post', async function() {
+    const resp = await admin.post( `/api/posts`, {
       title: "Simple Test",
       slug: "--comments--test--",
       brief: "This is brief",
       public: false,
       content: "Hello world"
-    } ).then( res => {
-      postId = res.body.data._id;
-      test.bool( res.body.data.public ).isFalse();
-      done();
-    } ).catch( err => done( err ) );
+    } );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    postId = json.data._id;
+    test.bool( json.data.public ).isFalse();
   } )
 
-  it( 'cannot create a comment when not logged in', function( done ) {
-    guest
-      .code( 500 )
-      .post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` )
-      .then( res => {
-        test.string( res.body.message ).is( "You must be logged in to make this request" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'cannot create a comment when not logged in', async function() {
+    const resp = await guest.post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "You must be logged in to make this request" );
   } )
 
-  it( 'cannot create a comment with a badly formatted post id', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/posts/bad/comments/bad` )
-      .then( res => {
-        test.string( res.body.message ).is( "Invalid ID format" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'cannot create a comment with a badly formatted post id', async function() {
+    const resp = await admin.post( `/api/posts/bad/comments/bad` );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Invalid ID format" );
   } )
 
-  it( 'cannot create a comment with a badly formatted parent comment id', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/posts/123456789012345678901234/comments/bad` )
-      .then( res => {
-        test.string( res.body.message ).is( "Invalid ID format" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'cannot create a comment with a badly formatted parent comment id', async function() {
+    const resp = await admin.post( `/api/posts/123456789012345678901234/comments/bad` );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Invalid ID format" );
   } )
 
-  it( 'cannot create a comment without a post that actually exists', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/posts/123456789012345678901234/comments` )
-      .then( res => {
-        test.string( res.body.message ).is( "post does not exist" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'cannot create a comment without a post that actually exists', async function() {
+    const resp = await admin.post( `/api/posts/123456789012345678901234/comments` );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "post does not exist" );
   } )
 
-  it( 'cannot create a comment without a post that actually exists', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` )
-      .then( res => {
-        test.string( res.body.message ).is( "No comment exists with the id 123456789012345678901234" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'cannot create a comment without a post that actually exists', async function() {
+    const resp = await admin.post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "No comment exists with the id 123456789012345678901234" );
   } )
 
-  it( 'cannot create a comment on a post that does exist with illegal html', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } )
-      .then( res => {
-        test.string( res.body.message ).is( "'content' has html code that is not allowed" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'cannot create a comment on a post that does exist with illegal html', async function() {
+    const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "'content' has html code that is not allowed" );
   } )
 
-  it( 'can create a comment on a valid post', function( done ) {
-    admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__", public: false } )
-      .then( res => {
-        commentId = res.body.data._id;
-        test.string( res.body.data._id );
-        test.string( res.body.data.author );
-        test.value( res.body.data.parent ).isNull();
-        test.string( res.body.data.post ).is( postId );
-        test.string( res.body.data.content ).is( "Hello world! __filter__" );
-        test.array( res.body.data.children ).hasLength( 0 );
-        test.bool( res.body.data.public ).isFalse();
-        test.number( res.body.data.createdOn );
-        test.number( res.body.data.lastUpdated );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'can create a comment on a valid post', async function() {
+    const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__", public: false } );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    commentId = json.data._id;
+    test.string( json.data._id );
+    test.string( json.data.author );
+    test.value( json.data.parent ).isNull();
+    test.string( json.data.post ).is( postId );
+    test.string( json.data.content ).is( "Hello world! __filter__" );
+    test.array( json.data.children ).hasLength( 0 );
+    test.bool( json.data.public ).isFalse();
+    test.number( json.data.createdOn );
+    test.number( json.data.lastUpdated );
   } )
 
-  it( 'can create a another comment on the same post, with a parent comment', function( done ) {
-    admin.post( `/api/posts/${postId}/comments/${commentId}`, { content: "Hello world 2", public: true } )
-      .then( res => {
-        test.object( res.body.data ).hasProperty( "_id" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'can create a another comment on the same post, with a parent comment', async function() {
+    const resp = await admin.post( `/api/posts/${postId}/comments/${commentId}`, { content: "Hello world 2", public: true } );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.object( json.data ).hasProperty( "_id" )
   } )
 
-  it( 'did delete the test post', function( done ) {
-    admin.delete( `/api/posts/${postId}` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did delete the test post', async function() {
+    const resp = await admin.delete( `/api/posts/${postId}` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
   } )
 
-  it( 'has cleaned up the posts successfully', function( done ) {
-    admin.get( `/api/posts` )
-      .then( res => {
-        test.bool( res.body.count === numPosts ).isTrue();
-        done();
-      } ).catch( err => done( err ) );
+  it( 'has cleaned up the posts successfully', async function() {
+    const resp = await admin.get( `/api/posts` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.bool( json.count === numPosts ).isTrue();
   } )
 
-  it( 'should have the same number of comments as before the tests started', function( done ) {
-    admin.get( `/api/comments` )
-      .then( res => {
-        test.number( res.body.count );
-        test.bool( numComments === res.body.count ).isTrue();
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should have the same number of comments as before the tests started', async function() {
+    const resp = await admin.get( `/api/comments` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.number( json.count );
+    test.bool( numComments === json.count ).isTrue();
   } )
 } )

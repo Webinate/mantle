@@ -122,7 +122,7 @@ describe( '15. Testing setting stat values', function() {
   } )
 
   it( 'regular user stats have been updated', async function() {
-    user1.get( `/stats/users/${user1.username}/get-stats` );
+    const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.number( json.data.apiCallsAllocated ).is( 100 );
@@ -132,7 +132,7 @@ describe( '15. Testing setting stat values', function() {
   } )
 
   it( 'admin setting storage back to max', async function() {
-    admin.put( `/stats/storage-allocated-memory/${user1.username}/${stats.memoryAllocated}`, {} );
+    const resp = await admin.put( `/stats/storage-allocated-memory/${user1.username}/${stats.memoryAllocated}`, {} );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
   } )

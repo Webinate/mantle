@@ -23,7 +23,7 @@ describe( '20. Testing users logout', function() {
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     const header = require( '../header.js' );
-    const newAgent = header.createUser( testUserName, 'password', testUserEmail );
+    const newAgent = await header.createUser( testUserName, 'password', testUserEmail );
     agent = newAgent;
   } )
 

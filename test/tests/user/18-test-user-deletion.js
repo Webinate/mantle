@@ -40,7 +40,7 @@ describe( '18. Testing deleting users', function() {
     const json = await resp.json();
 
     const header = require( '../header.js' );
-    const agent = header.createUser( testUserName, 'password', testUserEmail );
+    const newAgent = await header.createUser( testUserName, 'password', testUserEmail );
 
     agent = newAgent;
   } )

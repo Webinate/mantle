@@ -58,7 +58,7 @@ describe( '8. Getting uploaded user files', function() {
     test.object( json ).hasProperty( "data" );
     test.array( json.data ).hasLength( 2 );
     test.number( json.data[ 0 ].numDownloads ).is( 0 );
-    test.number( json.data[ 0 ].size ).is( 226 );
+    test.number( json.data[ 0 ].size ).is( 228 );
     test.string( json.data[ 0 ].mimeType ).is( "image/png" );
     test.string( json.data[ 0 ].user ).is( user1.username );
     test.object( json.data[ 0 ] ).hasProperty( "publicURL" );
