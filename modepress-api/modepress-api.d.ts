@@ -887,7 +887,7 @@ declare module 'modepress' {
         /** DELETE /users/:username */
         namespace DeleteOne {
             type Body = void;
-            type Response = ISimpleResponse;
+            type Response = void;
         }
         /** POST /users/:user/meta/:name */
         namespace PostUserMeta {
@@ -941,7 +941,7 @@ declare module 'modepress' {
         /** DELETE /sessions/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = ISimpleResponse;
+            type Response = void;
         }
     }
     namespace PostTokens {
@@ -961,7 +961,7 @@ declare module 'modepress' {
         /** DELETE /posts/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = ISimpleResponse;
+            type Response = void;
         }
         /** PUT /posts/:id */
         namespace PutOne {
@@ -988,7 +988,7 @@ declare module 'modepress' {
         /** DELETE /comments/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = ISimpleResponse;
+            type Response = void;
         }
         /** PUT /comments/:id */
         namespace PutOne {
@@ -1010,7 +1010,7 @@ declare module 'modepress' {
         /** DELETE /categories/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = ISimpleResponse;
+            type Response = void;
         }
         /** POST /categories */
         namespace Post {
@@ -1027,7 +1027,7 @@ declare module 'modepress' {
         /** DELETE /renders/:id */
         namespace DeleteOne {
             type Body = void;
-            type Response = ISimpleResponse;
+            type Response = void;
         }
         /** DELETE /renders/clear */
         namespace DeleteAll {
@@ -2857,7 +2857,7 @@ declare module "utils/serializers" {
      * a 200 response code.
      * @param errCode The type of error code to raise for errors
      */
-    export function j200(errCode?: number): (target: any, propertyKey: string, descriptor: PropertyDescriptor) => PropertyDescriptor;
+    export function j200(code?: number, errCode?: number): (target: any, propertyKey: string, descriptor: PropertyDescriptor) => PropertyDescriptor;
     /**
      * Helper function to return a status 200 json object of type T
      */

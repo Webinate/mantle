@@ -107,14 +107,12 @@ describe( '1. Testing creation of posts', function() {
 
   it( 'did delete the first post', async function() {
     const resp = await admin.delete( `/api/posts/${lastPost}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'did delete the second post', async function() {
     const resp = await admin.delete( `/api/posts/${lastPost2}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {

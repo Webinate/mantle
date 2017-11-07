@@ -114,8 +114,6 @@ describe( '17. Testing creating a user', function() {
 
   it( 'did cleanup the created user', async function() {
     const resp = await admin.delete( `/api/users/${testUserName}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( `User ${testUserName} has been removed` )
+    test.number( resp.status ).is( 204 );
   } )
 } )

@@ -98,7 +98,7 @@ declare module 'modepress' {
     /** GET /users/:username */
     export namespace GetOne { export type Body = void; export type Response = IGetResponse<IUserEntry>; }
     /** DELETE /users/:username */
-    export namespace DeleteOne { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** POST /users/:user/meta/:name */
     export namespace PostUserMeta { export type Body = any; export type Response = ISimpleResponse; }
     /** POST /users/:user/meta */
@@ -124,7 +124,7 @@ declare module 'modepress' {
     /** GET /sessions/ */
     export namespace GetAll { export type Body = void; export type Response = Page<ISessionEntry>; }
     /** DELETE /sessions/:id */
-    export namespace DeleteOne { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace DeleteOne { export type Body = void; export type Response = void; }
   }
 
   export namespace PostTokens {
@@ -136,7 +136,7 @@ declare module 'modepress' {
      * */
     export namespace GetOne { export type Body = void; export type Response = IGetResponse<IPost>; }
     /** DELETE /posts/:id */
-    export namespace DeleteOne { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** PUT /posts/:id */
     export namespace PutOne { export type Body = IPost; export type Response = ISimpleResponse; }
     /** POST /posts/ */
@@ -149,7 +149,7 @@ declare module 'modepress' {
     /** GET /comments/:id */
     export namespace GetOne { export type Body = void; export type Response = IGetResponse<IComment>; }
     /** DELETE /comments/:id */
-    export namespace DeleteOne { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** PUT /comments/:id */
     export namespace PutOne { export type Body = IComment; export type Response = ISimpleResponse; }
     /** POST /posts/:postId/comments/:parent? */
@@ -160,7 +160,7 @@ declare module 'modepress' {
     /** GET /categories/ */
     export namespace GetAll { export type Body = void; export type Response = Page<ICategory>; }
     /** DELETE /categories/:id */
-    export namespace DeleteOne { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** POST /categories */
     export namespace Post { export type Body = ICategory; export type Response = IGetResponse<ICategory>; }
   }
@@ -169,7 +169,7 @@ declare module 'modepress' {
     /** GET /renders/ */
     export namespace GetAll { export type Body = void; export type Response = Page<IRender>; }
     /** DELETE /renders/:id */
-    export namespace DeleteOne { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** DELETE /renders/clear */
     export namespace DeleteAll { export type Body = void; export type Response = ISimpleResponse; }
   }

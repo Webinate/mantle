@@ -193,7 +193,7 @@ export class CommentsController extends Controller {
   /**
    * Attempts to remove a comment by ID
    */
-  @j200()
+  @j200( 204 )
   private async remove( req: IAuthReq, res: express.Response ) {
     const comments = this.getModel( 'comments' )! as Model<IComment>;
     const findToken: IComment = {
@@ -214,8 +214,7 @@ export class CommentsController extends Controller {
 
     // Attempt to delete the instances
     await comments.deleteInstances( findToken );
-    const response: CommentTokens.DeleteOne.Response = { message: 'Comment has been successfully removed' };
-    return response;
+    return;
   }
 
   /**

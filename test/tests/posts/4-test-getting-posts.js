@@ -164,16 +164,12 @@ describe( '4. Testing fetching of posts', function() {
 
   it( 'did cleanup the test public post', async function() {
     const resp = await admin.delete( `/api/posts/${publicPostId}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Post has been successfully removed" );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'did cleanup the test private post', async function() {
     const resp = await admin.delete( `/api/posts/${privatePostId}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Post has been successfully removed" );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {

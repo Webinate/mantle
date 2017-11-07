@@ -47,9 +47,7 @@ describe( '18. Testing deleting users', function() {
 
   it( 'did allow the regular user to delete its own account', async function() {
     const resp = await agent.delete( `/api/users/${testUserName}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( `User ${testUserName} has been removed` )
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'did have the same number of users as before the tests started', async function() {

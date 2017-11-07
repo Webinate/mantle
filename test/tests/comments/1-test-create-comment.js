@@ -115,8 +115,7 @@ describe( '1. Testing creation of comments', function() {
 
   it( 'did delete the test post', async function() {
     const resp = await admin.delete( `/api/posts/${postId}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {

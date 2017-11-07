@@ -78,7 +78,7 @@ export class CategoriesController extends Controller {
   /**
    * Attempts to remove a category by ID
    */
-  @j200()
+  @j200( 204 )
   private async removeCategory( req: IAuthReq, res: express.Response ) {
     const categories = this.getModel( 'categories' )!;
 
@@ -87,8 +87,7 @@ export class CategoriesController extends Controller {
     if ( numRemoved === 0 )
       return Promise.reject( new Error( 'Could not find a category with that ID' ) );
 
-    const response: CategoriesTokens.DeleteOne.Response = { message: 'Category has been successfully removed' };
-    return response;
+    return;
   }
 
   /**

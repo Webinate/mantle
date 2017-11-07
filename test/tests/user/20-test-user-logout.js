@@ -49,8 +49,6 @@ describe( '20. Testing users logout', function() {
 
   it( 'did allow the regular user to delete its own account', async function() {
     const resp = await admin.delete( `/api/users/${testUserName}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( `User ${testUserName} has been removed` )
+    test.number( resp.status ).is( 204 );
   } )
 } )

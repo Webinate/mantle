@@ -70,10 +70,9 @@ export class SessionController extends Controller {
   /**
  	 * Resends the activation link to the user
 	 */
-  @j200()
+  @j200( 204 )
   private async deleteSession( req: express.Request, res: express.Response ) {
     await SessionManager.get.clearSession( req.params.id, req, res );
-    const response: SessionTokens.DeleteOne.Response = { message: `Session ${req.params.id} has been removed` };
-    return response;
+    return;
   }
 }

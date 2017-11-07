@@ -102,16 +102,12 @@ describe( '3. Testing editing of posts', function() {
 
   it( 'did cleanup the test post', async function() {
     const resp = await admin.delete( `/api/posts/${postId}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Post has been successfully removed" );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'did cleanup the second test post', async function() {
     const resp = await admin.delete( `/api/posts/${secondPostId}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Post has been successfully removed" );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {

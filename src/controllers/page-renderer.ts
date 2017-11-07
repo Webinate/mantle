@@ -332,8 +332,7 @@ export class PageRenderer extends Controller {
       if ( numRemoved === 0 )
         throw new Error( 'Could not find a cache with that ID' );
 
-      const response: RenderTokens.DeleteOne.Response = { message: 'Cache has been successfully removed' };
-      okJson<RenderTokens.DeleteOne.Response>( response, res );
+      res.status( 204 ).end();
     } catch ( err ) {
       errJson( err, res );
     };

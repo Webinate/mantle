@@ -105,9 +105,7 @@ describe( '2. Testing deletion of comments', function() {
 
   it( 'can delete the parent comment', async function() {
     const resp = await admin.delete( `/api/comments/${parentCommentId}`, {} );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Comment has been successfully removed" );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'should have the 2 less comments as the parent & child were removed', async function() {
@@ -120,15 +118,12 @@ describe( '2. Testing deletion of comments', function() {
 
   it( 'can delete a regular existing comment', async function() {
     const resp = await admin.delete( `/api/comments/${commentId}`, {} );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Comment has been successfully removed" );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'did delete the test post', async function() {
     const resp = await admin.delete( `/api/posts/${postId}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {

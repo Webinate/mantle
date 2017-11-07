@@ -224,7 +224,7 @@ export class PostsController extends Controller {
   /**
    * Attempts to remove a post by ID
    */
-  @j200()
+  @j200( 204 )
   private async removePost( req: IAuthReq, res: express.Response ) {
     const posts = this.getModel( 'posts' )!;
 
@@ -234,10 +234,7 @@ export class PostsController extends Controller {
     if ( numRemoved === 0 )
       throw new Error( 'Could not find a post with that ID' );
 
-    const response: PostTokens.DeleteOne.Response = {
-      message: 'Post has been successfully removed'
-    };
-    return response;
+    return;
   }
 
   /**

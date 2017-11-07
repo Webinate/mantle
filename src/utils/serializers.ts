@@ -10,7 +10,7 @@ import { Error401, Error403, Error404 } from './errors';
  * a 200 response code.
  * @param errCode The type of error code to raise for errors
  */
-export function j200( errCode: number = 500 ) {
+export function j200( code: number = 200, errCode: number = 500 ) {
   return function( target: any, propertyKey: string, descriptor: PropertyDescriptor ) {
     const originalMethod = descriptor.value;
 
@@ -21,7 +21,7 @@ export function j200( errCode: number = 500 ) {
       if ( result && result instanceof Promise ) {
         result.then( result => {
           res.setHeader( 'Content-Type', 'application/json' );
-          res.status( 200 ).json( result );
+          res.status( code ).json( result );
         } ).catch( ( err: Error ) => {
           res.setHeader( 'Content-Type', 'application/json' );
           res.status( errCode ).json( { message: err.message } );

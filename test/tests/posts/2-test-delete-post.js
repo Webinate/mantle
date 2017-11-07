@@ -54,9 +54,7 @@ describe( '2. Testing deletion of posts', function() {
 
   it( 'can delete a post with valid ID & admin permissions', async function() {
     const resp = await admin.delete( `/api/posts/${postId}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Post has been successfully removed" );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {

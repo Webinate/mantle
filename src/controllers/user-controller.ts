@@ -161,15 +161,14 @@ export class UserController extends Controller {
   /**
 	 * Removes a user from the database
 	 */
-  @j200()
+  @j200( 204 )
   private async removeUser( req: IAuthReq, res: express.Response ) {
     const toRemove = req.params.user;
     if ( !toRemove )
       throw new Error( 'No user found' );
 
     await UserManager.get.removeUser( toRemove );
-    const response: UserTokens.DeleteOne.Response = { message: `User ${toRemove} has been removed` };
-    return response;
+    return;
   }
 
   /**
