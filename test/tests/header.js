@@ -17,16 +17,14 @@ class Agent {
     this.email = email;
   }
 
-  async get( url, type = 'application/json' ) {
+  async get( url, type = 'application/json', options = {} ) {
     const headers = {};
     if ( type )
       headers[ 'Content-Type' ] = type;
     if ( this.cookie )
       headers[ 'Cookie' ] = this.cookie;
 
-    return await fetch( `${this.host}${url}`, {
-      headers: headers
-    } );
+    return await fetch( `${this.host}${url}`, Object.assign( {}, { headers: headers }, options ) );
   }
 
   async put( url, data, type = 'application/json' ) {

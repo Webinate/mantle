@@ -12,11 +12,10 @@ describe( '1. Testing creation of comments', function() {
   } )
 
   it( 'did delete any existing posts with the slug --comments--test--', async function() {
-    resp = await admin.get( `/api/posts/slug/--comments--test--` );
-
+    const resp = await admin.get( `/api/posts/slug/--comments--test--` );
+    const json = await resp.json();
     if ( json.data )
       resp = await admin.delete( `/api/posts/${json.data._id}` );
-
   } )
 
   it( 'fetched all posts', async function() {

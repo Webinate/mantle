@@ -80,6 +80,7 @@ export class AuthController extends Controller {
     } catch ( error ) {
       logError( error.toString() );
       res.setHeader( 'Content-Type', 'application/json' );
+      res.status( 302 );
       res.redirect( `${redirectURL}?message=${encodeURIComponent( error.message )}&status=error&origin=${encodeURIComponent( req.query.origin )}` );
     };
   }

@@ -43,7 +43,7 @@ describe( '11. Testing file uploads', function() {
 
   it( 'regular user did not upload a file when the meta was invalid', async function() {
     const form = new FormData();
-    form.append( 'small-image.png', fs.readFileSync( filePath ) );
+    form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     form.append( 'meta', 'BAD META' )
     const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
     test.number( resp.status ).is( 200 );
@@ -56,7 +56,7 @@ describe( '11. Testing file uploads', function() {
 
   it( 'regular user did upload a file when the meta was valid', async function() {
     const form = new FormData();
-    form.append( 'small-image.png', fs.readFileSync( filePath ) );
+    form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     form.append( 'meta', '{ "meta" : "good" }' )
     const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
     test.number( resp.status ).is( 200 );
@@ -69,7 +69,7 @@ describe( '11. Testing file uploads', function() {
 
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
-    form.append( 'small-image.png', fs.readFileSync( filePath ) );
+    form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
@@ -78,7 +78,7 @@ describe( '11. Testing file uploads', function() {
     test.string( json.message ).is( "Upload complete. [1] Files have been saved." );
     test.array( json.tokens ).hasLength( 1 );
     test.string( json.tokens[ 0 ].field ).is( "small-image.png" );
-    test.string( json.tokens[ 0 ].file ).is( "small-image.png" );
+    test.string( json.tokens[ 0 ].filename ).is( "small-image.png" );
     test.bool( json.tokens[ 0 ].error ).isNotTrue();
     test.string( json.tokens[ 0 ].errorMsg ).is( "" );
     test.object( json.tokens[ 0 ] ).hasProperty( "file" );

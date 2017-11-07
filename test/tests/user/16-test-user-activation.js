@@ -57,11 +57,10 @@ describe( '16. Testing user activation', function() {
   } )
 
   it( 'did not activate the account now that the activation key has changed', async function() {
-    const resp = await guest.get( `/api/auth/activate-account?user=${testUserName}&key=${activationKey}` );
+    const resp = await guest.get( `/api/auth/activate-account?user=${testUserName}&key=${activationKey}`, null, { redirect: 'manual' } );
     test.number( resp.status ).is( 302 );
-    const json = await resp.json();
-    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain' );
-    test.string( res.headers[ "location" ] ).contains( "error" );
+    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain; charset=utf-8' );
+    test.string( resp.headers.get( "location" ) ).contains( "error" );
   } )
 
   it( `did get the renewed activation key for ${testUserName}`, async function() {
@@ -72,35 +71,31 @@ describe( '16. Testing user activation', function() {
   } )
 
   it( 'did not activate with an invalid username', async function() {
-    const resp = await guest.code( 302 ).get( `/api/auth/activate-account?user=NONUSER` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain' );
+    const resp = await guest.get( `/api/auth/activate-account?user=NONUSER`, null, { redirect: 'manual' } );
+    test.number( resp.status ).is( 302 );
+    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain; charset=utf-8' );
     test.string( resp.headers.get( "location" ) ).contains( "error" );
   } )
 
   it( 'did not activate with an valid username and no key', async function() {
-    const resp = await guest.code( 302 ).get( `/api/auth/activate-account?user=${testUserName}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain' );
+    const resp = await guest.get( `/api/auth/activate-account?user=${testUserName}`, null, { redirect: 'manual' } );
+    test.number( resp.status ).is( 302 );
+    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain; charset=utf-8' );
     test.string( resp.headers.get( "location" ) ).contains( "error" );
   } )
 
   it( 'did not activate with an valid username and invalid key', async function() {
-    const resp = await guest.code( 302 ).get( `/api/auth/activate-account?user=${testUserName}&key=123` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain' );
-    test.string( res.headers[ "location" ] ).contains( "error" );
+    const resp = await guest.get( `/api/auth/activate-account?user=${testUserName}&key=123`, null, { redirect: 'manual' } );
+    test.number( resp.status ).is( 302 );
+    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain; charset=utf-8' );
+    test.string( resp.headers.get( "location" ) ).contains( "error" );
   } )
 
   it( 'did activate with a valid username and key', async function() {
-    const resp = await guest.code( 302 ).get( `/api/auth/activate-account?user=${testUserName}&key=${activationKey}` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain' );
-    test.string( res.headers[ "location" ] ).contains( "success" );
+    const resp = await guest.get( `/api/auth/activate-account?user=${testUserName}&key=${activationKey}`, null, { redirect: 'manual' } );
+    test.number( resp.status ).is( 302 );
+    test.string( resp.headers.get( 'content-type' ) ).is( 'text/plain; charset=utf-8' );
+    test.string( resp.headers.get( "location" ) ).contains( "success" );
   } )
 
   it( 'did log in with valid details and an activated account', async function() {

@@ -24,7 +24,7 @@ describe( '14. Getting and setting user media stat usage', function() {
 
   it( 'regular user did upload another file to dinosaurs2', async function() {
     const form = new FormData();
-    form.append( 'small-image.png', fs.readFileSync( filePath ) );
+    form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     const resp = await user1.post( "/buckets/dinosaurs2/upload", form, null, form.getHeaders() );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
@@ -56,7 +56,7 @@ describe( '14. Getting and setting user media stat usage', function() {
 
   it( 'regular user did upload another file to dinosaurs2', async function() {
     const form = new FormData();
-    form.append( 'small-image.png', fs.readFileSync( filePath ) );
+    form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     const resp = await user1.post( "/buckets/dinosaurs2/upload", form, null, form.getHeaders() );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
