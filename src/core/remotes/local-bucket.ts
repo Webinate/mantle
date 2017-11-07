@@ -86,18 +86,18 @@ export class LocalBucket implements IRemote {
   }
 
   async uploadFile( bucket: string, source: Readable, uploadOptions: IUploadOptions ) {
-
+    let ext = extname( uploadOptions.filename );
     let filename = uploadOptions.filename;
-    let fileExists = await this.exists( `${this._path}/${bucket}/${filename}` );
+    let fileExists = await this.exists( `${this._path}/${bucket}/${filename}${ext ? '.' + ext : ''}` );
     let counter = 1;
 
     while ( fileExists ) {
-      let ext = extname( uploadOptions.filename );
+      ext = extname( uploadOptions.filename );
       let base = basename( uploadOptions.filename, ext )
       base += counter.toString();
       counter++;
 
-      filename = base + ext;
+      filename = base + ( ext ? '.' + ext : '' );
       fileExists = await this.exists( `${this._path}/${bucket}/${filename}` );
     }
 

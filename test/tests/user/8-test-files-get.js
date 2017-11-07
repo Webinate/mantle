@@ -1,4 +1,7 @@
 const test = require( 'unit.js' );
+const FormData = require( 'form-data' );
+const fs = require( 'fs' );
+
 let guest, admin, config, user1, user2;
 const filePath = './test/media/file.png';
 
@@ -13,87 +16,69 @@ describe( '8. Getting uploaded user files', function() {
     config = header.config;
   } )
 
-  it( 'regular user did create a bucket dinosaurs', function( done ) {
-    user1.post( `/buckets/user/${user1.username}/dinosaurs` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did create a bucket dinosaurs', async function() {
+    const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
+    test.number( resp.status ).is( 200 );
   } )
 
-  it( 'regular user did not get files for the admin user bucket', function( done ) {
-    user1
-      .code( 403 )
-      .get( `/files/users/${config.adminUser.username}/buckets/BAD_ENTRY` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "You don't have permission to make this request" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did not get files for the admin user bucket', async function() {
+    const resp = await user1.get( `/files/users/${config.adminUser.username}/buckets/BAD_ENTRY` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 403 );
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "You don't have permission to make this request" );
   } )
 
-  it( 'regular user did not get files for a non existant bucket', function( done ) {
-    user1
-      .code( 500 )
-      .get( `/files/users/${user1.username}/buckets/test` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Could not find the bucket 'test'" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did not get files for a non existant bucket', async function() {
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/test` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 500 );
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "Could not find the bucket 'test'" );
   } )
 
-  it( 'regular user did upload a file to dinosaurs', function( done ) {
-    user1
-      .attach( 'small-image', filePath )
-      .post( "/buckets/dinosaurs/upload" )
-      .then( ( res ) => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did upload a file to dinosaurs', async function() {
+    const form = new FormData();
+    form.append( 'small-image.png', fs.readFileSync( filePath ) );
+    const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
+    test.number( resp.status ).is( 200 );
   } )
 
-  it( 'regular user did upload another file to dinosaurs', function( done ) {
-    user1
-      .attach( 'small-image', filePath )
-      .post( "/buckets/dinosaurs/upload" )
-      .then( ( res ) => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did upload another file to dinosaurs', async function() {
+    const form = new FormData();
+    form.append( 'small-image.png', fs.readFileSync( filePath ) );
+    const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
+    test.number( resp.status ).is( 200 );
   } )
 
-  it( 'regular user fetched 2 files from the dinosaur bucket', function( done ) {
-    user1
-      .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then( ( res ) => {
-        test.object( res.body ).hasProperty( "data" );
-        test.array( res.body.data ).hasLength( 2 );
-        test.number( res.body.data[ 0 ].numDownloads ).is( 0 );
-        test.number( res.body.data[ 0 ].size ).is( 226 );
-        test.string( res.body.data[ 0 ].mimeType ).is( "image/png" );
-        test.string( res.body.data[ 0 ].user ).is( user1.username );
-        test.object( res.body.data[ 0 ] ).hasProperty( "publicURL" );
-        test.bool( res.body.data[ 0 ].isPublic ).isTrue();
-        test.object( res.body.data[ 0 ] ).hasProperty( "identifier" );
-        test.object( res.body.data[ 0 ] ).hasProperty( "bucketId" );
-        test.object( res.body.data[ 0 ] ).hasProperty( "created" );
-        test.string( res.body.data[ 0 ].bucketName ).is( "dinosaurs" );
-        test.object( res.body.data[ 0 ] ).hasProperty( "_id" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user fetched 2 files from the dinosaur bucket', async function() {
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+    test.object( json ).hasProperty( "data" );
+    test.array( json.data ).hasLength( 2 );
+    test.number( json.data[ 0 ].numDownloads ).is( 0 );
+    test.number( json.data[ 0 ].size ).is( 226 );
+    test.string( json.data[ 0 ].mimeType ).is( "image/png" );
+    test.string( json.data[ 0 ].user ).is( user1.username );
+    test.object( json.data[ 0 ] ).hasProperty( "publicURL" );
+    test.bool( json.data[ 0 ].isPublic ).isTrue();
+    test.object( json.data[ 0 ] ).hasProperty( "identifier" );
+    test.object( json.data[ 0 ] ).hasProperty( "bucketId" );
+    test.object( json.data[ 0 ] ).hasProperty( "created" );
+    test.string( json.data[ 0 ].bucketName ).is( "dinosaurs" );
+    test.object( json.data[ 0 ] ).hasProperty( "_id" );
   } )
 
-  it( 'admin fetched 2 files from the regular users dinosaur bucket', function( done ) {
-    admin
-      .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then( ( res ) => {
-        test.array( res.body.data ).hasLength( 2 );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'admin fetched 2 files from the regular users dinosaur bucket', async function() {
+    const resp = await admin.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+    test.array( json.data ).hasLength( 2 );
   } )
 
-  it( 'regular user did remove the bucket dinosaurs', function( done ) {
-    user1.delete( `/buckets/dinosaurs` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did remove the bucket dinosaurs', async function() {
+    const resp = await user1.delete( `/buckets/dinosaurs` );
+    test.number( resp.status ).is( 200 );
   } )
 } )

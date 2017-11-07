@@ -25,7 +25,7 @@ describe( '6. Testing files deletion', function() {
 
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
-    form.append( 'small-image', fs.createReadStream( filePath ) );
+    form.append( 'small-image.png', fs.readFileSync( filePath ) );
     const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );

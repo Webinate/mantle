@@ -10,91 +10,80 @@ describe( '12. Getting user data', function() {
     config = header.config;
   } )
 
-  it( 'should allow admin access to basic data', function( done ) {
-    admin.get( `/api/users/${config.adminUser.username}` )
-      .then( res => {
-        test.string( res.body.data._id )
-        test.value( res.body.data.email ).isUndefined()
-        test.number( res.body.data.lastLoggedIn ).isNotNaN()
-        test.value( res.body.data.password ).isUndefined()
-        test.value( res.body.data.registerKey ).isUndefined()
-        test.value( res.body.data.sessionId ).isUndefined()
-        test.string( res.body.data.username ).is( config.adminUser.username )
-        test.number( res.body.data.privileges ).is( 1 )
-        test.value( res.body.data.passwordTag ).isUndefined()
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should allow admin access to basic data', async function() {
+    const resp = await admin.get( `/api/users/${config.adminUser.username}` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.string( json.data._id )
+    test.value( json.data.email ).isUndefined()
+    test.number( json.data.lastLoggedIn ).isNotNaN()
+    test.value( json.data.password ).isUndefined()
+    test.value( json.data.registerKey ).isUndefined()
+    test.value( json.data.sessionId ).isUndefined()
+    test.string( json.data.username ).is( config.adminUser.username )
+    test.number( json.data.privileges ).is( 1 )
+    test.value( json.data.passwordTag ).isUndefined()
   } )
 
-  it( 'should allow admin access to sensitive data', function( done ) {
-    admin.get( `/api/users/${config.adminUser.username}?verbose=true` )
-      .then( res => {
-        test.string( res.body.data._id )
-        test.string( res.body.data.email ).is( config.adminUser.email )
-        test.number( res.body.data.lastLoggedIn ).isNotNaN()
-        test.value( res.body.data.password )
-        test.value( res.body.data.registerKey )
-        test.value( res.body.data.sessionId )
-        test.string( res.body.data.username ).is( config.adminUser.username )
-        test.number( res.body.data.privileges ).is( 1 )
-        test.value( res.body.data.passwordTag )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should allow admin access to sensitive data', async function() {
+    const resp = await admin.get( `/api/users/${config.adminUser.username}?verbose=true` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.string( json.data._id )
+    test.string( json.data.email ).is( config.adminUser.email )
+    test.number( json.data.lastLoggedIn ).isNotNaN()
+    test.value( json.data.password )
+    test.value( json.data.registerKey )
+    test.value( json.data.sessionId )
+    test.string( json.data.username ).is( config.adminUser.username )
+    test.number( json.data.privileges ).is( 1 )
+    test.value( json.data.passwordTag )
   } )
 
-  it( 'should get admin user data by email without sensitive details', function( done ) {
-    admin.get( `/api/users/${config.adminUser.email}` )
-      .then( res => {
-        test.string( res.body.data._id )
-        test.value( res.body.data.email ).isUndefined()
-        test.number( res.body.data.lastLoggedIn ).isNotNaN()
-        test.value( res.body.data.password ).isUndefined()
-        test.value( res.body.data.registerKey ).isUndefined()
-        test.value( res.body.data.sessionId ).isUndefined()
-        test.string( res.body.data.username ).is( config.adminUser.username )
-        test.number( res.body.data.privileges ).is( 1 )
-        test.value( res.body.data.passwordTag ).isUndefined()
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should get admin user data by email without sensitive details', async function() {
+    const resp = await admin.get( `/api/users/${config.adminUser.email}` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.string( json.data._id )
+    test.value( json.data.email ).isUndefined()
+    test.number( json.data.lastLoggedIn ).isNotNaN()
+    test.value( json.data.password ).isUndefined()
+    test.value( json.data.registerKey ).isUndefined()
+    test.value( json.data.sessionId ).isUndefined()
+    test.string( json.data.username ).is( config.adminUser.username )
+    test.number( json.data.privileges ).is( 1 )
+    test.value( json.data.passwordTag ).isUndefined()
   } )
 
-  it( 'should get admin user data by email with sensitive details', function( done ) {
-    admin.get( `/api/users/${config.adminUser.email}?verbose=true` )
-      .then( res => {
-        test.string( res.body.data._id )
-        test.string( res.body.data.email ).is( config.adminUser.email )
-        test.number( res.body.data.lastLoggedIn ).isNotNaN()
-        test.value( res.body.data.password )
-        test.value( res.body.data.registerKey )
-        test.value( res.body.data.sessionId )
-        test.value( res.body.data.passwordTag )
-        test.string( res.body.data.username ).is( config.adminUser.username )
-        test.number( res.body.data.privileges ).is( 1 )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should get admin user data by email with sensitive details', async function() {
+    const resp = await admin.get( `/api/users/${config.adminUser.email}?verbose=true` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.string( json.data._id )
+    test.string( json.data.email ).is( config.adminUser.email )
+    test.number( json.data.lastLoggedIn ).isNotNaN()
+    test.value( json.data.password )
+    test.value( json.data.registerKey )
+    test.value( json.data.sessionId )
+    test.value( json.data.passwordTag )
+    test.string( json.data.username ).is( config.adminUser.username )
+    test.number( json.data.privileges ).is( 1 )
   } )
 
-  it( 'should get no user with username', function( done ) {
-    guest
-      .code( 401 )
-      .get( `/api/users/${config.adminUser.username}` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" )
-        test.string( res.body.message ).is( "You must be logged in to make this request" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should get no user with username', async function() {
+    const resp = await guest.get( `/api/users/${config.adminUser.username}` );
+    test.number( resp.status ).is( 401 );
+    const json = await resp.json();
+    test.object( json ).hasProperty( "message" )
+    test.string( json.message ).is( "You must be logged in to make this request" )
 
   } ).timeout( 20000 )
 
-  it( 'should get no user with email or verbose', function( done ) {
-    guest
-      .code( 401 )
-      .get( `/api/users/${config.adminUser.email}?verbose=true` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" )
-        test.string( res.body.message ).is( "You must be logged in to make this request" )
-        done();
-      } ).catch( err => done( err ) );
-
+  it( 'should get no user with email or verbose', async function() {
+    const resp = await guest.get( `/api/users/${config.adminUser.email}?verbose=true` );
+    test.number( resp.status ).is( 401 );
+    const json = await resp.json();
+    test.object( json ).hasProperty( "message" )
+    test.string( json.message ).is( "You must be logged in to make this request" )
   } ).timeout( 20000 )
 } )

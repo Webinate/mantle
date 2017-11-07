@@ -14,54 +14,43 @@ describe( '20. Testing users logout', function() {
     config = header.config;
   } )
 
-  it( `did remove any existing user ${testUserName}`, function( done ) {
-    admin
-      .code( null )
-      .delete( `/api/users/${testUserName}` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( `did remove any existing user ${testUserName}`, async function() {
+    const resp = await admin.delete( `/api/users/${testUserName}` );
   } )
 
-  it( `did create & login regular user ${testUserName} with valid details`, function( done ) {
-    admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } )
-      .then( res => {
-        const header = require( '../header.js' );
-        return header.createUser( testUserName, 'password', testUserEmail );
-      } ).then(( newAgent ) => {
-        agent = newAgent;
-        done();
-      } ).catch( err => done( err ) );
+  it( `did create & login regular user ${testUserName} with valid details`, async function() {
+    const resp = await admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    const header = require( '../header.js' );
+    const newAgent = header.createUser( testUserName, 'password', testUserEmail );
+    agent = newAgent;
   } )
 
-  it( 'user should be logged in', function( done ) {
-    agent.get( '/api/auth/authenticated' )
-      .then( res => {
-        test.bool( res.body.authenticated ).isTrue();
-        done();
-      } ).catch( err => done( err ) );
+  it( 'user should be logged in', async function() {
+    const resp = await agent.get( '/api/auth/authenticated' );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.bool( json.authenticated ).isTrue();
   } )
 
-  it( 'should log out', function( done ) {
-    agent.get( `/api/auth/logout` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should log out', async function() {
+    const resp = await agent.get( `/api/auth/logout` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
   } )
 
-  it( 'user should be logged out', function( done ) {
-    agent.get( '/api/auth/authenticated' )
-      .then( res => {
-        test.bool( res.body.authenticated ).isFalse();
-        done();
-      } ).catch( err => done( err ) );
+  it( 'user should be logged out', async function() {
+    const resp = await agent.get( '/api/auth/authenticated' );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.bool( json.authenticated ).isFalse();
   } )
 
-  it( 'did allow the regular user to delete its own account', function( done ) {
-    admin.delete( `/api/users/${testUserName}` )
-      .then( res => {
-        test.string( res.body.message ).is( `User ${testUserName} has been removed` )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did allow the regular user to delete its own account', async function() {
+    const resp = await admin.delete( `/api/users/${testUserName}` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.string( json.message ).is( `User ${testUserName} has been removed` )
   } )
 } )

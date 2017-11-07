@@ -13,134 +13,99 @@ describe( '22. Testing registering a user', function() {
     config = header.config;
   } )
 
-  it( `did remove any existing user called ${testUserName}`, function( done ) {
-    admin
-      .code( null )
-      .delete( `/api/users/${testUserName}` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( `did remove any existing user called ${testUserName}`, async function() {
+    const resp = await admin.delete( `/api/users/${testUserName}` );
   } )
 
-  it( 'should not register with blank credentials', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/auth/register`, { username: "", password: "" } )
-      .then( res => {
-        test.string( res.body.message ).is( "Please enter a valid username" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should not register with blank credentials', async function() {
+    const resp = await admin.post( `/api/auth/register`, { username: "", password: "" } );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Please enter a valid username" )
   } )
 
-  it( 'should not register with existing username', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/auth/register`, { username: admin.username, password: "FakePass" } )
-      .then( res => {
-        test.string( res.body.message ).is( "That username or email is already in use; please choose another or login." )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should not register with existing username', async function() {
+    const resp = await admin.post( `/api/auth/register`, { username: admin.username, password: "FakePass" } );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "That username or email is already in use; please choose another or login." )
   } )
 
-  it( 'should not register with blank username', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/auth/register`, { username: "", password: "FakePass" } )
-      .then( res => {
-        test.string( res.body.message ).is( "Please enter a valid username" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should not register with blank username', async function() {
+    const resp = await admin.post( `/api/auth/register`, { username: "", password: "FakePass" } );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Please enter a valid username" )
   } )
 
-  it( 'should not register with blank password', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/auth/register`, { username: "sdfsdsdfsdfdf", password: "" } )
-      .then( res => {
-        test.string( res.body.message ).is( "Password cannot be null or empty" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should not register with blank password', async function() {
+    const resp = await admin.post( `/api/auth/register`, { username: "sdfsdsdfsdfdf", password: "" } );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Password cannot be null or empty" )
   } )
 
-  it( 'should not register with bad characters', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/auth/register`, { username: "!\"�$%^^&&*()-=~#}{}", password: "!\"./<>;�$$%^&*()_+" } )
-      .then( res => {
-        test.string( res.body.message ).is( "Please only use alpha numeric characters for your username" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should not register with bad characters', async function() {
+    const resp = await admin.post( `/api/auth/register`, { username: "!\"�$%^^&&*()-=~#}{}", password: "!\"./<>;�$$%^&*()_+" } );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Please only use alpha numeric characters for your username" )
   } )
 
-  it( 'should not register with valid information but no email', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/auth/register`, { username: testUserName, password: "Password" } )
-      .then( res => {
-        test.string( res.body.message ).is( "Email cannot be null or empty" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should not register with valid information but no email', async function() {
+    const resp = await admin.post( `/api/auth/register`, { username: testUserName, password: "Password" } );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Email cannot be null or empty" )
   } )
 
-  it( 'should not register with valid information but invalid email', function( done ) {
-    admin
-      .code( 500 )
-      .post( `/api/auth/register`, { username: testUserName, password: "Password", email: "bad_email" } )
-      .then( res => {
-        test.string( res.body.message ).is( "Please use a valid email address" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should not register with valid information but invalid email', async function() {
+    const resp = await admin.post( `/api/auth/register`, { username: testUserName, password: "Password", email: "bad_email" } );
+    test.number( resp.status ).is( 500 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Please use a valid email address" )
   } )
 
-  it( 'should register with valid information', function( done ) {
-    guest.post( `/api/auth/register`, { username: testUserName, password: "Password", email: testUserEmail } )
-      .then( res => {
-        test.string( res.body.message ).is( "Please activate your account with the link sent to your email address" )
-        test.object( res.body.user )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'should register with valid information', async function() {
+    const resp = await guest.post( `/api/auth/register`, { username: testUserName, password: "Password", email: testUserEmail } );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.string( json.message ).is( "Please activate your account with the link sent to your email address" )
+    test.object( json.user )
   } )
 
-  it( `did create an activation key for ${testUserName}`, function( done ) {
-    admin.get( `/api/users/${testUserName}?verbose=true` )
-      .then( res => {
-        test.object( res.body.data ).hasProperty( "registerKey" )
-        test.string( res.body.data.registerKey ).isNot( "" );
-        done();
-      } ).catch( err => done( err ) );
+  it( `did create an activation key for ${testUserName}`, async function() {
+    const resp = await admin.get( `/api/users/${testUserName}?verbose=true` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.object( json.data ).hasProperty( "registerKey" )
+    test.string( json.data.registerKey ).isNot( "" );
   } )
 
-  it( 'did not approve activation as a regular user', function( done ) {
-    user1
-      .code( 403 )
-      .put( `/api/auth/${testUserName}/approve-activation` )
-      .then( res => {
-        test.string( res.body.message ).is( "You don't have permission to make this request" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did not approve activation as a regular user', async function() {
+    const resp = await user1.put( `/api/auth/${testUserName}/approve-activation` );
+    test.number( resp.status ).is( 403 );
+    const json = await resp.json();
+    test.string( json.message ).is( "You don't have permission to make this request" )
   } )
 
-  it( `did allow an admin to activate ${testUserName}`, function( done ) {
-    admin.put( `/api/auth/${testUserName}/approve-activation` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( `did allow an admin to activate ${testUserName}`, async function() {
+    const resp = await admin.put( `/api/auth/${testUserName}/approve-activation` );
+    test.number( resp.status ).is( 200 );
   } )
 
-  it( `did approve ${testUserName}'s register key`, function( done ) {
-    admin.get( `/api/users/${testUserName}?verbose=true` )
-      .then( res => {
-        test.object( res.body.data ).hasProperty( "registerKey" )
-        test.string( res.body.data.registerKey ).is( "" );
-        done();
-      } ).catch( err => done( err ) );
+  it( `did approve ${testUserName}'s register key`, async function() {
+    const resp = await admin.get( `/api/users/${testUserName}?verbose=true` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.object( json.data ).hasProperty( "registerKey" )
+    test.string( json.data.registerKey ).is( "" );
   } )
 
-  it( 'did cleanup the registered user', function( done ) {
-    admin.delete( `/api/users/${testUserName}` )
-      .then( res => {
-        test.string( res.body.message ).is( `User ${testUserName} has been removed` )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did cleanup the registered user', async function() {
+    const resp = await admin.delete( `/api/users/${testUserName}` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.string( json.message ).is( `User ${testUserName} has been removed` )
   } )
 } )

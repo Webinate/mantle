@@ -501,7 +501,11 @@ export class BucketManager {
 
     const bucketCollection = this._buckets;
     const statCollection = this._stats;
-    const fileIdentifier = await this._activeManager.uploadFile( bucketEntry.identifier!, part, { headers: part.headers, filename: part.filename } );
+    const name = part.filename || part.name;
+    if ( !name )
+      throw new Error( `Uploaded item does not have a name or filename specified` );
+
+    const fileIdentifier = await this._activeManager.uploadFile( bucketEntry.identifier!, part, { headers: part.headers, filename: name } );
 
     await bucketCollection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry,
       { $inc: { memoryUsed: part.byteCount } as IBucketEntry } );

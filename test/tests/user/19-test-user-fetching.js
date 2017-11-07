@@ -14,59 +14,50 @@ describe( '19. Testing fetching users', function() {
     config = header.config;
   } )
 
-  it( 'did get the number of users before the tests begin', function( done ) {
-    admin.get( `/api/users` )
-      .then( res => {
-        test.number( res.body.data.length )
-        numUsers = res.body.data.length;
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did get the number of users before the tests begin', async function() {
+    const resp = await admin.get( `/api/users` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.number( json.data.length )
+    numUsers = json.data.length;
   } )
 
-  it( 'did not allow a regular user to access the admin user details', function( done ) {
-    user1
-      .code( 403 )
-      .get( `/api/users/${admin.username}?verbose=true` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" )
-        test.string( res.body.message ).is( "You don't have permission to make this request" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did not allow a regular user to access the admin user details', async function() {
+    const resp = await user1.get( `/api/users/${admin.username}?verbose=true` );
+    test.number( resp.status ).is( 403 );
+    const json = await resp.json();
+    test.object( json ).hasProperty( "message" )
+    test.string( json.message ).is( "You don't have permission to make this request" )
   } )
 
-  it( 'did not allow a regular user to access another user details', function( done ) {
-    user2
-      .code( 403 )
-      .get( `/api/users/${admin.username}?verbose=true` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" )
-        test.string( res.body.message ).is( "You don't have permission to make this request" )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did not allow a regular user to access another user details', async function() {
+    const resp = await user2.get( `/api/users/${admin.username}?verbose=true` )
+    test.number( resp.status ).is( 403 );
+    const json = await resp.json();
+    test.object( json ).hasProperty( "message" )
+    test.string( json.message ).is( "You don't have permission to make this request" )
   } )
 
-  it( 'did get regular users own data', function( done ) {
-    user1.get( `/api/users/${user1.username}?verbose=true` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "data" )
-        test.string( res.body.data._id )
-        test.string( res.body.data.email ).is( user1.email )
-        test.number( res.body.data.lastLoggedIn ).isNotNaN()
-        test.value( res.body.data.password )
-        test.value( res.body.data.registerKey )
-        test.value( res.body.data.sessionId )
-        test.value( res.body.data.passwordTag )
-        test.string( res.body.data.username ).is( user1.username )
-        test.number( res.body.data.privileges ).is( 3 )
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did get regular users own data', async function() {
+    const resp = await user1.get( `/api/users/${user1.username}?verbose=true` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.object( json ).hasProperty( "data" )
+    test.string( json.data._id )
+    test.string( json.data.email ).is( user1.email )
+    test.number( json.data.lastLoggedIn ).isNotNaN()
+    test.value( json.data.password )
+    test.value( json.data.registerKey )
+    test.value( json.data.sessionId )
+    test.value( json.data.passwordTag )
+    test.string( json.data.username ).is( user1.username )
+    test.number( json.data.privileges ).is( 3 );
   } )
 
-  it( 'did have the same number of users as before the tests started', function( done ) {
-    admin.get( `/api/users` )
-      .then( res => {
-        test.bool( res.body.data.length === numUsers ).isTrue();
-        done();
-      } ).catch( err => done( err ) );
+  it( 'did have the same number of users as before the tests started', async function() {
+    const resp = await admin.get( `/api/users` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.bool( json.data.length === numUsers ).isTrue();
   } )
 } )
