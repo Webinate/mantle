@@ -1,4 +1,7 @@
 const test = require( 'unit.js' );
+const FormData = require( 'form-data' );
+const fs = require( 'fs' );
+
 let guest, admin, config, user1, user2;
 const filePath = './test/media/file.png';
 let fileId;
@@ -14,64 +17,55 @@ describe( '6. Testing files deletion', function() {
     config = header.config;
   } )
 
-  it( 'regular user did create a bucket dinosaurs', function( done ) {
-    user1.post( `/buckets/user/${user1.username}/dinosaurs` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did create a bucket dinosaurs', async function() {
+    const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
   } )
 
-  it( 'regular user did upload a file to dinosaurs', function( done ) {
-    user1
-      .attach( 'small-image', filePath )
-      .post( "/buckets/dinosaurs/upload" )
-      .then( ( res ) => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did upload a file to dinosaurs', async function() {
+    const form = new FormData();
+    form.append( 'small-image', fs.createReadStream( filePath ) );
+    const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
   } )
 
-  it( 'regular user has 1 file', function( done ) {
-    user1
-      .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then( ( res ) => {
-        fileId = res.body.data[ 0 ].identifier;
-        test.array( res.body.data ).hasLength( 1 );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user has 1 file', async function() {
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+    fileId = json.data[ 0 ].identifier;
+    test.array( json.data ).hasLength( 1 );
   } )
 
-  it( 'regular user did not remove a file with a bad id', function( done ) {
-    user1.delete( `/files/123` )
-      .then( res => {
-        test.array( res.body.data ).hasLength( 0 );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did not remove a file with a bad id', async function() {
+    const resp = await user1.delete( `/files/123` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+    test.array( json.data ).hasLength( 0 );
   } )
 
-  it( 'regular user did remove a file with a valid id', function( done ) {
-    user1.delete( `/files/${fileId}` )
-      .then( res => {
-        test.array( res.body.data ).hasLength( 1 );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did remove a file with a valid id', async function() {
+    const resp = await user1.delete( `/files/${fileId}` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+    test.array( json.data ).hasLength( 1 );
   } )
 
-  it( 'regular user has 0 files', function( done ) {
-    user1
-      .get( `/files/users/${user1.username}/buckets/dinosaurs` )
-      .then( ( res ) => {
-        test.array( res.body.data ).hasLength( 0 );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user has 0 files', async function() {
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+    test.array( json.data ).hasLength( 0 );
   } )
 
   // TODO: Add a test for regular user deletion permission denial?
   // TODO: Add a test for admin deletion of user file?
 
-  it( 'regular user did remove the bucket dinosaurs', function( done ) {
-    user1.delete( `/buckets/dinosaurs` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did remove the bucket dinosaurs', async function() {
+    const resp = await user1.delete( `/buckets/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
   } )
 } )

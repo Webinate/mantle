@@ -12,76 +12,68 @@ describe( '3. Testing bucket creation', function() {
     config = header.config;
   } )
 
-  it( 'regular user did not create a bucket for another user', function( done ) {
-    user1
-      .code( 403 )
-      .post( `/buckets/user/${config.adminUser.username} + "/test` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "You don't have permission to make this request" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did not create a bucket for another user', async function() {
+    const resp = await user1.post( `/buckets/user/${config.adminUser.username}/test` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 403 );
+
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "You don't have permission to make this request" );
   } )
 
-  it( 'regular user did not create a bucket with bad characters', function( done ) {
-    user1
-      .code( 500 )
-      .post( `/buckets/user/${user1.username}/�BAD!CHARS` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Please only use safe characters" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did not create a bucket with bad characters', async function() {
+    const resp = await user1.post( `/buckets/user/${user1.username}/�BAD!CHARS` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 500 );
+
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "Please only use safe characters" );
   } )
 
-  it( 'regular user did create a new bucket called dinosaurs', function( done ) {
-    user1.post( `/buckets/user/${user1.username}/dinosaurs` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Bucket 'dinosaurs' created" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did create a new bucket called dinosaurs', async function() {
+    const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "Bucket 'dinosaurs' created" );
   } )
 
-  it( 'regular user did not create a bucket with the same name as an existing one', function( done ) {
-    user1
-      .code( 500 )
-      .post( `/buckets/user/${user1.username}/dinosaurs` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "A Bucket with the name 'dinosaurs' has already been registered" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did not create a bucket with the same name as an existing one', async function() {
+    const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 500 );
+
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "A Bucket with the name 'dinosaurs' has already been registered" );
   } )
 
-  it( 'admin user did create a bucket with a different name for regular user', function( done ) {
-    admin.post( `/buckets/user/${user1.username}/dinosaurs2` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "Bucket 'dinosaurs2' created" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'admin user did create a bucket with a different name for regular user', async function() {
+    const resp = await admin.post( `/buckets/user/${user1.username}/dinosaurs2` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "Bucket 'dinosaurs2' created" );
   } )
 
-  it( 'regular user should have 2 buckets', function( done ) {
-    user1.get( `/buckets/user/${user1.username}` )
-      .then( res => {
-        test.array( res.body.data ).hasLength( 2 );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user should have 2 buckets', async function() {
+    const resp = await user1.get( `/buckets/user/${user1.username}` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+
+    test.array( json.data ).hasLength( 2 );
   } )
 
-  it( 'regular user did remove the bucket dinosaurs', function( done ) {
-    user1.delete( `/buckets/dinosaurs` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did remove the bucket dinosaurs', async function() {
+    const resp = await user1.delete( `/buckets/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
   } )
 
-  it( 'regular user did remove the bucket dinosaurs', function( done ) {
-    user1.delete( `/buckets/dinosaurs2` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did remove the bucket dinosaurs', async function() {
+    const resp = await user1.delete( `/buckets/dinosaurs2` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
   } )
 } )

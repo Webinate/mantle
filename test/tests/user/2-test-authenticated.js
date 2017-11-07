@@ -10,50 +10,50 @@ describe( '2. Checking basic authentication', function() {
     config = header.config;
   } )
 
-  it( 'guest should not be logged in', function( done ) {
-    guest.get( '/api/auth/authenticated' )
-      .then( res => {
-        test.bool( res.body.authenticated ).isNotTrue();
-        test.string( res.body.message ).is( "User is not authenticated" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'guest should not be logged in', async function() {
+    const resp = await guest.get( '/api/auth/authenticated' );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+
+    test.bool( json.authenticated ).isNotTrue();
+    test.string( json.message ).is( "User is not authenticated" );
   } )
 
-  it( 'admin should be logged in', function( done ) {
-    admin.get( '/api/auth/authenticated' )
-      .then( res => {
-        test.bool( res.body.authenticated ).isTrue();
-        test.string( res.body.message ).is( "User is authenticated" );
-        test.string( res.body.user._id );
-        test.value( res.body.user.email ).isUndefined();
-        test.number( res.body.user.lastLoggedIn ).isNotNaN();
-        test.number( res.body.user.createdOn ).isNotNaN();
-        test.value( res.body.user.password ).isUndefined();
-        test.value( res.body.user.registerKey ).isUndefined();
-        test.value( res.body.user.sessionId ).isUndefined();
-        test.string( res.body.user.username ).is( config.adminUser.username );
-        test.number( res.body.user.privileges ).is( 1 );
-        test.value( res.body.user.passwordTag ).isUndefined();
-        done();
-      } ).catch( err => done( err ) );
+  it( 'admin should be logged in', async function() {
+    const resp = await admin.get( '/api/auth/authenticated' );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+
+    test.bool( json.authenticated ).isTrue();
+    test.string( json.message ).is( "User is authenticated" );
+    test.string( json.user._id );
+    test.value( json.user.email ).isUndefined();
+    test.number( json.user.lastLoggedIn ).isNotNaN();
+    test.number( json.user.createdOn ).isNotNaN();
+    test.value( json.user.password ).isUndefined();
+    test.value( json.user.registerKey ).isUndefined();
+    test.value( json.user.sessionId ).isUndefined();
+    test.string( json.user.username ).is( config.adminUser.username );
+    test.number( json.user.privileges ).is( 1 );
+    test.value( json.user.passwordTag ).isUndefined();
   } )
 
-  it( 'admin should be authenticated and pass verbose details', function( done ) {
-    admin.get( '/api/auth/authenticated?verbose=true' )
-      .then( res => {
-        test.bool( res.body.authenticated ).isTrue();
-        test.string( res.body.message ).is( "User is authenticated" );
-        test.string( res.body.user._id );
-        test.string( res.body.user.email ).is( config.adminUser.email );
-        test.number( res.body.user.lastLoggedIn ).isNotNaN();
-        test.number( res.body.user.createdOn ).isNotNaN();
-        test.string( res.body.user.password );
-        test.string( res.body.user.registerKey );
-        test.string( res.body.user.sessionId );
-        test.string( res.body.user.username ).is( config.adminUser.username );
-        test.number( res.body.user.privileges ).is( 1 );
-        test.string( res.body.user.passwordTag );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'admin should be authenticated and pass verbose details', async function() {
+    const resp = await admin.get( '/api/auth/authenticated?verbose=true' );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+
+    test.bool( json.authenticated ).isTrue();
+    test.string( json.message ).is( "User is authenticated" );
+    test.string( json.user._id );
+    test.string( json.user.email ).is( config.adminUser.email );
+    test.number( json.user.lastLoggedIn ).isNotNaN();
+    test.number( json.user.createdOn ).isNotNaN();
+    test.string( json.user.password );
+    test.string( json.user.registerKey );
+    test.string( json.user.sessionId );
+    test.string( json.user.username ).is( config.adminUser.username );
+    test.number( json.user.privileges ).is( 1 );
+    test.string( json.user.passwordTag );
   } )
 } )

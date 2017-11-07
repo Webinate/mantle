@@ -12,55 +12,47 @@ describe( '5. Testing bucket get requests', function() {
     config = header.config;
   } )
 
-  it( 'regular user did create a bucket dinosaurs', function( done ) {
-    user1.post( `/buckets/user/${user1.username}/dinosaurs` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did create a bucket dinosaurs', async function() {
+    const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
   } )
 
-  it( 'regular user has 1 bucket', function( done ) {
-    user1.get( `/buckets/user/${user1.username}` )
-      .then( res => {
-        test.array( res.body.data ).hasLength( 1 );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user has 1 bucket', async function() {
+    const resp = await user1.get( `/buckets/user/${user1.username}` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+    test.array( json.data ).hasLength( 1 );
   } )
 
-  it( 'regular user did not get buckets for admin', function( done ) {
-    user1
-      .code( 403 )
-      .get( `/buckets/user/${config.adminUser.username}` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "You don't have permission to make this request" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did not get buckets for admin', async function() {
+    const resp = await user1.get( `/buckets/user/${config.adminUser.username}` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 403 );
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "You don't have permission to make this request" );
   } )
 
-  it( 'other regular user did not get buckets for regular user', function( done ) {
-    user2
-      .code( 403 )
-      .get( `/buckets/user/${config.adminUser.username}` )
-      .then( res => {
-        test.object( res.body ).hasProperty( "message" );
-        test.string( res.body.message ).is( "You don't have permission to make this request" );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'other regular user did not get buckets for regular user', async function() {
+    const resp = await user2.get( `/buckets/user/${config.adminUser.username}` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 403 );
+
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "You don't have permission to make this request" );
+
   } )
 
-  it( 'admin can see regular user has 1 bucket', function( done ) {
-    admin.get( `/buckets/user/${user1.username}` )
-      .then( res => {
-        test.array( res.body.data ).hasLength( 1 );
-        done();
-      } ).catch( err => done( err ) );
+  it( 'admin can see regular user has 1 bucket', async function() {
+    const resp = await admin.get( `/buckets/user/${user1.username}` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
+    test.array( json.data ).hasLength( 1 );
   } )
 
-  it( 'regular user did remove the bucket dinosaurs', function( done ) {
-    user1.delete( `/buckets/dinosaurs` )
-      .then( res => {
-        done();
-      } ).catch( err => done( err ) );
+  it( 'regular user did remove the bucket dinosaurs', async function() {
+    const resp = await user1.delete( `/buckets/dinosaurs` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 200 );
   } )
 } )

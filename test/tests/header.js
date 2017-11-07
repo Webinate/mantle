@@ -1,69 +1,75 @@
 let test = require( 'unit.js' );
 let fs = require( 'fs' );
 let yargs = require( "yargs" );
+const fetch = require( "node-fetch" );
+const formData = require( 'form-data' );
 let args = yargs.argv;
 
 /**
  * Represents an agent that can make calls to the backend
  */
 class Agent {
-  constructor( cookie, username, password, email, url ) {
-    this.agent = test.httpAgent( url || ( "http://localhost:8000" ) );
+  constructor( host, cookie, username, password, email ) {
+    this.host = host || "http://localhost:8000";
     this.cookie = cookie;
     this.username = username;
     this.password = password;
     this.email = email;
-    this.setDefaults();
   }
 
-  /**
-   * Sets the default properties
-   */
-  setDefaults() {
-    this._code = 200;
-    this._accepts = 'application/json';
-    this._contentType = /json/;
-    this._filePath = null;
-    this._fileName = null;
-    this._expects = '';
-    this._fields = null;
-    this._contentLength = null;
+  async get( url, type = 'application/json' ) {
+    const headers = {};
+    if ( type )
+      headers[ 'Content-Type' ] = type;
+    if ( this.cookie )
+      headers[ 'Cookie' ] = this.cookie;
+
+    return await fetch( `${this.host}${url}`, {
+      headers: headers
+    } );
   }
 
-  code( val ) {
-    this._code = val;
-    return this;
+  async put( url, data, type = 'application/json' ) {
+    const headers = {};
+    if ( type )
+      headers[ 'Content-Type' ] = type;
+    if ( this.cookie )
+      headers[ 'Cookie' ] = this.cookie;
+
+    return await fetch( `${this.host}${url}`, {
+      method: 'PUT',
+      headers: headers,
+      body: type === 'application/json' ? JSON.stringify( data ) : data
+    } );
   }
 
-  accepts( val ) {
-    this._accepts = val;
-    return this;
+  async post( url, data, type = 'application/json', optionalHeaders = {} ) {
+    const headers = Object.assign( {}, optionalHeaders );
+    if ( type )
+      headers[ 'Content-Type' ] = type;
+    if ( this.cookie )
+      headers[ 'Cookie' ] = this.cookie;
+
+
+
+    return await fetch( `${this.host}${url}`, {
+      method: 'POST',
+      headers: headers,
+      body: type === 'application/json' ? JSON.stringify( data ) : data
+    } );
   }
 
-  fields( val ) {
-    this._fields = val;
-    return this;
-  }
+  async delete( url, data, type = 'application/json' ) {
+    const headers = {};
+    if ( type )
+      headers[ 'Content-Type' ] = type;
+    if ( this.cookie )
+      headers[ 'Cookie' ] = this.cookie;
 
-  attach( name, filePath ) {
-    this._fileName = name;
-    this._filePath = filePath;
-    return this;
-  }
-
-  contentType( val ) {
-    this._contentType = val;
-    return this;
-  }
-
-  setContentType( val ) {
-    this._setContentType = val;
-    return this;
-  }
-
-  contentLength( val ) {
-    this._contentLength = val;
-    return this;
+    return await fetch( `${this.host}${url}`, {
+      method: 'DELETE',
+      headers: headers
+    } );
   }
 
   /**
@@ -71,73 +77,7 @@ class Agent {
    * @param {string} response
    */
   updateCookie( response ) {
-    this.cookie = response.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];
-  }
-
-  go( url, data, type ) {
-    return new Promise( ( resolve, reject ) => {
-      let req = null;
-      if ( type === 'post' )
-        req = this.agent.post( url );
-      else if ( type === 'delete' )
-        req = this.agent.delete( url );
-      else if ( type === 'put' )
-        req = this.agent.put( url );
-      else
-        req = this.agent.get( url );
-
-      // req.set( 'Accept', this._accepts );
-
-      if ( this._setContentType )
-        req.set( 'Accept', this._setContentType );
-
-      if ( this._code )
-        req.expect( this._code )
-
-      if ( this._contentType )
-        req.expect( 'Content-Type', this._contentType );
-
-      if ( data )
-        req.send( data )
-
-      if ( this._fields )
-        for ( let i in this._fields )
-          req.field( i, this._fields[ i ] )
-
-      if ( this._filePath )
-        req.attach( this._fileName, this._filePath )
-
-      if ( this._contentLength )
-        req.expect( 'Content-Length', this._contentLength )
-
-      if ( this.cookie )
-        req.set( 'Cookie', this.cookie )
-
-      req.end( ( err, res ) => {
-        this.setDefaults()
-
-        if ( err )
-          return reject( err );
-
-        return ( resolve( res ) );
-      } );
-    } );
-  }
-
-  post( url, data ) {
-    return this.go( url, data, 'post' );
-  }
-
-  delete( url, data ) {
-    return this.go( url, data, 'delete' );
-  }
-
-  put( url, data ) {
-    return this.go( url, data, 'put' );
-  }
-
-  get( url, data ) {
-    return this.go( url );
+    this.cookie = response.headers.get( "set-cookie" ).split( ";" )[ 0 ];
   }
 }
 
@@ -147,29 +87,7 @@ class Agent {
  * @param {string} options Options for the agent
  */
 function createAgent( url, options = {} ) {
-  return new Agent( options.cookie, options.username, options.password, options.email, url );
-}
-
-/**
- * Posts a request to the server
- * @param {string} url The url of the post
- * @param {string} json The data to send
- * @param {string} host The host url
- */
-function post( url, json, host ) {
-  return new Promise( ( resolve, reject ) => {
-    const agent = test.httpAgent( host );
-    agent.post( url )
-      .set( 'Accept', 'application/json' )
-      .expect( 200 ).expect( 'Content-Type', /json/ )
-      .send( json )
-      .end( ( err, res ) => {
-        if ( err )
-          return reject( err );
-
-        return ( resolve( res ) );
-      } );
-  } );
+  return new Agent( url, options.cookie, options.username, options.password, options.email );
 }
 
 /**
@@ -183,24 +101,20 @@ function post( url, json, host ) {
 async function createUser( username, password, email, priviledge = 3 ) {
 
   // Remove the user if they already exist
-  let response = await exports.users.admin
-    .code( null )
-    .delete( `/api/users/${username}` );
+  let response = await exports.users.admin.delete( `/api/users/${username}` );
 
   // Now create the user using the admin account
-  response = await exports.users.admin
-    .code( 200 )
-    .post( `/api/users`, { username: username, password: password, email: email, privileges: priviledge } );
+  response = await exports.users.admin.post( `/api/users`, { username: username, password: password, email: email, privileges: priviledge } );
 
-  if ( response.body.error )
-    throw new Error( response.body.message );
+  if ( response.status !== 200 )
+    throw new Error( response.body );
 
   // User created, but not logged in
-  const newAgent = new Agent( null, username, password, email );
+  const newAgent = new Agent( null, null, username, password, email );
   response = await newAgent.post( `/api/auth/login`, { username: username, password: password } );
 
-  if ( response.body.error )
-    throw new Error( response.body.message );
+  if ( response.status !== 200 )
+    throw new Error( response.body );
 
   newAgent.updateCookie( response );
   exports.users[ username ] = newAgent;
@@ -249,10 +163,12 @@ async function initialize() {
     const config = JSON.parse( fs.readFileSync( args.config ) );
     loadSensitiveProps( config );
 
-    // const serverConfig = config.servers[ parseInt( args.server ) ];
     const host = "http://localhost:8000";
-    const resp = await post( '/api/auth/login', { username: config.adminUser.username, password: config.adminUser.password }, host );
-    const adminCookie = resp.headers[ "set-cookie" ][ 0 ].split( ";" )[ 0 ];;
+    const initAgent = new Agent( host );
+
+    // const serverConfig = config.servers[ parseInt( args.server ) ];
+    const resp = await initAgent.post( '/api/auth/login', { username: config.adminUser.username, password: config.adminUser.password } );
+    const adminCookie = resp.headers.get( "set-cookie" ).split( ";" )[ 0 ];
 
 
     // Set the functions we want to expose
@@ -263,7 +179,7 @@ async function initialize() {
     exports.createAgent = createAgent;
     exports.users = {
       guest: new Agent(),
-      admin: new Agent( adminCookie, config.adminUser.username, config.adminUser.password, config.adminUser.email ),
+      admin: new Agent( null, adminCookie, config.adminUser.username, config.adminUser.password, config.adminUser.email ),
       user1: null,
       user2: null
     };

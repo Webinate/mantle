@@ -15,7 +15,9 @@
   },
   "devDependencies": {
     "unit.js": "~2.0.0",
-    "mocha": "~3.2.0"
+    "mocha": "~3.2.0",
+    "node-fetch": "1.7.3",
+    "form-data": "2.3.1"
   },
   "dependencies": {
     "@google-cloud/storage": "^1.2.1",
