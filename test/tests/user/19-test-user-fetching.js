@@ -53,6 +53,23 @@ describe( '19. Testing fetching users', function() {
     test.number( json.privileges ).is( 3 );
   } )
 
+  it( 'did get user page information', async function() {
+    const resp = await admin.get( `/api/users` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.number( json.count ).isGreaterThan( 0 )
+    test.number( json.index ).is( 0 )
+    test.number( json.limit ).is( 10 )
+  } )
+
+  it( 'did get client driven page information from the URL', async function() {
+    const resp = await admin.get( `/api/users?limit=20&index=1` );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.number( json.index ).is( 1 );
+    test.number( json.limit ).is( 20 );
+  } )
+
   it( 'did have the same number of users as before the tests started', async function() {
     const resp = await admin.get( `/api/users` );
     test.number( resp.status ).is( 200 );
