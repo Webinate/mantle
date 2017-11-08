@@ -2,10 +2,10 @@
 import { StatTokens, IAuthReq, IStorageStats, IBaseControler } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../core/user-manager';
+import { UsersController } from '../controllers/users';
 import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
-import { BucketManager } from '../core/bucket-manager';
+import { BucketsController } from '../controllers/buckets';
 import * as compression from 'compression';
 import { okJson, errJson, j200 } from '../utils/response-decorators';
 import * as mongodb from 'mongodb';
@@ -70,7 +70,7 @@ export class StatsSerializer extends Serializer {
         throw new Error( 'Please specify a valid value' );
 
       // Make sure the user exists
-      const user = await UserManager.get.getUser( req.params.target );
+      const user = await UsersController.get.getUser( req.params.target );
 
       if ( !user )
         throw new Error( `Could not find the user '${req.params.target}'` );
@@ -90,7 +90,7 @@ export class StatsSerializer extends Serializer {
   private async updateCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageCalls.Response> {
     try {
       const value = parseInt( req.params.value );
-      const manager = BucketManager.get;
+      const manager = BucketsController.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsUsed: value } );
       return;
     } catch ( err ) {
@@ -105,7 +105,7 @@ export class StatsSerializer extends Serializer {
   private async updateMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageMemory.Response> {
     try {
       const value = parseInt( req.params.value );
-      const manager = BucketManager.get;
+      const manager = BucketsController.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryUsed: value } );
       return;
 
@@ -121,7 +121,7 @@ export class StatsSerializer extends Serializer {
   private async updateAllocatedCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocCalls.Response> {
     try {
       const value = parseInt( req.params.value );
-      const manager = BucketManager.get;
+      const manager = BucketsController.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsAllocated: value } );
       return;
 
@@ -137,7 +137,7 @@ export class StatsSerializer extends Serializer {
   private async updateAllocatedMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocMemory.Response> {
     try {
       const value = parseInt( req.params.value );
-      const manager = BucketManager.get;
+      const manager = BucketsController.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryAllocated: value } );
       return;
     } catch ( err ) {
@@ -150,7 +150,7 @@ export class StatsSerializer extends Serializer {
    */
   private async getStats( req: IAuthReq, res: express.Response ) {
     try {
-      const manager = BucketManager.get;
+      const manager = BucketsController.get;
       const stats = await manager.getUserStats( req._user!.username );
       return okJson<StatTokens.GetOne.Response>( stats, res );
     } catch ( err ) {
@@ -163,7 +163,7 @@ export class StatsSerializer extends Serializer {
    */
   private async createStats( req: IAuthReq, res: express.Response ) {
     try {
-      const manager = BucketManager.get;
+      const manager = BucketsController.get;
       const stats = await manager.createUserStats( req.params.target );
       res.setHeader( 'Content-Type', 'application/json' );
       res.end( JSON.stringify( stats ) );

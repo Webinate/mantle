@@ -2,7 +2,7 @@
 import { ISimpleResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../core/user-manager';
+import { UsersController } from '../controllers/users';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
 import * as compression from 'compression';
@@ -52,7 +52,7 @@ export class AdminSerializer extends Serializer {
     if ( !token.message )
       throw new Error( 'Please specify a message to send' );
 
-    await UserManager.get.sendAdminEmail( token.message, token.name, token.from );
+    await UsersController.get.sendAdminEmail( token.message, token.name, token.from );
     const response: ISimpleResponse = { message: 'Your message has been sent to the support team' };
     return response;
   }

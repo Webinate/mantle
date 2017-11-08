@@ -3,8 +3,8 @@
 import { AuthTokens } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserManager } from '../core/user-manager';
-import { SessionManager } from '../core/session-manager';
+import { UsersController } from '../controllers/users';
+import { SessionsController } from '../controllers/sessions';
 import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
@@ -73,7 +73,7 @@ export class AuthSerializer extends Serializer {
 
     try {
       // Check the user's activation and forward them onto the admin message page
-      await UserManager.get.checkActivation( req.query.user, req.query.key );
+      await UsersController.get.checkActivation( req.query.user, req.query.key );
       res.setHeader( 'Content-Type', 'application/json' );
       res.redirect( `${redirectURL}?message=${encodeURIComponent( 'Your account has been activated!' )}&status=success&origin=${encodeURIComponent( req.query.origin )}` );
 
@@ -92,7 +92,7 @@ export class AuthSerializer extends Serializer {
   private async resendActivation( req: express.Request, res: express.Response ) {
     const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
 
-    await UserManager.get.resendActivation( req.params.user, this._options.accountRedirectURL, origin );
+    await UsersController.get.resendActivation( req.params.user, this._options.accountRedirectURL, origin );
     const response: AuthTokens.ResendActivation.Response = { message: 'An activation link has been sent, please check your email for further instructions' };
     return response;
   }
@@ -103,7 +103,7 @@ export class AuthSerializer extends Serializer {
   @j200()
   private async requestPasswordReset( req: express.Request, res: express.Response ) {
     const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
-    await UserManager.get.requestPasswordReset( req.params.user, this._options.passwordResetURL, origin );
+    await UsersController.get.requestPasswordReset( req.params.user, this._options.passwordResetURL, origin );
     const response: AuthTokens.RequestPasswordReset.Response = { message: 'Instructions have been sent to your email on how to change your password' };
     return response;
   }
@@ -124,7 +124,7 @@ export class AuthSerializer extends Serializer {
       throw new Error( 'Please specify a password' );
 
     // Check the user's activation and forward them onto the admin message page
-    await UserManager.get.resetPassword( req.body.user, req.body.key, req.body.password );
+    await UsersController.get.resetPassword( req.body.user, req.body.key, req.body.password );
     const response: AuthTokens.PasswordReset.Response = { message: 'Your password has been reset' };
     return response;
   }
@@ -134,7 +134,7 @@ export class AuthSerializer extends Serializer {
 	 */
   @j200()
   private async approveActivation( req: express.Request, res: express.Response ) {
-    await UserManager.get.approveActivation( req.params.user );
+    await UsersController.get.approveActivation( req.params.user );
     const response: AuthTokens.ApproveActivation.Response = { message: 'Activation code has been approved' };
     return response;
   }
@@ -145,10 +145,10 @@ export class AuthSerializer extends Serializer {
   @j200()
   private async login( req: express.Request, res: express.Response ) {
     const token: AuthTokens.Login.Body = req.body;
-    const session = await UserManager.get.logIn( token.username, token.password, token.rememberMe, req, res );
+    const session = await UsersController.get.logIn( token.username, token.password, token.rememberMe, req, res );
 
     if ( session )
-      await SessionManager.get.setSessionHeader( session, req, res );
+      await SessionsController.get.setSessionHeader( session, req, res );
 
     const response: AuthTokens.Login.Response = {
       message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
@@ -163,7 +163,7 @@ export class AuthSerializer extends Serializer {
 	 */
   @j200()
   private async logout( req: express.Request, res: express.Response ): Promise<AuthTokens.Logout.Response> {
-    await UserManager.get.logOut( req, res );
+    await UsersController.get.logOut( req, res );
     return;
   }
 
@@ -174,7 +174,7 @@ export class AuthSerializer extends Serializer {
   private async register( req: express.Request, res: express.Response ) {
     const token: AuthTokens.Register.Body = req.body;
     const activationLink = this._options.activateAccountUrl;
-    const user = await UserManager.get.register( token.username!, token.password!, token.email!, activationLink, {}, req );
+    const user = await UsersController.get.register( token.username!, token.password!, token.email!, activationLink, {}, req );
 
     const response: AuthTokens.Register.Response = {
       message: ( user ? 'Please activate your account with the link sent to your email address' : 'User is not authenticated' ),
@@ -189,9 +189,9 @@ export class AuthSerializer extends Serializer {
 	 */
   @j200()
   private async authenticated( req: express.Request, res: express.Response ) {
-    const session = await SessionManager.get.getSession( req );
+    const session = await SessionsController.get.getSession( req );
     if ( session )
-      await SessionManager.get.setSessionHeader( session, req, res );
+      await SessionsController.get.setSessionHeader( session, req, res );
     const response: AuthTokens.Authenticated.Response = {
       message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
       authenticated: ( session ? true : false ),

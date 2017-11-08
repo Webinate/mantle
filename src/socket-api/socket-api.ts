@@ -1,6 +1,6 @@
 'use strict';
 
-import { UserManager } from '../core/user-manager';
+import { UsersController } from '../controllers/users';
 import { ServerInstruction } from './server-instruction';
 import { ClientInstruction } from './client-instruction';
 import { CommsController } from './comms-controller';
@@ -25,10 +25,10 @@ export class SocketAPI {
   private onMeta( e: ServerInstruction<any> ) {
     const comms = this._comms;
 
-    if ( !UserManager.get )
+    if ( !UsersController.get )
       return;
 
-    UserManager.get.getUser( e.token.username! ).then( function( user ) {
+    UsersController.get.getUser( e.token.username! ).then( function( user ) {
 
       if ( !user )
         return Promise.reject( new Error( 'Could not find user ' + e.token.username ) );
@@ -38,13 +38,13 @@ export class SocketAPI {
         return Promise.reject( new Error( 'You do not have permission to make this request' ) );
 
       if ( e.token.property && e.token.val !== undefined )
-        return UserManager.get.setMetaVal( user.dbEntry, e.token.property, e.token.val );
+        return UsersController.get.setMetaVal( user.dbEntry, e.token.property, e.token.val );
       else if ( e.token.property )
-        return UserManager.get.getMetaVal( user.dbEntry, e.token.property );
+        return UsersController.get.getMetaVal( user.dbEntry, e.token.property );
       else if ( e.token.val )
-        return UserManager.get.setMeta( user.dbEntry, e.token.val );
+        return UsersController.get.setMeta( user.dbEntry, e.token.val );
       else
-        return UserManager.get.getMetaData( user.dbEntry );
+        return UsersController.get.getMetaData( user.dbEntry );
 
     } ).then( function( metaVal ) {
 

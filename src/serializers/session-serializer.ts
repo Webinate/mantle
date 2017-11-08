@@ -3,7 +3,7 @@
 import { SessionTokens } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { SessionManager } from '../core/session-manager';
+import { SessionsController } from '../controllers/sessions';
 import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
@@ -53,10 +53,10 @@ export class SessionSerializer extends Serializer {
 	 */
   @j200()
   private async getSessions( req: express.Request, res: express.Response ) {
-    const numSessions = await SessionManager.get.numActiveSessions();
+    const numSessions = await SessionsController.get.numActiveSessions();
     const index = parseInt( req.query.index );
     const limit = parseInt( req.query.limit );
-    const sessions = await SessionManager.get.getActiveSessions( index, limit )
+    const sessions = await SessionsController.get.getActiveSessions( index, limit )
 
     const response: SessionTokens.GetAll.Response = {
       data: sessions,
@@ -72,7 +72,7 @@ export class SessionSerializer extends Serializer {
 	 */
   @j200( 204 )
   private async deleteSession( req: express.Request, res: express.Response ) {
-    await SessionManager.get.clearSession( req.params.id, req, res );
+    await SessionsController.get.clearSession( req.params.id, req, res );
     return;
   }
 }

@@ -4,7 +4,7 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
-import { BucketManager } from '../core/bucket-manager';
+import { BucketsController } from '../controllers/buckets';
 import * as compression from 'compression';
 import { okJson, errJson, j200 } from '../utils/response-decorators';
 import { IFileOptions } from 'modepress';
@@ -58,7 +58,7 @@ export class FileSerializer extends Serializer {
    */
   private async removeFiles( req: IAuthReq, res: express.Response ) {
     try {
-      const manager = BucketManager.get;
+      const manager = BucketsController.get;
       let files: Array<string>;
 
       if ( !req.params.files || req.params.files.trim() === '' )
@@ -84,7 +84,7 @@ export class FileSerializer extends Serializer {
    */
   @j200()
   private async renameFile( req: IAuthReq, res: express.Response ): Promise<FileTokens.Put.Response> {
-    const manager = BucketManager.get;
+    const manager = BucketsController.get;
 
     if ( !req.params.file || req.params.file.trim() === '' )
       throw new Error( 'Please specify the file to rename' );
@@ -106,7 +106,7 @@ export class FileSerializer extends Serializer {
    * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
    */
   private async getFiles( req: IAuthReq, res: express.Response ) {
-    const manager = BucketManager.get;
+    const manager = BucketsController.get;
     const index = parseInt( req.query.index );
     const limit = parseInt( req.query.limit );
     let bucketEntry: IBucketEntry | null;

@@ -7,18 +7,18 @@ import { createGzip, createGunzip, createDeflate, Gzip, Gunzip, Deflate } from '
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
-import { googleBucket } from './remotes/google-bucket';
-import { localBucket } from './remotes/local-bucket';
+import { googleBucket } from '../core/remotes/google-bucket';
+import { localBucket } from '../core/remotes/local-bucket';
 import { generateRandString } from '../utils/utils';
 
 /**
- * Class responsible for managing buckets and uploads to Google storage
+ * Class responsible for managing buckets and uploads
  */
-export class BucketManager {
+export class BucketsController {
   private static MEMORY_ALLOCATED: number = 5e+8; // 500mb
   private static API_CALLS_ALLOCATED: number = 20000; // 20,000
 
-  private static _singleton: BucketManager;
+  private static _singleton: BucketsController;
   private _buckets: Collection<IBucketEntry>;
   private _files: Collection<IFileEntry>;
   private _stats: Collection<IStorageStats>;
@@ -28,7 +28,7 @@ export class BucketManager {
   private _activeManager: IRemote;
 
   constructor( buckets: Collection, files: Collection, stats: Collection, config: IConfig ) {
-    BucketManager._singleton = this;
+    BucketsController._singleton = this;
     googleBucket.initialize( config.remotes.google as IGoogleProperties );
     localBucket.initialize( config.remotes.local as ILocalBucket );
 
@@ -137,8 +137,8 @@ export class BucketManager {
 
     const storage: IStorageStats = {
       user: user,
-      apiCallsAllocated: BucketManager.API_CALLS_ALLOCATED,
-      memoryAllocated: BucketManager.MEMORY_ALLOCATED,
+      apiCallsAllocated: BucketsController.API_CALLS_ALLOCATED,
+      memoryAllocated: BucketsController.MEMORY_ALLOCATED,
       apiCallsUsed: 0,
       memoryUsed: 0
     }
@@ -571,14 +571,14 @@ export class BucketManager {
   /**
    * Creates the bucket manager singleton
    */
-  static create( buckets: Collection, files: Collection, stats: Collection, config: IConfig ): BucketManager {
-    return new BucketManager( buckets, files, stats, config );
+  static create( buckets: Collection, files: Collection, stats: Collection, config: IConfig ): BucketsController {
+    return new BucketsController( buckets, files, stats, config );
   }
 
   /**
    * Gets the bucket singleton
    */
-  static get get(): BucketManager {
-    return BucketManager._singleton;
+  static get get(): BucketsController {
+    return BucketsController._singleton;
   }
 }

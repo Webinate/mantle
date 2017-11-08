@@ -2102,7 +2102,7 @@ declare module "core/session" {
         private pad(n);
     }
 }
-declare module "core/session-manager" {
+declare module "controllers/sessions" {
     import { EventEmitter } from 'events';
     import { ISessionEntry, ISession } from 'modepress';
     import { ServerRequest, ServerResponse } from 'http';
@@ -2111,7 +2111,7 @@ declare module "core/session-manager" {
     /**
     * A class that manages session data for active users
      */
-    export class SessionManager extends EventEmitter {
+    export class SessionsController extends EventEmitter {
         private static _singleton;
         private _sessions;
         private _users;
@@ -2174,11 +2174,11 @@ declare module "core/session-manager" {
         /**
          * Creates the singlton
          */
-        static create(sessionCollection: Collection, userCollection: Collection, options: ISession): SessionManager;
+        static create(sessionCollection: Collection, userCollection: Collection, options: ISession): SessionsController;
         /**
          * Gets the singleton
          */
-        static readonly get: SessionManager;
+        static readonly get: SessionsController;
     }
 }
 declare module "socket-api/client-connection" {
@@ -2357,14 +2357,14 @@ declare module "core/remotes/local-bucket" {
     }
     export const localBucket: LocalBucket;
 }
-declare module "core/bucket-manager" {
+declare module "controllers/buckets" {
     import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
     import { Collection } from 'mongodb';
     import { Part } from 'multiparty';
     /**
-     * Class responsible for managing buckets and uploads to Google storage
+     * Class responsible for managing buckets and uploads
      */
-    export class BucketManager {
+    export class BucketsController {
         private static MEMORY_ALLOCATED;
         private static API_CALLS_ALLOCATED;
         private static _singleton;
@@ -2543,11 +2543,11 @@ declare module "core/bucket-manager" {
         /**
          * Creates the bucket manager singleton
          */
-        static create(buckets: Collection, files: Collection, stats: Collection, config: IConfig): BucketManager;
+        static create(buckets: Collection, files: Collection, stats: Collection, config: IConfig): BucketsController;
         /**
          * Gets the bucket singleton
          */
-        static readonly get: BucketManager;
+        static readonly get: BucketsController;
     }
 }
 declare module "mailers/gmail" {
@@ -2621,7 +2621,7 @@ declare module "mailers/mailgun" {
         sendMail(to: string, from: string, subject: string, msg: string): Promise<boolean>;
     }
 }
-declare module "core/user-manager" {
+declare module "controllers/users" {
     import { IUserEntry, IConfig } from 'modepress';
     import { Collection } from 'mongodb';
     import { ServerRequest, ServerResponse } from 'http';
@@ -2631,7 +2631,7 @@ declare module "core/user-manager" {
     /**
      * Main class to use for managing users
      */
-    export class UserManager {
+    export class UsersController {
         private static _singleton;
         private _collection;
         private _config;
@@ -2808,11 +2808,11 @@ declare module "core/user-manager" {
         /**
          * Creates the user manager singlton
          */
-        static create(users: Collection, config: IConfig): UserManager;
+        static create(users: Collection, config: IConfig): UsersController;
         /**
          * Gets the user manager singlton
          */
-        static readonly get: UserManager;
+        static readonly get: UsersController;
     }
 }
 declare module "utils/errors" {
@@ -3442,8 +3442,8 @@ declare module "serializers/auth-serializer" {
 }
 declare module "modepress-api" {
     import * as _Controller from "serializers/serializer";
-    import * as users from "core/user-manager";
-    import * as bucketManager from "core/bucket-manager";
+    import * as users from "controllers/users";
+    import * as bucketManager from "controllers/buckets";
     import * as _Models from "models/model";
     import * as _SchemaFactory from "models/schema-items/schema-item-factory";
     import { isValidObjectID } from "utils/utils";
@@ -3465,11 +3465,13 @@ declare module "modepress-api" {
     export const Controller: typeof _Controller.Serializer;
     export const Model: typeof _Models.Model;
     export const SchemaFactory: typeof _SchemaFactory;
-    export const UserManager: typeof users.UserManager;
-    export const BucketManager: typeof bucketManager.BucketManager;
     export const isValidID: typeof isValidObjectID;
     export const authentication: typeof permissions;
     export const controllers: {
+        users: users.UsersController;
+        buckets: bucketManager.BucketsController;
+    };
+    export const serializers: {
         admin: typeof AdminSerializer;
         auth: typeof AuthSerializer;
         posts: typeof PostsSerializer;

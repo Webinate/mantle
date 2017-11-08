@@ -2,13 +2,13 @@ import { EventEmitter } from 'events';
 import { ISessionEntry, ISession, IUserEntry } from 'modepress';
 import { ServerRequest, ServerResponse } from 'http';
 import { Collection } from 'mongodb';
-import { Session } from './session';
+import { Session } from '../core/session';
 
 /**
 * A class that manages session data for active users
  */
-export class SessionManager extends EventEmitter {
-  private static _singleton: SessionManager;
+export class SessionsController extends EventEmitter {
+  private static _singleton: SessionsController;
 
   private _sessions: Collection<ISessionEntry>;
   private _users: Collection<IUserEntry>;
@@ -21,7 +21,7 @@ export class SessionManager extends EventEmitter {
    */
   constructor( sessionCollection: Collection, userCollection: Collection, options: ISession ) {
     super();
-    SessionManager._singleton = this;
+    SessionsController._singleton = this;
     this._sessions = sessionCollection;
     this._users = userCollection;
     this._cleanupProxy = this.cleanup.bind( this );
@@ -264,13 +264,13 @@ export class SessionManager extends EventEmitter {
    * Creates the singlton
    */
   static create( sessionCollection: Collection, userCollection: Collection, options: ISession ) {
-    return new SessionManager( sessionCollection, userCollection, options );
+    return new SessionsController( sessionCollection, userCollection, options );
   }
 
   /**
    * Gets the singleton
    */
   static get get() {
-    return SessionManager._singleton;
+    return SessionsController._singleton;
   }
 }

@@ -2,7 +2,7 @@
 import * as express from 'express';
 import { Serializer } from './serializer';
 import * as bodyParser from 'body-parser';
-import { UserManager } from '../core/user-manager'
+import { UsersController } from '../controllers/users'
 import { errJson } from '../utils/response-decorators';
 import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
@@ -56,7 +56,7 @@ export class EmailsSerializer extends Serializer {
       `Phone: ${body.phone}`,
       `Website: ${body.website}` ].join( '\r\n' );
 
-    UserManager.get.sendAdminEmail( message ).then( function( body ) {
+    UsersController.get.sendAdminEmail( message ).then( function( body ) {
       res.end( body as EmailTokens.Post.Response );
 
     } ).catch( function( err ) {

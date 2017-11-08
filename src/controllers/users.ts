@@ -4,22 +4,22 @@ import { ServerRequest, ServerResponse } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
 import { Request } from 'express';
-import { User, UserPrivileges } from './user';
+import { User, UserPrivileges } from '../core/user';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
-import { SessionManager } from './session-manager';
-import { BucketManager } from './bucket-manager';
+import { SessionsController } from './sessions';
+import { BucketsController } from './buckets';
 import { GMailer } from '../mailers/gmail';
 import { Mailguner } from '../mailers/mailgun';
-import { Session } from './session';
+import { Session } from '../core/session';
 
 /**
  * Main class to use for managing users
  */
-export class UserManager {
-  private static _singleton: UserManager;
+export class UsersController {
+  private static _singleton: UsersController;
 
   private _collection: Collection<IUserEntry>;
   private _config: IConfig;
@@ -31,8 +31,8 @@ export class UserManager {
   constructor( userCollection: Collection, config: IConfig ) {
     this._collection = userCollection;
     this._config = config;
-    UserManager._singleton = this;
-    SessionManager.get.on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
+    UsersController._singleton = this;
+    SessionsController.get.on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
   }
 
   /**
@@ -378,7 +378,7 @@ export class UserManager {
 	 * @param response
 	 */
   async logOut( request: ServerRequest, response: ServerResponse ) {
-    const sessionCleaered = await SessionManager.get.clearSession( null, request, response );
+    const sessionCleaered = await SessionsController.get.clearSession( null, request, response );
     return sessionCleaered;
   }
 
@@ -434,7 +434,7 @@ export class UserManager {
     newUser.dbEntry = insertResult.ops[ 0 ];
 
     // All users have default stats created for them
-    await BucketManager.get.createUserStats( newUser.dbEntry.username! );
+    await BucketsController.get.createUserStats( newUser.dbEntry.username! );
 
     return newUser;
   }
@@ -455,7 +455,7 @@ export class UserManager {
 
     username = userInstance.dbEntry.username!;
 
-    await BucketManager.get.removeUser( username );
+    await BucketsController.get.removeUser( username );
     const result = await this._collection.deleteOne( { _id: userInstance.dbEntry._id! } as IUserEntry );
 
     if ( result.deletedCount === 0 )
@@ -536,7 +536,7 @@ export class UserManager {
     if ( result.matchedCount === 0 )
       throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
-    const session = await SessionManager.get.createSession( request, response, user.dbEntry._id );
+    const session = await SessionsController.get.createSession( request, response, user.dbEntry._id );
 
     // Send logged in event to socket
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Login ] };
@@ -676,13 +676,13 @@ export class UserManager {
    * Creates the user manager singlton
    */
   static create( users: Collection, config: IConfig ) {
-    return new UserManager( users, config );
+    return new UsersController( users, config );
   }
 
   /**
    * Gets the user manager singlton
    */
   static get get() {
-    return UserManager._singleton;
+    return UsersController._singleton;
   }
 }

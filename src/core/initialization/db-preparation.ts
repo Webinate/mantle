@@ -1,8 +1,8 @@
 import { IConfig } from 'modepress';
 import { Db } from 'mongodb';
-import { UserManager } from '../../core/user-manager';
-import { SessionManager } from '../../core/session-manager';
-import { BucketManager } from '../../core/bucket-manager';
+import { UsersController } from '../../controllers/users';
+import { SessionsController } from '../../controllers/sessions';
+import { BucketsController } from '../../controllers/buckets';
 import { CommsController } from '../../socket-api/comms-controller'
 
 /**
@@ -17,12 +17,12 @@ export async function prepare( db: Db, config: IConfig ) {
   const filesCollection = await db.createCollection( config.collections.filesCollection );
 
   // Create the managers
-  SessionManager.create( sessionsCollection, usersCollection, config.sessionSettings );
-  UserManager.create( usersCollection, config );
-  await UserManager.get.initialize();
+  SessionsController.create( sessionsCollection, usersCollection, config.sessionSettings );
+  UsersController.create( usersCollection, config );
+  await UsersController.get.initialize();
 
   // Create the bucket controller
-  BucketManager.create( bucketsCollection, filesCollection, statsCollection, config );
+  BucketsController.create( bucketsCollection, filesCollection, statsCollection, config );
 
   // Create the comms controller
   let comms = new CommsController( config! );
