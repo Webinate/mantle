@@ -151,11 +151,7 @@ export class StatsController extends Controller {
     try {
       const manager = BucketManager.get;
       const stats = await manager.getUserStats( req._user!.username );
-
-      return okJson<StatTokens.GetOne.Response>( {
-        data: stats
-      }, res );
-
+      return okJson<StatTokens.GetOne.Response>( stats, res );
     } catch ( err ) {
       return errJson( err, res );
     };

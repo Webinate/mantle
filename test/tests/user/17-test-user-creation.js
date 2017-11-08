@@ -101,15 +101,15 @@ describe( '17. Testing creating a user', function() {
     const resp = await admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    userId = json.data._id;
+    userId = json._id;
   } )
 
   it( 'did not create an activation key for george', async function() {
     const resp = await admin.get( `/api/users/${testUserName}?verbose=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.object( json.data ).hasProperty( "registerKey" )
-    test.string( json.data.registerKey ).is( "" );
+    test.object( json ).hasProperty( "registerKey" )
+    test.string( json.registerKey ).is( "" );
   } )
 
   it( 'did cleanup the created user', async function() {

@@ -16,7 +16,7 @@ describe( '15. Testing setting stat values', function() {
     const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    stats = json.data;
+    stats = json;
   } )
 
   it( 'regular user did not create storage calls for admin', async function() {
@@ -87,10 +87,10 @@ describe( '15. Testing setting stat values', function() {
     const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.bool( stats.apiCallsAllocated == json.data.apiCallsAllocated ).isTrue();
-    test.bool( stats.memoryAllocated == json.data.memoryAllocated ).isTrue();
-    test.bool( stats.apiCallsUsed == json.data.apiCallsUsed ).isTrue();
-    test.bool( stats.memoryUsed == json.data.memoryUsed ).isTrue();
+    test.bool( stats.apiCallsAllocated == json.apiCallsAllocated ).isTrue();
+    test.bool( stats.memoryAllocated == json.memoryAllocated ).isTrue();
+    test.bool( stats.apiCallsUsed == json.apiCallsUsed ).isTrue();
+    test.bool( stats.memoryUsed == json.memoryUsed ).isTrue();
   } )
 
   it( 'admin can set storage calls for a regular user to 50', async function() {
@@ -125,10 +125,10 @@ describe( '15. Testing setting stat values', function() {
     const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.number( json.data.apiCallsAllocated ).is( 100 );
-    test.number( json.data.memoryAllocated ).is( 100 );
-    test.number( json.data.apiCallsUsed ).is( 50 );
-    test.number( json.data.memoryUsed ).is( 50 );
+    test.number( json.apiCallsAllocated ).is( 100 );
+    test.number( json.memoryAllocated ).is( 100 );
+    test.number( json.apiCallsUsed ).is( 50 );
+    test.number( json.memoryUsed ).is( 50 );
   } )
 
   it( 'admin setting storage back to max', async function() {

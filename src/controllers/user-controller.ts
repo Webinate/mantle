@@ -60,16 +60,12 @@ export class UserController extends Controller {
  */
   @j200()
   private async getUser( req: IAuthReq, res: express.Response ) {
-
     const user = await UserManager.get.getUser( req.params.username );
 
     if ( !user )
       throw new Error( 'No user found' );
 
-    const response: UserTokens.GetOne.Response = {
-      data: user.generateCleanedData( Boolean( req.query.verbose ) )
-    };
-
+    const response: UserTokens.GetOne.Response = user.generateCleanedData( Boolean( req.query.verbose ) );
     return response;
   }
 
@@ -184,9 +180,7 @@ export class UserController extends Controller {
       throw new Error( 'You cannot create a user with super admin permissions' );
 
     const user = await UserManager.get.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
-    const response: UserTokens.Post.Response = {
-      data: user.dbEntry
-    };
+    const response: UserTokens.Post.Response = user.dbEntry;
     return response;
   }
 }

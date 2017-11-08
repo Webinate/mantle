@@ -101,9 +101,7 @@ export class CategoriesController extends Controller {
     const schema = await categories.createInstance( token );
     const json = await schema.getAsJson( { verbose: true } );
 
-    const response: CategoriesTokens.Post.Response = {
-      data: json
-    };
+    const response: CategoriesTokens.Post.Response = json;
     return response;
   }
 }

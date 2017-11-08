@@ -52,7 +52,7 @@ describe( '2. Testing deletion of comments', function() {
     const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Hello world!", public: false } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    commentId = json.data._id;
+    commentId = json._id;
   } )
 
   it( 'did incremented the number of comments by 1', async function() {
@@ -66,7 +66,7 @@ describe( '2. Testing deletion of comments', function() {
     const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Parent Comment", public: true } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    parentCommentId = json.data._id;
+    parentCommentId = json._id;
   } )
 
   it( 'did incremented the number of comments by 2', async function() {

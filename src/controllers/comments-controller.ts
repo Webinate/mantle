@@ -183,10 +183,7 @@ export class CommentsController extends Controller {
       } ) );
 
     const sanitizedData = await Promise.all( jsons );
-
-    const response: CommentTokens.GetOne.Response = {
-      data: sanitizedData[ 0 ]
-    };
+    const response: CommentTokens.GetOne.Response = sanitizedData[ 0 ];
     return response;
   }
 
@@ -282,7 +279,7 @@ export class CommentsController extends Controller {
       await comments.update( { _id: parent.dbEntry._id }, { children: children } )
     }
 
-    const response: CommentTokens.Post.Response = { data: json };
+    const response: CommentTokens.Post.Response = json;
     return response;
   }
 }

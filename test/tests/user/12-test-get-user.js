@@ -14,60 +14,60 @@ describe( '12. Getting user data', function() {
     const resp = await admin.get( `/api/users/${config.adminUser.username}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id )
-    test.value( json.data.email ).isUndefined()
-    test.number( json.data.lastLoggedIn ).isNotNaN()
-    test.value( json.data.password ).isUndefined()
-    test.value( json.data.registerKey ).isUndefined()
-    test.value( json.data.sessionId ).isUndefined()
-    test.string( json.data.username ).is( config.adminUser.username )
-    test.number( json.data.privileges ).is( 1 )
-    test.value( json.data.passwordTag ).isUndefined()
+    test.string( json._id )
+    test.value( json.email ).isUndefined()
+    test.number( json.lastLoggedIn ).isNotNaN()
+    test.value( json.password ).isUndefined()
+    test.value( json.registerKey ).isUndefined()
+    test.value( json.sessionId ).isUndefined()
+    test.string( json.username ).is( config.adminUser.username )
+    test.number( json.privileges ).is( 1 )
+    test.value( json.passwordTag ).isUndefined()
   } )
 
   it( 'should allow admin access to sensitive data', async function() {
     const resp = await admin.get( `/api/users/${config.adminUser.username}?verbose=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id )
-    test.string( json.data.email ).is( config.adminUser.email )
-    test.number( json.data.lastLoggedIn ).isNotNaN()
-    test.value( json.data.password )
-    test.value( json.data.registerKey )
-    test.value( json.data.sessionId )
-    test.string( json.data.username ).is( config.adminUser.username )
-    test.number( json.data.privileges ).is( 1 )
-    test.value( json.data.passwordTag )
+    test.string( json._id )
+    test.string( json.email ).is( config.adminUser.email )
+    test.number( json.lastLoggedIn ).isNotNaN()
+    test.value( json.password )
+    test.value( json.registerKey )
+    test.value( json.sessionId )
+    test.string( json.username ).is( config.adminUser.username )
+    test.number( json.privileges ).is( 1 )
+    test.value( json.passwordTag )
   } )
 
   it( 'should get admin user data by email without sensitive details', async function() {
     const resp = await admin.get( `/api/users/${config.adminUser.email}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id )
-    test.value( json.data.email ).isUndefined()
-    test.number( json.data.lastLoggedIn ).isNotNaN()
-    test.value( json.data.password ).isUndefined()
-    test.value( json.data.registerKey ).isUndefined()
-    test.value( json.data.sessionId ).isUndefined()
-    test.string( json.data.username ).is( config.adminUser.username )
-    test.number( json.data.privileges ).is( 1 )
-    test.value( json.data.passwordTag ).isUndefined()
+    test.string( json._id )
+    test.value( json.email ).isUndefined()
+    test.number( json.lastLoggedIn ).isNotNaN()
+    test.value( json.password ).isUndefined()
+    test.value( json.registerKey ).isUndefined()
+    test.value( json.sessionId ).isUndefined()
+    test.string( json.username ).is( config.adminUser.username )
+    test.number( json.privileges ).is( 1 )
+    test.value( json.passwordTag ).isUndefined()
   } )
 
   it( 'should get admin user data by email with sensitive details', async function() {
     const resp = await admin.get( `/api/users/${config.adminUser.email}?verbose=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id )
-    test.string( json.data.email ).is( config.adminUser.email )
-    test.number( json.data.lastLoggedIn ).isNotNaN()
-    test.value( json.data.password )
-    test.value( json.data.registerKey )
-    test.value( json.data.sessionId )
-    test.value( json.data.passwordTag )
-    test.string( json.data.username ).is( config.adminUser.username )
-    test.number( json.data.privileges ).is( 1 )
+    test.string( json._id )
+    test.string( json.email ).is( config.adminUser.email )
+    test.number( json.lastLoggedIn ).isNotNaN()
+    test.value( json.password )
+    test.value( json.registerKey )
+    test.value( json.sessionId )
+    test.value( json.passwordTag )
+    test.string( json.username ).is( config.adminUser.username )
+    test.number( json.privileges ).is( 1 )
   } )
 
   it( 'should get no user with username', async function() {

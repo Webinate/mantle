@@ -49,13 +49,6 @@ declare module 'modepress' {
   }
 
   /*
-  * A GET request that returns a data item
-  */
-  export interface IGetResponse<T> extends IResponse {
-    data: T;
-  }
-
-  /*
   * A GET request that returns an array of data items
   */
   export interface Page<T> {
@@ -90,13 +83,13 @@ declare module 'modepress' {
     /** GET /users/ */
     export namespace GetAll { export type Body = void; export type Response = Page<IUserEntry>; }
     /** POST /users/ */
-    export namespace Post { export type Body = IUserEntry; export type Response = IGetResponse<IUserEntry>; }
+    export namespace Post { export type Body = IUserEntry; export type Response = IUserEntry; }
     /** GET /users/:user/meta */
     export namespace GetUserMeta { export type Body = void; export type Response = any; }
     /** GET /users/:user/meta/:name */
     export namespace GetUserMetaVal { export type Body = void; export type Response = any; }
     /** GET /users/:username */
-    export namespace GetOne { export type Body = void; export type Response = IGetResponse<IUserEntry>; }
+    export namespace GetOne { export type Body = void; export type Response = IUserEntry; }
     /** DELETE /users/:username */
     export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** POST /users/:user/meta/:name */
@@ -107,7 +100,7 @@ declare module 'modepress' {
 
   export namespace StatTokens {
     /** GET /stats/users/:user/get-stats */
-    export namespace GetOne { export type Body = void; export type Response = IGetResponse<IStorageStats>; }
+    export namespace GetOne { export type Body = void; export type Response = IStorageStats; }
     /** POST /stats/create-stats/:target */
     export namespace Post { export type Body = void; export type Response = IStorageStats; }
     /** PUT /stats/storage-calls/:target/:value */
@@ -134,26 +127,26 @@ declare module 'modepress' {
      * GET /posts/slug/:slug or
      * GET /posts/:id
      * */
-    export namespace GetOne { export type Body = void; export type Response = IGetResponse<IPost>; }
+    export namespace GetOne { export type Body = void; export type Response = IPost; }
     /** DELETE /posts/:id */
     export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** PUT /posts/:id */
     export namespace PutOne { export type Body = IPost; export type Response = ISimpleResponse; }
     /** POST /posts/ */
-    export namespace Post { export type Body = IPost; export type Response = IGetResponse<IPost>; }
+    export namespace Post { export type Body = IPost; export type Response = IPost; }
   }
 
   export namespace CommentTokens {
     /** GET /comments/ */
     export namespace GetAll { export type Body = void; export type Response = Page<IComment>; }
     /** GET /comments/:id */
-    export namespace GetOne { export type Body = void; export type Response = IGetResponse<IComment>; }
+    export namespace GetOne { export type Body = void; export type Response = IComment; }
     /** DELETE /comments/:id */
     export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** PUT /comments/:id */
     export namespace PutOne { export type Body = IComment; export type Response = ISimpleResponse; }
     /** POST /posts/:postId/comments/:parent? */
-    export namespace Post { export type Body = IComment; export type Response = IGetResponse<IComment>; }
+    export namespace Post { export type Body = IComment; export type Response = IComment; }
   }
 
   export namespace CategoriesTokens {
@@ -162,7 +155,7 @@ declare module 'modepress' {
     /** DELETE /categories/:id */
     export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** POST /categories */
-    export namespace Post { export type Body = ICategory; export type Response = IGetResponse<ICategory>; }
+    export namespace Post { export type Body = ICategory; export type Response = ICategory; }
   }
 
   export namespace RenderTokens {

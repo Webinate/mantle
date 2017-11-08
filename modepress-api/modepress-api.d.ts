@@ -802,9 +802,6 @@ declare module 'modepress' {
         message: string;
         tokens: Array<IUploadToken>;
     }
-    interface IGetResponse<T> extends IResponse {
-        data: T;
-    }
     interface Page<T> {
         count: number;
         data: Array<T>;
@@ -867,7 +864,7 @@ declare module 'modepress' {
         /** POST /users/ */
         namespace Post {
             type Body = IUserEntry;
-            type Response = IGetResponse<IUserEntry>;
+            type Response = IUserEntry;
         }
         /** GET /users/:user/meta */
         namespace GetUserMeta {
@@ -882,7 +879,7 @@ declare module 'modepress' {
         /** GET /users/:username */
         namespace GetOne {
             type Body = void;
-            type Response = IGetResponse<IUserEntry>;
+            type Response = IUserEntry;
         }
         /** DELETE /users/:username */
         namespace DeleteOne {
@@ -904,7 +901,7 @@ declare module 'modepress' {
         /** GET /stats/users/:user/get-stats */
         namespace GetOne {
             type Body = void;
-            type Response = IGetResponse<IStorageStats>;
+            type Response = IStorageStats;
         }
         /** POST /stats/create-stats/:target */
         namespace Post {
@@ -956,7 +953,7 @@ declare module 'modepress' {
          * */
         namespace GetOne {
             type Body = void;
-            type Response = IGetResponse<IPost>;
+            type Response = IPost;
         }
         /** DELETE /posts/:id */
         namespace DeleteOne {
@@ -971,7 +968,7 @@ declare module 'modepress' {
         /** POST /posts/ */
         namespace Post {
             type Body = IPost;
-            type Response = IGetResponse<IPost>;
+            type Response = IPost;
         }
     }
     namespace CommentTokens {
@@ -983,7 +980,7 @@ declare module 'modepress' {
         /** GET /comments/:id */
         namespace GetOne {
             type Body = void;
-            type Response = IGetResponse<IComment>;
+            type Response = IComment;
         }
         /** DELETE /comments/:id */
         namespace DeleteOne {
@@ -998,7 +995,7 @@ declare module 'modepress' {
         /** POST /posts/:postId/comments/:parent? */
         namespace Post {
             type Body = IComment;
-            type Response = IGetResponse<IComment>;
+            type Response = IComment;
         }
     }
     namespace CategoriesTokens {
@@ -1015,7 +1012,7 @@ declare module 'modepress' {
         /** POST /categories */
         namespace Post {
             type Body = ICategory;
-            type Response = IGetResponse<ICategory>;
+            type Response = ICategory;
         }
     }
     namespace RenderTokens {

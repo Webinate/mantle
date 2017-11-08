@@ -94,23 +94,23 @@ describe( '1. Testing creation of comments', function() {
     const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__", public: false } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    commentId = json.data._id;
-    test.string( json.data._id );
-    test.string( json.data.author );
-    test.value( json.data.parent ).isNull();
-    test.string( json.data.post ).is( postId );
-    test.string( json.data.content ).is( "Hello world! __filter__" );
-    test.array( json.data.children ).hasLength( 0 );
-    test.bool( json.data.public ).isFalse();
-    test.number( json.data.createdOn );
-    test.number( json.data.lastUpdated );
+    commentId = json._id;
+    test.string( json._id );
+    test.string( json.author );
+    test.value( json.parent ).isNull();
+    test.string( json.post ).is( postId );
+    test.string( json.content ).is( "Hello world! __filter__" );
+    test.array( json.children ).hasLength( 0 );
+    test.bool( json.public ).isFalse();
+    test.number( json.createdOn );
+    test.number( json.lastUpdated );
   } )
 
   it( 'can create a another comment on the same post, with a parent comment', async function() {
     const resp = await admin.post( `/api/posts/${postId}/comments/${commentId}`, { content: "Hello world 2", public: true } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.object( json.data ).hasProperty( "_id" )
+    test.object( json ).hasProperty( "_id" )
   } )
 
   it( 'did delete the test post', async function() {

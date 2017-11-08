@@ -42,16 +42,15 @@ describe( '19. Testing fetching users', function() {
     const resp = await user1.get( `/api/users/${user1.username}?verbose=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.object( json ).hasProperty( "data" )
-    test.string( json.data._id )
-    test.string( json.data.email ).is( user1.email )
-    test.number( json.data.lastLoggedIn ).isNotNaN()
-    test.value( json.data.password )
-    test.value( json.data.registerKey )
-    test.value( json.data.sessionId )
-    test.value( json.data.passwordTag )
-    test.string( json.data.username ).is( user1.username )
-    test.number( json.data.privileges ).is( 3 );
+    test.string( json._id )
+    test.string( json.email ).is( user1.email )
+    test.number( json.lastLoggedIn ).isNotNaN()
+    test.value( json.password )
+    test.value( json.registerKey )
+    test.value( json.sessionId )
+    test.value( json.passwordTag )
+    test.string( json.username ).is( user1.username )
+    test.number( json.privileges ).is( 3 );
   } )
 
   it( 'did have the same number of users as before the tests started', async function() {

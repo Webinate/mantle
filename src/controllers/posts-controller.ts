@@ -215,9 +215,7 @@ export class PostsController extends Controller {
 
     const sanitizedData = await Promise.all( jsons );
 
-    const response: PostTokens.GetOne.Response = {
-      data: sanitizedData[ 0 ]
-    };
+    const response: PostTokens.GetOne.Response = sanitizedData[ 0 ];
     return response;
   }
 

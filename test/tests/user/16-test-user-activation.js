@@ -29,9 +29,9 @@ describe( '16. Testing user activation', function() {
     const resp = await admin.get( `/api/users/${testUserName}?verbose=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.object( json.data ).hasProperty( "registerKey" )
-    test.string( json.data.registerKey ).isNot( "" );
-    activationKey = json.data.registerKey;
+    test.object( json ).hasProperty( "registerKey" )
+    test.string( json.registerKey ).isNot( "" );
+    activationKey = json.registerKey;
   } )
 
   it( 'did not log in with an activation code present', async function() {
@@ -67,7 +67,7 @@ describe( '16. Testing user activation', function() {
     const resp = await admin.get( `/api/users/${testUserName}?verbose=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    activationKey = json.data.registerKey;
+    activationKey = json.registerKey;
   } )
 
   it( 'did not activate with an invalid username', async function() {

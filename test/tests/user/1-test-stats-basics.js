@@ -34,12 +34,12 @@ describe( '1. Getting and setting user stats', function() {
     const json = await resp.json();
     assert.strictEqual( resp.status, 200 );
 
-    assert( json.data );
-    assert( json.data._id );
-    assert.equal( json.data.user, user1.username );
-    assert.equal( json.data.apiCallsAllocated, 20000 );
-    assert.equal( json.data.memoryAllocated, 500000000 );
-    assert.equal( json.data.apiCallsUsed, 0 );
-    assert.equal( json.data.memoryUsed, 0 );
+    assert( json );
+    assert( json._id );
+    assert.equal( json.user, user1.username );
+    assert.equal( json.apiCallsAllocated, 20000 );
+    assert.equal( json.memoryAllocated, 500000000 );
+    assert.equal( json.apiCallsUsed, 0 );
+    assert.equal( json.memoryUsed, 0 );
   } )
 } )

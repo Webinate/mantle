@@ -159,7 +159,7 @@ describe( '4. Testing fetching of posts', function() {
     const resp = await guest.get( `/api/posts/slug/--public--test--` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.object( json.data ).hasProperty( "_id" )
+    test.object( json ).hasProperty( "_id" )
   } )
 
   it( 'did cleanup the test public post', async function() {

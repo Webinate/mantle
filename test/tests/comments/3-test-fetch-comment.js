@@ -53,28 +53,28 @@ describe( '3. Testing fetching of comments', function() {
     const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Hello world public! __filter__", public: true } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    publicCommentId = json.data._id;
+    publicCommentId = json._id;
   } )
 
   it( 'did create a test private comment', async function() {
     const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Hello world private! __filter__", public: false } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    privateCommentId = json.data._id;
+    privateCommentId = json._id;
   } )
 
   it( 'can create a another comment which will be a parent comment', async function() {
     const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Parent Comment", public: true } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    parentCommentId = json.data._id;
+    parentCommentId = json._id;
   } )
 
   it( 'can create a nested comment', async function() {
     const resp = await admin.post( `/api/posts/${postId}/comments/${parentCommentId}`, { content: "Child Comment", public: true } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    childCommentId = json.data._id;
+    childCommentId = json._id;
   } )
 
   it( 'cannot get a comment with an invalid id', async function() {
@@ -95,7 +95,7 @@ describe( '3. Testing fetching of comments', function() {
     const resp = await admin.get( `/api/comments/${publicCommentId}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id ).is( publicCommentId );
+    test.string( json._id ).is( publicCommentId );
   } )
 
   it( 'cannot get a private comment without being logged in', async function() {
@@ -109,7 +109,7 @@ describe( '3. Testing fetching of comments', function() {
     const resp = await guest.get( `/api/comments/${publicCommentId}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id ).is( publicCommentId );
+    test.string( json._id ).is( publicCommentId );
   } )
 
   it( 'can get comments by user & there are more than 1', async function() {
@@ -148,26 +148,26 @@ describe( '3. Testing fetching of comments', function() {
     const resp = await admin.get( `/api/comments/${parentCommentId}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id ).is( parentCommentId );
-    test.array( json.data.children ).contains( [ childCommentId ] );
+    test.string( json._id ).is( parentCommentId );
+    test.array( json.children ).contains( [ childCommentId ] );
   } )
 
   it( 'can get a comment with parent & post, and both properties are just ids (not expanded)', async function() {
     const resp = await admin.get( `/api/comments/${childCommentId}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id ).is( childCommentId );
-    test.string( json.data.parent ).is( parentCommentId );
-    test.string( json.data.post ).is( postId );
+    test.string( json._id ).is( childCommentId );
+    test.string( json.parent ).is( parentCommentId );
+    test.string( json.post ).is( postId );
   } )
 
   it( 'can get a comment with parent & post, and both properties are the respective objects (expanded)', async function() {
     const resp = await admin.get( `/api/comments/${childCommentId}?expanded=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.data._id ).is( childCommentId );
-    test.string( json.data.parent ).is( parentCommentId );
-    test.string( json.data.post._id ).is( postId );
+    test.string( json._id ).is( childCommentId );
+    test.string( json.parent ).is( parentCommentId );
+    test.string( json.post._id ).is( postId );
   } )
 
   it( 'did delete the test post', async function() {

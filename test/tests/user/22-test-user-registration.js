@@ -78,8 +78,8 @@ describe( '22. Testing registering a user', function() {
     const resp = await admin.get( `/api/users/${testUserName}?verbose=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.object( json.data ).hasProperty( "registerKey" )
-    test.string( json.data.registerKey ).isNot( "" );
+    test.object( json ).hasProperty( "registerKey" )
+    test.string( json.registerKey ).isNot( "" );
   } )
 
   it( 'did not approve activation as a regular user', async function() {
@@ -98,8 +98,8 @@ describe( '22. Testing registering a user', function() {
     const resp = await admin.get( `/api/users/${testUserName}?verbose=true` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.object( json.data ).hasProperty( "registerKey" )
-    test.string( json.data.registerKey ).is( "" );
+    test.object( json ).hasProperty( "registerKey" )
+    test.string( json.registerKey ).is( "" );
   } )
 
   it( 'did cleanup the registered user', async function() {
