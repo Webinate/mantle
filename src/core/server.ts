@@ -136,7 +136,7 @@ export class Server {
       return this;
 
     } catch ( e ) {
-      throw new Error( `ERROR An error has occurred while setting up the controllers for ${this.server.host}: '${e.message}'` );
+      throw new Error( `ERROR An error has occurred while setting up the controllers for ${this.name}: '${e.message}' \r\n'${e.stack}'` );
     };
   }
 }
