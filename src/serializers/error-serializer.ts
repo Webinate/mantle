@@ -1,13 +1,13 @@
 ﻿'use strict';
 import { ISimpleResponse } from 'modepress';
-import { Controller } from './controller'
+import { Serializer } from './serializer'
 import express = require( 'express' );
 import * as mongodb from 'mongodb';
 
 /**
  * Handles express errors
  */
-export class ErrorController extends Controller {
+export class ErrorSerializer extends Serializer {
 
   /**
  * Creates an instance

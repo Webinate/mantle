@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
-import { Controller } from './controller';
+import { Serializer } from './serializer';
 import { identifyUser, adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
 import { UserPrivileges } from '../core/user';
@@ -15,7 +15,7 @@ import Factory from '../core/model-factory';
 /**
  * A controller that deals with the management of posts
  */
-export class PostsController extends Controller {
+export class PostsSerializer extends Serializer {
 
   private _options: IBaseControler;
 

@@ -3,7 +3,7 @@ import { IAuthReq, IBucketEntry, FileTokens } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
-import { Controller } from './controller'
+import { Serializer } from './serializer'
 import { BucketManager } from '../core/bucket-manager';
 import * as compression from 'compression';
 import { okJson, errJson, j200 } from '../utils/response-decorators';
@@ -14,7 +14,7 @@ import Factory from '../core/model-factory';
 /**
  * Main class to use for managing users
  */
-export class FileController extends Controller {
+export class FileSerializer extends Serializer {
   private _allowedFileTypes: Array<string>;
   private _cacheLifetime: number;
   private _options: IFileOptions;

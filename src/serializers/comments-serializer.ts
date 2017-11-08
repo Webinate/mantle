@@ -3,7 +3,7 @@ import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
-import { Controller } from './controller';
+import { Serializer } from './serializer';
 import { Schema } from '../models/schema';
 import { Model } from '../models/model';
 import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
@@ -15,7 +15,7 @@ import Factory from '../core/model-factory';
 /**
  * A controller that deals with the management of comments
  */
-export class CommentsController extends Controller {
+export class CommentsSerializer extends Serializer {
   private _options: IBaseControler;
 
   /**

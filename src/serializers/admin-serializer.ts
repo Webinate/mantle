@@ -3,7 +3,7 @@ import { ISimpleResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/user-manager';
-import { Controller } from './controller'
+import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
 import * as compression from 'compression';
 import { IBaseControler } from 'modepress';
@@ -13,7 +13,7 @@ import Factory from '../core/model-factory';
 /**
  * Main class to use for managing users
  */
-export class AdminController extends Controller {
+export class AdminSerializer extends Serializer {
   private _options: IBaseControler;
 
   constructor( options: IBaseControler ) {

@@ -5,7 +5,7 @@ import bodyParser = require( 'body-parser' );
 import { UserPrivileges } from '../core/user';
 import { UserManager } from '../core/user-manager';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
-import { Controller } from './controller'
+import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
 import { UserTokens, IAuthReq, IUserEntry, IBaseControler } from 'modepress';
 import * as compression from 'compression';
@@ -15,7 +15,7 @@ import Factory from '../core/model-factory';
 /**
  * Main class to use for managing user data
  */
-export class UserController extends Controller {
+export class UserSerializer extends Serializer {
   private _options: IBaseControler;
 
   /**

@@ -1,13 +1,13 @@
 ﻿import { EmailTokens } from 'modepress';
 import * as express from 'express';
-import { Controller } from './controller';
+import { Serializer } from './serializer';
 import * as bodyParser from 'body-parser';
 import { UserManager } from '../core/user-manager'
 import { errJson } from '../utils/response-decorators';
 import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
 
-export class EmailsController extends Controller {
+export class EmailsSerializer extends Serializer {
   private _options: IBaseControler;
 
   /**

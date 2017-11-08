@@ -1,6 +1,6 @@
 ﻿import * as http from 'http';
 import { error as logError } from '../utils/logger';
-import { Controller } from './controller';
+import { Serializer } from './serializer';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
 import { IBaseControler } from 'modepress';
@@ -8,7 +8,7 @@ import { IBaseControler } from 'modepress';
 /**
  * Checks all incomming requests to see if they are CORS approved
  */
-export class CORSController extends Controller {
+export class CORSSerializer extends Serializer {
 
   private _approvedDomains: string[];
   private _options: IBaseControler;

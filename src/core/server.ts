@@ -7,12 +7,12 @@ import { createServer as createSecureServer } from 'https';
 import { existsSync, readFileSync } from 'fs';
 import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
-import { Controller } from '../controllers/controller'
-import { ErrorController } from '../controllers/error-controller';
+import { Serializer } from '../serializers/serializer'
+import { ErrorSerializer } from '../serializers/error-serializer';
 
 export class Server {
   server: IServer;
-  private _controllers: Controller[];
+  private _controllers: Serializer[];
   private _path: string;
   public name: string;
 
@@ -30,7 +30,7 @@ export class Server {
    */
   parseClient( client: IClient & { path: string; } ) {
     if ( !client.controllers ) {
-      error( `Client '${client.name}' does not have any controllers defined` ).then(() => {
+      error( `Client '${client.name}' does not have any controllers defined` ).then( () => {
         process.exit();
       } );
 
@@ -43,7 +43,7 @@ export class Server {
         this._controllers.push( new constructor( client ) );
       }
       catch ( err ) {
-        error( `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${err.stack ? err.stack : ''}` ).then(() => {
+        error( `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${err.stack ? err.stack : ''}` ).then( () => {
           process.exit();
         } );
       }
@@ -57,7 +57,7 @@ export class Server {
     const app = express();
 
     // Create the controllers
-    const controllers: Controller[] = [ ...this._controllers, new ErrorController() ];
+    const controllers: Serializer[] = [ ...this._controllers, new ErrorSerializer() ];
 
     // Enable GZIPPING
     app.use( compression() );

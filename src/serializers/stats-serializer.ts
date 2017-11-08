@@ -4,7 +4,7 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/user-manager';
 import { ownerRights } from '../utils/permission-controllers';
-import { Controller } from './controller'
+import { Serializer } from './serializer'
 import { BucketManager } from '../core/bucket-manager';
 import * as compression from 'compression';
 import { okJson, errJson, j200 } from '../utils/response-decorators';
@@ -14,7 +14,7 @@ import Factory from '../core/model-factory';
 /**
  * Main class to use for managing users
  */
-export class StatsController extends Controller {
+export class StatsSerializer extends Serializer {
   private _allowedFileTypes: Array<string>;
   private _options: IBaseControler;
 

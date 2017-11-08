@@ -1,26 +1,26 @@
-﻿import * as _Controller from './controllers/controller';
+﻿import * as _Controller from './serializers/serializer';
 import * as users from './core/user-manager';
 import * as bucketManager from './core/bucket-manager';
 import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
 import * as permissions from './utils/permission-controllers';
-import { AdminController } from './controllers/admin-controller';
-import { BucketController } from './controllers/bucket-controller';
-import { CommentsController } from './controllers/comments-controller';
-import { CORSController } from './controllers/cors-controller';
-import { EmailsController } from './controllers/emails-controller';
-import { ErrorController } from './controllers/error-controller';
-import { FileController } from './controllers/file-controller';
-import { PageRenderer } from './controllers/page-renderer';
-import { PostsController } from './controllers/posts-controller';
-import { CategoriesController } from './controllers/categories-controller';
-import { SessionController } from './controllers/session-controller';
-import { StatsController } from './controllers/stats-controller';
-import { UserController } from './controllers/user-controller';
-import { AuthController } from './controllers/auth-controller';
+import { AdminSerializer } from './serializers/admin-serializer';
+import { BucketSerializer } from './serializers/bucket-serializer';
+import { CommentsSerializer } from './serializers/comments-serializer';
+import { CORSSerializer } from './serializers/cors-serializer';
+import { EmailsSerializer } from './serializers/emails-serializer';
+import { ErrorSerializer } from './serializers/error-serializer';
+import { FileSerializer } from './serializers/file-serializer';
+import { PageSerializer } from './serializers/page-serializer';
+import { PostsSerializer } from './serializers/posts-serializer';
+import { CategoriesSerializer } from './serializers/categories-serializer';
+import { SessionSerializer } from './serializers/session-serializer';
+import { StatsSerializer } from './serializers/stats-serializer';
+import { UserSerializer } from './serializers/user-serializer';
+import { AuthSerializer } from './serializers/auth-serializer';
 
-export const Controller = _Controller.Controller;
+export const Controller = _Controller.Serializer;
 export const Model = _Models.Model;
 export const SchemaFactory = _SchemaFactory;
 export const UserManager = users.UserManager;
@@ -29,31 +29,31 @@ export const isValidID = isValidObjectID;
 export const authentication = permissions;
 export const controllers = {
   /** Endpoints for administritive tasks */
-  admin: AdminController,
+  admin: AdminSerializer,
   /** Endpoints for authenticating users */
-  auth: AuthController,
+  auth: AuthSerializer,
   /** Endpoints for managing posts */
-  posts: PostsController,
+  posts: PostsSerializer,
   /** Endpoints for managing categories */
-  categories: CategoriesController,
+  categories: CategoriesSerializer,
   /** Endpoints for managing comments of posts */
-  comments: CommentsController,
+  comments: CommentsSerializer,
   /** Endpoints for managing cross origin allowances */
-  cors: CORSController,
+  cors: CORSSerializer,
   /** TODO: This must be removed in favour of the admin controller */
-  email: EmailsController,
+  email: EmailsSerializer,
   /** Can be used to catch and return errors */
-  error: ErrorController,
+  error: ErrorSerializer,
   /** Endpoints for managing user files */
-  file: FileController,
+  file: FileSerializer,
   /** Endpoints for managing user buckets */
-  bucket: BucketController,
+  bucket: BucketSerializer,
   /** Endpoints for managing page renders */
-  renderer: PageRenderer,
+  renderer: PageSerializer,
   /** Endpoints for managing active sessions */
-  session: SessionController,
+  session: SessionSerializer,
   /** Endpoints for managing user stats and allowances */
-  stats: StatsController,
+  stats: StatsSerializer,
   /** Endpoints for managing users */
-  user: UserController
+  user: UserSerializer
 }

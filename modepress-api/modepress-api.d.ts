@@ -1942,12 +1942,12 @@ declare module "models/model" {
         insert(instances: Schema<IModelEntry>[]): Promise<Schema<IModelEntry>[]>;
     }
 }
-declare module "controllers/controller" {
+declare module "serializers/serializer" {
     import { Model } from "models/model";
     import * as mongodb from 'mongodb';
     import * as express from 'express';
     import { IModelEntry } from 'modepress';
-    export class Controller {
+    export class Serializer {
         private _models;
         constructor(models: Model<IModelEntry>[] | null);
         /**
@@ -2904,15 +2904,15 @@ declare module "utils/permission-controllers" {
      */
     export function requestHasPermission(level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string): Promise<boolean>;
 }
-declare module "controllers/admin-controller" {
+declare module "serializers/admin-serializer" {
     import express = require('express');
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IBaseControler } from 'modepress';
     import * as mongodb from 'mongodb';
     /**
      * Main class to use for managing users
      */
-    export class AdminController extends Controller {
+    export class AdminSerializer extends Serializer {
         private _options;
         constructor(options: IBaseControler);
         /**
@@ -2925,15 +2925,15 @@ declare module "controllers/admin-controller" {
         private messageWebmaster(req, res);
     }
 }
-declare module "controllers/bucket-controller" {
+declare module "serializers/bucket-serializer" {
     import express = require('express');
     import * as mongodb from 'mongodb';
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IBaseControler } from 'modepress';
     /**
      * Main class to use for managing users
      */
-    export class BucketController extends Controller {
+    export class BucketSerializer extends Serializer {
         private _allowedFileTypes;
         private _options;
         /**
@@ -2983,15 +2983,15 @@ declare module "controllers/bucket-controller" {
         private finalizeUploads(meta, files, user, tokens);
     }
 }
-declare module "controllers/comments-controller" {
+declare module "serializers/comments-serializer" {
     import * as mongodb from 'mongodb';
     import * as express from 'express';
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IBaseControler } from 'modepress';
     /**
      * A controller that deals with the management of comments
      */
-    export class CommentsController extends Controller {
+    export class CommentsSerializer extends Serializer {
         private _options;
         /**
            * Creates a new instance of the controller
@@ -3023,15 +3023,15 @@ declare module "controllers/comments-controller" {
         private create(req, res);
     }
 }
-declare module "controllers/cors-controller" {
-    import { Controller } from "controllers/controller";
+declare module "serializers/cors-serializer" {
+    import { Serializer } from "serializers/serializer";
     import * as express from 'express';
     import * as mongodb from 'mongodb';
     import { IBaseControler } from 'modepress';
     /**
      * Checks all incomming requests to see if they are CORS approved
      */
-    export class CORSController extends Controller {
+    export class CORSSerializer extends Serializer {
         private _approvedDomains;
         private _options;
         /**
@@ -3044,12 +3044,12 @@ declare module "controllers/cors-controller" {
         initialize(e: express.Express, db: mongodb.Db): Promise<this>;
     }
 }
-declare module "controllers/emails-controller" {
+declare module "serializers/emails-serializer" {
     import * as express from 'express';
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IBaseControler } from 'modepress';
     import * as mongodb from 'mongodb';
-    export class EmailsController extends Controller {
+    export class EmailsSerializer extends Serializer {
         private _options;
         /**
            * Creates a new instance of the email controller
@@ -3065,14 +3065,14 @@ declare module "controllers/emails-controller" {
         protected onPost(req: express.Request, res: express.Response): any;
     }
 }
-declare module "controllers/error-controller" {
-    import { Controller } from "controllers/controller";
+declare module "serializers/error-serializer" {
+    import { Serializer } from "serializers/serializer";
     import express = require('express');
     import * as mongodb from 'mongodb';
     /**
      * Handles express errors
      */
-    export class ErrorController extends Controller {
+    export class ErrorSerializer extends Serializer {
         /**
        * Creates an instance
        */
@@ -3083,15 +3083,15 @@ declare module "controllers/error-controller" {
         initialize(e: express.Express, db: mongodb.Db): Promise<this>;
     }
 }
-declare module "controllers/file-controller" {
+declare module "serializers/file-serializer" {
     import express = require('express');
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IFileOptions } from 'modepress';
     import * as mongodb from 'mongodb';
     /**
      * Main class to use for managing users
      */
-    export class FileController extends Controller {
+    export class FileSerializer extends Serializer {
         private _allowedFileTypes;
         private _cacheLifetime;
         private _options;
@@ -3117,16 +3117,16 @@ declare module "controllers/file-controller" {
         private getFiles(req, res);
     }
 }
-declare module "controllers/page-renderer" {
+declare module "serializers/page-serializer" {
     import * as mongodb from 'mongodb';
     import * as express from 'express';
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IRenderOptions } from 'modepress';
     /**
      * Sets up a prerender server and saves the rendered html requests to mongodb.
      * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
      */
-    export class PageRenderer extends Controller {
+    export class PageSerializer extends Serializer {
         private renderQueryFlag;
         private expiration;
         private _options;
@@ -3178,15 +3178,15 @@ declare module "controllers/page-renderer" {
         private clearRenders(req, res);
     }
 }
-declare module "controllers/posts-controller" {
+declare module "serializers/posts-serializer" {
     import * as mongodb from 'mongodb';
     import * as express from 'express';
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IBaseControler } from 'modepress';
     /**
      * A controller that deals with the management of posts
      */
-    export class PostsController extends Controller {
+    export class PostsSerializer extends Serializer {
         private _options;
         /**
            * Creates a new instance of the controller
@@ -3218,15 +3218,15 @@ declare module "controllers/posts-controller" {
         private createPost(req, res);
     }
 }
-declare module "controllers/categories-controller" {
+declare module "serializers/categories-serializer" {
     import * as mongodb from 'mongodb';
     import * as express from 'express';
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IBaseControler } from 'modepress';
     /**
      * A controller that deals with the management of categories
      */
-    export class CategoriesController extends Controller {
+    export class CategoriesSerializer extends Serializer {
         private _options;
         /**
            * Creates a new instance of the controller
@@ -3250,15 +3250,15 @@ declare module "controllers/categories-controller" {
         private createCategory(req, res);
     }
 }
-declare module "controllers/session-controller" {
+declare module "serializers/session-serializer" {
     import express = require('express');
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IBaseControler } from 'modepress';
     import * as mongodb from 'mongodb';
     /**
      * Main class to use for managing users
      */
-    export class SessionController extends Controller {
+    export class SessionSerializer extends Serializer {
         private _options;
         /**
            * Creates an instance of the user manager
@@ -3278,15 +3278,15 @@ declare module "controllers/session-controller" {
         private deleteSession(req, res);
     }
 }
-declare module "controllers/stats-controller" {
+declare module "serializers/stats-serializer" {
     import { IBaseControler } from 'modepress';
     import express = require('express');
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import * as mongodb from 'mongodb';
     /**
      * Main class to use for managing users
      */
-    export class StatsController extends Controller {
+    export class StatsSerializer extends Serializer {
         private _allowedFileTypes;
         private _options;
         /**
@@ -3329,15 +3329,15 @@ declare module "controllers/stats-controller" {
         private createStats(req, res);
     }
 }
-declare module "controllers/user-controller" {
+declare module "serializers/user-serializer" {
     import express = require('express');
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IBaseControler } from 'modepress';
     import * as mongodb from 'mongodb';
     /**
      * Main class to use for managing user data
      */
-    export class UserController extends Controller {
+    export class UserSerializer extends Serializer {
         private _options;
         /**
            * Creates an instance of the user manager
@@ -3384,15 +3384,15 @@ declare module "controllers/user-controller" {
         private createUser(req, res);
     }
 }
-declare module "controllers/auth-controller" {
+declare module "serializers/auth-serializer" {
     import express = require('express');
-    import { Controller } from "controllers/controller";
+    import { Serializer } from "serializers/serializer";
     import { IAuthOptions } from 'modepress';
     import * as mongodb from 'mongodb';
     /**
      * Main class to use for managing user authentication
      */
-    export class AuthController extends Controller {
+    export class AuthSerializer extends Serializer {
         private _options;
         /**
            * Creates an instance of the user manager
@@ -3441,28 +3441,28 @@ declare module "controllers/auth-controller" {
     }
 }
 declare module "modepress-api" {
-    import * as _Controller from "controllers/controller";
+    import * as _Controller from "serializers/serializer";
     import * as users from "core/user-manager";
     import * as bucketManager from "core/bucket-manager";
     import * as _Models from "models/model";
     import * as _SchemaFactory from "models/schema-items/schema-item-factory";
     import { isValidObjectID } from "utils/utils";
     import * as permissions from "utils/permission-controllers";
-    import { AdminController } from "controllers/admin-controller";
-    import { BucketController } from "controllers/bucket-controller";
-    import { CommentsController } from "controllers/comments-controller";
-    import { CORSController } from "controllers/cors-controller";
-    import { EmailsController } from "controllers/emails-controller";
-    import { ErrorController } from "controllers/error-controller";
-    import { FileController } from "controllers/file-controller";
-    import { PageRenderer } from "controllers/page-renderer";
-    import { PostsController } from "controllers/posts-controller";
-    import { CategoriesController } from "controllers/categories-controller";
-    import { SessionController } from "controllers/session-controller";
-    import { StatsController } from "controllers/stats-controller";
-    import { UserController } from "controllers/user-controller";
-    import { AuthController } from "controllers/auth-controller";
-    export const Controller: typeof _Controller.Controller;
+    import { AdminSerializer } from "serializers/admin-serializer";
+    import { BucketSerializer } from "serializers/bucket-serializer";
+    import { CommentsSerializer } from "serializers/comments-serializer";
+    import { CORSSerializer } from "serializers/cors-serializer";
+    import { EmailsSerializer } from "serializers/emails-serializer";
+    import { ErrorSerializer } from "serializers/error-serializer";
+    import { FileSerializer } from "serializers/file-serializer";
+    import { PageSerializer } from "serializers/page-serializer";
+    import { PostsSerializer } from "serializers/posts-serializer";
+    import { CategoriesSerializer } from "serializers/categories-serializer";
+    import { SessionSerializer } from "serializers/session-serializer";
+    import { StatsSerializer } from "serializers/stats-serializer";
+    import { UserSerializer } from "serializers/user-serializer";
+    import { AuthSerializer } from "serializers/auth-serializer";
+    export const Controller: typeof _Controller.Serializer;
     export const Model: typeof _Models.Model;
     export const SchemaFactory: typeof _SchemaFactory;
     export const UserManager: typeof users.UserManager;
@@ -3470,19 +3470,19 @@ declare module "modepress-api" {
     export const isValidID: typeof isValidObjectID;
     export const authentication: typeof permissions;
     export const controllers: {
-        admin: typeof AdminController;
-        auth: typeof AuthController;
-        posts: typeof PostsController;
-        categories: typeof CategoriesController;
-        comments: typeof CommentsController;
-        cors: typeof CORSController;
-        email: typeof EmailsController;
-        error: typeof ErrorController;
-        file: typeof FileController;
-        bucket: typeof BucketController;
-        renderer: typeof PageRenderer;
-        session: typeof SessionController;
-        stats: typeof StatsController;
-        user: typeof UserController;
+        admin: typeof AdminSerializer;
+        auth: typeof AuthSerializer;
+        posts: typeof PostsSerializer;
+        categories: typeof CategoriesSerializer;
+        comments: typeof CommentsSerializer;
+        cors: typeof CORSSerializer;
+        email: typeof EmailsSerializer;
+        error: typeof ErrorSerializer;
+        file: typeof FileSerializer;
+        bucket: typeof BucketSerializer;
+        renderer: typeof PageSerializer;
+        session: typeof SessionSerializer;
+        stats: typeof StatsSerializer;
+        user: typeof UserSerializer;
     };
 }

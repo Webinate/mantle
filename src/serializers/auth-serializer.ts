@@ -6,7 +6,7 @@ import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/user-manager';
 import { SessionManager } from '../core/session-manager';
 import { ownerRights } from '../utils/permission-controllers';
-import { Controller } from './controller'
+import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
 import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
@@ -17,7 +17,7 @@ import Factory from '../core/model-factory';
 /**
  * Main class to use for managing user authentication
  */
-export class AuthController extends Controller {
+export class AuthSerializer extends Serializer {
   private _options: IAuthOptions;
 
   /**

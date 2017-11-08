@@ -3,7 +3,7 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import { IModelEntry } from 'modepress';
 
-export class Controller {
+export class Serializer {
   private _models: Model<IModelEntry>[];
 
   constructor( models: Model<IModelEntry>[] | null ) {

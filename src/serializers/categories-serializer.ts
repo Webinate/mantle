@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
-import { Controller } from './controller';
+import { Serializer } from './serializer';
 import { adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
 import { IBaseControler } from 'modepress';
@@ -14,7 +14,7 @@ import { Model } from '../models/model';
 /**
  * A controller that deals with the management of categories
  */
-export class CategoriesController extends Controller {
+export class CategoriesSerializer extends Serializer {
 
   private _options: IBaseControler;
 

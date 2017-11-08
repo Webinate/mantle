@@ -6,7 +6,7 @@ import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import { UserManager } from '../core/user-manager';
 import { ownerRights, requireUser } from '../utils/permission-controllers';
-import { Controller } from './controller'
+import { Serializer } from './serializer'
 import { BucketManager } from '../core/bucket-manager';
 import * as multiparty from 'multiparty';
 import * as compression from 'compression';
@@ -20,7 +20,7 @@ import Factory from '../core/model-factory';
 /**
  * Main class to use for managing users
  */
-export class BucketController extends Controller {
+export class BucketSerializer extends Serializer {
   private _allowedFileTypes: Array<string>;
   private _options: IBaseControler;
 
