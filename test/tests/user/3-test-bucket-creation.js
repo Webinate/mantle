@@ -34,9 +34,12 @@ describe( '3. Testing bucket creation', function() {
     const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
-
-    test.object( json ).hasProperty( "message" );
-    test.string( json.message ).is( "Bucket 'dinosaurs' created" );
+    test.object( json ).hasProperty( "_id" );
+    test.string( json.name ).is( 'dinosaurs' );
+    test.string( json.user ).is( user1.username );
+    test.number( json.memoryUsed ).is( 0 );
+    test.number( json.created ).isGreaterThan( 0 );
+    test.string( json.identifier ).isNot( '' );
   } )
 
   it( 'regular user did not create a bucket with the same name as an existing one', async function() {
@@ -53,8 +56,9 @@ describe( '3. Testing bucket creation', function() {
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
 
-    test.object( json ).hasProperty( "message" );
-    test.string( json.message ).is( "Bucket 'dinosaurs2' created" );
+    test.object( json ).hasProperty( "_id" );
+    test.string( json.name ).is( 'dinosaurs2' );
+    test.string( json.user ).is( user1.username );
   } )
 
   it( 'regular user should have 2 buckets', async function() {

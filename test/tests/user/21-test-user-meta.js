@@ -13,9 +13,6 @@ describe( '21. Getting and setting user meta data', function() {
   it( 'admin did set user meta data object', async function() {
     const resp = await admin.post( `/api/users/${config.adminUser.username}/meta`, { value: { sister: "sam", brother: "mat" } } );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.object( json ).hasProperty( "message" )
-    test.string( json.message ).is( "User's data has been updated" )
   } )
 
   it( 'admin did get user meta value "sister"', async function() {
@@ -35,9 +32,6 @@ describe( '21. Getting and setting user meta data', function() {
   it( 'admin did update user meta "brother" to john', async function() {
     const resp = await admin.post( `/api/users/${config.adminUser.username}/meta/brother`, { value: "john" } );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.object( json ).hasProperty( "message" )
-    test.string( json.message ).is( "Value 'brother' has been updated" )
   } )
 
   it( 'admin did get user meta "brother" and its john', async function() {
@@ -50,8 +44,5 @@ describe( '21. Getting and setting user meta data', function() {
   it( 'admin did set clear meta data', async function() {
     const resp = await admin.post( `/api/users/${config.adminUser.username}/meta`, {} );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.object( json ).hasProperty( "message" )
-    test.string( json.message ).is( "User's data has been updated" )
   } )
 } )

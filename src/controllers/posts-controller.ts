@@ -251,10 +251,7 @@ export class PostsController extends Controller {
     if ( schema.tokens.length === 0 )
       throw new Error( 'Could not find post with that id' );
 
-    const response: PostTokens.PutOne.Response = {
-      message: 'Post Updated'
-    };
-
+    const response: PostTokens.PutOne.Response = schema.tokens[ 0 ].instance.dbEntry;
     return response;
   }
 

@@ -90,14 +90,17 @@ describe( '3. Testing editing of posts', function() {
     const resp = await admin.put( `/api/posts/${postId}`, { slug: "--edit--test--" } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.message ).is( "Post Updated" );
+    test.string( json._id ).is( postId );
+    test.string( json.slug ).is( '--edit--test--' );
+    test.string( json.title ).is( 'Simple Test' );
   } )
 
   it( 'can edit a post with valid details', async function() {
     const resp = await admin.put( `/api/posts/${postId}`, { content: "Updated" } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.message ).is( "Post Updated" );
+    test.string( json._id ).is( postId );
+    test.string( json.content ).is( 'Updated' );
   } )
 
   it( 'did cleanup the test post', async function() {

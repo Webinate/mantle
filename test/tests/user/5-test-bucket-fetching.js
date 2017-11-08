@@ -23,6 +23,13 @@ describe( '5. Testing bucket get requests', function() {
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
     test.array( json.data ).hasLength( 1 );
+    const bucket = json.data[ 0 ];
+    test.object( bucket ).hasProperty( "_id" );
+    test.string( bucket.name ).is( 'dinosaurs' );
+    test.string( bucket.user ).is( user1.username );
+    test.number( bucket.memoryUsed ).is( 0 );
+    test.number( bucket.created ).isGreaterThan( 0 );
+    test.string( bucket.identifier ).isNot( '' );
   } )
 
   it( 'regular user did not get buckets for admin', async function() {

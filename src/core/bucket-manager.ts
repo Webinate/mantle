@@ -209,6 +209,7 @@ export class BucketManager {
     // Send bucket added events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.BucketUploaded ], bucket: bucketEntry!, username: user };
     await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user ) );
+    return bucketEntry!;
   }
 
   /**
@@ -548,8 +549,8 @@ export class BucketManager {
   async renameFile( file: IFileEntry, name: string ) {
     const files = this._files;
     await this.incrementAPI( file.user! );
-
     await files.updateOne( { _id: file._id! } as IFileEntry, { $set: { name: name } as IFileEntry } );
+    file.name = name;
     return file;
   }
 

@@ -16,6 +16,7 @@ import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { okJson, errJson } from '../utils/serializers';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/model-factory';
+import { j200 } from '../utils/serializers';
 
 /**
  * Main class to use for managing users
@@ -119,8 +120,9 @@ export class BucketController extends Controller {
   }
 
   /**
- * Creates a new user bucket based on the target provided
- */
+   * Creates a new user bucket based on the target provided
+   */
+  @j200()
   private async createBucket( req: IAuthReq, res: express.Response ) {
     const manager = BucketManager.get;
     const username: string = req.params.user;
@@ -142,8 +144,9 @@ export class BucketController extends Controller {
       if ( !inLimits )
         throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
 
-      await manager.createBucket( bucketName, username );
-      okJson<BucketTokens.Post.Response>( { message: `Bucket '${bucketName}' created` }, res );
+      const entry = await manager.createBucket( bucketName, username );
+      const toRet: BucketTokens.Post.Response = entry;
+      return toRet;
 
     } catch ( err ) {
       return errJson( err, res );

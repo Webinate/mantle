@@ -37,7 +37,6 @@ describe( '20. Testing users logout', function() {
   it( 'should log out', async function() {
     const resp = await agent.get( `/api/auth/logout` );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
   } )
 
   it( 'user should be logged out', async function() {

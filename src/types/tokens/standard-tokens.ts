@@ -62,7 +62,7 @@ declare module 'modepress' {
     /** GET /auth/authenticated */
     export namespace Authenticated { export type Body = void; export type Response = IAuthenticationResponse; }
     /** GET /auth/logout */
-    export namespace Logout { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace Logout { export type Body = void; export type Response = void; }
     /** GET /auth/activate-account */
     export namespace ActivateAccount { export type Body = void; export type Response = void; }
     /** POST /auth/login */
@@ -93,9 +93,9 @@ declare module 'modepress' {
     /** DELETE /users/:username */
     export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** POST /users/:user/meta/:name */
-    export namespace PostUserMeta { export type Body = any; export type Response = ISimpleResponse; }
+    export namespace PostUserMeta { export type Body = any; export type Response = void; }
     /** POST /users/:user/meta */
-    export namespace PostUserMetaVal { export type Body = any; export type Response = ISimpleResponse; }
+    export namespace PostUserMetaVal { export type Body = any; export type Response = void; }
   }
 
   export namespace StatTokens {
@@ -104,13 +104,13 @@ declare module 'modepress' {
     /** POST /stats/create-stats/:target */
     export namespace Post { export type Body = void; export type Response = IStorageStats; }
     /** PUT /stats/storage-calls/:target/:value */
-    export namespace PutStorageCalls { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace PutStorageCalls { export type Body = void; export type Response = void; }
     /** PUT /stats/storage-memory/:target/:value */
-    export namespace PutStorageMemory { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace PutStorageMemory { export type Body = void; export type Response = void; }
     /** PUT /stats/storage-allocated-calls/:target/:value */
-    export namespace PutStorageAlocCalls { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace PutStorageAlocCalls { export type Body = void; export type Response = void; }
     /** PUT /stats/storage-allocated-memory/:target/:value */
-    export namespace PutStorageAlocMemory { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace PutStorageAlocMemory { export type Body = void; export type Response = void; }
   }
 
   export namespace SessionTokens {
@@ -131,7 +131,7 @@ declare module 'modepress' {
     /** DELETE /posts/:id */
     export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** PUT /posts/:id */
-    export namespace PutOne { export type Body = IPost; export type Response = ISimpleResponse; }
+    export namespace PutOne { export type Body = IPost; export type Response = IPost; }
     /** POST /posts/ */
     export namespace Post { export type Body = IPost; export type Response = IPost; }
   }
@@ -144,7 +144,7 @@ declare module 'modepress' {
     /** DELETE /comments/:id */
     export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** PUT /comments/:id */
-    export namespace PutOne { export type Body = IComment; export type Response = ISimpleResponse; }
+    export namespace PutOne { export type Body = IComment; export type Response = IComment; }
     /** POST /posts/:postId/comments/:parent? */
     export namespace Post { export type Body = IComment; export type Response = IComment; }
   }
@@ -164,14 +164,14 @@ declare module 'modepress' {
     /** DELETE /renders/:id */
     export namespace DeleteOne { export type Body = void; export type Response = void; }
     /** DELETE /renders/clear */
-    export namespace DeleteAll { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace DeleteAll { export type Body = void; export type Response = void; }
   }
 
   export namespace FileTokens {
     /** GET /files/users/:user/buckets/:bucket */
     export namespace GetAll { export type Body = void; export type Response = Page<IFileEntry>; }
     /** PUT /files/:file/rename-file */
-    export namespace Put { export type Body = { name: string }; export type Response = ISimpleResponse; }
+    export namespace Put { export type Body = { name: string }; export type Response = IFileEntry; }
     /** DELETE /files/:files */
     export namespace DeleteAll { export type Body = void; export type Response = Page<string>; }
   }
@@ -180,7 +180,7 @@ declare module 'modepress' {
     /** GET /buckets/user/:user */
     export namespace GetAll { export type Body = void; export type Response = Page<IBucketEntry>; }
     /** POST /buckets/user/:user/:name */
-    export namespace Post { export type Body = void; export type Response = ISimpleResponse; }
+    export namespace Post { export type Body = void; export type Response = IBucketEntry; }
     /** POST /buckets/:bucket/upload/:parentFile? */
     export namespace PostFile { export type Body = any; export type Response = IUploadResponse; }
     /** DELETE /buckets/:buckets */

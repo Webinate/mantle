@@ -96,29 +96,21 @@ describe( '15. Testing setting stat values', function() {
   it( 'admin can set storage calls for a regular user to 50', async function() {
     const resp = await admin.put( `/stats/storage-calls/${user1.username}/50`, {} );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Updated the user API calls to [50]" );
   } )
 
   it( 'admin can set storage memory for a regular user to 50', async function() {
     const resp = await admin.put( `/stats/storage-memory/${user1.username}/50`, {} );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Updated the user memory to [50] bytes" );
   } )
 
   it( 'admin can set allocated storage calls for a regular user to 100', async function() {
     const resp = await admin.put( `/stats/storage-allocated-calls/${user1.username}/100`, {} );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Updated the user API calls to [100]" );
   } )
 
   it( 'admin can set allocated memory for a regular user to 100', async function() {
     const resp = await admin.put( `/stats/storage-allocated-memory/${user1.username}/100`, {} );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.string( json.message ).is( "Updated the user memory to [100] bytes" );
   } )
 
   it( 'regular user stats have been updated', async function() {
@@ -134,6 +126,5 @@ describe( '15. Testing setting stat values', function() {
   it( 'admin setting storage back to max', async function() {
     const resp = await admin.put( `/stats/storage-allocated-memory/${user1.username}/${stats.memoryAllocated}`, {} );
     test.number( resp.status ).is( 200 );
-    const json = await resp.json();
   } )
 } )

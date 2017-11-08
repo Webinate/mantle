@@ -56,8 +56,9 @@ describe( '9. Testing file renaming', function() {
     const resp = await user1.put( `/files/${fileId}/rename-file`, { name: "testy" } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.object( json ).hasProperty( "message" );
-    test.string( json.message ).is( "Renamed file to 'testy'" );
+    test.object( json ).hasProperty( "_id" );
+    test.string( json.name ).is( 'testy' );
+    test.string( json.user ).is( user1.username );
   } )
 
   it( 'did rename the file to "testy" as reflected in the GET', async function() {

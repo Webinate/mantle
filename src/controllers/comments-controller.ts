@@ -243,7 +243,7 @@ export class CommentsController extends Controller {
     if ( instance.error )
       throw new Error( <string>instance.tokens[ 0 ].error );
 
-    const response: CommentTokens.PutOne.Response = { message: 'Comment Updated' };
+    const response: CommentTokens.PutOne.Response = instance.tokens[ 0 ].instance.dbEntry;
     return response;
   }
 

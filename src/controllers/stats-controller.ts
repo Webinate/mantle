@@ -10,6 +10,7 @@ import * as compression from 'compression';
 import { okJson, errJson } from '../utils/serializers';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
+import { j200 } from '../utils/serializers';
 
 /**
  * Main class to use for managing users
@@ -86,13 +87,13 @@ export class StatsController extends Controller {
   /**
    * Updates the target user's api calls
    */
-  private async updateCalls( req: IAuthReq, res: express.Response ) {
+  @j200()
+  private async updateCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageCalls.Response> {
     try {
       const value = parseInt( req.params.value );
       const manager = BucketManager.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsUsed: value } );
-      okJson<StatTokens.PutStorageCalls.Response>( { message: `Updated the user API calls to [${value}]` }, res );
-
+      return;
     } catch ( err ) {
       return errJson( err, res );
     };
@@ -101,13 +102,13 @@ export class StatsController extends Controller {
   /**
    * Updates the target user's memory usage
    */
-  private async updateMemory( req: IAuthReq, res: express.Response ) {
+  @j200()
+  private async updateMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageMemory.Response> {
     try {
       const value = parseInt( req.params.value );
       const manager = BucketManager.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryUsed: value } );
-
-      okJson<StatTokens.PutStorageMemory.Response>( { message: `Updated the user memory to [${value}] bytes` }, res );
+      return;
 
     } catch ( err ) {
       return errJson( err, res );
@@ -117,12 +118,13 @@ export class StatsController extends Controller {
   /**
    * Updates the target user's allocated api calls
    */
-  private async updateAllocatedCalls( req: IAuthReq, res: express.Response ) {
+  @j200()
+  private async updateAllocatedCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocCalls.Response> {
     try {
       const value = parseInt( req.params.value );
       const manager = BucketManager.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsAllocated: value } );
-      okJson<StatTokens.PutStorageAlocCalls.Response>( { message: `Updated the user API calls to [${value}]` }, res );
+      return;
 
     } catch ( err ) {
       return errJson( err, res );
@@ -132,13 +134,13 @@ export class StatsController extends Controller {
   /**
    * Updates the target user's allocated memory
    */
-  private async updateAllocatedMemory( req: IAuthReq, res: express.Response ) {
+  @j200()
+  private async updateAllocatedMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocMemory.Response> {
     try {
       const value = parseInt( req.params.value );
       const manager = BucketManager.get;
       await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryAllocated: value } );
-      okJson<StatTokens.PutStorageAlocMemory.Response>( { message: `Updated the user memory to [${value}] bytes` }, res );
-
+      return;
     } catch ( err ) {
       return errJson( err, res );
     };

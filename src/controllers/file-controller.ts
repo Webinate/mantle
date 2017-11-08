@@ -10,6 +10,7 @@ import { okJson, errJson } from '../utils/serializers';
 import { IFileOptions } from 'modepress';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
+import { j200 } from '../utils/serializers';
 
 /**
  * Main class to use for managing users
@@ -82,27 +83,23 @@ export class FileController extends Controller {
   /**
    * Renames a file
    */
-  private async renameFile( req: IAuthReq, res: express.Response ) {
-    try {
-      const manager = BucketManager.get;
+  @j200()
+  private async renameFile( req: IAuthReq, res: express.Response ): Promise<FileTokens.Put.Response> {
+    const manager = BucketManager.get;
 
-      if ( !req.params.file || req.params.file.trim() === '' )
-        throw new Error( 'Please specify the file to rename' );
-      if ( !req.body || !req.body.name || req.body.name.trim() === '' )
-        throw new Error( 'Please specify the new name of the file' );
+    if ( !req.params.file || req.params.file.trim() === '' )
+      throw new Error( 'Please specify the file to rename' );
+    if ( !req.body || !req.body.name || req.body.name.trim() === '' )
+      throw new Error( 'Please specify the new name of the file' );
 
-      const fileEntry = await manager.getFile( req.params.file, req._user!.username );
+    const fileEntry = await manager.getFile( req.params.file, req._user!.username );
 
-      if ( !fileEntry )
-        throw new Error( `Could not find the file '${req.params.file}'` );
+    if ( !fileEntry )
+      throw new Error( `Could not find the file '${req.params.file}'` );
 
-      const file = req.body as FileTokens.Put.Body;
-      await manager.renameFile( fileEntry, file.name );
-      okJson<FileTokens.Put.Response>( { message: `Renamed file to '${req.body.name}'` }, res );
-
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+    const file = req.body as FileTokens.Put.Body;
+    const updatedFile = await manager.renameFile( fileEntry, file.name );
+    return updatedFile;
   }
 
 

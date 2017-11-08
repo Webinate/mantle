@@ -162,10 +162,9 @@ export class AuthController extends Controller {
 	 * Attempts to log the user out
 	 */
   @j200()
-  private async logout( req: express.Request, res: express.Response ) {
+  private async logout( req: express.Request, res: express.Response ): Promise<AuthTokens.Logout.Response> {
     await UserManager.get.logOut( req, res );
-    const response: AuthTokens.Logout.Response = { message: 'Successfully logged out' };
-    return response;
+    return;
   }
 
   /**

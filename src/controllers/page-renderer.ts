@@ -12,6 +12,7 @@ import { adminRights } from '../utils/permission-controllers'
 import { IRenderOptions } from 'modepress';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';
+import { j200 } from '../utils/serializers';
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -401,16 +402,10 @@ export class PageRenderer extends Controller {
   /**
    * Removes all cache items from the db
    */
-  private async clearRenders( req: IAuthReq, res: express.Response ) {
+  @j200( 204 )
+  private async clearRenders( req: IAuthReq, res: express.Response ): Promise<RenderTokens.DeleteAll.Response> {
     const renders = this.getModel( 'renders' );
-
-    try {
-
-      // First get the count
-      const num = await renders!.deleteInstances( {} );
-      okJson<RenderTokens.DeleteAll.Response>( { message: `${num} Instances have been removed` }, res );
-    } catch ( err ) {
-      errJson( err, res );
-    };
+    await renders!.deleteInstances( {} );
+    return;
   }
 }

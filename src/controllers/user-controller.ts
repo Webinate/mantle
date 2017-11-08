@@ -108,28 +108,26 @@ export class UserController extends Controller {
    * Sets a user's meta data
  */
   @j200()
-  private async setData( req: IAuthReq, res: express.Response ) {
+  private async setData( req: IAuthReq, res: express.Response ): Promise<UserTokens.PostUserMeta.Response> {
     const user = req._user!;
     let val = req.body && req.body.value;
     if ( !val )
       val = {};
 
     await UserManager.get.setMeta( user, val );
-    const response: UserTokens.PostUserMeta.Response = { message: `User's data has been updated` };
-    return response;
+    return;
   }
 
   /**
  * Sets a user's meta value
  */
   @j200()
-  private async setVal( req: IAuthReq, res: express.Response ) {
+  private async setVal( req: IAuthReq, res: express.Response ): Promise<UserTokens.PostUserMetaVal.Response> {
     const user = req._user!;
     const name = req.params.name;
 
     await UserManager.get.setMetaVal( user, name, req.body.value );
-    const response: UserTokens.PostUserMetaVal.Response = { message: `Value '${name}' has been updated` };
-    return response;
+    return;
   }
 
   /**
