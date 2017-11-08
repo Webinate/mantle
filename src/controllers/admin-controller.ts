@@ -4,7 +4,7 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserManager } from '../core/user-manager';
 import { Controller } from './controller'
-import { j200 } from '../utils/serializers';
+import { j200 } from '../utils/response-decorators';
 import * as compression from 'compression';
 import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';

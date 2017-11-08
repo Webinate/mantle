@@ -4,7 +4,7 @@ import * as mongodb from 'mongodb';
 import { UserPrivileges, User } from '../core/user';
 import { UserManager } from '../core/user-manager';
 import { SessionManager } from '../core/session-manager';
-import { errJson } from './serializers';
+import { errJson } from './response-decorators';
 import { Error401, Error403 } from './errors';
 
 /**

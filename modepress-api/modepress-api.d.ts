@@ -2845,7 +2845,7 @@ declare module "utils/errors" {
         constructor(message: string);
     }
 }
-declare module "utils/serializers" {
+declare module "utils/response-decorators" {
     import { IResponse } from 'modepress';
     import * as express from 'express';
     /**

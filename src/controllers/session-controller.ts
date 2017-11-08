@@ -6,7 +6,7 @@ import bodyParser = require( 'body-parser' );
 import { SessionManager } from '../core/session-manager';
 import { ownerRights } from '../utils/permission-controllers';
 import { Controller } from './controller'
-import { j200 } from '../utils/serializers';
+import { j200 } from '../utils/response-decorators';
 import * as compression from 'compression';
 import { IBaseControler } from 'modepress';
 import * as mongodb from 'mongodb';
