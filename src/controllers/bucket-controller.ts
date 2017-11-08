@@ -13,10 +13,9 @@ import * as compression from 'compression';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
-import { okJson, errJson } from '../utils/serializers';
+import { okJson, errJson, j200 } from '../utils/response-decorators';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/model-factory';
-import { j200 } from '../utils/serializers';
 
 /**
  * Main class to use for managing users

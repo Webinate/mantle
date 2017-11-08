@@ -7,7 +7,7 @@ import { Controller } from './controller';
 import { Schema } from '../models/schema';
 import { Model } from '../models/model';
 import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
-import { j200 } from '../utils/serializers';
+import { j200 } from '../utils/response-decorators';
 import { UserPrivileges } from '../core/user';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/model-factory';

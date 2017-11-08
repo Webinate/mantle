@@ -6,7 +6,7 @@ import * as express from 'express';
 import * as compression from 'compression';
 import { Controller } from './controller';
 import { adminRights, hasId } from '../utils/permission-controllers';
-import { j200 } from '../utils/serializers';
+import { j200 } from '../utils/response-decorators';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';

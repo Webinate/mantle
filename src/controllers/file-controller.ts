@@ -6,11 +6,10 @@ import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Controller } from './controller'
 import { BucketManager } from '../core/bucket-manager';
 import * as compression from 'compression';
-import { okJson, errJson } from '../utils/serializers';
+import { okJson, errJson, j200 } from '../utils/response-decorators';
 import { IFileOptions } from 'modepress';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
-import { j200 } from '../utils/serializers';
 
 /**
  * Main class to use for managing users

@@ -7,12 +7,11 @@ import { Controller } from './controller';
 import { Schema } from '../models/schema';
 import * as url from 'url';
 import * as jsdom from 'jsdom';
-import { okJson, errJson } from '../utils/serializers';
+import { okJson, errJson, j200 } from '../utils/response-decorators';
 import { adminRights } from '../utils/permission-controllers'
 import { IRenderOptions } from 'modepress';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';
-import { j200 } from '../utils/serializers';
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
