@@ -2442,7 +2442,7 @@ declare module "controllers/posts" {
     export type SearchOptions = {
         verbose?: boolean;
         keyword?: RegExp;
-        author?: string;
+        author?: RegExp;
         public?: boolean;
         tags?: string[];
         requiredTags?: string[];
@@ -3265,6 +3265,7 @@ declare module "serializers/posts-serializer" {
      */
     export class PostsSerializer extends Serializer {
         private _options;
+        private _controller;
         /**
            * Creates a new instance of the controller
            */
@@ -3525,6 +3526,7 @@ declare module "modepress-api" {
     import * as _Controller from "serializers/serializer";
     import { UsersController } from "controllers/users";
     import { BucketsController } from "controllers/buckets";
+    import { PostsController } from "controllers/posts";
     import * as _Models from "models/model";
     import * as _SchemaFactory from "models/schema-items/schema-item-factory";
     import { isValidObjectID } from "utils/utils";
@@ -3551,6 +3553,7 @@ declare module "modepress-api" {
     export const controllers: {
         users: UsersController;
         buckets: BucketsController;
+        posts: PostsController;
     };
     export const serializers: {
         admin: typeof AdminSerializer;

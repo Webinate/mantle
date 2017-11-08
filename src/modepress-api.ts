@@ -2,6 +2,7 @@
 import ControllerFactory from './core/controller-factory';
 import { UsersController } from './controllers/users';
 import { BucketsController } from './controllers/buckets';
+import { PostsController } from './controllers/posts';
 import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
@@ -29,7 +30,8 @@ export const authentication = permissions;
 
 export const controllers = {
   users: ControllerFactory.get( 'users' ) as UsersController,
-  buckets: ControllerFactory.get( 'buckets' ) as BucketsController
+  buckets: ControllerFactory.get( 'buckets' ) as BucketsController,
+  posts: ControllerFactory.get( 'posts' ) as PostsController
 };
 
 export const serializers = {

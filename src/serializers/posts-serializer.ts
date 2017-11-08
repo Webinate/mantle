@@ -11,6 +11,8 @@ import { UserPrivileges } from '../core/user';
 import { Model } from '../models/model';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/model-factory';
+import ControllerFactory from '../core/controller-factory';
+import { PostsController } from '../controllers/posts';
 
 /**
  * A controller that deals with the management of posts
@@ -18,6 +20,7 @@ import Factory from '../core/model-factory';
 export class PostsSerializer extends Serializer {
 
   private _options: IBaseControler;
+  private _controller: PostsController;
 
   /**
 	 * Creates a new instance of the controller
@@ -31,7 +34,7 @@ export class PostsSerializer extends Serializer {
    * Called to initialize this controller and its related database objects
    */
   async initialize( e: express.Express, db: mongodb.Db ) {
-
+    this._controller = ControllerFactory.get( 'posts' );
     const router = express.Router();
 
     router.use( compression() );
@@ -58,21 +61,8 @@ export class PostsSerializer extends Serializer {
    */
   @j200()
   private async getPosts( req: IAuthReq, res: express.Response ) {
-    const posts = this.getModel( 'posts' ) as Model<IPost>;
-    let count = 0;
-    let visibility: string | undefined = undefined;
+    let visibility: string | undefined;
     const user = req._user;
-
-    const findToken = { $or: [] as IPost[] };
-    if ( req.query.author )
-      ( <any>findToken ).author = new RegExp( req.query.author, 'i' );
-
-    // Check for keywords
-    if ( req.query.keyword ) {
-      findToken.$or.push( <IPost>{ title: <any>new RegExp( req.query.keyword, 'i' ) } );
-      findToken.$or.push( <IPost>{ content: <any>new RegExp( req.query.keyword, 'i' ) } );
-      findToken.$or.push( <IPost>{ brief: <any>new RegExp( req.query.keyword, 'i' ) } );
-    }
 
     // Check for visibility
     if ( req.query.visibility ) {
@@ -94,93 +84,26 @@ export class PostsSerializer extends Serializer {
     else
       visibility = 'public';
 
-    // Add the or conditions for visibility
-    if ( visibility )
-      ( <IPost>findToken ).public = visibility === 'public' ? true : false;
+    let index: number | undefined = parseInt( req.query.index );
+    let limit: number | undefined = parseInt( req.query.limit );
+    index = isNaN( index ) ? undefined : index;
+    limit = isNaN( limit ) ? undefined : limit;
 
-
-    // Check for tags (an OR request with tags)
-    if ( req.query.tags ) {
-      const tags = req.query.tags.split( ',' );
-      if ( tags.length > 0 )
-        ( <any>findToken ).tags = { $in: tags };
-    }
-
-    // Check for required tags (an AND request with tags)
-    if ( req.query.rtags ) {
-      const rtags = req.query.rtags.split( ',' );
-      if ( rtags.length > 0 ) {
-        if ( !( <any>findToken ).tags )
-          ( <any>findToken ).tags = { $all: rtags };
-        else
-                    ( <any>findToken ).tags.$all = rtags;
-      }
-    }
-
-    // Check for categories
-    if ( req.query.categories ) {
-      const categories = req.query.categories.split( ',' );
-      if ( categories.length > 0 )
-        ( <any>findToken ).categories = { $in: categories };
-    }
-
-    // Set the default sort order to ascending
-    let sortOrder = -1;
-
-    if ( req.query.sortOrder ) {
-      if ( ( <string>req.query.sortOrder ).toLowerCase() === 'asc' )
-        sortOrder = 1;
-      else
-        sortOrder = -1;
-    }
-
-    // Sort by the date created
-    let sort: IPost = { createdOn: sortOrder };
-
-    // Optionally sort by the last updated
-    if ( req.query.sort ) {
-      if ( req.query.sort === 'true' )
-        sort = { lastUpdated: sortOrder };
-    }
-
-    let getContent: boolean = true;
-    if ( req.query.minimal )
-      getContent = false;
-
-    // Stephen is lovely
-    if ( findToken.$or.length === 0 )
-      delete findToken.$or;
-
-    // First get the count
-    count = await posts!.count( findToken );
-
-    let index: number = 0;
-    let limit: number = 10;
-    if ( req.query.index !== undefined )
-      index = parseInt( req.query.index );
-    if ( req.query.limit !== undefined )
-      limit = parseInt( req.query.limit );
-
-    const schemas = await posts!.findInstances( {
-      selector: findToken,
-      sort: sort,
+    const response: PostTokens.GetAll.Response = await this._controller.getPosts( {
+      public: visibility === 'public' ? true : false,
+      keyword: req.query.keyword ? new RegExp( req.query.keyword, 'i' ) : undefined,
+      author: req.query.author ? new RegExp( req.query.author, 'i' ) : undefined,
+      tags: req.query.tags ? req.query.tags.split( ',' ) : undefined,
+      categories: req.query.categories ? req.query.categories.split( ',' ) : undefined,
+      requiredTags: req.query.rtags ? req.query.rtags.split( ',' ) : undefined,
+      sort: req.query.sort ? true : false,
+      sortOrder: req.query.sortOrder === 'asc' ? 'asc' : 'desc',
+      minimal: req.query.minimal ? true : false,
       index: index,
       limit: limit,
-      projection: ( getContent === false ? { content: 0 } : undefined )
+      verbose: Boolean( req.query.verbose )
     } );
 
-    const jsons: Array<Promise<IPost>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( { verbose: Boolean( req.query.verbose ) } ) );
-
-    const sanitizedData = await Promise.all( jsons );
-
-    const response: PostTokens.GetAll.Response = {
-      count: count,
-      data: sanitizedData,
-      index: index,
-      limit: limit
-    };
     return response;
   }
 

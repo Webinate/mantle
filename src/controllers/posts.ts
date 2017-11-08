@@ -7,7 +7,7 @@ import Controller from './controller';
 export type SearchOptions = {
   verbose?: boolean;
   keyword?: RegExp;
-  author?: string;
+  author?: RegExp;
   public?: boolean;
   tags?: string[];
   requiredTags?: string[];
@@ -49,7 +49,7 @@ export class PostsController extends Controller {
 
     const findToken = { $or: [] as IPost[] };
     if ( options.author )
-      ( <any>findToken ).author = new RegExp( options.author, 'i' );
+      ( <any>findToken ).author = options.author;
 
     // Check for keywords
     if ( options.keyword ) {
