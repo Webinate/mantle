@@ -3,6 +3,7 @@ import { ISimpleResponse } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
+import { UsersController } from '../controllers/users';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
 import * as compression from 'compression';
@@ -15,6 +16,7 @@ import Factory from '../core/model-factory';
  */
 export class AdminSerializer extends Serializer {
   private _options: IBaseControler;
+  private _userController: UsersController;
 
   constructor( options: IBaseControler ) {
     super( [ Factory.get( 'users' ) ] );
@@ -25,6 +27,8 @@ export class AdminSerializer extends Serializer {
  * Called to initialize this controller and its related database objects
  */
   async initialize( e: express.Express, db: mongodb.Db ) {
+
+    this._userController = ControllerFactory.get( 'users' );
 
     // Setup the rest calls
     const router = express.Router();
@@ -52,7 +56,7 @@ export class AdminSerializer extends Serializer {
     if ( !token.message )
       throw new Error( 'Please specify a message to send' );
 
-    await ControllerFactory.get( 'users' ).sendAdminEmail( token.message, token.name, token.from );
+    await this._userController.sendAdminEmail( token.message, token.name, token.from );
     const response: ISimpleResponse = { message: 'Your message has been sent to the support team' };
     return response;
   }

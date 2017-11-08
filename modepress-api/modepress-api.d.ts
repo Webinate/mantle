@@ -2988,6 +2988,7 @@ declare module "serializers/admin-serializer" {
      */
     export class AdminSerializer extends Serializer {
         private _options;
+        private _userController;
         constructor(options: IBaseControler);
         /**
        * Called to initialize this controller and its related database objects
@@ -3010,6 +3011,8 @@ declare module "serializers/bucket-serializer" {
     export class BucketSerializer extends Serializer {
         private _allowedFileTypes;
         private _options;
+        private _userController;
+        private _bucketController;
         /**
            * Creates an instance of the user manager
            */
@@ -3334,6 +3337,7 @@ declare module "serializers/session-serializer" {
      */
     export class SessionSerializer extends Serializer {
         private _options;
+        private _sessionController;
         /**
            * Creates an instance of the user manager
            */
@@ -3363,6 +3367,7 @@ declare module "serializers/stats-serializer" {
     export class StatsSerializer extends Serializer {
         private _allowedFileTypes;
         private _options;
+        private _userController;
         /**
            * Creates an instance of the user manager
            * @param e The express app
@@ -3413,6 +3418,7 @@ declare module "serializers/user-serializer" {
      */
     export class UserSerializer extends Serializer {
         private _options;
+        private _userController;
         /**
            * Creates an instance of the user manager
            */
@@ -3468,6 +3474,7 @@ declare module "serializers/auth-serializer" {
      */
     export class AuthSerializer extends Serializer {
         private _options;
+        private _userController;
         /**
            * Creates an instance of the user manager
            */

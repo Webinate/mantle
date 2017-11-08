@@ -4,6 +4,7 @@ import { SessionTokens } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
+import { SessionsController } from '../controllers/sessions';
 import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
@@ -17,7 +18,7 @@ import Factory from '../core/model-factory';
  */
 export class SessionSerializer extends Serializer {
   private _options: IBaseControler;
-
+  private _sessionController: SessionsController;
   /**
 	 * Creates an instance of the user manager
 	 */
@@ -30,6 +31,8 @@ export class SessionSerializer extends Serializer {
    * Called to initialize this controller and its related database objects
    */
   async initialize( e: express.Express, db: mongodb.Db ) {
+
+    this._sessionController = ControllerFactory.get( 'sessions' );
 
     // Setup the rest calls
     const router = express.Router();
@@ -53,10 +56,10 @@ export class SessionSerializer extends Serializer {
 	 */
   @j200()
   private async getSessions( req: express.Request, res: express.Response ) {
-    const numSessions = await ControllerFactory.get( 'sessions' ).numActiveSessions();
+    const numSessions = await this._sessionController.numActiveSessions();
     const index = parseInt( req.query.index );
     const limit = parseInt( req.query.limit );
-    const sessions = await ControllerFactory.get( 'sessions' ).getActiveSessions( index, limit )
+    const sessions = await this._sessionController.getActiveSessions( index, limit )
 
     const response: SessionTokens.GetAll.Response = {
       data: sessions,
@@ -72,7 +75,7 @@ export class SessionSerializer extends Serializer {
 	 */
   @j200( 204 )
   private async deleteSession( req: express.Request, res: express.Response ) {
-    await ControllerFactory.get( 'sessions' ).clearSession( req.params.id, req, res );
+    await this._sessionController.clearSession( req.params.id, req, res );
     return;
   }
 }

@@ -3,6 +3,7 @@ import { StatTokens, IAuthReq, IStorageStats, IBaseControler } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
+import { UsersController } from '../controllers/users';
 import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
@@ -16,6 +17,7 @@ import Factory from '../core/model-factory';
 export class StatsSerializer extends Serializer {
   private _allowedFileTypes: Array<string>;
   private _options: IBaseControler;
+  private _userController: UsersController;
 
   /**
 	 * Creates an instance of the user manager
@@ -33,6 +35,8 @@ export class StatsSerializer extends Serializer {
    */
   async initialize( e: express.Express, db: mongodb.Db ) {
 
+    this._userController = ControllerFactory.get( 'users' );
+
     // Setup the rest calls
     const router = express.Router();
     router.use( compression() );
@@ -42,10 +46,10 @@ export class StatsSerializer extends Serializer {
 
     router.get( '/users/:user/get-stats', <any>[ ownerRights, this.getStats.bind( this ) ] );
     router.post( '/create-stats/:target', <any>[ ownerRights, this.createStats.bind( this ) ] );
-    router.put( '/storage-calls/:target/:value', <any>[ ownerRights, this.verifyTargetValue, this.updateCalls.bind( this ) ] );
-    router.put( '/storage-memory/:target/:value', <any>[ ownerRights, this.verifyTargetValue, this.updateMemory.bind( this ) ] );
-    router.put( '/storage-allocated-calls/:target/:value', <any>[ ownerRights, this.verifyTargetValue, this.updateAllocatedCalls.bind( this ) ] );
-    router.put( '/storage-allocated-memory/:target/:value', <any>[ ownerRights, this.verifyTargetValue, this.updateAllocatedMemory.bind( this ) ] );
+    router.put( '/storage-calls/:target/:value', <any>[ ownerRights, this.verifyTargetValue.bind( this ), this.updateCalls.bind( this ) ] );
+    router.put( '/storage-memory/:target/:value', <any>[ ownerRights, this.verifyTargetValue.bind( this ), this.updateMemory.bind( this ) ] );
+    router.put( '/storage-allocated-calls/:target/:value', <any>[ ownerRights, this.verifyTargetValue.bind( this ), this.updateAllocatedCalls.bind( this ) ] );
+    router.put( '/storage-allocated-memory/:target/:value', <any>[ ownerRights, this.verifyTargetValue.bind( this ), this.updateAllocatedMemory.bind( this ) ] );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/stats`, router );
@@ -69,7 +73,7 @@ export class StatsSerializer extends Serializer {
         throw new Error( 'Please specify a valid value' );
 
       // Make sure the user exists
-      const user = await ControllerFactory.get( 'users' ).getUser( req.params.target );
+      const user = await this._userController.getUser( req.params.target );
 
       if ( !user )
         throw new Error( `Could not find the user '${req.params.target}'` );

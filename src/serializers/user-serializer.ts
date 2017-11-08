@@ -4,6 +4,7 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserPrivileges } from '../core/user';
 import ControllerFactory from '../core/controller-factory';
+import { UsersController } from '../controllers/users';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
@@ -17,6 +18,7 @@ import Factory from '../core/model-factory';
  */
 export class UserSerializer extends Serializer {
   private _options: IBaseControler;
+  private _userController: UsersController;
 
   /**
 	 * Creates an instance of the user manager
@@ -30,6 +32,8 @@ export class UserSerializer extends Serializer {
    * Called to initialize this controller and its related database objects
    */
   async initialize( e: express.Express, db: mongodb.Db ) {
+
+    this._userController = ControllerFactory.get( 'users' );
 
     // Setup the rest calls
     const router = express.Router();
@@ -60,7 +64,7 @@ export class UserSerializer extends Serializer {
  */
   @j200()
   private async getUser( req: IAuthReq, res: express.Response ) {
-    const user = await ControllerFactory.get( 'users' ).getUser( req.params.username );
+    const user = await this._userController.getUser( req.params.username );
 
     if ( !user )
       throw new Error( 'No user found' );
@@ -90,7 +94,7 @@ export class UserSerializer extends Serializer {
     index = isNaN( index ) ? undefined : index;
     limit = isNaN( limit ) ? undefined : limit;
 
-    const response: UserTokens.GetAll.Response = await ControllerFactory.get( 'users' ).getUsers( index, limit, query, verbose );
+    const response: UserTokens.GetAll.Response = await this._userController.getUsers( index, limit, query, verbose );
     return response;
   }
 
@@ -104,7 +108,7 @@ export class UserSerializer extends Serializer {
     if ( !val )
       val = {};
 
-    await ControllerFactory.get( 'users' ).setMeta( user, val );
+    await this._userController.setMeta( user, val );
     return;
   }
 
@@ -116,7 +120,7 @@ export class UserSerializer extends Serializer {
     const user = req._user!;
     const name = req.params.name;
 
-    await ControllerFactory.get( 'users' ).setMetaVal( user, name, req.body.value );
+    await this._userController.setMetaVal( user, name, req.body.value );
     return;
   }
 
@@ -128,7 +132,7 @@ export class UserSerializer extends Serializer {
     const user = req._user!;
     const name = req.params.name;
 
-    const response: UserTokens.GetUserMetaVal.Response = await ControllerFactory.get( 'users' ).getMetaVal( user, name );
+    const response: UserTokens.GetUserMetaVal.Response = await this._userController.getMetaVal( user, name );
     return response;
   }
 
@@ -138,7 +142,7 @@ export class UserSerializer extends Serializer {
   @j200()
   private async getData( req: IAuthReq, res: express.Response ) {
     const user = req._user!;
-    const response: UserTokens.GetUserMeta.Response = await ControllerFactory.get( 'users' ).getMetaData( user );
+    const response: UserTokens.GetUserMeta.Response = await this._userController.getMetaData( user );
     return response;
   }
 
@@ -151,7 +155,7 @@ export class UserSerializer extends Serializer {
     if ( !toRemove )
       throw new Error( 'No user found' );
 
-    await ControllerFactory.get( 'users' ).removeUser( toRemove );
+    await this._userController.removeUser( toRemove );
     return;
   }
 
@@ -167,7 +171,7 @@ export class UserSerializer extends Serializer {
     if ( token.privileges === UserPrivileges.SuperAdmin )
       throw new Error( 'You cannot create a user with super admin permissions' );
 
-    const user = await ControllerFactory.get( 'users' ).createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
+    const user = await this._userController.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
     const response: UserTokens.Post.Response = user.dbEntry;
     return response;
   }

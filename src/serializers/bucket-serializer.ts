@@ -5,6 +5,8 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
+import { UsersController } from '../controllers/users';
+import { BucketsController } from '../controllers/buckets';
 import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as multiparty from 'multiparty';
@@ -22,6 +24,8 @@ import Factory from '../core/model-factory';
 export class BucketSerializer extends Serializer {
   private _allowedFileTypes: Array<string>;
   private _options: IBaseControler;
+  private _userController: UsersController;
+  private _bucketController: BucketsController;
 
   /**
 	 * Creates an instance of the user manager
@@ -36,6 +40,9 @@ export class BucketSerializer extends Serializer {
  * Called to initialize this controller and its related database objects
  */
   async initialize( e: express.Express, db: mongodb.Db ) {
+
+    this._userController = ControllerFactory.get( 'users' );
+    this._bucketController = ControllerFactory.get( 'buckets' );
 
     // Setup the rest calls
     const router = express.Router();
@@ -61,7 +68,7 @@ export class BucketSerializer extends Serializer {
    */
   private async removeBuckets( req: IAuthReq, res: express.Response ) {
     try {
-      const manager = ControllerFactory.get( 'buckets' );
+      const manager = this._bucketController;
       let buckets: Array<string>;
 
       if ( !req.params.buckets || req.params.buckets.trim() === '' )
@@ -88,7 +95,7 @@ export class BucketSerializer extends Serializer {
    */
   private async getBuckets( req: IAuthReq, res: express.Response ) {
     const user = req.params.user;
-    const manager = ControllerFactory.get( 'buckets' );
+    const manager = this._bucketController;
     let searchTerm: RegExp | undefined;
 
     try {
@@ -122,7 +129,7 @@ export class BucketSerializer extends Serializer {
    */
   @j200()
   private async createBucket( req: IAuthReq, res: express.Response ) {
-    const manager = ControllerFactory.get( 'buckets' );
+    const manager = this._bucketController;
     const username: string = req.params.user;
     const bucketName: string = req.params.name;
 
@@ -134,7 +141,7 @@ export class BucketSerializer extends Serializer {
       if ( !this.alphaNumericDashSpace( bucketName ) )
         throw new Error( 'Please only use safe characters' );
 
-      const user = await ControllerFactory.get( 'users' ).getUser( username );
+      const user = await this._userController.getUser( username );
       if ( !user )
         throw new Error( `Could not find a user with the name '${username}'` );
 
@@ -229,7 +236,7 @@ export class BucketSerializer extends Serializer {
     let completedParts = 0;
     let closed = false;
     const uploadedTokens: Array<IUploadToken> = [];
-    const manager = ControllerFactory.get( 'buckets' );
+    const manager = this._bucketController;
     const username = req._user!.username!;
     const parentFile = req.params.parentFile;
     const filesUploaded: Array<IFileEntry> = [];
@@ -372,7 +379,7 @@ export class BucketSerializer extends Serializer {
    */
   private async finalizeUploads( meta: any | Error, files: Array<IFileEntry>, user: string, tokens: Array<IUploadToken> ): Promise<IUploadResponse> {
     try {
-      const manager = ControllerFactory.get( 'buckets' );
+      const manager = this._bucketController;
       let error = false;
       let msg = `Upload complete. [${files.length}] Files have been saved.`;
 
