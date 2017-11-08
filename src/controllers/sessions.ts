@@ -1,38 +1,45 @@
-import { EventEmitter } from 'events';
-import { ISessionEntry, ISession, IUserEntry } from 'modepress';
+
+import { ISessionEntry, ISession, IUserEntry, IConfig } from 'modepress';
 import { ServerRequest, ServerResponse } from 'http';
-import { Collection } from 'mongodb';
+import { Collection, Db } from 'mongodb';
 import { Session } from '../core/session';
+import Controller from './controller';
 
 /**
 * A class that manages session data for active users
  */
-export class SessionsController extends EventEmitter {
-  private static _singleton: SessionsController;
-
+export class SessionsController extends Controller {
   private _sessions: Collection<ISessionEntry>;
   private _users: Collection<IUserEntry>;
   private _timeout: NodeJS.Timer | null;
   private _cleanupProxy: any;
-  private _options: ISession;
+  private _session: ISession;
 
   /**
    * Creates an instance of a session manager
    */
-  constructor( sessionCollection: Collection, userCollection: Collection, options: ISession ) {
-    super();
-    SessionsController._singleton = this;
-    this._sessions = sessionCollection;
-    this._users = userCollection;
+  constructor( config: IConfig ) {
+    super( config );
+  }
+
+  /**
+   * Initializes the controller
+   * @param db The mongo db
+   */
+  async initialize( db: Db ) {
+
+    this._session = {
+      path: this._config.sessionSettings.path || '/',
+      domain: this._config.sessionSettings.domain || '',
+      lifetime: this._config.sessionSettings.lifetime || 60 * 30, // 30 minutes
+      persistent: this._config.sessionSettings.persistent || true,
+      secure: this._config.sessionSettings.secure || false
+    };
+
+    this._sessions = await db.collection( this._config.collections.sessionCollection );
+    this._users = await db.collection( this._config.collections.userCollection );
     this._cleanupProxy = this.cleanup.bind( this );
     this._timeout = null;
-    this._options = {
-      path: options.path || '/',
-      domain: options.domain || '',
-      lifetime: options.lifetime || 60 * 30, // 30 minutes
-      persistent: options.persistent || true,
-      secure: options.secure || false
-    };
   }
 
   /**
@@ -69,7 +76,7 @@ export class SessionsController extends EventEmitter {
       await this._sessions.find( { sessionId: sId } as ISessionEntry ).limit( 1 ).next();
 
       // Create a new session
-      const session = new Session( sId, this._options, null! );
+      const session = new Session( sId, this._session, null! );
       session.expiration = -1;
 
       // Deletes the session entry
@@ -105,7 +112,7 @@ export class SessionsController extends EventEmitter {
       return null;
 
     // Create a new session
-    const session = new Session( sessionId, this._options, userEntry );
+    const session = new Session( sessionId, this._session, userEntry );
     session.deserialize( sessionEntry );
 
     return session;
@@ -161,7 +168,7 @@ export class SessionsController extends EventEmitter {
       $set: { sessionId: sessionId } as ISessionEntry
     } );
 
-    const session = new Session( sessionId, this._options, userEntry );
+    const session = new Session( sessionId, this._session, userEntry );
 
     // Adds a new session entry
     await this._sessions.insertOne( session.serialize() );
@@ -258,19 +265,5 @@ export class SessionsController extends EventEmitter {
     }
 
     return ret
-  }
-
-  /**
-   * Creates the singlton
-   */
-  static create( sessionCollection: Collection, userCollection: Collection, options: ISession ) {
-    return new SessionsController( sessionCollection, userCollection, options );
-  }
-
-  /**
-   * Gets the singleton
-   */
-  static get get() {
-    return SessionsController._singleton;
   }
 }

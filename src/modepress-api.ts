@@ -1,6 +1,7 @@
 ﻿import * as _Controller from './serializers/serializer';
-import * as users from './controllers/users';
-import * as bucketManager from './controllers/buckets';
+import ControllerFactory from './core/controller-factory';
+import { UsersController } from './controllers/users';
+import { BucketsController } from './controllers/buckets';
 import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
@@ -27,8 +28,8 @@ export const isValidID = isValidObjectID;
 export const authentication = permissions;
 
 export const controllers = {
-  users: users.UsersController.get,
-  buckets: bucketManager.BucketsController.get
+  users: ControllerFactory.get( 'users' ) as UsersController,
+  buckets: ControllerFactory.get( 'buckets' ) as BucketsController
 };
 
 export const serializers = {

@@ -4,10 +4,9 @@ import { IFileEntry, IUploadToken, IAuthReq, BucketTokens, IUploadResponse } fro
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
-import { UsersController } from '../controllers/users';
+import ControllerFactory from '../core/controller-factory';
 import { ownerRights, requireUser } from '../utils/permission-controllers';
-import { Serializer } from './serializer'
-import { BucketsController } from '../controllers/buckets';
+import { Serializer } from './serializer';
 import * as multiparty from 'multiparty';
 import * as compression from 'compression';
 import { CommsController } from '../socket-api/comms-controller';
@@ -62,7 +61,7 @@ export class BucketSerializer extends Serializer {
    */
   private async removeBuckets( req: IAuthReq, res: express.Response ) {
     try {
-      const manager = BucketsController.get;
+      const manager = ControllerFactory.get( 'buckets' );
       let buckets: Array<string>;
 
       if ( !req.params.buckets || req.params.buckets.trim() === '' )
@@ -89,7 +88,7 @@ export class BucketSerializer extends Serializer {
    */
   private async getBuckets( req: IAuthReq, res: express.Response ) {
     const user = req.params.user;
-    const manager = BucketsController.get;
+    const manager = ControllerFactory.get( 'buckets' );
     let searchTerm: RegExp | undefined;
 
     try {
@@ -123,7 +122,7 @@ export class BucketSerializer extends Serializer {
    */
   @j200()
   private async createBucket( req: IAuthReq, res: express.Response ) {
-    const manager = BucketsController.get;
+    const manager = ControllerFactory.get( 'buckets' );
     const username: string = req.params.user;
     const bucketName: string = req.params.name;
 
@@ -135,7 +134,7 @@ export class BucketSerializer extends Serializer {
       if ( !this.alphaNumericDashSpace( bucketName ) )
         throw new Error( 'Please only use safe characters' );
 
-      const user = await UsersController.get.getUser( username );
+      const user = await ControllerFactory.get( 'users' ).getUser( username );
       if ( !user )
         throw new Error( `Could not find a user with the name '${username}'` );
 
@@ -230,7 +229,7 @@ export class BucketSerializer extends Serializer {
     let completedParts = 0;
     let closed = false;
     const uploadedTokens: Array<IUploadToken> = [];
-    const manager = BucketsController.get;
+    const manager = ControllerFactory.get( 'buckets' );
     const username = req._user!.username!;
     const parentFile = req.params.parentFile;
     const filesUploaded: Array<IFileEntry> = [];
@@ -373,7 +372,7 @@ export class BucketSerializer extends Serializer {
    */
   private async finalizeUploads( meta: any | Error, files: Array<IFileEntry>, user: string, tokens: Array<IUploadToken> ): Promise<IUploadResponse> {
     try {
-      const manager = BucketsController.get;
+      const manager = ControllerFactory.get( 'buckets' );
       let error = false;
       let msg = `Upload complete. [${files.length}] Files have been saved.`;
 

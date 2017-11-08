@@ -1960,34 +1960,21 @@ declare module "serializers/serializer" {
         getModel(collectionName: string): Model<IModelEntry> | null;
     }
 }
-declare module "core/user" {
-    import { IUserEntry } from 'modepress';
-    export enum UserPrivileges {
-        SuperAdmin = 1,
-        Admin = 2,
-        Regular = 3,
-    }
-    export class User {
-        dbEntry: IUserEntry;
+declare module "controllers/controller" {
+    import { Db } from 'mongodb';
+    import { IConfig } from 'modepress';
+    import { EventEmitter } from 'events';
+    /**
+     * The root class for all controllers
+     */
+    export default abstract class Controller extends EventEmitter {
+        protected _config: IConfig;
+        constructor(config: IConfig);
         /**
-           * Creates a new User instance
-           * @param dbEntry The data object that represents the user in the DB
-           */
-        constructor(dbEntry: IUserEntry);
-        /**
-         * Generates an object that can be sent to clients.
-         * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
+         * Initializes the controller
+         * @param db The mongo db
          */
-        generateCleanedData(verbose?: boolean): IUserEntry;
-        /**
-           * Generates the object to be stored in the database
-           */
-        generateDbEntry(): IUserEntry;
-        /**
-           * Creates a random string that is assigned to the dbEntry registration key
-           * @param length The length of the password
-           */
-        generateKey(length?: number): string;
+        abstract initialize(db: Db): any;
     }
 }
 declare module "socket-api/socket-event-types" {
@@ -2052,133 +2039,34 @@ declare module "socket-api/socket-event-types" {
         MetaRequest = 9,
     }
 }
-declare module "core/session" {
-    import { ISessionEntry, ISession, IUserEntry } from 'modepress';
-    import { ServerRequest } from 'http';
-    import { ObjectID } from 'mongodb';
-    import { User } from "core/user";
-    /**
-     * A class to represent session data
-     */
-    export class Session {
-        user: User;
-        _id: ObjectID;
-        sessionId: string;
-        data: any;
-        /**
-         * The specific time when this session will expire
-         */
-        expiration: number;
-        /**
-         * The options of this session system
-         */
-        options: ISession;
-        /**
-         * Creates an instance of the session
-         */
-        constructor(sessionId: string, options: ISession, userEntry: IUserEntry);
-        /**
-         * Fills in the data of this session from the data saved in the database
-         * @param data The data fetched from the database
-         */
-        deserialize(data: ISessionEntry): void;
-        /**
-         * Creates an object that represents this session to be saved in the database
-         */
-        serialize(): ISessionEntry;
-        private getHost(request);
-        /**
-         * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
-         * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
-         */
-        getSetCookieHeaderValue(request: ServerRequest): any;
-        /**
-         * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
-         */
-        private dateCookieString(ms);
-        /**
-         * Pads a string with 0's
-         */
-        private pad(n);
+declare module "core/user" {
+    import { IUserEntry } from 'modepress';
+    export enum UserPrivileges {
+        SuperAdmin = 1,
+        Admin = 2,
+        Regular = 3,
     }
-}
-declare module "controllers/sessions" {
-    import { EventEmitter } from 'events';
-    import { ISessionEntry, ISession } from 'modepress';
-    import { ServerRequest, ServerResponse } from 'http';
-    import { Collection } from 'mongodb';
-    import { Session } from "core/session";
-    /**
-    * A class that manages session data for active users
-     */
-    export class SessionsController extends EventEmitter {
-        private static _singleton;
-        private _sessions;
-        private _users;
-        private _timeout;
-        private _cleanupProxy;
-        private _options;
+    export class User {
+        dbEntry: IUserEntry;
         /**
-         * Creates an instance of a session manager
-         */
-        constructor(sessionCollection: Collection, userCollection: Collection, options: ISession);
+           * Creates a new User instance
+           * @param dbEntry The data object that represents the user in the DB
+           */
+        constructor(dbEntry: IUserEntry);
         /**
-         * Gets an array of all active sessions
+         * Generates an object that can be sent to clients.
+         * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
          */
-        numActiveSessions(): Promise<number>;
+        generateCleanedData(verbose?: boolean): IUserEntry;
         /**
-         * Gets an array of all active sessions
-         * @param startIndex
-         * @param limit
-         */
-        getActiveSessions(startIndex?: number, limit?: number): Promise<ISessionEntry[]>;
+           * Generates the object to be stored in the database
+           */
+        generateDbEntry(): IUserEntry;
         /**
-         * Clears the users session cookie so that its no longer tracked
-         * @param sessionId The session ID to remove, if null then the currently authenticated session will be used
-         * @param request
-         * @param response
-         */
-        clearSession(sessionId: string | null, request: ServerRequest, response: ServerResponse): Promise<boolean>;
-        /**
-         * Gets and initializes a session by its id
-         */
-        getSessionById(sessionId: string): Promise<Session | null>;
-        /**
-         * Attempts to get a session from the request object of the client
-         */
-        getSession(request: ServerRequest): Promise<Session | null>;
-        setSessionHeader(session: Session, request: ServerRequest, response: ServerResponse): Promise<void>;
-        /**
-         * Attempts to create a session from the request object of the client
-         */
-        createSession(request: ServerRequest, response: ServerResponse, userId: string): Promise<Session>;
-        /**
-         * Each time a session is created, a timer is started to check all sessions in the DB.
-         * Once the lifetime of a session is up its then removed from the DB and we check for any remaining sessions.
-         * @param force If true, this will force a cleanup instead of waiting on the next timer
-         */
-        cleanup(force?: boolean): Promise<void>;
-        /**
-         * Looks at the headers from the HTTP request to determine if a session cookie has been asssigned and returns the ID.
-         * @param req
-         * @returns The ID of the user session, or an empty string
-         */
-        private getIDFromRequest(req);
-        /**
-         * Creates a random session ID.
-         * The ID is a pseude-random ASCII string which contains at least the specified number of bits of entropy (64 in this case)
-         * the return value is a string of length [bits/6] of characters from the base64 alphabet
-         * @returns A user session ID
-         */
-        private createID();
-        /**
-         * Creates the singlton
-         */
-        static create(sessionCollection: Collection, userCollection: Collection, options: ISession): SessionsController;
-        /**
-         * Gets the singleton
-         */
-        static readonly get: SessionsController;
+           * Creates a random string that is assigned to the dbEntry registration key
+           * @param length The length of the password
+           */
+        generateKey(length?: number): string;
     }
 }
 declare module "socket-api/client-connection" {
@@ -2359,15 +2247,15 @@ declare module "core/remotes/local-bucket" {
 }
 declare module "controllers/buckets" {
     import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
-    import { Collection } from 'mongodb';
+    import { Db } from 'mongodb';
     import { Part } from 'multiparty';
+    import Controller from "controllers/controller";
     /**
      * Class responsible for managing buckets and uploads
      */
-    export class BucketsController {
+    export class BucketsController extends Controller {
         private static MEMORY_ALLOCATED;
         private static API_CALLS_ALLOCATED;
-        private static _singleton;
         private _buckets;
         private _files;
         private _stats;
@@ -2375,7 +2263,12 @@ declare module "controllers/buckets" {
         private _unzipper;
         private _deflater;
         private _activeManager;
-        constructor(buckets: Collection, files: Collection, stats: Collection, config: IConfig);
+        constructor(config: IConfig);
+        /**
+         * Initializes the controller
+         * @param db The mongo db
+         */
+        initialize(db: Db): Promise<void>;
         /**
          * Fetches all bucket entries from the database
          * @param user [Optional] Specify the user. If none provided, then all buckets are retrieved
@@ -2540,14 +2433,168 @@ declare module "controllers/buckets" {
          * @returns Returns the number of results affected
          */
         updateStorage(user: string, value: IStorageStats): Promise<number>;
+    }
+}
+declare module "controllers/posts" {
+    import { IPost, Page, IConfig } from 'modepress';
+    import * as mongodb from 'mongodb';
+    import Controller from "controllers/controller";
+    export type SearchOptions = {
+        verbose?: boolean;
+        keyword?: RegExp;
+        author?: string;
+        public?: boolean;
+        tags?: string[];
+        requiredTags?: string[];
+        categories?: string[];
+        sort?: boolean;
+        sortOrder?: 'asc' | 'desc';
+        minimal?: boolean;
+        index?: number;
+        limit?: number;
+    };
+    /**
+     * A controller that deals with the management of posts
+     */
+    export class PostsController extends Controller {
+        private _postsModel;
         /**
-         * Creates the bucket manager singleton
-         */
-        static create(buckets: Collection, files: Collection, stats: Collection, config: IConfig): BucketsController;
+           * Creates a new instance of the controller
+           */
+        constructor(config: IConfig);
         /**
-         * Gets the bucket singleton
+         * Called to initialize this controller and its related database objects
          */
-        static readonly get: BucketsController;
+        initialize(db: mongodb.Db): Promise<this>;
+        /**
+         * Returns an array of IPost items
+         */
+        getPosts(options?: SearchOptions): Promise<Page<IPost>>;
+    }
+}
+declare module "core/session" {
+    import { ISessionEntry, ISession, IUserEntry } from 'modepress';
+    import { ServerRequest } from 'http';
+    import { ObjectID } from 'mongodb';
+    import { User } from "core/user";
+    /**
+     * A class to represent session data
+     */
+    export class Session {
+        user: User;
+        _id: ObjectID;
+        sessionId: string;
+        data: any;
+        /**
+         * The specific time when this session will expire
+         */
+        expiration: number;
+        /**
+         * The options of this session system
+         */
+        options: ISession;
+        /**
+         * Creates an instance of the session
+         */
+        constructor(sessionId: string, options: ISession, userEntry: IUserEntry);
+        /**
+         * Fills in the data of this session from the data saved in the database
+         * @param data The data fetched from the database
+         */
+        deserialize(data: ISessionEntry): void;
+        /**
+         * Creates an object that represents this session to be saved in the database
+         */
+        serialize(): ISessionEntry;
+        private getHost(request);
+        /**
+         * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
+         * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
+         */
+        getSetCookieHeaderValue(request: ServerRequest): any;
+        /**
+         * Converts from milliseconds to string, since the epoch to Cookie 'expires' format which is Wdy, DD-Mon-YYYY HH:MM:SS GMT
+         */
+        private dateCookieString(ms);
+        /**
+         * Pads a string with 0's
+         */
+        private pad(n);
+    }
+}
+declare module "controllers/sessions" {
+    import { ISessionEntry, IConfig } from 'modepress';
+    import { ServerRequest, ServerResponse } from 'http';
+    import { Db } from 'mongodb';
+    import { Session } from "core/session";
+    import Controller from "controllers/controller";
+    /**
+    * A class that manages session data for active users
+     */
+    export class SessionsController extends Controller {
+        private _sessions;
+        private _users;
+        private _timeout;
+        private _cleanupProxy;
+        private _session;
+        /**
+         * Creates an instance of a session manager
+         */
+        constructor(config: IConfig);
+        /**
+         * Initializes the controller
+         * @param db The mongo db
+         */
+        initialize(db: Db): Promise<void>;
+        /**
+         * Gets an array of all active sessions
+         */
+        numActiveSessions(): Promise<number>;
+        /**
+         * Gets an array of all active sessions
+         * @param startIndex
+         * @param limit
+         */
+        getActiveSessions(startIndex?: number, limit?: number): Promise<ISessionEntry[]>;
+        /**
+         * Clears the users session cookie so that its no longer tracked
+         * @param sessionId The session ID to remove, if null then the currently authenticated session will be used
+         * @param request
+         * @param response
+         */
+        clearSession(sessionId: string | null, request: ServerRequest, response: ServerResponse): Promise<boolean>;
+        /**
+         * Gets and initializes a session by its id
+         */
+        getSessionById(sessionId: string): Promise<Session | null>;
+        /**
+         * Attempts to get a session from the request object of the client
+         */
+        getSession(request: ServerRequest): Promise<Session | null>;
+        setSessionHeader(session: Session, request: ServerRequest, response: ServerResponse): Promise<void>;
+        /**
+         * Attempts to create a session from the request object of the client
+         */
+        createSession(request: ServerRequest, response: ServerResponse, userId: string): Promise<Session>;
+        /**
+         * Each time a session is created, a timer is started to check all sessions in the DB.
+         * Once the lifetime of a session is up its then removed from the DB and we check for any remaining sessions.
+         * @param force If true, this will force a cleanup instead of waiting on the next timer
+         */
+        cleanup(force?: boolean): Promise<void>;
+        /**
+         * Looks at the headers from the HTTP request to determine if a session cookie has been asssigned and returns the ID.
+         * @param req
+         * @returns The ID of the user session, or an empty string
+         */
+        private getIDFromRequest(req);
+        /**
+         * Creates a random session ID.
+         * The ID is a pseude-random ASCII string which contains at least the specified number of bits of entropy (64 in this case)
+         * the return value is a string of length [bits/6] of characters from the base64 alphabet
+         * @returns A user session ID
+         */
+        private createID();
     }
 }
 declare module "mailers/gmail" {
@@ -2622,32 +2669,32 @@ declare module "mailers/mailgun" {
     }
 }
 declare module "controllers/users" {
-    import { IUserEntry, IConfig } from 'modepress';
-    import { Collection } from 'mongodb';
+    import { IUserEntry, IConfig, Page } from 'modepress';
+    import { Db } from 'mongodb';
     import { ServerRequest, ServerResponse } from 'http';
     import { Request } from 'express';
     import { User, UserPrivileges } from "core/user";
     import { Session } from "core/session";
+    import Controller from "controllers/controller";
     /**
      * Main class to use for managing users
      */
-    export class UsersController {
-        private static _singleton;
+    export class UsersController extends Controller {
         private _collection;
-        private _config;
         private _mailer;
         /**
            * Creates an instance of the user manager
            */
-        constructor(userCollection: Collection, config: IConfig);
+        constructor(config: IConfig);
+        /**
+         * Initializes the controller
+         * @param db The mongo db
+         */
+        initialize(db: Db): Promise<void>;
         /**
          * Called whenever a session is removed from the database
          */
         onSessionRemoved(sessionId: string): Promise<void>;
-        /**
-           * Initializes the API
-           */
-        initialize(): Promise<this>;
         /**
            * Attempts to register a new user
            * @param username The username of the user
@@ -2801,19 +2848,46 @@ declare module "controllers/users" {
         /**
            * Prints user objects from the database
            * @param limit The number of users to fetch
-           * @param startIndex The starting index from where we are fetching users from
+           * @param index The starting index from where we are fetching users from
          * @param searchPhrases Search phrases
+         * @param verbose True if you want to show all user information
            */
-        getUsers(startIndex?: number, limit?: number, searchPhrases?: RegExp): Promise<User[]>;
-        /**
-         * Creates the user manager singlton
-         */
-        static create(users: Collection, config: IConfig): UsersController;
-        /**
-         * Gets the user manager singlton
-         */
-        static readonly get: UsersController;
+        getUsers(index?: number, limit?: number, searchPhrases?: RegExp, verbose?: boolean): Promise<Page<IUserEntry>>;
     }
+}
+declare module "core/controller-factory" {
+    import { IConfig } from 'modepress';
+    import { Db } from 'mongodb';
+    import Controller from "controllers/controller";
+    import { BucketsController } from "controllers/buckets";
+    import { PostsController } from "controllers/posts";
+    import { SessionsController } from "controllers/sessions";
+    import { UsersController } from "controllers/users";
+    /**
+     * Factory classs for creating & getting controllers
+     */
+    export class ControllerFactory {
+        private _config;
+        private _db;
+        private _controllers;
+        initialize(config: IConfig, database: Db): void;
+        /**
+         * Adds the default models to the system
+         */
+        addDefaults(): Promise<void>;
+        get(type: 'buckets'): BucketsController;
+        get(type: 'posts'): PostsController;
+        get(type: 'sessions'): SessionsController;
+        get(type: 'users'): UsersController;
+        get(type: string): Controller;
+        /**
+         * A factory method for creating models
+         * @param type The type of model to create
+         */
+        private create(type);
+    }
+    const _default: ControllerFactory;
+    export default _default;
 }
 declare module "utils/errors" {
     /**
@@ -3442,8 +3516,8 @@ declare module "serializers/auth-serializer" {
 }
 declare module "modepress-api" {
     import * as _Controller from "serializers/serializer";
-    import * as users from "controllers/users";
-    import * as bucketManager from "controllers/buckets";
+    import { UsersController } from "controllers/users";
+    import { BucketsController } from "controllers/buckets";
     import * as _Models from "models/model";
     import * as _SchemaFactory from "models/schema-items/schema-item-factory";
     import { isValidObjectID } from "utils/utils";
@@ -3468,8 +3542,8 @@ declare module "modepress-api" {
     export const isValidID: typeof isValidObjectID;
     export const authentication: typeof permissions;
     export const controllers: {
-        users: users.UsersController;
-        buckets: bucketManager.BucketsController;
+        users: UsersController;
+        buckets: BucketsController;
     };
     export const serializers: {
         admin: typeof AdminSerializer;

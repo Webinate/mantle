@@ -1,7 +1,5 @@
-﻿'use strict';
-
-import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote, ILocalBucket, IGoogleProperties } from 'modepress';
-import { Collection } from 'mongodb';
+﻿import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote, ILocalBucket, IGoogleProperties } from 'modepress';
+import { Collection, Db } from 'mongodb';
 import { Part } from 'multiparty';
 import { createGzip, createGunzip, createDeflate, Gzip, Gunzip, Deflate } from 'zlib';
 import { CommsController } from '../socket-api/comms-controller';
@@ -10,15 +8,14 @@ import { ClientInstruction } from '../socket-api/client-instruction';
 import { googleBucket } from '../core/remotes/google-bucket';
 import { localBucket } from '../core/remotes/local-bucket';
 import { generateRandString } from '../utils/utils';
+import Controller from './controller';
 
 /**
  * Class responsible for managing buckets and uploads
  */
-export class BucketsController {
+export class BucketsController extends Controller {
   private static MEMORY_ALLOCATED: number = 5e+8; // 500mb
   private static API_CALLS_ALLOCATED: number = 20000; // 20,000
-
-  private static _singleton: BucketsController;
   private _buckets: Collection<IBucketEntry>;
   private _files: Collection<IFileEntry>;
   private _stats: Collection<IStorageStats>;
@@ -27,16 +24,22 @@ export class BucketsController {
   private _deflater: Deflate;
   private _activeManager: IRemote;
 
-  constructor( buckets: Collection, files: Collection, stats: Collection, config: IConfig ) {
-    BucketsController._singleton = this;
-    googleBucket.initialize( config.remotes.google as IGoogleProperties );
-    localBucket.initialize( config.remotes.local as ILocalBucket );
+  constructor( config: IConfig ) {
+    super( config );
+  }
 
+  /**
+   * Initializes the controller
+   * @param db The mongo db
+   */
+  async initialize( db: Db ) {
+    this._buckets = await db.collection( this._config.collections.bucketsCollection );
+    this._files = await db.collection( this._config.collections.filesCollection );
+    this._stats = await db.collection( this._config.collections.statsCollection );
+
+    googleBucket.initialize( this._config.remotes.google as IGoogleProperties );
+    localBucket.initialize( this._config.remotes.local as ILocalBucket );
     this._activeManager = localBucket;
-
-    this._buckets = buckets;
-    this._files = files;
-    this._stats = stats;
     this._zipper = createGzip();
     this._unzipper = createGunzip();
     this._deflater = createDeflate();
@@ -566,19 +569,5 @@ export class BucketsController {
       throw new Error( `Could not find user '${user}'` );
     else
       return updateResult.modifiedCount;
-  }
-
-  /**
-   * Creates the bucket manager singleton
-   */
-  static create( buckets: Collection, files: Collection, stats: Collection, config: IConfig ): BucketsController {
-    return new BucketsController( buckets, files, stats, config );
-  }
-
-  /**
-   * Gets the bucket singleton
-   */
-  static get get(): BucketsController {
-    return BucketsController._singleton;
   }
 }

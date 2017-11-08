@@ -2,8 +2,7 @@
 import * as express from 'express';
 import * as mongodb from 'mongodb';
 import { UserPrivileges, User } from '../core/user';
-import { UsersController } from '../controllers/users';
-import { SessionsController } from '../controllers/sessions';
+import Factory from '../core/controller-factory';
 import { errJson } from './response-decorators';
 import { Error401, Error403 } from './errors';
 
@@ -45,19 +44,19 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
   const targetUser: string = req.params.user;
 
   try {
-    const session = await SessionsController.get.getSession( req );
+    const session = await Factory.get( 'sessions' ).getSession( req );
 
     if ( !session )
       throw new Error401( 'You must be logged in to make this request' );
 
     if ( session )
-      await SessionsController.get.setSessionHeader( session, req, res );
+      await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
     let target: User | null = null;
 
     // Check if the target user exists
     if ( targetUser !== undefined ) {
-      target = await UsersController.get.getUser( targetUser );
+      target = await Factory.get( 'users' ).getUser( targetUser );
       if ( !target )
         throw new Error( `User ${targetUser} does not exist` );
     }
@@ -100,13 +99,13 @@ export function ownerRights( req: IAuthReq, res: express.Response, next?: Functi
  */
 export async function adminRights( req: IAuthReq, res: express.Response, next?: Function ) {
   try {
-    const session = await SessionsController.get.getSession( req );
+    const session = await Factory.get( 'sessions' ).getSession( req );
 
     if ( !session )
       return errJson( new Error401( 'You must be logged in to make this request' ), res );
 
     if ( session )
-      await SessionsController.get.setSessionHeader( session, req, res );
+      await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
     req._user = session.user.dbEntry;
     if ( session.user.dbEntry.privileges! > UserPrivileges.Admin )
@@ -127,10 +126,10 @@ export async function adminRights( req: IAuthReq, res: express.Response, next?: 
 export async function identifyUser( req: IAuthReq, res: express.Response, next?: Function ) {
 
   try {
-    const session = await SessionsController.get.getSession( req );
+    const session = await Factory.get( 'sessions' ).getSession( req );
 
     if ( session )
-      await SessionsController.get.setSessionHeader( session, req, res );
+      await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
     if ( session )
       req._user = session.user.dbEntry;
@@ -150,13 +149,13 @@ export async function identifyUser( req: IAuthReq, res: express.Response, next?:
  */
 export async function requireUser( req: IAuthReq, res: express.Response, next?: Function ) {
   try {
-    const session = await SessionsController.get.getSession( req );
+    const session = await Factory.get( 'sessions' ).getSession( req );
 
     if ( !session )
       return errJson( new Error401( `You must be logged in to make this request` ), res );
 
     if ( session )
-      await SessionsController.get.setSessionHeader( session, req, res );
+      await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
     req._user = session.user.dbEntry;
     if ( next )
@@ -178,13 +177,13 @@ export async function requireUser( req: IAuthReq, res: express.Response, next?: 
  * @param next
  */
 export async function requestHasPermission( level: UserPrivileges, req: IAuthReq, res: express.Response, existingUser?: string ): Promise<boolean> {
-  const session = await SessionsController.get.getSession( req );
+  const session = await Factory.get( 'sessions' ).getSession( req );
 
   if ( !session )
     throw new Error401( 'You must be logged in to make this request' );
 
   if ( session )
-    await SessionsController.get.setSessionHeader( session, req, res );
+    await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
   if ( existingUser !== undefined ) {
     if ( (

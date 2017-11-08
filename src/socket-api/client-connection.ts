@@ -3,7 +3,7 @@
 import * as ws from 'ws';
 import { error as logError, info } from '../utils/logger';
 import { User } from '../core/user';
-import { SessionsController } from '../controllers/sessions';
+import Factory from '../core/controller-factory';
 import { CommsController } from './comms-controller';
 import { ServerInstruction } from './server-instruction';
 
@@ -23,7 +23,7 @@ export class ClientConnection {
     this._controller = controller;
     this.authorizedThirdParty = authorizedThirdParty;
 
-    SessionsController.get.getSession( ws.upgradeReq ).then( ( session ) => {
+    Factory.get( 'sessions' ).getSession( ws.upgradeReq ).then( ( session ) => {
       this.ws = ws;
       this.user = session ? session.user : null;
       ws.on( 'message', this.onMessage.bind( this ) );

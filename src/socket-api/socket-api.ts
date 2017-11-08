@@ -1,6 +1,6 @@
 'use strict';
 
-import { UsersController } from '../controllers/users';
+import Factory from '../core/controller-factory';
 import { ServerInstruction } from './server-instruction';
 import { ClientInstruction } from './client-instruction';
 import { CommsController } from './comms-controller';
@@ -25,10 +25,10 @@ export class SocketAPI {
   private onMeta( e: ServerInstruction<any> ) {
     const comms = this._comms;
 
-    if ( !UsersController.get )
+    if ( !Factory.get( 'users' ) )
       return;
 
-    UsersController.get.getUser( e.token.username! ).then( function( user ) {
+    Factory.get( 'users' ).getUser( e.token.username! ).then( function( user ) {
 
       if ( !user )
         return Promise.reject( new Error( 'Could not find user ' + e.token.username ) );
@@ -38,13 +38,13 @@ export class SocketAPI {
         return Promise.reject( new Error( 'You do not have permission to make this request' ) );
 
       if ( e.token.property && e.token.val !== undefined )
-        return UsersController.get.setMetaVal( user.dbEntry, e.token.property, e.token.val );
+        return Factory.get( 'users' ).setMetaVal( user.dbEntry, e.token.property, e.token.val );
       else if ( e.token.property )
-        return UsersController.get.getMetaVal( user.dbEntry, e.token.property );
+        return Factory.get( 'users' ).getMetaVal( user.dbEntry, e.token.property );
       else if ( e.token.val )
-        return UsersController.get.setMeta( user.dbEntry, e.token.val );
+        return Factory.get( 'users' ).setMeta( user.dbEntry, e.token.val );
       else
-        return UsersController.get.getMetaData( user.dbEntry );
+        return Factory.get( 'users' ).getMetaData( user.dbEntry );
 
     } ).then( function( metaVal ) {
 

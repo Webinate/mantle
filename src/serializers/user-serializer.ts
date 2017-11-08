@@ -3,11 +3,11 @@
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { UserPrivileges } from '../core/user';
-import { UsersController } from '../controllers/users';
+import ControllerFactory from '../core/controller-factory';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
-import { UserTokens, IAuthReq, IUserEntry, IBaseControler } from 'modepress';
+import { UserTokens, IAuthReq, IBaseControler } from 'modepress';
 import * as compression from 'compression';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
@@ -60,7 +60,7 @@ export class UserSerializer extends Serializer {
  */
   @j200()
   private async getUser( req: IAuthReq, res: express.Response ) {
-    const user = await UsersController.get.getUser( req.params.username );
+    const user = await ControllerFactory.get( 'users' ).getUser( req.params.username );
 
     if ( !user )
       throw new Error( 'No user found' );
@@ -84,23 +84,13 @@ export class UserSerializer extends Serializer {
     else
       verbose = false;
 
-    const index = parseInt( req.query.index );
-    const limit = parseInt( req.query.limit );
+    let index: number | undefined = parseInt( req.query.index );
+    let limit: number | undefined = parseInt( req.query.limit );
+    let query = req.query.search ? new RegExp( req.query.search ) : undefined;
+    index = isNaN( index ) ? undefined : index;
+    limit = isNaN( limit ) ? undefined : limit;
 
-    const totalNumUsers = await UsersController.get.numUsers( new RegExp( req.query.search ) );
-    const users = await UsersController.get.getUsers( index, limit, new RegExp( req.query.search ) );
-    const sanitizedData: IUserEntry[] = [];
-
-    for ( let i = 0, l = users.length; i < l; i++ )
-      sanitizedData.push( users[ i ].generateCleanedData( verbose ) );
-
-    const response: UserTokens.GetAll.Response = {
-      data: sanitizedData,
-      count: totalNumUsers,
-      index: index,
-      limit: limit
-    };
-
+    const response: UserTokens.GetAll.Response = await ControllerFactory.get( 'users' ).getUsers( index, limit, query, verbose );
     return response;
   }
 
@@ -114,7 +104,7 @@ export class UserSerializer extends Serializer {
     if ( !val )
       val = {};
 
-    await UsersController.get.setMeta( user, val );
+    await ControllerFactory.get( 'users' ).setMeta( user, val );
     return;
   }
 
@@ -126,7 +116,7 @@ export class UserSerializer extends Serializer {
     const user = req._user!;
     const name = req.params.name;
 
-    await UsersController.get.setMetaVal( user, name, req.body.value );
+    await ControllerFactory.get( 'users' ).setMetaVal( user, name, req.body.value );
     return;
   }
 
@@ -138,7 +128,7 @@ export class UserSerializer extends Serializer {
     const user = req._user!;
     const name = req.params.name;
 
-    const response: UserTokens.GetUserMetaVal.Response = await UsersController.get.getMetaVal( user, name );
+    const response: UserTokens.GetUserMetaVal.Response = await ControllerFactory.get( 'users' ).getMetaVal( user, name );
     return response;
   }
 
@@ -148,7 +138,7 @@ export class UserSerializer extends Serializer {
   @j200()
   private async getData( req: IAuthReq, res: express.Response ) {
     const user = req._user!;
-    const response: UserTokens.GetUserMeta.Response = await UsersController.get.getMetaData( user );
+    const response: UserTokens.GetUserMeta.Response = await ControllerFactory.get( 'users' ).getMetaData( user );
     return response;
   }
 
@@ -161,7 +151,7 @@ export class UserSerializer extends Serializer {
     if ( !toRemove )
       throw new Error( 'No user found' );
 
-    await UsersController.get.removeUser( toRemove );
+    await ControllerFactory.get( 'users' ).removeUser( toRemove );
     return;
   }
 
@@ -177,7 +167,7 @@ export class UserSerializer extends Serializer {
     if ( token.privileges === UserPrivileges.SuperAdmin )
       throw new Error( 'You cannot create a user with super admin permissions' );
 
-    const user = await UsersController.get.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
+    const user = await ControllerFactory.get( 'users' ).createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
     const response: UserTokens.Post.Response = user.dbEntry;
     return response;
   }

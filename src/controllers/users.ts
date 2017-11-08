@@ -1,5 +1,5 @@
-﻿import { IUserEntry, IConfig, IMailer, IGMail, IMailgun, IMailOptions, IAdminUser } from 'modepress';
-import { Collection } from 'mongodb';
+﻿import { IUserEntry, IConfig, IMailer, IGMail, IMailgun, IMailOptions, IAdminUser, Page } from 'modepress';
+import { Collection, Db } from 'mongodb';
 import { ServerRequest, ServerResponse } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
@@ -9,30 +9,56 @@ import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
-import { SessionsController } from './sessions';
-import { BucketsController } from './buckets';
+import ControllerFactory from '../core/controller-factory';
 import { GMailer } from '../mailers/gmail';
 import { Mailguner } from '../mailers/mailgun';
 import { Session } from '../core/session';
+import Controller from './controller';
 
 /**
  * Main class to use for managing users
  */
-export class UsersController {
-  private static _singleton: UsersController;
-
+export class UsersController extends Controller {
   private _collection: Collection<IUserEntry>;
-  private _config: IConfig;
   private _mailer: IMailer;
 
   /**
 	 * Creates an instance of the user manager
 	 */
-  constructor( userCollection: Collection, config: IConfig ) {
-    this._collection = userCollection;
-    this._config = config;
-    UsersController._singleton = this;
-    SessionsController.get.on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
+  constructor( config: IConfig ) {
+    super( config );
+  }
+
+  /**
+   * Initializes the controller
+   * @param db The mongo db
+   */
+  async initialize( db: Db ) {
+    this._collection = await db.collection( this._config.collections.userCollection );
+    ControllerFactory.get( 'sessions' ).on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
+
+    if ( this._config.mail ) {
+      if ( this._config.mail.type === 'gmail' ) {
+        this._mailer = new GMailer( this._config.debug );
+        this._mailer.initialize( this._config.mail.options as IGMail );
+      }
+      else if ( this._config.mail.type === 'mailgun' ) {
+        this._mailer = new Mailguner( this._config.debug );
+        this._mailer.initialize( this._config.mail.options as IMailgun );
+      }
+    }
+
+    if ( !this._mailer )
+      warn( 'No mailer has been specified and so the API cannot send emails. Please check your config.' )
+
+    const adminUser = this._config.adminUser as IAdminUser;
+
+    // See if we have an admin user
+    let user = await this.getUser( adminUser.username );
+
+    // If no admin user exists, so lets try to create one
+    if ( !user )
+      user = await this.createUser( adminUser.username, adminUser.email, adminUser.password, true, UserPrivileges.SuperAdmin, {}, true );
   }
 
   /**
@@ -51,38 +77,6 @@ export class UsersController {
     }
 
     return;
-  }
-
-  /**
-	 * Initializes the API
-	 */
-  async initialize() {
-    const config = this._config;
-
-    if ( config.mail ) {
-      if ( config.mail.type === 'gmail' ) {
-        this._mailer = new GMailer( config.debug );
-        this._mailer.initialize( config.mail.options as IGMail );
-      }
-      else if ( config.mail.type === 'mailgun' ) {
-        this._mailer = new Mailguner( config.debug );
-        this._mailer.initialize( config.mail.options as IMailgun );
-      }
-    }
-
-    if ( !this._mailer )
-      warn( 'No mailer has been specified and so the API cannot send emails. Please check your config.' )
-
-    const adminUser = config.adminUser as IAdminUser;
-
-    // See if we have an admin user
-    let user = await this.getUser( adminUser.username );
-
-    // If no admin user exists, so lets try to create one
-    if ( !user )
-      user = await this.createUser( adminUser.username, adminUser.email, adminUser.password, true, UserPrivileges.SuperAdmin, {}, true );
-
-    return this;
   }
 
   /**
@@ -378,7 +372,7 @@ export class UsersController {
 	 * @param response
 	 */
   async logOut( request: ServerRequest, response: ServerResponse ) {
-    const sessionCleaered = await SessionsController.get.clearSession( null, request, response );
+    const sessionCleaered = await ControllerFactory.get( 'sessions' ).clearSession( null, request, response );
     return sessionCleaered;
   }
 
@@ -434,7 +428,7 @@ export class UsersController {
     newUser.dbEntry = insertResult.ops[ 0 ];
 
     // All users have default stats created for them
-    await BucketsController.get.createUserStats( newUser.dbEntry.username! );
+    await ControllerFactory.get( 'buckets' ).createUserStats( newUser.dbEntry.username! );
 
     return newUser;
   }
@@ -455,7 +449,7 @@ export class UsersController {
 
     username = userInstance.dbEntry.username!;
 
-    await BucketsController.get.removeUser( username );
+    await ControllerFactory.get( 'buckets' ).removeUser( username );
     const result = await this._collection.deleteOne( { _id: userInstance.dbEntry._id! } as IUserEntry );
 
     if ( result.deletedCount === 0 )
@@ -536,7 +530,7 @@ export class UsersController {
     if ( result.matchedCount === 0 )
       throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
-    const session = await SessionsController.get.createSession( request, response, user.dbEntry._id );
+    const session = await ControllerFactory.get( 'sessions' ).createSession( request, response, user.dbEntry._id );
 
     // Send logged in event to socket
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Login ] };
@@ -655,34 +649,36 @@ export class UsersController {
   /**
 	 * Prints user objects from the database
 	 * @param limit The number of users to fetch
-	 * @param startIndex The starting index from where we are fetching users from
+	 * @param index The starting index from where we are fetching users from
    * @param searchPhrases Search phrases
+   * @param verbose True if you want to show all user information
 	 */
-  async getUsers( startIndex: number = 0, limit: number = 0, searchPhrases?: RegExp ) {
+  async getUsers( index: number = 0, limit: number = 10, searchPhrases?: RegExp, verbose: boolean = true ) {
     const findToken: { $or?: Partial<IUserEntry>[] } = {};
 
     if ( searchPhrases )
       findToken.$or = [ { username: <any>searchPhrases }, { email: <any>searchPhrases }];
 
-    const results = await this._collection.find( findToken ).skip( startIndex ).limit( limit ).toArray();
-    const users: User[] = [];
+    const cursor = this._collection.find( findToken );
+    const count = await this._collection.count( findToken );
+
+    if ( index )
+      cursor.skip( index )
+
+    if ( limit )
+      cursor.limit( limit )
+
+    const results = await cursor.toArray();
+    const users: IUserEntry[] = [];
     for ( let i = 0, l = results.length; i < l; i++ )
-      users.push( new User( results[ i ] ) );
+      users.push( new User( results[ i ] ).generateCleanedData( verbose ) );
 
-    return users;
-  }
-
-  /**
-   * Creates the user manager singlton
-   */
-  static create( users: Collection, config: IConfig ) {
-    return new UsersController( users, config );
-  }
-
-  /**
-   * Gets the user manager singlton
-   */
-  static get get() {
-    return UsersController._singleton;
+    const toRet: Page<IUserEntry> = {
+      count: count,
+      data: results,
+      index: index,
+      limit: limit
+    };
+    return toRet;
   }
 }
