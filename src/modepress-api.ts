@@ -27,7 +27,7 @@ export const UserManager = users.UserManager;
 export const BucketManager = bucketManager.BucketManager;
 export const isValidID = isValidObjectID;
 export const authentication = permissions;
-export const controllers = {
+export const serializers = {
   /** Endpoints for administritive tasks */
   admin: AdminSerializer,
   /** Endpoints for authenticating users */
