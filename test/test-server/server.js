@@ -17,34 +17,34 @@ class MainController extends modepress.Controller {
 
       super.initialize( app, db ),
 
-      new modepress.controllers.auth( {
+      new modepress.serializers.auth( {
         rootPath: api,
         accountRedirectURL: '/message',
         activateAccountUrl: '/auth/activate-account',
         passwordResetURL: '/reset-password'
       } ).initialize( app, db ),
 
-      new modepress.controllers.user( {
+      new modepress.serializers.user( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new modepress.controllers.comments( {
+      new modepress.serializers.comments( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new modepress.controllers.posts( {
+      new modepress.serializers.posts( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new modepress.controllers.stats( {
+      new modepress.serializers.stats( {
         rootPath: ''
       } ).initialize( app, db ),
 
-      new modepress.controllers.file( {
+      new modepress.serializers.file( {
         rootPath: ''
       } ).initialize( app, db ),
 
-      new modepress.controllers.bucket( {
+      new modepress.serializers.bucket( {
         rootPath: ''
       } ).initialize( app, db )
 
