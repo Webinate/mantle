@@ -55,7 +55,7 @@ export class PostsController extends Controller {
     const posts = this._postsModel;
     let count = 0;
 
-    const findToken = { $or: [] as IPost[] };
+    const findToken: IPost & { $or: IPost[] } = { $or: [] };
     if ( options.author )
       ( <any>findToken ).author = options.author;
 
@@ -68,24 +68,24 @@ export class PostsController extends Controller {
 
     // Add the or conditions for visibility
     if ( options.public )
-      ( <IPost>findToken ).public = options.public;
+      findToken.public = options.public;
 
     // Check for tags (an OR request with tags)
     if ( options.tags && options.tags.length > 0 ) {
-      ( <any>findToken ).tags = { $in: options.tags };
+      findToken.tags = { $in: options.tags } as any;
     }
 
     // Check for required tags (an AND request with tags)
     if ( options.requiredTags && options.requiredTags.length > 0 ) {
-      if ( !( <any>findToken ).tags )
-        ( <any>findToken ).tags = { $all: options.requiredTags };
+      if ( !findToken.tags )
+        findToken.tags = { $all: options.requiredTags } as any;
       else
-          ( <any>findToken ).tags.$all = options.requiredTags;
+          ( findToken.tags as any ).$all = options.requiredTags;
     }
 
     // Check for categories
     if ( options.categories && options.categories.length > 0 )
-      ( <any>findToken ).categories = { $in: options.categories };
+      findToken.categories = { $in: options.categories } as any;
 
 
     // Set the default sort order to ascending
