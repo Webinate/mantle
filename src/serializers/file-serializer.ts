@@ -15,8 +15,6 @@ import Factory from '../core/model-factory';
  * Main class to use for managing users
  */
 export class FileSerializer extends Serializer {
-  private _allowedFileTypes: Array<string>;
-  private _cacheLifetime: number;
   private _options: IFileOptions;
 
   /**
@@ -31,9 +29,6 @@ export class FileSerializer extends Serializer {
    * Called to initialize this controller and its related database objects
    */
   async initialize( e: express.Express, db: mongodb.Db ) {
-
-    this._cacheLifetime = this._options.cacheLifetime;
-    this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
 
     // Setup the rest calls
     const router = express.Router();

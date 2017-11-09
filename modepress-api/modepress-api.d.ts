@@ -1817,7 +1817,6 @@ declare module "core/model-factory" {
      * Factory classs for creating & getting models
      */
     export class ModelFactory {
-        private _config;
         private _db;
         private _models;
         initialize(config: IConfig, database: Db): void;
@@ -2259,9 +2258,6 @@ declare module "controllers/buckets" {
         private _buckets;
         private _files;
         private _stats;
-        private _zipper;
-        private _unzipper;
-        private _deflater;
         private _activeManager;
         constructor(config: IConfig);
         /**
@@ -3137,7 +3133,6 @@ declare module "serializers/cors-serializer" {
      */
     export class CORSSerializer extends Serializer {
         private _approvedDomains;
-        private _options;
         /**
        * Creates an instance of the user manager
        */
@@ -3196,8 +3191,6 @@ declare module "serializers/file-serializer" {
      * Main class to use for managing users
      */
     export class FileSerializer extends Serializer {
-        private _allowedFileTypes;
-        private _cacheLifetime;
         private _options;
         /**
            * Creates an instance of the user manager
@@ -3393,7 +3386,6 @@ declare module "serializers/stats-serializer" {
      * Main class to use for managing users
      */
     export class StatsSerializer extends Serializer {
-        private _allowedFileTypes;
         private _options;
         private _userController;
         /**

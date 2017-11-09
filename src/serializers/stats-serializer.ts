@@ -15,7 +15,6 @@ import Factory from '../core/model-factory';
  * Main class to use for managing users
  */
 export class StatsSerializer extends Serializer {
-  private _allowedFileTypes: Array<string>;
   private _options: IBaseControler;
   private _userController: UsersController;
 
@@ -26,7 +25,6 @@ export class StatsSerializer extends Serializer {
 	 */
   constructor( options: IBaseControler ) {
     super( [ Factory.get( 'bucket' ) ] );
-    this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
     this._options = options;
   }
 

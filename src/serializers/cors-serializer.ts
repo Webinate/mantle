@@ -11,7 +11,6 @@ import { IBaseControler } from 'modepress';
 export class CORSSerializer extends Serializer {
 
   private _approvedDomains: string[];
-  private _options: IBaseControler;
 
   /**
  * Creates an instance of the user manager
@@ -19,7 +18,6 @@ export class CORSSerializer extends Serializer {
   constructor( approvedDomains: string[], options: IBaseControler ) {
     super( null );
     this._approvedDomains = approvedDomains;
-    this._options = options;
   }
 
   /**

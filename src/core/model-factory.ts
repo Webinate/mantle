@@ -15,12 +15,10 @@ import { UsersModel } from '../models/users-model';
  * Factory classs for creating & getting models
  */
 export class ModelFactory {
-  private _config: IConfig;
   private _db: Db;
   private _models: { [ name: string ]: Model<IModelEntry> };
 
   initialize( config: IConfig, database: Db ) {
-    this._config = config;
     this._db = database;
     this._models = {};
   }

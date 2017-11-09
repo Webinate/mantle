@@ -1,7 +1,6 @@
 ﻿import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote, ILocalBucket, IGoogleProperties } from 'modepress';
 import { Collection, Db } from 'mongodb';
 import { Part } from 'multiparty';
-import { createGzip, createGunzip, createDeflate, Gzip, Gunzip, Deflate } from 'zlib';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
@@ -19,9 +18,6 @@ export class BucketsController extends Controller {
   private _buckets: Collection<IBucketEntry>;
   private _files: Collection<IFileEntry>;
   private _stats: Collection<IStorageStats>;
-  private _zipper: Gzip;
-  private _unzipper: Gunzip;
-  private _deflater: Deflate;
   private _activeManager: IRemote;
 
   constructor( config: IConfig ) {
@@ -40,9 +36,6 @@ export class BucketsController extends Controller {
     googleBucket.initialize( this._config.remotes.google as IGoogleProperties );
     localBucket.initialize( this._config.remotes.local as ILocalBucket );
     this._activeManager = localBucket;
-    this._zipper = createGzip();
-    this._unzipper = createGunzip();
-    this._deflater = createDeflate();
   }
 
   /**

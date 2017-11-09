@@ -53,11 +53,8 @@ export class GoogleBucket implements IRemote {
       ]
     };
 
-    let bucket: IBucket;
-
     try {
-      const response: any[] = await gcs.createBucket( id, cors );
-      bucket = response[ 0 ] as IBucket;
+      await gcs.createBucket( id, cors );
     }
     catch ( err ) {
       throw new Error( `Could not create a new bucket: '${err.message}'` )
@@ -122,12 +119,10 @@ export class GoogleBucket implements IRemote {
   async removeFile( bucket: string, id: string ) {
     const gcs = this._gcs;
     const b: IBucket = gcs.bucket( bucket );
-    let apiResp;
 
     try {
       // Get the bucket and delete the file
-      const response: any[] = await b.file( id ).delete();
-      apiResp = response[ 0 ];
+      await b.file( id ).delete();
     }
     catch ( err ) {
       throw new Error( `Could not remove file '${id}' from storage system: '${err.toString()}'` );
@@ -141,9 +136,7 @@ export class GoogleBucket implements IRemote {
     const bucket: IBucket = gcs.bucket( id );
 
     try {
-      let apiResp;
-      const response: any[] = await bucket.delete()
-      apiResp = response[ 0 ];
+      await bucket.delete()
     }
     catch ( err ) {
       throw new Error( `Could not remove bucket from storage system: '${err.message}'` )
