@@ -22,16 +22,16 @@ describe( '3. Testing editing of posts', function() {
     const resp = await admin.get( `/api/posts/slug/--edit--test--` );
     const json = await resp.json();
 
-    if ( json.data )
-      await admin.delete( `/api/posts/${json.data._id}` );
+    if ( json )
+      await admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'did delete any existing posts with the slug --second--test--', async function() {
     const resp = await admin.get( `/api/posts/slug/--second--test--` );
     const json = await resp.json();
 
-    if ( json.data )
-      await admin.delete( `/api/posts/${json.data._id}` );
+    if ( json )
+      await admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'did create a post to test editting post data', async function() {
@@ -43,7 +43,7 @@ describe( '3. Testing editing of posts', function() {
     } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    postId = json.data._id;
+    postId = json._id;
   } )
 
   it( 'did create a second post to test editting post data', async function() {
@@ -55,7 +55,7 @@ describe( '3. Testing editing of posts', function() {
     } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    secondPostId = json.data._id;
+    secondPostId = json._id;
   } )
 
   it( 'cannot edit a post with an invalid ID', async function() {

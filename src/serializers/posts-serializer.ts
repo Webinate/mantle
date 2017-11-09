@@ -158,11 +158,7 @@ export class PostsSerializer extends Serializer {
       token.author = req._user!.username;
 
     const post = await this._controller.create( token );
-    const response: PostTokens.Post.Response = {
-      message: 'New post created',
-      data: post
-    } as PostTokens.Post.Response;
-
+    const response: PostTokens.Post.Response = post;
     return response;
   }
 }

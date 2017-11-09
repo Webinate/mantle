@@ -50,8 +50,8 @@ describe( '1. Testing creation of posts', function() {
     const resp = await admin.get( `/api/posts/slug/--simple--test--` );
     const json = await resp.json();
 
-    if ( json.data )
-      await admin.delete( `/api/posts/${json.data._id}` );
+    if ( json )
+      await admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'can create a post with valid data', async function() {
@@ -67,28 +67,27 @@ describe( '1. Testing creation of posts', function() {
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
 
-    lastPost = json.data._id;
-    test.string( json.message ).is( "New post created" );
-    test.bool( json.data.public ).isFalse();
-    test.string( json.data.content ).is( "Hello world" );
-    test.string( json.data.brief ).is( "This is brief" );
-    test.string( json.data.slug ).is( "--simple--test--" );
-    test.string( json.data.title ).is( "Simple Test" );
-    test.array( json.data.categories ).hasLength( 1 );
-    test.string( json.data.categories[ 0 ] ).is( "super-tests" );
-    test.array( json.data.tags ).hasLength( 2 );
-    test.string( json.data.tags[ 0 ] ).is( "super-tags-1234" );
-    test.string( json.data.tags[ 1 ] ).is( "supert-tags-4321" );
-    test.string( json.data._id );
-    test.number( json.data.createdOn ).isGreaterThan( 0 );
-    test.number( json.data.lastUpdated ).isGreaterThan( 0 );
+    lastPost = json._id;
+    test.bool( json.public ).isFalse();
+    test.string( json.content ).is( "Hello world" );
+    test.string( json.brief ).is( "This is brief" );
+    test.string( json.slug ).is( "--simple--test--" );
+    test.string( json.title ).is( "Simple Test" );
+    test.array( json.categories ).hasLength( 1 );
+    test.string( json.categories[ 0 ] ).is( "super-tests" );
+    test.array( json.tags ).hasLength( 2 );
+    test.string( json.tags[ 0 ] ).is( "super-tags-1234" );
+    test.string( json.tags[ 1 ] ).is( "supert-tags-4321" );
+    test.string( json._id );
+    test.number( json.createdOn ).isGreaterThan( 0 );
+    test.number( json.lastUpdated ).isGreaterThan( 0 );
   } )
 
   it( 'did delete any existing posts with this slug --strip--test--', async function() {
     const resp = await admin.get( `/api/posts/slug/--strip--test--` );
     const json = await resp.json();
-    if ( json.data )
-      await admin.delete( `/api/posts/${json.data._id}` );
+    if ( json )
+      await admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'should create a post & strip HTML from title', async function() {
@@ -100,9 +99,8 @@ describe( '1. Testing creation of posts', function() {
 
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    test.string( json.message ).is( "New post created" );
-    test.string( json.data.title ).is( "Simple Test NO" );
-    lastPost2 = json.data._id;
+    test.string( json.title ).is( "Simple Test NO" );
+    lastPost2 = json._id;
   } )
 
   it( 'did delete the first post', async function() {

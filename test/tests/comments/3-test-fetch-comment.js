@@ -15,8 +15,8 @@ describe( '3. Testing fetching of comments', function() {
   it( 'did delete any existing posts with the slug --comments--test--', async function() {
     const resp = await admin.get( `/api/posts/slug/--comments--test--` );
     const json = await resp.json();
-    if ( json.data )
-      await admin.delete( `/api/posts/${json.data._id}` );
+    if ( json )
+      await admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'fetched all posts', async function() {
@@ -45,8 +45,8 @@ describe( '3. Testing fetching of comments', function() {
     } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    postId = json.data._id;
-    test.bool( json.data.public ).isFalse();
+    postId = json._id;
+    test.bool( json.public ).isFalse();
   } )
 
   it( 'did create a test public comment', async function() {

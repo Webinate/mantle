@@ -28,7 +28,7 @@ describe( '2. Testing deletion of posts', function() {
 
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    postId = json.data._id;
+    postId = json._id;
   } )
 
   it( 'cannot delete a post with invalid ID format', async function() {

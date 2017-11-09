@@ -14,8 +14,8 @@ describe( '1. Testing creation of comments', function() {
   it( 'did delete any existing posts with the slug --comments--test--', async function() {
     const resp = await admin.get( `/api/posts/slug/--comments--test--` );
     const json = await resp.json();
-    if ( json.data )
-      resp = await admin.delete( `/api/posts/${json.data._id}` );
+    if ( json )
+      await admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'fetched all posts', async function() {
@@ -44,8 +44,8 @@ describe( '1. Testing creation of comments', function() {
     } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    postId = json.data._id;
-    test.bool( json.data.public ).isFalse();
+    postId = json._id;
+    test.bool( json.public ).isFalse();
   } )
 
   it( 'cannot create a comment when not logged in', async function() {

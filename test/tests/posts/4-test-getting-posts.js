@@ -21,16 +21,16 @@ describe( '4. Testing fetching of posts', function() {
   it( 'did delete any existing posts with the slug --public--test--', async function() {
     const resp = await admin.get( `/api/posts/slug/--public--test--` );
     const json = await resp.json();
-    if ( json.data )
-      await admin.delete( `/api/posts/${json.data._id}` );
+    if ( json )
+      await admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'did delete any existing posts with the slug --private--test--', async function() {
     const resp = await admin.get( `/api/posts/slug/--private--test--` );
     const json = await resp.json();
 
-    if ( json.data )
-      await admin.delete( `/api/posts/${json.data._id}` );
+    if ( json )
+      await admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'did create a public post to test fetching public post data', async function() {
@@ -44,7 +44,7 @@ describe( '4. Testing fetching of posts', function() {
     } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    publicPostId = json.data._id;
+    publicPostId = json._id;
   } )
 
   it( 'did create a private post to test fetching private post data', async function() {
@@ -56,7 +56,7 @@ describe( '4. Testing fetching of posts', function() {
     } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    privatePostId = json.data._id;
+    privatePostId = json._id;
   } )
 
   it( 'cannot get a post that doesnt exist', async function() {
