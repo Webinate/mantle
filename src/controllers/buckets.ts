@@ -1,12 +1,12 @@
 ﻿import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote, ILocalBucket, IGoogleProperties } from 'modepress';
-import { Collection, Db } from 'mongodb';
+import { Collection, Db, ObjectID } from 'mongodb';
 import { Part } from 'multiparty';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { googleBucket } from '../core/remotes/google-bucket';
 import { localBucket } from '../core/remotes/local-bucket';
-import { generateRandString } from '../utils/utils';
+import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
 
 /**
@@ -239,21 +239,22 @@ export class BucketsController extends Controller {
   }
 
   /**
-   * Attempts to remove buckets by id
-   * @param buckets An array of bucket IDs to remove
-   * @param user The user to whome these buckets belong
+   * Attempts to remove a bucket by id
+   * @param id The id of the bucket we are removing
    * @returns An array of ID's of the buckets removed
    */
-  removeBucketsByName( buckets: Array<string>, user: string ): Promise<Array<string>> {
-    if ( buckets.length === 0 )
-      return Promise.resolve( [] );
+  async removeBucketById( id: string ) {
 
-    // Create the search query for each of the files
-    const searchQuery = { $or: [] as IBucketEntry[], user: user };
-    for ( let i = 0, l = buckets.length; i < l; i++ )
-      searchQuery.$or.push( { name: buckets[ i ] } as IBucketEntry );
+    if ( !isValidObjectID( id ) )
+      throw new Error( 'Please use a valid object id' );
 
-    return this.removeBuckets( searchQuery );
+    const query: IBucketEntry = { _id: new ObjectID( id ) };
+    const bucket = await this._buckets.findOne( query );
+
+    if ( !bucket )
+      throw new Error( 'A bucket with that ID does not exist' );
+
+    return this.removeBuckets( query );
   }
 
   /**

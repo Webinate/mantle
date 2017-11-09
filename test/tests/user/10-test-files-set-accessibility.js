@@ -2,7 +2,7 @@ const test = require( 'unit.js' );
 const FormData = require( 'form-data' );
 const fs = require( 'fs' );
 
-let guest, admin, config, user1, user2;
+let guest, admin, config, user1, user2, bucket;
 const filePath = './test/media/file.png';
 const header = require( '../header.js' );
 let fileId = '';
@@ -20,7 +20,9 @@ describe( '10. Testing file accessibility functions', function() {
 
   it( 'regular user did create a bucket dinosaurs', async function() {
     const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
+    const json = await resp.json();
     test.number( resp.status ).is( 200 );
+    bucket = json._id;
   } )
 
   it( 'regular user did upload a file to dinosaurs', async function() {
@@ -47,7 +49,7 @@ describe( '10. Testing file accessibility functions', function() {
   } )
 
   it( 'regular user did remove the bucket dinosaurs', async function() {
-    const resp = await user1.delete( `/buckets/dinosaurs` );
-    test.number( resp.status ).is( 200 );
+    const resp = await user1.delete( `/buckets/${bucket}` );
+    test.number( resp.status ).is( 204 );
   } )
 } )

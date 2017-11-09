@@ -1,5 +1,5 @@
 const test = require( 'unit.js' );
-let guest, admin, config, user1, user2;
+let guest, admin, config, user1, user2, bucket1, bucket2;
 
 describe( '3. Testing bucket creation', function() {
 
@@ -40,6 +40,7 @@ describe( '3. Testing bucket creation', function() {
     test.number( json.memoryUsed ).is( 0 );
     test.number( json.created ).isGreaterThan( 0 );
     test.string( json.identifier ).isNot( '' );
+    bucket1 = json._id;
   } )
 
   it( 'regular user did not create a bucket with the same name as an existing one', async function() {
@@ -59,25 +60,23 @@ describe( '3. Testing bucket creation', function() {
     test.object( json ).hasProperty( "_id" );
     test.string( json.name ).is( 'dinosaurs2' );
     test.string( json.user ).is( user1.username );
+    bucket2 = json._id;
   } )
 
   it( 'regular user should have 2 buckets', async function() {
     const resp = await user1.get( `/buckets/user/${user1.username}` );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
-
     test.array( json.data ).hasLength( 2 );
   } )
 
   it( 'regular user did remove the bucket dinosaurs', async function() {
-    const resp = await user1.delete( `/buckets/dinosaurs` );
-    const json = await resp.json();
-    test.number( resp.status ).is( 200 );
+    const resp = await user1.delete( `/buckets/${bucket1}` );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'regular user did remove the bucket dinosaurs', async function() {
-    const resp = await user1.delete( `/buckets/dinosaurs2` );
-    const json = await resp.json();
-    test.number( resp.status ).is( 200 );
+    const resp = await user1.delete( `/buckets/${bucket2}` );
+    test.number( resp.status ).is( 204 );
   } )
 } )

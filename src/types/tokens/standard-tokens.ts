@@ -184,7 +184,7 @@ declare module 'modepress' {
     /** POST /buckets/:bucket/upload/:parentFile? */
     export namespace PostFile { export type Body = any; export type Response = IUploadResponse; }
     /** DELETE /buckets/:buckets */
-    export namespace DeleteAll { export type Body = void; export type Response = Page<string>; }
+    export namespace DeleteAll { export type Body = void; export type Response = void; }
   }
 
   export namespace EmailTokens {

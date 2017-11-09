@@ -1070,7 +1070,7 @@ declare module 'modepress' {
         /** DELETE /buckets/:buckets */
         namespace DeleteAll {
             type Body = void;
-            type Response = Page<string>;
+            type Response = void;
         }
     }
     namespace EmailTokens {
@@ -2329,12 +2329,11 @@ declare module "controllers/buckets" {
          */
         private removeBuckets(searchQuery);
         /**
-         * Attempts to remove buckets by id
-         * @param buckets An array of bucket IDs to remove
-         * @param user The user to whome these buckets belong
+         * Attempts to remove a bucket by id
+         * @param id The id of the bucket we are removing
          * @returns An array of ID's of the buckets removed
          */
-        removeBucketsByName(buckets: Array<string>, user: string): Promise<Array<string>>;
+        removeBucketById(id: string): Promise<string[]>;
         /**
          * Attempts to remove a user bucket
          * @param user The user associated with this bucket
@@ -2918,9 +2917,27 @@ declare module "controllers/comments" {
          * Returns an array of comment entries
          */
         getAll(options?: GetManyOptions): Promise<Page<IComment>>;
+        /**
+         * Gets a single comment resource
+         * @param id The id of the comment to fetch
+         * @param options Options for getting the resource
+         */
         getOne(id: string, options?: GetOneOptions): Promise<IComment>;
+        /**
+         * Removes a comment by its id
+         * @param id The id of the comment
+         */
         remove(id: string): Promise<void>;
+        /**
+         * Updates a comment by id
+         * @param id The id of the comment
+         * @param token The update token of the comment
+         */
         update(id: string, token: IComment): Promise<IComment>;
+        /**
+         * Creates a new comment
+         * @param token The data of the comment to create
+         */
         create(token: IComment): Promise<IComment>;
     }
 }

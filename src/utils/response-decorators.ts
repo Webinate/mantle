@@ -24,7 +24,9 @@ export function j200( code: number = 200, errCode: number = 500 ) {
           res.status( code ).json( result );
         } ).catch( ( err: Error ) => {
           res.setHeader( 'Content-Type', 'application/json' );
-          res.status( errCode ).json( { message: err.message } );
+          res.status( errCode )
+          res.statusMessage = err.message;
+          res.json( { message: err.message } );
         } );
       }
     };

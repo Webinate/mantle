@@ -52,7 +52,7 @@ export class BucketSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/user/:user', <any>[ ownerRights, this.getBuckets.bind( this ) ] );
-    router.delete( '/:buckets', <any>[ requireUser, this.removeBuckets.bind( this ) ] );
+    router.delete( '/:id', <any>[ requireUser, this.removeBuckets.bind( this ) ] );
     router.post( '/:bucket/upload/:parentFile?', <any>[ requireUser, this.uploadUserFiles.bind( this ) ] );
     router.post( '/user/:user/:name', <any>[ ownerRights, this.createBucket.bind( this ) ] );
 
@@ -66,28 +66,10 @@ export class BucketSerializer extends Serializer {
   /**
    * Removes buckets specified in the URL
    */
-  private async removeBuckets( req: IAuthReq, res: express.Response ) {
-    try {
-      const manager = this._bucketController;
-      let buckets: Array<string>;
-
-      if ( !req.params.buckets || req.params.buckets.trim() === '' )
-        throw new Error( 'Please specify the buckets to remove' );
-
-      buckets = req.params.buckets.split( ',' );
-
-      const filesRemoved = await manager.removeBucketsByName( buckets, req._user!.username! );
-
-      return okJson<BucketTokens.DeleteAll.Response>( {
-        data: filesRemoved,
-        count: filesRemoved.length,
-        limit: -1,
-        index: 0
-      }, res );
-
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+  @j200( 204 )
+  private async removeBuckets( req: IAuthReq, res: express.Response ): Promise<BucketTokens.DeleteAll.Response> {
+    await this._bucketController.removeBucketById( req.params.id );
+    return;
   }
 
   /**
