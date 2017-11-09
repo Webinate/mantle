@@ -1,22 +1,23 @@
-﻿import { IAuthReq, IComment, IModelEntry, CommentTokens } from 'modepress';
+﻿import { IAuthReq, CommentTokens } from 'modepress';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
-import { Schema } from '../models/schema';
-import { Model } from '../models/model';
 import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
 import { UserPrivileges } from '../core/user';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/model-factory';
+import { CommentsController } from '../controllers/comments';
+import ControllerFactory from '../core/controller-factory';
 
 /**
  * A controller that deals with the management of comments
  */
 export class CommentsSerializer extends Serializer {
   private _options: IBaseControler;
+  private _controller: CommentsController;
 
   /**
 	 * Creates a new instance of the controller
@@ -30,7 +31,7 @@ export class CommentsSerializer extends Serializer {
  * Called to initialize this controller and its related database objects
  */
   async initialize( e: express.Express, db: mongodb.Db ) {
-
+    this._controller = ControllerFactory.get( 'comments' );
     const router = express.Router();
 
     router.use( compression() );
@@ -58,23 +59,8 @@ export class CommentsSerializer extends Serializer {
    */
   @j200()
   private async getComments( req: IAuthReq, res: express.Response ) {
-    const comments = this.getModel( 'comments' )! as Model<IComment>;
-    let count = 0;
     const user = req._user;
-    const findToken = { $or: [] as IComment[] };
     let visibility: string | undefined;
-
-    // Set the parent filter
-    if ( req.query.parentId )
-      ( <IComment>findToken ).parent = req.query.parentId;
-
-    // Set the user property if its provided
-    if ( req.query.user )
-      ( <IComment>findToken ).author = <any>new RegExp( req.query.user, 'i' );
-
-    // Check for keywords
-    if ( req.query.keyword )
-      findToken.$or.push( <IComment>{ content: <any>new RegExp( req.query.keyword, 'i' ) } );
 
     // Check for visibility
     if ( req.query.visibility ) {
@@ -96,60 +82,31 @@ export class CommentsSerializer extends Serializer {
     else
       visibility = 'public';
 
-    // Add the or conditions for visibility
-    if ( visibility )
-      ( <IComment>findToken ).public = visibility === 'public' ? true : false;
+    let depth: number | undefined = parseInt( req.query.depth );
+    let index: number | undefined = parseInt( req.query.index );
+    let limit: number | undefined = parseInt( req.query.limit );
+    if ( isNaN( depth ) )
+      depth = undefined;
+    if ( isNaN( index ) )
+      index = undefined;
+    if ( isNaN( limit ) )
+      limit = undefined;
 
-    // Set the default sort order to ascending
-    let sortOrder = -1;
-    if ( req.query.sortOrder ) {
-      if ( ( <string>req.query.sortOrder ).toLowerCase() === 'asc' )
-        sortOrder = 1;
-      else
-        sortOrder = -1;
-    }
-
-    // Sort by the date created
-    let sort: IComment = { createdOn: sortOrder };
-
-    // Optionally sort by the last updated
-    if ( req.query.sort ) {
-      if ( req.query.sort === 'updated' )
-        sort = { lastUpdated: sortOrder };
-    }
-
-    if ( findToken.$or.length === 0 )
-      delete findToken.$or;
-
-    // First get the count
-    count = await comments.count( findToken );
-
-    let index: number = 0;
-    let limit: number = 10;
-    if ( req.query.index !== undefined )
-      index = parseInt( req.query.index );
-    if ( req.query.limit !== undefined )
-      limit = parseInt( req.query.limit );
-
-    const schemas = await comments.findInstances( { selector: findToken, sort: sort, index: index, limit: limit } );
-
-    const jsons: Array<Promise<IComment>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( {
-        verbose: Boolean( req.query.verbose ),
-        expandForeignKeys: Boolean( req.query.expanded ),
-        expandMaxDepth: parseInt( req.query.depth || 1 ),
-        expandSchemaBlacklist: [ 'parent' ]
-      } ) );
-
-    const sanitizedData = await Promise.all( jsons );
-
-    const response: CommentTokens.GetAll.Response = {
-      count: count,
-      data: sanitizedData,
+    const response: CommentTokens.GetAll.Response = await this._controller.getAll( {
+      depth: depth,
       index: index,
-      limit: limit
-    };
+      limit: limit,
+      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
+      keyword: req.query.keyword,
+      parentId: req.query.parentId,
+      public: visibility === 'public' ? true : false,
+      sort: req.query.sort ? true : false,
+      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+      sortOrder: req.query.sortOrder,
+      sortType: req.query.sort,
+      user: req.query.user
+    } );
+
     return response;
   }
 
@@ -158,32 +115,24 @@ export class CommentsSerializer extends Serializer {
    */
   @j200()
   private async getComment( req: IAuthReq, res: express.Response ) {
-    const comments = this.getModel( 'comments' )! as Model<IComment>;
-    const findToken: IComment = { _id: new mongodb.ObjectID( req.params.id ) };
+
     const user = req._user;
 
-    const schemas = await comments.findInstances( { selector: findToken, index: 0, limit: 1 } );
+    let depth: number | undefined = parseInt( req.query.depth );
+    if ( isNaN( depth ) )
+      depth = undefined;
 
-    if ( schemas.length === 0 )
-      throw new Error( 'Could not find comment' );
-
-    const isPublic = await schemas[ 0 ].getByName( 'public' )!.getValue()
+    const comment = await this._controller.getOne( req.params.id, {
+      depth: depth,
+      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
+      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+    } );
 
     // Only admins are allowed to see private comments
-    if ( !isPublic && ( !user || user.privileges! >= UserPrivileges.Admin ) )
+    if ( !comment.public && ( !user || user.privileges! >= UserPrivileges.Admin ) )
       throw new Error( 'That comment is marked private' );
 
-    const jsons: Array<Promise<IComment>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( {
-        verbose: Boolean( req.query.verbose ),
-        expandForeignKeys: Boolean( req.query.expanded ),
-        expandMaxDepth: parseInt( req.query.depth || 1 ),
-        expandSchemaBlacklist: [ 'parent' ]
-      } ) );
-
-    const sanitizedData = await Promise.all( jsons );
-    const response: CommentTokens.GetOne.Response = sanitizedData[ 0 ];
+    const response: CommentTokens.GetOne.Response = comment;
     return response;
   }
 
@@ -192,26 +141,15 @@ export class CommentsSerializer extends Serializer {
    */
   @j200( 204 )
   private async remove( req: IAuthReq, res: express.Response ) {
-    const comments = this.getModel( 'comments' )! as Model<IComment>;
-    const findToken: IComment = {
-      _id: new mongodb.ObjectID( req.params.id )
-    }
     const user = req._user;
-    const schemas = await comments.findInstances( { selector: findToken, index: 0, limit: 1 } );
 
-    if ( schemas.length === 0 )
-      throw new Error( 'Could not find a comment with that ID' );
-    else {
-      const author = await schemas[ 0 ].getByName( 'author' )!.getValue();
+    const comment = await this._controller.getOne( req.params.id );
 
-      // Only admins are allowed to see private comments
-      if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== author ) )
-        throw new Error( 'You do not have permission' );
-    }
+    // Only admins are allowed to see private comments
+    if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== comment.author ) )
+      throw new Error( 'You do not have permission' );
 
-    // Attempt to delete the instances
-    await comments.deleteInstances( findToken );
-    return;
+    await this._controller.remove( req.params.id );
   }
 
   /**
@@ -220,30 +158,15 @@ export class CommentsSerializer extends Serializer {
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
     const token: CommentTokens.PutOne.Body = req.body;
-    const comments = this.getModel( 'comments' )! as Model<IComment>;
-    const findToken: IComment = {
-      _id: new mongodb.ObjectID( req.params.id )
-    }
-
     const user = req._user;
-    const schemas = await comments.findInstances( { selector: findToken, index: 0, limit: 1 } );
+    let comment = await this._controller.getOne( req.params.id );
 
-    if ( schemas.length === 0 )
-      throw new Error( 'Could not find comment with that id' );
-    else {
-      const author = await schemas[ 0 ].getByName( 'author' )!.getValue();
+    // Only admins are allowed to see private comments
+    if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== comment.author ) )
+      throw new Error( 'You do not have permission' );
 
-      // Only admins are allowed to see private comments
-      if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== author ) )
-        throw new Error( 'You do not have permission' );
-    }
-
-    const instance = await comments.update( findToken, token );
-
-    if ( instance.error )
-      throw new Error( <string>instance.tokens[ 0 ].error );
-
-    const response: CommentTokens.PutOne.Response = instance.tokens[ 0 ].instance.dbEntry;
+    comment = await this._controller.update( req.params.id, token );
+    const response: CommentTokens.PutOne.Response = comment;
     return response;
   }
 
@@ -253,33 +176,13 @@ export class CommentsSerializer extends Serializer {
   @j200()
   private async create( req: IAuthReq, res: express.Response ) {
     const token: CommentTokens.Post.Body = req.body;
-    const comments = this.getModel( 'comments' )! as Model<IComment>;
 
     // User is passed from the authentication function
     token.author = req._user!.username;
     token.post = req.params.postId;
     token.parent = req.params.parent;
-    let parent: Schema<IComment> | null = null;
 
-
-    if ( token.parent ) {
-      parent = await comments.findOne( <IModelEntry>{ _id: new mongodb.ObjectID( token.parent ) } );
-      if ( !parent )
-        throw new Error( `No comment exists with the id ${token.parent}` );
-    }
-
-    const instance = await comments.createInstance( token );
-    const json = await instance.getAsJson( { verbose: true } );
-
-
-    // Assign this comment as a child to its parent comment if it exists
-    if ( parent ) {
-      const children: Array<string | mongodb.ObjectID> = parent.getByName( 'children' )!.value;
-      children.push( instance.dbEntry._id );
-      await comments.update( { _id: parent.dbEntry._id }, { children: children } )
-    }
-
-    const response: CommentTokens.Post.Response = json;
+    const response: CommentTokens.Post.Response = await this._controller.create( token );
     return response;
   }
 }

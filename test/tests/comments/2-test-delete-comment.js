@@ -100,7 +100,7 @@ describe( '2. Testing deletion of comments', function() {
     const resp = await admin.delete( `/api/comments/123456789012345678901234`, {} );
     test.number( resp.status ).is( 500 );
     const json = await resp.json();
-    test.string( json.message ).is( "Could not find a comment with that ID" );
+    test.string( json.message ).is( "Could not find comment" );
   } )
 
   it( 'can delete the parent comment', async function() {

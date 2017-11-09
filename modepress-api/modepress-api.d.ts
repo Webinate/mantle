@@ -2878,6 +2878,52 @@ declare module "controllers/users" {
         getUsers(index?: number, limit?: number, searchPhrases?: RegExp, verbose?: boolean): Promise<Page<IUserEntry>>;
     }
 }
+declare module "controllers/comments" {
+    import { IComment, Page, IConfig } from 'modepress';
+    import * as mongodb from 'mongodb';
+    import Controller from "controllers/controller";
+    export type GetManyOptions = {
+        public?: boolean;
+        parentId?: string;
+        keyword?: string;
+        user?: string;
+        sort?: boolean;
+        verbose?: boolean;
+        expanded?: boolean;
+        depth?: number;
+        sortType?: 'updated';
+        sortOrder?: 'asc' | 'desc';
+        index?: number;
+        limit?: number;
+    };
+    export type GetOneOptions = {
+        verbose?: boolean;
+        expanded?: boolean;
+        depth?: number;
+    };
+    /**
+     * A controller that deals with the management of comments
+     */
+    export class CommentsController extends Controller {
+        private _commentsModel;
+        /**
+           * Creates a new instance of the controller
+           */
+        constructor(config: IConfig);
+        /**
+         * Called to initialize this controller and its related database objects
+         */
+        initialize(db: mongodb.Db): Promise<this>;
+        /**
+         * Returns an array of comment entries
+         */
+        getAll(options?: GetManyOptions): Promise<Page<IComment>>;
+        getOne(id: string, options?: GetOneOptions): Promise<IComment>;
+        remove(id: string): Promise<void>;
+        update(id: string, token: IComment): Promise<IComment>;
+        create(token: IComment): Promise<IComment>;
+    }
+}
 declare module "core/controller-factory" {
     import { IConfig } from 'modepress';
     import { Db } from 'mongodb';
@@ -2886,6 +2932,7 @@ declare module "core/controller-factory" {
     import { PostsController } from "controllers/posts";
     import { SessionsController } from "controllers/sessions";
     import { UsersController } from "controllers/users";
+    import { CommentsController } from "controllers/comments";
     /**
      * Factory classs for creating & getting controllers
      */
@@ -2900,6 +2947,7 @@ declare module "core/controller-factory" {
         addDefaults(): Promise<void>;
         get(type: 'buckets'): BucketsController;
         get(type: 'posts'): PostsController;
+        get(type: 'comments'): CommentsController;
         get(type: 'sessions'): SessionsController;
         get(type: 'users'): UsersController;
         get(type: string): Controller;
@@ -3093,6 +3141,7 @@ declare module "serializers/comments-serializer" {
      */
     export class CommentsSerializer extends Serializer {
         private _options;
+        private _controller;
         /**
            * Creates a new instance of the controller
            */

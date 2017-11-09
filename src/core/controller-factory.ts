@@ -5,6 +5,7 @@ import { BucketsController } from '../controllers/buckets';
 import { PostsController } from '../controllers/posts';
 import { SessionsController } from '../controllers/sessions';
 import { UsersController } from '../controllers/users';
+import { CommentsController } from '../controllers/comments';
 
 /**
  * Factory classs for creating & getting controllers
@@ -27,11 +28,13 @@ export class ControllerFactory {
     await this.create( 'sessions' );
     await this.create( 'buckets' );
     await this.create( 'posts' );
+    await this.create( 'comments' );
     await this.create( 'users' );
   }
 
   get( type: 'buckets' ): BucketsController
   get( type: 'posts' ): PostsController
+  get( type: 'comments' ): CommentsController
   get( type: 'sessions' ): SessionsController
   get( type: 'users' ): UsersController
   get( type: string ): Controller
@@ -59,6 +62,9 @@ export class ControllerFactory {
         break;
       case 'posts':
         newModel = new PostsController( this._config );
+        break;
+      case 'comments':
+        newModel = new CommentsController( this._config );
         break;
       case 'sessions':
         newModel = new SessionsController( this._config );
