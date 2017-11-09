@@ -163,6 +163,7 @@ export class BucketsController extends Controller {
     this._stats;
     await this.removeBucketsByUser( user );
     await this.removeUserStats( user );
+    await this.removeFiles( { user: user } as IFileEntry );
     return;
   }
 
@@ -303,16 +304,15 @@ export class BucketsController extends Controller {
     const stats = this._stats;
 
     const bucketEntry = await this.getIBucket( fileEntry.bucketId! );
-    if ( !bucketEntry )
-      throw new Error( `Could not find the bucket '${fileEntry.bucketName}'` );
+    const bucketId = bucketEntry ? bucketEntry.identifier! : fileEntry.bucketId!;
 
     // Get the bucket and delete the file
-    await this._activeManager.removeFile( bucketEntry.identifier!, fileEntry.identifier! );
+    await this._activeManager.removeFile( bucketId, fileEntry.identifier! );
 
     // Update the bucket data usage
-    await bucketCollection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
+    await bucketCollection.updateOne( { identifier: bucketId } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
     await files.deleteOne( { _id: fileEntry._id } as IFileEntry );
-    await stats.updateOne( { user: bucketEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats } as IStorageStats );
+    await stats.updateOne( { user: fileEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats } as IStorageStats );
 
     // Update any listeners on the sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };
