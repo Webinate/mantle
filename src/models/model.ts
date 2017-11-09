@@ -300,7 +300,7 @@ export abstract class Model<T extends IModelEntry> {
     const schemas = await this.insert( [ schema ] );
 
     // All ok
-    return schemas[ 0 ];
+    return schemas[ 0 ] as Schema<T>;
   }
 
   /**

@@ -3,8 +3,9 @@ import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { PostsModel } from '../models/posts-model';
 import Controller from './controller';
+import { isValidObjectID } from '../utils/utils';
 
-export type SearchOptions = {
+export type GetManyOptions = {
   verbose?: boolean;
   keyword?: RegExp;
   author?: RegExp;
@@ -17,6 +18,13 @@ export type SearchOptions = {
   minimal?: boolean;
   index?: number;
   limit?: number;
+}
+
+export type GetOneOptions = {
+  id?: string;
+  slug?: string;
+  verbose?: boolean;
+  public?: boolean;
 }
 
 /**
@@ -43,7 +51,7 @@ export class PostsController extends Controller {
   /**
    * Returns an array of IPost items
    */
-  public async getPosts( options: SearchOptions = { verbose: true } ) {
+  async getPosts( options: GetManyOptions = { verbose: true } ) {
     const posts = this._postsModel;
     let count = 0;
 
@@ -106,12 +114,12 @@ export class PostsController extends Controller {
       delete findToken.$or;
 
     // First get the count
-    count = await posts!.count( findToken );
+    count = await posts.count( findToken );
 
     let index: number = options.index || 0;
     let limit: number = options.limit || 10;
 
-    const schemas = await posts!.findInstances( {
+    const schemas = await posts.findInstances( {
       selector: findToken,
       sort: sort,
       index: index,
@@ -132,5 +140,81 @@ export class PostsController extends Controller {
     };
 
     return response;
+  }
+
+  /**
+   * Removes a post by ID
+   * @param id The id of the post we are removing
+   */
+  async removePost( id: string ) {
+
+    if ( !isValidObjectID( id ) )
+      throw new Error( `Please use a valid object id` );
+
+    // Attempt to delete the instances
+    const numRemoved = await this._postsModel.deleteInstances( { _id: new mongodb.ObjectID( id ) } );
+
+    if ( numRemoved === 0 )
+      throw new Error( 'Could not find a post with that ID' );
+
+    return;
+  }
+
+  /**
+   * Updates a post resource
+   * @param id The id of the post to edit
+   * @param token The edit token
+   */
+  async update( id: string, token: IPost ) {
+
+    if ( !isValidObjectID( id ) )
+      throw new Error( `Please use a valid object id` );
+
+    const schema = await this._postsModel.update( { _id: new mongodb.ObjectID( id ) }, token );
+
+    if ( schema.error )
+      throw new Error( <string>schema.tokens[ 0 ].error );
+
+    if ( schema.tokens.length === 0 )
+      throw new Error( 'Could not find post with that id' );
+
+    return schema.tokens[ 0 ].instance.dbEntry;
+  }
+
+  /**
+   * Creates a new post
+   * @param token The initial post data
+   */
+  async create( token: IPost ) {
+    const schema = await this._postsModel.createInstance( token );
+    const json = await schema.getAsJson( { verbose: true } );
+    return json;
+  }
+
+  /**
+   * Gets a single post resource
+   * @param options Options for getting the post resource
+   */
+  async getPost( options: GetOneOptions = { verbose: true } ) {
+    const posts = this._postsModel;
+    let findToken: IPost;
+
+    if ( options.id )
+      findToken = { _id: new mongodb.ObjectID( options.id ) };
+    else if ( options.slug )
+      findToken = { slug: options.slug };
+    else
+      throw new Error( `You must specify either an id or slug when fetching a post` );
+
+    if ( options.public !== undefined )
+      findToken.public = options.public;
+
+    const schema = await posts!.findOne( findToken );
+
+    if ( !schema )
+      throw new Error( 'Could not find post' );
+
+    const sanitizedData = await schema.getAsJson( { verbose: options.verbose !== undefined ? options.verbose : true } );
+    return sanitizedData;
   }
 }

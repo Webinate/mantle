@@ -1,4 +1,4 @@
-﻿import { IAuthReq, IPost, IUserEntry, PostTokens } from 'modepress';
+﻿import { IAuthReq, IUserEntry, PostTokens } from 'modepress';
 
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
@@ -8,7 +8,6 @@ import { Serializer } from './serializer';
 import { identifyUser, adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
 import { UserPrivileges } from '../core/user';
-import { Model } from '../models/model';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/model-factory';
 import ControllerFactory from '../core/controller-factory';
@@ -112,33 +111,18 @@ export class PostsSerializer extends Serializer {
    */
   @j200()
   private async getPost( req: IAuthReq, res: express.Response ) {
-    const posts = this.getModel( 'posts' ) as Model<IPost>;
-    let findToken: IPost;
     const user: IUserEntry = req._user!;
+    const post = await this._controller.getPost( {
+      id: req.params.id,
+      slug: req.params.slug,
+      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : false
+    } )!;
 
-    if ( req.params.id )
-      findToken = { _id: new mongodb.ObjectID( req.params.id ) };
-    else
-      findToken = { slug: req.params.slug };
-
-    const schemas = await posts!.findInstances( { selector: findToken, index: 0, limit: 1 } );
-
-    if ( schemas.length === 0 )
-      throw new Error( 'Could not find post' );
-
-
-    const isPublic = await schemas[ 0 ].getByName( 'public' )!.getValue();
     // Only admins are allowed to see private posts
-    if ( !isPublic && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
+    if ( !post.public && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
       throw new Error( 'That post is marked private' );
 
-    const jsons: Array<Promise<IPost>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( { verbose: Boolean( req.query.verbose ) } ) );
-
-    const sanitizedData = await Promise.all( jsons );
-
-    const response: PostTokens.GetOne.Response = sanitizedData[ 0 ];
+    const response: PostTokens.GetOne.Response = post;
     return response;
   }
 
@@ -147,14 +131,7 @@ export class PostsSerializer extends Serializer {
    */
   @j200( 204 )
   private async removePost( req: IAuthReq, res: express.Response ) {
-    const posts = this.getModel( 'posts' )!;
-
-    // Attempt to delete the instances
-    const numRemoved = await posts.deleteInstances( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) } );
-
-    if ( numRemoved === 0 )
-      throw new Error( 'Could not find a post with that ID' );
-
+    await this._controller.removePost( req.params.id );
     return;
   }
 
@@ -164,17 +141,8 @@ export class PostsSerializer extends Serializer {
   @j200()
   private async updatePost( req: IAuthReq, res: express.Response ) {
     const token: PostTokens.Post.Body = req.body;
-    const posts = this.getModel( 'posts' )!;
-
-    const schema = await posts.update( <IPost>{ _id: new mongodb.ObjectID( req.params.id ) }, token );
-
-    if ( schema.error )
-      throw new Error( <string>schema.tokens[ 0 ].error );
-
-    if ( schema.tokens.length === 0 )
-      throw new Error( 'Could not find post with that id' );
-
-    const response: PostTokens.PutOne.Response = schema.tokens[ 0 ].instance.dbEntry;
+    const post = await this._controller.update( req.params.id, token );
+    const response: PostTokens.PutOne.Response = post;
     return response;
   }
 
@@ -184,17 +152,15 @@ export class PostsSerializer extends Serializer {
   @j200()
   private async createPost( req: IAuthReq, res: express.Response ) {
     const token: PostTokens.Post.Body = req.body;
-    const posts = this.getModel( 'posts' )!;
 
     // User is passed from the authentication function
-    token.author = req._user!.username;
+    if ( !token.author )
+      token.author = req._user!.username;
 
-    const schema = await posts.createInstance( token );
-    const json = await schema.getAsJson( { verbose: true } );
-
+    const post = await this._controller.create( token );
     const response: PostTokens.Post.Response = {
       message: 'New post created',
-      data: json
+      data: post
     } as PostTokens.Post.Response;
 
     return response;

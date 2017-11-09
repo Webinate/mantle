@@ -1934,7 +1934,7 @@ declare module "models/model" {
            * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
            * by parsing the data object and setting each schema item's value by the name/value in the data object
            */
-        createInstance(data?: T): Promise<Schema<IModelEntry>>;
+        createInstance(data?: T): Promise<Schema<T>>;
         /**
            * Attempts to insert an array of instances of this model into the database.
            * @param instances An array of instances to save
@@ -2439,7 +2439,7 @@ declare module "controllers/posts" {
     import { IPost, Page, IConfig } from 'modepress';
     import * as mongodb from 'mongodb';
     import Controller from "controllers/controller";
-    export type SearchOptions = {
+    export type GetManyOptions = {
         verbose?: boolean;
         keyword?: RegExp;
         author?: RegExp;
@@ -2452,6 +2452,12 @@ declare module "controllers/posts" {
         minimal?: boolean;
         index?: number;
         limit?: number;
+    };
+    export type GetOneOptions = {
+        id?: string;
+        slug?: string;
+        verbose?: boolean;
+        public?: boolean;
     };
     /**
      * A controller that deals with the management of posts
@@ -2469,7 +2475,28 @@ declare module "controllers/posts" {
         /**
          * Returns an array of IPost items
          */
-        getPosts(options?: SearchOptions): Promise<Page<IPost>>;
+        getPosts(options?: GetManyOptions): Promise<Page<IPost>>;
+        /**
+         * Removes a post by ID
+         * @param id The id of the post we are removing
+         */
+        removePost(id: string): Promise<void>;
+        /**
+         * Updates a post resource
+         * @param id The id of the post to edit
+         * @param token The edit token
+         */
+        update(id: string, token: IPost): Promise<IPost>;
+        /**
+         * Creates a new post
+         * @param token The initial post data
+         */
+        create(token: IPost): Promise<IPost>;
+        /**
+         * Gets a single post resource
+         * @param options Options for getting the post resource
+         */
+        getPost(options?: GetOneOptions): Promise<IPost>;
     }
 }
 declare module "core/session" {
