@@ -2244,6 +2244,31 @@ declare module "core/remotes/local-bucket" {
     }
     export const localBucket: LocalBucket;
 }
+declare module "controllers/files" {
+    import { IConfig, IFileEntry } from 'modepress';
+    import { Db } from 'mongodb';
+    import Controller from "controllers/controller";
+    /**
+     * Class responsible for managing files
+     */
+    export class FilesController extends Controller {
+        private _files;
+        private _activeManager;
+        constructor(config: IConfig);
+        /**
+         * Initializes the controller
+         * @param db The mongo db
+         */
+        initialize(db: Db): Promise<void>;
+        /**
+         * Fetches a file by its ID
+         * @param fileID The file ID of the file on the bucket
+         * @param user Optionally specify the user of the file
+         * @param searchTerm Specify a search term
+         */
+        getFile(fileID: string, user?: string, searchTerm?: RegExp): Promise<IFileEntry>;
+    }
+}
 declare module "controllers/buckets" {
     import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
     import { Db } from 'mongodb';
@@ -2259,6 +2284,7 @@ declare module "controllers/buckets" {
         private _files;
         private _stats;
         private _activeManager;
+        private _filesController;
         constructor(config: IConfig);
         /**
          * Initializes the controller
@@ -2409,13 +2435,6 @@ declare module "controllers/buckets" {
          * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
          */
         uploadStream(part: Part, bucketEntry: IBucketEntry, user: string, makePublic?: boolean, parentFile?: string | null): Promise<IFileEntry>;
-        /**
-         * Fetches a file by its ID
-         * @param fileID The file ID of the file on the bucket
-         * @param user Optionally specify the user of the file
-         * @param searchTerm Specify a search term
-         */
-        getFile(fileID: string, user?: string, searchTerm?: RegExp): Promise<IFileEntry>;
         /**
          * Renames a file
          * @param file The file to rename
@@ -2946,6 +2965,7 @@ declare module "core/controller-factory" {
     import { Db } from 'mongodb';
     import Controller from "controllers/controller";
     import { BucketsController } from "controllers/buckets";
+    import { FilesController } from "controllers/files";
     import { PostsController } from "controllers/posts";
     import { SessionsController } from "controllers/sessions";
     import { UsersController } from "controllers/users";
@@ -2967,6 +2987,7 @@ declare module "core/controller-factory" {
         get(type: 'comments'): CommentsController;
         get(type: 'sessions'): SessionsController;
         get(type: 'users'): UsersController;
+        get(type: 'files'): FilesController;
         get(type: string): Controller;
         /**
          * A factory method for creating models
@@ -3258,6 +3279,8 @@ declare module "serializers/file-serializer" {
      */
     export class FileSerializer extends Serializer {
         private _options;
+        private _buckets;
+        private _files;
         /**
            * Creates an instance of the user manager
            */

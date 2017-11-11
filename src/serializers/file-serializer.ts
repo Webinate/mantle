@@ -10,12 +10,16 @@ import { okJson, errJson, j200 } from '../utils/response-decorators';
 import { IFileOptions } from 'modepress';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
+import { BucketsController } from '../controllers/buckets';
+import { FilesController } from '../controllers/files';
 
 /**
  * Main class to use for managing users
  */
 export class FileSerializer extends Serializer {
   private _options: IFileOptions;
+  private _buckets: BucketsController;
+  private _files: FilesController;
 
   /**
 	 * Creates an instance of the user manager
@@ -29,6 +33,9 @@ export class FileSerializer extends Serializer {
    * Called to initialize this controller and its related database objects
    */
   async initialize( e: express.Express, db: mongodb.Db ) {
+
+    this._buckets = ControllerFactory.get( 'buckets' );
+    this._files = ControllerFactory.get( 'files' );
 
     // Setup the rest calls
     const router = express.Router();
@@ -79,20 +86,20 @@ export class FileSerializer extends Serializer {
    */
   @j200()
   private async renameFile( req: IAuthReq, res: express.Response ): Promise<FileTokens.Put.Response> {
-    const manager = ControllerFactory.get( 'buckets' );
+
 
     if ( !req.params.file || req.params.file.trim() === '' )
       throw new Error( 'Please specify the file to rename' );
     if ( !req.body || !req.body.name || req.body.name.trim() === '' )
       throw new Error( 'Please specify the new name of the file' );
 
-    const fileEntry = await manager.getFile( req.params.file, req._user!.username );
+    const fileEntry = await this._files.getFile( req.params.file, req._user!.username );
 
     if ( !fileEntry )
       throw new Error( `Could not find the file '${req.params.file}'` );
 
     const file = req.body as FileTokens.Put.Body;
-    const updatedFile = await manager.renameFile( fileEntry, file.name );
+    const updatedFile = await this._buckets.renameFile( fileEntry, file.name );
     return updatedFile;
   }
 

@@ -2,6 +2,7 @@ import { IConfig } from 'modepress';
 import { Db } from 'mongodb';
 import Controller from '../controllers/controller';
 import { BucketsController } from '../controllers/buckets';
+import { FilesController } from '../controllers/files';
 import { PostsController } from '../controllers/posts';
 import { SessionsController } from '../controllers/sessions';
 import { UsersController } from '../controllers/users';
@@ -25,11 +26,16 @@ export class ControllerFactory {
    * Adds the default models to the system
    */
   async addDefaults() {
-    await this.create( 'sessions' );
-    await this.create( 'buckets' );
-    await this.create( 'posts' );
-    await this.create( 'comments' );
-    await this.create( 'users' );
+    const controllers: Controller[] = [];
+    controllers.push( await this.create( 'sessions' ) );
+    controllers.push( await this.create( 'buckets' ) );
+    controllers.push( await this.create( 'files' ) );
+    controllers.push( await this.create( 'posts' ) );
+    controllers.push( await this.create( 'comments' ) );
+    controllers.push( await this.create( 'users' ) );
+
+    for ( const controller of controllers )
+      await controller.initialize( this._db );
   }
 
   get( type: 'buckets' ): BucketsController
@@ -37,6 +43,7 @@ export class ControllerFactory {
   get( type: 'comments' ): CommentsController
   get( type: 'sessions' ): SessionsController
   get( type: 'users' ): UsersController
+  get( type: 'files' ): FilesController
   get( type: string ): Controller
   get( type: string ): Controller {
     const toRet = this._controllers[ type ];
@@ -60,6 +67,9 @@ export class ControllerFactory {
       case 'buckets':
         newModel = new BucketsController( this._config );
         break;
+      case 'files':
+        newModel = new FilesController( this._config );
+        break;
       case 'posts':
         newModel = new PostsController( this._config );
         break;
@@ -76,9 +86,7 @@ export class ControllerFactory {
         throw new Error( `Controller '${type}' cannot be created` );
     }
 
-    await newModel.initialize( this._db );
     this._controllers[ type ] = newModel;
-
     return newModel;
   }
 }

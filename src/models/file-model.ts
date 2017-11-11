@@ -7,7 +7,7 @@ import { IFileEntry } from 'modepress';
  */
 export class FileModel extends Model<IFileEntry> {
   constructor() {
-    super( 'buckets' );
+    super( 'files' );
 
     this.schema.add( new text( 'name', '' ) );
     this.schema.add( new text( 'user', '' ) );

@@ -8,6 +8,8 @@ import { googleBucket } from '../core/remotes/google-bucket';
 import { localBucket } from '../core/remotes/local-bucket';
 import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
+import { FilesController } from './files';
+import ControllerFactory from '../core/controller-factory';
 
 /**
  * Class responsible for managing buckets and uploads
@@ -19,6 +21,7 @@ export class BucketsController extends Controller {
   private _files: Collection<IFileEntry>;
   private _stats: Collection<IStorageStats>;
   private _activeManager: IRemote;
+  private _filesController: FilesController;
 
   constructor( config: IConfig ) {
     super( config );
@@ -36,6 +39,8 @@ export class BucketsController extends Controller {
     googleBucket.initialize( this._config.remotes.google as IGoogleProperties );
     localBucket.initialize( this._config.remotes.local as ILocalBucket );
     this._activeManager = localBucket;
+    this._filesController = ControllerFactory.get( 'files' );
+    this._filesController;
   }
 
   /**
@@ -515,28 +520,7 @@ export class BucketsController extends Controller {
     return file;
   }
 
-  /**
-   * Fetches a file by its ID
-   * @param fileID The file ID of the file on the bucket
-   * @param user Optionally specify the user of the file
-   * @param searchTerm Specify a search term
-   */
-  async getFile( fileID: string, user?: string, searchTerm?: RegExp ) {
-    const files = this._files;
-    const searchQuery: IFileEntry = { identifier: fileID };
-    if ( user )
-      searchQuery.user = user;
 
-    if ( searchTerm )
-      ( <any>searchQuery ).name = searchTerm;
-
-    const result: IFileEntry = await files.find( searchQuery ).limit( 1 ).next();
-
-    if ( !result )
-      throw new Error( `File '${fileID}' does not exist` );
-    else
-      return result;
-  }
 
   /**
    * Renames a file
