@@ -2238,14 +2238,23 @@ declare module "core/remotes/local-bucket" {
     export const localBucket: LocalBucket;
 }
 declare module "controllers/files" {
-    import { IConfig, IFileEntry } from 'modepress';
+    import { IConfig, IFileEntry, Page } from 'modepress';
     import { Db } from 'mongodb';
     import Controller from "controllers/controller";
+    export type GetOptions = {
+        bucketId?: string;
+        user?: string;
+        index?: number;
+        limit?: number;
+        searchTerm?: RegExp;
+        verbose?: boolean;
+    };
     /**
      * Class responsible for managing files
      */
     export class FilesController extends Controller {
         private _files;
+        private _buckets;
         private _stats;
         private _activeManager;
         constructor(config: IConfig);
@@ -2261,6 +2270,15 @@ declare module "controllers/files" {
          * @param searchTerm Specify a search term
          */
         getFile(fileID: string, user?: string, searchTerm?: RegExp): Promise<IFileEntry>;
+        /**
+         * Fetches all file entries by a given query
+         */
+        getFiles(options: GetOptions): Promise<Page<IFileEntry>>;
+        /**
+         * Fetches the file count based on the given query
+         * @param searchQuery The search query to idenfify files
+         */
+        count(searchQuery: IFileEntry): Promise<number>;
         /**
          * Renames a file
          * @param fileId The id of the file to rename
@@ -2303,29 +2321,11 @@ declare module "controllers/buckets" {
          */
         getBucketEntries(user?: string, searchTerm?: RegExp): Promise<IBucketEntry[]>;
         /**
-         * Fetches the file count based on the given query
-         * @param searchQuery The search query to idenfify files
-         */
-        numFiles(searchQuery: IFileEntry): Promise<number>;
-        /**
-         * Fetches all file entries by a given query
-         * @param searchQuery The search query to idenfify files
-         */
-        getFiles(searchQuery: any, startIndex?: number, limit?: number): Promise<IFileEntry[]>;
-        /**
          * Updates all file entries for a given search criteria with custom meta data
          * @param searchQuery The search query to idenfify files
          * @param meta Optional meta data to associate with the files
          */
         setMeta(searchQuery: any, meta: any): Promise<boolean>;
-        /**
-         * Fetches all file entries from the database for a given bucket
-         * @param bucket Specify the bucket from which he files belong to
-         * @param startIndex Specify the start index
-         * @param limit Specify the number of files to retrieve
-         * @param searchTerm Specify a search term
-         */
-        getFilesByBucket(bucket: IBucketEntry, startIndex?: number, limit?: number, searchTerm?: RegExp): Promise<IFileEntry[]>;
         /**
          * Fetches the storage/api data for a given user
          * @param user The user whos data we are fetching

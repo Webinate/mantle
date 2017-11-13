@@ -33,7 +33,7 @@ describe( '6. Testing files deletion', function() {
   } )
 
   it( 'regular user has 1 file', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
     fileId = json.data[ 0 ].identifier;
@@ -55,7 +55,7 @@ describe( '6. Testing files deletion', function() {
   } )
 
   it( 'regular user has 0 files', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
     test.array( json.data ).hasLength( 0 );

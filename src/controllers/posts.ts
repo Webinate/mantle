@@ -116,8 +116,8 @@ export class PostsController extends Controller {
     // First get the count
     count = await posts.count( findToken );
 
-    let index: number = options.index || 0;
-    let limit: number = options.limit || 10;
+    const index: number = options.index || 0;
+    const limit: number = options.limit || 10;
 
     const schemas = await posts.findInstances( {
       selector: findToken,

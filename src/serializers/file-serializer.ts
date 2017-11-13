@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IAuthReq, IBucketEntry, FileTokens } from 'modepress';
+import { IAuthReq, FileTokens } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
@@ -91,38 +91,25 @@ export class FileSerializer extends Serializer {
   /**
    * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
    */
+  @j200()
   private async getFiles( req: IAuthReq, res: express.Response ) {
-    const manager = ControllerFactory.get( 'buckets' );
-    const index = parseInt( req.query.index );
-    const limit = parseInt( req.query.limit );
-    let bucketEntry: IBucketEntry | null;
-    let searchTerm: RegExp | undefined;
+    let index: number | undefined = parseInt( req.query.index );
+    let limit: number | undefined = parseInt( req.query.limit );
+    index = isNaN( index ) ? undefined : index;
+    limit = isNaN( limit ) ? undefined : limit;
 
-    try {
-      if ( !req.params.bucket || req.params.bucket.trim() === '' )
-        throw new Error( 'Please specify a valid bucket name' );
+    if ( !req.params.bucket || req.params.bucket.trim() === '' )
+      throw new Error( 'Please specify a valid bucket name' );
 
-      // Check for keywords
-      if ( req.query.search )
-        searchTerm = new RegExp( req.query.search, 'i' );
+    const page = await this._files.getFiles( {
+      bucketId: req.params.bucket,
+      index: index,
+      limit: limit,
+      user: req.params.user,
+      searchTerm: req.query.search ? new RegExp( req.query.search, 'i' ) : undefined
+    } );
 
-      bucketEntry = await manager.getIBucket( req.params.bucket, req.params.user );
-
-      if ( !bucketEntry )
-        throw new Error( `Could not find the bucket '${req.params.bucket}'` );
-
-      const count = await manager.numFiles( { bucketId: bucketEntry.identifier } );
-      const files = await manager.getFilesByBucket( bucketEntry, index, limit, searchTerm );
-
-      return okJson<FileTokens.GetAll.Response>( {
-        data: files,
-        count: count,
-        index: index,
-        limit: limit
-      }, res );
-
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+    const resp: FileTokens.GetAll.Response = page;
+    return resp;
   }
 }

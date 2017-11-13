@@ -34,7 +34,7 @@ describe( '7. Getting and setting user media stat usage', async function() {
   } )
 
   it( 'regular user has 1 file', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
 

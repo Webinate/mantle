@@ -31,12 +31,20 @@ describe( '8. Getting uploaded user files', function() {
     test.string( json.message ).is( "You don't have permission to make this request" );
   } )
 
-  it( 'regular user did not get files for a non existant bucket', async function() {
+  it( 'regular user did not get files for a bucket with bad id', async function() {
     const resp = await user1.get( `/files/users/${user1.username}/buckets/test` );
     const json = await resp.json();
     test.number( resp.status ).is( 500 );
     test.object( json ).hasProperty( "message" );
-    test.string( json.message ).is( "Could not find the bucket 'test'" );
+    test.string( json.message ).is( "Please use a valid identifier for bucketId" );
+  } )
+
+  it( 'regular user did not get files for a non existant bucket', async function() {
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/123456789012345678901234` );
+    const json = await resp.json();
+    test.number( resp.status ).is( 500 );
+    test.object( json ).hasProperty( "message" );
+    test.string( json.message ).is( "Could not find the bucket resource" );
   } )
 
   it( 'regular user did upload a file to dinosaurs', async function() {
@@ -54,7 +62,7 @@ describe( '8. Getting uploaded user files', function() {
   } )
 
   it( 'regular user fetched 2 files from the dinosaur bucket', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
     test.object( json ).hasProperty( "data" );
@@ -73,7 +81,7 @@ describe( '8. Getting uploaded user files', function() {
   } )
 
   it( 'admin fetched 2 files from the regular users dinosaur bucket', async function() {
-    const resp = await admin.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await admin.get( `/files/users/${user1.username}/buckets/${bucket}` );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
     test.array( json.data ).hasLength( 2 );

@@ -1,4 +1,4 @@
-﻿import { IConfig, IFileEntry, IRemote, ILocalBucket, IGoogleProperties, IStorageStats } from 'modepress';
+﻿import { IConfig, IFileEntry, IRemote, ILocalBucket, IGoogleProperties, IStorageStats, Page, IBucketEntry } from 'modepress';
 import { Db, ObjectID } from 'mongodb';
 import { googleBucket } from '../core/remotes/google-bucket';
 import { localBucket } from '../core/remotes/local-bucket';
@@ -7,12 +7,23 @@ import { FileModel } from '../models/file-model';
 import ModelFactory from '../core/model-factory';
 import { StorageStatsModel } from '../models/storage-stats-model';
 import { isValidObjectID } from '../utils/utils';
+import { BucketModel } from '../models/bucket-model';
+
+export type GetOptions = {
+  bucketId?: string;
+  user?: string;
+  index?: number;
+  limit?: number;
+  searchTerm?: RegExp;
+  verbose?: boolean;
+}
 
 /**
  * Class responsible for managing files
  */
 export class FilesController extends Controller {
   private _files: FileModel;
+  private _buckets: BucketModel;
   private _stats: StorageStatsModel;
   private _activeManager: IRemote;
 
@@ -29,6 +40,7 @@ export class FilesController extends Controller {
     localBucket.initialize( this._config.remotes.local as ILocalBucket );
     this._activeManager = localBucket;
     this._files = ModelFactory.get( 'files' );
+    this._buckets = ModelFactory.get( 'buckets' );
     this._stats = ModelFactory.get( 'storage' );
 
     this._activeManager;
@@ -55,6 +67,73 @@ export class FilesController extends Controller {
       throw new Error( `File '${fileID}' does not exist` );
 
     return result.getAsJson( { verbose: true } );
+  }
+
+  /**
+   * Fetches all file entries by a given query
+   */
+  async getFiles( options: GetOptions ) {
+    const files = this._files;
+    const buckets = this._buckets;
+
+    const searchQuery: IFileEntry = {};
+
+    if ( options.bucketId ) {
+      if ( !isValidObjectID( options.bucketId ) )
+        throw new Error( 'Please use a valid identifier for bucketId' );
+
+      const bucketQuery: IBucketEntry = { _id: new ObjectID( options.bucketId ) };
+      if ( options.user )
+        bucketQuery.user = options.user;
+
+      const bucketEntry = await buckets.findOne( bucketQuery );
+
+      if ( !bucketEntry )
+        throw new Error( `Could not find the bucket resource` );
+
+      searchQuery.bucketId = new ObjectID( options.bucketId ) as any;
+    }
+
+    if ( options.searchTerm )
+      searchQuery.name = new RegExp( options.searchTerm ) as any;
+
+    if ( options.user )
+      searchQuery.user = options.user;
+
+    const count = await files.count( searchQuery );
+    const index: number = options.index || 0;
+    const limit: number = options.limit || 10;
+
+    // Save the new entry into the database
+    const schemas = await files.findInstances( {
+      selector: searchQuery,
+      index: index,
+      limit: limit
+    } );
+
+    const jsons: Array<Promise<IFileEntry>> = [];
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      jsons.push( schemas[ i ].getAsJson( { verbose: options.verbose !== undefined ? options.verbose : true } ) );
+
+    const sanitizedData = await Promise.all( jsons );
+    const toRet: Page<IFileEntry> = {
+      count: count,
+      data: sanitizedData,
+      index: index,
+      limit: limit
+    };
+
+    return toRet;
+  }
+
+  /**
+   * Fetches the file count based on the given query
+   * @param searchQuery The search query to idenfify files
+   */
+  async count( searchQuery: IFileEntry ) {
+    const filesCollection = this._files;
+    const count = await filesCollection.count( searchQuery );
+    return count;
   }
 
   /**

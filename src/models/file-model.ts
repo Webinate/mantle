@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { text, num, date, bool, json, foreignKey } from './schema-items/schema-item-factory';
+import { text, num, date, bool, json, foreignKey, id } from './schema-items/schema-item-factory';
 import { IFileEntry } from 'modepress';
 
 /**
@@ -12,7 +12,7 @@ export class FileModel extends Model<IFileEntry> {
     this.schema.add( new text( 'name', '', { minCharacters: 3 } ) );
     this.schema.add( new text( 'user', '', { minCharacters: 3 } ) ).setReadOnly( true );
     this.schema.add( new text( 'identifier', '', { minCharacters: 6 } ) ).setReadOnly( true );
-    this.schema.add( new text( 'bucketId', '' ) ).setReadOnly( true );
+    this.schema.add( new id( 'bucketId', '' ) ).setReadOnly( true );
     this.schema.add( new text( 'bucketName', '' ) ).setReadOnly( true );
     this.schema.add( new text( 'publicURL', '' ) ).setReadOnly( true );
     this.schema.add( new text( 'mimeType', '' ) ).setReadOnly( true );

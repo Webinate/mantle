@@ -33,7 +33,7 @@ describe( '10. Testing file accessibility functions', function() {
   } )
 
   it( 'regular user has 1 file', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     fileId = json.data[ 0 ].identifier;

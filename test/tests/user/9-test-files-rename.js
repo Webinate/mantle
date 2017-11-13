@@ -31,7 +31,7 @@ describe( '9. Testing file renaming', function() {
   } )
 
   it( 'uploaded file has the name "file.png"', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     fileId = json.data[ 0 ]._id;
@@ -85,7 +85,7 @@ describe( '9. Testing file renaming', function() {
   } )
 
   it( 'did rename the file to "testy" as reflected in the GET', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.string( json.data[ 0 ].name ).is( "testy" );

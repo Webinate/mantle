@@ -62,27 +62,9 @@ export class BucketsController extends Controller {
     return buckets;
   }
 
-  /**
-   * Fetches the file count based on the given query
-   * @param searchQuery The search query to idenfify files
-   */
-  async numFiles( searchQuery: IFileEntry ) {
-    const filesCollection = this._files;
-    const count = await filesCollection.count( searchQuery );
-    return count;
-  }
 
-  /**
-   * Fetches all file entries by a given query
-   * @param searchQuery The search query to idenfify files
-   */
-  async getFiles( searchQuery: any, startIndex?: number, limit: number = -1 ) {
-    const filesCollection = this._files;
 
-    // Save the new entry into the database
-    const files = await filesCollection.find( searchQuery ).skip( startIndex! ).limit( limit ).toArray();
-    return files;
-  }
+
 
   /**
    * Updates all file entries for a given search criteria with custom meta data
@@ -95,22 +77,6 @@ export class BucketsController extends Controller {
     // Save the new entry into the database
     await filesCollection.updateMany( searchQuery, { $set: { meta: meta } as IFileEntry } );
     return true;
-  }
-
-  /**
-   * Fetches all file entries from the database for a given bucket
-   * @param bucket Specify the bucket from which he files belong to
-   * @param startIndex Specify the start index
-   * @param limit Specify the number of files to retrieve
-   * @param searchTerm Specify a search term
-   */
-  getFilesByBucket( bucket: IBucketEntry, startIndex?: number, limit?: number, searchTerm?: RegExp ) {
-    const searchQuery: IFileEntry = { bucketId: bucket.identifier };
-
-    if ( searchTerm )
-      ( <any>searchQuery ).name = searchTerm;
-
-    return this.getFiles( searchQuery, startIndex, limit );
   }
 
   /**
@@ -459,7 +425,7 @@ export class BucketsController extends Controller {
         name: ( part.filename || part.name ),
         user: user,
         identifier: identifier,
-        bucketId: bucket.identifier,
+        bucketId: bucket._id,
         bucketName: bucket.name!,
         parentFile: ( parentFile ? parentFile : null ),
         created: Date.now(),

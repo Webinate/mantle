@@ -24,7 +24,7 @@ describe( '11. Testing file uploads', function() {
   } )
 
   it( 'regular user has 0 files in the bucket', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.array( json.data ).hasLength( 0 );
@@ -87,7 +87,7 @@ describe( '11. Testing file uploads', function() {
   } )
 
   it( 'regular user uploaded 2 files, the second with meta', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
+    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.object( json ).hasProperty( "data" );
