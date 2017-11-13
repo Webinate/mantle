@@ -19,6 +19,8 @@ const header = require( './tests/header.js' );
 describe( 'Initializing tests', function() {
 
   before( async function() {
+    this.timeout( 20000 );
+
     try {
       // Initialize the server
       await startup.initialize();
