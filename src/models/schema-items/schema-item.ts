@@ -37,6 +37,7 @@ export class SchemaItem<T> {
     copy._uniqueIndexer = this._uniqueIndexer;
     copy._required = this._required;
     copy._sensitive = this._sensitive;
+    copy._readOnly = this._readOnly;
     return copy;
   }
 
