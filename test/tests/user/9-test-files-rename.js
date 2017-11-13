@@ -34,33 +34,54 @@ describe( '9. Testing file renaming', function() {
     const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs` );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
-    fileId = json.data[ 0 ].identifier;
+    fileId = json.data[ 0 ]._id;
     test.string( json.data[ 0 ].name ).is( "small-image.png" );
   } )
 
   it( 'regular user did not rename an incorrect file to testy', async function() {
-    const resp = await user1.put( `/files/123/rename-file`, { name: "testy" } );
+    const resp = await user1.put( `/files/123`, { name: "testy" } );
     test.number( resp.status ).is( 500 );
     const json = await resp.json();
     test.object( json ).hasProperty( "message" );
-    test.string( json.message ).is( "File '123' does not exist" );
+    test.string( json.message ).is( "Invalid ID format" );
   } )
 
   it( 'regular user regular user did not rename a correct file with an empty name', async function() {
-    const resp = await user1.put( `/files/${fileId}/rename-file`, { name: "" } );
+    const resp = await user1.put( `/files/${fileId}`, { name: "" } );
     test.number( resp.status ).is( 500 );
     const json = await resp.json();
     test.object( json ).hasProperty( "message" );
-    test.string( json.message ).is( "Please specify the new name of the file" );
+    test.string( json.message ).is( "The character length of name is too short, please keep it above 3" );
   } )
 
   it( 'regular user did rename a correct file to testy', async function() {
-    const resp = await user1.put( `/files/${fileId}/rename-file`, { name: "testy" } );
+    const resp = await user1.put( `/files/${fileId}`, { name: "testy" } );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.object( json ).hasProperty( "_id" );
     test.string( json.name ).is( 'testy' );
     test.string( json.user ).is( user1.username );
+  } )
+
+  it( 'regular user cannot set readonly attributes', async function() {
+    const resp = await user1.put( `/files/${fileId}`, {
+      user: 'badvalue',
+      bucketId: 'badvalue',
+      bucketName: 'badvalue',
+      publicURL: 'badvalue',
+      mimeType: 'badvalue',
+      parentFile: '123456789012345678901234',
+      size: 20
+    } );
+    test.number( resp.status ).is( 200 );
+    const json = await resp.json();
+    test.string( json.user ).isNot( 'badvalue' );
+    test.string( json.bucketId ).isNot( 'badvalue' );
+    test.string( json.bucketName ).isNot( 'badvalue' );
+    test.string( json.publicURL ).isNot( 'badvalue' );
+    test.string( json.mimeType ).isNot( 'badvalue' );
+    test.string( json.parentFile ).isNot( 'badvalue' );
+    test.number( json.size ).isNot( 20 );
   } )
 
   it( 'did rename the file to "testy" as reflected in the GET', async function() {

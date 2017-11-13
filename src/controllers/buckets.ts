@@ -443,16 +443,6 @@ export class BucketsController extends Controller {
   }
 
   /**
-   * Adds an API call to a user
-   * @param user The username
-   */
-  async incrementAPI( user: string ) {
-    const stats = this._stats;
-    await stats.updateOne( { user: user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
-    return true;
-  }
-
-  /**
    * Registers an uploaded part as a new user file in the local dbs
    * @param identifier The id of the file on the bucket
    * @param bucketID The id of the bucket this file belongs to
@@ -520,18 +510,6 @@ export class BucketsController extends Controller {
     return file;
   }
 
-  /**
-   * Renames a file
-   * @param file The file to rename
-   * @param name The new name of the file
-   */
-  async renameFile( file: IFileEntry, name: string ) {
-    const files = this._files;
-    await this.incrementAPI( file.user! );
-    await files.updateOne( { _id: file._id! } as IFileEntry, { $set: { name: name } as IFileEntry } );
-    file.name = name;
-    return file;
-  }
 
   /**
    * Finds and downloads a file

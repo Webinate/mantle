@@ -23,7 +23,7 @@ export class SessionSerializer extends Serializer {
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Factory.get( 'session' ) ] );
+    super( [ Factory.get( 'sessions' ) ] );
     this._options = options;
   }
 

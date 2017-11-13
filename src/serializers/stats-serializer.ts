@@ -24,7 +24,7 @@ export class StatsSerializer extends Serializer {
 	 * @param The config options of this manager
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Factory.get( 'bucket' ) ] );
+    super( [ Factory.get( 'buckets' ) ] );
     this._options = options;
   }
 

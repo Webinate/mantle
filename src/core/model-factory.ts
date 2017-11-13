@@ -28,13 +28,13 @@ export class ModelFactory {
    */
   async addBaseModelFactories() {
     await Promise.all( [
-      this.create( 'bucket' ),
+      this.create( 'buckets' ),
       this.create( 'categories' ),
       this.create( 'comments' ),
-      this.create( 'file' ),
+      this.create( 'files' ),
       this.create( 'posts' ),
       this.create( 'renders' ),
-      this.create( 'session' ),
+      this.create( 'sessions' ),
       this.create( 'storage' ),
       this.create( 'users' )
     ] );
@@ -88,13 +88,13 @@ export class ModelFactory {
     return collection;
   }
 
-  get( type: 'bucket' ): BucketModel
+  get( type: 'buckets' ): BucketModel
   get( type: 'categories' ): CategoriesModel
   get( type: 'comments' ): CommentsModel
-  get( type: 'file' ): FileModel
+  get( type: 'files' ): FileModel
   get( type: 'posts' ): PostsModel
   get( type: 'renders' ): RendersModel
-  get( type: 'session' ): SessionModel
+  get( type: 'sessions' ): SessionModel
   get( type: 'storage' ): StorageStatsModel
   get( type: 'users' ): UsersModel
   get( type: string ): Model<IModelEntry>
@@ -117,7 +117,7 @@ export class ModelFactory {
       return this._models[ type ];
 
     switch ( type ) {
-      case 'bucket':
+      case 'buckets':
         newModel = new BucketModel();
         break;
       case 'categories':
@@ -126,7 +126,7 @@ export class ModelFactory {
       case 'comments':
         newModel = new CommentsModel();
         break;
-      case 'file':
+      case 'files':
         newModel = new FileModel();
         break;
       case 'posts':
@@ -135,7 +135,7 @@ export class ModelFactory {
       case 'renders':
         newModel = new RendersModel();
         break;
-      case 'session':
+      case 'sessions':
         newModel = new SessionModel();
         break;
       case 'storage':

@@ -31,7 +31,7 @@ export class BucketSerializer extends Serializer {
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IBaseControler ) {
-    super( [ Factory.get( 'bucket' ) ] );
+    super( [ Factory.get( 'buckets' ) ] );
     this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
     this._options = options;
   }

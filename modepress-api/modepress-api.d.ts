@@ -433,7 +433,11 @@ declare module 'modepress' {
     type IForeignKeyOptions = {
         /** If true, then the key is allowed to be null */
         keyCanBeNull?: boolean;
-        /** If true, then key will only be nullified if the target is removed. If false, then the instance that owns this item must be removed as it cannot exist without the target. */
+        /**
+         * Determines if the model can adapt to this item not being present.
+         * If true, then item will be nullified if the target is removed.
+         * If false, then the model instance will be removed as it cannot exist without the target item.
+         */
         canAdapt?: boolean;
     };
     type IDateOptions = {
@@ -1043,7 +1047,7 @@ declare module 'modepress' {
             type Body = {
                 name: string;
             };
-            type Response = IFileEntry;
+            type Response = Partial<IFileEntry>;
         }
         /** DELETE /files/:files */
         namespace DeleteAll {
@@ -1829,13 +1833,13 @@ declare module "core/model-factory" {
          * @param model The model to setup
          */
         setupIndices(model: Model<IModelEntry>): Promise<Collection<any>>;
-        get(type: 'bucket'): BucketModel;
+        get(type: 'buckets'): BucketModel;
         get(type: 'categories'): CategoriesModel;
         get(type: 'comments'): CommentsModel;
-        get(type: 'file'): FileModel;
+        get(type: 'files'): FileModel;
         get(type: 'posts'): PostsModel;
         get(type: 'renders'): RendersModel;
-        get(type: 'session'): SessionModel;
+        get(type: 'sessions'): SessionModel;
         get(type: 'storage'): StorageStatsModel;
         get(type: 'users'): UsersModel;
         get(type: string): Model<IModelEntry>;
@@ -2242,6 +2246,7 @@ declare module "controllers/files" {
      */
     export class FilesController extends Controller {
         private _files;
+        private _stats;
         private _activeManager;
         constructor(config: IConfig);
         /**
@@ -2256,6 +2261,17 @@ declare module "controllers/files" {
          * @param searchTerm Specify a search term
          */
         getFile(fileID: string, user?: string, searchTerm?: RegExp): Promise<IFileEntry>;
+        /**
+         * Renames a file
+         * @param fileId The id of the file to rename
+         * @param name The new name of the file
+         */
+        update(fileId: string, token: Partial<IFileEntry>): Promise<IFileEntry>;
+        /**
+         * Adds an API call to a user
+         * @param user The username
+         */
+        private incrementAPI(user);
     }
 }
 declare module "controllers/buckets" {
@@ -2401,11 +2417,6 @@ declare module "controllers/buckets" {
          */
         withinAPILimit(user: string): Promise<boolean>;
         /**
-         * Adds an API call to a user
-         * @param user The username
-         */
-        incrementAPI(user: string): Promise<boolean>;
-        /**
          * Registers an uploaded part as a new user file in the local dbs
          * @param identifier The id of the file on the bucket
          * @param bucketID The id of the bucket this file belongs to
@@ -2424,12 +2435,6 @@ declare module "controllers/buckets" {
          * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
          */
         uploadStream(part: Part, bucketEntry: IBucketEntry, user: string, makePublic?: boolean, parentFile?: string | null): Promise<IFileEntry>;
-        /**
-         * Renames a file
-         * @param file The file to rename
-         * @param name The new name of the file
-         */
-        renameFile(file: IFileEntry, name: string): Promise<IFileEntry>;
         /**
          * Finds and downloads a file
          * @param fileID The file ID of the file on the bucket
@@ -3268,7 +3273,6 @@ declare module "serializers/file-serializer" {
      */
     export class FileSerializer extends Serializer {
         private _options;
-        private _buckets;
         private _files;
         /**
            * Creates an instance of the user manager
@@ -3285,7 +3289,7 @@ declare module "serializers/file-serializer" {
         /**
          * Renames a file
          */
-        private renameFile(req, res);
+        private update(req, res);
         /**
          * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
          */
