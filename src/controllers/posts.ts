@@ -170,15 +170,8 @@ export class PostsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const schema = await this._postsModel.update( { _id: new mongodb.ObjectID( id ) }, token );
-
-    if ( schema.error )
-      throw new Error( <string>schema.tokens[ 0 ].error );
-
-    if ( schema.tokens.length === 0 )
-      throw new Error( 'Could not find post with that id' );
-
-    return schema.tokens[ 0 ].instance.dbEntry;
+    const updatedPost = await this._postsModel.update( { _id: new mongodb.ObjectID( id ) }, token );
+    return updatedPost;
   }
 
   /**

@@ -69,7 +69,7 @@ describe( '3. Testing editing of posts', function() {
     const resp = await admin.put( `/api/posts/123456789012345678901234`, { title: "Simple Test 3" } );
     test.number( resp.status ).is( 500 );
     const json = await resp.json();
-    test.string( json.message ).is( "Could not find post with that id" );
+    test.string( json.message ).is( "Resource does not exist" );
   } )
 
   it( 'cannot edit a post without permission', async function() {

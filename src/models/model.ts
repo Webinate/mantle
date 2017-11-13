@@ -1,15 +1,8 @@
-﻿import { IModelEntry } from 'modepress';
+﻿import { IModelEntry, ISchemaOptions } from 'modepress';
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
 import Factory from '../core/model-factory';
-
-export interface UpdateToken<T extends IModelEntry> { error: string | boolean; instance: Schema<T> }
-
-/*
- * Describes a token returned from updating instances
- */
-export interface UpdateRequest<T> { error: boolean; tokens: Array<UpdateToken<T>> }
 
 export interface ISearchOptions<T> {
   selector?: any;
@@ -185,64 +178,39 @@ export abstract class Model<T extends IModelEntry> {
   }
 
   /**
-   * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
-   * unique fields are still being respected. An array is returned of each instance along with an error string if anything went wrong
-   * with updating the specific instance.
-   * @param selector The selector for updating instances
-   * @param data The data object that will attempt to set the instance's schema variables
-   * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
-   * went wrong when updating the specific instance, and a string message if something did in fact go wrong
+   * Updates an instance with new data. The update process will validate the new data and check that
+   * unique fields are still being respected.
+   * @param selector The selector to determine which model to update
+   * @param data The data to update the model with
    */
-  async update( selector: any, data: T ) {
-    const toRet: UpdateRequest<T> = {
-      error: false,
-      tokens: []
-    };
+  async update( selector: any, data: T, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
 
-    const schemas = await this.findInstances( { selector: selector } );
+    const schema = await this.findOne( selector );
 
-    if ( !schemas || schemas.length === 0 )
-      return toRet;
+    if ( !schema )
+      throw new Error( `Resource does not exist` );
 
-    for ( const schema of schemas ) {
+    // If we have data, then set the variables
+    if ( data )
+      schema.set( data, false );
 
-      // If we have data, then set the variables
-      if ( data )
-        schema.set( data, false );
+    // Make sure the new updates are valid
+    await schema.validate( false );
 
-      try {
-        // Make sure the new updates are valid
-        await schema.validate( false );
+    // Make sure any unique fields are still being respected
+    const unique = await this.checkUniqueness( schema, schema.dbEntry._id );
 
-        // Make sure any unique fields are still being respected
-        const unique = await this.checkUniqueness( schema, schema.dbEntry._id );
+    if ( !unique )
+      throw new Error( `'${this.schema.uniqueFieldNames()}' must be unique` );
 
-        if ( !unique ) {
-          toRet.error = true;
-          toRet.tokens.push( {
-            error: `'${this.schema.uniqueFieldNames()}' must be unique`,
-            instance: schema
-          } as UpdateToken<T> );
-          continue;
-        }
+    // Transform the schema into a JSON ready format
+    const json = schema.serialize();
+    const collection = this.collection;
+    await collection.updateOne( { _id: schema.dbEntry._id }, { $set: json } );
 
-        // Transform the schema into a JSON ready format
-        const json = schema.serialize();
-        const collection = this.collection;
-        await collection.updateOne( { _id: schema.dbEntry._id }, { $set: json } );
-
-        // Now that everything has been added, we can do some post insert/update validation
-        await schema.postUpsert( this._collectionName );
-
-        toRet.tokens.push( { error: false, instance: schema as Schema<T> } );
-
-      } catch ( err ) {
-        toRet.error = true;
-        toRet.tokens.push( { error: err.message, instance: schema as Schema<T> } );
-      };
-    };
-
-    return toRet;
+    // Now that everything has been added, we can do some post insert/update validation
+    await schema.postUpsert( this._collectionName );
+    return schema.getAsJson( options );
   }
 
   /**

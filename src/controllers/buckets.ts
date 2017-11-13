@@ -520,8 +520,6 @@ export class BucketsController extends Controller {
     return file;
   }
 
-
-
   /**
    * Renames a file
    * @param file The file to rename

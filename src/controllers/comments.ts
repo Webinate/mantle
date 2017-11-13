@@ -177,18 +177,8 @@ export class CommentsController extends Controller {
   async update( id: string, token: IComment ) {
     const comments = this._commentsModel;
     const findToken: IComment = { _id: new mongodb.ObjectID( id ) };
-
-    const schema = await comments.findOne( findToken );
-
-    if ( !schema )
-      throw new Error( 'Could not find comment with that id' );
-
-    const instance = await comments.update( findToken, token );
-
-    if ( instance.error )
-      throw new Error( <string>instance.tokens[ 0 ].error );
-
-    return instance.tokens[ 0 ].instance.dbEntry;
+    const updatedComment = await comments.update( findToken, token );
+    return updatedComment;
   }
 
   /**

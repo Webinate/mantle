@@ -1849,17 +1849,9 @@ declare module "core/model-factory" {
     export default _default;
 }
 declare module "models/model" {
-    import { IModelEntry } from 'modepress';
+    import { IModelEntry, ISchemaOptions } from 'modepress';
     import { Collection, Db, ObjectID } from 'mongodb';
     import { Schema } from "models/schema";
-    export interface UpdateToken<T extends IModelEntry> {
-        error: string | boolean;
-        instance: Schema<T>;
-    }
-    export interface UpdateRequest<T> {
-        error: boolean;
-        tokens: Array<UpdateToken<T>>;
-    }
     export interface ISearchOptions<T> {
         selector?: any;
         sort?: {
@@ -1915,15 +1907,12 @@ declare module "models/model" {
            */
         deleteInstances(selector: any): Promise<number>;
         /**
-         * Updates a selection of instances. The update process will fetch all instances, validate the new data and check that
-         * unique fields are still being respected. An array is returned of each instance along with an error string if anything went wrong
-         * with updating the specific instance.
-         * @param selector The selector for updating instances
-         * @param data The data object that will attempt to set the instance's schema variables
-         * @returns {Promise<UpdateRequest<T>>} An array of objects that contains the field error and instance. Error is false if nothing
-         * went wrong when updating the specific instance, and a string message if something did in fact go wrong
+         * Updates an instance with new data. The update process will validate the new data and check that
+         * unique fields are still being respected.
+         * @param selector The selector to determine which model to update
+         * @param data The data to update the model with
          */
-        update(selector: any, data: T): Promise<UpdateRequest<T>>;
+        update(selector: any, data: T, options?: ISchemaOptions): Promise<T>;
         /**
          * Checks if the schema item being ammended is unique
          */
