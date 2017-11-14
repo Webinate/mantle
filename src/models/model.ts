@@ -183,7 +183,7 @@ export abstract class Model<T extends IModelEntry> {
    * @param selector The selector to determine which model to update
    * @param data The data to update the model with
    */
-  async update( selector: any, data: T, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
+  async update( selector: any, data: Partial<T>, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
 
     const schema = await this.findOne( selector );
 

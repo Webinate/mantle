@@ -531,13 +531,13 @@ declare module 'modepress' {
      * The interface for describing each user's bucket
      */
     interface IBucketEntry {
-        _id?: any;
-        name?: string;
-        identifier?: string;
-        user?: string;
-        created?: number;
-        memoryUsed?: number;
-        meta?: any;
+        _id: any;
+        name: string;
+        identifier: string;
+        user: string;
+        created: number;
+        memoryUsed: number;
+        meta: any;
     }
 }
 declare module 'modepress' {
@@ -565,20 +565,20 @@ declare module 'modepress' {
      * The interface for describing each user's file
      */
     interface IFileEntry {
-        _id?: any;
-        name?: string;
-        user?: string;
-        identifier?: string;
-        bucketId?: string;
-        bucketName?: string;
-        publicURL?: string;
-        created?: number;
-        size?: number;
-        mimeType?: string;
-        isPublic?: boolean;
-        numDownloads?: number;
-        parentFile?: string | null;
-        meta?: any;
+        _id: any;
+        name: string;
+        user: string;
+        identifier: string;
+        bucketId: string;
+        bucketName: string;
+        publicURL: string;
+        created: number;
+        size: number;
+        mimeType: string;
+        isPublic: boolean;
+        numDownloads: number;
+        parentFile: string | null;
+        meta: any;
     }
 }
 declare module 'modepress' {
@@ -1215,7 +1215,7 @@ declare module "models/schema" {
          * @param data The data object we are setting
          * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
          */
-        set(data: T, allowReadOnlyValues: boolean): void;
+        set(data: Partial<T>, allowReadOnlyValues: boolean): void;
         /**
          * Sets a schema value by name
          * @param name The name of the schema item
@@ -1916,7 +1916,7 @@ declare module "models/model" {
          * @param selector The selector to determine which model to update
          * @param data The data to update the model with
          */
-        update(selector: any, data: T, options?: ISchemaOptions): Promise<T>;
+        update(selector: any, data: Partial<T>, options?: ISchemaOptions): Promise<T>;
         /**
          * Checks if the schema item being ammended is unique
          */
@@ -2290,6 +2290,30 @@ declare module "controllers/files" {
          * @param user The username
          */
         private incrementAPI(user);
+        /**
+         * Deletes the file from storage and updates the databases
+         * @param fileEntry
+         */
+        private deleteFile(fileEntry);
+        /**
+         * Attempts to remove files from the cloud and database by a query
+         * @param searchQuery The query we use to select the files
+         * @returns Returns the file IDs of the files removed
+         */
+        removeFiles(searchQuery: any): Promise<string[]>;
+        /**
+         * Attempts to remove files from the cloud and database
+        * @param fileIDs The file IDs to remove
+        * @param user Optionally pass in the user to refine the search
+        * @returns Returns the file IDs of the files removed
+        */
+        removeFilesByIdentifiers(fileIDs: string[], user?: string): Promise<string[]>;
+        /**
+         * Attempts to remove files from the cloud and database that are in a given bucket
+         * @param bucket The id or name of the bucket to remove
+         * @returns Returns the file IDs of the files removed
+         */
+        removeFilesByBucket(bucket: string): Promise<string[]>;
     }
 }
 declare module "controllers/buckets" {
@@ -2375,30 +2399,6 @@ declare module "controllers/buckets" {
          * Deletes the bucket from storage and updates the databases
          */
         private deleteBucket(bucketEntry);
-        /**
-         * Deletes the file from storage and updates the databases
-         * @param fileEntry
-         */
-        private deleteFile(fileEntry);
-        /**
-         * Attempts to remove files from the cloud and database by a query
-         * @param searchQuery The query we use to select the files
-         * @returns Returns the file IDs of the files removed
-         */
-        removeFiles(searchQuery: any): Promise<string[]>;
-        /**
-         * Attempts to remove files from the cloud and database
-        * @param fileIDs The file IDs to remove
-        * @param user Optionally pass in the user to refine the search
-        * @returns Returns the file IDs of the files removed
-        */
-        removeFilesByIdentifiers(fileIDs: string[], user?: string): Promise<string[]>;
-        /**
-         * Attempts to remove files from the cloud and database that are in a given bucket
-         * @param bucket The id or name of the bucket to remove
-         * @returns Returns the file IDs of the files removed
-         */
-        removeFilesByBucket(bucket: string): Promise<string[]>;
         /**
          * Gets a bucket entry by its name or ID
          * @param bucket The id of the bucket. You can also use the name if you provide the user
@@ -3116,6 +3116,7 @@ declare module "serializers/bucket-serializer" {
         private _options;
         private _userController;
         private _bucketController;
+        private _files;
         /**
            * Creates an instance of the user manager
            */

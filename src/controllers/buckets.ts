@@ -40,7 +40,6 @@ export class BucketsController extends Controller {
     localBucket.initialize( this._config.remotes.local as ILocalBucket );
     this._activeManager = localBucket;
     this._filesController = ControllerFactory.get( 'files' );
-    this._filesController;
   }
 
   /**
@@ -50,7 +49,7 @@ export class BucketsController extends Controller {
    */
   async getBucketEntries( user?: string, searchTerm?: RegExp ) {
     const bucketCollection = this._buckets;
-    const search: IBucketEntry = {};
+    const search: Partial<IBucketEntry> = {};
     if ( user )
       search.user = user;
 
@@ -61,10 +60,6 @@ export class BucketsController extends Controller {
     const buckets = await bucketCollection.find( search ).toArray();
     return buckets;
   }
-
-
-
-
 
   /**
    * Updates all file entries for a given search criteria with custom meta data
@@ -134,7 +129,7 @@ export class BucketsController extends Controller {
     this._stats;
     await this.removeBucketsByUser( user );
     await this.removeUserStats( user );
-    await this.removeFiles( { user: user } as IFileEntry );
+    await this._filesController.removeFiles( { user: user } as Partial<IFileEntry> );
     return;
   }
 
@@ -149,7 +144,7 @@ export class BucketsController extends Controller {
     const stats = this._stats;
 
     // Get the entry
-    let bucketEntry = await this.getIBucket( name, user );
+    let bucketEntry: Partial<IBucketEntry> | null = await this.getIBucket( name, user );
 
     // Make sure no bucket already exists with that name
     if ( bucketEntry )
@@ -177,7 +172,7 @@ export class BucketsController extends Controller {
     // Send bucket added events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.BucketUploaded ], bucket: bucketEntry!, username: user };
     await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user ) );
-    return bucketEntry!;
+    return bucketEntry! as IBucketEntry;
   }
 
   /**
@@ -220,7 +215,7 @@ export class BucketsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( 'Please use a valid object id' );
 
-    const query: IBucketEntry = { _id: new ObjectID( id ) };
+    const query: Partial<IBucketEntry> = { _id: new ObjectID( id ) };
     const bucket = await this._buckets.findOne( query );
 
     if ( !bucket )
@@ -247,7 +242,7 @@ export class BucketsController extends Controller {
 
     try {
       // First remove all bucket files
-      await this.removeFilesByBucket( bucketEntry.identifier! );
+      await this._filesController.removeFilesByBucket( bucketEntry.identifier! );
     } catch ( err ) {
       throw new Error( `Could not remove the bucket: '${err.toString()}'` );
     }
@@ -265,87 +260,7 @@ export class BucketsController extends Controller {
     return bucketEntry;
   }
 
-  /**
-   * Deletes the file from storage and updates the databases
-   * @param fileEntry
-   */
-  private async deleteFile( fileEntry: IFileEntry ) {
-    const bucketCollection = this._buckets;
-    const files = this._files;
-    const stats = this._stats;
 
-    const bucketEntry = await this.getIBucket( fileEntry.bucketId! );
-    const bucketId = bucketEntry ? bucketEntry.identifier! : fileEntry.bucketId!;
-
-    // Get the bucket and delete the file
-    await this._activeManager.removeFile( bucketId, fileEntry.identifier! );
-
-    // Update the bucket data usage
-    await bucketCollection.updateOne( { identifier: bucketId } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
-    await files.deleteOne( { _id: fileEntry._id } as IFileEntry );
-    await stats.updateOne( { user: fileEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats } as IStorageStats );
-
-    // Update any listeners on the sockets
-    const token = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };
-    await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, fileEntry.user ) );
-
-    return fileEntry;
-  }
-
-  /**
-   * Attempts to remove files from the cloud and database by a query
-   * @param searchQuery The query we use to select the files
-   * @returns Returns the file IDs of the files removed
-   */
-  async removeFiles( searchQuery: any ) {
-    const files = this._files;
-    const filesRemoved: Array<string> = [];
-
-    // Get the files
-    const fileEntries: Array<IFileEntry> = await files.find( searchQuery ).toArray();
-
-    for ( let i = 0, l = fileEntries.length; i < l; i++ ) {
-      const fileEntry = await this.deleteFile( fileEntries[ i ] );
-      filesRemoved.push( fileEntry._id );
-    }
-
-    return filesRemoved;
-  }
-
-  /**
-   * Attempts to remove files from the cloud and database
-  * @param fileIDs The file IDs to remove
-  * @param user Optionally pass in the user to refine the search
-  * @returns Returns the file IDs of the files removed
-  */
-  removeFilesByIdentifiers( fileIDs: string[], user?: string ) {
-    if ( fileIDs.length === 0 )
-      return Promise.resolve( [] );
-
-    // Create the search query for each of the files
-    const searchQuery = { $or: [] as IFileEntry[] };
-    for ( let i = 0, l = fileIDs.length; i < l; i++ )
-      searchQuery.$or.push( { identifier: fileIDs[ i ] } as IFileEntry, { parentFile: fileIDs[ i ] } as IFileEntry );
-
-    if ( user )
-      ( searchQuery as IFileEntry ).user = user;
-
-    return this.removeFiles( searchQuery );
-  }
-
-  /**
-   * Attempts to remove files from the cloud and database that are in a given bucket
-   * @param bucket The id or name of the bucket to remove
-   * @returns Returns the file IDs of the files removed
-   */
-  removeFilesByBucket( bucket: string ) {
-    if ( !bucket || bucket.trim() === '' )
-      throw new Error( 'Please specify a valid bucket' );
-
-    // Create the search query for each of the files
-    const searchQuery = { $or: [ { bucketId: bucket }, { bucketName: bucket }] as IFileEntry[] };
-    return this.removeFiles( searchQuery );
-  }
 
   /**
    * Gets a bucket entry by its name or ID
@@ -354,7 +269,7 @@ export class BucketsController extends Controller {
    */
   async getIBucket( bucket: string, user?: string ) {
     const bucketCollection = this._buckets;
-    const searchQuery: IBucketEntry = {};
+    const searchQuery: Partial<IBucketEntry> = {};
 
     if ( user ) {
       searchQuery.user = user;
@@ -421,7 +336,7 @@ export class BucketsController extends Controller {
     const files = this._files;
 
     return new Promise<IFileEntry>( ( resolve, reject ) => {
-      const entry: IFileEntry = {
+      const entry: Partial<IFileEntry> = {
         name: ( part.filename || part.name ),
         user: user,
         identifier: identifier,

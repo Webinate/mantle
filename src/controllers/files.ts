@@ -8,6 +8,9 @@ import ModelFactory from '../core/model-factory';
 import { StorageStatsModel } from '../models/storage-stats-model';
 import { isValidObjectID } from '../utils/utils';
 import { BucketModel } from '../models/bucket-model';
+import { CommsController } from '../socket-api/comms-controller';
+import { ClientInstruction } from '../socket-api/client-instruction';
+import { ClientInstructionType } from '../socket-api/socket-event-types';
 
 export type GetOptions = {
   bucketId?: string;
@@ -42,8 +45,6 @@ export class FilesController extends Controller {
     this._files = ModelFactory.get( 'files' );
     this._buckets = ModelFactory.get( 'buckets' );
     this._stats = ModelFactory.get( 'storage' );
-
-    this._activeManager;
   }
 
   /**
@@ -54,7 +55,7 @@ export class FilesController extends Controller {
    */
   async getFile( fileID: string, user?: string, searchTerm?: RegExp ) {
     const files = this._files;
-    const searchQuery: IFileEntry = { identifier: fileID };
+    const searchQuery: Partial<IFileEntry> = { identifier: fileID };
     if ( user )
       searchQuery.user = user;
 
@@ -76,13 +77,13 @@ export class FilesController extends Controller {
     const files = this._files;
     const buckets = this._buckets;
 
-    const searchQuery: IFileEntry = {};
+    const searchQuery: Partial<IFileEntry> = {};
 
     if ( options.bucketId ) {
       if ( !isValidObjectID( options.bucketId ) )
         throw new Error( 'Please use a valid identifier for bucketId' );
 
-      const bucketQuery: IBucketEntry = { _id: new ObjectID( options.bucketId ) };
+      const bucketQuery: Partial<IBucketEntry> = { _id: new ObjectID( options.bucketId ) };
       if ( options.user )
         bucketQuery.user = options.user;
 
@@ -166,5 +167,87 @@ export class FilesController extends Controller {
     const stats = this._stats.collection;
     await stats.update( { user: user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
     return true;
+  }
+
+  /**
+   * Deletes the file from storage and updates the databases
+   * @param fileEntry
+   */
+  private async deleteFile( fileEntry: IFileEntry ) {
+    const buckets = this._buckets;
+    const files = this._files;
+    const stats = this._stats;
+
+    const bucketEntry = await buckets.findOne( fileEntry.bucketId );
+    const bucketId = bucketEntry ? bucketEntry.dbEntry.identifier : fileEntry.bucketId;
+
+    // Get the bucket and delete the file
+    await this._activeManager.removeFile( bucketId, fileEntry.identifier );
+
+    // Update the bucket data usage
+    await buckets.collection.updateOne( { identifier: bucketId } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
+    await files.collection.deleteOne( { _id: fileEntry._id } as IFileEntry );
+    await stats.collection.updateOne( { user: fileEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats } as IStorageStats );
+
+    // Update any listeners on the sockets
+    const token = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };
+    await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, fileEntry.user ) );
+
+    return fileEntry;
+  }
+
+  /**
+   * Attempts to remove files from the cloud and database by a query
+   * @param searchQuery The query we use to select the files
+   * @returns Returns the file IDs of the files removed
+   */
+  async removeFiles( searchQuery: any ) {
+    const files = this._files;
+    const filesRemoved: Array<string> = [];
+
+    // Get the files
+    const fileEntries: Array<IFileEntry> = await files.collection.find( searchQuery ).toArray();
+
+    for ( let i = 0, l = fileEntries.length; i < l; i++ ) {
+      const fileEntry = await this.deleteFile( fileEntries[ i ] );
+      filesRemoved.push( fileEntry._id );
+    }
+
+    return filesRemoved;
+  }
+
+  /**
+   * Attempts to remove files from the cloud and database
+  * @param fileIDs The file IDs to remove
+  * @param user Optionally pass in the user to refine the search
+  * @returns Returns the file IDs of the files removed
+  */
+  removeFilesByIdentifiers( fileIDs: string[], user?: string ) {
+    if ( fileIDs.length === 0 )
+      return Promise.resolve( [] );
+
+    // Create the search query for each of the files
+    const searchQuery = { $or: [] as Partial<IFileEntry>[] };
+    for ( let i = 0, l = fileIDs.length; i < l; i++ )
+      searchQuery.$or.push( { identifier: fileIDs[ i ] } as IFileEntry, { parentFile: fileIDs[ i ] } as IFileEntry );
+
+    if ( user )
+      ( searchQuery as Partial<IFileEntry> ).user = user;
+
+    return this.removeFiles( searchQuery );
+  }
+
+  /**
+   * Attempts to remove files from the cloud and database that are in a given bucket
+   * @param bucket The id or name of the bucket to remove
+   * @returns Returns the file IDs of the files removed
+   */
+  removeFilesByBucket( bucket: string ) {
+    if ( !bucket || bucket.trim() === '' )
+      throw new Error( 'Please specify a valid bucket' );
+
+    // Create the search query for each of the files
+    const searchQuery = { $or: [ { bucketId: bucket }, { bucketName: bucket }] as IFileEntry[] };
+    return this.removeFiles( searchQuery );
   }
 }

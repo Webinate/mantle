@@ -30,7 +30,7 @@ export class Schema<T extends IModelEntry> {
    * @param data The data object we are setting
    * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
    */
-  set( data: T, allowReadOnlyValues: boolean ) {
+  set( data: Partial<T>, allowReadOnlyValues: boolean ) {
     const items = this._items;
 
     this.dbEntry = { ...this.dbEntry as any, ...data as any };

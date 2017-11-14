@@ -56,14 +56,13 @@ export class FileSerializer extends Serializer {
    */
   private async removeFiles( req: IAuthReq, res: express.Response ) {
     try {
-      const manager = ControllerFactory.get( 'buckets' );
       let files: Array<string>;
 
       if ( !req.params.files || req.params.files.trim() === '' )
         throw new Error( 'Please specify the files to remove' );
 
       files = req.params.files.split( ',' );
-      const filesRemoved = await manager.removeFilesByIdentifiers( files, req._user!.username );
+      const filesRemoved = await this._files.removeFilesByIdentifiers( files, req._user!.username );
 
       okJson<FileTokens.DeleteAll.Response>( {
         data: filesRemoved,

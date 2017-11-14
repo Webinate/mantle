@@ -17,6 +17,7 @@ import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { okJson, errJson, j200 } from '../utils/response-decorators';
 import { IBaseControler } from 'modepress';
 import Factory from '../core/model-factory';
+import { FilesController } from '../controllers/files';
 
 /**
  * Main class to use for managing users
@@ -26,6 +27,7 @@ export class BucketSerializer extends Serializer {
   private _options: IBaseControler;
   private _userController: UsersController;
   private _bucketController: BucketsController;
+  private _files: FilesController;
 
   /**
 	 * Creates an instance of the user manager
@@ -43,6 +45,7 @@ export class BucketSerializer extends Serializer {
 
     this._userController = ControllerFactory.get( 'users' );
     this._bucketController = ControllerFactory.get( 'buckets' );
+    this._files = ControllerFactory.get( 'files' );
 
     // Setup the rest calls
     const router = express.Router();
@@ -369,7 +372,7 @@ export class BucketSerializer extends Serializer {
       if ( meta && meta instanceof Error ) {
         error = true;
         const fileIds: Array<string> = files.map( file => file.identifier!.toString() );
-        await manager.removeFilesByIdentifiers( fileIds );
+        await this._files.removeFilesByIdentifiers( fileIds );
 
         files = [];
         tokens = [];
