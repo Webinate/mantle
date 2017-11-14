@@ -62,12 +62,12 @@ export class FilesController extends Controller {
     if ( searchTerm )
       searchQuery.name = searchTerm as any;
 
-    const result = await files.findOne( searchQuery );
+    const file = await files.findOne( searchQuery, { verbose: true } );
 
-    if ( !result )
+    if ( !file )
       throw new Error( `File '${fileID}' does not exist` );
 
-    return result.getAsJson( { verbose: true } );
+    return file;
   }
 
   /**
@@ -87,7 +87,7 @@ export class FilesController extends Controller {
       if ( options.user )
         bucketQuery.user = options.user;
 
-      const bucketEntry = await buckets.findOne( bucketQuery );
+      const bucketEntry = await buckets.findOne( bucketQuery, { verbose: true } );
 
       if ( !bucketEntry )
         throw new Error( `Could not find the bucket resource` );
@@ -149,12 +149,12 @@ export class FilesController extends Controller {
       throw new Error( 'Invalid ID format' );
 
     const query = { _id: new ObjectID( fileId ) };
-    const fileSchema = await this._files.findOne( query );
+    const file = await this._files.findOne( query, { verbose: true } );
 
-    if ( !fileSchema )
+    if ( !file )
       throw new Error( 'Resource not found' );
 
-    await this.incrementAPI( fileSchema.dbEntry.user! );
+    await this.incrementAPI( file.user! );
     const toRet = await files.update( query, token );
     return toRet;
   }
@@ -178,8 +178,8 @@ export class FilesController extends Controller {
     const files = this._files;
     const stats = this._stats;
 
-    const bucketEntry = await buckets.findOne( fileEntry.bucketId );
-    const bucketId = bucketEntry ? bucketEntry.dbEntry.identifier : fileEntry.bucketId;
+    const bucketEntry = await buckets.findOne( fileEntry.bucketId, { verbose: true } );
+    const bucketId = bucketEntry ? bucketEntry.identifier : fileEntry.bucketId;
 
     // Get the bucket and delete the file
     await this._activeManager.removeFile( bucketId, fileEntry.identifier );

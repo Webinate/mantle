@@ -90,15 +90,21 @@ export abstract class Model<T extends IModelEntry> {
 
   /**
    * Gets a model instance based on the selector criteria
-   * @param selector The mongodb selector
-   * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
+   * @param selector The selector object for selecting files
+   * @param options [Optional] If options provided, the resource itself is returned instead of its schema
    */
-  async findOne( selector: any, projection?: any ) {
-    const instances = await this.findInstances( { selector: selector, projection: projection, limit: 1 } );
+  async findOne( selector: any ): Promise<Schema<T> | null>
+  async findOne( selector: any, options: ISchemaOptions ): Promise<T | null>
+  async findOne( selector: any, options?: ISchemaOptions ) {
+    const instances = await this.findInstances( { selector: selector, limit: 1 } );
     if ( !instances || instances.length === 0 )
       return null;
-    else
-      return instances[ 0 ];
+    else {
+      if ( options )
+        return instances[ 0 ].getAsJson( options );
+      else
+        return instances[ 0 ];
+    }
   }
 
   /**

@@ -131,21 +131,20 @@ export class CommentsController extends Controller {
   async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
     const comments = this._commentsModel;
     const findToken: IComment = { _id: new mongodb.ObjectID( id ) };
-    const schema = await comments.findOne( findToken );
-
-    if ( !isValidObjectID( id ) )
-      throw new Error( `Please use a valid object id` );
-
-    if ( !schema )
-      throw new Error( 'Could not find comment' );
-
-    const sanitizedData = await schema.getAsJson( {
+    const comment = await comments.findOne( findToken, {
       verbose: options.verbose || true,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
       expandSchemaBlacklist: [ 'parent' ]
     } );
 
+    if ( !isValidObjectID( id ) )
+      throw new Error( `Please use a valid object id` );
+
+    if ( !comment )
+      throw new Error( 'Could not find comment' );
+
+    const sanitizedData = await comment;
     return sanitizedData;
   }
 
@@ -160,9 +159,9 @@ export class CommentsController extends Controller {
     const comments = this._commentsModel;
     const findToken: IComment = { _id: new mongodb.ObjectID( id ) };
 
-    const schema = await comments.findOne( findToken );
+    const comment = await comments.findOne( findToken, { verbose: true } );
 
-    if ( !schema )
+    if ( !comment )
       throw new Error( 'Could not find a comment with that ID' );
 
     // Attempt to delete the instances

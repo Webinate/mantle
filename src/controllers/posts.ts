@@ -202,12 +202,12 @@ export class PostsController extends Controller {
     if ( options.public !== undefined )
       findToken.public = options.public;
 
-    const schema = await posts!.findOne( findToken );
+    const post = await posts!.findOne( findToken, { verbose: options.verbose !== undefined ? options.verbose : true } );
 
-    if ( !schema )
+    if ( !post )
       throw new Error( 'Could not find post' );
 
-    const sanitizedData = await schema.getAsJson( { verbose: options.verbose !== undefined ? options.verbose : true } );
+    const sanitizedData = await post;
     return sanitizedData;
   }
 }

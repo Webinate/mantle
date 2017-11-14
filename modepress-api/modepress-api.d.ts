@@ -1898,10 +1898,9 @@ declare module "models/model" {
         findInstances(options?: ISearchOptions<T>): Promise<Schema<T>[]>;
         /**
          * Gets a model instance based on the selector criteria
-         * @param selector The mongodb selector
-         * @param projection See http://docs.mongodb.org/manual/reference/method/db.collection.find/#projections
          */
-        findOne(selector: any, projection?: any): Promise<Schema<T> | null>;
+        findOne(selector: any): Promise<Schema<T> | null>;
+        findOne(selector: any, options: ISchemaOptions): Promise<T | null>;
         /**
          * Deletes a instance and all its dependencies are updated or deleted accordingly
          */

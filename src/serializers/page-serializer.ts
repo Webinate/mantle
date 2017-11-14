@@ -4,7 +4,6 @@ import { error as logError, info } from '../utils/logger';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Serializer } from './serializer';
-import { Schema } from '../models/schema';
 import * as url from 'url';
 import * as jsdom from 'jsdom';
 import { okJson, errJson, j200 } from '../utils/response-decorators';
@@ -226,16 +225,16 @@ export class PageSerializer extends Serializer {
 
     const model = this.getModel( 'renders' )! as Model<IRender>;
     const url = this.getUrl( req );
-    let schema: Schema<IRender> | null = null;
+    let render: IRender | null = null;
     let expiration = 0;
 
     try {
-      schema = await model.findOne( { url: url } );
+      render = await model.findOne( { url: url }, { verbose: true } );
       let html = '';
 
-      if ( schema ) {
-        expiration = schema.dbEntry.expiration!;
-        let html = schema.dbEntry.html!;
+      if ( render ) {
+        expiration = render.expiration!;
+        let html = render.html!;
 
         if ( Date.now() > expiration )
           html = await this.renderPage( url );
@@ -245,13 +244,13 @@ export class PageSerializer extends Serializer {
       else
         html = await this.renderPage( url );
 
-      if ( !schema ) {
+      if ( !render ) {
         info( `Saving render '${url}'` );
         await model.createInstance( { expiration: Date.now() + this.expiration, html: html, url: url } );
       }
       else if ( Date.now() > expiration ) {
         info( `Updating render '${url}'` );
-        await model.update( { _id: schema.dbEntry._id }, { expiration: Date.now() + this.expiration, html: html } );
+        await model.update( { _id: render._id }, { expiration: Date.now() + this.expiration, html: html } );
       }
 
       info( 'Sending back render without script tags' );
