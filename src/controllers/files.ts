@@ -209,7 +209,7 @@ export class FilesController extends Controller {
    * @param searchQuery The query we use to select the files
    * @returns Returns the file IDs of the files removed
    */
-  async removeFiles2( options: DeleteOptions ) {
+  async removeFiles( options: DeleteOptions ) {
     const files = this._files;
     const buckets = this._buckets;
     const query: Partial<IFileEntry> = {};

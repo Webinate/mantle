@@ -127,7 +127,7 @@ export class BucketsController extends Controller {
   async removeUser( user: string ) {
     await this.removeBucketsByUser( user );
     await this.removeUserStats( user );
-    await this._filesController.removeFiles2( { user: user } );
+    await this._filesController.removeFiles( { user: user } );
     return;
   }
 
@@ -240,7 +240,7 @@ export class BucketsController extends Controller {
 
     try {
       // First remove all bucket files
-      await this._filesController.removeFiles2( { bucketId: bucketEntry._id } );
+      await this._filesController.removeFiles( { bucketId: bucketEntry._id } );
     } catch ( err ) {
       throw new Error( `Could not remove the bucket: '${err.toString()}'` );
     }

@@ -2312,7 +2312,7 @@ declare module "controllers/files" {
          * @param searchQuery The query we use to select the files
          * @returns Returns the file IDs of the files removed
          */
-        removeFiles2(options: DeleteOptions): Promise<void>;
+        removeFiles(options: DeleteOptions): Promise<void>;
     }
 }
 declare module "controllers/buckets" {
