@@ -6,7 +6,7 @@ import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import ControllerFactory from '../core/controller-factory';
 import * as compression from 'compression';
-import { okJson, errJson, j200 } from '../utils/response-decorators';
+import { j200 } from '../utils/response-decorators';
 import { IFileOptions } from 'modepress';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
@@ -41,7 +41,7 @@ export class FileSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/users/:user/buckets/:bucket', <any>[ ownerRights, this.getFiles.bind( this ) ] );
-    router.delete( '/:files', <any>[ requireUser, this.removeFiles.bind( this ) ] );
+    router.delete( '/:file', <any>[ requireUser, this.remove.bind( this ) ] );
     router.put( '/:file', <any>[ requireUser, this.update.bind( this ) ] );
 
     // Register the path
@@ -52,28 +52,11 @@ export class FileSerializer extends Serializer {
   }
 
   /**
-   * Removes files specified in the URL
+   * Removes a file specified in the URL
    */
-  private async removeFiles( req: IAuthReq, res: express.Response ) {
-    try {
-      let files: Array<string>;
-
-      if ( !req.params.files || req.params.files.trim() === '' )
-        throw new Error( 'Please specify the files to remove' );
-
-      files = req.params.files.split( ',' );
-      const filesRemoved = await this._files.removeFilesByIdentifiers( files, req._user!.username );
-
-      okJson<FileTokens.DeleteAll.Response>( {
-        data: filesRemoved,
-        count: filesRemoved.length,
-        index: 0,
-        limit: -1
-      }, res );
-
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+  @j200( 204 )
+  private async remove( req: IAuthReq, res: express.Response ) {
+    await this._files.removeFiles2( { fileId: req.params.file, user: req._user!.username } );
   }
 
   /**

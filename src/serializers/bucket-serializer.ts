@@ -371,8 +371,8 @@ export class BucketSerializer extends Serializer {
       // If we have any an error with the meta, then remove all the uploaded files
       if ( meta && meta instanceof Error ) {
         error = true;
-        const fileIds: Array<string> = files.map( file => file.identifier!.toString() );
-        await this._files.removeFilesByIdentifiers( fileIds );
+        const promises = files.map( file => this._files.removeFiles2( { fileId: file._id } ) );
+        await Promise.all( promises );
 
         files = [];
         tokens = [];

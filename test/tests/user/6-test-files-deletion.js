@@ -36,22 +36,20 @@ describe( '6. Testing files deletion', function() {
     const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     const json = await resp.json();
     test.number( resp.status ).is( 200 );
-    fileId = json.data[ 0 ].identifier;
+    fileId = json.data[ 0 ]._id;
     test.array( json.data ).hasLength( 1 );
   } )
 
   it( 'regular user did not remove a file with a bad id', async function() {
     const resp = await user1.delete( `/files/123` );
     const json = await resp.json();
-    test.number( resp.status ).is( 200 );
-    test.array( json.data ).hasLength( 0 );
+    test.number( resp.status ).is( 500 );
+    test.string( json.message ).is( 'Invalid file ID format' );
   } )
 
   it( 'regular user did remove a file with a valid id', async function() {
     const resp = await user1.delete( `/files/${fileId}` );
-    const json = await resp.json();
-    test.number( resp.status ).is( 200 );
-    test.array( json.data ).hasLength( 1 );
+    test.number( resp.status ).is( 204 );
   } )
 
   it( 'regular user has 0 files', async function() {

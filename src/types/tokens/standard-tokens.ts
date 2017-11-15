@@ -172,8 +172,8 @@ declare module 'modepress' {
     export namespace GetAll { export type Body = void; export type Response = Page<IFileEntry>; }
     /** PUT /files/:file/rename-file */
     export namespace Put { export type Body = { name: string }; export type Response = Partial<IFileEntry>; }
-    /** DELETE /files/:files */
-    export namespace DeleteAll { export type Body = void; export type Response = Page<string>; }
+    /** DELETE /files/:file */
+    export namespace DeleteAll { export type Body = void; export type Response = void; }
   }
 
   export namespace BucketTokens {

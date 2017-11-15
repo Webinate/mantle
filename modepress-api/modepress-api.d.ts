@@ -526,18 +526,21 @@ declare module 'modepress' {
         expandSchemaBlacklist?: Array<string>;
     }
 }
-declare module 'modepress' {
-    /**
-     * The interface for describing each user's bucket
-     */
-    interface IBucketEntry {
-        _id: any;
-        name: string;
-        identifier: string;
-        user: string;
-        created: number;
-        memoryUsed: number;
-        meta: any;
+declare module "types/models/i-bucket-entry" {
+    import { ObjectID } from 'mongodb';
+    module 'modepress' {
+        /**
+         * The interface for describing each user's bucket
+         */
+        interface IBucketEntry {
+            _id: string | ObjectID;
+            name: string;
+            identifier: string;
+            user: string;
+            created: number;
+            memoryUsed: number;
+            meta: any;
+        }
     }
 }
 declare module 'modepress' {
@@ -560,25 +563,28 @@ declare module 'modepress' {
         lastUpdated?: number;
     }
 }
-declare module 'modepress' {
-    /**
-     * The interface for describing each user's file
-     */
-    interface IFileEntry {
-        _id: any;
-        name: string;
-        user: string;
-        identifier: string;
-        bucketId: string;
-        bucketName: string;
-        publicURL: string;
-        created: number;
-        size: number;
-        mimeType: string;
-        isPublic: boolean;
-        numDownloads: number;
-        parentFile: string | null;
-        meta: any;
+declare module "types/models/i-file-entry" {
+    import { ObjectID } from 'mongodb';
+    module 'modepress' {
+        /**
+         * The interface for describing each user's file
+         */
+        interface IFileEntry {
+            _id: string | ObjectID;
+            name: string;
+            user: string;
+            identifier: string;
+            bucketId: string | ObjectID;
+            bucketName: string;
+            publicURL: string;
+            created: number;
+            size: number;
+            mimeType: string;
+            isPublic: boolean;
+            numDownloads: number;
+            parentFile: string | null;
+            meta: any;
+        }
     }
 }
 declare module 'modepress' {
@@ -1049,10 +1055,10 @@ declare module 'modepress' {
             };
             type Response = Partial<IFileEntry>;
         }
-        /** DELETE /files/:files */
+        /** DELETE /files/:file */
         namespace DeleteAll {
             type Body = void;
-            type Response = Page<string>;
+            type Response = void;
         }
     }
     namespace BucketTokens {
@@ -1898,6 +1904,8 @@ declare module "models/model" {
         findInstances(options?: ISearchOptions<T>): Promise<Schema<T>[]>;
         /**
          * Gets a model instance based on the selector criteria
+         * @param selector The selector object for selecting files
+         * @param options [Optional] If options provided, the resource itself is returned instead of its schema
          */
         findOne(selector: any): Promise<Schema<T> | null>;
         findOne(selector: any, options: ISchemaOptions): Promise<T | null>;
@@ -2238,15 +2246,20 @@ declare module "core/remotes/local-bucket" {
 }
 declare module "controllers/files" {
     import { IConfig, IFileEntry, Page } from 'modepress';
-    import { Db } from 'mongodb';
+    import { Db, ObjectID } from 'mongodb';
     import Controller from "controllers/controller";
     export type GetOptions = {
-        bucketId?: string;
+        bucketId?: string | ObjectID;
         user?: string;
         index?: number;
         limit?: number;
         searchTerm?: RegExp;
         verbose?: boolean;
+    };
+    export type DeleteOptions = {
+        bucketId?: string | ObjectID;
+        user?: string;
+        fileId?: string | ObjectID;
     };
     /**
      * Class responsible for managing files
@@ -2299,20 +2312,7 @@ declare module "controllers/files" {
          * @param searchQuery The query we use to select the files
          * @returns Returns the file IDs of the files removed
          */
-        removeFiles(searchQuery: any): Promise<string[]>;
-        /**
-         * Attempts to remove files from the cloud and database
-        * @param fileIDs The file IDs to remove
-        * @param user Optionally pass in the user to refine the search
-        * @returns Returns the file IDs of the files removed
-        */
-        removeFilesByIdentifiers(fileIDs: string[], user?: string): Promise<string[]>;
-        /**
-         * Attempts to remove files from the cloud and database that are in a given bucket
-         * @param bucket The id or name of the bucket to remove
-         * @returns Returns the file IDs of the files removed
-         */
-        removeFilesByBucket(bucket: string): Promise<string[]>;
+        removeFiles2(options: DeleteOptions): Promise<void>;
     }
 }
 declare module "controllers/buckets" {
@@ -3283,9 +3283,9 @@ declare module "serializers/file-serializer" {
          */
         initialize(e: express.Express, db: mongodb.Db): Promise<this>;
         /**
-         * Removes files specified in the URL
+         * Removes a file specified in the URL
          */
-        private removeFiles(req, res);
+        private remove(req, res);
         /**
          * Renames a file
          */

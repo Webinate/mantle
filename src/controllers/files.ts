@@ -13,12 +13,18 @@ import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 
 export type GetOptions = {
-  bucketId?: string;
+  bucketId?: string | ObjectID;
   user?: string;
   index?: number;
   limit?: number;
   searchTerm?: RegExp;
   verbose?: boolean;
+}
+
+export type DeleteOptions = {
+  bucketId?: string | ObjectID;
+  user?: string;
+  fileId?: string | ObjectID;
 }
 
 /**
@@ -80,7 +86,7 @@ export class FilesController extends Controller {
     const searchQuery: Partial<IFileEntry> = {};
 
     if ( options.bucketId ) {
-      if ( !isValidObjectID( options.bucketId ) )
+      if ( typeof ( options.bucketId ) === 'string' && !isValidObjectID( options.bucketId ) )
         throw new Error( 'Please use a valid identifier for bucketId' );
 
       const bucketQuery: Partial<IBucketEntry> = { _id: new ObjectID( options.bucketId ) };
@@ -179,14 +185,16 @@ export class FilesController extends Controller {
     const stats = this._stats;
 
     const bucketEntry = await buckets.findOne( fileEntry.bucketId, { verbose: true } );
-    const bucketId = bucketEntry ? bucketEntry.identifier : fileEntry.bucketId;
+
+    if ( !bucketEntry )
+      throw new Error( 'Bucket resource does not exist' );
 
     // Get the bucket and delete the file
-    await this._activeManager.removeFile( bucketId, fileEntry.identifier );
+    await this._activeManager.removeFile( bucketEntry.identifier, fileEntry.identifier );
 
     // Update the bucket data usage
-    await buckets.collection.updateOne( { identifier: bucketId } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
-    await files.collection.deleteOne( { _id: fileEntry._id } as IFileEntry );
+    await buckets.collection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
+    await files.deleteInstances( { _id: fileEntry._id } as IFileEntry );
     await stats.collection.updateOne( { user: fileEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats } as IStorageStats );
 
     // Update any listeners on the sockets
@@ -201,53 +209,39 @@ export class FilesController extends Controller {
    * @param searchQuery The query we use to select the files
    * @returns Returns the file IDs of the files removed
    */
-  async removeFiles( searchQuery: any ) {
+  async removeFiles2( options: DeleteOptions ) {
     const files = this._files;
-    const filesRemoved: Array<string> = [];
+    const buckets = this._buckets;
+    const query: Partial<IFileEntry> = {};
 
-    // Get the files
-    const fileEntries: Array<IFileEntry> = await files.collection.find( searchQuery ).toArray();
+    if ( options.bucketId !== undefined ) {
+      if ( typeof ( options.bucketId ) === 'string' && !isValidObjectID( options.bucketId ) )
+        throw new Error( 'Invalid bucket ID format' );
 
-    for ( let i = 0, l = fileEntries.length; i < l; i++ ) {
-      const fileEntry = await this.deleteFile( fileEntries[ i ] );
-      filesRemoved.push( fileEntry._id );
+      const bucketQuery: Partial<IBucketEntry> = { _id: new ObjectID( options.bucketId ) }
+      const bucket = await buckets.collection.findOne( bucketQuery );
+
+      if ( !bucket )
+        throw new Error( 'Bucket resource does not exist' );
+
+      query.bucketId = bucket._id;
     }
 
-    return filesRemoved;
-  }
+    if ( options.fileId !== undefined ) {
+      if ( typeof ( options.fileId ) === 'string' && !isValidObjectID( options.fileId ) )
+        throw new Error( 'Invalid file ID format' );
 
-  /**
-   * Attempts to remove files from the cloud and database
-  * @param fileIDs The file IDs to remove
-  * @param user Optionally pass in the user to refine the search
-  * @returns Returns the file IDs of the files removed
-  */
-  removeFilesByIdentifiers( fileIDs: string[], user?: string ) {
-    if ( fileIDs.length === 0 )
-      return Promise.resolve( [] );
+      query._id = new ObjectID( options.fileId );
+    }
 
-    // Create the search query for each of the files
-    const searchQuery = { $or: [] as Partial<IFileEntry>[] };
-    for ( let i = 0, l = fileIDs.length; i < l; i++ )
-      searchQuery.$or.push( { identifier: fileIDs[ i ] } as IFileEntry, { parentFile: fileIDs[ i ] } as IFileEntry );
+    if ( options.user ) {
+      query.user = options.user;
+    }
 
-    if ( user )
-      ( searchQuery as Partial<IFileEntry> ).user = user;
+    const fileEntries = await files.collection.find( query ).toArray();
+    for ( let i = 0, l = fileEntries.length; i < l; i++ )
+      await this.deleteFile( fileEntries[ i ] );
 
-    return this.removeFiles( searchQuery );
-  }
-
-  /**
-   * Attempts to remove files from the cloud and database that are in a given bucket
-   * @param bucket The id or name of the bucket to remove
-   * @returns Returns the file IDs of the files removed
-   */
-  removeFilesByBucket( bucket: string ) {
-    if ( !bucket || bucket.trim() === '' )
-      throw new Error( 'Please specify a valid bucket' );
-
-    // Create the search query for each of the files
-    const searchQuery = { $or: [ { bucketId: bucket }, { bucketName: bucket }] as IFileEntry[] };
-    return this.removeFiles( searchQuery );
+    return;
   }
 }

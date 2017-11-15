@@ -116,7 +116,6 @@ export class BucketsController extends Controller {
    */
   async removeUserStats( user: string ) {
     const stats = this._stats;
-
     const deleteResult = await stats.deleteOne( { user: user } as IStorageStats );
     return deleteResult.deletedCount!;
   }
@@ -126,10 +125,9 @@ export class BucketsController extends Controller {
    * @param user The user we are removing
    */
   async removeUser( user: string ) {
-    this._stats;
     await this.removeBucketsByUser( user );
     await this.removeUserStats( user );
-    await this._filesController.removeFiles( { user: user } as Partial<IFileEntry> );
+    await this._filesController.removeFiles2( { user: user } );
     return;
   }
 
@@ -242,7 +240,7 @@ export class BucketsController extends Controller {
 
     try {
       // First remove all bucket files
-      await this._filesController.removeFilesByBucket( bucketEntry.identifier! );
+      await this._filesController.removeFiles2( { bucketId: bucketEntry._id } );
     } catch ( err ) {
       throw new Error( `Could not remove the bucket: '${err.toString()}'` );
     }
