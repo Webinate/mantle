@@ -1,6 +1,6 @@
 {
   "name": "modepress-server",
-  "version": "0.7.9",
+  "version": "0.7.10",
   "description": "The modepress server & API",
   "main": "gulpfile.js",
   "author": "Mathew Henson",
