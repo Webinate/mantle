@@ -3650,6 +3650,10 @@ declare module "modepress-api" {
     import { StatsSerializer } from "serializers/stats-serializer";
     import { UserSerializer } from "serializers/user-serializer";
     import { AuthSerializer } from "serializers/auth-serializer";
+    import { FilesController } from "controllers/files";
+    import { StatsController } from "controllers/stats";
+    import { CommentsController } from "controllers/comments";
+    import { SessionsController } from "controllers/sessions";
     export const Controller: typeof _Controller.Serializer;
     export const Model: typeof _Models.Model;
     export const SchemaFactory: typeof _SchemaFactory;
@@ -3659,6 +3663,10 @@ declare module "modepress-api" {
         users: UsersController;
         buckets: BucketsController;
         posts: PostsController;
+        comments: CommentsController;
+        files: FilesController;
+        stats: StatsController;
+        sessions: SessionsController;
     };
     export const serializers: {
         admin: typeof AdminSerializer;

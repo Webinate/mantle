@@ -21,6 +21,10 @@ import { SessionSerializer } from './serializers/session-serializer';
 import { StatsSerializer } from './serializers/stats-serializer';
 import { UserSerializer } from './serializers/user-serializer';
 import { AuthSerializer } from './serializers/auth-serializer';
+import { FilesController } from './controllers/files';
+import { StatsController } from './controllers/stats';
+import { CommentsController } from './controllers/comments';
+import { SessionsController } from './controllers/sessions';
 
 export const Controller = _Controller.Serializer;
 export const Model = _Models.Model;
@@ -31,7 +35,11 @@ export const authentication = permissions;
 export const controllers = {
   users: ControllerFactory.get( 'users' ) as UsersController,
   buckets: ControllerFactory.get( 'buckets' ) as BucketsController,
-  posts: ControllerFactory.get( 'posts' ) as PostsController
+  posts: ControllerFactory.get( 'posts' ) as PostsController,
+  comments: ControllerFactory.get( 'comments' ) as CommentsController,
+  files: ControllerFactory.get( 'files' ) as FilesController,
+  stats: ControllerFactory.get( 'stats' ) as StatsController,
+  sessions: ControllerFactory.get( 'sessions' ) as SessionsController
 };
 
 export const serializers = {
