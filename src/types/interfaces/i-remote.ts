@@ -16,14 +16,14 @@ declare module 'modepress' {
 
     initialize( options: IRemoteOptions ): Promise<void>;
 
-    createBucket( id: string, options?: any ): Promise<string>;
+    createBucket( bucket: IBucketEntry, options?: any ): Promise<string>;
 
-    uploadFile( bucket: string, source: Readable, uploadOptions: IUploadOptions ): Promise<string>;
+    uploadFile( bucket: IBucketEntry, file: IFileEntry, source: Readable, uploadOptions: IUploadOptions ): Promise<string>;
 
-    removeFile( bucket: string, id: string ): Promise<void>;
+    removeFile( bucket: IBucketEntry, id: IFileEntry ): Promise<void>;
 
-    removeBucket( id: string ): Promise<void>;
+    removeBucket( bucket: IBucketEntry ): Promise<void>;
 
-    generateUrl( bucketIdentifier: string, fileIdentifier: string ): string;
+    generateUrl( bucket: IBucketEntry, file: IFileEntry ): string;
   }
 }

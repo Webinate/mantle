@@ -186,14 +186,15 @@ export class FilesController extends Controller {
 
     const bucketEntry = await buckets.findOne( fileEntry.bucketId, { verbose: true } );
 
-    if ( !bucketEntry )
-      throw new Error( 'Bucket resource does not exist' );
+    if ( bucketEntry ) {
 
-    // Get the bucket and delete the file
-    await this._activeManager.removeFile( bucketEntry.identifier, fileEntry.identifier );
+      // Get the bucket and delete the file
+      await this._activeManager.removeFile( bucketEntry, fileEntry );
 
-    // Update the bucket data usage
-    await buckets.collection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
+      // Update the bucket data usage
+      await buckets.collection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
+    }
+
     await files.deleteInstances( { _id: fileEntry._id } as IFileEntry );
     await stats.collection.updateOne( { user: fileEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats } as IStorageStats );
 

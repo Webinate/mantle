@@ -1,7 +1,7 @@
 import { Readable, Writable } from 'stream';
 import { IGCS, IBucket } from 'gcloud';
 import { createGzip, Gzip } from 'zlib';
-import { IRemote, IGoogleProperties, IUploadOptions } from 'modepress';
+import { IRemote, IGoogleProperties, IUploadOptions, IBucketEntry, IFileEntry } from 'modepress';
 import * as compressible from 'compressible';
 import * as storage from '@google-cloud/storage';
 import { generateRandString } from '../../utils/utils';
@@ -22,11 +22,11 @@ export class GoogleBucket implements IRemote {
     } );
   }
 
-  generateUrl( bucketIdentifier: string, fileIdentifier: string ) {
-    return `https://storage.googleapis.com/${bucketIdentifier}/${fileIdentifier}`;
+  generateUrl( bucket: IBucketEntry, file: IFileEntry ) {
+    return `https://storage.googleapis.com/${bucket.identifier}/${file.identifier}`;
   }
 
-  async createBucket( id: string, options?: any ) {
+  async createBucket( bucket: IBucketEntry, options?: any ) {
     const gcs = this._gcs;
     const cors = {
       location: 'EU',
@@ -54,13 +54,13 @@ export class GoogleBucket implements IRemote {
     };
 
     try {
-      await gcs.createBucket( id, cors );
+      await gcs.createBucket( bucket.identifier, cors );
     }
     catch ( err ) {
       throw new Error( `Could not create a new bucket: '${err.message}'` )
     }
 
-    return id;
+    return bucket.identifier;
   }
 
   /**
@@ -96,9 +96,9 @@ export class GoogleBucket implements IRemote {
     } );
   }
 
-  async uploadFile( bucket: string, source: Readable, uploadOptions: IUploadOptions ) {
+  async uploadFile( bucket: IBucketEntry, file: IFileEntry, source: Readable, uploadOptions: IUploadOptions ) {
     const filename = generateRandString( 16 ) + extname( uploadOptions.filename );
-    const b = this._gcs.bucket( bucket );
+    const b = this._gcs.bucket( bucket.identifier );
     const rawFile = b.file( filename );
 
     let dest: Writable;
@@ -116,24 +116,24 @@ export class GoogleBucket implements IRemote {
     return filename;
   }
 
-  async removeFile( bucket: string, id: string ) {
+  async removeFile( bucket: IBucketEntry, file: IFileEntry ) {
     const gcs = this._gcs;
-    const b: IBucket = gcs.bucket( bucket );
+    const b: IBucket = gcs.bucket( bucket.identifier );
 
     try {
       // Get the bucket and delete the file
-      await b.file( id ).delete();
+      await b.file( file.identifier! ).delete();
     }
     catch ( err ) {
-      throw new Error( `Could not remove file '${id}' from storage system: '${err.toString()}'` );
+      throw new Error( `Could not remove file '${file.identifier}' from storage system: '${err.toString()}'` );
     }
   }
 
-  async removeBucket( id: string ) {
+  async removeBucket( entry: IBucketEntry ) {
     const gcs = this._gcs;
 
     // Now remove the bucket itself
-    const bucket: IBucket = gcs.bucket( id );
+    const bucket: IBucket = gcs.bucket( entry.identifier );
 
     try {
       await bucket.delete()

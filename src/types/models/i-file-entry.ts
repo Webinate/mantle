@@ -5,13 +5,13 @@ declare module 'modepress' {
    * The interface for describing each user's file
    */
   export interface IFileEntry {
-    _id: string | ObjectID;
+    _id?: string | ObjectID;
     name: string;
     user: string;
-    identifier: string;
+    identifier?: string;
     bucketId: string | ObjectID;
     bucketName: string;
-    publicURL: string;
+    publicURL?: string;
     created: number;
     size: number;
     mimeType: string;

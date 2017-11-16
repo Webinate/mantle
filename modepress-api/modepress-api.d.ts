@@ -358,11 +358,11 @@ declare module "types/interfaces/i-remote" {
          */
         interface IRemote {
             initialize(options: IRemoteOptions): Promise<void>;
-            createBucket(id: string, options?: any): Promise<string>;
-            uploadFile(bucket: string, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
-            removeFile(bucket: string, id: string): Promise<void>;
-            removeBucket(id: string): Promise<void>;
-            generateUrl(bucketIdentifier: string, fileIdentifier: string): string;
+            createBucket(bucket: IBucketEntry, options?: any): Promise<string>;
+            uploadFile(bucket: IBucketEntry, file: IFileEntry, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
+            removeFile(bucket: IBucketEntry, id: IFileEntry): Promise<void>;
+            removeBucket(bucket: IBucketEntry): Promise<void>;
+            generateUrl(bucket: IBucketEntry, file: IFileEntry): string;
         }
     }
 }
@@ -533,7 +533,7 @@ declare module "types/models/i-bucket-entry" {
          * The interface for describing each user's bucket
          */
         interface IBucketEntry {
-            _id: string | ObjectID;
+            _id?: string | ObjectID;
             name: string;
             identifier: string;
             user: string;
@@ -570,13 +570,13 @@ declare module "types/models/i-file-entry" {
          * The interface for describing each user's file
          */
         interface IFileEntry {
-            _id: string | ObjectID;
+            _id?: string | ObjectID;
             name: string;
             user: string;
-            identifier: string;
+            identifier?: string;
             bucketId: string | ObjectID;
             bucketName: string;
-            publicURL: string;
+            publicURL?: string;
             created: number;
             size: number;
             mimeType: string;
@@ -2201,46 +2201,46 @@ declare module "socket-api/comms-controller" {
 }
 declare module "core/remotes/google-bucket" {
     import { Readable } from 'stream';
-    import { IRemote, IGoogleProperties, IUploadOptions } from 'modepress';
+    import { IRemote, IGoogleProperties, IUploadOptions, IBucketEntry, IFileEntry } from 'modepress';
     export class GoogleBucket implements IRemote {
         private _zipper;
         private _gcs;
         constructor();
         initialize(options: IGoogleProperties): Promise<void>;
-        generateUrl(bucketIdentifier: string, fileIdentifier: string): string;
-        createBucket(id: string, options?: any): Promise<string>;
+        generateUrl(bucket: IBucketEntry, file: IFileEntry): string;
+        createBucket(bucket: IBucketEntry, options?: any): Promise<string>;
         /**
          * Wraps a source and destination stream in a promise that catches error
          * and completion events
          */
         private handleStreamsEvents(source, dest);
-        uploadFile(bucket: string, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
-        removeFile(bucket: string, id: string): Promise<void>;
-        removeBucket(id: string): Promise<void>;
+        uploadFile(bucket: IBucketEntry, file: IFileEntry, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
+        removeFile(bucket: IBucketEntry, file: IFileEntry): Promise<void>;
+        removeBucket(entry: IBucketEntry): Promise<void>;
     }
     export const googleBucket: GoogleBucket;
 }
 declare module "core/remotes/local-bucket" {
     import { Readable } from 'stream';
-    import { IRemote, IUploadOptions, ILocalBucket } from 'modepress';
+    import { IRemote, IUploadOptions, ILocalBucket, IBucketEntry, IFileEntry } from 'modepress';
     export class LocalBucket implements IRemote {
         private _zipper;
         private _path;
         private _url;
         constructor();
         initialize(options: ILocalBucket): Promise<void>;
-        createBucket(id: string, options?: any): Promise<string>;
+        createBucket(bucket: IBucketEntry, options?: any): Promise<string>;
         private exists(path);
-        generateUrl(bucketIdentifier: string, fileIdentifier: string): string;
+        generateUrl(bucket: IBucketEntry, file: IFileEntry): string;
         /**
          * Wraps a source and destination stream in a promise that catches error
          * and completion events
          */
         private handleStreamsEvents(source, dest);
-        uploadFile(bucket: string, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
-        removeFile(bucket: string, id: string): Promise<void>;
+        uploadFile(bucket: IBucketEntry, file: IFileEntry, source: Readable, uploadOptions: IUploadOptions): Promise<string>;
+        removeFile(bucket: IBucketEntry, file: IFileEntry): Promise<void>;
         private deletePath(path);
-        removeBucket(id: string): Promise<void>;
+        removeBucket(bucket: IBucketEntry): Promise<void>;
     }
     export const localBucket: LocalBucket;
 }
@@ -2415,16 +2415,6 @@ declare module "controllers/buckets" {
          * @param user The username
          */
         withinAPILimit(user: string): Promise<boolean>;
-        /**
-         * Registers an uploaded part as a new user file in the local dbs
-         * @param identifier The id of the file on the bucket
-         * @param bucketID The id of the bucket this file belongs to
-         * @param part
-         * @param user The username
-         * @param isPublic IF true, the file will be set as public
-         * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
-         */
-        private registerFile(identifier, bucket, part, user, isPublic, parentFile);
         /**
          * Uploads a part stream as a new user file. This checks permissions, updates the local db and uploads the stream to the bucket
          * @param part

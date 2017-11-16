@@ -137,7 +137,7 @@ export class BucketsController extends Controller {
    * @param user The user associated with this bucket
    */
   async createBucket( name: string, user: string ) {
-    const bucketID = `webinate-bucket-${generateRandString( 8 ).toLowerCase()}`;
+    const identifier = `webinate-bucket-${generateRandString( 8 ).toLowerCase()}`;
     const bucketCollection = this._buckets;
     const stats = this._stats;
 
@@ -148,13 +148,10 @@ export class BucketsController extends Controller {
     if ( bucketEntry )
       throw new Error( `A Bucket with the name '${name}' has already been registered` );
 
-    // Attempt to create a new Google bucket
-    await this._activeManager.createBucket( bucketID );
-
     // Create the new bucket
     bucketEntry = {
       name: name,
-      identifier: bucketID,
+      identifier: identifier,
       created: Date.now(),
       user: user,
       memoryUsed: 0
@@ -163,6 +160,11 @@ export class BucketsController extends Controller {
     // Save the new entry into the database
     const insertResult = await bucketCollection.insertOne( bucketEntry );
     bucketEntry = insertResult.ops[ 0 ];
+
+    // Attempt to create a new Google bucket
+    await this._activeManager.createBucket( bucketEntry as IBucketEntry );
+
+
 
     // Increments the API calls
     await stats.updateOne( { user: user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
@@ -245,7 +247,7 @@ export class BucketsController extends Controller {
       throw new Error( `Could not remove the bucket: '${err.toString()}'` );
     }
 
-    await this._activeManager.removeBucket( bucketEntry.identifier! );
+    await this._activeManager.removeBucket( bucketEntry );
 
     // Remove the bucket entry
     await bucketCollection.deleteOne( { _id: bucketEntry._id } as IBucketEntry );
@@ -321,41 +323,41 @@ export class BucketsController extends Controller {
       return false;
   }
 
-  /**
-   * Registers an uploaded part as a new user file in the local dbs
-   * @param identifier The id of the file on the bucket
-   * @param bucketID The id of the bucket this file belongs to
-   * @param part
-   * @param user The username
-   * @param isPublic IF true, the file will be set as public
-   * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
-   */
-  private registerFile( identifier: string, bucket: IBucketEntry, part: Part, user: string, isPublic: boolean, parentFile: string | null ) {
-    const files = this._files;
+  // /**
+  //  * Registers an uploaded part as a new user file in the local dbs
+  //  * @param identifier The id of the file on the bucket
+  //  * @param bucketID The id of the bucket this file belongs to
+  //  * @param part
+  //  * @param user The username
+  //  * @param isPublic IF true, the file will be set as public
+  //  * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
+  //  */
+  // private registerFile( identifier: string, bucket: IBucketEntry, part: Part, user: string, isPublic: boolean, parentFile: string | null ) {
+  //   const files = this._files;
 
-    return new Promise<IFileEntry>( ( resolve, reject ) => {
-      const entry: Partial<IFileEntry> = {
-        name: ( part.filename || part.name ),
-        user: user,
-        identifier: identifier,
-        bucketId: bucket._id,
-        bucketName: bucket.name!,
-        parentFile: ( parentFile ? parentFile : null ),
-        created: Date.now(),
-        numDownloads: 0,
-        size: part.byteCount,
-        isPublic: isPublic,
-        publicURL: this._activeManager.generateUrl( bucket.identifier!, identifier ),
-        mimeType: part.headers[ 'content-type' ]
-      };
+  //   return new Promise<IFileEntry>( ( resolve, reject ) => {
+  //     const entry: Partial<IFileEntry> = {
+  //       name: ( part.filename || part.name ),
+  //       user: user,
+  //       identifier: identifier,
+  //       bucketId: bucket._id,
+  //       bucketName: bucket.name!,
+  //       parentFile: ( parentFile ? parentFile : null ),
+  //       created: Date.now(),
+  //       numDownloads: 0,
+  //       size: part.byteCount,
+  //       isPublic: isPublic,
+  //       publicURL: this._activeManager.generateUrl( bucket.identifier!, identifier ),
+  //       mimeType: part.headers[ 'content-type' ]
+  //     };
 
-      files.insertOne( entry ).then( function( insertResult ) {
-        return resolve( insertResult.ops[ 0 ] );
-      } ).catch( function( err ) {
-        return reject( new Error( `Could not save user file entry: ${err.toString()}` ) );
-      } );
-    } );
-  }
+  //     files.insertOne( entry ).then( function( insertResult ) {
+  //       return resolve( insertResult.ops[ 0 ] );
+  //     } ).catch( function( err ) {
+  //       return reject( new Error( `Could not save user file entry: ${err.toString()}` ) );
+  //     } );
+  //   } );
+  // }
 
 
 
@@ -374,10 +376,32 @@ export class BucketsController extends Controller {
     const bucketCollection = this._buckets;
     const statCollection = this._stats;
     const name = part.filename || part.name;
+    const files = this._files;
+
     if ( !name )
       throw new Error( `Uploaded item does not have a name or filename specified` );
 
-    const fileIdentifier = await this._activeManager.uploadFile( bucketEntry.identifier!, part, { headers: part.headers, filename: name } );
+    const fileEntry: IFileEntry = {
+      name: ( part.filename || part.name ),
+      user: user,
+      bucketId: bucketEntry._id!,
+      bucketName: bucketEntry.name!,
+      parentFile: ( parentFile ? parentFile : null ),
+      created: Date.now(),
+      numDownloads: 0,
+      size: part.byteCount,
+      isPublic: makePublic,
+      mimeType: part.headers[ 'content-type' ],
+      meta: {}
+    };
+
+    const result = await files.insertOne( fileEntry );
+    fileEntry._id = result.insertedId;
+
+    const fileIdentifier = await this._activeManager.uploadFile( bucketEntry, fileEntry, part, { headers: part.headers, filename: name } );
+
+    fileEntry.identifier = fileIdentifier;
+    fileEntry.publicURL = this._activeManager.generateUrl( bucketEntry, fileEntry );
 
     await bucketCollection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry,
       { $inc: { memoryUsed: part.byteCount } as IBucketEntry } );
@@ -385,8 +409,11 @@ export class BucketsController extends Controller {
     await statCollection.updateOne( { user: user } as IStorageStats,
       { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats } );
 
-    const file = await this.registerFile( fileIdentifier, bucketEntry, part, user, makePublic, parentFile );
-    return file;
+    await files.updateOne( { _id: fileEntry._id } as IFileEntry,
+      { $set: { identifier: fileIdentifier, publicURL: fileEntry.publicURL } as IFileEntry } );
+
+    // const file = await this.registerFile( fileIdentifier, bucketEntry, part, user, makePublic, parentFile );
+    return fileEntry;
   }
 
 
