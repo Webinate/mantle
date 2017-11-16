@@ -148,13 +148,13 @@ export class FilesController extends Controller {
    * @param fileId The id of the file to rename
    * @param name The new name of the file
    */
-  async update( fileId: string, token: Partial<IFileEntry> ) {
+  async update( fileId: string | ObjectID, token: Partial<IFileEntry> ) {
     const files = this._files;
 
-    if ( !isValidObjectID( fileId ) )
+    if ( typeof fileId === 'string' && !isValidObjectID( fileId ) )
       throw new Error( 'Invalid ID format' );
 
-    const query = { _id: new ObjectID( fileId ) };
+    const query = typeof fileId === 'string' ? { _id: new ObjectID( fileId ) } : { _id: fileId };
     const file = await this._files.findOne( query, { verbose: true } );
 
     if ( !file )

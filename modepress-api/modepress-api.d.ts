@@ -2296,7 +2296,7 @@ declare module "controllers/files" {
          * @param fileId The id of the file to rename
          * @param name The new name of the file
          */
-        update(fileId: string, token: Partial<IFileEntry>): Promise<IFileEntry>;
+        update(fileId: string | ObjectID, token: Partial<IFileEntry>): Promise<IFileEntry>;
         /**
          * Adds an API call to a user
          * @param user The username
@@ -2382,12 +2382,6 @@ declare module "controllers/buckets" {
          * @param searchTerm [Optional] Specify a search term
          */
         getBucketEntries(user?: string, searchTerm?: RegExp): Promise<IBucketEntry[]>;
-        /**
-         * Updates all file entries for a given search criteria with custom meta data
-         * @param searchQuery The search query to idenfify files
-         * @param meta Optional meta data to associate with the files
-         */
-        setMeta(searchQuery: any, meta: any): Promise<boolean>;
         /**
          * Attempts to remove all data associated with a user
          * @param user The user we are removing

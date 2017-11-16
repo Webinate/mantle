@@ -450,6 +450,7 @@ export class UsersController extends Controller {
     username = userInstance.dbEntry.username!;
 
     await ControllerFactory.get( 'buckets' ).removeUser( username );
+
     const result = await this._collection.deleteOne( { _id: userInstance.dbEntry._id! } as IUserEntry );
 
     if ( result.deletedCount === 0 )

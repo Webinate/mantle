@@ -364,7 +364,7 @@ export class BucketSerializer extends Serializer {
    */
   private async finalizeUploads( meta: any | Error, files: Array<IFileEntry>, user: string, tokens: Array<IUploadToken> ): Promise<IUploadResponse> {
     try {
-      const manager = this._bucketController;
+      const manager = this._files;
       let error = false;
       let msg = `Upload complete. [${files.length}] Files have been saved.`;
 
@@ -380,15 +380,15 @@ export class BucketSerializer extends Serializer {
       }
       // If we have any meta, then update the file entries with it
       else if ( meta && meta && files.length > 0 ) {
-        const query = { $or: [] as IFileEntry[] };
+        const promises: Promise<IFileEntry>[] = [];
         for ( let i = 0, l = files.length; i < l; i++ ) {
-          query.$or.push( <IFileEntry>{ _id: new mongodb.ObjectID( files[ i ]._id ) } );
+          promises.push( manager.update( files[ i ]._id!, { meta: meta } ) );
 
           // Manually add the meta to the files
           files[ i ].meta = meta;
         }
 
-        await manager.setMeta( query, meta );
+        await Promise.all( promises );
       }
 
       // Notify the sockets of each file that was uploaded

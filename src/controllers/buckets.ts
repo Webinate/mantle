@@ -63,19 +63,6 @@ export class BucketsController extends Controller {
   }
 
   /**
-   * Updates all file entries for a given search criteria with custom meta data
-   * @param searchQuery The search query to idenfify files
-   * @param meta Optional meta data to associate with the files
-   */
-  async setMeta( searchQuery: any, meta: any ) {
-    const filesCollection = this._files;
-
-    // Save the new entry into the database
-    await filesCollection.updateMany( searchQuery, { $set: { meta: meta } as IFileEntry } );
-    return true;
-  }
-
-  /**
    * Attempts to remove all data associated with a user
    * @param user The user we are removing
    */

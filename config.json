@@ -12,7 +12,7 @@
     "sessionCollection": "sessions",
     "bucketsCollection": "buckets",
     "filesCollection": "files",
-    "statsCollection": "storageAPI"
+    "statsCollection": "storage-stats"
   },
   "clientsFolder": "./clients/",
   "debug": false,
