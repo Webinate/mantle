@@ -164,8 +164,6 @@ export class BucketsController extends Controller {
     // Attempt to create a new Google bucket
     await this._activeManager.createBucket( bucketEntry as IBucketEntry );
 
-
-
     // Increments the API calls
     await stats.updateOne( { user: user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
 
@@ -260,8 +258,6 @@ export class BucketsController extends Controller {
     return bucketEntry;
   }
 
-
-
   /**
    * Gets a bucket entry by its name or ID
    * @param bucket The id of the bucket. You can also use the name if you provide the user
@@ -322,44 +318,6 @@ export class BucketsController extends Controller {
     else
       return false;
   }
-
-  // /**
-  //  * Registers an uploaded part as a new user file in the local dbs
-  //  * @param identifier The id of the file on the bucket
-  //  * @param bucketID The id of the bucket this file belongs to
-  //  * @param part
-  //  * @param user The username
-  //  * @param isPublic IF true, the file will be set as public
-  //  * @param parentFile Sets an optional parent file - if the parent is removed, then so is this one
-  //  */
-  // private registerFile( identifier: string, bucket: IBucketEntry, part: Part, user: string, isPublic: boolean, parentFile: string | null ) {
-  //   const files = this._files;
-
-  //   return new Promise<IFileEntry>( ( resolve, reject ) => {
-  //     const entry: Partial<IFileEntry> = {
-  //       name: ( part.filename || part.name ),
-  //       user: user,
-  //       identifier: identifier,
-  //       bucketId: bucket._id,
-  //       bucketName: bucket.name!,
-  //       parentFile: ( parentFile ? parentFile : null ),
-  //       created: Date.now(),
-  //       numDownloads: 0,
-  //       size: part.byteCount,
-  //       isPublic: isPublic,
-  //       publicURL: this._activeManager.generateUrl( bucket.identifier!, identifier ),
-  //       mimeType: part.headers[ 'content-type' ]
-  //     };
-
-  //     files.insertOne( entry ).then( function( insertResult ) {
-  //       return resolve( insertResult.ops[ 0 ] );
-  //     } ).catch( function( err ) {
-  //       return reject( new Error( `Could not save user file entry: ${err.toString()}` ) );
-  //     } );
-  //   } );
-  // }
-
-
 
   /**
    * Uploads a part stream as a new user file. This checks permissions, updates the local db and uploads the stream to the bucket
