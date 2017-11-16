@@ -2315,8 +2315,48 @@ declare module "controllers/files" {
         removeFiles(options: DeleteOptions): Promise<void>;
     }
 }
+declare module "controllers/stats" {
+    import { IConfig, IStorageStats } from 'modepress';
+    import { Db } from 'mongodb';
+    import Controller from "controllers/controller";
+    /**
+     * Class responsible for managing user stats
+     */
+    export class StatsController extends Controller {
+        private static MEMORY_ALLOCATED;
+        private static API_CALLS_ALLOCATED;
+        private _stats;
+        constructor(config: IConfig);
+        /**
+         * Initializes the controller
+         * @param db The mongo db
+         */
+        initialize(db: Db): Promise<void>;
+        /**
+         * Fetches the storage/api data for a given user
+         * @param user The user whos data we are fetching
+         */
+        get(user?: string): Promise<IStorageStats>;
+        /**
+         * Attempts to create a user usage statistics
+         * @param user The user associated with this bucket
+         */
+        createUserStats(user: string): Promise<IStorageStats>;
+        /**
+         * Attempts to remove the usage stats of a given user
+         * @param user The user associated with this bucket
+         */
+        remove(user: string): Promise<number>;
+        /**
+         * Finds and downloads a file
+         * @param fileID The file ID of the file on the bucket
+         * @returns Returns the number of results affected
+         */
+        update(user: string, value: Partial<IStorageStats>): Promise<IStorageStats>;
+    }
+}
 declare module "controllers/buckets" {
-    import { IConfig, IBucketEntry, IFileEntry, IStorageStats } from 'modepress';
+    import { IConfig, IBucketEntry, IFileEntry } from 'modepress';
     import { Db } from 'mongodb';
     import { Part } from 'multiparty';
     import Controller from "controllers/controller";
@@ -2324,13 +2364,12 @@ declare module "controllers/buckets" {
      * Class responsible for managing buckets and uploads
      */
     export class BucketsController extends Controller {
-        private static MEMORY_ALLOCATED;
-        private static API_CALLS_ALLOCATED;
         private _buckets;
         private _files;
         private _stats;
         private _activeManager;
         private _filesController;
+        private _statsController;
         constructor(config: IConfig);
         /**
          * Initializes the controller
@@ -2349,22 +2388,6 @@ declare module "controllers/buckets" {
          * @param meta Optional meta data to associate with the files
          */
         setMeta(searchQuery: any, meta: any): Promise<boolean>;
-        /**
-         * Fetches the storage/api data for a given user
-         * @param user The user whos data we are fetching
-         */
-        getUserStats(user?: string): Promise<IStorageStats>;
-        /**
-         * Attempts to create a user usage statistics
-         * @param user The user associated with this bucket
-         */
-        createUserStats(user: string): Promise<IStorageStats>;
-        /**
-         * Attempts to remove the usage stats of a given user
-         * @param user The user associated with this bucket
-         * @returns A promise of the number of stats removed
-         */
-        removeUserStats(user: string): Promise<number>;
         /**
          * Attempts to remove all data associated with a user
          * @param user The user we are removing
@@ -2424,12 +2447,6 @@ declare module "controllers/buckets" {
          * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
          */
         uploadStream(part: Part, bucketEntry: IBucketEntry, user: string, makePublic?: boolean, parentFile?: string | null): Promise<IFileEntry>;
-        /**
-         * Finds and downloads a file
-         * @param fileID The file ID of the file on the bucket
-         * @returns Returns the number of results affected
-         */
-        updateStorage(user: string, value: IStorageStats): Promise<number>;
     }
 }
 declare module "controllers/posts" {
@@ -2953,6 +2970,7 @@ declare module "core/controller-factory" {
     import { SessionsController } from "controllers/sessions";
     import { UsersController } from "controllers/users";
     import { CommentsController } from "controllers/comments";
+    import { StatsController } from "controllers/stats";
     /**
      * Factory classs for creating & getting controllers
      */
@@ -2971,6 +2989,7 @@ declare module "core/controller-factory" {
         get(type: 'sessions'): SessionsController;
         get(type: 'users'): UsersController;
         get(type: 'files'): FilesController;
+        get(type: 'stats'): StatsController;
         get(type: string): Controller;
         /**
          * A factory method for creating models
@@ -3460,6 +3479,7 @@ declare module "serializers/stats-serializer" {
     export class StatsSerializer extends Serializer {
         private _options;
         private _userController;
+        private _statController;
         /**
            * Creates an instance of the user manager
            * @param e The express app

@@ -10,18 +10,18 @@ import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
 import { FilesController } from './files';
 import ControllerFactory from '../core/controller-factory';
+import { StatsController } from './stats';
 
 /**
  * Class responsible for managing buckets and uploads
  */
 export class BucketsController extends Controller {
-  private static MEMORY_ALLOCATED: number = 5e+8; // 500mb
-  private static API_CALLS_ALLOCATED: number = 20000; // 20,000
   private _buckets: Collection<IBucketEntry>;
   private _files: Collection<IFileEntry>;
   private _stats: Collection<IStorageStats>;
   private _activeManager: IRemote;
   private _filesController: FilesController;
+  private _statsController: StatsController;
 
   constructor( config: IConfig ) {
     super( config );
@@ -40,6 +40,7 @@ export class BucketsController extends Controller {
     localBucket.initialize( this._config.remotes.local as ILocalBucket );
     this._activeManager = localBucket;
     this._filesController = ControllerFactory.get( 'files' );
+    this._statsController = ControllerFactory.get( 'stats' );
   }
 
   /**
@@ -75,58 +76,12 @@ export class BucketsController extends Controller {
   }
 
   /**
-   * Fetches the storage/api data for a given user
-   * @param user The user whos data we are fetching
-   */
-  async getUserStats( user?: string ) {
-    const stats = this._stats;
-
-    // Save the new entry into the database
-    const result = await stats.find( { user: user } as IStorageStats ).limit( 1 ).next();
-
-    if ( !result )
-      throw new Error( `Could not find storage data for the user '${user}'` );
-
-    return result;
-  }
-
-  /**
-   * Attempts to create a user usage statistics
-   * @param user The user associated with this bucket
-   */
-  async createUserStats( user: string ) {
-    const stats = this._stats;
-
-    const storage: IStorageStats = {
-      user: user,
-      apiCallsAllocated: BucketsController.API_CALLS_ALLOCATED,
-      memoryAllocated: BucketsController.MEMORY_ALLOCATED,
-      apiCallsUsed: 0,
-      memoryUsed: 0
-    }
-
-    const insertResult = await stats.insertOne( storage );
-    return insertResult.ops[ 0 ] as IStorageStats;
-  }
-
-  /**
-   * Attempts to remove the usage stats of a given user
-   * @param user The user associated with this bucket
-   * @returns A promise of the number of stats removed
-   */
-  async removeUserStats( user: string ) {
-    const stats = this._stats;
-    const deleteResult = await stats.deleteOne( { user: user } as IStorageStats );
-    return deleteResult.deletedCount!;
-  }
-
-  /**
    * Attempts to remove all data associated with a user
    * @param user The user we are removing
    */
   async removeUser( user: string ) {
     await this.removeBucketsByUser( user );
-    await this.removeUserStats( user );
+    await this._statsController.remove( user );
     await this._filesController.removeFiles( { user: user } );
     return;
   }
@@ -372,20 +327,5 @@ export class BucketsController extends Controller {
 
     // const file = await this.registerFile( fileIdentifier, bucketEntry, part, user, makePublic, parentFile );
     return fileEntry;
-  }
-
-
-  /**
-   * Finds and downloads a file
-   * @param fileID The file ID of the file on the bucket
-   * @returns Returns the number of results affected
-   */
-  async updateStorage( user: string, value: IStorageStats ) {
-    const stats = this._stats;
-    const updateResult = await stats.updateOne( { user: user } as IStorageStats, { $set: value } );
-    if ( updateResult.matchedCount === 0 )
-      throw new Error( `Could not find user '${user}'` );
-    else
-      return updateResult.modifiedCount;
   }
 }

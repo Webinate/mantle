@@ -428,7 +428,7 @@ export class UsersController extends Controller {
     newUser.dbEntry = insertResult.ops[ 0 ];
 
     // All users have default stats created for them
-    await ControllerFactory.get( 'buckets' ).createUserStats( newUser.dbEntry.username! );
+    await ControllerFactory.get( 'stats' ).createUserStats( newUser.dbEntry.username! );
 
     return newUser;
   }

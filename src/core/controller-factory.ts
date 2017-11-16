@@ -7,6 +7,7 @@ import { PostsController } from '../controllers/posts';
 import { SessionsController } from '../controllers/sessions';
 import { UsersController } from '../controllers/users';
 import { CommentsController } from '../controllers/comments';
+import { StatsController } from '../controllers/stats';
 
 /**
  * Factory classs for creating & getting controllers
@@ -33,6 +34,7 @@ export class ControllerFactory {
     controllers.push( await this.create( 'posts' ) );
     controllers.push( await this.create( 'comments' ) );
     controllers.push( await this.create( 'users' ) );
+    controllers.push( await this.create( 'stats' ) );
 
     for ( const controller of controllers )
       await controller.initialize( this._db );
@@ -44,6 +46,7 @@ export class ControllerFactory {
   get( type: 'sessions' ): SessionsController
   get( type: 'users' ): UsersController
   get( type: 'files' ): FilesController
+  get( type: 'stats' ): StatsController
   get( type: string ): Controller
   get( type: string ): Controller {
     const toRet = this._controllers[ type ];
@@ -81,6 +84,9 @@ export class ControllerFactory {
         break;
       case 'users':
         newModel = new UsersController( this._config );
+        break;
+      case 'stats':
+        newModel = new StatsController( this._config );
         break;
       default:
         throw new Error( `Controller '${type}' cannot be created` );

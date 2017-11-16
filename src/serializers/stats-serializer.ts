@@ -1,5 +1,4 @@
-﻿'use strict';
-import { StatTokens, IAuthReq, IStorageStats, IBaseControler } from 'modepress';
+﻿import { StatTokens, IAuthReq, IStorageStats, IBaseControler } from 'modepress';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
@@ -7,9 +6,10 @@ import { UsersController } from '../controllers/users';
 import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
-import { okJson, errJson, j200 } from '../utils/response-decorators';
+import { errJson, j200 } from '../utils/response-decorators';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
+import { StatsController } from '../controllers/stats';
 
 /**
  * Main class to use for managing users
@@ -17,6 +17,7 @@ import Factory from '../core/model-factory';
 export class StatsSerializer extends Serializer {
   private _options: IBaseControler;
   private _userController: UsersController;
+  private _statController: StatsController;
 
   /**
 	 * Creates an instance of the user manager
@@ -34,6 +35,7 @@ export class StatsSerializer extends Serializer {
   async initialize( e: express.Express, db: mongodb.Db ) {
 
     this._userController = ControllerFactory.get( 'users' );
+    this._statController = ControllerFactory.get( 'stats' );
 
     // Setup the rest calls
     const router = express.Router();
@@ -89,14 +91,8 @@ export class StatsSerializer extends Serializer {
    */
   @j200()
   private async updateCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageCalls.Response> {
-    try {
-      const value = parseInt( req.params.value );
-      const manager = ControllerFactory.get( 'buckets' );
-      await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsUsed: value } );
-      return;
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+    const value = parseInt( req.params.value );
+    await this._statController.update( req._target!.username!, <IStorageStats>{ apiCallsUsed: value } );
   }
 
   /**
@@ -104,15 +100,9 @@ export class StatsSerializer extends Serializer {
    */
   @j200()
   private async updateMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageMemory.Response> {
-    try {
-      const value = parseInt( req.params.value );
-      const manager = ControllerFactory.get( 'buckets' );
-      await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryUsed: value } );
-      return;
-
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+    const value = parseInt( req.params.value );
+    await this._statController.update( req._target!.username!, <IStorageStats>{ memoryUsed: value } );
+    return;
   }
 
   /**
@@ -120,15 +110,8 @@ export class StatsSerializer extends Serializer {
    */
   @j200()
   private async updateAllocatedCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocCalls.Response> {
-    try {
-      const value = parseInt( req.params.value );
-      const manager = ControllerFactory.get( 'buckets' );
-      await manager.updateStorage( req._target!.username!, <IStorageStats>{ apiCallsAllocated: value } );
-      return;
-
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+    const value = parseInt( req.params.value );
+    await this._statController.update( req._target!.username!, <IStorageStats>{ apiCallsAllocated: value } );
   }
 
   /**
@@ -136,40 +119,25 @@ export class StatsSerializer extends Serializer {
    */
   @j200()
   private async updateAllocatedMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocMemory.Response> {
-    try {
-      const value = parseInt( req.params.value );
-      const manager = ControllerFactory.get( 'buckets' );
-      await manager.updateStorage( req._target!.username!, <IStorageStats>{ memoryAllocated: value } );
-      return;
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+    const value = parseInt( req.params.value );
+    await this._statController.update( req._target!.username!, <IStorageStats>{ memoryAllocated: value } );
   }
 
   /**
    * Fetches the statistic information for the specified user
    */
-  private async getStats( req: IAuthReq, res: express.Response ) {
-    try {
-      const manager = ControllerFactory.get( 'buckets' );
-      const stats = await manager.getUserStats( req._user!.username );
-      return okJson<StatTokens.GetOne.Response>( stats, res );
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+  @j200()
+  private async getStats( req: IAuthReq, res: express.Response ): Promise<StatTokens.GetOne.Response> {
+    const stats = await this._statController.get( req._user!.username );
+    return stats;
   }
 
   /**
    * Creates a new user stat entry. This is usually done for you when creating a new user
    */
+  @j200()
   private async createStats( req: IAuthReq, res: express.Response ) {
-    try {
-      const manager = ControllerFactory.get( 'buckets' );
-      const stats = await manager.createUserStats( req.params.target );
-      res.setHeader( 'Content-Type', 'application/json' );
-      res.end( JSON.stringify( stats ) );
-    } catch ( err ) {
-      return errJson( err, res );
-    };
+    const stats: StatTokens.Post.Response = await this._statController.createUserStats( req.params.target );
+    return stats;
   }
 }
