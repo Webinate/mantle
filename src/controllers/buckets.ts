@@ -118,7 +118,7 @@ export class BucketsController extends Controller {
    * @param name The name of the bucket
    * @param user The user associated with this bucket
    */
-  async createBucket( name: string, user: string ) {
+  async create( name: string, user: string ) {
     const identifier = `webinate-bucket-${generateRandString( 8 ).toLowerCase()}`;
     const bucketCollection = this._buckets;
     const stats = this._stats;

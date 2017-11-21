@@ -2408,7 +2408,7 @@ declare module "controllers/buckets" {
          * @param name The name of the bucket
          * @param user The user associated with this bucket
          */
-        createBucket(name: string, user: string): Promise<IBucketEntry>;
+        create(name: string, user: string): Promise<IBucketEntry>;
         /**
          * Attempts to remove buckets of the given search result. This will also update the file and stats collection.
          * @param searchQuery A valid mongodb search query

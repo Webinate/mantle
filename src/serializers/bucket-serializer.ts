@@ -135,7 +135,7 @@ export class BucketSerializer extends Serializer {
       if ( !inLimits )
         throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
 
-      const entry = await manager.createBucket( bucketName, username );
+      const entry = await manager.create( bucketName, username );
       const toRet: BucketTokens.Post.Response = entry;
       return toRet;
 
