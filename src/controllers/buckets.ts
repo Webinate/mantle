@@ -12,6 +12,17 @@ import { FilesController } from './files';
 import ControllerFactory from '../core/controller-factory';
 import { StatsController } from './stats';
 
+export type GetManyOptions = {
+  user?: string;
+  searchTerm?: RegExp;
+};
+
+export type GetOptions = {
+  user?: string;
+  identifier?: string;
+  name?: string;
+};
+
 /**
  * Class responsible for managing buckets and uploads
  */
@@ -45,21 +56,45 @@ export class BucketsController extends Controller {
 
   /**
    * Fetches all bucket entries from the database
-   * @param user [Optional] Specify the user. If none provided, then all buckets are retrieved
-   * @param searchTerm [Optional] Specify a search term
+   * @param options Options for defining which buckets to return
    */
-  async getBucketEntries( user?: string, searchTerm?: RegExp ) {
+  async getMany( options: GetManyOptions = {} ) {
     const bucketCollection = this._buckets;
     const search: Partial<IBucketEntry> = {};
-    if ( user )
-      search.user = user;
 
-    if ( searchTerm )
-      ( <any>search ).name = searchTerm;
+    if ( options.user )
+      search.user = options.user;
+
+    if ( options.searchTerm )
+      search.name = options.searchTerm as any;
 
     // Save the new entry into the database
     const buckets = await bucketCollection.find( search ).toArray();
     return buckets;
+  }
+
+  /**
+   * Gets a bucket entry by its name or ID
+   */
+  async get( options: GetOptions = {} ) {
+    const bucketCollection = this._buckets;
+    const searchQuery: Partial<IBucketEntry> = {};
+
+    if ( options.user )
+      searchQuery.user = options.user;
+
+    if ( options.name )
+      searchQuery.name = options.name;
+
+    if ( options.identifier )
+      searchQuery.identifier = options.identifier;
+
+    const result = await bucketCollection.findOne( searchQuery );
+
+    if ( !result )
+      return null;
+    else
+      return result;
   }
 
   /**
@@ -84,7 +119,7 @@ export class BucketsController extends Controller {
     const stats = this._stats;
 
     // Get the entry
-    let bucketEntry: Partial<IBucketEntry> | null = await this.getIBucket( name, user );
+    let bucketEntry: Partial<IBucketEntry> | null = await this.get( { name: name, user: user } );
 
     // Make sure no bucket already exists with that name
     if ( bucketEntry )
@@ -198,30 +233,6 @@ export class BucketsController extends Controller {
     await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, bucketEntry.user ) );
 
     return bucketEntry;
-  }
-
-  /**
-   * Gets a bucket entry by its name or ID
-   * @param bucket The id of the bucket. You can also use the name if you provide the user
-   * @param user The username associated with the bucket (Only applicable if bucket is a name and not an ID)
-   */
-  async getIBucket( bucket: string, user?: string ) {
-    const bucketCollection = this._buckets;
-    const searchQuery: Partial<IBucketEntry> = {};
-
-    if ( user ) {
-      searchQuery.user = user;
-      searchQuery.name = bucket;
-    }
-    else
-      searchQuery.identifier = bucket;
-
-    const result = await bucketCollection.find( searchQuery ).limit( 1 ).next();
-
-    if ( !result )
-      return null;
-    else
-      return result;
   }
 
   /**

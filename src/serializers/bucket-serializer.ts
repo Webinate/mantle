@@ -78,28 +78,29 @@ export class BucketSerializer extends Serializer {
   /**
    * Fetches all bucket entries from the database
    */
+  @j200()
   private async getBuckets( req: IAuthReq, res: express.Response ) {
     const user = req.params.user;
     const manager = this._bucketController;
     let searchTerm: RegExp | undefined;
 
-    try {
-      // Check for keywords
-      if ( req.query.search )
-        searchTerm = new RegExp( req.query.search, 'i' );
+    // Check for keywords
+    if ( req.query.search )
+      searchTerm = new RegExp( req.query.search, 'i' );
 
-      const buckets = await manager.getBucketEntries( user, searchTerm );
+    const buckets = await manager.getMany( {
+      user: user,
+      searchTerm: searchTerm
+    } );
 
-      return okJson<BucketTokens.GetAll.Response>( {
-        data: buckets,
-        count: buckets.length,
-        limit: -1,
-        index: 0
-      }, res );
-
-    } catch ( err ) {
-      return errJson( err, res );
+    const toRet: BucketTokens.GetAll.Response = {
+      data: buckets,
+      count: buckets.length,
+      limit: -1,
+      index: 0
     };
+
+    return toRet;
   }
 
   private alphaNumericDashSpace( str: string ): boolean {
@@ -230,7 +231,7 @@ export class BucketSerializer extends Serializer {
     if ( !bucketName || bucketName.trim() === '' )
       return okJson<IUploadResponse>( { message: `Please specify a bucket`, tokens: [] }, res );
 
-    manager.getIBucket( bucketName, username ).then( ( bucketEntry ) => {
+    manager.get( { name: bucketName, user: username } ).then( ( bucketEntry ) => {
       if ( !bucketEntry )
         return okJson<IUploadResponse>( { message: `No bucket exists with the name '${bucketName}'`, tokens: [] }, res );
 

@@ -2360,6 +2360,15 @@ declare module "controllers/buckets" {
     import { Db } from 'mongodb';
     import { Part } from 'multiparty';
     import Controller from "controllers/controller";
+    export type GetManyOptions = {
+        user?: string;
+        searchTerm?: RegExp;
+    };
+    export type GetOptions = {
+        user?: string;
+        identifier?: string;
+        name?: string;
+    };
     /**
      * Class responsible for managing buckets and uploads
      */
@@ -2378,10 +2387,13 @@ declare module "controllers/buckets" {
         initialize(db: Db): Promise<void>;
         /**
          * Fetches all bucket entries from the database
-         * @param user [Optional] Specify the user. If none provided, then all buckets are retrieved
-         * @param searchTerm [Optional] Specify a search term
+         * @param options Options for defining which buckets to return
          */
-        getBucketEntries(user?: string, searchTerm?: RegExp): Promise<IBucketEntry[]>;
+        getMany(options?: GetManyOptions): Promise<IBucketEntry[]>;
+        /**
+         * Gets a bucket entry by its name or ID
+         */
+        get(options?: GetOptions): Promise<IBucketEntry | null>;
         /**
          * Attempts to remove all data associated with a user
          * @param user The user we are removing
@@ -2415,12 +2427,6 @@ declare module "controllers/buckets" {
          * Deletes the bucket from storage and updates the databases
          */
         private deleteBucket(bucketEntry);
-        /**
-         * Gets a bucket entry by its name or ID
-         * @param bucket The id of the bucket. You can also use the name if you provide the user
-         * @param user The username associated with the bucket (Only applicable if bucket is a name and not an ID)
-         */
-        getIBucket(bucket: string, user?: string): Promise<IBucketEntry | null>;
         /**
          * Checks to see the user's storage limits to see if they are allowed to upload data
          * @param user The username
