@@ -2356,13 +2356,15 @@ declare module "controllers/stats" {
     }
 }
 declare module "controllers/buckets" {
-    import { IConfig, IBucketEntry, IFileEntry } from 'modepress';
+    import { IConfig, IBucketEntry, IFileEntry, Page } from 'modepress';
     import { Db, ObjectID } from 'mongodb';
     import { Part } from 'multiparty';
     import Controller from "controllers/controller";
     export type GetManyOptions = {
         user?: string;
         searchTerm?: RegExp;
+        index?: number;
+        limit?: number;
     };
     export type GetOptions = {
         user?: string;
@@ -2393,7 +2395,7 @@ declare module "controllers/buckets" {
          * Fetches all bucket entries from the database
          * @param options Options for defining which buckets to return
          */
-        getMany(options?: GetManyOptions): Promise<IBucketEntry[]>;
+        getMany(options?: GetManyOptions): Promise<Page<IBucketEntry>>;
         /**
          * Gets a bucket entry by its name or ID
          */

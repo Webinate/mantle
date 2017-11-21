@@ -1,4 +1,4 @@
-﻿import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote, ILocalBucket, IGoogleProperties } from 'modepress';
+﻿import { IConfig, IBucketEntry, IFileEntry, IStorageStats, IRemote, ILocalBucket, IGoogleProperties, Page } from 'modepress';
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Part } from 'multiparty';
 import { CommsController } from '../socket-api/comms-controller';
@@ -15,6 +15,8 @@ import { StatsController } from './stats';
 export type GetManyOptions = {
   user?: string;
   searchTerm?: RegExp;
+  index?: number;
+  limit?: number;
 };
 
 export type GetOptions = {
@@ -63,7 +65,7 @@ export class BucketsController extends Controller {
    * Fetches all bucket entries from the database
    * @param options Options for defining which buckets to return
    */
-  async getMany( options: GetManyOptions = {} ) {
+  async getMany( options: GetManyOptions = { index: 0, limit: 10 } ) {
     const bucketCollection = this._buckets;
     const search: Partial<IBucketEntry> = {};
 
@@ -74,8 +76,26 @@ export class BucketsController extends Controller {
       search.name = options.searchTerm as any;
 
     // Save the new entry into the database
-    const buckets = await bucketCollection.find( search ).toArray();
-    return buckets;
+    const count = await bucketCollection.count( search );
+    let cursor = await bucketCollection.find( search );
+
+    let limit = options.limit;
+    let index = options.index;
+
+    if ( index !== undefined )
+      cursor = cursor.skip( index );
+
+    if ( limit !== undefined )
+      cursor = cursor.limit( limit );
+
+    const result = await cursor.toArray();
+    const toRet: Page<IBucketEntry> = {
+      limit: limit !== undefined ? limit : -1,
+      count: count,
+      index: index !== undefined ? index : -1,
+      data: result
+    };
+    return toRet;
   }
 
   /**

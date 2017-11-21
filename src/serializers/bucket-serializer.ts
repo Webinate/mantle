@@ -88,17 +88,12 @@ export class BucketSerializer extends Serializer {
     if ( req.query.search )
       searchTerm = new RegExp( req.query.search, 'i' );
 
-    const buckets = await manager.getMany( {
+    const toRet = await manager.getMany( {
       user: user,
-      searchTerm: searchTerm
+      searchTerm: searchTerm,
+      index: 0,
+      limit: 100
     } );
-
-    const toRet: BucketTokens.GetAll.Response = {
-      data: buckets,
-      count: buckets.length,
-      limit: -1,
-      index: 0
-    };
 
     return toRet;
   }
