@@ -23,6 +23,11 @@ export type GetOptions = {
   name?: string;
 };
 
+export type DeleteOptions = {
+  user?: string;
+  _id?: string | ObjectID;
+};
+
 /**
  * Class responsible for managing buckets and uploads
  */
@@ -102,7 +107,7 @@ export class BucketsController extends Controller {
    * @param user The user we are removing
    */
   async removeUser( user: string ) {
-    await this.removeBucketsByUser( user );
+    await this.remove( { user: user } );
     await this._statsController.remove( user );
     await this._filesController.removeFiles( { user: user } );
     return;
@@ -155,57 +160,38 @@ export class BucketsController extends Controller {
    * @param searchQuery A valid mongodb search query
    * @returns An array of ID's of the buckets removed
    */
-  private async removeBuckets( searchQuery ): Promise<Array<string>> {
+  async remove( options: DeleteOptions ) {
     const bucketCollection = this._buckets;
-    this._files;
-    this._stats;
     const toRemove: string[] = [];
+    const searchQuery: Partial<IBucketEntry> = {};
+
+    if ( options._id ) {
+      if ( typeof options._id === 'string' ) {
+        if ( !isValidObjectID( options._id ) )
+          throw new Error( 'Please use a valid object id' );
+
+        searchQuery._id = new ObjectID( options._id );
+      }
+      else
+        searchQuery._id = options._id;
+    }
+
+    if ( options.user )
+      searchQuery.user = options.user;
 
     // Get all the buckets
     const buckets = await bucketCollection.find( searchQuery ).toArray();
 
-    // Now delete each one
-    try {
-      for ( let i = 0, l = buckets.length; i < l; i++ ) {
-        const bucket = await this.deleteBucket( buckets[ i ] );
-        toRemove.push( bucket.identifier! );
-      }
-
-      // Return an array of all the bucket ids that were removed
-      return toRemove;
-
-    } catch ( err ) {
-      // If there is an error throw with a bit more info
-      throw new Error( `Could not delete bucket: ${err.message}` );
-    };
-  }
-
-  /**
-   * Attempts to remove a bucket by id
-   * @param id The id of the bucket we are removing
-   * @returns An array of ID's of the buckets removed
-   */
-  async removeBucketById( id: string ) {
-
-    if ( !isValidObjectID( id ) )
-      throw new Error( 'Please use a valid object id' );
-
-    const query: Partial<IBucketEntry> = { _id: new ObjectID( id ) };
-    const bucket = await this._buckets.findOne( query );
-
-    if ( !bucket )
+    if ( options._id && buckets.length === 0 )
       throw new Error( 'A bucket with that ID does not exist' );
 
-    return this.removeBuckets( query );
-  }
+    // Now delete each one
+    const promises: Promise<IBucketEntry>[] = []
+    for ( let i = 0, l = buckets.length; i < l; i++ )
+      promises.push( this.deleteBucket( buckets[ i ] ) );
 
-  /**
-   * Attempts to remove a user bucket
-   * @param user The user associated with this bucket
-   * @returns An array of ID's of the buckets removed
-   */
-  removeBucketsByUser( user: string ): Promise<Array<string>> {
-    return this.removeBuckets( { user: user } as IBucketEntry );
+    await Promise.all( promises );
+    return toRemove;
   }
 
   /**

@@ -2357,7 +2357,7 @@ declare module "controllers/stats" {
 }
 declare module "controllers/buckets" {
     import { IConfig, IBucketEntry, IFileEntry } from 'modepress';
-    import { Db } from 'mongodb';
+    import { Db, ObjectID } from 'mongodb';
     import { Part } from 'multiparty';
     import Controller from "controllers/controller";
     export type GetManyOptions = {
@@ -2368,6 +2368,10 @@ declare module "controllers/buckets" {
         user?: string;
         identifier?: string;
         name?: string;
+    };
+    export type DeleteOptions = {
+        user?: string;
+        _id?: string | ObjectID;
     };
     /**
      * Class responsible for managing buckets and uploads
@@ -2410,19 +2414,7 @@ declare module "controllers/buckets" {
          * @param searchQuery A valid mongodb search query
          * @returns An array of ID's of the buckets removed
          */
-        private removeBuckets(searchQuery);
-        /**
-         * Attempts to remove a bucket by id
-         * @param id The id of the bucket we are removing
-         * @returns An array of ID's of the buckets removed
-         */
-        removeBucketById(id: string): Promise<string[]>;
-        /**
-         * Attempts to remove a user bucket
-         * @param user The user associated with this bucket
-         * @returns An array of ID's of the buckets removed
-         */
-        removeBucketsByUser(user: string): Promise<Array<string>>;
+        remove(options: DeleteOptions): Promise<string[]>;
         /**
          * Deletes the bucket from storage and updates the databases
          */

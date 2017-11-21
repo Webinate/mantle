@@ -71,7 +71,7 @@ export class BucketSerializer extends Serializer {
    */
   @j200( 204 )
   private async removeBuckets( req: IAuthReq, res: express.Response ): Promise<BucketTokens.DeleteAll.Response> {
-    await this._bucketController.removeBucketById( req.params.id );
+    await this._bucketController.remove( { _id: req.params.id as string } );
     return;
   }
 
