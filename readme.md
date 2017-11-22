@@ -5,7 +5,7 @@ a set of core functions for any web based app and then using a plugin architectu
 users can create additional end points and functions to enhance the sytem.
 
 ## Current stable version
-* v0.7.10
+* v0.7.11
 
 ## Requirements
 * MongoDB v3
