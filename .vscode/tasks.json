@@ -1,21 +1,15 @@
 {
-  "version": "0.1.0",
-  "command": "npm",
-  "isShellCommand": true,
-  "args": [
-    "--dir=../modepress/dist/plugins/app-engine"
-  ],
+  "version": "2.0.0",
+  "type": "shell",
   "tasks": [
     {
-      "taskName": "build",
-      "isBuildCommand": true,
-      "showOutput": "always",
+      "label": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "problemMatcher": "$tsc",
-      "suppressTaskName": true,
-      "args": [
-        "run",
-        "build"
-      ]
+      "command": "npm run build --dir=../modepress/dist/plugins/app-engine"
     }
   ]
 }
