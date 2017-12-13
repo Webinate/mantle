@@ -418,7 +418,7 @@ export class UsersController extends Controller {
     if ( existingUser )
       throw new Error( `A user with that name or email already exists` );
 
-    const randNum = Math.floor( Math.random() * 20 ) + 1;
+    const randNum = Math.floor( Math.random() * 20 );
     const avatar = options.avatar && options.avatar !== '' ? options.avatar : randNum.toString();
 
     // Create the user
