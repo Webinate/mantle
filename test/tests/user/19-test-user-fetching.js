@@ -49,6 +49,7 @@ describe( '19. Testing fetching users', function() {
     test.value( json.registerKey )
     test.value( json.sessionId )
     test.value( json.passwordTag )
+    test.string( json.avatar ).isNot( '' )
     test.string( json.username ).is( user1.username )
     test.number( json.privileges ).is( 3 );
   } )

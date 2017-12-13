@@ -171,7 +171,14 @@ export class UserSerializer extends Serializer {
     if ( token.privileges === UserPrivileges.SuperAdmin )
       throw new Error( 'You cannot create a user with super admin permissions' );
 
-    const user = await this._userController.createUser( token.username!, token.email!, token.password!, true, token.privileges, token.meta );
+    const user = await this._userController.createUser( {
+      username: token.username!,
+      email: token.email!,
+      password: token.password!,
+      privileges: token.privileges!,
+      meta: token.meta
+    }, true, true );
+
     const response: UserTokens.Post.Response = user.dbEntry;
     return response;
   }

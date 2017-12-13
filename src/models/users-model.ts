@@ -15,6 +15,7 @@ export class UsersModel extends Model<IUserEntry> {
     this.schema.add( new text( 'registerKey', '' ) );
     this.schema.add( new text( 'sessionId', '' ) );
     this.schema.add( new text( 'passwordTag', '' ) );
+    this.schema.add( new text( 'avatar', '' ) );
     this.schema.add( new num( 'privileges', 0 ) );
     this.schema.add( new json( 'meta', {} ) );
     this.schema.add( new date( 'createdOn' ) ).setIndexable( true );

@@ -9,6 +9,7 @@ declare module 'modepress' {
     password: string;
     registerKey: string;
     sessionId: string;
+    avatar: string;
     createdOn: number;
     lastLoggedIn: number;
     privileges: number;

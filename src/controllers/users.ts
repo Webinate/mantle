@@ -58,7 +58,13 @@ export class UsersController extends Controller {
 
     // If no admin user exists, so lets try to create one
     if ( !user )
-      user = await this.createUser( adminUser.username, adminUser.email, adminUser.password, true, UserPrivileges.SuperAdmin, {}, true );
+      user = await this.createUser( {
+        username: adminUser.username,
+        email: adminUser.email,
+        password: adminUser.password,
+        privileges: UserPrivileges.SuperAdmin,
+        meta: {}
+      }, true, true );
   }
 
   /**
@@ -103,7 +109,13 @@ export class UsersController extends Controller {
     if ( !email || email === '' ) throw new Error( 'Email cannot be null or empty' );
     if ( !isEmail( email ) ) throw new Error( 'Please use a valid email address' );
 
-    user = await this.createUser( username, email, pass, false, UserPrivileges.Regular, meta );
+    user = await this.createUser( {
+      username: username,
+      email: email,
+      password: pass,
+      privileges: UserPrivileges.Regular,
+      meta: meta
+    }, false );
 
     // Send a message to the user to say they are registered but need to activate their account
     const message = 'Thank you for registering with Webinate! To activate your account please click the link below: \n\n' +
@@ -378,46 +390,46 @@ export class UsersController extends Controller {
 
   /**
 	 * Creates a new user
-	 * @param user The unique username
-	 * @param email The unique email
-	 * @param password The password for the user
+	 * @param options The user options for creating the user
    * @param activateAccount If true, the account will be automatically activated (no need for email verification)
-	 * @param privilege The type of privileges the user has. Defaults to regular
-   * @param meta Any optional data associated with this user
    * @param allowAdmin Should this be allowed to create a super user
 	 */
-  async createUser( user: string, email: string, password: string, activateAccount: boolean, privilege: UserPrivileges = UserPrivileges.Regular, meta: any = {}, allowAdmin: boolean = false ) {
+  async createUser( options: Partial<IUserEntry>, activateAccount: boolean = false, allowAdmin: boolean = false ) {
     // Basic checks
-    if ( !user || trim( user ) === '' )
+    if ( !options.username || trim( options.username ) === '' )
       throw new Error( 'Username cannot be empty' );
-    if ( !isAlphanumeric( user ) )
+    if ( !isAlphanumeric( options.username ) )
       throw new Error( 'Username must be alphanumeric' );
-    if ( !email || trim( email ) === '' )
+    if ( !options.email || trim( options.email ) === '' )
       throw new Error( 'Email cannot be empty' );
-    if ( !isEmail( email ) )
+    if ( !isEmail( options.email ) )
       throw new Error( 'Email must be valid' );
-    if ( !password || trim( password ) === '' )
+    if ( !options.password || trim( options.password ) === '' )
       throw new Error( 'Password cannot be empty' );
-    if ( privilege > 3 )
+    if ( options.privileges === undefined || options.privileges > 3 )
       throw new Error( 'Privilege type is unrecognised' );
-    if ( privilege === UserPrivileges.SuperAdmin && allowAdmin === false )
+    if ( options.privileges === UserPrivileges.SuperAdmin && allowAdmin === false )
       throw new Error( 'You cannot create a super user' );
 
     // Check if the user already exists
-    const hashedPsw: string = await this.hashPassword( password );
-    const existingUser = await this.getUser( user, email );
+    const hashedPsw: string = await this.hashPassword( options.password );
+    const existingUser = await this.getUser( options.username, options.email );
 
     if ( existingUser )
       throw new Error( `A user with that name or email already exists` );
 
+    const numUsers = await this.numUsers();
+    const avatar = options.avatar && options.avatar !== '' ? options.avatar : `user-${numUsers}`;
+
     // Create the user
     const newUser: User = new User( {
-      username: user,
+      username: options.username,
       password: hashedPsw,
-      email: email,
-      privileges: privilege,
+      email: options.email,
+      privileges: options.privileges,
       passwordTag: '',
-      meta: meta,
+      meta: options.meta || {},
+      avatar: avatar,
       registerKey: ( activateAccount ? '' : undefined )
     } as IUserEntry );
 

@@ -699,6 +699,7 @@ declare module 'modepress' {
         password: string;
         registerKey: string;
         sessionId: string;
+        avatar: string;
         createdOn: number;
         lastLoggedIn: number;
         privileges: number;
@@ -2708,7 +2709,7 @@ declare module "controllers/users" {
     import { Db } from 'mongodb';
     import { ServerRequest, ServerResponse } from 'http';
     import { Request } from 'express';
-    import { User, UserPrivileges } from "core/user";
+    import { User } from "core/user";
     import { Session } from "core/session";
     import Controller from "controllers/controller";
     /**
@@ -2811,15 +2812,11 @@ declare module "controllers/users" {
         logOut(request: ServerRequest, response: ServerResponse): Promise<boolean>;
         /**
            * Creates a new user
-           * @param user The unique username
-           * @param email The unique email
-           * @param password The password for the user
+           * @param options The user options for creating the user
          * @param activateAccount If true, the account will be automatically activated (no need for email verification)
-           * @param privilege The type of privileges the user has. Defaults to regular
-         * @param meta Any optional data associated with this user
          * @param allowAdmin Should this be allowed to create a super user
            */
-        createUser(user: string, email: string, password: string, activateAccount: boolean, privilege?: UserPrivileges, meta?: any, allowAdmin?: boolean): Promise<User>;
+        createUser(options: Partial<IUserEntry>, activateAccount?: boolean, allowAdmin?: boolean): Promise<User>;
         /**
            * Deletes a user from the database
            * @param user The unique username or email of the user to remove

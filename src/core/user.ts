@@ -46,7 +46,8 @@ export class User {
         username: this.dbEntry.username,
         privileges: this.dbEntry.privileges,
         passwordTag: this.dbEntry.passwordTag,
-        meta: this.dbEntry.meta
+        meta: this.dbEntry.meta,
+        avatar: this.dbEntry.avatar
       };
     else
       return {
@@ -54,7 +55,8 @@ export class User {
         lastLoggedIn: this.dbEntry.lastLoggedIn,
         createdOn: this.dbEntry.createdOn,
         username: this.dbEntry.username,
-        privileges: this.dbEntry.privileges
+        privileges: this.dbEntry.privileges,
+        avatar: this.dbEntry.avatar
       } as IUserEntry;
   }
 
@@ -72,7 +74,8 @@ export class User {
       username: this.dbEntry.username,
       privileges: this.dbEntry.privileges,
       passwordTag: this.dbEntry.passwordTag,
-      meta: this.dbEntry.meta
+      meta: this.dbEntry.meta,
+      avatar: this.dbEntry.avatar
     };
   }
 
