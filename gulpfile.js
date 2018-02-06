@@ -57,7 +57,7 @@ gulp.task( 'definition', function() {
 
   return tsResult.dts
     .pipe( gulp.dest( './clients' ) )
-    .pipe( gulp.dest( './modepress-api' ) );
+    .pipe( gulp.dest( './dist/definitions' ) );
 } );
 
 gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchNum, configFiles ) } );

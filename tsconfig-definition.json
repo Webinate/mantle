@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "amd",
+    "module": "commonjs",
     "removeComments": false,
     "noEmitOnError": false,
     "declaration": true,
@@ -15,8 +15,7 @@
     ],
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "outFile": "modepress-api.js",
-    "outDir": "./modepress-api",
+    "outDir": "./dist",
     "noUnusedParameters": false,
     "noUnusedLocals": true,
     "strictNullChecks": true,
@@ -24,7 +23,7 @@
   },
   "include": [
     "src/types/**/*.ts",
-    "src/modepress-api.ts"
+    "src/api.ts"
   ],
   "exclude": []
 }
