@@ -13,13 +13,14 @@
       "dom.iterable",
       "es7"
     ],
+    "experimentalDecorators": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "outDir": "./dist",
     "noUnusedParameters": false,
     "noUnusedLocals": true,
     "strictNullChecks": true,
-    "experimentalDecorators": true
+    "rootDir": "src"
   },
   "include": [
     "src/types/**/*.ts",
