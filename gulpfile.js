@@ -9,7 +9,8 @@ const fs = require( 'fs' );
 // CONFIG
 // ==============================
 const tsProject = ts.createProject( 'tsconfig.json' );
-const tsProjectTypes = ts.createProject( 'tsconfig-definition.json' );
+const tsProjectDefs = ts.createProject( 'tsconfig.json' );
+
 const configFiles = [
   './readme.md',
   './install-script.sh',
@@ -52,11 +53,14 @@ gulp.task( 'dist-files', function() {
  * Builds each of the ts files into JS files in the output folder
  */
 gulp.task( 'definition', function() {
-  var tsResult = tsProjectTypes.src()
-    .pipe( tsProjectTypes() );
+  var tsResult = gulp.src( [
+    './src/**/*.d.ts',
+    './src/**/*.ts',
+    '!./src/main.ts'
+  ] )
+    .pipe( tsProjectDefs() );
 
   return tsResult.dts
-    .pipe( gulp.dest( './clients' ) )
     .pipe( gulp.dest( './dist/definitions' ) );
 } );
 
