@@ -1,7 +1,7 @@
 {
   "name": "modepress",
   "types": "./dist/definitions/api.d.ts",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "The modepress server & API",
   "main": "gulpfile.js",
   "author": "Mathew Henson",
