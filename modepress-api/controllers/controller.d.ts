@@ -1,0 +1,16 @@
+/// <reference types="node" />
+import { Db } from 'mongodb';
+import { IConfig } from '../types/config/i-config';
+import { EventEmitter } from 'events';
+/**
+ * The root class for all controllers
+ */
+export default abstract class Controller extends EventEmitter {
+    protected _config: IConfig;
+    constructor(config: IConfig);
+    /**
+     * Initializes the controller
+     * @param db The mongo db
+     */
+    abstract initialize(db: Db): any;
+}

@@ -1,5 +1,4 @@
-﻿import * as _Controller from './serializers/serializer';
-import ControllerFactory from './core/controller-factory';
+import * as _Controller from './serializers/serializer';
 import { UsersController } from './controllers/users';
 import { BucketsController } from './controllers/buckets';
 import { PostsController } from './controllers/posts';
@@ -25,54 +24,36 @@ import { FilesController } from './controllers/files';
 import { StatsController } from './controllers/stats';
 import { CommentsController } from './controllers/comments';
 import { SessionsController } from './controllers/sessions';
-
-export const Controller = _Controller.Serializer;
-export const Model = _Models.Model;
-export const SchemaFactory = _SchemaFactory;
-export const isValidID = isValidObjectID;
-export const authentication = permissions;
-
-export const controllers = {
-  users: ControllerFactory.get( 'users' ) as UsersController,
-  buckets: ControllerFactory.get( 'buckets' ) as BucketsController,
-  posts: ControllerFactory.get( 'posts' ) as PostsController,
-  comments: ControllerFactory.get( 'comments' ) as CommentsController,
-  files: ControllerFactory.get( 'files' ) as FilesController,
-  stats: ControllerFactory.get( 'stats' ) as StatsController,
-  sessions: ControllerFactory.get( 'sessions' ) as SessionsController
+export declare const Controller: typeof _Controller.Serializer;
+export declare const Model: typeof _Models.Model;
+export declare const SchemaFactory: typeof _SchemaFactory;
+export declare const isValidID: typeof isValidObjectID;
+export declare const authentication: typeof permissions;
+export declare const controllers: {
+    users: UsersController;
+    buckets: BucketsController;
+    posts: PostsController;
+    comments: CommentsController;
+    files: FilesController;
+    stats: StatsController;
+    sessions: SessionsController;
 };
-
-export const serializers = {
-  /** Endpoints for administritive tasks */
-  admin: AdminSerializer,
-  /** Endpoints for authenticating users */
-  auth: AuthSerializer,
-  /** Endpoints for managing posts */
-  posts: PostsSerializer,
-  /** Endpoints for managing categories */
-  categories: CategoriesSerializer,
-  /** Endpoints for managing comments of posts */
-  comments: CommentsSerializer,
-  /** Endpoints for managing cross origin allowances */
-  cors: CORSSerializer,
-  /** TODO: This must be removed in favour of the admin controller */
-  email: EmailsSerializer,
-  /** Can be used to catch and return errors */
-  error: ErrorSerializer,
-  /** Endpoints for managing user files */
-  file: FileSerializer,
-  /** Endpoints for managing user buckets */
-  bucket: BucketSerializer,
-  /** Endpoints for managing page renders */
-  renderer: PageSerializer,
-  /** Endpoints for managing active sessions */
-  session: SessionSerializer,
-  /** Endpoints for managing user stats and allowances */
-  stats: StatsSerializer,
-  /** Endpoints for managing users */
-  user: UserSerializer
-}
-
+export declare const serializers: {
+    admin: typeof AdminSerializer;
+    auth: typeof AuthSerializer;
+    posts: typeof PostsSerializer;
+    categories: typeof CategoriesSerializer;
+    comments: typeof CommentsSerializer;
+    cors: typeof CORSSerializer;
+    email: typeof EmailsSerializer;
+    error: typeof ErrorSerializer;
+    file: typeof FileSerializer;
+    bucket: typeof BucketSerializer;
+    renderer: typeof PageSerializer;
+    session: typeof SessionSerializer;
+    stats: typeof StatsSerializer;
+    user: typeof UserSerializer;
+};
 export { IBucketEntry } from './types/models/i-bucket-entry';
 export { ICategory } from './types/models/i-category';
 export { IComment } from './types/models/i-comment';
@@ -84,11 +65,7 @@ export { IRender } from './types/models/i-render';
 export { ISessionEntry } from './types/models/i-session-entry';
 export { IStorageStats } from './types/models/i-storage-stats';
 export { IUserEntry } from './types/models/i-user-entry';
-export {
-  IAuthenticationResponse, AuthTokens, BucketTokens, CategoriesTokens, CommentTokens, EmailTokens,
-  FileTokens, IRemoveResponse, IResponse, ISimpleResponse, IUploadBinaryResponse, IUploadResponse, IUploadTextResponse,
-  Page, PostTokens, RenderTokens, SessionTokens, StatTokens, UserTokens
-} from './types/tokens/standard-tokens';
+export { IAuthenticationResponse, AuthTokens, BucketTokens, CategoriesTokens, CommentTokens, EmailTokens, FileTokens, IRemoveResponse, IResponse, ISimpleResponse, IUploadBinaryResponse, IUploadResponse, IUploadTextResponse, Page, PostTokens, RenderTokens, SessionTokens, StatTokens, UserTokens } from './types/tokens/standard-tokens';
 export { IAuthReq } from './types/tokens/i-auth-request';
 export { ILoginToken } from './types/tokens/i-login-token';
 export { IMessage } from './types/tokens/i-message';
@@ -96,5 +73,4 @@ export { IRegisterToken } from './types/tokens/i-register-token';
 export { SocketTokens } from './types/tokens/i-socket-token';
 export { IUploadToken } from './types/tokens/i-upload-token';
 export { IClient } from './types/config/properties/i-client';
-
 export { getJson } from './frontend-api/http-clients';
