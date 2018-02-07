@@ -1,7 +1,7 @@
 {
   "name": "modepress",
   "types": "./dist/definitions/api.d.ts",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "The modepress server & API",
   "main": "./dist/main.js",
   "author": "Mathew Henson",
