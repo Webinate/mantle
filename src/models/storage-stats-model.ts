@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { IStorageStats } from 'modepress';
+import { IStorageStats } from '../types/models/i-storage-stats';
 import { text, num, date } from './schema-items/schema-item-factory';
 
 /**

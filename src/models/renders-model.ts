@@ -1,6 +1,6 @@
 ﻿import { Model } from './model';
 import { text, date } from './schema-items/schema-item-factory';
-import { IRender } from 'modepress';
+import { IRender } from '../types/models/i-render';
 
 /**
  * Describes a model for page renders that can be served to bots or crawlers

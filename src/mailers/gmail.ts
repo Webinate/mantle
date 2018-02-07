@@ -1,5 +1,6 @@
 'use strict';
-import { IMailer, IGMail } from 'modepress';
+
+import { IMailer, IGMail } from '../types/config/properties/i-mail';
 import * as google from 'googleapis';
 import * as googleAuth from 'google-auth-library';
 import { readFileSync } from 'fs';
@@ -38,7 +39,7 @@ export class GMailer implements IMailer {
    */
   initialize( options: IGMail ): Promise<boolean> {
 
-    return new Promise(( resolve ) => {
+    return new Promise( ( resolve ) => {
 
       this.gmail = google.gmail( 'v1' );
       this._keyFile = args.keyFile || JSON.parse( readFileSync( options.keyFile, 'utf8' ) );
@@ -62,7 +63,7 @@ export class GMailer implements IMailer {
    */
   private authorize( credentials ): Promise<GoogleAuth.JWT> {
 
-    return new Promise<GoogleAuth.JWT>(( resolve, reject ) => {
+    return new Promise<GoogleAuth.JWT>( ( resolve, reject ) => {
 
       const auth = new googleAuth();
       const jwt = new auth.JWT(
@@ -73,7 +74,7 @@ export class GMailer implements IMailer {
         this._apiEmail
       );
 
-      jwt.authorize(( err ) => {
+      jwt.authorize( ( err ) => {
 
         if ( err )
           return reject( err );
@@ -93,7 +94,7 @@ export class GMailer implements IMailer {
    */
   sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean> {
 
-    return new Promise(( resolve, reject ) => {
+    return new Promise( ( resolve, reject ) => {
 
       info( `Sending email to: ${to}` );
 

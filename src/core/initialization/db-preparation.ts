@@ -1,4 +1,4 @@
-import { IConfig } from 'modepress';
+import { IConfig } from '../../types/config/i-config';
 import { Db } from 'mongodb';
 import { CommsController } from '../../socket-api/comms-controller';
 

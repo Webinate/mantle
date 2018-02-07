@@ -1,5 +1,7 @@
 ﻿'use strict';
-import { IAuthReq, FileTokens } from 'modepress';
+
+import { FileTokens } from '../types/tokens/standard-tokens';
+import { IAuthReq } from '../types/tokens/i-auth-request';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
@@ -7,7 +9,7 @@ import { Serializer } from './serializer'
 import ControllerFactory from '../core/controller-factory';
 import * as compression from 'compression';
 import { j200 } from '../utils/response-decorators';
-import { IFileOptions } from 'modepress';
+import { IFileOptions } from '../types/misc/i-file-options';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { FilesController } from '../controllers/files';

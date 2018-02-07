@@ -3,7 +3,10 @@ import { resolve, basename, extname } from 'path';
 import * as rimraf from 'rimraf';
 import { mkdirSync, exists, existsSync, createWriteStream } from 'fs';
 import { createGzip, Gzip } from 'zlib';
-import { IRemote, IUploadOptions, ILocalBucket, IBucketEntry, IFileEntry } from 'modepress';
+import { ILocalBucket } from '../../types/config/properties/i-remote-options';
+import { IRemote, IUploadOptions } from '../../types/interfaces/i-remote';
+import { IFileEntry } from '../../types/models/i-file-entry';
+import { IBucketEntry } from '../../types/models/i-bucket-entry';
 import * as compressible from 'compressible';
 
 export class LocalBucket implements IRemote {

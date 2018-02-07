@@ -1,4 +1,8 @@
-﻿import { IUserEntry, IConfig, IMailer, IGMail, IMailgun, IMailOptions, IAdminUser, Page } from 'modepress';
+﻿import { IConfig } from '../types/config/i-config';
+import { IMailer, IGMail, IMailgun, IMailOptions } from '../types/config/properties/i-mail';
+import { IAdminUser } from '../types/config/properties/i-admin';
+import { Page } from '../types/tokens/standard-tokens';
+import { IUserEntry } from '../types/models/i-user-entry';
 import { Collection, Db } from 'mongodb';
 import { ServerRequest, ServerResponse } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';

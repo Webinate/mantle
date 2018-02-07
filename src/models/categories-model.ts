@@ -1,6 +1,6 @@
 ﻿import { Model } from './model';
 import { text } from './schema-items/schema-item-factory';
-import { ICategory } from 'modepress';
+import { ICategory } from '../types/models/i-category';
 
 /**
  * A model for describing post categories

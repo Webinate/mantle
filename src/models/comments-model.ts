@@ -1,7 +1,7 @@
 ﻿import { Model } from './model';
 import { text, bool, idArray, date, html, foreignKey } from './schema-items/schema-item-factory';
 import { SchemaHtml } from './schema-items/schema-html';
-import { IComment } from 'modepress';
+import { IComment } from '../types/models/i-comment';
 
 /**
  * A model for describing comments

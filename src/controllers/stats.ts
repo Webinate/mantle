@@ -1,4 +1,5 @@
-﻿import { IConfig, IStorageStats } from 'modepress';
+﻿import { IConfig } from '../types/config/i-config';
+import { IStorageStats } from '../types/models/i-storage-stats';
 import { Db } from 'mongodb';
 import Controller from './controller';
 import ModelFactory from '../core/model-factory';

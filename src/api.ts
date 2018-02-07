@@ -72,3 +72,5 @@ export const serializers = {
   /** Endpoints for managing users */
   user: UserSerializer
 }
+
+export { IUserEntry } from './types/models/i-user-entry';

@@ -1,6 +1,6 @@
 ﻿import { Model } from './model';
 import { text, num, json } from './schema-items/schema-item-factory';
-import { ISessionEntry } from 'modepress';
+import { ISessionEntry } from '../types/models/i-session-entry';
 
 /**
  * A model for describing comments

@@ -1,4 +1,4 @@
-import { IConfig } from 'modepress';
+import { IConfig } from '../types/config/i-config';
 import { Db } from 'mongodb';
 import Controller from '../controllers/controller';
 import { BucketsController } from '../controllers/buckets';

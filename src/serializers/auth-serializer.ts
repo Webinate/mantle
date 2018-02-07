@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { AuthTokens } from 'modepress';
+import { AuthTokens } from '../types/tokens/standard-tokens';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
@@ -10,7 +10,7 @@ import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
 import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
-import { IAuthOptions } from 'modepress';
+import { IAuthOptions } from '../types/misc/i-auth-options';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 

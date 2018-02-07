@@ -1,6 +1,9 @@
 ﻿'use strict';
 
-import { IFileEntry, IUploadToken, IAuthReq, BucketTokens, IUploadResponse } from 'modepress';
+import { IUploadToken } from '../types/tokens/i-upload-token';
+import { IAuthReq } from '../types/tokens/i-auth-request';
+import { BucketTokens, IUploadResponse } from '../types/tokens/standard-tokens';
+import { IFileEntry } from '../types/models/i-file-entry';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
@@ -15,7 +18,7 @@ import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { okJson, errJson, j200 } from '../utils/response-decorators';
-import { IBaseControler } from 'modepress';
+import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { FilesController } from '../controllers/files';
 

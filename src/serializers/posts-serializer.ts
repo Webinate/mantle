@@ -1,5 +1,6 @@
-﻿import { IAuthReq, IUserEntry, PostTokens } from 'modepress';
-
+﻿import { PostTokens } from '../types/tokens/standard-tokens';
+import { IAuthReq } from '../types/tokens/i-auth-request';
+import { IUserEntry } from '../types/models/i-user-entry';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
@@ -8,7 +9,7 @@ import { Serializer } from './serializer';
 import { identifyUser, adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
 import { UserPrivileges } from '../core/user';
-import { IBaseControler } from 'modepress';
+import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import ControllerFactory from '../core/controller-factory';
 import { PostsController } from '../controllers/posts';

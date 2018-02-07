@@ -1,4 +1,6 @@
-﻿import { IComment, Page, IConfig } from 'modepress';
+﻿import { IConfig } from '../types/config/i-config';
+import { Page } from '../types/tokens/standard-tokens';
+import { IComment } from '../types/models/i-comment';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { CommentsModel } from '../models/comments-model';

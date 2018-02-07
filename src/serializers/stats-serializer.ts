@@ -1,4 +1,7 @@
-﻿import { StatTokens, IAuthReq, IStorageStats, IBaseControler } from 'modepress';
+﻿import { IBaseControler } from '../types/misc/i-base-controller';
+import { StatTokens } from '../types/tokens/standard-tokens';
+import { IAuthReq } from '../types/tokens/i-auth-request';
+import { IStorageStats } from '../types/models/i-storage-stats';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';

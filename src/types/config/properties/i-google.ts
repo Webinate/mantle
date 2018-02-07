@@ -1,17 +1,16 @@
-declare module 'modepress' {
+import { IRemoteOptions } from './i-remote-options';
+
+/*
+ * Users stores data on an external cloud bucket with Google
+ */
+export interface IGoogleProperties extends IRemoteOptions {
+  /*
+   * Path to the key file
+   */
+  keyFile: string;
 
   /*
-   * Users stores data on an external cloud bucket with Google
+   * Project ID
    */
-  export interface IGoogleProperties extends IRemoteOptions {
-    /*
-     * Path to the key file
-     */
-    keyFile: string;
-
-    /*
-     * Project ID
-     */
-    projectId: string;
-  }
+  projectId: string;
 }

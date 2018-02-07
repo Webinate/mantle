@@ -1,6 +1,6 @@
 ﻿import { Model } from './model';
 import { text, num, date, json } from './schema-items/schema-item-factory';
-import { IBucketEntry } from 'modepress';
+import { IBucketEntry } from '../types/models/i-bucket-entry';
 
 /**
  * A model for describing comments

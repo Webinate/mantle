@@ -1,4 +1,11 @@
-﻿import { IConfig, IFileEntry, IRemote, ILocalBucket, IGoogleProperties, IStorageStats, Page, IBucketEntry } from 'modepress';
+﻿import { IConfig } from '../types/config/i-config';
+import { IGoogleProperties } from '../types/config/properties/i-google';
+import { Page } from '../types/tokens/standard-tokens';
+import { ILocalBucket } from '../types/config/properties/i-remote-options';
+import { IRemote } from '../types/interfaces/i-remote';
+import { IFileEntry } from '../types/models/i-file-entry';
+import { IStorageStats } from '../types/models/i-storage-stats';
+import { IBucketEntry } from '../types/models/i-bucket-entry';
 import { Db, ObjectID } from 'mongodb';
 import { googleBucket } from '../core/remotes/google-bucket';
 import { localBucket } from '../core/remotes/local-bucket';

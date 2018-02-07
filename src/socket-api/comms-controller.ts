@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IConfig } from 'modepress';
+import { IConfig } from '../types/config/i-config';
 import * as bcrypt from 'bcrypt';
 import * as ws from 'ws';
 import * as events from 'events';

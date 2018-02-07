@@ -1,4 +1,4 @@
-﻿import { IUserEntry } from 'modepress';
+﻿import { IUserEntry } from '../types/models/i-user-entry';
 
 /*
  * Describes what kind of privileges the user has

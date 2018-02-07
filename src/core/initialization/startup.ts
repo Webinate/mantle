@@ -1,4 +1,6 @@
-﻿import { IConfig, IClient, IDatabase } from 'modepress';
+﻿import { IConfig } from '../../types/config/i-config';
+import { IDatabase } from '../../types/config/properties/i-database';
+import { IClient } from '../../types/config/properties/i-client';
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { error, info, clear, initializeLogger } from '../../utils/logger';

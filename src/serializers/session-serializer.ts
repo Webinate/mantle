@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { SessionTokens } from 'modepress';
+import { SessionTokens } from '../types/tokens/standard-tokens';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
@@ -9,7 +9,7 @@ import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
 import * as compression from 'compression';
-import { IBaseControler } from 'modepress';
+import { IBaseControler } from '../types/misc/i-base-controller';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 

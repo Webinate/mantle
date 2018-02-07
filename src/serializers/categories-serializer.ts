@@ -1,5 +1,6 @@
-﻿import { IAuthReq, ICategory, CategoriesTokens } from 'modepress';
-
+﻿import { IAuthReq } from '../types/tokens/i-auth-request';
+import { ICategory } from '../types/models/i-category';
+import { CategoriesTokens } from '../types/tokens/standard-tokens';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
@@ -7,7 +8,7 @@ import * as compression from 'compression';
 import { Serializer } from './serializer';
 import { adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
-import { IBaseControler } from 'modepress';
+import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';
 

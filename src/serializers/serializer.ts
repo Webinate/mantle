@@ -1,7 +1,7 @@
 ﻿import { Model } from '../models/model';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
-import { IModelEntry } from 'modepress';
+import { IModelEntry } from '../types/models/i-model-entry';
 
 export class Serializer {
   private _models: Model<IModelEntry>[];

@@ -1,4 +1,6 @@
-﻿import { ISchemaOptions, IModelEntry } from 'modepress';
+﻿
+import { ISchemaOptions } from '../../types/misc/i-schema-options';
+import { IModelEntry } from '../../types/models/i-model-entry';
 import { Schema } from '../schema';
 
 /**

@@ -8,7 +8,9 @@ import { UsersController } from '../controllers/users';
 import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
-import { UserTokens, IAuthReq, IBaseControler } from 'modepress';
+import { IBaseControler } from '../types/misc/i-base-controller';
+import { IAuthReq } from '../types/tokens/i-auth-request';
+import { UserTokens } from '../types/tokens/standard-tokens';
 import * as compression from 'compression';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';

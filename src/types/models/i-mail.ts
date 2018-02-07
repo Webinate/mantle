@@ -1,53 +1,52 @@
-declare module 'modepress' {
-  export interface IMailOptions { }
 
-  export interface IMailer {
-    /**
-     * Attempts to initialize the mailer
-     * @param {IMailOptions} options
-     * @returns {Promise<boolean>}
-     */
-    initialize( options: IMailOptions ): Promise<boolean>
+export interface IMailOptions { }
 
-    /**
-     * Sends an email
-     * @param {stirng} to The email address to send the message to
-     * @param {stirng} from The email we're sending from
-     * @param {stirng} subject The message subject
-     * @param {stirng} msg The message to be sent
-     * @returns {Promise<boolean>}
-     */
-    sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>
-  }
+export interface IMailer {
+  /**
+   * Attempts to initialize the mailer
+   * @param {IMailOptions} options
+   * @returns {Promise<boolean>}
+   */
+  initialize( options: IMailOptions ): Promise<boolean>
 
   /**
-   * Options for a gmail mailer
+   * Sends an email
+   * @param {stirng} to The email address to send the message to
+   * @param {stirng} from The email we're sending from
+   * @param {stirng} subject The message subject
+   * @param {stirng} msg The message to be sent
+   * @returns {Promise<boolean>}
    */
-  export interface IGMail extends IMailOptions {
-    /*
-        * The email account to use the gmail API through. This account must be authorized to
-        * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
-        */
-    apiEmail: string;
+  sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>
+}
 
-    /*
-        * Path to the key file
-        */
-    keyFile: string;
-  }
+/**
+ * Options for a gmail mailer
+ */
+export interface IGMail extends IMailOptions {
+  /*
+      * The email account to use the gmail API through. This account must be authorized to
+      * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
+      */
+  apiEmail: string;
+
+  /*
+      * Path to the key file
+      */
+  keyFile: string;
+}
+
+/**
+ * Options for a mailgun mailer
+ */
+export interface IMailgun extends IMailOptions {
+  /**
+   * The domain for associated with the mailgun account
+   */
+  domain: string;
 
   /**
-   * Options for a mailgun mailer
+   * The api key for your mailgun account
    */
-  export interface IMailgun extends IMailOptions {
-    /**
-     * The domain for associated with the mailgun account
-     */
-    domain: string;
-
-    /**
-     * The api key for your mailgun account
-     */
-    apiKey: string;
-  }
+  apiKey: string;
 }

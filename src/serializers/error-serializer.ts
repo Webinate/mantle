@@ -1,5 +1,6 @@
 ﻿'use strict';
-import { ISimpleResponse } from 'modepress';
+
+import { ISimpleResponse } from '../types/tokens/standard-tokens';
 import { Serializer } from './serializer'
 import express = require( 'express' );
 import * as mongodb from 'mongodb';

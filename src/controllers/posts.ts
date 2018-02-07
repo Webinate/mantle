@@ -1,4 +1,6 @@
-﻿import { IPost, Page, IConfig } from 'modepress';
+﻿import { IConfig } from '../types/config/i-config';
+import { Page } from '../types/tokens/standard-tokens';
+import { IPost } from '../types/models/i-post';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { PostsModel } from '../models/posts-model';

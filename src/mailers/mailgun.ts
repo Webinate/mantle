@@ -1,5 +1,6 @@
 'use strict';
-import { IMailer, IMailgun } from 'modepress';
+
+import { IMailer, IMailgun } from '../types/config/properties/i-mail';
 import { error as logError, info } from '../utils/logger';
 
 /**
@@ -22,7 +23,7 @@ export class Mailguner implements IMailer {
    */
   initialize( options: IMailgun ): Promise<boolean> {
 
-    return new Promise(( resolve ) => {
+    return new Promise( ( resolve ) => {
       this.mailgun = require( 'mailgun-js' )( { apiKey: options.apiKey, domain: options.domain } );
       resolve( true );
     } );
@@ -36,7 +37,7 @@ export class Mailguner implements IMailer {
    * @param msg The message to be sent
    */
   sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean> {
-    return new Promise(( resolve, reject ) => {
+    return new Promise( ( resolve, reject ) => {
 
       info( `Sending email to: ${to}` );
 

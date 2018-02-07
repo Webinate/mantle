@@ -1,5 +1,5 @@
 ﻿import { SchemaItem } from './schema-item';
-import { IDateOptions } from 'modepress';
+import { IDateOptions } from '../../types/interfaces/i-schema-options';
 
 /**
  * A date scheme item for use in Models

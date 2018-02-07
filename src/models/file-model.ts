@@ -1,6 +1,6 @@
 ﻿import { Model } from './model';
 import { text, num, date, bool, json, foreignKey, id } from './schema-items/schema-item-factory';
-import { IFileEntry } from 'modepress';
+import { IFileEntry } from '../types/models/i-file-entry';
 
 /**
  * A model for describing comments

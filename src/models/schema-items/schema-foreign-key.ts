@@ -1,4 +1,6 @@
-﻿import { ISchemaOptions, IModelEntry, IForeignKeyOptions } from 'modepress';
+﻿import { ISchemaOptions } from '../../types/misc/i-schema-options';
+import { IForeignKeyOptions } from '../../types/interfaces/i-schema-options';
+import { IModelEntry } from '../../types/models/i-model-entry';
 import { SchemaItem } from './schema-item';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';

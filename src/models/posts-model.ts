@@ -1,7 +1,7 @@
 ﻿import { Model } from './model';
 import { text, bool, textArray, date, html } from './schema-items/schema-item-factory';
 import { SchemaHtml } from './schema-items/schema-html';
-import { IPost } from 'modepress';
+import { IPost } from '../types/models/i-post';
 
 /**
  * A model for describing posts

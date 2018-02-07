@@ -1,7 +1,10 @@
 import { Readable, Writable } from 'stream';
 import { IGCS, IBucket } from 'gcloud';
 import { createGzip, Gzip } from 'zlib';
-import { IRemote, IGoogleProperties, IUploadOptions, IBucketEntry, IFileEntry } from 'modepress';
+import { IGoogleProperties } from '../../types/config/properties/i-google';
+import { IRemote, IUploadOptions } from '../../types/interfaces/i-remote';
+import { IBucketEntry } from '../../types/models/i-bucket-entry';
+import { IFileEntry } from '../../types/models/i-file-entry';
 import * as compressible from 'compressible';
 import * as storage from '@google-cloud/storage';
 import { generateRandString } from '../../utils/utils';

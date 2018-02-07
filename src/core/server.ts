@@ -1,4 +1,5 @@
-﻿import { IClient, IServer } from 'modepress';
+﻿
+import { IClient, IServer } from '../types/config/properties/i-client';
 import * as express from 'express';
 import * as morgan from 'morgan';
 import { Db } from 'mongodb';

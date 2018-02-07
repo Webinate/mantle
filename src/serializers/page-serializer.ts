@@ -1,4 +1,6 @@
-﻿import { IAuthReq, IRender, RenderTokens } from 'modepress';
+﻿import { RenderTokens } from '../types/tokens/standard-tokens';
+import { IAuthReq } from '../types/tokens/i-auth-request';
+import { IRender } from '../types/models/i-render';
 import * as mongodb from 'mongodb';
 import { error as logError, info } from '../utils/logger';
 import * as express from 'express';
@@ -8,7 +10,7 @@ import * as url from 'url';
 import * as jsdom from 'jsdom';
 import { okJson, errJson, j200 } from '../utils/response-decorators';
 import { adminRights } from '../utils/permission-controllers'
-import { IRenderOptions } from 'modepress';
+import { IRenderOptions } from '../types/misc/i-render-options';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';
 

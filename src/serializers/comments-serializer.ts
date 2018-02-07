@@ -1,4 +1,5 @@
-﻿import { IAuthReq, CommentTokens } from 'modepress';
+﻿import { IAuthReq } from '../types/tokens/i-auth-request';
+import { CommentTokens } from '../types/tokens/standard-tokens';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
@@ -7,7 +8,7 @@ import { Serializer } from './serializer';
 import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
 import { UserPrivileges } from '../core/user';
-import { IBaseControler } from 'modepress';
+import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { CommentsController } from '../controllers/comments';
 import ControllerFactory from '../core/controller-factory';

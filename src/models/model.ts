@@ -1,4 +1,5 @@
-﻿import { IModelEntry, ISchemaOptions } from 'modepress';
+﻿import { ISchemaOptions } from '../types/misc/i-schema-options';
+import { IModelEntry } from '../types/models/i-model-entry';
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';

@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { IUserEntry } from 'modepress';
+import { IUserEntry } from '../types/models/i-user-entry';
 import { text, num, date, json } from './schema-items/schema-item-factory';
 
 /**

@@ -1,6 +1,6 @@
 ﻿import { SchemaItem } from './schema-item';
 import * as sanitizeHtml from 'sanitize-html';
-import { ITextOptions } from 'modepress';
+import { ITextOptions } from '../../types/interfaces/i-schema-options';
 
 /**
  * A text scheme item for use in Models

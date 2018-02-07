@@ -1,22 +1,20 @@
-declare module 'modepress' {
 
-  /*
-   * Database properties
+/*
+ * Database properties
+ */
+export interface IDatabase {
+  /**
+   * The name of the mongo database to use
    */
-  export interface IDatabase {
-    /**
-     * The name of the mongo database to use
-     */
-    name: string;
+  name: string;
 
-    /**
-     * The database host we are listening on
-     */
-    host: string;
+  /**
+   * The database host we are listening on
+   */
+  host: string;
 
-    /**
-     * The port number the mongo database is listening on
-     */
-    port: number;
-  }
+  /**
+   * The port number the mongo database is listening on
+   */
+  port: number;
 }

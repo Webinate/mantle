@@ -1,4 +1,5 @@
-import { IConfig, IModelEntry } from 'modepress';
+import { IConfig } from '../types/config/i-config';
+import { IModelEntry } from '../types/models/i-model-entry';
 import { Db, Collection } from 'mongodb';
 import { Model } from '../models/model';
 import { BucketModel } from '../models/bucket-model';

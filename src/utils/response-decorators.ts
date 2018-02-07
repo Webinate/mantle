@@ -1,5 +1,6 @@
 'use strict';
-import { IResponse, ISimpleResponse } from 'modepress';
+
+import { IResponse, ISimpleResponse } from '../types/tokens/standard-tokens';
 import * as express from 'express';
 import { error as logError } from './logger';
 import { Error401, Error403, Error404 } from './errors';

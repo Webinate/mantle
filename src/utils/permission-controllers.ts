@@ -1,4 +1,5 @@
-﻿import { ISimpleResponse, IAuthReq } from 'modepress';
+﻿import { IAuthReq } from '../types/tokens/i-auth-request';
+import { ISimpleResponse } from '../types/tokens/standard-tokens';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
 import { UserPrivileges, User } from '../core/user';

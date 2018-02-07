@@ -1,5 +1,7 @@
-
-import { ISessionEntry, ISession, IUserEntry, IConfig } from 'modepress';
+import { IConfig } from '../types/config/i-config';
+import { ISession } from '../types/config/properties/i-session';
+import { IUserEntry } from '../types/models/i-user-entry';
+import { ISessionEntry } from '../types/models/i-session-entry';
 import { ServerRequest, ServerResponse } from 'http';
 import { Collection, Db } from 'mongodb';
 import { Session } from '../core/session';

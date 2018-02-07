@@ -1,5 +1,5 @@
 ﻿import { SchemaItem } from './schema-item';
-import { NumType, INumArrOptions } from 'modepress';
+import { NumType, INumArrOptions } from '../../types/interfaces/i-schema-options';
 
 /**
  * A number array scheme item for use in Models
