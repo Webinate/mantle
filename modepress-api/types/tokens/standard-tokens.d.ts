@@ -2,7 +2,6 @@ import { IUserEntry } from '../models/i-user-entry';
 import { IStorageStats } from '../models/i-storage-stats';
 import { ICategory } from '../models/i-category';
 import { IComment } from '../models/i-comment';
-import { IPost } from '../models/i-post';
 import { ISessionEntry } from '../models/i-session-entry';
 import { IFileEntry } from '../models/i-file-entry';
 import { IBucketEntry } from '../models/i-bucket-entry';
@@ -175,36 +174,6 @@ export declare namespace SessionTokens {
     namespace DeleteOne {
         type Body = void;
         type Response = void;
-    }
-}
-export declare namespace PostTokens {
-    /** GET /posts/ */
-    namespace GetAll {
-        type Body = void;
-        type Response = Page<IPost>;
-    }
-    /**
-     * GET /posts/slug/:slug or
-     * GET /posts/:id
-     * */
-    namespace GetOne {
-        type Body = void;
-        type Response = IPost;
-    }
-    /** DELETE /posts/:id */
-    namespace DeleteOne {
-        type Body = void;
-        type Response = void;
-    }
-    /** PUT /posts/:id */
-    namespace PutOne {
-        type Body = IPost;
-        type Response = IPost;
-    }
-    /** POST /posts/ */
-    namespace Post {
-        type Body = IPost;
-        type Response = IPost;
     }
 }
 export declare namespace CommentTokens {

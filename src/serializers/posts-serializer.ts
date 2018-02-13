@@ -1,5 +1,4 @@
-﻿import { PostTokens } from '../types/tokens/standard-tokens';
-import { IAuthReq } from '../types/tokens/i-auth-request';
+﻿import { IAuthReq } from '../types/tokens/i-auth-request';
 import { IUserEntry } from '../types/models/i-user-entry';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
@@ -13,6 +12,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import ControllerFactory from '../core/controller-factory';
 import { PostsController } from '../controllers/posts';
+import { IPost } from '../api';
 
 /**
  * A controller that deals with the management of posts
@@ -89,7 +89,7 @@ export class PostsSerializer extends Serializer {
     index = isNaN( index ) ? undefined : index;
     limit = isNaN( limit ) ? undefined : limit;
 
-    const response: PostTokens.GetAll.Response = await this._controller.getPosts( {
+    const response = await this._controller.getPosts( {
       public: visibility === 'public' ? true : false,
       keyword: req.query.keyword ? new RegExp( req.query.keyword, 'i' ) : undefined,
       author: req.query.author ? new RegExp( req.query.author, 'i' ) : undefined,
@@ -123,8 +123,7 @@ export class PostsSerializer extends Serializer {
     if ( !post.public && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
       throw new Error( 'That post is marked private' );
 
-    const response: PostTokens.GetOne.Response = post;
-    return response;
+    return post;
   }
 
   /**
@@ -141,10 +140,9 @@ export class PostsSerializer extends Serializer {
    */
   @j200()
   private async updatePost( req: IAuthReq, res: express.Response ) {
-    const token: PostTokens.Post.Body = req.body;
+    const token: IPost = req.body;
     const post = await this._controller.update( req.params.id, token );
-    const response: PostTokens.PutOne.Response = post;
-    return response;
+    return post;
   }
 
   /**
@@ -152,14 +150,13 @@ export class PostsSerializer extends Serializer {
    */
   @j200()
   private async createPost( req: IAuthReq, res: express.Response ) {
-    const token: PostTokens.Post.Body = req.body;
+    const token: IPost = req.body;
 
     // User is passed from the authentication function
     if ( !token.author )
       token.author = req._user!.username;
 
     const post = await this._controller.create( token );
-    const response: PostTokens.Post.Response = post;
-    return response;
+    return post;
   }
 }

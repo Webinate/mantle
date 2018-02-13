@@ -2,7 +2,7 @@ import { IUserEntry } from '../models/i-user-entry';
 import { IStorageStats } from '../models/i-storage-stats';
 import { ICategory } from '../models/i-category';
 import { IComment } from '../models/i-comment';
-import { IPost } from '../models/i-post';
+// import { IPost } from '../models/i-post';
 import { ISessionEntry } from '../models/i-session-entry';
 import { IFileEntry } from '../models/i-file-entry';
 import { IBucketEntry } from '../models/i-bucket-entry';
@@ -133,21 +133,21 @@ export namespace SessionTokens {
   export namespace DeleteOne { export type Body = void; export type Response = void; }
 }
 
-export namespace PostTokens {
-  /** GET /posts/ */
-  export namespace GetAll { export type Body = void; export type Response = Page<IPost>; }
-  /**
-   * GET /posts/slug/:slug or
-   * GET /posts/:id
-   * */
-  export namespace GetOne { export type Body = void; export type Response = IPost; }
-  /** DELETE /posts/:id */
-  export namespace DeleteOne { export type Body = void; export type Response = void; }
-  /** PUT /posts/:id */
-  export namespace PutOne { export type Body = IPost; export type Response = IPost; }
-  /** POST /posts/ */
-  export namespace Post { export type Body = IPost; export type Response = IPost; }
-}
+// export namespace PostTokens {
+//   /** GET /posts/ */
+//   export namespace GetAll { export type Body = void; export type Response = Page<IPost>; }
+//   /**
+//    * GET /posts/slug/:slug or
+//    * GET /posts/:id
+//    * */
+//   export namespace GetOne { export type Body = void; export type Response = IPost; }
+//   /** DELETE /posts/:id */
+//   export namespace DeleteOne { export type Body = void; export type Response = void; }
+//   /** PUT /posts/:id */
+//   export namespace PutOne { export type Body = IPost; export type Response = IPost; }
+//   /** POST /posts/ */
+//   export namespace Post { export type Body = IPost; export type Response = IPost; }
+// }
 
 export namespace CommentTokens {
   /** GET /comments/ */

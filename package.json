@@ -1,6 +1,6 @@
 {
   "name": "modepress",
-  "types": "./dist/definitions/api.d.ts",
+  "types": "./definitions/api.d.ts",
   "version": "0.8.2",
   "description": "The modepress server & API",
   "main": "./dist/main.js",
@@ -56,7 +56,6 @@
     "gulp-tslint": "~8.1.2",
     "gulp-typescript": "~3.2.2",
     "jsdom": "~8.5.0",
-    "modepress-api": "file:modepress-api",
     "mailgun-js": "~0.7.15",
     "mongodb": "~2.2.30",
     "morgan": "~1.8.2",

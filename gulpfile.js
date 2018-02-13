@@ -45,7 +45,7 @@ gulp.task( 'tslint', function() {
  * Copies the distribution files from src to the dist folder
  */
 gulp.task( 'dist-files', function() {
-  return gulp.src( [ 'src/*.json' ], { base: "src/" } )
+  return gulp.src( './package.json' )
     .pipe( gulp.dest( './dist' ) );
 } );
 
@@ -61,7 +61,7 @@ gulp.task( 'definition', function() {
     .pipe( tsProjectDefs() );
 
   return tsResult.dts
-    .pipe( gulp.dest( './modepress-api' ) );
+    .pipe( gulp.dest( './dist/definitions' ) );
 } );
 
 gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchNum, configFiles ) } );

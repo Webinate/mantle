@@ -4,6 +4,9 @@ export declare class ClientError extends Error {
     code: number;
     constructor(message: string, code: number, response: Response);
 }
+export declare function makeQueryString(options: Partial<{
+    [name: string]: boolean | string | number | Array<any>;
+}>): string;
 export declare function getJson<T>(url: string): Promise<T>;
 export declare function get(url: string): Promise<Response>;
 export declare function postJson<T>(url: string, data: any): Promise<T>;

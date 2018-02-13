@@ -34,5 +34,5 @@ export declare class ControllerFactory {
      */
     private create(type);
 }
-declare const singleton: ControllerFactory;
-export default singleton;
+declare const _default: ControllerFactory;
+export default _default;

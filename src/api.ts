@@ -87,7 +87,7 @@ export { IUserEntry } from './types/models/i-user-entry';
 export {
   IAuthenticationResponse, AuthTokens, BucketTokens, CategoriesTokens, CommentTokens, EmailTokens,
   FileTokens, IRemoveResponse, IResponse, ISimpleResponse, IUploadBinaryResponse, IUploadResponse, IUploadTextResponse,
-  Page, PostTokens, RenderTokens, SessionTokens, StatTokens, UserTokens
+  Page, RenderTokens, SessionTokens, StatTokens, UserTokens
 } from './types/tokens/standard-tokens';
 export { IAuthReq } from './types/tokens/i-auth-request';
 export { ILoginToken } from './types/tokens/i-login-token';
@@ -96,5 +96,3 @@ export { IRegisterToken } from './types/tokens/i-register-token';
 export { SocketTokens } from './types/tokens/i-socket-token';
 export { IUploadToken } from './types/tokens/i-upload-token';
 export { IClient } from './types/config/properties/i-client';
-
-export { getJson } from './frontend-api/http-clients';
