@@ -1,6 +1,6 @@
 {
   "name": "modepress",
-  "types": "./definitions/index.d.ts",
+  "types": "./index.d.ts",
   "version": "0.9.0",
   "description": "The modepress server & API",
   "main": "./index.js",
