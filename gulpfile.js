@@ -1,4 +1,5 @@
 var gulp = require( 'gulp' );
+var rimraf = require( 'rimraf' );
 var ts = require( 'gulp-typescript' );
 var tslint = require( 'gulp-tslint' );
 var concat = require( 'gulp-concat' );
@@ -24,7 +25,16 @@ gulp.task( 'ts-code', function() {
   var tsResult = tsProject.src()
     .pipe( tsProject() );
 
-  return tsResult.js.pipe( gulp.dest( './dist' ) );
+  return tsResult.js.pipe( gulp.dest( './' ) );
+} );
+
+/**
+ * Builds each of the ts files into JS files in the output folder
+ */
+gulp.task( 'clean', function() {
+  rimraf.sync( './lib' );
+  rimraf.sync( './lib-frontend' );
+  rimraf.sync( './definitions' );
 } );
 
 /**
@@ -42,14 +52,6 @@ gulp.task( 'tslint', function() {
 } );
 
 /**
- * Copies the distribution files from src to the dist folder
- */
-gulp.task( 'dist-files', function() {
-  return gulp.src( './package.json' )
-    .pipe( gulp.dest( './dist' ) );
-} );
-
-/**
  * Builds each of the ts files into JS files in the output folder
  */
 gulp.task( 'definition', function() {
@@ -61,11 +63,11 @@ gulp.task( 'definition', function() {
     .pipe( tsProjectDefs() );
 
   return tsResult.dts
-    .pipe( gulp.dest( './dist/definitions' ) );
+    .pipe( gulp.dest( './definitions' ) );
 } );
 
 gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchNum, configFiles ) } );
 gulp.task( 'bump-minor', function() { return setup.bumpVersion( setup.bumpMidNum, configFiles ) } );
 gulp.task( 'bump-major', function() { return setup.bumpVersion( setup.bumpMajorNum, configFiles ) } );
-gulp.task( 'build', [ 'ts-code', 'tslint', 'dist-files', 'definition' ] );
+gulp.task( 'build', [ 'clean', 'ts-code', 'tslint', 'definition' ] );
 gulp.task( 'quick-build', [ 'ts-code' ] );

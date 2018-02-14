@@ -6,7 +6,7 @@
       "type": "node",
       "protocol": "auto",
       "request": "launch",
-      "program": "${workspaceRoot}/dist/main.js",
+      "program": "${workspaceRoot}/lib/main.js",
       "stopOnEntry": false,
       "args": [
         "--config=${workspaceRoot}/config.json",

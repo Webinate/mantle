@@ -1,9 +1,9 @@
 {
   "name": "modepress",
-  "types": "./definitions/api.d.ts",
+  "types": "./definitions/index.d.ts",
   "version": "0.8.2",
   "description": "The modepress server & API",
-  "main": "./dist/main.js",
+  "main": "./index.js",
   "author": "Mathew Henson",
   "license": "MIT",
   "scripts": {
