@@ -1,4 +1,4 @@
-const modepress = require( "modepress-api" );
+const modepress = require( "modepress" );
 
 /**
  * Create a basic controller

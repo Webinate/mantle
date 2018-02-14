@@ -1,4 +1,4 @@
-const mp = require( 'modepress-api' );
+const mp = require( 'modepress' );
 const express = require( 'express' );
 
 
