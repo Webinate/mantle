@@ -27,6 +27,10 @@ node_modules/
 dist/
 .gitignore/
 
+.definitions/
+.lib/
+.lib-frontend/
+
 changes.md
 
 # Visual Studo 2015 cache/options directory
