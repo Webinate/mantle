@@ -27,9 +27,9 @@ node_modules/
 dist/
 .gitignore/
 
-.definitions/
-.lib/
-.lib-frontend/
+definitions/
+lib/
+lib-frontend/
 
 changes.md
 
