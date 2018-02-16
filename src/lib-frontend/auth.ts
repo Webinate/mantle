@@ -1,4 +1,4 @@
-import { getJson, get, postJson, makeQueryString, apiUrl } from './http-clients';
+import { getJson, get, postJson, putJson, makeQueryString, apiUrl } from './http-clients';
 import { IAuthenticationResponse, ILoginToken, IRegisterToken, ISimpleResponse } from '..';
 
 const rootPath = `${apiUrl}/auth`;
@@ -32,7 +32,7 @@ export async function register( token: IRegisterToken ) {
 }
 
 export async function passwordReset( token: { user: string; key: string; password: string; } ) {
-  return await postJson<ISimpleResponse>( `${rootPath}/password-reset`, token );
+  return await putJson<ISimpleResponse>( `${rootPath}/password-reset`, token );
 }
 
 export async function resendActivation( user: string ) {
@@ -44,5 +44,5 @@ export async function requestPasswordReset( user: string ) {
 }
 
 export async function approveActivation( user: string ) {
-  return await getJson<ISimpleResponse>( `${rootPath}/${user}/approve-activation` );
+  return await putJson<ISimpleResponse>( `${rootPath}/${user}/approve-activation`, {} );
 }
