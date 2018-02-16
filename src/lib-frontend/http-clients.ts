@@ -1,4 +1,4 @@
-export const apiUrl = `${process.env.root || '/api'}/users`;
+export const apiUrl = `${process.env.root || '/api'}`;
 
 export class ClientError extends Error {
   public response: Response;
