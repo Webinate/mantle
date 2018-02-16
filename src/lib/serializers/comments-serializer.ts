@@ -1,0 +1,189 @@
+﻿import { IAuthReq } from '../types/tokens/i-auth-request';
+import { CommentTokens } from '../types/tokens/standard-tokens';
+import * as bodyParser from 'body-parser';
+import * as mongodb from 'mongodb';
+import * as express from 'express';
+import * as compression from 'compression';
+import { Serializer } from './serializer';
+import { identifyUser, adminRights, canEdit, hasId } from '../utils/permission-controllers';
+import { j200 } from '../utils/response-decorators';
+import { UserPrivileges } from '../core/user';
+import { IBaseControler } from '../types/misc/i-base-controller';
+import Factory from '../core/model-factory';
+import { CommentsController } from '../controllers/comments';
+import ControllerFactory from '../core/controller-factory';
+
+/**
+ * A controller that deals with the management of comments
+ */
+export class CommentsSerializer extends Serializer {
+  private _options: IBaseControler;
+  private _controller: CommentsController;
+
+  /**
+	 * Creates a new instance of the controller
+	 */
+  constructor( options: IBaseControler ) {
+    super( [ Factory.get( 'comments' ) ] );
+    this._options = options;
+  }
+
+  /**
+ * Called to initialize this controller and its related database objects
+ */
+  async initialize( e: express.Express, db: mongodb.Db ) {
+    this._controller = ControllerFactory.get( 'comments' );
+    const router = express.Router();
+
+    router.use( compression() );
+    router.use( bodyParser.urlencoded( { 'extended': true } ) );
+    router.use( bodyParser.json() );
+    router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
+
+    router.get( '/comments', <any>[ adminRights, this.getComments.bind( this ) ] );
+    router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, this.getComment.bind( this ) ] );
+    router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), identifyUser, this.getComments.bind( this ) ] );
+    router.get( '/users/:user/comments', <any>[ identifyUser, this.getComments.bind( this ) ] );
+    router.delete( '/comments/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
+    router.put( '/comments/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
+    router.post( '/posts/:postId/comments/:parent?', <any>[ canEdit, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
+
+    // Register the path
+    e.use( ( this._options.rootPath || '' ) + '/', router );
+
+    await super.initialize( e, db );
+    return this;
+  }
+
+  /**
+   * Returns an array of IComment items
+   */
+  @j200()
+  private async getComments( req: IAuthReq, res: express.Response ) {
+    const user = req._user;
+    let visibility: string | undefined;
+
+    // Check for visibility
+    if ( req.query.visibility ) {
+      if ( ( <string>req.query.visibility ).toLowerCase() === 'all' )
+        visibility = 'all';
+      else if ( ( <string>req.query.visibility ).toLowerCase() === 'private' )
+        visibility = 'private';
+      else
+        visibility = 'public';
+    }
+
+    // If no user we only allow public
+    if ( !user )
+      visibility = 'public';
+    // If an admin - we do not need visibility
+    else if ( user.privileges! < UserPrivileges.Admin )
+      visibility = undefined;
+    // Regular users only see public
+    else
+      visibility = 'public';
+
+    let depth: number | undefined = parseInt( req.query.depth );
+    let index: number | undefined = parseInt( req.query.index );
+    let limit: number | undefined = parseInt( req.query.limit );
+    if ( isNaN( depth ) )
+      depth = undefined;
+    if ( isNaN( index ) )
+      index = undefined;
+    if ( isNaN( limit ) )
+      limit = undefined;
+
+    const response: CommentTokens.GetAll.Response = await this._controller.getAll( {
+      depth: depth,
+      index: index,
+      limit: limit,
+      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
+      keyword: req.query.keyword,
+      parentId: req.query.parentId,
+      public: visibility === 'public' ? true : false,
+      sort: req.query.sort ? true : false,
+      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+      sortOrder: req.query.sortOrder,
+      sortType: req.query.sort,
+      user: req.query.user
+    } );
+
+    return response;
+  }
+
+  /**
+   * Returns a single comment
+   */
+  @j200()
+  private async getComment( req: IAuthReq, res: express.Response ) {
+
+    const user = req._user;
+
+    let depth: number | undefined = parseInt( req.query.depth );
+    if ( isNaN( depth ) )
+      depth = undefined;
+
+    const comment = await this._controller.getOne( req.params.id, {
+      depth: depth,
+      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
+      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+    } );
+
+    // Only admins are allowed to see private comments
+    if ( !comment.public && ( !user || user.privileges! >= UserPrivileges.Admin ) )
+      throw new Error( 'That comment is marked private' );
+
+    const response: CommentTokens.GetOne.Response = comment;
+    return response;
+  }
+
+  /**
+   * Attempts to remove a comment by ID
+   */
+  @j200( 204 )
+  private async remove( req: IAuthReq, res: express.Response ) {
+    const user = req._user;
+
+    const comment = await this._controller.getOne( req.params.id );
+
+    // Only admins are allowed to see private comments
+    if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== comment.author ) )
+      throw new Error( 'You do not have permission' );
+
+    await this._controller.remove( req.params.id );
+  }
+
+  /**
+   * Attempts to update a comment by ID
+   */
+  @j200()
+  private async update( req: IAuthReq, res: express.Response ) {
+    const token: CommentTokens.PutOne.Body = req.body;
+    const user = req._user;
+    let comment = await this._controller.getOne( req.params.id );
+
+    // Only admins are allowed to see private comments
+    if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== comment.author ) )
+      throw new Error( 'You do not have permission' );
+
+    comment = await this._controller.update( req.params.id, token );
+    const response: CommentTokens.PutOne.Response = comment;
+    return response;
+  }
+
+  /**
+   * Attempts to create a new comment
+   */
+  @j200()
+  private async create( req: IAuthReq, res: express.Response ) {
+    const token: CommentTokens.Post.Body = req.body;
+
+    // User is passed from the authentication function
+    token.author = req._user!.username;
+    token.post = req.params.postId;
+    token.parent = req.params.parent;
+
+    const response: CommentTokens.Post.Response = await this._controller.create( token );
+    return response;
+  }
+}
