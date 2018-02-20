@@ -1,5 +1,4 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
-import { CommentTokens } from '../types/tokens/standard-tokens';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
@@ -12,6 +11,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { CommentsController } from '../controllers/comments';
 import ControllerFactory from '../core/controller-factory';
+import { IComment } from '../..';
 
 /**
  * A controller that deals with the management of comments
@@ -93,7 +93,7 @@ export class CommentsSerializer extends Serializer {
     if ( isNaN( limit ) )
       limit = undefined;
 
-    const response: CommentTokens.GetAll.Response = await this._controller.getAll( {
+    const response = await this._controller.getAll( {
       depth: depth,
       index: index,
       limit: limit,
@@ -105,7 +105,7 @@ export class CommentsSerializer extends Serializer {
       verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
       sortOrder: req.query.sortOrder,
       sortType: req.query.sort,
-      user: req.query.user
+      user: req.params.user || req.query.user
     } );
 
     return response;
@@ -133,8 +133,7 @@ export class CommentsSerializer extends Serializer {
     if ( !comment.public && ( !user || user.privileges! >= UserPrivileges.Admin ) )
       throw new Error( 'That comment is marked private' );
 
-    const response: CommentTokens.GetOne.Response = comment;
-    return response;
+    return comment;
   }
 
   /**
@@ -158,7 +157,7 @@ export class CommentsSerializer extends Serializer {
    */
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
-    const token: CommentTokens.PutOne.Body = req.body;
+    const token: Partial<IComment> = req.body;
     const user = req._user;
     let comment = await this._controller.getOne( req.params.id );
 
@@ -167,8 +166,7 @@ export class CommentsSerializer extends Serializer {
       throw new Error( 'You do not have permission' );
 
     comment = await this._controller.update( req.params.id, token );
-    const response: CommentTokens.PutOne.Response = comment;
-    return response;
+    return comment;
   }
 
   /**
@@ -176,14 +174,14 @@ export class CommentsSerializer extends Serializer {
    */
   @j200()
   private async create( req: IAuthReq, res: express.Response ) {
-    const token: CommentTokens.Post.Body = req.body;
+    const token: Partial<IComment> = req.body;
 
     // User is passed from the authentication function
     token.author = req._user!.username;
     token.post = req.params.postId;
     token.parent = req.params.parent;
 
-    const response: CommentTokens.Post.Response = await this._controller.create( token );
+    const response = await this._controller.create( token );
     return response;
   }
 }
