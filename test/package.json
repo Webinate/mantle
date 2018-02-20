@@ -1,0 +1,15 @@
+{
+  "name": "modepress-tests",
+  "version": "0.1.0",
+  "description": "Tests package for modepress",
+  "main": "./index.js",
+  "author": "Mathew Henson",
+  "license": "MIT",
+  "scripts": {},
+  "dependencies": {
+    "modepress": "file:..",
+    "unit.js": "~2.0.0",
+    "node-fetch": "1.7.3",
+    "form-data": "2.3.1"
+  }
+}
