@@ -95,4 +95,6 @@ export { IMessage } from './lib/types/tokens/i-message';
 export { IRegisterToken } from './lib/types/tokens/i-register-token';
 export { SocketTokens } from './lib/types/tokens/i-socket-token';
 export { IUploadToken } from './lib/types/tokens/i-upload-token';
-export { IClient } from './lib/types/config/properties/i-client';
+export { IClient, IServer } from './lib/types/config/properties/i-client';
+export { IConfig } from './lib/types/config/i-config';
+export { IAdminUser } from './lib/types/config/properties/i-admin';

@@ -1,6 +1,8 @@
-const test = require( 'unit.js' );
-const assert = require( 'assert' );
-let guest, admin, config, user1, user2;
+import * as assert from 'assert';
+import { } from 'mocha';
+import Agent from '../agent';
+
+let guest, admin, config, user1: Agent, user2;
 
 describe( '1. Getting and setting user stats', function() {
 

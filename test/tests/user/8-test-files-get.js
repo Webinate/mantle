@@ -50,14 +50,14 @@ describe( '8. Getting uploaded user files', function() {
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
+    const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
     test.number( resp.status ).is( 200 );
   } )
 
   it( 'regular user did upload another file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
+    const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
     test.number( resp.status ).is( 200 );
   } )
 

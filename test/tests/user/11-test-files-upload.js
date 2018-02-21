@@ -34,7 +34,7 @@ describe( '11. Testing file uploads', function() {
 
     const form = new FormData();
     form.append( '"�$^&&', fs.readFileSync( filePath ) );
-    const resp = await user1.post( "/buckets/dinosaurs3/upload", form, null, form.getHeaders() );
+    const resp = await user1.post( "/buckets/dinosaurs3/upload", form, form.getHeaders() );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.object( json ).hasProperty( "message" );
@@ -47,7 +47,7 @@ describe( '11. Testing file uploads', function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     form.append( 'meta', 'BAD META' )
-    const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
+    const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.object( json ).hasProperty( "message" );
@@ -60,7 +60,7 @@ describe( '11. Testing file uploads', function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     form.append( 'meta', '{ "meta" : "good" }' )
-    const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
+    const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.object( json ).hasProperty( "message" );
@@ -72,7 +72,7 @@ describe( '11. Testing file uploads', function() {
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await user1.post( "/buckets/dinosaurs/upload", form, null, form.getHeaders() );
+    const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
     test.number( resp.status ).is( 200 );
     const json = await resp.json();
     test.object( json ).hasProperty( "message" );

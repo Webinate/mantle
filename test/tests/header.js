@@ -2,82 +2,8 @@ let test = require( 'unit.js' );
 let fs = require( 'fs' );
 let yargs = require( "yargs" );
 const fetch = require( "node-fetch" );
-const formData = require( 'form-data' );
+const Agent = require( './agent' ).default;
 let args = yargs.argv;
-
-/**
- * Represents an agent that can make calls to the backend
- */
-class Agent {
-  constructor( host, cookie, username, password, email ) {
-    this.host = host || "http://localhost:8000";
-    this.cookie = cookie;
-    this.username = username;
-    this.password = password;
-    this.email = email;
-  }
-
-  async get( url, type = 'application/json', options = {} ) {
-    const headers = {};
-    if ( type )
-      headers[ 'Content-Type' ] = type;
-    if ( this.cookie )
-      headers[ 'Cookie' ] = this.cookie;
-
-    return await fetch( `${this.host}${url}`, Object.assign( {}, { headers: headers }, options ) );
-  }
-
-  async put( url, data, type = 'application/json' ) {
-    const headers = {};
-    if ( type )
-      headers[ 'Content-Type' ] = type;
-    if ( this.cookie )
-      headers[ 'Cookie' ] = this.cookie;
-
-    return await fetch( `${this.host}${url}`, {
-      method: 'PUT',
-      headers: headers,
-      body: type === 'application/json' ? JSON.stringify( data ) : data
-    } );
-  }
-
-  async post( url, data, type = 'application/json', optionalHeaders = {} ) {
-    const headers = Object.assign( {}, optionalHeaders );
-    if ( type )
-      headers[ 'Content-Type' ] = type;
-    if ( this.cookie )
-      headers[ 'Cookie' ] = this.cookie;
-
-
-
-    return await fetch( `${this.host}${url}`, {
-      method: 'POST',
-      headers: headers,
-      body: type === 'application/json' ? JSON.stringify( data ) : data
-    } );
-  }
-
-  async delete( url, data, type = 'application/json' ) {
-    const headers = {};
-    if ( type )
-      headers[ 'Content-Type' ] = type;
-    if ( this.cookie )
-      headers[ 'Cookie' ] = this.cookie;
-
-    return await fetch( `${this.host}${url}`, {
-      method: 'DELETE',
-      headers: headers
-    } );
-  }
-
-  /**
-   * Updates the cookie of the agent
-   * @param {string} response
-   */
-  updateCookie( response ) {
-    this.cookie = response.headers.get( "set-cookie" ).split( ";" )[ 0 ];
-  }
-}
 
 /**
  * Used to create a agent to test with
@@ -108,7 +34,7 @@ async function createUser( username, password, email, priviledge = 3 ) {
     throw new Error( response.body );
 
   // User created, but not logged in
-  const newAgent = new Agent( null, null, username, password, email );
+  const newAgent = new Agent( "http://localhost:8000", null, username, password, email );
   response = await newAgent.post( `/api/auth/login`, { username: username, password: password } );
 
   if ( response.status !== 200 )
@@ -176,8 +102,8 @@ async function initialize() {
     exports.removeUser = removeUser;
     exports.createAgent = createAgent;
     exports.users = {
-      guest: new Agent(),
-      admin: new Agent( null, adminCookie, config.adminUser.username, config.adminUser.password, config.adminUser.email ),
+      guest: new Agent( "http://localhost:8000" ),
+      admin: new Agent( "http://localhost:8000", adminCookie, config.adminUser.username, config.adminUser.password, config.adminUser.email ),
       user1: null,
       user2: null
     };
