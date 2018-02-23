@@ -60,6 +60,7 @@
     "request": "~2.69.0",
     "rimraf": "~2.6.1",
     "sanitize-html": "~1.14.1",
+    "ts-node": "^5.0.0",
     "tslint": "~5.7.0",
     "typescript": "2.6.1",
     "validator": "~3.43.0",

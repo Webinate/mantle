@@ -35,7 +35,6 @@
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "stopOnEntry": false,
       "args": [
-        "--compilers ts:ts-node/register",
         "-t",
         "100000",
         "test/index.js",

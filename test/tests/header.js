@@ -3,6 +3,7 @@ let fs = require( 'fs' );
 let yargs = require( "yargs" );
 const fetch = require( "node-fetch" );
 const Agent = require( './agent' ).default;
+const loadConfig = require( './load-config' ).default;
 let args = yargs.argv;
 
 /**
@@ -59,33 +60,11 @@ async function removeUser( username ) {
 }
 
 /**
- * Loads any of the sensitive props in the config json
- */
-function loadSensitiveProps( config ) {
-  function loadProp( parentProp, prop, path ) {
-    if ( typeof ( path ) === 'string' ) {
-      if ( !fs.existsSync( path ) )
-        throw new Error( `Property file '${path}' cannot be found` );
-      else
-        parentProp[ prop ] = JSON.parse( fs.readFileSync( path, 'utf8' ) );
-    }
-  }
-
-  // Load and merge any sensitive json files
-  loadProp( config, 'adminUser', config.adminUser );
-  loadProp( config.remotes, 'google', config.remotes.google );
-  loadProp( config.remotes, 'local', config.remotes.local );
-  loadProp( config.mail, 'options', config.mail.options );
-  loadProp( config, 'database', config.database );
-}
-
-/**
  * Initialize the manager
  */
 async function initialize() {
   try {
-    const config = JSON.parse( fs.readFileSync( args.config ) );
-    loadSensitiveProps( config );
+    const config = loadConfig( args.config );
 
     const host = "http://localhost:8000";
     const initAgent = new Agent( host );
