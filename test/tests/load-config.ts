@@ -23,7 +23,7 @@ function loadSensitiveProps( config: IConfig ) {
 }
 
 export default function( path: string ) {
-  const config = JSON.parse( fs.readFileSync( path ).toString() );
+  const config: IConfig = JSON.parse( fs.readFileSync( path ).toString() );
   loadSensitiveProps( config );
   return config;
 }

@@ -17,4 +17,7 @@ export interface IDatabase {
    * The port number the mongo database is listening on
    */
   port: number;
+
+  /** The collection name where we store database migrations */
+  migrations: string;
 }
