@@ -14,25 +14,28 @@ require( "ts-node" ).register( {
   },
 } );
 
-
 const loadConfig = require( './test/tests/load-config' ).default;
-const yargs = require( "yargs" );
-const args = yargs.argv;
-
-if ( !args[ 'mantle-config' ] ) {
-  const err = 'Please specifiy a config file path';
-  console.error( err )
-  throw new Error( err );
-}
-
-const config = loadConfig( args[ 'mantle-config' ] );
+const config = loadConfig( 'config.json' );
 
 console.log( `Running migrations for DB: mongodb://${config.database.host}:${config.database.port}` )
 
 module.exports = {
-  host: config.database.host,
-  port: config.database.port,
-  db: config.database.name,
-  collection: config.database.migrations,
-  timeout: 200
+  mongodb: {
+    // TODO You MUST edit this connection url to your MongoDB database:
+    url: `mongodb://${config.database.host}:${config.database.port}/${config.database.name}`,
+
+    // uncomment and edit to specify Mongo client connect options (eg. increase the timeouts)
+    // see https://mongodb.github.io/node-mongodb-native/2.2/api/MongoClient.html
+    //
+    // options: {
+    //   connectTimeoutMS: 3600000, // 1 hour
+    //   socketTimeoutMS: 3600000, // 1 hour
+    // }
+  },
+
+  // The migrations dir, can be an relative or absolute path. Only edit this when really necessary.
+  migrationsDir: 'migrations',
+
+  // The mongodb collection where the applied changes are stored. Only edit this when really necessary.
+  changelogCollectionName: config.database.migrations,
 }
