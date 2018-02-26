@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { text, bool, textArray, date, html } from './schema-items/schema-item-factory';
+import { text, bool, textArray, date, html, foreignKey } from './schema-items/schema-item-factory';
 import { SchemaHtml } from './schema-items/schema-html';
 import { IPost } from '../types/models/i-post';
 
@@ -10,7 +10,7 @@ export class PostsModel extends Model<IPost> {
   constructor() {
     super( 'posts' );
 
-    this.schema.add( new text( 'author', '', { minCharacters: 1 } ) );
+    this.schema.add( new foreignKey( 'author', '', 'users', { keyCanBeNull: true, canAdapt: true } ) );
     this.schema.add( new text( 'title', '', { minCharacters: 1 } ) );
     this.schema.add( new text( 'slug', '', { maxCharacters: 512, minCharacters: 1 } ) ).setUnique( true ).setRequired( true );
     this.schema.add( new text( 'brief', '' ) );
