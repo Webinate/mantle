@@ -9,7 +9,7 @@ let fileId;
 describe( '6. Testing files deletion', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+    const header = require( '../header' ).default;
     guest = header.users.guest;
     admin = header.users.admin;
     user1 = header.users.user1;

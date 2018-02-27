@@ -154,7 +154,7 @@ export class PostsSerializer extends Serializer {
 
     // User is passed from the authentication function
     if ( !token.author )
-      token.author = req._user!.username;
+      token.author = req._user!._id;
 
     const post = await this._controller.create( token );
     return post;

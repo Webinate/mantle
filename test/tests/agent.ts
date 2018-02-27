@@ -12,7 +12,7 @@ export default class Agent {
   public password: string;
   public email: string;
 
-  constructor( host: string, cookie: string, username: string, password: string, email: string ) {
+  constructor( host: string, cookie?: string, username?: string, password?: string, email?: string ) {
     this.host = host;
     this.cookie = cookie;
     this.username = username;

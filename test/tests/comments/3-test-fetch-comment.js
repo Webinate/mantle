@@ -6,7 +6,7 @@ let guest, admin, config, numPosts,
 describe( '3. Testing fetching of comments', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+    const header = require( '../header' ).default;
     guest = header.users.guest;
     admin = header.users.admin;
     config = header.config;

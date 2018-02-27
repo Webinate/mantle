@@ -6,7 +6,7 @@ let guest, admin, config, user1, user2, bucket;
 const filePath = './test/media/file.png';
 let fileUrl;
 let fileId = '';
-const header = require( '../header.js' );
+const header = require( '../header' ).default;
 
 describe( '7. Getting and setting user media stat usage', async function() {
 

@@ -1,13 +1,16 @@
 import * as assert from 'assert';
 import { } from 'mocha';
 import Agent from '../agent';
+import header from '../header';
+import { IConfig } from '../../../src/lib/types/config/i-config';
+import { IAdminUser } from '../../../src/lib/types/config/properties/i-admin';
 
-let guest, admin, config, user1: Agent, user2;
+let guest: Agent, admin: Agent, config: IConfig, user1: Agent, user2: Agent;
 
 describe( '1. Getting and setting user stats', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+
     guest = header.users.guest;
     admin = header.users.admin;
     user1 = header.users.user1;
@@ -16,7 +19,7 @@ describe( '1. Getting and setting user stats', function() {
   } )
 
   it( 'regular user did not get stats for admin', async function() {
-    const resp = await user1.get( `/stats/users/${config.adminUser.username}/get-stats` );
+    const resp = await user1.get( `/stats/users/${( config.adminUser as IAdminUser ).username}/get-stats` );
     const json = await resp.json();
     assert.strictEqual( resp.status, 403 );
     assert( json.message );
@@ -24,7 +27,7 @@ describe( '1. Getting and setting user stats', function() {
   } )
 
   it( 'regular user did not create stats for admin', async function() {
-    const resp = await user1.post( `/stats/create-stats/${config.adminUser.username}` );
+    const resp = await user1.post( `/stats/create-stats/${( config.adminUser as IAdminUser ).username}` );
     const json = await resp.json();
     assert.strictEqual( resp.status, 403 );
     assert( json.message );

@@ -1,6 +1,6 @@
 // TODO: THIS FILE NEEDS TO BE REMOVED!
 
-const header = require( './header.js' );
+const header = require( './header' ).default;
 const test = require( 'unit.js' );
 const ws = require( 'ws' );
 

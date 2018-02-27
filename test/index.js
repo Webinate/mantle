@@ -23,7 +23,7 @@ if ( args.server === undefined || isNaN( parseInt( args.server ) ) ) {
 }
 
 const startup = require( '../lib/core/initialization/startup.js' );
-const header = require( './tests/header.js' );
+const header = require( './tests/header' ).default;
 
 // Start the first test to initialize everything
 describe( 'Initializing tests', function() {
@@ -34,14 +34,16 @@ describe( 'Initializing tests', function() {
     try {
       // Initialize the server
       await startup.initialize();
+
+      // Initialize the test suites
+      await header.initialize();
     }
     catch ( err ) {
       console.error( err );
       process.exit();
     }
 
-    // Initialize the test suites
-    await header.initialize();
+    return true;
   } );
 
   it( 'should be initialized', function( done ) {

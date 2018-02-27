@@ -4,7 +4,7 @@ let guest, admin, config;
 describe( '12. Getting user data', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+    const header = require( '../header' ).default;
     guest = header.users.guest;
     admin = header.users.admin;
     config = header.config;

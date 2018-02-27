@@ -4,7 +4,7 @@ let guest, admin, config, numPosts, publicPostId, privatePostId;
 describe( '4. Testing fetching of posts', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+    const header = require( '../header' ).default;
     guest = header.users.guest;
     admin = header.users.admin;
     config = header.config;

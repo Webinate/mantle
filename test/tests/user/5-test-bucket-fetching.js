@@ -4,7 +4,7 @@ let guest, admin, config, user1, user2, bucket;
 describe( '5. Testing bucket get requests', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+    const header = require( '../header' ).default;
     guest = header.users.guest;
     admin = header.users.admin;
     user1 = header.users.user1;

@@ -129,9 +129,10 @@ export class PostsController extends Controller {
       projection: ( getContent === false ? { content: 0 } : undefined )
     } );
 
+    const verbose = options.verbose !== undefined ? options.verbose : true;
     const jsons: Array<Promise<IPost>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( { verbose: options.verbose !== undefined ? options.verbose : true } ) );
+      jsons.push( schemas[ i ].getAsJson( { expandForeignKeys: verbose, verbose: verbose } ) );
 
     const sanitizedData = await Promise.all( jsons );
     const response: Page<IPost> = {
@@ -182,7 +183,7 @@ export class PostsController extends Controller {
    */
   async create( token: IPost ) {
     const schema = await this._postsModel.createInstance( token );
-    const json = await schema.getAsJson( { verbose: true } );
+    const json = await schema.getAsJson( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
     return json;
   }
 
@@ -204,7 +205,7 @@ export class PostsController extends Controller {
     if ( options.public !== undefined )
       findToken.public = options.public;
 
-    const post = await posts!.findOne( findToken, { verbose: options.verbose !== undefined ? options.verbose : true } );
+    const post = await posts!.findOne( findToken, { verbose: options.verbose !== undefined ? options.verbose : true, expandForeignKeys: true, expandMaxDepth: 1 } );
 
     if ( !post )
       throw new Error( 'Could not find post' );

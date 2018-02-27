@@ -8,7 +8,7 @@ const filePath = './test/media/file.png';
 describe( '9. Testing file renaming', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+    const header = require( '../header' ).default;
     guest = header.users.guest;
     admin = header.users.admin;
     user1 = header.users.user1;

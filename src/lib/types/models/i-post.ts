@@ -1,10 +1,11 @@
 import { IModelEntry } from './i-model-entry';
+import { IUserEntry } from './i-user-entry';
 
 /*
  * Describes the post model
  */
 export interface IPost extends IModelEntry {
-  author?: string;
+  author?: IUserEntry;
   title?: string;
   slug?: string;
   brief?: string;

@@ -6,7 +6,7 @@ let guest, admin, config, user1,
 describe( '17. Testing creating a user', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+    const header = require( '../header' ).default;
     guest = header.users.guest;
     admin = header.users.admin;
     user1 = header.users.user1;

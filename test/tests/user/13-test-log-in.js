@@ -4,7 +4,7 @@ let guest, config, admin;
 describe( '13. Testing user logging in', function() {
 
   before( function() {
-    const header = require( '../header.js' );
+    const header = require( '../header' ).default;
     guest = header.users.guest;
     config = header.config;
     admin = header.users.admin;

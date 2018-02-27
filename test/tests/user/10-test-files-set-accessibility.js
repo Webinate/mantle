@@ -4,7 +4,7 @@ const fs = require( 'fs' );
 
 let guest, admin, config, user1, user2, bucket;
 const filePath = './test/media/file.png';
-const header = require( '../header.js' );
+const header = require( '../header' ).default;
 let fileId = '';
 let fileUrl = '';
 
