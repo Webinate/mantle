@@ -1,5 +1,10 @@
-const test = require( 'unit.js' );
-let guest, admin, config, user1, user2, agent, numUsers,
+import * as assert from 'assert';
+import { } from 'mocha';
+import Agent from '../agent';
+import header from '../header';
+import { IConfig, IAdminUser, Page } from 'modepress';
+
+let guest: Agent, admin: Agent, config: IConfig, user1: Agent, user2: Agent, agent: Agent, numUsers: number,
   testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com';
 
@@ -20,7 +25,7 @@ describe( '20. Testing users logout', function() {
 
   it( `did create & login regular user ${testUserName} with valid details`, async function() {
     const resp = await admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     const header = require( '../header' ).default;
     const newAgent = await header.createUser( testUserName, 'password', testUserEmail );
@@ -29,25 +34,25 @@ describe( '20. Testing users logout', function() {
 
   it( 'user should be logged in', async function() {
     const resp = await agent.get( '/api/auth/authenticated' );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.bool( json.authenticated ).isTrue();
+    assert( json.authenticated );
   } )
 
   it( 'should log out', async function() {
     const resp = await agent.get( `/api/auth/logout` );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
   } )
 
   it( 'user should be logged out', async function() {
     const resp = await agent.get( '/api/auth/authenticated' );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.bool( json.authenticated ).isFalse();
+    assert( json.authenticated === false )
   } )
 
   it( 'did allow the regular user to delete its own account', async function() {
     const resp = await admin.delete( `/api/users/${testUserName}` );
-    test.number( resp.status ).is( 204 );
+    assert.deepEqual( resp.status, 204 );
   } )
 } )

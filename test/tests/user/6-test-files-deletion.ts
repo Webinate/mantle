@@ -1,8 +1,12 @@
-const test = require( 'unit.js' );
-const FormData = require( 'form-data' );
-const fs = require( 'fs' );
+import * as assert from 'assert';
+import { } from 'mocha';
+import Agent from '../agent';
+import header from '../header';
+import * as fs from 'fs';
+import { IConfig, IAdminUser, Page, IFileEntry } from 'modepress';
+import * as FormData from 'form-data';
 
-let guest, admin, config, user1, user2, bucket;
+let guest: Agent, admin: Agent, config: IConfig, user1: Agent, user2: Agent, bucket: string;
 const filePath = './test/media/file.png';
 let fileId;
 
@@ -20,7 +24,7 @@ describe( '6. Testing files deletion', function() {
   it( 'regular user did create a bucket dinosaurs', async function() {
     const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
     const json = await resp.json();
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     bucket = json._id;
   } )
 
@@ -29,34 +33,34 @@ describe( '6. Testing files deletion', function() {
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
     const json = await resp.json();
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
   } )
 
   it( 'regular user has 1 file', async function() {
     const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     const json = await resp.json();
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     fileId = json.data[ 0 ]._id;
-    test.array( json.data ).hasLength( 1 );
+    assert( json.data.length === 1 );
   } )
 
   it( 'regular user did not remove a file with a bad id', async function() {
     const resp = await user1.delete( `/files/123` );
     const json = await resp.json();
-    test.number( resp.status ).is( 500 );
-    test.string( json.message ).is( 'Invalid file ID format' );
+    assert.deepEqual( resp.status, 500 );
+    assert.deepEqual( json.message, 'Invalid file ID format' );
   } )
 
   it( 'regular user did remove a file with a valid id', async function() {
     const resp = await user1.delete( `/files/${fileId}` );
-    test.number( resp.status ).is( 204 );
+    assert.deepEqual( resp.status, 204 );
   } )
 
   it( 'regular user has 0 files', async function() {
     const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
     const json = await resp.json();
-    test.number( resp.status ).is( 200 );
-    test.array( json.data ).hasLength( 0 );
+    assert.deepEqual( resp.status, 200 );
+    assert( json.data.length === 0 );
   } )
 
   // TODO: Add a test for regular user deletion permission denial?
@@ -64,6 +68,6 @@ describe( '6. Testing files deletion', function() {
 
   it( 'regular user did remove the bucket dinosaurs', async function() {
     const resp = await user1.delete( `/buckets/${bucket}` );
-    test.number( resp.status ).is( 204 );
+    assert.deepEqual( resp.status, 204 );
   } )
 } )

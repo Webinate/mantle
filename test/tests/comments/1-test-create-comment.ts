@@ -1,6 +1,11 @@
-const test = require( 'unit.js' );
-let guest, admin, config, numPosts,
-  numComments, postId, commentId;
+import * as assert from 'assert';
+import { } from 'mocha';
+import { IPost, IConfig, IAdminUser, IComment, Page } from 'modepress';
+import header from '../header';
+import Agent from '../agent';
+
+let guest: Agent, admin: Agent, config: IConfig, numPosts: number,
+  numComments: number, postId: string, commentId: string;
 
 describe( '1. Testing creation of comments', function() {
 
@@ -20,17 +25,15 @@ describe( '1. Testing creation of comments', function() {
 
   it( 'fetched all posts', async function() {
     const resp = await admin.get( `/api/posts` );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.number( json.count );
     numPosts = json.count;
   } )
 
   it( 'fetched all comments', async function() {
     const resp = await admin.get( `/api/comments` );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.number( json.count );
     numComments = json.count;
   } )
 
@@ -42,94 +45,94 @@ describe( '1. Testing creation of comments', function() {
       public: false,
       content: "Hello world"
     } );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
+    assert.deepEqual( resp.status, 200 );
+    const json: IPost = await resp.json();
     postId = json._id;
-    test.bool( json.public ).isFalse();
+    assert( json.public === false )
   } )
 
   it( 'cannot create a comment when not logged in', async function() {
     const resp = await guest.post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` );
-    test.number( resp.status ).is( 500 );
+    assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
-    test.string( json.message ).is( "You must be logged in to make this request" );
+    assert.deepEqual( json.message, "You must be logged in to make this request" );
   } )
 
   it( 'cannot create a comment with a badly formatted post id', async function() {
     const resp = await admin.post( `/api/posts/bad/comments/bad` );
-    test.number( resp.status ).is( 500 );
+    assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
-    test.string( json.message ).is( "Invalid ID format" );
+    assert.deepEqual( json.message, "Invalid ID format" );
   } )
 
   it( 'cannot create a comment with a badly formatted parent comment id', async function() {
     const resp = await admin.post( `/api/posts/123456789012345678901234/comments/bad` );
-    test.number( resp.status ).is( 500 );
+    assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
-    test.string( json.message ).is( "Invalid ID format" );
+    assert.deepEqual( json.message, "Invalid ID format" );
   } )
 
   it( 'cannot create a comment without a post that actually exists', async function() {
     const resp = await admin.post( `/api/posts/123456789012345678901234/comments` );
-    test.number( resp.status ).is( 500 );
+    assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
-    test.string( json.message ).is( "post does not exist" );
+    assert.deepEqual( json.message, "post does not exist" );
   } )
 
   it( 'cannot create a comment without a post that actually exists', async function() {
     const resp = await admin.post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` );
-    test.number( resp.status ).is( 500 );
+    assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
-    test.string( json.message ).is( "No comment exists with the id 123456789012345678901234" );
+    assert.deepEqual( json.message, "No comment exists with the id 123456789012345678901234" );
   } )
 
   it( 'cannot create a comment on a post that does exist with illegal html', async function() {
     const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } );
-    test.number( resp.status ).is( 500 );
+    assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
-    test.string( json.message ).is( "'content' has html code that is not allowed" );
+    assert.deepEqual( json.message, "'content' has html code that is not allowed" );
   } )
 
   it( 'can create a comment on a valid post', async function() {
     const resp = await admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__", public: false } );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
+    assert.deepEqual( resp.status, 200 );
+    const json: IComment = await resp.json();
     commentId = json._id;
-    test.string( json._id );
-    test.string( json.author );
-    test.value( json.parent ).isNull();
-    test.string( json.post ).is( postId );
-    test.string( json.content ).is( "Hello world! __filter__" );
-    test.array( json.children ).hasLength( 0 );
-    test.bool( json.public ).isFalse();
-    test.number( json.createdOn );
-    test.number( json.lastUpdated );
+    assert( json._id );
+    assert( json.author );
+    assert( json.parent === null );
+    assert.deepEqual( json.post, postId );
+    assert.deepEqual( json.content, "Hello world! __filter__" );
+    assert( json.children.length === 0 );
+    assert( json.public === false );
+    assert( json.createdOn );
+    assert( json.lastUpdated );
   } )
 
   it( 'can create a another comment on the same post, with a parent comment', async function() {
     const resp = await admin.post( `/api/posts/${postId}/comments/${commentId}`, { content: "Hello world 2", public: true } );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.object( json ).hasProperty( "_id" )
+    assert.deepEqual( resp.status, 200 );
+    const json: IComment = await resp.json();
+    assert( json.hasOwnProperty( '_id' ) )
   } )
 
   it( 'did delete the test post', async function() {
     const resp = await admin.delete( `/api/posts/${postId}` );
-    test.number( resp.status ).is( 204 );
+    assert.deepEqual( resp.status, 204 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {
     const resp = await admin.get( `/api/posts` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.bool( json.count === numPosts ).isTrue();
+    assert.deepEqual( resp.status, 200 );
+    const json: Page<IPost> = await resp.json();
+    assert( json.count === numPosts );
   } )
 
   it( 'should have the same number of comments as before the tests started', async function() {
     const resp = await admin.get( `/api/comments` );
-    test.number( resp.status ).is( 200 );
-    const json = await resp.json();
-    test.number( json.count );
-    test.bool( numComments === json.count ).isTrue();
+    assert.deepEqual( resp.status, 200 );
+    const json: Page<IComment> = await resp.json();
+    assert( json.count );
+    assert( numComments === json.count );
   } )
 } )

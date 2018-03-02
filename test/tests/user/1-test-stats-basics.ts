@@ -2,8 +2,7 @@ import * as assert from 'assert';
 import { } from 'mocha';
 import Agent from '../agent';
 import header from '../header';
-import { IConfig } from '../../../src/lib/types/config/i-config';
-import { IAdminUser } from '../../../src/lib/types/config/properties/i-admin';
+import { IConfig, IAdminUser, IStorageStats } from 'modepress';
 
 let guest: Agent, admin: Agent, config: IConfig, user1: Agent, user2: Agent;
 
@@ -36,7 +35,7 @@ describe( '1. Getting and setting user stats', function() {
 
   it( 'regular user did get default stats for itself', async function() {
     const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
-    const json = await resp.json();
+    const json: IStorageStats = await resp.json();
     assert.strictEqual( resp.status, 200 );
 
     assert( json );

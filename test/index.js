@@ -52,7 +52,7 @@ describe( 'Initializing tests', function() {
 } );
 
 require( './tests/user/1-test-stats-basics' );
-require( './tests/user/2-test-authenticated.js' );
+require( './tests/user/2-test-authenticated' );
 require( './tests/user/3-test-bucket-creation' );
 require( './tests/user/4-test-bucket-deletion' );
 require( './tests/user/5-test-bucket-fetching' );
@@ -63,7 +63,7 @@ require( './tests/user/9-test-files-rename' );
 require( './tests/user/10-test-files-set-accessibility' );
 require( './tests/user/11-test-files-upload' );
 require( './tests/user/12-test-get-user' );
-require( './tests/user/13-test-log-in.js' );
+require( './tests/user/13-test-log-in' );
 require( './tests/user/15-test-stats-setting-values' );
 require( './tests/user/16-test-user-activation' );
 require( './tests/user/17-test-user-creation' );

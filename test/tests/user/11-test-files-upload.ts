@@ -1,8 +1,12 @@
-const test = require( 'unit.js' );
-const FormData = require( 'form-data' );
-const fs = require( 'fs' );
+import * as assert from 'assert';
+import { } from 'mocha';
+import Agent from '../agent';
+import header from '../header';
+import * as fs from 'fs';
+import { IConfig, IAdminUser, Page, IFileEntry } from 'modepress';
+import * as FormData from 'form-data';
 
-let guest, admin, config, user1, user2, bucket;
+let guest: Agent, admin: Agent, config: IConfig, user1: Agent, user2: Agent, bucket: string;
 const filePath = './test/media/file.png';
 
 describe( '11. Testing file uploads', function() {
@@ -19,15 +23,15 @@ describe( '11. Testing file uploads', function() {
   it( 'regular user did create a bucket dinosaurs', async function() {
     const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
     const json = await resp.json();
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     bucket = json._id;
   } )
 
   it( 'regular user has 0 files in the bucket', async function() {
     const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.array( json.data ).hasLength( 0 );
+    assert( json.data.length === 0 );
   } )
 
   it( 'regular user did not upload a file to a bucket that does not exist', async function() {
@@ -35,12 +39,11 @@ describe( '11. Testing file uploads', function() {
     const form = new FormData();
     form.append( '"�$^&&', fs.readFileSync( filePath ) );
     const resp = await user1.post( "/buckets/dinosaurs3/upload", form, form.getHeaders() );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.object( json ).hasProperty( "message" );
-    test.object( json ).hasProperty( "tokens" );
-    test.string( json.message ).is( "No bucket exists with the name 'dinosaurs3'" );
-    test.array( json.tokens ).hasLength( 0 );
+    assert( json.tokens )
+    assert.deepEqual( json.message, "No bucket exists with the name 'dinosaurs3'" );
+    assert( json.tokens.length === 0 );
   } )
 
   it( 'regular user did not upload a file when the meta was invalid', async function() {
@@ -48,12 +51,11 @@ describe( '11. Testing file uploads', function() {
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     form.append( 'meta', 'BAD META' )
     const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.object( json ).hasProperty( "message" );
-    test.object( json ).hasProperty( "tokens" );
-    test.string( json.message ).is( "Error: Meta data is not a valid JSON: SyntaxError: Unexpected token B in JSON at position 0" );
-    test.array( json.tokens ).hasLength( 0 );
+    assert( json.tokens )
+    assert.deepEqual( json.message, "Error: Meta data is not a valid JSON: SyntaxError: Unexpected token B in JSON at position 0" );
+    assert( json.tokens.length === 0 );
   } )
 
   it( 'regular user did upload a file when the meta was valid', async function() {
@@ -61,43 +63,41 @@ describe( '11. Testing file uploads', function() {
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     form.append( 'meta', '{ "meta" : "good" }' )
     const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.object( json ).hasProperty( "message" );
-    test.object( json ).hasProperty( "tokens" );
-    test.string( json.message ).is( "Upload complete. [1] Files have been saved." );
-    test.array( json.tokens ).hasLength( 1 );
+    assert( json.tokens )
+    assert.deepEqual( json.message, "Upload complete. [1] Files have been saved." );
+    assert( json.tokens.length === 1 );
   } )
 
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
     const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.object( json ).hasProperty( "message" );
-    test.object( json ).hasProperty( "tokens" );
-    test.string( json.message ).is( "Upload complete. [1] Files have been saved." );
-    test.array( json.tokens ).hasLength( 1 );
-    test.string( json.tokens[ 0 ].field ).is( "small-image.png" );
-    test.string( json.tokens[ 0 ].filename ).is( "small-image.png" );
-    test.bool( json.tokens[ 0 ].error ).isNotTrue();
-    test.string( json.tokens[ 0 ].errorMsg ).is( "" );
-    test.object( json.tokens[ 0 ] ).hasProperty( "file" );
+    assert( json.tokens );
+    assert.deepEqual( json.message, "Upload complete. [1] Files have been saved." );
+    assert( json.tokens.length === 1 )
+    assert.deepEqual( json.tokens[ 0 ].field, "small-image.png" );
+    assert.deepEqual( json.tokens[ 0 ].filename, "small-image.png" );
+    assert( json.tokens[ 0 ].error === false )
+    assert.deepEqual( json.tokens[ 0 ].errorMsg, "" );
+    assert( json.tokens[ 0 ].file )
   } )
 
   it( 'regular user uploaded 2 files, the second with meta', async function() {
     const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
-    test.number( resp.status ).is( 200 );
+    assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    test.object( json ).hasProperty( "data" );
-    test.array( json.data ).hasLength( 2 );
-    test.object( json.data[ 0 ] ).hasProperty( "meta" );
-    test.string( json.data[ 0 ].meta.meta ).is( "good" );
+    assert( json.data )
+    assert( json.data.length === 2 )
+    assert( json.data[ 0 ].meta );
+    assert.deepEqual( json.data[ 0 ].meta.meta, "good" );
   } )
 
   it( 'regular user did remove the bucket dinosaurs', async function() {
     const resp = await user1.delete( `/buckets/${bucket}` );
-    test.number( resp.status ).is( 204 );
+    assert.deepEqual( resp.status, 204 );
   } )
 } )
