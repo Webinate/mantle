@@ -82,7 +82,7 @@ export class PostsController extends Controller {
       if ( !findToken.tags )
         findToken.tags = { $all: options.requiredTags } as any;
       else
-          ( findToken.tags as any ).$all = options.requiredTags;
+        ( findToken.tags as any ).$all = options.requiredTags;
     }
 
     // Check for categories
@@ -132,7 +132,7 @@ export class PostsController extends Controller {
     const verbose = options.verbose !== undefined ? options.verbose : true;
     const jsons: Array<Promise<IPost>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( { expandForeignKeys: verbose, verbose: verbose } ) );
+      jsons.push( schemas[ i ].getAsJson( { expandForeignKeys: verbose, verbose: verbose, expandMaxDepth: 1 } ) );
 
     const sanitizedData = await Promise.all( jsons );
     const response: Page<IPost> = {
