@@ -82,7 +82,7 @@ export class PostsController extends Controller {
       if ( !findToken.tags )
         findToken.tags = { $all: options.requiredTags } as any;
       else
-          ( findToken.tags as any ).$all = options.requiredTags;
+        ( findToken.tags as any ).$all = options.requiredTags;
     }
 
     // Check for categories
