@@ -100,7 +100,7 @@ describe( '1. Testing creation of comments', function() {
     commentId = json._id;
     assert( json._id );
     assert( json.author );
-    assert( json.parent === null );
+    assert( !json.parent );
     assert.deepEqual( json.post, postId );
     assert.deepEqual( json.content, "Hello world! __filter__" );
     assert( json.children.length === 0 );

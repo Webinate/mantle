@@ -213,7 +213,7 @@ export abstract class Model<T extends IModelEntry> {
     // Transform the schema into a JSON ready format
     const json = schema.serialize();
     const collection = this.collection;
-    await collection.updateOne( { _id: schema.dbEntry._id }, { $set: json } );
+    await collection.updateOne( { _id: typeof ( schema.dbEntry._id ) === 'string' ? new ObjectID( schema.dbEntry._id ) : schema.dbEntry._id }, { $set: json } );
 
     // Now that everything has been added, we can do some post insert/update validation
     await schema.postUpsert( this._collectionName );

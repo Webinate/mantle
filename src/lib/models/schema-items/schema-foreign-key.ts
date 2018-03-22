@@ -75,6 +75,15 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       else
         transformedValue = null;
     }
+    else if ( this.value && ( this.value as IModelEntry )._id ) {
+      if ( !ObjectID.isValid( ( this.value as IModelEntry )._id ) )
+        throw new Error( `${this.name} object._id must be a valid ID string, ObjectId or IModelEntry` );
+
+      transformedValue = new ObjectID( ( this.value as IModelEntry )._id );
+    }
+    else if ( this.value && !ObjectID.isValid( this.value as any ) ) {
+      throw new Error( `${this.name} must be a valid ID string, ObjectId or IModelEntry` );
+    }
 
     if ( !transformedValue )
       this.value = null;
@@ -82,8 +91,10 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
     if ( !this.keyCanBeNull && !this.value )
       throw new Error( `${this.name} does not exist` );
 
+    this.value = transformedValue;
+
     // We can assume the value is object id by this point
-    const result = await model.findOne( { _id: <ObjectID>this.value } );
+    const result = await model.findOne( { _id: transformedValue } );
 
     if ( !this.keyCanBeNull && !result )
       throw new Error( `${this.name} does not exist` );
