@@ -89,15 +89,6 @@ export namespace SessionTokens {
   export namespace DeleteOne { export type Body = void; export type Response = void; }
 }
 
-export namespace CategoriesTokens {
-  /** GET /categories/ */
-  export namespace GetAll { export type Body = void; export type Response = Page<ICategory>; }
-  /** DELETE /categories/:id */
-  export namespace DeleteOne { export type Body = void; export type Response = void; }
-  /** POST /categories */
-  export namespace Post { export type Body = ICategory; export type Response = ICategory; }
-}
-
 export namespace RenderTokens {
   /** GET /renders/ */
   export namespace GetAll { export type Body = void; export type Response = Page<IRender>; }

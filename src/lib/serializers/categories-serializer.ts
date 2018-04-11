@@ -1,6 +1,6 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
 import { ICategory } from '../types/models/i-category';
-import { CategoriesTokens } from '../types/tokens/standard-tokens';
+import { Page } from '../types/tokens/standard-tokens';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
@@ -67,7 +67,7 @@ export class CategoriesSerializer extends Serializer {
 
     const sanitizedData = await Promise.all( jsons );
 
-    const response: CategoriesTokens.GetAll.Response = {
+    const response: Page<ICategory> = {
       count: sanitizedData.length,
       data: sanitizedData,
       index: index,
@@ -96,13 +96,11 @@ export class CategoriesSerializer extends Serializer {
    */
   @j200()
   private async createCategory( req: IAuthReq, res: express.Response ) {
-    const token: CategoriesTokens.Post.Body = req.body;
+    const token: ICategory = req.body;
     const categories = this.getModel( 'categories' )!;
 
     const schema = await categories.createInstance( token );
-    const json = await schema.getAsJson( { verbose: true } );
-
-    const response: CategoriesTokens.Post.Response = json;
-    return response;
+    const json: ICategory = await schema.getAsJson( { verbose: true } );
+    return json;
   }
 }
