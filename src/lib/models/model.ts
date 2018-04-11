@@ -194,8 +194,11 @@ export abstract class Model<T extends IModelEntry> {
 
     const schema = await this.findOne( selector );
 
+
     if ( !schema )
       throw new Error( `Resource does not exist` );
+
+    const id = schema.dbEntry._id;
 
     // If we have data, then set the variables
     if ( data )
@@ -205,7 +208,7 @@ export abstract class Model<T extends IModelEntry> {
     await schema.validate( false );
 
     // Make sure any unique fields are still being respected
-    const unique = await this.checkUniqueness( schema, schema.dbEntry._id );
+    const unique = await this.checkUniqueness( schema, id );
 
     if ( !unique )
       throw new Error( `'${this.schema.uniqueFieldNames()}' must be unique` );

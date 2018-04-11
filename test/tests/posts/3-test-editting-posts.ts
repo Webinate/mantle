@@ -90,7 +90,7 @@ describe( '3. Testing editing of posts', function() {
   } )
 
   it( 'can change a post slug with a slug already in use, if its the same post', async function() {
-    const resp = await admin.put( `/api/posts/${postId}`, { slug: "--edit--test--" } );
+    const resp = await admin.put( `/api/posts/${postId}`, { id: postId, slug: "--edit--test--" } );
     assert.deepEqual( resp.status, 200 );
     const json: IPost = await resp.json();
     assert.deepEqual( json._id, postId );
