@@ -1,6 +1,5 @@
 import { IUserEntry } from '../models/i-user-entry';
 import { IStorageStats } from '../models/i-storage-stats';
-import { ICategory } from '../models/i-category';
 import { ISessionEntry } from '../models/i-session-entry';
 import { IFileEntry } from '../models/i-file-entry';
 import { IBucketEntry } from '../models/i-bucket-entry';

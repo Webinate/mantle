@@ -85,7 +85,7 @@ export { ISessionEntry } from './lib/types/models/i-session-entry';
 export { IStorageStats } from './lib/types/models/i-storage-stats';
 export { IUserEntry } from './lib/types/models/i-user-entry';
 export {
-  IAuthenticationResponse, BucketTokens, CategoriesTokens, EmailTokens,
+  IAuthenticationResponse, BucketTokens, EmailTokens,
   FileTokens, IRemoveResponse, IResponse, ISimpleResponse, IUploadBinaryResponse, IUploadResponse, IUploadTextResponse,
   Page, RenderTokens, SessionTokens, StatTokens
 } from './lib/types/tokens/standard-tokens';
