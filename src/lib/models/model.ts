@@ -64,7 +64,7 @@ export abstract class Model<T extends IModelEntry> {
 
     if ( options.index !== undefined )
       cursor = cursor.skip( options.index );
-    if ( options.limit !== undefined )
+    if ( options.limit !== undefined && options.limit !== -1 )
       cursor = cursor.limit( options.limit );
     if ( options.projection !== undefined )
       cursor = cursor.project( options.projection );

@@ -24,6 +24,7 @@ import { FilesController } from './lib/controllers/files';
 import { StatsController } from './lib/controllers/stats';
 import { CommentsController } from './lib/controllers/comments';
 import { SessionsController } from './lib/controllers/sessions';
+import { CategoriesController } from './lib/controllers/categories';
 export declare const Controller: typeof _Controller.Serializer;
 export declare const Model: typeof _Models.Model;
 export declare const SchemaFactory: typeof _SchemaFactory;
@@ -33,6 +34,7 @@ export declare const controllers: {
     users: UsersController;
     buckets: BucketsController;
     posts: PostsController;
+    categories: CategoriesController;
     comments: CommentsController;
     files: FilesController;
     stats: StatsController;

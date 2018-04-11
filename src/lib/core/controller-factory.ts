@@ -8,6 +8,7 @@ import { SessionsController } from '../controllers/sessions';
 import { UsersController } from '../controllers/users';
 import { CommentsController } from '../controllers/comments';
 import { StatsController } from '../controllers/stats';
+import { CategoriesController } from '../controllers/categories';
 
 /**
  * Factory classs for creating & getting controllers
@@ -29,6 +30,7 @@ export class ControllerFactory {
   async addDefaults() {
     const controllers: Controller[] = [];
     controllers.push( await this.create( 'sessions' ) );
+    controllers.push( await this.create( 'categories' ) );
     controllers.push( await this.create( 'buckets' ) );
     controllers.push( await this.create( 'files' ) );
     controllers.push( await this.create( 'posts' ) );
@@ -47,6 +49,7 @@ export class ControllerFactory {
   get( type: 'users' ): UsersController
   get( type: 'files' ): FilesController
   get( type: 'stats' ): StatsController
+  get( type: 'categories' ): CategoriesController
   get( type: string ): Controller
   get( type: string ): Controller {
     const toRet = this._controllers[ type ];
@@ -72,6 +75,9 @@ export class ControllerFactory {
         break;
       case 'files':
         newModel = new FilesController( this._config );
+        break;
+      case 'categories':
+        newModel = new CategoriesController( this._config );
         break;
       case 'posts':
         newModel = new PostsController( this._config );

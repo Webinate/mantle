@@ -1,0 +1,145 @@
+﻿import { IConfig } from '../types/config/i-config';
+import { Page } from '../types/tokens/standard-tokens';
+import * as mongodb from 'mongodb';
+import Factory from '../core/model-factory';
+import Controller from './controller';
+import { isValidObjectID } from '../utils/utils';
+import { Schema } from '../models/schema';
+import { CategoriesModel } from '../models/categories-model';
+import { ICategory } from '../types/models/i-category';
+
+export type GetManyOptions = {
+  verbose?: boolean;
+  index?: number;
+  limit?: number;
+}
+
+export type GetOneOptions = {
+  verbose?: boolean,
+  expanded?: boolean,
+  depth?: number
+}
+
+/**
+ * A controller that deals with the management of categories
+ */
+export class CategoriesController extends Controller {
+  private _categoriesModel: CategoriesModel;
+
+  /**
+	 * Creates a new instance of the controller
+	 */
+  constructor( config: IConfig ) {
+    super( config );
+  }
+
+  /**
+   * Called to initialize this controller and its related database objects
+   */
+  async initialize( db: mongodb.Db ) {
+    this._categoriesModel = Factory.get( 'categories' );
+    return this;
+  }
+
+  /**
+   * Returns an array of category entries
+   */
+  async getAll( options: GetManyOptions = { verbose: true } ) {
+    const categories = this._categoriesModel;
+    const index: number = options.index || 0;
+    const limit: number = options.limit || -1;
+
+    const schemas = await categories.findInstances( { index: index, limit: limit } );
+
+    const jsons: Array<Promise<ICategory>> = [];
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      jsons.push( schemas[ i ].getAsJson( { verbose: Boolean( options.verbose ) } ) );
+
+    const sanitizedData = await Promise.all( jsons );
+    const count = await categories.count( {} );
+
+    const response: Page<ICategory> = {
+      count: count,
+      data: sanitizedData,
+      index: index,
+      limit: limit
+    };
+    return response;
+  }
+
+  /**
+   * Gets a single category resource
+   * @param id The id of the category to fetch
+   * @param options Options for getting the resource
+   */
+  async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
+    const categorys = this._categoriesModel;
+    const findToken: ICategory = { _id: new mongodb.ObjectID( id ) };
+    const category = await categorys.findOne( findToken, {
+      verbose: options.verbose || true,
+      expandForeignKeys: options.expanded || false,
+      expandMaxDepth: options.depth || 1,
+      expandSchemaBlacklist: [ 'parent' ]
+    } );
+
+    if ( !isValidObjectID( id ) )
+      throw new Error( `Please use a valid object id` );
+
+    if ( !category )
+      throw new Error( 'Could not find category' );
+
+    const sanitizedData = await category;
+    return sanitizedData;
+  }
+
+  /**
+   * Removes a category by its id
+   * @param id The id of the category
+   */
+  async remove( id: string ) {
+    if ( !isValidObjectID( id ) )
+      throw new Error( `Please use a valid object id` );
+
+    const categorys = this._categoriesModel;
+    const findToken: ICategory = { _id: new mongodb.ObjectID( id ) };
+
+    const category = await categorys.findOne( findToken, { verbose: true } );
+
+    if ( !category )
+      throw new Error( 'Could not find a comment with that ID' );
+
+    // Attempt to delete the instances
+    await categorys.deleteInstances( findToken );
+  }
+
+  /**
+   * Updates a category by id
+   * @param id The id of the category
+   * @param token The update token of the category
+   */
+  async update( id: string, token: ICategory ) {
+    const categorys = this._categoriesModel;
+    const findToken: ICategory = { _id: new mongodb.ObjectID( id ) };
+    const updatedCategory = await categorys.update( findToken, token );
+    return updatedCategory;
+  }
+
+  /**
+   * Creates a new category
+   * @param token The data of the category to create
+   */
+  async create( token: ICategory ) {
+    const categorys = this._categoriesModel;
+    let parent: Schema<ICategory> | null = null;
+
+    if ( token.parent ) {
+      parent = await categorys.findOne( <ICategory>{ _id: new mongodb.ObjectID( token.parent ) } );
+
+      if ( !parent )
+        throw new Error( `No category exists with the id ${token.parent}` );
+    }
+
+    const instance = await categorys.createInstance( token );
+    return await instance.getAsJson( { verbose: true } );
+  }
+}

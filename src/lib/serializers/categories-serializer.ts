@@ -1,16 +1,16 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
 import { ICategory } from '../types/models/i-category';
-import { Page } from '../types/tokens/standard-tokens';
 import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
-import { adminRights, hasId } from '../utils/permission-controllers';
+import { adminRights, hasId, identifyUser } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
-import { Model } from '../models/model';
+import { CategoriesController } from '../controllers/categories';
+import ControllerFactory from '../core/controller-factory';
 
 /**
  * A controller that deals with the management of categories
@@ -18,6 +18,7 @@ import { Model } from '../models/model';
 export class CategoriesSerializer extends Serializer {
 
   private _options: IBaseControler;
+  private _controller: CategoriesController;
 
   /**
 	 * Creates a new instance of the controller
@@ -33,15 +34,17 @@ export class CategoriesSerializer extends Serializer {
   async initialize( e: express.Express, db: mongodb.Db ) {
 
     const router = express.Router();
+    this._controller = ControllerFactory.get( 'categories' );
 
     router.use( compression() );
     router.use( bodyParser.urlencoded( { 'extended': true } ) );
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/', this.getCategories.bind( this ) );
-    router.post( '/', <any>[ adminRights, this.createCategory.bind( this ) ] );
-    router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removeCategory.bind( this ) ] );
+    router.get( '/', this.getMany.bind( this ) );
+    router.get( '/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, this.getOne.bind( this ) ] );
+    router.post( '/', <any>[ adminRights, this.create.bind( this ) ] );
+    router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + '/categories', router );
@@ -54,53 +57,48 @@ export class CategoriesSerializer extends Serializer {
    * Returns an array of ICategory items
    */
   @j200()
-  private async getCategories( req: IAuthReq, res: express.Response ) {
-    const categories = this.getModel( 'categories' )! as Model<ICategory>;
-    const index = parseInt( req.query.index );
-    const limit = parseInt( req.query.limit );
+  private async getMany( req: IAuthReq, res: express.Response ) {
+    let index: number | undefined = parseInt( req.query.index );
+    let limit: number | undefined = parseInt( req.query.limit );
+    if ( isNaN( index ) )
+      index = undefined;
+    if ( isNaN( limit ) )
+      limit = undefined;
 
-    const schemas = await categories.findInstances( { index: index, limit: limit } );
-
-    const jsons: Array<Promise<ICategory>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( { verbose: Boolean( req.query.verbose ) } ) );
-
-    const sanitizedData = await Promise.all( jsons );
-
-    const response: Page<ICategory> = {
-      count: sanitizedData.length,
-      data: sanitizedData,
+    const response = await this._controller.getAll( {
       index: index,
-      limit: limit
-    };
+      limit: limit,
+      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined
+    } );
+
     return response;
+  }
+
+  /**
+   * Returns a single category
+   */
+  @j200()
+  private async getOne( req: IAuthReq, res: express.Response ) {
+    return await this._controller.getOne( req.params.id, {
+      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
+      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+    } );
   }
 
   /**
    * Attempts to remove a category by ID
    */
   @j200( 204 )
-  private async removeCategory( req: IAuthReq, res: express.Response ) {
-    const categories = this.getModel( 'categories' )!;
-
-    const numRemoved = await categories.deleteInstances( <ICategory>{ _id: new mongodb.ObjectID( req.params.id ) } );
-
-    if ( numRemoved === 0 )
-      return Promise.reject( new Error( 'Could not find a category with that ID' ) );
-
-    return;
+  private async remove( req: IAuthReq, res: express.Response ) {
+    await this._controller.remove( req.params.id );
   }
 
   /**
    * Attempts to create a new category item
    */
   @j200()
-  private async createCategory( req: IAuthReq, res: express.Response ) {
+  private async create( req: IAuthReq, res: express.Response ) {
     const token: ICategory = req.body;
-    const categories = this.getModel( 'categories' )!;
-
-    const schema = await categories.createInstance( token );
-    const json: ICategory = await schema.getAsJson( { verbose: true } );
-    return json;
+    return await this._controller.create( token );
   }
 }

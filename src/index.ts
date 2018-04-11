@@ -25,6 +25,7 @@ import { FilesController } from './lib/controllers/files';
 import { StatsController } from './lib/controllers/stats';
 import { CommentsController } from './lib/controllers/comments';
 import { SessionsController } from './lib/controllers/sessions';
+import { CategoriesController } from './lib/controllers/categories';
 
 export const Controller = _Controller.Serializer;
 export const Model = _Models.Model;
@@ -36,6 +37,7 @@ export const controllers = {
   users: ControllerFactory.get( 'users' ) as UsersController,
   buckets: ControllerFactory.get( 'buckets' ) as BucketsController,
   posts: ControllerFactory.get( 'posts' ) as PostsController,
+  categories: ControllerFactory.get( 'categories' ) as CategoriesController,
   comments: ControllerFactory.get( 'comments' ) as CommentsController,
   files: ControllerFactory.get( 'files' ) as FilesController,
   stats: ControllerFactory.get( 'stats' ) as StatsController,

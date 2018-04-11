@@ -29,6 +29,7 @@ exports.controllers = {
     users: controller_factory_1.default.get('users'),
     buckets: controller_factory_1.default.get('buckets'),
     posts: controller_factory_1.default.get('posts'),
+    categories: controller_factory_1.default.get('categories'),
     comments: controller_factory_1.default.get('comments'),
     files: controller_factory_1.default.get('files'),
     stats: controller_factory_1.default.get('stats'),
