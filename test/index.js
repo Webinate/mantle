@@ -81,3 +81,5 @@ require( './tests/posts/4-test-getting-posts' );
 require( './tests/comments/1-test-create-comment' );
 require( './tests/comments/2-test-delete-comment' );
 require( './tests/comments/3-test-fetch-comment' );
+
+require( './tests/categories/1-create-category' );

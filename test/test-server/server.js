@@ -46,6 +46,10 @@ class MainController extends modepress.Controller {
 
       new modepress.serializers.bucket( {
         rootPath: ''
+      } ).initialize( app, db ),
+
+      new modepress.serializers.categories( {
+        rootPath: api
       } ).initialize( app, db )
 
     ] );
