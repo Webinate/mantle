@@ -205,17 +205,19 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
 
     const result = await model.findOne( { _id: <ObjectID>this.value } );
 
-    if ( !result )
-      throw new Error( `Could not find instance of ${this.name} references with foreign key '${this.targetCollection}'` );
+    if ( !result && !this.keyCanBeNull )
+      throw new Error( `Could not find an instance for ${this.name}'s in the collection '${this.targetCollection}' with value '${this.value}'` );
+    else if ( !result && this.keyCanBeNull )
+      return null;
 
     // Get the models items are increase their level - this ensures we dont go too deep
-    const items = result.getItems()!;
+    const items = result!.getItems()!;
     const nextLevel = this.curLevel + 1;
 
     for ( let i = 0, l = items.length; i < l; i++ )
       if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
         ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
 
-    return await result.getAsJson( options );
+    return await result!.getAsJson( options );
   }
 }
