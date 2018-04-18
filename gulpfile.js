@@ -1,11 +1,7 @@
 var gulp = require( 'gulp' );
-var rimraf = require( 'rimraf' );
 var ts = require( 'gulp-typescript' );
 var tslint = require( 'gulp-tslint' );
-var concat = require( 'gulp-concat' );
 var setup = require( './gulp/setup.js' );
-const process = require( 'child_process' );
-const fs = require( 'fs' );
 
 // CONFIG
 // ==============================
@@ -21,20 +17,11 @@ const configFiles = [
 /**
  * Builds each of the ts files into JS files in the output folder
  */
-gulp.task( 'ts-code', function() {
+gulp.task( 'ts-check-code', function() {
   var tsResult = tsProject.src()
     .pipe( tsProject() );
 
-  return tsResult.pipe( gulp.dest( './' ) );
-} );
-
-/**
- * Builds each of the ts files into JS files in the output folder
- */
-gulp.task( 'clean', function() {
-  rimraf.sync( './lib' );
-  rimraf.sync( './lib-frontend' );
-  rimraf.sync( './definitions' );
+  return tsResult;
 } );
 
 /**
@@ -54,5 +41,4 @@ gulp.task( 'tslint', function() {
 gulp.task( 'bump-patch', function() { return setup.bumpVersion( setup.bumpPatchNum, configFiles ) } );
 gulp.task( 'bump-minor', function() { return setup.bumpVersion( setup.bumpMidNum, configFiles ) } );
 gulp.task( 'bump-major', function() { return setup.bumpVersion( setup.bumpMajorNum, configFiles ) } );
-gulp.task( 'build', [ 'clean', 'ts-code', 'tslint' ] );
-gulp.task( 'quick-build', [ 'ts-code' ] );
+gulp.task( 'build', [ 'ts-check-code', 'tslint' ] );

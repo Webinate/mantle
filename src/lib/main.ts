@@ -25,7 +25,7 @@ if ( args.numThreads ) {
 // Run as a single cluster
 if ( numCPUs === 1 ) {
   global.console.log( `Running as single cluster` );
-  require( './core/initialization/startup.js' );
+  require( './core/initialization/startup' );
 }
 else if ( cluster.isMaster ) {
   // Fork workers.
@@ -54,5 +54,5 @@ else if ( cluster.isMaster ) {
   } );
 }
 else {
-  require( './core/initialization/startup.js' );
+  require( './core/initialization/startup' );
 }

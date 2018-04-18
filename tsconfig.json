@@ -4,7 +4,7 @@
     "removeComments": false,
     "noEmitOnError": true,
     "declaration": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "preserveConstEnums": true,
     "noImplicitAny": false,
     "target": "es2017",
@@ -20,7 +20,7 @@
     "noUnusedParameters": false,
     "noUnusedLocals": true,
     "strictNullChecks": true,
-    "rootDir": "src"
+    "jsx": "react"
   },
   "include": [
     "src/references.d.ts",

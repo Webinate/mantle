@@ -9,7 +9,7 @@
   },
   "controllers": [
     {
-      "path": "server.js"
+      "path": "server"
     }
   ]
 }

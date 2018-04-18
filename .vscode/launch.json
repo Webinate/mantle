@@ -6,9 +6,9 @@
       "type": "node",
       "protocol": "auto",
       "request": "launch",
-      "program": "${workspaceRoot}/lib/main.js",
       "stopOnEntry": false,
       "args": [
+        "${workspaceRoot}/src/lib/main.ts",
         "--config=${workspaceRoot}/config.json",
         "--numThreads=1",
         "--logging=true",
@@ -18,13 +18,14 @@
       "preLaunchTask": null,
       "runtimeExecutable": null,
       "runtimeArgs": [
-        "--nolazy"
+        "-r",
+        "ts-node/register"
       ],
       "env": {
         "NODE_ENV": "development"
       },
       "console": "internalConsole",
-      "sourceMaps": false,
+      "sourceMaps": true,
       "outFiles": []
     },
     {

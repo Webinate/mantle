@@ -1,9 +1,8 @@
 {
   "name": "modepress",
-  "types": "./index.d.ts",
   "version": "0.9.9",
   "description": "The modepress server & API",
-  "main": "./index.js",
+  "main": "./src/index",
   "author": "Mathew Henson",
   "license": "MIT",
   "scripts": {
@@ -16,7 +15,10 @@
     "test": "mocha ./test/index.js --config=./config.json --server=0 --logging=false --keyFile=./bucket-credentials.json --runningTests=true --clientsFolder=./test/ --remotes.local.url=http://localhost:8000 --remotes.local.path=test/test-server/media",
     "bump-patch": "gulp bump-patch",
     "bump-minor": "gulp bump-minor",
-    "bump-major": "gulp bump-major"
+    "bump-major": "gulp bump-major",
+    "dev-server-cached": "ts-node --cache-directory .tscache ./src/lib/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
+    "dev-server": "ts-node ./src/lib/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
+    "start-server": "ts-node ./src/lib/main.ts --config=./config.json --logging=true"
   },
   "devDependencies": {
     "mocha": "~3.2.0"
