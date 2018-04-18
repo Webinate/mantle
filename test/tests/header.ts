@@ -4,8 +4,8 @@ import * as yargs from "yargs";
 import fetch from "node-fetch";
 import Agent from './agent';
 import loadConfig from './load-config';
-import { IAdminUser } from '../../src/lib/types/config/properties/i-admin';
-import { IConfig } from '../../src/lib/types/config/i-config';
+import { IAdminUser } from '../../src';
+import { IConfig } from '../../src';
 let args = yargs.argv;
 
 export class Header {

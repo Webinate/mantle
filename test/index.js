@@ -5,7 +5,6 @@ var args = yargs.argv;
 require( "ts-node" ).register( {
   compilerOptions: {
     module: "commonjs",
-    rootDir: './test',
     sourceMap: true,
     target: "es2017",
     isolatedModules: true
@@ -22,7 +21,7 @@ if ( args.server === undefined || isNaN( parseInt( args.server ) ) ) {
   process.exit();
 }
 
-const startup = require( '../lib/core/initialization/startup.js' );
+const startup = require( '../src/core/initialization/startup' );
 const header = require( './tests/header' ).default;
 
 // Start the first test to initialize everything

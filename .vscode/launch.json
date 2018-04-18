@@ -8,7 +8,7 @@
       "request": "launch",
       "stopOnEntry": false,
       "args": [
-        "${workspaceRoot}/src/lib/main.ts",
+        "${workspaceRoot}/src/main.ts",
         "--config=${workspaceRoot}/config.json",
         "--numThreads=1",
         "--logging=true",

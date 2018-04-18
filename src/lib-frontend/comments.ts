@@ -1,5 +1,5 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
-import { Page } from '../lib/types/tokens/standard-tokens';
+import { Page } from '../types/tokens/standard-tokens';
 import { IComment } from '..';
 
 const rootPath = `${apiUrl}/comments`;

@@ -12,7 +12,7 @@ import { Page } from '../types/tokens/standard-tokens';
 import * as compression from 'compression';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
-import { IUserEntry } from '../..';
+import { IUserEntry } from '../';
 
 /**
  * Main class to use for managing user data

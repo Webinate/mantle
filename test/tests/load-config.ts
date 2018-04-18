@@ -1,4 +1,4 @@
-import { IConfig } from "../../lib/types/config/i-config";
+import { IConfig } from "../../src";
 import * as fs from 'fs';
 
 /**

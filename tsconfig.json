@@ -23,7 +23,6 @@
     "jsx": "react"
   },
   "include": [
-    "src/references.d.ts",
     "src/**/*.ts"
   ],
   "exclude": []

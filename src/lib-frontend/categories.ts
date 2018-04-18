@@ -1,6 +1,6 @@
 import { getJson, makeQueryString, del, postJson, apiUrl } from './http-clients';
-import { ICategory } from '../lib/types/models/i-category';
-import { Page } from '../lib/types/tokens/standard-tokens';
+import { ICategory } from '../types/models/i-category';
+import { Page } from '../types/tokens/standard-tokens';
 
 const rootPath = `${apiUrl}/categories`;
 

@@ -1,6 +1,6 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
-import { IUserEntry } from '../lib/types/models/i-user-entry';
-import { Page } from '../lib/types/tokens/standard-tokens';
+import { IUserEntry } from '../types/models/i-user-entry';
+import { Page } from '../types/tokens/standard-tokens';
 
 const rootPath = `${apiUrl}/users`;
 

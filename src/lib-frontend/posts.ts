@@ -1,6 +1,6 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
-import { IPost } from '../lib/types/models/i-post';
-import { Page } from '../lib/types/tokens/standard-tokens';
+import { IPost } from '../types/models/i-post';
+import { Page } from '../types/tokens/standard-tokens';
 
 const rootPath = `${apiUrl}/posts`;
 
