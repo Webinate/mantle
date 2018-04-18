@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { ICategory, IConfig, Page } from 'modepress';
+import { ICategory, IConfig, Page } from '../../../src';
 import header from '../header';
 import Agent from '../agent';
 

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IConfig, IAdminUser, Page } from 'modepress';
+import { IPost, IConfig, IAdminUser, Page } from '../../../src';
 import header from '../header';
 import Agent from '../agent';
 let guest: Agent, admin: Agent, config: IConfig, numPosts: number, postId: string, secondPostId: string;

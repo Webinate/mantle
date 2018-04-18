@@ -3,7 +3,7 @@ import { } from 'mocha';
 import Agent from '../agent';
 import header from '../header';
 import * as fs from 'fs';
-import { IConfig, IAdminUser, Page, IFileEntry } from 'modepress';
+import { IConfig, IAdminUser, Page, IFileEntry } from '../../../src';
 import * as FormData from 'form-data';
 
 let guest: Agent, admin: Agent, config: IConfig, user1: Agent, user2: Agent, bucket: string;

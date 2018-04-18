@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { } from 'mocha';
 import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, IBucketEntry, Page } from 'modepress';
+import { IConfig, IAdminUser, IBucketEntry, Page } from '../../../src';
 
 let guest: Agent, admin: Agent, config: IConfig, user1: Agent, user2: Agent, bucket1: string, bucket2: string;
 
