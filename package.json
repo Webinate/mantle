@@ -1,6 +1,6 @@
 {
   "name": "modepress",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "The modepress server & API",
   "main": "./src/index",
   "author": "Mathew Henson",
