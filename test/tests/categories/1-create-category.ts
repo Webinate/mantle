@@ -14,8 +14,8 @@ describe( '1. Testing creation of comments', function() {
     config = header.config;
   } )
 
-  it( 'did not create a category as a regular user', async function() {
+  it( 'did not create a category when not logged in', async function() {
     const resp = await guest.post( `/api/categories`, { title: 'Test' } as ICategory );
-    assert.equal( resp.status, 503 );
+    assert.equal( resp.status, 401 );
   } )
 } );
