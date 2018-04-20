@@ -42,6 +42,7 @@ export class SessionsController extends Controller {
     this._users = await db.collection( this._config.collections.userCollection );
     this._cleanupProxy = this.cleanup.bind( this );
     this._timeout = null;
+    return this;
   }
 
   /**

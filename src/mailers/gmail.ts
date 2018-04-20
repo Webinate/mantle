@@ -13,7 +13,7 @@ const args = yargs.argv;
  * A simple class for sending mail using Google Mail's API
  */
 export class GMailer implements IMailer {
-  public gmail: google.GMail;
+  public gmail: any;
   private _keyFile: any;
   private _apiEmail: string;
   private _authorizer: any;
@@ -61,9 +61,9 @@ export class GMailer implements IMailer {
   /**
    * Attempts to authorize the google service account credentials
    */
-  private authorize( credentials ): Promise<GoogleAuth.JWT> {
+  private authorize( credentials: { private_key: string; client_email: string; } ): Promise<any> {
 
-    return new Promise<GoogleAuth.JWT>( ( resolve, reject ) => {
+    return new Promise<any>( ( resolve, reject ) => {
 
       const auth = new googleAuth();
       const jwt = new auth.JWT(
@@ -74,7 +74,7 @@ export class GMailer implements IMailer {
         this._apiEmail
       );
 
-      jwt.authorize( ( err ) => {
+      jwt.authorize( ( err: Error ) => {
 
         if ( err )
           return reject( err );
@@ -111,7 +111,7 @@ export class GMailer implements IMailer {
         auth: this._authorizer,
         userId: 'me',
         resource: { raw: message }
-      }, ( err, response ) => {
+      }, ( err: Error, response: any ) => {
 
         if ( err ) {
           logError( `Could not send email to ${to}: ${err}` );
@@ -132,7 +132,7 @@ export class GMailer implements IMailer {
           userId: 'me',
           id: response.id,
           resource: { addLabelIds: [ 'UNREAD', 'INBOX', 'IMPORTANT' ] }
-        }, function( err ) {
+        }, function( err: Error ) {
           if ( !err ) {
             info( `Modified email sent ${JSON.stringify( response )}` );
             return resolve( true );

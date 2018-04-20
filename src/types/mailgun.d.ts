@@ -10,7 +10,7 @@ declare namespace MailGun {
       subject: string,
       text: string,
       attachment?: string
-    }, callback: ( error: Error, body: any ) => void );
+    }, callback: ( error: Error, body: any ) => void ): void;
   }
 
   /**

@@ -88,4 +88,6 @@ export interface IConfig {
    * Information regarding the websocket communication. Used for events and IPC
    */
   websocket: IWebsocket;
+
+  [ key: string ]: any;
 }

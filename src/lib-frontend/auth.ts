@@ -1,5 +1,5 @@
 import { getJson, get, postJson, putJson, makeQueryString, apiUrl } from './http-clients';
-import { IAuthenticationResponse, ILoginToken, IRegisterToken, ISimpleResponse } from '..';
+import { IAuthenticationResponse, ILoginToken, IRegisterToken, ISimpleResponse } from '../index';
 
 const rootPath = `${apiUrl}/auth`;
 

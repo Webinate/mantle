@@ -169,12 +169,12 @@ export class PageSerializer extends Serializer {
   private renderPage( url: string ): Promise<string> {
     return new Promise<string>( ( resolve, reject ) => {
       let timer: NodeJS.Timer;
-      let win;
+      let win: any | null;
       const maxTries = 50;
       let curTries = 0;
 
       const checkComplete = () => {
-        if ( !win ) {
+        if ( win ) {
           // Cleanup
           clearTimeout( timer );
           win.close();
@@ -183,6 +183,7 @@ export class PageSerializer extends Serializer {
         }
 
         curTries++;
+
         if ( win.prerenderReady === undefined || win.prerenderReady || curTries > maxTries ) {
           const html = this.stripScripts( win.document.documentElement.outerHTML );
 

@@ -13,7 +13,7 @@ import ModelFactory from '../../core/model-factory';
 import ControllerFactory from '../../core/controller-factory';
 import * as merge from 'deepmerge';
 
-const args = yargs.argv;
+const args: any = yargs.argv;
 
 function loadSensitiveProps( config: IConfig, rootPath: string ) {
 

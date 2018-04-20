@@ -127,7 +127,7 @@ export class LocalBucket implements IRemote {
     await this.deletePath( filePath );
   }
 
-  private async deletePath( path ) {
+  private async deletePath( path: string ) {
     return new Promise( function( resolve, reject ) {
       rimraf( path, function( err ) {
         if ( err )

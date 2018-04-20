@@ -23,6 +23,7 @@ export class StatsController extends Controller {
    */
   async initialize( db: Db ) {
     this._stats = ModelFactory.get( 'storage' );
+    return this;
   }
 
   /**

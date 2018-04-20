@@ -6,4 +6,5 @@ export interface IModelEntry {
   _requiredDependencies?: Array<{ collection: string, _id: any }>
   _optionalDependencies?: Array<{ collection: string, propertyName: string, _id: any }>
   _arrayDependencies?: Array<{ collection: string, propertyName: string, _id: any }>
+  [ key: string ]: any;
 }

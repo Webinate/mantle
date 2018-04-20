@@ -66,6 +66,7 @@ export class BucketsController extends Controller {
     this._activeManager = localBucket;
     this._filesController = ControllerFactory.get( 'files' );
     this._statsController = ControllerFactory.get( 'stats' );
+    return this;
   }
 
   /**

@@ -80,7 +80,7 @@ export class ModelFactory {
     // Now add the indices we do need
     for ( const item of items )
       if ( item.getIndexable() && !activeIndices.find( key => indices[ key ][ 0 ][ 0 ] === item.name ) ) {
-        const index = {};
+        const index: any = {};
         index[ item.name ] = 1;
         promises.push( collection.createIndex( index ) );
       }

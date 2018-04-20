@@ -126,7 +126,7 @@ export abstract class Model<T extends IModelEntry> {
         if ( !foreignModel )
           continue;
 
-        let setToken = { $set: {} };
+        let setToken = { $set: {} as any };
         setToken.$set[ optionalDependencies[ i ].propertyName ] = null;
         promises.push( foreignModel.collection.updateOne( <IModelEntry>{ _id: optionalDependencies[ i ]._id }, setToken ) );
       }
@@ -138,7 +138,7 @@ export abstract class Model<T extends IModelEntry> {
         if ( !foreignModel )
           continue;
 
-        let pullToken = { $pull: {} };
+        let pullToken = { $pull: {} as any };
         pullToken.$pull[ arrayDependencies[ i ].propertyName ] = schema.dbEntry._id;
         promises.push( foreignModel.collection.updateMany( <IModelEntry>{ _id: arrayDependencies[ i ]._id }, pullToken ) );
       }
@@ -229,7 +229,7 @@ export abstract class Model<T extends IModelEntry> {
   async checkUniqueness( schema: Schema<IModelEntry>, id?: ObjectID ): Promise<boolean> {
     const items = schema.getItems();
     let hasUniqueField: boolean = false;
-    const searchToken = { $or: [] as any[] };
+    const searchToken: any = { $or: [] as any[] };
 
     if ( id )
       searchToken[ '_id' ] = { $ne: id };
@@ -237,7 +237,7 @@ export abstract class Model<T extends IModelEntry> {
     for ( let i = 0, l = items.length; i < l; i++ ) {
       if ( items[ i ].getUnique() ) {
         hasUniqueField = true;
-        const searchField = {};
+        const searchField: any = {};
         searchField[ items[ i ].name ] = items[ i ].getDbValue();
         searchToken.$or.push( searchField );
       }

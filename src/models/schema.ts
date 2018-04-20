@@ -69,7 +69,7 @@ export class Schema<T extends IModelEntry> {
    * Serializes the schema items into the JSON format for mongodb
    */
   public serialize(): any {
-    const toReturn = {};
+    const toReturn: any = {};
     const items = this._items;
 
     for ( let i = 0, l = items.length; i < l; i++ )
@@ -99,7 +99,7 @@ export class Schema<T extends IModelEntry> {
     }
 
     // Wait for all the promises to resolve
-    const returns = await Promise.all<any>( promises );
+    const returns: any[] = await Promise.all<any>( promises );
 
     // Assign the promise values
     for ( let i = 0, l = returns.length; i < l; i++ )

@@ -58,6 +58,7 @@ export class FilesController extends Controller {
     this._files = ModelFactory.get( 'files' );
     this._buckets = ModelFactory.get( 'buckets' );
     this._stats = ModelFactory.get( 'storage' );
+    return this;
   }
 
   /**

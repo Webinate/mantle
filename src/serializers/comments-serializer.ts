@@ -11,7 +11,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { CommentsController } from '../controllers/comments';
 import ControllerFactory from '../core/controller-factory';
-import { IComment } from '../';
+import { IComment } from '../index';
 
 /**
  * A controller that deals with the management of comments

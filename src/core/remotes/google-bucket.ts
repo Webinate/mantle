@@ -1,5 +1,4 @@
 import { Readable, Writable } from 'stream';
-import { IGCS, IBucket } from 'gcloud';
 import { createGzip, Gzip } from 'zlib';
 import { IGoogleProperties } from '../../types/config/properties/i-google';
 import { IRemote, IUploadOptions } from '../../types/interfaces/i-remote';
@@ -12,7 +11,7 @@ import { extname } from 'path';
 
 export class GoogleBucket implements IRemote {
   private _zipper: Gzip;
-  private _gcs: IGCS;
+  private _gcs: any;
 
   constructor() {
     this._zipper = createGzip();
@@ -121,7 +120,7 @@ export class GoogleBucket implements IRemote {
 
   async removeFile( bucket: IBucketEntry, file: IFileEntry ) {
     const gcs = this._gcs;
-    const b: IBucket = gcs.bucket( bucket.identifier );
+    const b: any = gcs.bucket( bucket.identifier );
 
     try {
       // Get the bucket and delete the file
@@ -136,7 +135,7 @@ export class GoogleBucket implements IRemote {
     const gcs = this._gcs;
 
     // Now remove the bucket itself
-    const bucket: IBucket = gcs.bucket( entry.identifier );
+    const bucket: any = gcs.bucket( entry.identifier );
 
     try {
       await bucket.delete()

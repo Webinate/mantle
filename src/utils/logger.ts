@@ -18,7 +18,7 @@ function fixVSCodeOutput() {
   const winstonCommon = require( 'winston/lib/winston/common' );
 
   // Override to use real console.log etc for VSCode debugger
-  winston.transports.Console.prototype.log = function( level, message, meta, callback ) {
+  winston.transports.Console.prototype.log = function( level: 'log' | 'error' | 'warn', message: string, meta: any, callback: () => void ) {
     const output = winstonCommon.log( Object.assign( {}, this, {
       level,
       message,

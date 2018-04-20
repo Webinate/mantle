@@ -69,6 +69,8 @@ export class UsersController extends Controller {
         privileges: UserPrivileges.SuperAdmin,
         meta: {}
       }, true, true );
+
+    return this;
   }
 
   /**
@@ -499,7 +501,7 @@ export class UsersController extends Controller {
     if ( !isAlphanumeric( user ) && !isEmail( user ) )
       throw new Error( 'Please only use alpha numeric characters for your username' );
 
-    const target = [ { email: email }, { username: user }];
+    const target = [ { email: email }, { username: user } ];
 
     // Search the collection for the user
     const userEntry = await this._collection.find( { $or: target } ).limit( 1 ).next();
@@ -605,7 +607,7 @@ export class UsersController extends Controller {
       return false;
 
     const datum = 'meta.' + name;
-    const updateToken = { $set: {} };
+    const updateToken = { $set: {} as any };
     updateToken.$set[ datum ] = val;
 
     // Remove the user from the DB
@@ -674,7 +676,7 @@ export class UsersController extends Controller {
     const findToken: { $or?: Partial<IUserEntry>[] } = {};
 
     if ( searchPhrases )
-      findToken.$or = [ { username: <any>searchPhrases }, { email: <any>searchPhrases }];
+      findToken.$or = [ { username: <any>searchPhrases }, { email: <any>searchPhrases } ];
 
     const cursor = this._collection.find( findToken );
     const count = await this._collection.count( findToken );

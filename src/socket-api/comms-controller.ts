@@ -167,7 +167,7 @@ export class CommsController extends events.EventEmitter {
     this._hashedApiKey = bcrypt.hashSync( cfg.websocket.socketApiKey, 10 );
 
     // dummy request processing - this is not actually called as its handed off to the socket api
-    const processRequest = function( req, res ) {
+    const processRequest = function( req: any, res: any ) {
       req; // Suppress compiler warning
       res.writeHead( 200 );
       res.end( 'All glory to WebSockets!\n' );

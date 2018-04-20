@@ -6,7 +6,7 @@
     "declaration": true,
     "sourceMap": true,
     "preserveConstEnums": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "target": "es2017",
     "lib": [
       "dom",
