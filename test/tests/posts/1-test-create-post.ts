@@ -8,8 +8,8 @@ let guest: Agent, admin: Agent, config: IConfig, numPosts: number, lastPost: IPo
 describe( '1. Testing creation of posts', function() {
 
   before( function() {
-    guest = header.users.guest;
-    admin = header.users.admin;
+    guest = header.guest;
+    admin = header.admin;
     config = header.config;
   } )
 

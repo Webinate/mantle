@@ -1,9 +1,9 @@
-const modepress = require( "modepress" );
+import { Controller, serializers } from "../../src/index";
 
 /**
  * Create a basic controller
  */
-class MainController extends modepress.Controller {
+export default class MainController extends Controller {
 
   constructor( client ) {
     super( null );
@@ -17,38 +17,39 @@ class MainController extends modepress.Controller {
 
       super.initialize( app, db ),
 
-      new modepress.serializers.auth( {
+      new serializers.auth( {
         rootPath: api,
         accountRedirectURL: '/message',
         activateAccountUrl: '/auth/activate-account',
         passwordResetURL: '/reset-password'
       } ).initialize( app, db ),
 
-      new modepress.serializers.user( {
+      new serializers.user( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new modepress.serializers.comments( {
+      new serializers.comments( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new modepress.serializers.posts( {
+      new serializers.posts( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new modepress.serializers.stats( {
+      new serializers.stats( {
         rootPath: ''
       } ).initialize( app, db ),
 
-      new modepress.serializers.file( {
+      new serializers.file( {
+        rootPath: '',
+        cacheLifetime: 60000
+      } ).initialize( app, db ),
+
+      new serializers.bucket( {
         rootPath: ''
       } ).initialize( app, db ),
 
-      new modepress.serializers.bucket( {
-        rootPath: ''
-      } ).initialize( app, db ),
-
-      new modepress.serializers.categories( {
+      new serializers.categories( {
         rootPath: api
       } ).initialize( app, db )
 
@@ -57,5 +58,3 @@ class MainController extends modepress.Controller {
     return this;
   }
 }
-
-exports.default = MainController;

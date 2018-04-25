@@ -9,8 +9,8 @@ describe( '2. Testing deletion of posts', function() {
 
   before( function() {
     const header = require( '../header' ).default;
-    guest = header.users.guest;
-    admin = header.users.admin;
+    guest = header.guest;
+    admin = header.admin;
     config = header.config;
   } )
 

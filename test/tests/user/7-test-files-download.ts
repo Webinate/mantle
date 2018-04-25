@@ -14,10 +14,10 @@ let fileId = '';
 describe( '7. Getting and setting user media stat usage', async function() {
 
   before( function() {
-    guest = header.users.guest;
-    admin = header.users.admin;
-    user1 = header.users.user1;
-    user2 = header.users.user2;
+    guest = header.guest;
+    admin = header.admin;
+    user1 = header.user1;
+    user2 = header.user2;
     config = header.config;
   } )
 

@@ -9,8 +9,8 @@ describe( '4. Testing fetching of posts', function() {
 
   before( function() {
     const header = require( '../header' ).default;
-    guest = header.users.guest;
-    admin = header.users.admin;
+    guest = header.guest;
+    admin = header.admin;
     config = header.config;
   } )
 

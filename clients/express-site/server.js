@@ -1,6 +1,5 @@
-const mp = require( 'modepress' );
+const mp = require( '../../src/index' );
 const express = require( 'express' );
-
 
 class Server extends mp.Controller {
   constructor() {

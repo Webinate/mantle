@@ -12,9 +12,9 @@ describe( '22. Testing registering a user', function() {
 
   before( function() {
     const header = require( '../header' ).default;
-    guest = header.users.guest;
-    admin = header.users.admin;
-    user1 = header.users.user1;
+    guest = header.guest;
+    admin = header.admin;
+    user1 = header.user1;
     config = header.config;
   } )
 

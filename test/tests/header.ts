@@ -1,4 +1,3 @@
-import * as test from 'unit.js';
 import * as fs from 'fs';
 import * as yargs from "yargs";
 import fetch from "node-fetch";
@@ -11,6 +10,11 @@ let args = yargs.argv;
 export class Header {
   public config: IConfig;
   public users: { [ name: string ]: Agent };
+
+  get guest() { return this.users[ 'guest' ]; }
+  get admin() { return this.users[ 'admin' ]; }
+  get user1() { return this.users[ 'user1' ]; }
+  get user2() { return this.users[ 'user2' ]; }
 
   /**
    * Used to create a agent to test with
@@ -32,10 +36,10 @@ export class Header {
   async createUser( username: string, password: string, email: string, priviledge: number = 3 ) {
 
     // Remove the user if they already exist
-    let response = await this.users.admin.delete( `/api/users/${username}` );
+    let response = await this.admin.delete( `/api/users/${username}` );
 
     // Now create the user using the admin account
-    response = await this.users.admin.post( `/api/users`, { username: username, password: password, email: email, privileges: priviledge } );
+    response = await this.admin.post( `/api/users`, { username: username, password: password, email: email, privileges: priviledge } );
 
     if ( response.status !== 200 )
       throw new Error( response.body.toString() );
@@ -59,7 +63,7 @@ export class Header {
   async removeUser( username: string ) {
 
     // Remove the user if they already exist
-    let response = await this.users.admin.delete( `/api/users/${username}` );
+    let response = await this.admin.delete( `/api/users/${username}` );
 
     if ( response.status > 300 )
       throw new Error( response.statusText );
