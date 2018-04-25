@@ -33,7 +33,7 @@ describe( '12. Getting user data', function() {
     assert( json.sessionId )
     assert.deepEqual( json.username, ( header.config.adminUser as IAdminUser ).username )
     assert.deepEqual( json.privileges, 1 )
-    assert( json.passwordTag )
+    assert( json.passwordTag === '' )
   } )
 
   it( 'should get admin user data by email without sensitive details', async function() {
@@ -61,7 +61,7 @@ describe( '12. Getting user data', function() {
     assert( json.password )
     assert( json.registerKey === '' )
     assert( json.sessionId )
-    assert( json.passwordTag )
+    assert( json.passwordTag === '' )
     assert.deepEqual( json.username, ( header.config.adminUser as IAdminUser ).username )
     assert.deepEqual( json.privileges, 1 )
   } )

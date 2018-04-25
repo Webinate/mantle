@@ -45,6 +45,7 @@
         "--keyFile=./bucket-credentials.json",
         "--runningTests=true",
         "--clientsFolder=./test/",
+        "--debug=true",
         "--remotes.local.url=http://localhost:8000",
         "--remotes.local.path=test/test-server/media"
       ],

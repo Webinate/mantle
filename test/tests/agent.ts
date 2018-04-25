@@ -102,7 +102,7 @@ export default class Agent {
     const contentType = headers[ 'content-type' ] || headers[ 'Content-Type' ];
 
     const response = await fetch( `${this.host}${url}`, {
-      method: 'PUT',
+      method: type,
       headers: headers,
       body: contentType === 'application/json' ? JSON.stringify( data ) : data
     } );

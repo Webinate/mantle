@@ -125,7 +125,7 @@ describe( '1. Testing creation of comments', function() {
     const resp = await header.admin.get( `/api/comments` );
     assert.deepEqual( resp.status, 200 );
     const json: Page<IComment> = await resp.json();
-    assert( json.count );
+    assert( json.count !== undefined );
     assert( numComments === json.count );
   } )
 } )

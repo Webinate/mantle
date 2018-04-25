@@ -49,6 +49,6 @@ describe( '2. Checking basic authentication', function() {
     assert( json.user.sessionId );
     assert.deepEqual( json.user.username, ( header.config.adminUser as IAdminUser ).username );
     assert.deepEqual( json.user.privileges, 1 );
-    assert( json.user.passwordTag );
+    assert( json.user.passwordTag === '' );
   } )
 } )
