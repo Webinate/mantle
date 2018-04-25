@@ -7,6 +7,7 @@ import { isValidObjectID } from '../utils/utils';
 import { Schema } from '../models/schema';
 import { CategoriesModel } from '../models/categories-model';
 import { ICategory } from '../types/models/i-category';
+import { ISchemaOptions } from '../types/misc/i-schema-options';
 
 export type GetManyOptions = {
   verbose?: boolean;
@@ -67,29 +68,46 @@ export class CategoriesController extends Controller {
     return response;
   }
 
+  getDefaultsOptions( options: GetOneOptions ): ISchemaOptions {
+    return {
+      verbose: options.verbose || true,
+      expandForeignKeys: options.expanded || false,
+      expandMaxDepth: options.depth || 1,
+      expandSchemaBlacklist: [ 'parent' ]
+    }
+  }
+
   /**
    * Gets a single category resource
    * @param id The id of the category to fetch
    * @param options Options for getting the resource
    */
   async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
-    const categorys = this._categoriesModel;
-    const findToken: ICategory = { _id: new mongodb.ObjectID( id ) };
-    const category = await categorys.findOne( findToken, {
-      verbose: options.verbose || true,
-      expandForeignKeys: options.expanded || false,
-      expandMaxDepth: options.depth || 1,
-      expandSchemaBlacklist: [ 'parent' ]
-    } );
-
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
+
+    const findToken: ICategory = { _id: new mongodb.ObjectID( id ) };
+    const category = await this._categoriesModel.findOne( findToken, this.getDefaultsOptions( options ) );
 
     if ( !category )
       throw new Error( 'Could not find category' );
 
-    const sanitizedData = await category;
-    return sanitizedData;
+    return category;
+  }
+
+  /**
+  * Gets a single category resource by its slug
+  * @param slug The slug of the category to fetch
+  * @param options Options for getting the resource
+  */
+  async getBySlug( slug: string, options: GetOneOptions = { verbose: true } ) {
+    const findToken: Partial<ICategory> = { slug: slug };
+    const category = await this._categoriesModel.findOne( findToken, this.getDefaultsOptions( options ) );
+
+    if ( !category )
+      throw new Error( 'Could not find category' );
+
+    return category;
   }
 
   /**

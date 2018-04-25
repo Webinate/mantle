@@ -43,6 +43,7 @@ export class CategoriesSerializer extends Serializer {
 
     router.get( '/', this.getMany.bind( this ) );
     router.get( '/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, this.getOne.bind( this ) ] );
+    router.get( '/slug/:slug', <any>[ identifyUser, this.getBySlug.bind( this ) ] );
     router.post( '/', <any>[ adminRights, this.create.bind( this ) ] );
     router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
 
@@ -80,6 +81,17 @@ export class CategoriesSerializer extends Serializer {
   @j200()
   private async getOne( req: IAuthReq, res: express.Response ) {
     return await this._controller.getOne( req.params.id, {
+      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
+      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+    } );
+  }
+
+  /**
+   * Returns a single category by its slug
+   */
+  @j200()
+  private async getBySlug( req: IAuthReq, res: express.Response ) {
+    return await this._controller.getBySlug( req.params.slug, {
       expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
       verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
     } );
