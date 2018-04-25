@@ -6,24 +6,13 @@ import header from '../header';
 import { IConfig, IAdminUser, Page } from '../../../src';
 import * as FormData from 'form-data';
 
-let guest: Agent, config: IConfig, admin: Agent;
-let user1: Agent, user2: Agent;
 const filePath = './test/media/file.png';
 let fileId = '';
 
 describe( '14. Getting and setting user media stat usage', function() {
 
-  before( function() {
-    const header = require( '../header' ).default;
-    guest = header.guest;
-    admin = header.admin;
-    user1 = header.user1;
-    user2 = header.user2;
-    config = header.config;
-  } )
-
   it( 'regular user updated its stats accordingly', async function() {
-    const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
+    const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert.deepEqual( json.data.apiCallsUsed, 9 );
@@ -33,7 +22,7 @@ describe( '14. Getting and setting user media stat usage', function() {
   it( 'regular user did upload another file to dinosaurs2', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await user1.post( "/buckets/dinosaurs2/upload", form, form.getHeaders() );
+    const resp = await header.user1.post( "/buckets/dinosaurs2/upload", form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert( json.tokens )
@@ -47,7 +36,7 @@ describe( '14. Getting and setting user media stat usage', function() {
   } )
 
   it( 'regular user updated its stats with the 2nd upload accordingly', async function() {
-    const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
+    const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert.deepEqual( json.data.apiCallsUsed, 10 );
@@ -55,7 +44,7 @@ describe( '14. Getting and setting user media stat usage', function() {
   } )
 
   it( 'regular user did update the api calls to 5', async function() {
-    const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
+    const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert.deepEqual( json.data.apiCallsUsed, 11 );
@@ -64,7 +53,7 @@ describe( '14. Getting and setting user media stat usage', function() {
   it( 'regular user did upload another file to dinosaurs2', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await user1.post( "/buckets/dinosaurs2/upload", form, form.getHeaders() );
+    const resp = await header.user1.post( "/buckets/dinosaurs2/upload", form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert( json.tokens );
@@ -78,14 +67,14 @@ describe( '14. Getting and setting user media stat usage', function() {
   } )
 
   it( 'regular user fetched the uploaded file Id of the dinosaur2 bucket', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/dinosaurs2` );
+    const resp = await header.user1.get( `/files/users/${header.user1.username}/buckets/dinosaurs2` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     fileId = json.data[ 1 ].identifier;
   } )
 
   it( 'regular user updated its stats to reflect a file was deleted', async function() {
-    const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
+    const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert.deepEqual( json.data.apiCallsUsed, 14 );
@@ -93,7 +82,7 @@ describe( '14. Getting and setting user media stat usage', function() {
   } )
 
   it( 'regular user updated its stats that both a file and bucket were deleted', async function() {
-    const resp = await user1.get( `/stats/users/${user1.username}/get-stats` );
+    const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert.deepEqual( json.data.apiCallsUsed, 16 );

@@ -3,61 +3,55 @@ import { } from 'mocha';
 import { IPost, IConfig, IAdminUser } from '../../../src';
 import header from '../header';
 import Agent from '../agent';
-let guest: Agent, admin: Agent, config: IConfig, numPosts: number, lastPost: IPost, lastPost2: IPost;
+let numPosts: number, lastPost: IPost, lastPost2: IPost;
 
 describe( '1. Testing creation of posts', function() {
 
-  before( function() {
-    guest = header.guest;
-    admin = header.admin;
-    config = header.config;
-  } )
-
   it( 'fetched all posts', async function() {
-    const resp = await admin.get( `/api/posts` );
+    const resp = await header.admin.get( `/api/posts` );
     assert.strictEqual( resp.status, 200 );
     const json = await resp.json();
     numPosts = json.count;
   } )
 
   it( 'cannot create post when not logged in', async function() {
-    const resp = await guest.post( `/api/posts`, { name: "" } );
+    const resp = await header.guest.post( `/api/posts`, { name: "" } );
     assert.strictEqual( resp.status, 401 );
     const json = await resp.json();
     assert.strictEqual( json.message, "You must be logged in to make this request" );
   } )
 
   it( 'cannot create a post without title', async function() {
-    const resp = await admin.post( `/api/posts`, { title: "", slug: "" } );
+    const resp = await header.admin.post( `/api/posts`, { title: "", slug: "" } );
     assert.strictEqual( resp.status, 500 );
     const json = await resp.json();
     assert.strictEqual( json.message, "title cannot be empty" );
   } )
 
   it( 'cannot create a post without a slug field', async function() {
-    const resp = await admin.post( `/api/posts`, { title: "test" } );
+    const resp = await header.admin.post( `/api/posts`, { title: "test" } );
     assert.strictEqual( resp.status, 500 );
     const json = await resp.json();
     assert.strictEqual( json.message, "slug is required" );
   } )
 
   it( 'cannot create a post without slug', async function() {
-    const resp = await admin.post( `/api/posts`, { title: "test", slug: "" } );
+    const resp = await header.admin.post( `/api/posts`, { title: "test", slug: "" } );
     assert.strictEqual( resp.status, 500 );
     const json = await resp.json();
     assert.strictEqual( json.message, "slug cannot be empty" );
   } )
 
   it( 'did delete any existing posts with the slug --simple--test--', async function() {
-    const resp = await admin.get( `/api/posts/slug/--simple--test--` );
+    const resp = await header.admin.get( `/api/posts/slug/--simple--test--` );
     const json = await resp.json();
 
     if ( json )
-      await admin.delete( `/api/posts/${json._id}` );
+      await header.admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'can create a post with valid data', async function() {
-    const resp = await admin.post( `/api/posts`, {
+    const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
       slug: "--simple--test--",
       brief: "This is brief",
@@ -71,7 +65,7 @@ describe( '1. Testing creation of posts', function() {
 
     lastPost = json._id;
     assert.strictEqual( json.public, false );
-    assert.strictEqual( json.author.username, ( config.adminUser as IAdminUser ).username );
+    assert.strictEqual( json.author.username, ( header.config.adminUser as IAdminUser ).username );
     assert.strictEqual( json.content, "Hello world" );
     assert.strictEqual( json.brief, "This is brief" );
     assert.strictEqual( json.slug, "--simple--test--" );
@@ -87,14 +81,14 @@ describe( '1. Testing creation of posts', function() {
   } )
 
   it( 'did delete any existing posts with this slug --strip--test--', async function() {
-    const resp = await admin.get( `/api/posts/slug/--strip--test--` );
+    const resp = await header.admin.get( `/api/posts/slug/--strip--test--` );
     const json = await resp.json();
     if ( json )
-      await admin.delete( `/api/posts/${json._id}` );
+      await header.admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'should create a post & strip HTML from title', async function() {
-    const resp = await admin.post( `/api/posts`, {
+    const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test <h2>NO</h2>",
       slug: "--strip--test--",
       brief: "This is brief"
@@ -107,17 +101,17 @@ describe( '1. Testing creation of posts', function() {
   } )
 
   it( 'did delete the first post', async function() {
-    const resp = await admin.delete( `/api/posts/${lastPost}` );
+    const resp = await header.admin.delete( `/api/posts/${lastPost}` );
     assert.strictEqual( resp.status, 204 );
   } )
 
   it( 'did delete the second post', async function() {
-    const resp = await admin.delete( `/api/posts/${lastPost2}` );
+    const resp = await header.admin.delete( `/api/posts/${lastPost2}` );
     assert.strictEqual( resp.status, 204 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {
-    const resp = await admin.get( `/api/posts` );
+    const resp = await header.admin.get( `/api/posts` );
     assert.strictEqual( resp.status, 200 );
     const json = await resp.json();
   } )

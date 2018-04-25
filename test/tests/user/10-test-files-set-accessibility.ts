@@ -6,23 +6,15 @@ import * as fs from 'fs';
 import { IConfig, IAdminUser, Page, IFileEntry } from '../../../src';
 import * as FormData from 'form-data';
 
-let guest: Agent, admin: Agent, config: IConfig, user1: Agent, user2: Agent, bucket: string;
+let bucket: string;
 const filePath = './test/media/file.png';
 let fileId = '';
 let fileUrl = '';
 
 describe( '10. Testing file accessibility functions', function() {
 
-  before( function() {
-    guest = header.guest;
-    admin = header.admin;
-    user1 = header.user1;
-    user2 = header.user2;
-    config = header.config;
-  } )
-
   it( 'regular user did create a bucket dinosaurs', async function() {
-    const resp = await user1.post( `/buckets/user/${user1.username}/dinosaurs` );
+    const resp = await header.user1.post( `/buckets/user/${header.user1.username}/dinosaurs` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
     bucket = json._id;
@@ -31,12 +23,12 @@ describe( '10. Testing file accessibility functions', function() {
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
+    const resp = await header.user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
   } )
 
   it( 'regular user has 1 file', async function() {
-    const resp = await user1.get( `/files/users/${user1.username}/buckets/${bucket}` );
+    const resp = await header.user1.get( `/files/users/${header.user1.username}/buckets/${bucket}` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     fileId = json.data[ 0 ].identifier;
@@ -52,7 +44,7 @@ describe( '10. Testing file accessibility functions', function() {
   } )
 
   it( 'regular user did remove the bucket dinosaurs', async function() {
-    const resp = await user1.delete( `/buckets/${bucket}` );
+    const resp = await header.user1.delete( `/buckets/${bucket}` );
     assert.deepEqual( resp.status, 204 );
   } )
 } )
