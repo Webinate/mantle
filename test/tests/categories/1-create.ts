@@ -4,7 +4,6 @@ import { ICategory, IConfig, Page } from '../../../src';
 import header from '../header';
 import Agent from '../agent';
 
-let numComments: number;
 let category: ICategory;
 
 describe( '1. Testing creation of categories', function() {

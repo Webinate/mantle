@@ -82,3 +82,5 @@ require( './tests/comments/2-delete' );
 require( './tests/comments/3-fetch' );
 
 require( './tests/categories/1-create' );
+require( './tests/categories/2-fetching' );
+require( './tests/categories/3-hierarchies' );

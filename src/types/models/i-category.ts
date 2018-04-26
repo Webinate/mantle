@@ -7,5 +7,6 @@ export interface ICategory extends IModelEntry {
   title?: string;
   slug?: string;
   parent?: string;
+  children?: ( string | ICategory )[];
   description?: string;
 }

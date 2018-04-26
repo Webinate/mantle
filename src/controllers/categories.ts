@@ -158,6 +158,15 @@ export class CategoriesController extends Controller {
     }
 
     const instance = await categorys.createInstance( token );
-    return await instance.getAsJson( { verbose: true } );
+    const json = await instance.getAsJson( { verbose: true } );
+
+    // Assign this comment as a child to its parent comment if it exists
+    if ( parent ) {
+      const children: Array<string | mongodb.ObjectID> = parent.getByName( 'children' )!.value;
+      children.push( instance.dbEntry._id );
+      await categorys.update( <ICategory>{ _id: parent.dbEntry._id }, <ICategory>{ children: children } )
+    }
+
+    return json;
   }
 }

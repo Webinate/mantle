@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { text } from './schema-items/schema-item-factory';
+import { text, foreignKey, idArray } from './schema-items/schema-item-factory';
 import { ICategory } from '../types/models/i-category';
 
 /**
@@ -12,6 +12,7 @@ export class CategoriesModel extends Model<ICategory> {
     this.schema.add( new text( 'title', '', { minCharacters: 1 } ) );
     this.schema.add( new text( 'slug', '', { maxCharacters: 20, minCharacters: 1 } ) ).setUnique( true );
     this.schema.add( new text( 'description', '' ) );
-    this.schema.add( new text( 'parent', '' ) );
+    this.schema.add( new foreignKey( 'parent', '', 'comments', { keyCanBeNull: true, canAdapt: false } ) )
+    this.schema.add( new idArray( 'children', [], 'comments' ) )
   }
 }
