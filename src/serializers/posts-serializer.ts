@@ -101,7 +101,7 @@ export class PostsSerializer extends Serializer {
       minimal: req.query.minimal ? true : false,
       index: index,
       limit: limit,
-      verbose: Boolean( req.query.verbose )
+      verbose: req.query.verbose === 'true'
     } );
 
     return response;
@@ -116,7 +116,7 @@ export class PostsSerializer extends Serializer {
     const post = await this._controller.getPost( {
       id: req.params.id,
       slug: req.params.slug,
-      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : false
+      verbose: req.query.verbose !== undefined ? req.query.verbose === 'true' : false
     } )!;
 
     // Only admins are allowed to see private posts

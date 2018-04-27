@@ -69,7 +69,9 @@ export class CategoriesSerializer extends Serializer {
     const response = await this._controller.getAll( {
       index: index,
       limit: limit,
-      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined
+      expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
+      depth: req.query.depth !== undefined ? parseInt( req.query.depth ) : undefined,
+      root: req.query.root !== undefined ? req.query.root === 'true' : undefined
     } );
 
     return response;
@@ -81,8 +83,8 @@ export class CategoriesSerializer extends Serializer {
   @j200()
   private async getOne( req: IAuthReq, res: express.Response ) {
     return await this._controller.getOne( req.params.id, {
-      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
-      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+      expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
+      depth: req.query.depth !== undefined ? parseInt( req.query.depth ) : undefined
     } );
   }
 
@@ -92,8 +94,8 @@ export class CategoriesSerializer extends Serializer {
   @j200()
   private async getBySlug( req: IAuthReq, res: express.Response ) {
     return await this._controller.getBySlug( req.params.slug, {
-      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
-      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+      expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
+      depth: req.query.depth !== undefined ? parseInt( req.query.depth ) : undefined
     } );
   }
 

@@ -6,7 +6,7 @@ import { IModelEntry } from './i-model-entry';
 export interface ICategory extends IModelEntry {
   title?: string;
   slug?: string;
-  parent?: string;
+  parent?: string | null;
   children?: ( string | ICategory )[];
   description?: string;
 }

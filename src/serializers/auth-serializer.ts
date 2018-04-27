@@ -200,7 +200,7 @@ export class AuthSerializer extends Serializer {
     const response: IAuthenticationResponse = {
       message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
       authenticated: ( session ? true : false ),
-      user: ( session ? session.user.generateCleanedData( Boolean( req.query.verbose ) ) : null ),
+      user: ( session ? session.user.generateCleanedData( req.query.verbose === 'true' ) : null ),
     };
 
     return response;

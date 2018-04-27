@@ -70,7 +70,7 @@ export class UserSerializer extends Serializer {
     if ( !user )
       throw new Error( 'No user found' );
 
-    const response = user.generateCleanedData( Boolean( req.query.verbose ) );
+    const response = user.generateCleanedData( req.query.verbose === 'true' );
     return response;
   }
 
@@ -81,7 +81,7 @@ export class UserSerializer extends Serializer {
  */
   @j200()
   private async getUsers( req: IAuthReq, res: express.Response ) {
-    let verbose = Boolean( req.query.verbose );
+    let verbose = req.query.verbose === 'true';
 
     // Only admins are allowed to see sensitive data
     if ( req._user && req._user.privileges === UserPrivileges.SuperAdmin && verbose )

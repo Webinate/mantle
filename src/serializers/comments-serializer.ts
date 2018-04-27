@@ -97,12 +97,12 @@ export class CommentsSerializer extends Serializer {
       depth: depth,
       index: index,
       limit: limit,
-      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
+      expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
       keyword: req.query.keyword,
       parentId: req.query.parentId,
       public: visibility === 'public' ? true : false,
       sort: req.query.sort ? true : false,
-      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+      verbose: req.query.verbose !== undefined ? req.query.verbose === 'true' : undefined,
       sortOrder: req.query.sortOrder,
       sortType: req.query.sort,
       user: req.params.user || req.query.user
@@ -125,8 +125,8 @@ export class CommentsSerializer extends Serializer {
 
     const comment = await this._controller.getOne( req.params.id, {
       depth: depth,
-      expanded: req.query.expanded !== undefined ? Boolean( req.query.expanded ) : undefined,
-      verbose: req.query.verbose !== undefined ? Boolean( req.query.verbose ) : undefined,
+      expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
+      verbose: req.query.verbose !== undefined ? req.query.verbose === 'true' : undefined,
     } );
 
     // Only admins are allowed to see private comments

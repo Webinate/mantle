@@ -198,7 +198,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       return null;
 
     // Make sure the current level is not beyond the max depth
-    if ( options.expandMaxDepth !== undefined ) {
+    if ( options.expandMaxDepth !== undefined && options.expandMaxDepth !== -1 ) {
       if ( this.curLevel > options.expandMaxDepth )
         return this.value;
     }

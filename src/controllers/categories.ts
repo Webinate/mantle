@@ -10,15 +10,16 @@ import { ICategory } from '../types/models/i-category';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 
 export type GetManyOptions = {
-  verbose?: boolean;
-  index?: number;
-  limit?: number;
+  index: number;
+  limit: number;
+  root: boolean;
+  expanded: boolean,
+  depth: number
 }
 
 export type GetOneOptions = {
-  verbose?: boolean,
-  expanded?: boolean,
-  depth?: number
+  expanded: boolean,
+  depth: number
 }
 
 /**
@@ -45,16 +46,28 @@ export class CategoriesController extends Controller {
   /**
    * Returns an array of category entries
    */
-  async getAll( options: GetManyOptions = { verbose: true } ) {
+  async getAll( options: Partial<GetManyOptions> = {} ) {
     const categories = this._categoriesModel;
     const index: number = options.index || 0;
     const limit: number = options.limit || -1;
+    const expanded = options.expanded || true;
+    const depth = options.depth || 1;
+    const root = options.root || false;
 
-    const schemas = await categories.findInstances( { index: index, limit: limit } );
+    const schemas = await categories.findInstances( {
+      index: index,
+      limit: limit,
+      selector: root ? { parent: null } as ICategory : undefined
+    } );
 
     const jsons: Array<Promise<ICategory>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( { verbose: Boolean( options.verbose ) } ) );
+      jsons.push( schemas[ i ].getAsJson( {
+        verbose: true,
+        expandMaxDepth: depth,
+        expandForeignKeys: expanded,
+        expandSchemaBlacklist: [ 'parent' ]
+      } ) );
 
     const sanitizedData = await Promise.all( jsons );
     const count = await categories.count( {} );
@@ -68,9 +81,9 @@ export class CategoriesController extends Controller {
     return response;
   }
 
-  getDefaultsOptions( options: GetOneOptions ): ISchemaOptions {
+  getDefaultsOptions( options: Partial<GetOneOptions> ): ISchemaOptions {
     return {
-      verbose: options.verbose || true,
+      verbose: true,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
       expandSchemaBlacklist: [ 'parent' ]
@@ -82,7 +95,7 @@ export class CategoriesController extends Controller {
    * @param id The id of the category to fetch
    * @param options Options for getting the resource
    */
-  async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
+  async getOne( id: string, options: Partial<GetOneOptions> = {} ) {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
@@ -100,7 +113,7 @@ export class CategoriesController extends Controller {
   * @param slug The slug of the category to fetch
   * @param options Options for getting the resource
   */
-  async getBySlug( slug: string, options: GetOneOptions = { verbose: true } ) {
+  async getBySlug( slug: string, options: Partial<GetOneOptions> = {} ) {
     const findToken: Partial<ICategory> = { slug: slug };
     const category = await this._categoriesModel.findOne( findToken, this.getDefaultsOptions( options ) );
 

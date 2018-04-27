@@ -202,7 +202,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
       throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
     // Make sure the current level is not beyond the max depth
-    if ( options.expandMaxDepth !== undefined ) {
+    if ( options.expandMaxDepth !== undefined && options.expandMaxDepth !== -1 ) {
       if ( this.curLevel > options.expandMaxDepth )
         return this.value;
     }

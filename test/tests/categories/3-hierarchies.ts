@@ -6,7 +6,9 @@ import Agent from '../agent';
 
 let category: ICategory,
   child1: ICategory,
+  sibling: ICategory,
   child2: ICategory,
+  childDeep1: ICategory,
   numCategories = 0;
 
 describe( '3. Testing category hierarchies: ', function() {
@@ -15,6 +17,12 @@ describe( '3. Testing category hierarchies: ', function() {
       title: 'Test',
       slug: header.makeid(),
       description: 'This is a test'
+    } as ICategory );
+
+    sibling = await header.admin.postJson( `/api/categories`, {
+      title: 'Sibling',
+      slug: header.makeid(),
+      description: 'This is a sibling'
     } as ICategory );
 
     child1 = await header.admin.postJson( `/api/categories`, {
@@ -28,14 +36,26 @@ describe( '3. Testing category hierarchies: ', function() {
       slug: header.makeid(),
       parent: category._id
     } as ICategory );
+
+    childDeep1 = await header.admin.postJson( `/api/categories`, {
+      title: 'Child Deep 1',
+      slug: header.makeid(),
+      parent: child2._id
+    } as ICategory );
   } )
 
   after( async function() {
     let resp = await header.admin.delete( `/api/categories/${category._id}` );
     assert.equal( resp.status, 204 );
 
-    // Child removed from parent
+    resp = await header.admin.delete( `/api/categories/${sibling._id}` );
+    assert.equal( resp.status, 204 );
+
+    // Children removed from parents
     resp = await header.admin.get( `/api/categories/${child2._id}` );
+    assert.equal( resp.status, 500 );
+
+    resp = await header.admin.get( `/api/categories/${childDeep1._id}` );
     assert.equal( resp.status, 500 );
   } )
 
@@ -44,6 +64,34 @@ describe( '3. Testing category hierarchies: ', function() {
     assert.equal( resp.slug, category.slug );
     assert.equal( resp.title, `Test` );
     assert.equal( resp.children.length, 2 );
+  } )
+
+  it( 'did get a category with 1st level children returned as ids', async function() {
+    const parent = await header.admin.getJson<ICategory>( `/api/categories/${category._id}?expanded=false&depth=1` );
+    assert.equal( ( parent.children[ 0 ] as string ), child1._id );
+    assert.equal( ( parent.children[ 1 ] as string ), child2._id );
+  } )
+
+  it( 'did get a category with 1st level children expanded', async function() {
+    const parent = await header.admin.getJson<ICategory>( `/api/categories/${category._id}?expanded=true&depth=1` );
+    assert.equal( ( parent.children[ 0 ] as ICategory )._id, child1._id );
+    assert.equal( ( parent.children[ 1 ] as ICategory )._id, child2._id );
+    assert.equal( ( parent.children[ 1 ] as ICategory ).children[ 0 ], childDeep1._id );
+  } )
+
+  it( 'did get a category with 2nd level children expanded', async function() {
+    const parent = await header.admin.getJson<ICategory>( `/api/categories/${category._id}?expanded=true&depth=2` );
+    assert.equal( ( ( parent.children[ 1 ] as ICategory ).children[ 0 ] as ICategory )._id, childDeep1._id );
+  } )
+
+  it( 'did get deep categories when depth query is -1', async function() {
+    const parent = await header.admin.getJson<ICategory>( `/api/categories/${category._id}?expanded=true&depth=-1` );
+    assert.equal( ( ( parent.children[ 1 ] as ICategory ).children[ 0 ] as ICategory )._id, childDeep1._id );
+  } )
+
+  it( 'did the last 2 root categorys', async function() {
+    const parent = await header.admin.getJson<Page<ICategory>>( `/api/categories?expanded=true&depth=-1&root=true` );
+    assert.equal( parent.data[ parent.data.length - 1 ].slug, sibling.slug );
   } )
 
   it( 'did remove a category and its parent dropped the child instance', async function() {
