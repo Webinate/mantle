@@ -34,8 +34,9 @@ describe( '3. Testing category hierarchies: ', function() {
     let resp = await header.admin.delete( `/api/categories/${category._id}` );
     assert.equal( resp.status, 204 );
 
-    resp = await header.admin.delete( `/api/categories/${child2._id}` );
-    assert.equal( resp.status, 204 );
+    // Child removed from parent
+    resp = await header.admin.get( `/api/categories/${child2._id}` );
+    assert.equal( resp.status, 500 );
   } )
 
   it( 'did fetch a single category with 2 children', async function() {

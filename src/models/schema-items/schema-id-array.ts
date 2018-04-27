@@ -12,9 +12,7 @@ import Factory from '../../core/model-factory';
 export type IdTypes = string | ObjectID | IModelEntry;
 
 /**
- * An ID array scheme item for use in Models. Optionally can be used as a foreign key array
- * and return objects of the specified ids. In order for the array to return objects you must
- * specify the targetCollection property. This tells the schema from which model the ids belong to.
+ * An ID array scheme item for use in Models. Returns objects of the specified ids from the target collection.
  * Currently we only support Id lookups that exist in the same model - i.e. if the ids are of objects
  * in different models we cannot get the object values.
  */
@@ -102,6 +100,14 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
       query.$or.push( <IModelEntry>{ _id: <ObjectID>arr[ i ] } );
 
     const result = await model.findInstances( { selector: query } );
+
+    if ( this.value.length !== result.length ) {
+      for ( const id of this.value ) {
+        if ( !result.find( category => ( new ObjectID( id as string ) ).equals( category.dbEntry._id ) ) )
+          throw new Error( `Could not find resource in '${this.targetCollection}' with the id ${id}` );
+      }
+    }
+
     this._targetDocs = result;
 
     return true;
@@ -113,7 +119,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * @param collection The DB collection that the model was inserted into
    */
   public async postUpsert( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
-    if ( !this._targetDocs )
+    if ( !this._targetDocs || this._targetDocs.length === 0 )
       return;
 
     // If they key is required then it must exist
@@ -140,7 +146,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * @param instance The model instance that was deleted
    */
   public async postDelete( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
-    if ( !this.targetCollection )
+    if ( !this.targetCollection || this.targetCollection.length === 0 )
       return;
 
     // If they key is required then it must exist
