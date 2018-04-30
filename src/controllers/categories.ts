@@ -99,7 +99,7 @@ export class CategoriesController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const findToken: ICategory = { _id: new mongodb.ObjectID( id ) };
+    const findToken: Partial<ICategory> = { _id: new mongodb.ObjectID( id ) };
     const category = await this._categoriesModel.findOne( findToken, this.getDefaultsOptions( options ) );
 
     if ( !category )
@@ -132,7 +132,7 @@ export class CategoriesController extends Controller {
       throw new Error( `Please use a valid object id` );
 
     const categorys = this._categoriesModel;
-    const findToken: ICategory = { _id: new mongodb.ObjectID( id ) };
+    const findToken: Partial<ICategory> = { _id: new mongodb.ObjectID( id ) };
 
     const category = await categorys.findOne( findToken, { verbose: true } );
 
@@ -150,7 +150,7 @@ export class CategoriesController extends Controller {
    */
   async update( id: string, token: ICategory ) {
     const categorys = this._categoriesModel;
-    const findToken: ICategory = { _id: new mongodb.ObjectID( id ) };
+    const findToken: Partial<ICategory> = { _id: new mongodb.ObjectID( id ) };
     const updatedCategory = await categorys.update( findToken, token );
     return updatedCategory;
   }
