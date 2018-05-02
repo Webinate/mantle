@@ -21,6 +21,11 @@ describe( '1. Testing creation of posts', function() {
     assert.strictEqual( json.message, "You must be logged in to make this request" );
   } )
 
+  it( 'cannot create a post as a regular user', async function() {
+    const resp = await header.user1.post( `/api/posts`, { title: "test", slug: "" } );
+    assert.strictEqual( resp.status, 403 );
+  } )
+
   it( 'cannot create a post without title', async function() {
     const resp = await header.admin.post( `/api/posts`, { title: "", slug: "" } );
     assert.strictEqual( resp.status, 500 );
