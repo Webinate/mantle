@@ -1,4 +1,4 @@
-import { getJson, makeQueryString, del, postJson, apiUrl } from './http-clients';
+import { getJson, makeQueryString, del, postJson, putJson, apiUrl } from './http-clients';
 import { ICategory } from '../types/models/i-category';
 import { Page } from '../types/tokens/standard-tokens';
 import { GetManyOptions } from '../controllers/categories';
@@ -16,4 +16,8 @@ export function remove( id: string ) {
 
 export function create( token: Partial<ICategory> ) {
   return postJson<ICategory>( rootPath, token );
+}
+
+export function edit( id: string, token: Partial<ICategory> ) {
+  return putJson<ICategory>( `${rootPath}/${id}`, token );
 }

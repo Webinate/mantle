@@ -44,6 +44,7 @@ export class CategoriesSerializer extends Serializer {
     router.get( '/', this.getMany.bind( this ) );
     router.get( '/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, this.getOne.bind( this ) ] );
     router.get( '/slug/:slug', <any>[ identifyUser, this.getBySlug.bind( this ) ] );
+    router.put( '/:id', <any>[ adminRights, this.update.bind( this ) ] );
     router.post( '/', <any>[ adminRights, this.create.bind( this ) ] );
     router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
 
@@ -75,6 +76,16 @@ export class CategoriesSerializer extends Serializer {
     } );
 
     return response;
+  }
+
+  /**
+   * Attempts to update a post by ID
+   */
+  @j200()
+  private async update( req: IAuthReq, res: express.Response ) {
+    const token: ICategory = req.body;
+    const post = await this._controller.update( req.params.id, token );
+    return post;
   }
 
   /**
