@@ -158,7 +158,6 @@ export class SchemaItem<T> {
    * @param collection The DB collection that the model was deleted from
    */
   public async postDelete( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
-    collection; // Supress empty param warning
     return Promise.resolve();
   }
 
@@ -174,7 +173,6 @@ export class SchemaItem<T> {
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
   public async getValue( options?: ISchemaOptions ): Promise<T> {
-    options;   // Supress empty param warning
     return this.value;
   }
 

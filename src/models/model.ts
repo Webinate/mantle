@@ -285,13 +285,7 @@ export abstract class Model<T extends IModelEntry> {
 	 * Attempts to insert an array of instances of this model into the database.
 	 * @param instances An array of instances to save
 	 */
-  async insert( instances: Schema<IModelEntry>[] ) {
-    const model = this;
-    const collection = model.collection;
-
-    if ( !collection )
-      throw new Error( 'The model has not been initialized' );
-
+  private async insert( instances: Schema<IModelEntry>[] ) {
     const documents: Array<any> = [];
     const promises: Array<Promise<Schema<IModelEntry>>> = [];
 
@@ -308,14 +302,11 @@ export abstract class Model<T extends IModelEntry> {
     }
 
     // Attempt to save the data to mongo collection
-    const insertResult = await collection.insertMany( documents );
+    const insertResult = await this.collection.insertMany( documents );
 
     // Assign the ID's
-    for ( let i = 0, l = insertResult.ops.length; i < l; i++ ) {
-      // instances[ i ]._id = insertResult.ops[ i ]._id;
-      // instances[ i ].dbEntry = insertResult.ops[ i ];
+    for ( let i = 0, l = insertResult.ops.length; i < l; i++ )
       schemas[ i ].set( insertResult.ops[ i ], true );
-    }
 
     // Now that everything has been added, we can do some post insert/update validation
     const postValidationPromises: Array<Promise<Schema<IModelEntry>>> = [];
