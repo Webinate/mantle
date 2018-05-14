@@ -53,7 +53,7 @@ export class StatsController extends Controller {
     }
 
     const schema = await stats.createInstance( storage );
-    return schema.getAsJson( { verbose: true } );
+    return schema.downloadToken( { verbose: true } );
   }
 
   /**

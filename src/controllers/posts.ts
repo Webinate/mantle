@@ -132,7 +132,7 @@ export class PostsController extends Controller {
     const verbose = options.verbose !== undefined ? options.verbose : true;
     const jsons: Array<Promise<IPost>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( { expandForeignKeys: true, verbose: verbose, expandMaxDepth: 1 } ) );
+      jsons.push( schemas[ i ].downloadToken( { expandForeignKeys: true, verbose: verbose, expandMaxDepth: 1 } ) );
 
     const sanitizedData = await Promise.all( jsons );
     const response: Page<IPost> = {
@@ -183,7 +183,7 @@ export class PostsController extends Controller {
    */
   async create( token: IPost ) {
     const schema = await this._postsModel.createInstance( token );
-    const json = await schema.getAsJson( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
+    const json = await schema.downloadToken( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
     return json;
   }
 

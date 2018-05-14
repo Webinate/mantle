@@ -57,18 +57,9 @@ export class Schema<T extends IModelEntry> {
   }
 
   /**
-    * De-serializes the schema items from the mongodb data entry.
-     * I.e. the data is the document from the DB and the schema item sets its values from the document
-   */
-  public deserialize( data: any ): any {
-    for ( let i in data )
-      this.setVal( i, data[ i ] );
-  }
-
-  /**
    * Serializes the schema items into the JSON format for mongodb
    */
-  public serialize(): any {
+  public uploadToken(): any {
     const toReturn: any = {};
     const items = this._items;
 
@@ -82,7 +73,7 @@ export class Schema<T extends IModelEntry> {
    * Serializes the schema items into a JSON
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async getAsJson( options: ISchemaOptions ): Promise<T> {
+  public async downloadToken( options: ISchemaOptions ): Promise<T> {
     const toReturn: T = { _id: this.dbEntry._id } as T;
     const items = this._items;
     const promises: Array<Promise<any>> = [];

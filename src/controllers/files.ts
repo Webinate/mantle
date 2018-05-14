@@ -128,7 +128,7 @@ export class FilesController extends Controller {
 
     const jsons: Array<Promise<IFileEntry>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( { verbose: options.verbose !== undefined ? options.verbose : true } ) );
+      jsons.push( schemas[ i ].downloadToken( { verbose: options.verbose !== undefined ? options.verbose : true } ) );
 
     const sanitizedData = await Promise.all( jsons );
     const toRet: Page<IFileEntry> = {

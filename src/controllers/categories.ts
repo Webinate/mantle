@@ -62,7 +62,7 @@ export class CategoriesController extends Controller {
 
     const jsons: Array<Promise<ICategory>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( {
+      jsons.push( schemas[ i ].downloadToken( {
         verbose: true,
         expandMaxDepth: depth,
         expandForeignKeys: expanded,
@@ -150,8 +150,44 @@ export class CategoriesController extends Controller {
    */
   async update( id: string, token: ICategory ) {
     const categorys = this._categoriesModel;
+    let parent: Schema<ICategory> | null = null;
+
+    // Check if target parent exists
+    if ( token.parent ) {
+      parent = await categorys.findOne( <ICategory>{ _id: new mongodb.ObjectID( token.parent ) } );
+
+      if ( !parent )
+        throw new Error( `No category exists with the id ${token.parent}` );
+    }
+
     const findToken: Partial<ICategory> = { _id: new mongodb.ObjectID( id ) };
+    const curCategory = await categorys.findOne( findToken, { expandForeignKeys: false, verbose: true } );
+
+    // If it has a parent - then remove it from the current parent
+    if ( curCategory && curCategory.parent && curCategory.parent.toString() !== token.parent ) {
+      const curParent = await categorys.findOne( { _id: curCategory.parent }, { expandForeignKeys: false, verbose: true } );
+      const children = curParent!.children;
+      const tokenId = new mongodb.ObjectID( token._id );
+      const index = children.findIndex( it => tokenId.equals( it as mongodb.ObjectID ) )
+      if ( index !== -1 ) {
+        children.splice( index, 1 );
+        await categorys.update( <ICategory>{ _id: curParent!._id }, <ICategory>{ children: children } );
+      }
+    }
+
     const updatedCategory = await categorys.update( findToken, token );
+
+    // Assign this comment as a child to its parent comment if it exists
+    if ( parent ) {
+      const children: Array<string | mongodb.ObjectID> = parent.getByName( 'children' )!.value;
+      const newId = new mongodb.ObjectID( updatedCategory._id );
+      const index = children.findIndex( it => newId.equals( it as mongodb.ObjectID ) );
+      if ( index === -1 ) {
+        children.push( newId );
+        await categorys.update( <ICategory>{ _id: parent.dbEntry._id }, <ICategory>{ children: children } );
+      }
+    }
+
     return updatedCategory;
   }
 
@@ -171,7 +207,7 @@ export class CategoriesController extends Controller {
     }
 
     const instance = await categorys.createInstance( token );
-    const json = await instance.getAsJson( { verbose: true } );
+    const json = await instance.downloadToken( { verbose: true } );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {

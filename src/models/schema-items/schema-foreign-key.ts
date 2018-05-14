@@ -218,6 +218,6 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
         ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
 
-    return await result!.getAsJson( options );
+    return await result!.downloadToken( options );
   }
 }

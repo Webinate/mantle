@@ -81,7 +81,6 @@ export abstract class Model<T extends IModelEntry> {
     for ( let i = 0, l = result.length; i < l; i++ ) {
       schema = this.schema.clone();
       schema.set( result[ i ], true );
-      schema.deserialize( result[ i ] );
       schemas.push( schema );
     }
 
@@ -102,7 +101,7 @@ export abstract class Model<T extends IModelEntry> {
       return null;
     else {
       if ( options )
-        return instances[ 0 ].getAsJson( options );
+        return instances[ 0 ].downloadToken( options );
       else
         return instances[ 0 ];
     }
@@ -214,13 +213,13 @@ export abstract class Model<T extends IModelEntry> {
       throw new Error( `'${this.schema.uniqueFieldNames()}' must be unique` );
 
     // Transform the schema into a JSON ready format
-    const json = schema.serialize();
+    const json = schema.uploadToken();
     const collection = this.collection;
     await collection.updateOne( { _id: typeof ( schema.dbEntry._id ) === 'string' ? new ObjectID( schema.dbEntry._id ) : schema.dbEntry._id }, { $set: json } );
 
     // Now that everything has been added, we can do some post insert/update validation
     await schema.postUpsert( this._collectionName );
-    return schema.getAsJson( options );
+    return schema.downloadToken( options );
   }
 
   /**
@@ -297,7 +296,7 @@ export abstract class Model<T extends IModelEntry> {
 
     // Transform the schema into a JSON ready format
     for ( let i = 0, l = schemas.length; i < l; i++ ) {
-      const json = schemas[ i ].serialize();
+      const json = schemas[ i ].uploadToken();
       documents.push( json );
     }
 

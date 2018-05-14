@@ -384,7 +384,7 @@ export class PageSerializer extends Serializer {
 
       const jsons: Array<Promise<IRender>> = [];
       for ( let i = 0, l = schemas.length; i < l; i++ )
-        jsons.push( schemas[ i ].getAsJson( { verbose: req.query.verbose === 'true' } ) );
+        jsons.push( schemas[ i ].downloadToken( { verbose: req.query.verbose === 'true' } ) );
 
       const sanitizedData = await Promise.all( jsons );
 

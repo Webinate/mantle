@@ -229,7 +229,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
         if ( item instanceof SchemaForeignKey || item instanceof SchemaIdArray )
           item.curLevel = nextLevel;
 
-      promises.push( instance.getAsJson( options ) );
+      promises.push( instance.downloadToken( options ) );
     }
 
     return await Promise.all( promises );

@@ -107,7 +107,7 @@ export class CommentsController extends Controller {
 
     const jsons: Array<Promise<IComment>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].getAsJson( {
+      jsons.push( schemas[ i ].downloadToken( {
         verbose: options.verbose || true,
         expandForeignKeys: options.expanded || false,
         expandMaxDepth: options.depth || 1,
@@ -198,7 +198,7 @@ export class CommentsController extends Controller {
     }
 
     const instance = await comments.createInstance( token );
-    const json = await instance.getAsJson( { verbose: true } );
+    const json = await instance.downloadToken( { verbose: true } );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
