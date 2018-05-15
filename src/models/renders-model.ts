@@ -5,7 +5,7 @@ import { IRender } from '../types/models/i-render';
 /**
  * Describes a model for page renders that can be served to bots or crawlers
  */
-export class RendersModel extends Model<IRender> {
+export class RendersModel extends Model<IRender<'client' | 'server'>> {
   constructor() {
     super( 'renders' );
 

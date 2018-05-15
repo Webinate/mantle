@@ -69,14 +69,14 @@ export class FilesController extends Controller {
    */
   async getFile( fileID: string, user?: string, searchTerm?: RegExp ) {
     const files = this._files;
-    const searchQuery: Partial<IFileEntry> = { identifier: fileID };
+    const searchQuery: Partial<IFileEntry<'server'>> = { identifier: fileID };
     if ( user )
       searchQuery.user = user;
 
     if ( searchTerm )
       searchQuery.name = searchTerm as any;
 
-    const file = await files.findOne( searchQuery, { verbose: true } );
+    const file = await files.findOne<IFileEntry<'client'>>( searchQuery, { verbose: true } );
 
     if ( !file )
       throw new Error( `File '${fileID}' does not exist` );
@@ -91,13 +91,13 @@ export class FilesController extends Controller {
     const files = this._files;
     const buckets = this._buckets;
 
-    const searchQuery: Partial<IFileEntry> = {};
+    const searchQuery: Partial<IFileEntry<'server'>> = {};
 
     if ( options.bucketId ) {
       if ( typeof ( options.bucketId ) === 'string' && !isValidObjectID( options.bucketId ) )
         throw new Error( 'Please use a valid identifier for bucketId' );
 
-      const bucketQuery: Partial<IBucketEntry> = { _id: new ObjectID( options.bucketId ) };
+      const bucketQuery: Partial<IBucketEntry<'server'>> = { _id: new ObjectID( options.bucketId ) };
       if ( options.user )
         bucketQuery.user = options.user;
 
@@ -106,7 +106,7 @@ export class FilesController extends Controller {
       if ( !bucketEntry )
         throw new Error( `Could not find the bucket resource` );
 
-      searchQuery.bucketId = new ObjectID( options.bucketId ) as any;
+      searchQuery.bucketId = new ObjectID( options.bucketId );
     }
 
     if ( options.searchTerm )
@@ -126,12 +126,14 @@ export class FilesController extends Controller {
       limit: limit
     } );
 
-    const jsons: Array<Promise<IFileEntry>> = [];
+    const jsons: Array<Promise<IFileEntry<'client'>>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].downloadToken( { verbose: options.verbose !== undefined ? options.verbose : true } ) );
+      jsons.push( schemas[ i ].downloadToken<IFileEntry<'client'>>( {
+        verbose: options.verbose !== undefined ? options.verbose : true
+      } ) );
 
     const sanitizedData = await Promise.all( jsons );
-    const toRet: Page<IFileEntry> = {
+    const toRet: Page<IFileEntry<'client'>> = {
       count: count,
       data: sanitizedData,
       index: index,
@@ -145,7 +147,7 @@ export class FilesController extends Controller {
    * Fetches the file count based on the given query
    * @param searchQuery The search query to idenfify files
    */
-  async count( searchQuery: IFileEntry ) {
+  async count( searchQuery: IFileEntry<'server'> ) {
     const filesCollection = this._files;
     const count = await filesCollection.count( searchQuery );
     return count;
@@ -156,7 +158,7 @@ export class FilesController extends Controller {
    * @param fileId The id of the file to rename
    * @param name The new name of the file
    */
-  async update( fileId: string | ObjectID, token: Partial<IFileEntry> ) {
+  async update( fileId: string | ObjectID, token: Partial<IFileEntry<'client' | 'server'>> ) {
     const files = this._files;
 
     if ( typeof fileId === 'string' && !isValidObjectID( fileId ) )
@@ -169,7 +171,7 @@ export class FilesController extends Controller {
       throw new Error( 'Resource not found' );
 
     await this.incrementAPI( file.user! );
-    const toRet = await files.update( query, token );
+    const toRet = await files.update<IFileEntry<'client'>>( query, token );
     return toRet;
   }
 
@@ -179,7 +181,7 @@ export class FilesController extends Controller {
    */
   private async incrementAPI( user: string ) {
     const stats = this._stats.collection;
-    await stats.update( { user: user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
+    await stats.update( { user: user } as IStorageStats<'server'>, { $inc: { apiCallsUsed: 1 } as IStorageStats<'server'> } );
     return true;
   }
 
@@ -187,12 +189,12 @@ export class FilesController extends Controller {
    * Deletes the file from storage and updates the databases
    * @param fileEntry
    */
-  private async deleteFile( fileEntry: IFileEntry ) {
+  private async deleteFile( fileEntry: IFileEntry<'server'> ) {
     const buckets = this._buckets;
     const files = this._files;
     const stats = this._stats;
 
-    const bucketEntry = await buckets.findOne( fileEntry.bucketId, { verbose: true } );
+    const bucketEntry = await buckets.findOne<IBucketEntry<'client'>>( fileEntry.bucketId, { verbose: true } );
 
     if ( bucketEntry ) {
 
@@ -200,11 +202,11 @@ export class FilesController extends Controller {
       await this._activeManager.removeFile( bucketEntry, fileEntry );
 
       // Update the bucket data usage
-      await buckets.collection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry } );
+      await buckets.collection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry<'server'>, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry<'server'> } );
     }
 
-    await files.deleteInstances( { _id: fileEntry._id } as IFileEntry );
-    await stats.collection.updateOne( { user: fileEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats } as IStorageStats );
+    await files.deleteInstances( { _id: fileEntry._id } as IFileEntry<'server'> );
+    await stats.collection.updateOne( { user: fileEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats<'server'> } );
 
     // Update any listeners on the sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };
@@ -221,13 +223,13 @@ export class FilesController extends Controller {
   async removeFiles( options: DeleteOptions ) {
     const files = this._files;
     const buckets = this._buckets;
-    const query: Partial<IFileEntry> = {};
+    const query: Partial<IFileEntry<'server'>> = {};
 
     if ( options.bucketId !== undefined ) {
       if ( typeof ( options.bucketId ) === 'string' && !isValidObjectID( options.bucketId ) )
         throw new Error( 'Invalid bucket ID format' );
 
-      const bucketQuery: Partial<IBucketEntry> = { _id: new ObjectID( options.bucketId ) }
+      const bucketQuery: Partial<IBucketEntry<'server'>> = { _id: new ObjectID( options.bucketId ) }
       const bucket = await buckets.collection.findOne( bucketQuery );
 
       if ( !bucket )
@@ -249,7 +251,7 @@ export class FilesController extends Controller {
 
     const fileEntries = await files.collection.find( query ).toArray();
     for ( let i = 0, l = fileEntries.length; i < l; i++ )
-      await this.deleteFile( fileEntries[ i ] );
+      await this.deleteFile( fileEntries[ i ] as IFileEntry<'server'> );
 
     return;
   }

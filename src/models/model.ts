@@ -16,7 +16,7 @@ export interface ISearchOptions<T> {
 /**
  * Models map data in the application/client to data in the database
  */
-export abstract class Model<T extends IModelEntry> {
+export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   public collection: Collection<T>;
   public schema: Schema<T>;
   private _collectionName: string;
@@ -74,18 +74,18 @@ export abstract class Model<T extends IModelEntry> {
     const result = await cursor.toArray();
 
     // Create the instance array
-    const schemas: Schema<IModelEntry>[] = [];
-    let schema: Schema<IModelEntry>;
+    const schemas: Schema<IModelEntry<'server'>>[] = [];
+    let schema: Schema<IModelEntry<'server' | 'client'>>;
 
     // For each data entry, create a new instance
     for ( let i = 0, l = result.length; i < l; i++ ) {
       schema = this.schema.clone();
       schema.set( result[ i ], true );
-      schemas.push( schema );
+      schemas.push( schema as Schema<IModelEntry<'server'>> );
     }
 
     // Complete
-    return schemas as Schema<T>[];
+    return schemas;
   }
 
   /**
@@ -93,8 +93,8 @@ export abstract class Model<T extends IModelEntry> {
    * @param selector The selector object for selecting files
    * @param options [Optional] If options provided, the resource itself is returned instead of its schema
    */
-  async findOne( selector: any ): Promise<Schema<T> | null>
-  async findOne( selector: any, options: ISchemaOptions ): Promise<T | null>
+  async findOne<Y extends IModelEntry<'server'>>( selector: any ): Promise<Schema<Y> | null>
+  async findOne<Y extends IModelEntry<'client'>>( selector: any, options: ISchemaOptions ): Promise<Y | null>
   async findOne( selector: any, options?: ISchemaOptions ) {
     const instances = await this.findInstances( { selector: selector, limit: 1 } );
     if ( !instances || instances.length === 0 )
@@ -110,8 +110,8 @@ export abstract class Model<T extends IModelEntry> {
   /**
    * Deletes a instance and all its dependencies are updated or deleted accordingly
    */
-  private async deleteInstance( schema: Schema<IModelEntry> ) {
-    let foreignModel: Model<IModelEntry>;
+  private async deleteInstance( schema: Schema<IModelEntry<'server'>> ) {
+    let foreignModel: Model<IModelEntry<'server' | 'client'>>;
     const optionalDependencies = schema.dbEntry._optionalDependencies;
     const requiredDependencies = schema.dbEntry._requiredDependencies;
     const arrayDependencies = schema.dbEntry._arrayDependencies;
@@ -127,7 +127,7 @@ export abstract class Model<T extends IModelEntry> {
 
         let setToken = { $set: {} as any };
         setToken.$set[ optionalDependencies[ i ].propertyName ] = null;
-        promises.push( foreignModel.collection.updateOne( <IModelEntry>{ _id: optionalDependencies[ i ]._id }, setToken ) );
+        promises.push( foreignModel.collection.updateOne( <IModelEntry<'server'>>{ _id: optionalDependencies[ i ]._id }, setToken ) );
       }
 
     // Remove any dependencies that are in arrays
@@ -139,7 +139,7 @@ export abstract class Model<T extends IModelEntry> {
 
         let pullToken = { $pull: {} as any };
         pullToken.$pull[ arrayDependencies[ i ].propertyName ] = schema.dbEntry._id;
-        promises.push( foreignModel.collection.updateMany( <IModelEntry>{ _id: arrayDependencies[ i ]._id }, pullToken ) );
+        promises.push( foreignModel.collection.updateMany( <IModelEntry<'server'>>{ _id: arrayDependencies[ i ]._id }, pullToken ) );
       }
 
     // For those dependencies that are required, we delete the instances
@@ -149,7 +149,7 @@ export abstract class Model<T extends IModelEntry> {
         if ( !foreignModel )
           continue;
 
-        promises.push( foreignModel.deleteInstances( <IModelEntry>{ _id: requiredDependencies[ i ]._id } ) );
+        promises.push( foreignModel.deleteInstances( <IModelEntry<'server'>>{ _id: requiredDependencies[ i ]._id } ) );
       }
 
     // Added the schema item post deletion promises
@@ -158,7 +158,7 @@ export abstract class Model<T extends IModelEntry> {
     await Promise.all( promises );
 
     // Remove the original instance from the DB
-    const deleteResult = await this.collection.deleteMany( <IModelEntry>{ _id: schema.dbEntry._id } );
+    const deleteResult = await this.collection.deleteMany( <IModelEntry<'server'>>{ _id: schema.dbEntry._id } );
 
     return deleteResult.deletedCount!;
   }
@@ -189,10 +189,9 @@ export abstract class Model<T extends IModelEntry> {
    * @param selector The selector to determine which model to update
    * @param data The data to update the model with
    */
-  async update( selector: any, data: Partial<T>, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
+  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<T>, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
 
-    const schema = await this.findOne( selector );
-
+    const schema = await this.findOne<IModelEntry<'server'>>( selector );
 
     if ( !schema )
       throw new Error( `Resource does not exist` );
@@ -201,7 +200,7 @@ export abstract class Model<T extends IModelEntry> {
 
     // If we have data, then set the variables
     if ( data )
-      schema.set( data, false );
+      ( schema as Schema<T> ).set( data, false );
 
     // Make sure the new updates are valid
     await schema.validate( false );
@@ -219,13 +218,13 @@ export abstract class Model<T extends IModelEntry> {
 
     // Now that everything has been added, we can do some post insert/update validation
     await schema.postUpsert( this._collectionName );
-    return schema.downloadToken( options );
+    return schema.downloadToken<Y>( options );
   }
 
   /**
    * Checks if the schema item being ammended is unique
    */
-  async checkUniqueness( schema: Schema<IModelEntry>, id?: ObjectID ): Promise<boolean> {
+  async checkUniqueness( schema: Schema<IModelEntry<'server'>>, id?: ObjectID ): Promise<boolean> {
     const items = schema.getItems();
     let hasUniqueField: boolean = false;
     const searchToken: any = { $or: [] as any[] };
@@ -261,20 +260,20 @@ export abstract class Model<T extends IModelEntry> {
 	 * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object
 	 */
-  async createInstance( data?: T ) {
+  async createInstance( data?: Partial<T> ) {
     const schema = this.schema.clone();
 
     // If we have data, then set the variables
     if ( data )
       schema.set( data, true );
 
-    const unique = await this.checkUniqueness( schema );
+    const unique = await this.checkUniqueness( schema as Schema<IModelEntry<'server'>> );
 
     if ( !unique )
       throw new Error( `'${this.schema.uniqueFieldNames()}' must be unique` );
 
     // Now try to create a new instance
-    const schemas = await this.insert( [ schema ] );
+    const schemas = await this.insert( [ schema as Schema<IModelEntry<'server'>> ] );
 
     // All ok
     return schemas[ 0 ] as Schema<T>;
@@ -284,15 +283,15 @@ export abstract class Model<T extends IModelEntry> {
 	 * Attempts to insert an array of instances of this model into the database.
 	 * @param instances An array of instances to save
 	 */
-  private async insert( instances: Schema<IModelEntry>[] ) {
+  private async insert( instances: Schema<IModelEntry<'server'>>[] ) {
     const documents: Array<any> = [];
-    const promises: Array<Promise<Schema<IModelEntry>>> = [];
+    const promises: Array<Promise<Schema<IModelEntry<'server'>>>> = [];
 
     // Make sure the parameters are valid
     for ( let i = 0, l = instances.length; i < l; i++ )
       promises.push( instances[ i ].validate( true ) );
 
-    const schemas = await Promise.all<Schema<IModelEntry>>( promises );
+    const schemas = await Promise.all<Schema<IModelEntry<'server'>>>( promises );
 
     // Transform the schema into a JSON ready format
     for ( let i = 0, l = schemas.length; i < l; i++ ) {
@@ -308,7 +307,7 @@ export abstract class Model<T extends IModelEntry> {
       schemas[ i ].set( insertResult.ops[ i ], true );
 
     // Now that everything has been added, we can do some post insert/update validation
-    const postValidationPromises: Array<Promise<Schema<IModelEntry>>> = [];
+    const postValidationPromises: Array<Promise<Schema<IModelEntry<'server'>>>> = [];
     for ( let i = 0, l = instances.length; i < l; i++ )
       postValidationPromises.push( instances[ i ].postUpsert( this._collectionName ) );
 

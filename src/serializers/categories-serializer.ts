@@ -83,7 +83,7 @@ export class CategoriesSerializer extends Serializer {
    */
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
-    const token: ICategory = req.body;
+    const token: Partial<ICategory<'client'>> = req.body;
     const post = await this._controller.update( req.params.id, token );
     return post;
   }
@@ -123,7 +123,7 @@ export class CategoriesSerializer extends Serializer {
    */
   @j200()
   private async create( req: IAuthReq, res: express.Response ) {
-    const token: ICategory = req.body;
+    const token: Partial<ICategory<'client'>> = req.body;
     return await this._controller.create( token );
   }
 }

@@ -95,7 +95,7 @@ export class UserSerializer extends Serializer {
     index = isNaN( index ) ? undefined : index;
     limit = isNaN( limit ) ? undefined : limit;
 
-    const response: Page<IUserEntry> = await this._userController.getUsers( index, limit, query, verbose );
+    const response: Page<IUserEntry<'client'>> = await this._userController.getUsers( index, limit, query, verbose );
     return response;
   }
 
@@ -109,7 +109,7 @@ export class UserSerializer extends Serializer {
     if ( !val )
       val = {};
 
-    await this._userController.setMeta( user, val );
+    await this._userController.setMeta( user._id, val );
     return;
   }
 
@@ -121,7 +121,7 @@ export class UserSerializer extends Serializer {
     const user = req._user!;
     const name = req.params.name;
 
-    await this._userController.setMetaVal( user, name, req.body.value );
+    await this._userController.setMetaVal( user._id, name, req.body.value );
     return;
   }
 
@@ -133,7 +133,7 @@ export class UserSerializer extends Serializer {
     const user = req._user!;
     const name = req.params.name;
 
-    const response = await this._userController.getMetaVal( user, name );
+    const response = await this._userController.getMetaVal( user._id, name );
     return response;
   }
 
@@ -143,7 +143,7 @@ export class UserSerializer extends Serializer {
   @j200()
   private async getData( req: IAuthReq, res: express.Response ) {
     const user = req._user!;
-    const response = await this._userController.getMetaData( user );
+    const response = await this._userController.getMetaData( user._id );
     return response;
   }
 
@@ -165,7 +165,7 @@ export class UserSerializer extends Serializer {
 	 */
   @j200()
   private async createUser( req: express.Request, res: express.Response ) {
-    const token: Partial<IUserEntry> = req.body;
+    const token: Partial<IUserEntry<'client'>> = req.body;
     token.privileges = token.privileges ? token.privileges : UserPrivileges.Regular;
 
     // Not allowed to create super users
@@ -180,7 +180,7 @@ export class UserSerializer extends Serializer {
       meta: token.meta
     }, true, true );
 
-    const response: IUserEntry = user.dbEntry;
+    const response: IUserEntry<'client'> = user.dbEntry as IUserEntry<'client'>;
     return response;
   }
 }

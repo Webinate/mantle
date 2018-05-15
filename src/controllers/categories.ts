@@ -8,6 +8,7 @@ import { Schema } from '../models/schema';
 import { CategoriesModel } from '../models/categories-model';
 import { ICategory } from '../types/models/i-category';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
+import { ObjectID } from 'mongodb';
 
 export type GetManyOptions = {
   index: number;
@@ -57,10 +58,10 @@ export class CategoriesController extends Controller {
     const schemas = await categories.findInstances( {
       index: index,
       limit: limit,
-      selector: root ? { parent: null } as ICategory : undefined
+      selector: root ? { parent: null } as ICategory<'server'> : undefined
     } );
 
-    const jsons: Array<Promise<ICategory>> = [];
+    const jsons: Array<Promise<ICategory<'client'>>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
       jsons.push( schemas[ i ].downloadToken( {
         verbose: true,
@@ -72,7 +73,7 @@ export class CategoriesController extends Controller {
     const sanitizedData = await Promise.all( jsons );
     const count = await categories.count( {} );
 
-    const response: Page<ICategory> = {
+    const response: Page<ICategory<'client'>> = {
       count: count,
       data: sanitizedData,
       index: index,
@@ -99,8 +100,8 @@ export class CategoriesController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const findToken: Partial<ICategory> = { _id: new mongodb.ObjectID( id ) };
-    const category = await this._categoriesModel.findOne( findToken, this.getDefaultsOptions( options ) );
+    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
+    const category = await this._categoriesModel.findOne<ICategory<'client'>>( findToken, this.getDefaultsOptions( options ) );
 
     if ( !category )
       throw new Error( 'Could not find category' );
@@ -114,8 +115,8 @@ export class CategoriesController extends Controller {
   * @param options Options for getting the resource
   */
   async getBySlug( slug: string, options: Partial<GetOneOptions> = {} ) {
-    const findToken: Partial<ICategory> = { slug: slug };
-    const category = await this._categoriesModel.findOne( findToken, this.getDefaultsOptions( options ) );
+    const findToken: Partial<ICategory<'server'>> = { slug: slug };
+    const category = await this._categoriesModel.findOne<ICategory<'client'>>( findToken, this.getDefaultsOptions( options ) );
 
     if ( !category )
       throw new Error( 'Could not find category' );
@@ -132,7 +133,7 @@ export class CategoriesController extends Controller {
       throw new Error( `Please use a valid object id` );
 
     const categorys = this._categoriesModel;
-    const findToken: Partial<ICategory> = { _id: new mongodb.ObjectID( id ) };
+    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
 
     const category = await categorys.findOne( findToken, { verbose: true } );
 
@@ -148,43 +149,43 @@ export class CategoriesController extends Controller {
    * @param id The id of the category
    * @param token The update token of the category
    */
-  async update( id: string, token: ICategory ) {
+  async update( id: string, token: Partial<ICategory<'client'>> ) {
     const categorys = this._categoriesModel;
-    let parent: Schema<ICategory> | null = null;
+    let parent: Schema<ICategory<'server'>> | null = null;
 
     // Check if target parent exists
     if ( token.parent ) {
-      parent = await categorys.findOne( <ICategory>{ _id: new mongodb.ObjectID( token.parent ) } );
+      parent = await categorys.findOne( <ICategory<'server'>>{ _id: new mongodb.ObjectID( token.parent ) } ) as Schema<ICategory<'server'>>;
 
       if ( !parent )
         throw new Error( `No category exists with the id ${token.parent}` );
     }
 
-    const findToken: Partial<ICategory> = { _id: new mongodb.ObjectID( id ) };
-    const curCategory = await categorys.findOne( findToken, { expandForeignKeys: false, verbose: true } );
+    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
+    const curCategory = await categorys.findOne<ICategory<'client'>>( findToken, { expandForeignKeys: false, verbose: true } );
 
     // If it has a parent - then remove it from the current parent
     if ( curCategory && curCategory.parent && curCategory.parent.toString() !== token.parent ) {
-      const curParent = await categorys.findOne( { _id: curCategory.parent }, { expandForeignKeys: false, verbose: true } );
-      const children = curParent!.children;
+      const curParent = await categorys.findOne<ICategory<'server'>>( { _id: curCategory.parent } );
+      const children = curParent!.dbEntry.children;
       const tokenId = new mongodb.ObjectID( token._id );
-      const index = children.findIndex( it => tokenId.equals( it as mongodb.ObjectID ) )
+      const index = children.findIndex( it => tokenId.equals( it as ObjectID ) )
       if ( index !== -1 ) {
         children.splice( index, 1 );
-        await categorys.update( <ICategory>{ _id: curParent!._id }, <ICategory>{ children: children } );
+        await categorys.update( { _id: curParent!.dbEntry._id } as ICategory<'server'>, { children: children } as ICategory<'server'> );
       }
     }
 
-    const updatedCategory = await categorys.update( findToken, token );
+    const updatedCategory = await categorys.update<ICategory<'client'>>( findToken, token );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
-      const children: Array<string | mongodb.ObjectID> = parent.getByName( 'children' )!.value;
+      const children = parent.getByName( 'children' )!.value;
       const newId = new mongodb.ObjectID( updatedCategory._id );
       const index = children.findIndex( it => newId.equals( it as mongodb.ObjectID ) );
       if ( index === -1 ) {
         children.push( newId );
-        await categorys.update( <ICategory>{ _id: parent.dbEntry._id }, <ICategory>{ children: children } );
+        await categorys.update( <ICategory<'server'>>{ _id: parent.dbEntry._id }, <ICategory<'server'>>{ children: children } );
       }
     }
 
@@ -195,25 +196,25 @@ export class CategoriesController extends Controller {
    * Creates a new category
    * @param token The data of the category to create
    */
-  async create( token: ICategory ) {
+  async create( token: Partial<ICategory<'client'>> ) {
     const categorys = this._categoriesModel;
-    let parent: Schema<ICategory> | null = null;
+    let parent: Schema<ICategory<'server'>> | null = null;
 
     if ( token.parent ) {
-      parent = await categorys.findOne( <ICategory>{ _id: new mongodb.ObjectID( token.parent ) } );
+      parent = await categorys.findOne( <ICategory<'server'>>{ _id: new mongodb.ObjectID( token.parent ) } ) as Schema<ICategory<'server'>>;
 
       if ( !parent )
         throw new Error( `No category exists with the id ${token.parent}` );
     }
 
-    const instance = await categorys.createInstance( token );
-    const json = await instance.downloadToken( { verbose: true } );
+    const instance = await categorys.createInstance( token ) as Schema<ICategory<'client'>>;
+    const json = await instance.downloadToken<ICategory<'client'>>( { verbose: true } );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
-      const children: Array<string | mongodb.ObjectID> = parent.getByName( 'children' )!.value;
-      children.push( instance.dbEntry._id );
-      await categorys.update( <ICategory>{ _id: parent.dbEntry._id }, <ICategory>{ children: children } )
+      const children = parent.getByName( 'children' )!.value;
+      children.push( new ObjectID( instance.dbEntry._id ) );
+      await categorys.update( <ICategory<'server'>>{ _id: parent.dbEntry._id }, <ICategory<'server'>>{ children: children } )
     }
 
     return json;

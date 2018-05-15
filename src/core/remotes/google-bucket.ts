@@ -24,11 +24,11 @@ export class GoogleBucket implements IRemote {
     } );
   }
 
-  generateUrl( bucket: IBucketEntry, file: IFileEntry ) {
+  generateUrl( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'> ) {
     return `https://storage.googleapis.com/${bucket.identifier}/${file.identifier}`;
   }
 
-  async createBucket( bucket: IBucketEntry, options?: any ) {
+  async createBucket( bucket: IBucketEntry<'server'>, options?: any ) {
     const gcs = this._gcs;
     const cors = {
       location: 'EU',
@@ -98,7 +98,7 @@ export class GoogleBucket implements IRemote {
     } );
   }
 
-  async uploadFile( bucket: IBucketEntry, file: IFileEntry, source: Readable, uploadOptions: IUploadOptions ) {
+  async uploadFile( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
     const filename = generateRandString( 16 ) + extname( uploadOptions.filename );
     const b = this._gcs.bucket( bucket.identifier );
     const rawFile = b.file( filename );
@@ -118,7 +118,7 @@ export class GoogleBucket implements IRemote {
     return filename;
   }
 
-  async removeFile( bucket: IBucketEntry, file: IFileEntry ) {
+  async removeFile( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'> ) {
     const gcs = this._gcs;
     const b: any = gcs.bucket( bucket.identifier );
 
@@ -131,7 +131,7 @@ export class GoogleBucket implements IRemote {
     }
   }
 
-  async removeBucket( entry: IBucketEntry ) {
+  async removeBucket( entry: IBucketEntry<'server'> ) {
     const gcs = this._gcs;
 
     // Now remove the bucket itself

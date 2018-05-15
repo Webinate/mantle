@@ -5,6 +5,7 @@ import { ServerInstruction } from './server-instruction';
 import { ClientInstruction } from './client-instruction';
 import { CommsController } from './comms-controller';
 import { ClientInstructionType, ServerInstructionType } from './socket-event-types';
+import { IUserEntry } from '../types/models/i-user-entry';
 
 /**
  * Handles express errors
@@ -37,14 +38,16 @@ export class SocketAPI {
       if ( !e.from.authorizedThirdParty )
         return Promise.reject( new Error( 'You do not have permission to make this request' ) );
 
+      const id = ( user.dbEntry as IUserEntry<'server'> )._id;
+
       if ( e.token.property && e.token.val !== undefined )
-        return Factory.get( 'users' ).setMetaVal( user.dbEntry, e.token.property, e.token.val );
+        return Factory.get( 'users' ).setMetaVal( id, e.token.property, e.token.val );
       else if ( e.token.property )
-        return Factory.get( 'users' ).getMetaVal( user.dbEntry, e.token.property );
+        return Factory.get( 'users' ).getMetaVal( id, e.token.property );
       else if ( e.token.val )
-        return Factory.get( 'users' ).setMeta( user.dbEntry, e.token.val );
+        return Factory.get( 'users' ).setMeta( id, e.token.val );
       else
-        return Factory.get( 'users' ).getMetaData( user.dbEntry );
+        return Factory.get( 'users' ).getMetaData( id );
 
     } ).then( function( metaVal ) {
 

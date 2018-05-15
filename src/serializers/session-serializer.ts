@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { SessionTokens } from '../types/tokens/standard-tokens';
+import { Page } from '../types/tokens/standard-tokens';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
@@ -12,6 +12,7 @@ import * as compression from 'compression';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
+import { ISessionEntry } from '..';
 
 /**
  * Main class to use for managing users
@@ -61,8 +62,8 @@ export class SessionSerializer extends Serializer {
     const limit = parseInt( req.query.limit );
     const sessions = await this._sessionController.getActiveSessions( index, limit )
 
-    const response: SessionTokens.GetAll.Response = {
-      data: sessions,
+    const response: Page<ISessionEntry<'client'>> = {
+      data: sessions as ISessionEntry<'client'>[],
       count: numSessions,
       index: index,
       limit: limit

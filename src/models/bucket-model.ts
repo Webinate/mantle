@@ -5,7 +5,7 @@ import { IBucketEntry } from '../types/models/i-bucket-entry';
 /**
  * A model for describing comments
  */
-export class BucketModel extends Model<IBucketEntry> {
+export class BucketModel extends Model<IBucketEntry<'client' | 'server'>> {
   constructor() {
     super( 'buckets' );
 

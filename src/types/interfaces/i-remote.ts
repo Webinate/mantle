@@ -18,13 +18,13 @@ export interface IRemote {
 
   initialize( options: IRemoteOptions ): Promise<void>;
 
-  createBucket( bucket: IBucketEntry, options?: any ): Promise<string>;
+  createBucket( bucket: Partial<IBucketEntry<'server' | 'client'>>, options?: any ): Promise<string>;
 
-  uploadFile( bucket: IBucketEntry, file: IFileEntry, source: Readable, uploadOptions: IUploadOptions ): Promise<string>;
+  uploadFile( bucket: IBucketEntry<'server' | 'client'>, file: Partial<IFileEntry<'server'>>, source: Readable, uploadOptions: IUploadOptions ): Promise<string>;
 
-  removeFile( bucket: IBucketEntry, id: IFileEntry ): Promise<void>;
+  removeFile( bucket: IBucketEntry<'server' | 'client'>, id: IFileEntry<'server'> ): Promise<void>;
 
-  removeBucket( bucket: IBucketEntry ): Promise<void>;
+  removeBucket( bucket: IBucketEntry<'server' | 'client'> ): Promise<void>;
 
-  generateUrl( bucket: IBucketEntry, file: IFileEntry ): string;
+  generateUrl( bucket: IBucketEntry<'server' | 'client'>, file: Partial<IFileEntry<'server'>> ): string;
 }

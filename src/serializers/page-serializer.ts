@@ -226,13 +226,13 @@ export class PageSerializer extends Serializer {
     if ( !this.shouldShowPrerenderedPage( req ) )
       return next();
 
-    const model = this.getModel( 'renders' )! as Model<IRender>;
+    const model = this.getModel( 'renders' )! as Model<IRender<'server' | 'client'>>;
     const url = this.getUrl( req );
-    let render: IRender | null = null;
+    let render: IRender<'client'> | null = null;
     let expiration = 0;
 
     try {
-      render = await model.findOne( { url: url }, { verbose: true } );
+      render = await model.findOne<IRender<'client'>>( { url: url }, { verbose: true } );
       let html = '';
 
       if ( render ) {
@@ -299,7 +299,7 @@ export class PageSerializer extends Serializer {
    */
   private async previewRender( req: express.Request, res: express.Response ) {
     res.setHeader( 'Content-Type', 'text/html' );
-    const renders = this.getModel( 'renders' ) as Model<IRender>;
+    const renders = this.getModel( 'renders' ) as Model<IRender<'server' | 'client'>>;
 
     try {
       const schemas = await renders!.findInstances( { selector: { _id: new mongodb.ObjectID( req.params.id ) } } );
@@ -329,7 +329,7 @@ export class PageSerializer extends Serializer {
     const renders = this.getModel( 'renders' );
 
     try {
-      const numRemoved = await renders!.deleteInstances( <IRender>{ _id: new mongodb.ObjectID( req.params.id ) } );
+      const numRemoved = await renders!.deleteInstances( <IRender<'server'>>{ _id: new mongodb.ObjectID( req.params.id ) } );
 
       if ( numRemoved === 0 )
         throw new Error( 'Could not find a cache with that ID' );
@@ -344,9 +344,9 @@ export class PageSerializer extends Serializer {
    * Returns an array of IPost items
    */
   private async getRenders( req: IAuthReq, res: express.Response ) {
-    const renders = this.getModel( 'renders' ) as Model<IRender>;
+    const renders = this.getModel( 'renders' ) as Model<IRender<'server' | 'client'>>;
     let count = 0;
-    const findToken = {};
+    const findToken: Partial<IRender<'server'>> = {};
 
     // Set the default sort order to ascending
     let sortOrder = -1;
@@ -358,7 +358,7 @@ export class PageSerializer extends Serializer {
     }
 
     // Sort by the date created
-    const sort: IRender = { createdOn: sortOrder };
+    const sort: Partial<IRender<'server'>> = { createdOn: sortOrder };
 
     let getContent: boolean = true;
     if ( req.query.minimal )
@@ -366,7 +366,7 @@ export class PageSerializer extends Serializer {
 
     // Check for keywords
     if ( req.query.search )
-      ( <IRender>findToken ).url = <any>new RegExp( req.query.search, 'i' );
+      findToken.url = new RegExp( req.query.search, 'i' );
 
     let index = parseInt( req.query.index );
     let limit = parseInt( req.query.limit );
@@ -382,7 +382,7 @@ export class PageSerializer extends Serializer {
         projection: ( getContent === false ? { html: 0 } : undefined )
       } );
 
-      const jsons: Array<Promise<IRender>> = [];
+      const jsons: Array<Promise<IRender<'client'>>> = [];
       for ( let i = 0, l = schemas.length; i < l; i++ )
         jsons.push( schemas[ i ].downloadToken( { verbose: req.query.verbose === 'true' } ) );
 

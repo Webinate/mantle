@@ -157,7 +157,7 @@ export class CommentsSerializer extends Serializer {
    */
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
-    const token: Partial<IComment> = req.body;
+    const token: Partial<IComment<'client'>> = req.body;
     const user = req._user;
     let comment = await this._controller.getOne( req.params.id );
 
@@ -174,10 +174,10 @@ export class CommentsSerializer extends Serializer {
    */
   @j200()
   private async create( req: IAuthReq, res: express.Response ) {
-    const token: Partial<IComment> = req.body;
+    const token: Partial<IComment<'client'>> = req.body;
 
     // User is passed from the authentication function
-    token.author = req._user!.username;
+    token.author = req._user!.username as string;
     token.post = req.params.postId;
     token.parent = req.params.parent;
 

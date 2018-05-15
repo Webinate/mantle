@@ -112,7 +112,7 @@ export class PostsSerializer extends Serializer {
    */
   @j200()
   private async getPost( req: IAuthReq, res: express.Response ) {
-    const user: IUserEntry = req._user!;
+    const user: IUserEntry<'server'> = req._user!;
     const post = await this._controller.getPost( {
       id: req.params.id,
       slug: req.params.slug,
@@ -140,7 +140,7 @@ export class PostsSerializer extends Serializer {
    */
   @j200()
   private async updatePost( req: IAuthReq, res: express.Response ) {
-    const token: IPost = req.body;
+    const token: IPost<'client'> = req.body;
     const post = await this._controller.update( req.params.id, token );
     return post;
   }
@@ -150,11 +150,11 @@ export class PostsSerializer extends Serializer {
    */
   @j200()
   private async createPost( req: IAuthReq, res: express.Response ) {
-    const token: IPost = req.body;
+    const token: IPost<'client'> = req.body;
 
     // User is passed from the authentication function
     if ( !token.author )
-      token.author = req._user!._id;
+      token.author = req._user!._id.toString();
 
     const post = await this._controller.create( token );
     return post;

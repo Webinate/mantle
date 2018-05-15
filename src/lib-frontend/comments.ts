@@ -19,22 +19,22 @@ export type GetAllOptions = {
 }
 
 export async function getAll( options: Partial<GetAllOptions> ) {
-  const page = await getJson<Page<IComment>>( rootPath + makeQueryString( options ) );
+  const page = await getJson<Page<IComment<'client'>>>( rootPath + makeQueryString( options ) );
   return page;
 }
 
 export async function getAllFromParent( parentId: string, options: Partial<GetAllOptions> ) {
-  const page = await getJson<Page<IComment>>( `${apiUrl}/nested-comments/${parentId}` + makeQueryString( options ) );
+  const page = await getJson<Page<IComment<'client'>>>( `${apiUrl}/nested-comments/${parentId}` + makeQueryString( options ) );
   return page;
 }
 
 export async function getAllFromUser( user: string, options: Partial<GetAllOptions> ) {
-  const page = await getJson<Page<IComment>>( `${apiUrl}/users/${user}/comments` + makeQueryString( options ) );
+  const page = await getJson<Page<IComment<'client'>>>( `${apiUrl}/users/${user}/comments` + makeQueryString( options ) );
   return page;
 }
 
 export async function getOne( id: string, options: { expanded?: boolean; verbose?: boolean; } ) {
-  const page = await getJson<IComment>( `${rootPath}/${id}${options.verbose ? makeQueryString( { verbose: true } ) : ''}` );
+  const page = await getJson<IComment<'client'>>( `${rootPath}/${id}${options.verbose ? makeQueryString( { verbose: true } ) : ''}` );
   return page;
 }
 
@@ -42,10 +42,10 @@ export function remove( id: string ) {
   return del( `${rootPath}/${id}` );
 }
 
-export function update( id: string, token: Partial<IComment> ) {
-  return putJson<IComment>( `${rootPath}/${id}`, token );
+export function update( id: string, token: Partial<IComment<'client'>> ) {
+  return putJson<IComment<'client'>>( `${rootPath}/${id}`, token );
 }
 
-export function create( postId: string, token: Partial<IComment>, parentId?: string ) {
-  return postJson<IComment>( `${apiUrl}/posts/${postId}/comments${parentId ? '/' + parentId : ''}`, token );
+export function create( postId: string, token: Partial<IComment<'client'>>, parentId?: string ) {
+  return postJson<IComment<'client'>>( `${apiUrl}/posts/${postId}/comments${parentId ? '/' + parentId : ''}`, token );
 }

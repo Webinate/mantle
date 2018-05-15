@@ -6,7 +6,7 @@ import { IPost } from '../types/models/i-post';
 /**
  * A model for describing posts
  */
-export class PostsModel extends Model<IPost> {
+export class PostsModel extends Model<IPost<'client' | 'server'>> {
   constructor() {
     super( 'posts' );
 

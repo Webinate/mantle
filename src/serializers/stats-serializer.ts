@@ -13,6 +13,7 @@ import { errJson, j200 } from '../utils/response-decorators';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { StatsController } from '../controllers/stats';
+import { IUserEntry } from '../types/models/i-user-entry';
 
 /**
  * Main class to use for managing users
@@ -81,7 +82,7 @@ export class StatsSerializer extends Serializer {
       if ( !user )
         throw new Error( `Could not find the user '${req.params.target}'` );
 
-      req._target = user.dbEntry;
+      req._target = user.dbEntry as IUserEntry<'server'>;
       next();
 
     } catch ( err ) {
@@ -95,7 +96,7 @@ export class StatsSerializer extends Serializer {
   @j200()
   private async updateCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageCalls.Response> {
     const value = parseInt( req.params.value );
-    await this._statController.update( req._target!.username!, <IStorageStats>{ apiCallsUsed: value } );
+    await this._statController.update( req._target!.username! as string, <Partial<IStorageStats<'server'>>>{ apiCallsUsed: value } );
   }
 
   /**
@@ -104,7 +105,7 @@ export class StatsSerializer extends Serializer {
   @j200()
   private async updateMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageMemory.Response> {
     const value = parseInt( req.params.value );
-    await this._statController.update( req._target!.username!, <IStorageStats>{ memoryUsed: value } );
+    await this._statController.update( req._target!.username! as string, <Partial<IStorageStats<'server'>>>{ memoryUsed: value } );
     return;
   }
 
@@ -114,7 +115,7 @@ export class StatsSerializer extends Serializer {
   @j200()
   private async updateAllocatedCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocCalls.Response> {
     const value = parseInt( req.params.value );
-    await this._statController.update( req._target!.username!, <IStorageStats>{ apiCallsAllocated: value } );
+    await this._statController.update( req._target!.username! as string, <Partial<IStorageStats<'server'>>>{ apiCallsAllocated: value } );
   }
 
   /**
@@ -123,7 +124,7 @@ export class StatsSerializer extends Serializer {
   @j200()
   private async updateAllocatedMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocMemory.Response> {
     const value = parseInt( req.params.value );
-    await this._statController.update( req._target!.username!, <IStorageStats>{ memoryAllocated: value } );
+    await this._statController.update( req._target!.username! as string, <Partial<IStorageStats<'server'>>>{ memoryAllocated: value } );
   }
 
   /**
@@ -131,7 +132,7 @@ export class StatsSerializer extends Serializer {
    */
   @j200()
   private async getStats( req: IAuthReq, res: express.Response ): Promise<StatTokens.GetOne.Response> {
-    const stats = await this._statController.get( req._user!.username );
+    const stats = await this._statController.get( req._user!.username as string );
     return stats;
   }
 

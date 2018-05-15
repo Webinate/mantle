@@ -5,7 +5,7 @@ import { text, num, date } from './schema-items/schema-item-factory';
 /**
  * A model for describing comments
  */
-export class StorageStatsModel extends Model<IStorageStats> {
+export class StorageStatsModel extends Model<IStorageStats<'client' | 'server'>> {
   constructor() {
     super( 'storage-stats' );
 

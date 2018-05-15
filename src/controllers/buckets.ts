@@ -41,9 +41,9 @@ export type DeleteOptions = {
  * Class responsible for managing buckets and uploads
  */
 export class BucketsController extends Controller {
-  private _buckets: Collection<IBucketEntry>;
-  private _files: Collection<IFileEntry>;
-  private _stats: Collection<IStorageStats>;
+  private _buckets: Collection<IBucketEntry<'server' | 'client'>>;
+  private _files: Collection<IFileEntry<'server' | 'client'>>;
+  private _stats: Collection<IStorageStats<'server' | 'client'>>;
   private _activeManager: IRemote;
   private _filesController: FilesController;
   private _statsController: StatsController;
@@ -75,7 +75,7 @@ export class BucketsController extends Controller {
    */
   async getMany( options: GetManyOptions = { index: 0, limit: 10 } ) {
     const bucketCollection = this._buckets;
-    const search: Partial<IBucketEntry> = {};
+    const search: Partial<IBucketEntry<'server'>> = {};
 
     if ( options.user )
       search.user = options.user;
@@ -96,8 +96,8 @@ export class BucketsController extends Controller {
     if ( limit !== undefined )
       cursor = cursor.limit( limit );
 
-    const result = await cursor.toArray();
-    const toRet: Page<IBucketEntry> = {
+    const result = await cursor.toArray() as IBucketEntry<'client'>[];
+    const toRet: Page<IBucketEntry<'client'>> = {
       limit: limit !== undefined ? limit : -1,
       count: count,
       index: index !== undefined ? index : -1,
@@ -111,7 +111,7 @@ export class BucketsController extends Controller {
    */
   async get( options: GetOptions = {} ) {
     const bucketCollection = this._buckets;
-    const searchQuery: Partial<IBucketEntry> = {};
+    const searchQuery: Partial<IBucketEntry<'server'>> = {};
 
     if ( options.user )
       searchQuery.user = options.user;
@@ -152,7 +152,7 @@ export class BucketsController extends Controller {
     const stats = this._stats;
 
     // Get the entry
-    let bucketEntry: Partial<IBucketEntry> | null = await this.get( { name: name, user: user } );
+    let bucketEntry: Partial<IBucketEntry<'server' | 'client'>> | null = await this.get( { name: name, user: user } );
 
     // Make sure no bucket already exists with that name
     if ( bucketEntry )
@@ -172,15 +172,15 @@ export class BucketsController extends Controller {
     bucketEntry = insertResult.ops[ 0 ];
 
     // Attempt to create a new Google bucket
-    await this._activeManager.createBucket( bucketEntry as IBucketEntry );
+    await this._activeManager.createBucket( bucketEntry! );
 
     // Increments the API calls
-    await stats.updateOne( { user: user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
+    await stats.updateOne( { user: user } as IStorageStats<'server'>, { $inc: { apiCallsUsed: 1 } as IStorageStats<'server'> } );
 
     // Send bucket added events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.BucketUploaded ], bucket: bucketEntry!, username: user };
     await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user ) );
-    return bucketEntry! as IBucketEntry;
+    return bucketEntry!;
   }
 
   /**
@@ -191,7 +191,7 @@ export class BucketsController extends Controller {
   async remove( options: DeleteOptions ) {
     const bucketCollection = this._buckets;
     const toRemove: string[] = [];
-    const searchQuery: Partial<IBucketEntry> = {};
+    const searchQuery: Partial<IBucketEntry<'server'>> = {};
 
     if ( options._id ) {
       if ( typeof options._id === 'string' ) {
@@ -214,7 +214,7 @@ export class BucketsController extends Controller {
       throw new Error( 'A bucket with that ID does not exist' );
 
     // Now delete each one
-    const promises: Promise<IBucketEntry>[] = []
+    const promises: Promise<IBucketEntry<'server' | 'client'>>[] = []
     for ( let i = 0, l = buckets.length; i < l; i++ )
       promises.push( this.deleteBucket( buckets[ i ] ) );
 
@@ -225,7 +225,7 @@ export class BucketsController extends Controller {
   /**
    * Deletes the bucket from storage and updates the databases
    */
-  private async deleteBucket( bucketEntry: IBucketEntry ) {
+  private async deleteBucket( bucketEntry: IBucketEntry<'server' | 'client'> ) {
     const bucketCollection = this._buckets;
     const stats = this._stats;
 
@@ -239,8 +239,8 @@ export class BucketsController extends Controller {
     await this._activeManager.removeBucket( bucketEntry );
 
     // Remove the bucket entry
-    await bucketCollection.deleteOne( { _id: bucketEntry._id } as IBucketEntry );
-    await stats.updateOne( { user: bucketEntry.user } as IStorageStats, { $inc: { apiCallsUsed: 1 } as IStorageStats } );
+    await bucketCollection.deleteOne( { _id: bucketEntry._id } as IBucketEntry<'server'> );
+    await stats.updateOne( { user: bucketEntry.user } as IStorageStats<'server'>, { $inc: { apiCallsUsed: 1 } as IStorageStats<'server'> } );
 
     // Send events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.BucketRemoved ], bucket: bucketEntry, username: bucketEntry.user! };
@@ -257,7 +257,7 @@ export class BucketsController extends Controller {
   private async canUpload( user: string, part: Part ) {
     const stats = this._stats;
 
-    const result: IStorageStats = await stats.find( <IStorageStats>{ user: user } ).limit( 1 ).next();
+    const result = await stats.find( <IStorageStats<'server'>>{ user: user } ).limit( 1 ).next();
 
     if ( result.memoryUsed! + part.byteCount < result.memoryAllocated! ) {
       if ( result.apiCallsUsed! + 1 < result.apiCallsAllocated! )
@@ -275,7 +275,7 @@ export class BucketsController extends Controller {
    */
   async withinAPILimit( user: string ) {
     const stats = this._stats;
-    const result: IStorageStats = await stats.find( { user: user } as IStorageStats ).limit( 1 ).next();
+    const result = await stats.find( { user: user } as IStorageStats<'server'> ).limit( 1 ).next();
 
     if ( !result )
       throw new Error( `Could not find the user ${user}` );
@@ -294,7 +294,7 @@ export class BucketsController extends Controller {
    * @param makePublic Makes this uploaded file public to the world
    * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
    */
-  async uploadStream( part: Part, bucketEntry: IBucketEntry, user: string, makePublic: boolean = true, parentFile: string | null = null ) {
+  async uploadStream( part: Part, bucketEntry: IBucketEntry<'server' | 'client'>, user: string, makePublic: boolean = true, parentFile: string | null = null ) {
 
     await this.canUpload( user, part );
 
@@ -306,7 +306,7 @@ export class BucketsController extends Controller {
     if ( !name )
       throw new Error( `Uploaded item does not have a name or filename specified` );
 
-    const fileEntry: IFileEntry = {
+    const fileEntry: Partial<IFileEntry<'server'>> = {
       name: ( part.filename || part.name ),
       user: user,
       bucketId: bucketEntry._id!,
@@ -328,14 +328,14 @@ export class BucketsController extends Controller {
     fileEntry.identifier = fileIdentifier;
     fileEntry.publicURL = this._activeManager.generateUrl( bucketEntry, fileEntry );
 
-    await bucketCollection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry,
-      { $inc: { memoryUsed: part.byteCount } as IBucketEntry } );
+    await bucketCollection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry<'server'>,
+      { $inc: { memoryUsed: part.byteCount } as IBucketEntry<'server'> } );
 
-    await statCollection.updateOne( { user: user } as IStorageStats,
-      { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats } );
+    await statCollection.updateOne( { user: user } as IStorageStats<'server'>,
+      { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats<'server'> } );
 
-    await files.updateOne( { _id: fileEntry._id } as IFileEntry,
-      { $set: { identifier: fileIdentifier, publicURL: fileEntry.publicURL } as IFileEntry } );
+    await files.updateOne( { _id: fileEntry._id } as IFileEntry<'server'>,
+      { $set: { identifier: fileIdentifier, publicURL: fileEntry.publicURL } as IFileEntry<'server'> } );
 
     // const file = await this.registerFile( fileIdentifier, bucketEntry, part, user, makePublic, parentFile );
     return fileEntry;

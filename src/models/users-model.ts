@@ -5,7 +5,7 @@ import { text, num, date, json } from './schema-items/schema-item-factory';
 /**
  * A model for describing comments
  */
-export class UsersModel extends Model<IUserEntry> {
+export class UsersModel extends Model<IUserEntry<'client' | 'server'>> {
   constructor() {
     super( 'users' );
 

@@ -31,7 +31,7 @@ export class StatsController extends Controller {
    * @param user The user whos data we are fetching
    */
   async get( user?: string ) {
-    const result = await this._stats.findOne( { user: user } as IStorageStats, { verbose: true } );
+    const result = await this._stats.findOne<IStorageStats<'client'>>( { user: user } as IStorageStats<'server'>, { verbose: true } );
     if ( !result )
       throw new Error( `Could not find storage data for the user '${user}'` );
     return result;
@@ -44,7 +44,7 @@ export class StatsController extends Controller {
   async createUserStats( user: string ) {
     const stats = this._stats;
 
-    const storage: IStorageStats = {
+    const storage: Partial<IStorageStats<'server'>> = {
       user: user,
       apiCallsAllocated: StatsController.API_CALLS_ALLOCATED,
       memoryAllocated: StatsController.MEMORY_ALLOCATED,
@@ -53,7 +53,7 @@ export class StatsController extends Controller {
     }
 
     const schema = await stats.createInstance( storage );
-    return schema.downloadToken( { verbose: true } );
+    return schema.downloadToken<IStorageStats<'client'>>( { verbose: true } );
   }
 
   /**
@@ -61,7 +61,7 @@ export class StatsController extends Controller {
    * @param user The user associated with this bucket
    */
   async remove( user: string ) {
-    const deleteResult = await this._stats.deleteInstances( { user: user } as IStorageStats );
+    const deleteResult = await this._stats.deleteInstances( { user: user } as IStorageStats<'server'> );
     return deleteResult;
   }
 
@@ -70,9 +70,9 @@ export class StatsController extends Controller {
    * @param fileID The file ID of the file on the bucket
    * @returns Returns the number of results affected
    */
-  async update( user: string, value: Partial<IStorageStats> ) {
+  async update( user: string, value: Partial<IStorageStats<'server'>> ) {
     const stats = this._stats;
-    const result = await stats.update( { user: user } as IStorageStats, value );
+    const result = await stats.update<IStorageStats<'client'>>( { user: user } as IStorageStats<'server'>, value );
     return result;
   }
 }

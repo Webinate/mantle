@@ -8,6 +8,7 @@ import Controller from './controller';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../utils/utils';
 import { Schema } from '../models/schema';
+import { ICategory } from '..';
 
 export type GetManyOptions = {
   public?: boolean;
@@ -56,7 +57,7 @@ export class CommentsController extends Controller {
    */
   async getAll( options: GetManyOptions = { verbose: true } ) {
     const comments = this._commentsModel;
-    const findToken: IComment & { $or: IComment[] } = { $or: [] };
+    const findToken: Partial<IComment<'server'>> & { $or: Partial<IComment<'server'>>[] } = { $or: [] };
 
     // Set the parent filter
     if ( options.parentId )
@@ -84,7 +85,7 @@ export class CommentsController extends Controller {
     }
 
     // Sort by the date created
-    let sort: IComment = { createdOn: sortOrder };
+    let sort: Partial<IComment<'server'>> = { createdOn: sortOrder };
 
     // Optionally sort by the last updated
     if ( options.sort && options.sortType ) {
@@ -103,9 +104,9 @@ export class CommentsController extends Controller {
       sort: sort,
       index: options.index,
       limit: options.limit
-    } );
+    } ) as Schema<IComment<'server'>>[];
 
-    const jsons: Array<Promise<IComment>> = [];
+    const jsons: Array<Promise<IComment<'client'>>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
       jsons.push( schemas[ i ].downloadToken( {
         verbose: options.verbose || true,
@@ -115,7 +116,7 @@ export class CommentsController extends Controller {
       } ) );
 
     const sanitizedData = await Promise.all( jsons );
-    const response: Page<IComment> = {
+    const response: Page<IComment<'client'>> = {
       count: count,
       data: sanitizedData,
       index: options.index || 0,
@@ -132,8 +133,8 @@ export class CommentsController extends Controller {
    */
   async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
     const comments = this._commentsModel;
-    const findToken: IComment = { _id: new mongodb.ObjectID( id ) };
-    const comment = await comments.findOne( findToken, {
+    const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
+    const comment = await comments.findOne<IComment<'client'>>( findToken, {
       verbose: options.verbose || true,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
@@ -159,7 +160,7 @@ export class CommentsController extends Controller {
       throw new Error( `Please use a valid object id` );
 
     const comments = this._commentsModel;
-    const findToken: IComment = { _id: new mongodb.ObjectID( id ) };
+    const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
 
     const comment = await comments.findOne( findToken, { verbose: true } );
 
@@ -175,10 +176,10 @@ export class CommentsController extends Controller {
    * @param id The id of the comment
    * @param token The update token of the comment
    */
-  async update( id: string, token: IComment ) {
+  async update( id: string, token: Partial<IComment<'client'>> ) {
     const comments = this._commentsModel;
-    const findToken: IComment = { _id: new mongodb.ObjectID( id ) };
-    const updatedComment = await comments.update( findToken, token );
+    const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
+    const updatedComment = await comments.update<IComment<'client'>>( findToken, token );
     return updatedComment;
   }
 
@@ -186,25 +187,25 @@ export class CommentsController extends Controller {
    * Creates a new comment
    * @param token The data of the comment to create
    */
-  async create( token: IComment ) {
+  async create( token: Partial<IComment<'client'>> ) {
     const comments = this._commentsModel;
-    let parent: Schema<IComment> | null = null;
+    let parent: Schema<IComment<'server'>> | null = null;
 
     if ( token.parent ) {
-      parent = await comments.findOne( <IComment>{ _id: new mongodb.ObjectID( token.parent ) } );
+      parent = await comments.findOne( <IComment<'server'>>{ _id: new mongodb.ObjectID( token.parent as string ) } );
 
       if ( !parent )
         throw new Error( `No comment exists with the id ${token.parent}` );
     }
 
-    const instance = await comments.createInstance( token );
-    const json = await instance.downloadToken( { verbose: true } );
+    const instance = await comments.createInstance( token ) as Schema<ICategory<'client'>>;
+    const json = await instance.downloadToken<IComment<'client'>>( { verbose: true } );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
-      const children: Array<string | mongodb.ObjectID> = parent.getByName( 'children' )!.value;
-      children.push( instance.dbEntry._id );
-      await comments.update( <IComment>{ _id: parent.dbEntry._id }, <IComment>{ children: children } )
+      const children = parent.getByName( 'children' )!.value!;
+      children.push( new ObjectID( instance.dbEntry._id ) );
+      await comments.update( <IComment<'server'>>{ _id: parent.dbEntry._id }, <IComment<'server'>>{ children: children } )
     }
 
     return json;

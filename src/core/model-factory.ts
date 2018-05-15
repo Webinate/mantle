@@ -17,7 +17,7 @@ import { UsersModel } from '../models/users-model';
  */
 export class ModelFactory {
   private _db: Db;
-  private _models: { [ name: string ]: Model<IModelEntry> };
+  private _models: { [ name: string ]: Model<IModelEntry<'client' | 'server'>> };
 
   initialize( config: IConfig, database: Db ) {
     this._db = database;
@@ -45,7 +45,7 @@ export class ModelFactory {
    * Sets up a model's indices
    * @param model The model to setup
    */
-  async setupIndices( model: Model<IModelEntry> ) {
+  async setupIndices( model: Model<IModelEntry<'client' | 'server'>> ) {
 
     // The collection does not exist - so create it
     let collection: Collection = await this._db.createCollection( model.collectionName );
@@ -98,8 +98,8 @@ export class ModelFactory {
   get( type: 'sessions' ): SessionModel
   get( type: 'storage' ): StorageStatsModel
   get( type: 'users' ): UsersModel
-  get( type: string ): Model<IModelEntry>
-  get( type: string ): Model<IModelEntry> {
+  get( type: string ): Model<IModelEntry<'client' | 'server'>>
+  get( type: string ): Model<IModelEntry<'client' | 'server'>> {
     const toRet = this._models[ type ];
     if ( !toRet )
       throw new Error( `Cannot find model '${type}'` );
@@ -111,8 +111,8 @@ export class ModelFactory {
    * A factory method for creating models
    * @param type The type of model to create
    */
-  private async create( type: string ): Promise<Model<IModelEntry>> {
-    let newModel: Model<IModelEntry>;
+  private async create( type: string ): Promise<Model<IModelEntry<'client' | 'server'>>> {
+    let newModel: Model<IModelEntry<'client' | 'server'>>;
 
     if ( this._models[ type ] )
       return this._models[ type ];

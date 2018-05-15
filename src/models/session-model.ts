@@ -5,7 +5,7 @@ import { ISessionEntry } from '../types/models/i-session-entry';
 /**
  * A model for describing comments
  */
-export class SessionModel extends Model<ISessionEntry> {
+export class SessionModel extends Model<ISessionEntry<'client' | 'server'>> {
   constructor() {
     super( 'sessions' );
     this.schema.add( new text( 'sessionId', '' ) );

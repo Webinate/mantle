@@ -31,7 +31,7 @@ export interface IRemoveResponse extends IResponse {
 export interface IAuthenticationResponse extends IResponse {
   message: string;
   authenticated: boolean;
-  user?: IUserEntry | null;
+  user?: IUserEntry<'client'> | null;
 }
 
 /*
@@ -68,9 +68,9 @@ export interface Page<T> {
 
 export namespace StatTokens {
   /** GET /stats/users/:user/get-stats */
-  export namespace GetOne { export type Body = void; export type Response = IStorageStats; }
+  export namespace GetOne { export type Body = void; export type Response = IStorageStats<'client'>; }
   /** POST /stats/create-stats/:target */
-  export namespace Post { export type Body = void; export type Response = IStorageStats; }
+  export namespace Post { export type Body = void; export type Response = IStorageStats<'client'>; }
   /** PUT /stats/storage-calls/:target/:value */
   export namespace PutStorageCalls { export type Body = void; export type Response = void; }
   /** PUT /stats/storage-memory/:target/:value */
@@ -83,14 +83,14 @@ export namespace StatTokens {
 
 export namespace SessionTokens {
   /** GET /sessions/ */
-  export namespace GetAll { export type Body = void; export type Response = Page<ISessionEntry>; }
+  export namespace GetAll { export type Body = void; export type Response = Page<ISessionEntry<'client'>>; }
   /** DELETE /sessions/:id */
   export namespace DeleteOne { export type Body = void; export type Response = void; }
 }
 
 export namespace RenderTokens {
   /** GET /renders/ */
-  export namespace GetAll { export type Body = void; export type Response = Page<IRender>; }
+  export namespace GetAll { export type Body = void; export type Response = Page<IRender<'client'>>; }
   /** DELETE /renders/:id */
   export namespace DeleteOne { export type Body = void; export type Response = void; }
   /** DELETE /renders/clear */
@@ -99,18 +99,18 @@ export namespace RenderTokens {
 
 export namespace FileTokens {
   /** GET /files/users/:user/buckets/:bucket */
-  export namespace GetAll { export type Body = void; export type Response = Page<IFileEntry>; }
+  export namespace GetAll { export type Body = void; export type Response = Page<IFileEntry<'client'>>; }
   /** PUT /files/:file/rename-file */
-  export namespace Put { export type Body = { name: string }; export type Response = Partial<IFileEntry>; }
+  export namespace Put { export type Body = { name: string }; export type Response = Partial<IFileEntry<'client'>>; }
   /** DELETE /files/:file */
   export namespace DeleteAll { export type Body = void; export type Response = void; }
 }
 
 export namespace BucketTokens {
   /** GET /buckets/user/:user */
-  export namespace GetAll { export type Body = void; export type Response = Page<IBucketEntry>; }
+  export namespace GetAll { export type Body = void; export type Response = Page<IBucketEntry<'client'>>; }
   /** POST /buckets/user/:user/:name */
-  export namespace Post { export type Body = void; export type Response = IBucketEntry; }
+  export namespace Post { export type Body = void; export type Response = IBucketEntry<'client'>; }
   /** POST /buckets/:bucket/upload/:parentFile? */
   export namespace PostFile { export type Body = any; export type Response = IUploadResponse; }
   /** DELETE /buckets/:buckets */

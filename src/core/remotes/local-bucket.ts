@@ -33,7 +33,7 @@ export class LocalBucket implements IRemote {
     this._url = options.url;
   }
 
-  async createBucket( bucket: IBucketEntry, options?: any ) {
+  async createBucket( bucket: IBucketEntry<'server'>, options?: any ) {
     const path = `${this._path}/${bucket.identifier}`;
     const exists = await this.exists( path );
     if ( exists )
@@ -51,7 +51,7 @@ export class LocalBucket implements IRemote {
     } )
   }
 
-  generateUrl( bucket: IBucketEntry, file: IFileEntry ) {
+  generateUrl( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'> ) {
     return `${this._url}/${bucket.identifier}/${file.identifier}`;
   }
 
@@ -88,7 +88,7 @@ export class LocalBucket implements IRemote {
     } );
   }
 
-  async uploadFile( bucket: IBucketEntry, file: IFileEntry, source: Readable, uploadOptions: IUploadOptions ) {
+  async uploadFile( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
     let ext = extname( uploadOptions.filename );
     let filename = uploadOptions.filename;
     let fileExists = await this.exists( `${this._path}/${bucket.identifier}/${filename}${ext ? '.' + ext : ''}` );
@@ -118,7 +118,7 @@ export class LocalBucket implements IRemote {
     return filename;
   }
 
-  async removeFile( bucket: IBucketEntry, file: IFileEntry ) {
+  async removeFile( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'> ) {
     const filePath = `${this._path}/${bucket.identifier}/${file.identifier}`;
     const exists = await this.exists( filePath );
     if ( !exists )
@@ -138,7 +138,7 @@ export class LocalBucket implements IRemote {
     } );
   }
 
-  async removeBucket( bucket: IBucketEntry ) {
+  async removeBucket( bucket: IBucketEntry<'server'> ) {
     const path = `${this._path}/${bucket.identifier}`;
     const exists = await this.exists( path );
     if ( !exists )

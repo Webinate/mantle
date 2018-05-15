@@ -57,15 +57,15 @@ export class PostsController extends Controller {
     const posts = this._postsModel;
     let count = 0;
 
-    const findToken: IPost & { $or: IPost[] } = { $or: [] };
+    const findToken: Partial<IPost<'server'>> & { $or: IPost<'server'>[] } = { $or: [] };
     if ( options.author )
       ( <any>findToken ).author = options.author;
 
     // Check for keywords
     if ( options.keyword ) {
-      findToken.$or.push( <IPost>{ title: <any>options.keyword } );
-      findToken.$or.push( <IPost>{ content: <any>options.keyword } );
-      findToken.$or.push( <IPost>{ brief: <any>options.keyword } );
+      findToken.$or.push( <IPost<'server'>>{ title: <any>options.keyword } );
+      findToken.$or.push( <IPost<'server'>>{ content: <any>options.keyword } );
+      findToken.$or.push( <IPost<'server'>>{ brief: <any>options.keyword } );
     }
 
     // Add the or conditions for visibility
@@ -101,7 +101,7 @@ export class PostsController extends Controller {
     }
 
     // Sort by the date created
-    let sort: IPost = { createdOn: sortOrder };
+    let sort: Partial<IPost<'server'>> = { createdOn: sortOrder };
 
     // Optionally sort by the last updated
     if ( options.sort )
@@ -130,12 +130,16 @@ export class PostsController extends Controller {
     } );
 
     const verbose = options.verbose !== undefined ? options.verbose : true;
-    const jsons: Array<Promise<IPost>> = [];
+    const jsons: Array<Promise<IPost<'client'>>> = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].downloadToken( { expandForeignKeys: true, verbose: verbose, expandMaxDepth: 1 } ) );
+      jsons.push( schemas[ i ].downloadToken<IPost<'client'>>( {
+        expandForeignKeys: true,
+        verbose: verbose,
+        expandMaxDepth: 1
+      } ) );
 
     const sanitizedData = await Promise.all( jsons );
-    const response: Page<IPost> = {
+    const response: Page<IPost<'client'>> = {
       count: count,
       data: sanitizedData,
       index: index,
@@ -168,12 +172,12 @@ export class PostsController extends Controller {
    * @param id The id of the post to edit
    * @param token The edit token
    */
-  async update( id: string, token: IPost ) {
+  async update( id: string, token: IPost<'client'> ) {
 
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const updatedPost = await this._postsModel.update( { _id: new mongodb.ObjectID( id ) }, token );
+    const updatedPost = await this._postsModel.update<IPost<'client'>>( { _id: new mongodb.ObjectID( id ) }, token );
     return updatedPost;
   }
 
@@ -181,9 +185,9 @@ export class PostsController extends Controller {
    * Creates a new post
    * @param token The initial post data
    */
-  async create( token: IPost ) {
+  async create( token: IPost<'client'> ) {
     const schema = await this._postsModel.createInstance( token );
-    const json = await schema.downloadToken( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
+    const json = await schema.downloadToken<IPost<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
     return json;
   }
 
@@ -193,7 +197,7 @@ export class PostsController extends Controller {
    */
   async getPost( options: GetOneOptions = { verbose: true } ) {
     const posts = this._postsModel;
-    let findToken: IPost;
+    let findToken: Partial<IPost<'server'>>;
 
     if ( options.id )
       findToken = { _id: new mongodb.ObjectID( options.id ) };
@@ -205,7 +209,7 @@ export class PostsController extends Controller {
     if ( options.public !== undefined )
       findToken.public = options.public;
 
-    const post = await posts!.findOne( findToken, { verbose: options.verbose !== undefined ? options.verbose : true, expandForeignKeys: true, expandMaxDepth: 1 } );
+    const post = await posts!.findOne<IPost<'client'>>( findToken, { verbose: options.verbose !== undefined ? options.verbose : true, expandForeignKeys: true, expandMaxDepth: 1 } );
 
     if ( !post )
       throw new Error( 'Could not find post' );

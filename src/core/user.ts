@@ -13,13 +13,13 @@ export enum UserPrivileges {
  * Class that represents a user and its database entry
  */
 export class User {
-  dbEntry: IUserEntry;
+  dbEntry: IUserEntry<'server' | 'client'>;
 
   /**
 	 * Creates a new User instance
 	 * @param dbEntry The data object that represents the user in the DB
 	 */
-  constructor( dbEntry: IUserEntry ) {
+  constructor( dbEntry: IUserEntry<'server'> ) {
     this.dbEntry = dbEntry;
   }
 
@@ -27,7 +27,7 @@ export class User {
    * Generates an object that can be sent to clients.
    * @param verbose If true, sensitive database data will be sent (things like passwords will still be obscured)
    */
-  generateCleanedData( verbose: boolean = false ): IUserEntry {
+  generateCleanedData( verbose: boolean = false ): IUserEntry<'client'> {
     if ( !this.dbEntry.passwordTag )
       this.dbEntry.passwordTag = '';
 
@@ -36,14 +36,14 @@ export class User {
 
     if ( verbose )
       return {
-        _id: this.dbEntry._id,
-        email: this.dbEntry.email,
+        _id: this.dbEntry._id.toString(),
+        email: this.dbEntry.email as string,
         lastLoggedIn: this.dbEntry.lastLoggedIn,
         createdOn: this.dbEntry.createdOn,
         password: this.dbEntry.password,
         registerKey: this.dbEntry.registerKey,
         sessionId: this.dbEntry.sessionId,
-        username: this.dbEntry.username,
+        username: this.dbEntry.username as string,
         privileges: this.dbEntry.privileges,
         passwordTag: this.dbEntry.passwordTag,
         meta: this.dbEntry.meta,
@@ -51,19 +51,19 @@ export class User {
       };
     else
       return {
-        _id: this.dbEntry._id,
+        _id: this.dbEntry._id.toString(),
         lastLoggedIn: this.dbEntry.lastLoggedIn,
         createdOn: this.dbEntry.createdOn,
-        username: this.dbEntry.username,
+        username: this.dbEntry.username as string,
         privileges: this.dbEntry.privileges,
         avatar: this.dbEntry.avatar
-      } as IUserEntry;
+      } as IUserEntry<'client'>;
   }
 
   /**
 	 * Generates the object to be stored in the database
 	 */
-  generateDbEntry(): IUserEntry {
+  generateDbEntry(): Partial<IUserEntry<'server'>> {
     return {
       email: this.dbEntry.email,
       lastLoggedIn: Date.now(),

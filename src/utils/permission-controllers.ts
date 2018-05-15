@@ -6,6 +6,7 @@ import { UserPrivileges, User } from '../core/user';
 import Factory from '../core/controller-factory';
 import { errJson } from './response-decorators';
 import { Error401, Error403 } from './errors';
+import { IUserEntry } from '../types/models/i-user-entry';
 
 /**
  * Checks for an id parameter and that its a valid mongodb ID. Returns an error of type IMessage if no ID is detected, or its invalid
@@ -66,7 +67,7 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
     else if ( !hasPermission( session.user, 2, targetUser ) )
       throw new Error403( 'You do not have permission' );
     else {
-      req._user = session.user.dbEntry;
+      req._user = session.user.dbEntry as IUserEntry<'server'>;
       if ( next )
         next();
 
@@ -108,7 +109,7 @@ export async function adminRights( req: IAuthReq, res: express.Response, next?: 
     if ( session )
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
-    req._user = session.user.dbEntry;
+    req._user = session.user.dbEntry as IUserEntry<'server'>;
     if ( session.user.dbEntry.privileges! > UserPrivileges.Admin )
       return errJson( new Error403( `You don't have permission to make this request` ), res );
     else
@@ -133,7 +134,7 @@ export async function identifyUser( req: IAuthReq, res: express.Response, next?:
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
     if ( session )
-      req._user = session.user.dbEntry;
+      req._user = session.user.dbEntry as IUserEntry<'server'>;
 
     if ( next )
       next();
@@ -158,7 +159,7 @@ export async function requireUser( req: IAuthReq, res: express.Response, next?: 
     if ( session )
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
-    req._user = session.user.dbEntry;
+    req._user = session.user.dbEntry as IUserEntry<'server'>;
     if ( next )
       next();
 
@@ -196,7 +197,7 @@ export async function requestHasPermission( level: UserPrivileges, req: IAuthReq
   else if ( session.user.dbEntry.privileges! > level )
     throw new Error403( 'You don\'t have permission to make this request' );
 
-  req._user = session.user.dbEntry;
+  req._user = session.user.dbEntry as IUserEntry<'server'>;
 
   return true;
 }

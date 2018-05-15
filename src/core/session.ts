@@ -37,7 +37,7 @@ export class Session {
   /**
    * Creates an instance of the session
    */
-  constructor( sessionId: string, options: ISession, userEntry: IUserEntry ) {
+  constructor( sessionId: string, options: ISession, userEntry: IUserEntry<'server'> ) {
     this.sessionId = sessionId;
     this.user = new User( userEntry );
     this.data = {};
@@ -49,7 +49,7 @@ export class Session {
    * Fills in the data of this session from the data saved in the database
    * @param data The data fetched from the database
    */
-  deserialize( data: ISessionEntry ) {
+  deserialize( data: ISessionEntry<'server'> ) {
     this.sessionId = data.sessionId!;
     this.data = data.data;
     this.expiration = data.expiration!;
@@ -58,8 +58,8 @@ export class Session {
   /**
    * Creates an object that represents this session to be saved in the database
    */
-  serialize(): ISessionEntry {
-    const data: ISessionEntry = {
+  serialize() {
+    const data: Partial<ISessionEntry<'server'>> = {
       sessionId: this.sessionId,
       data: this.data,
       expiration: ( new Date( Date.now() + this.options.lifetime * 1000 ) ).getTime()

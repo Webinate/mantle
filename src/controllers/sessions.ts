@@ -3,7 +3,7 @@ import { ISession } from '../types/config/properties/i-session';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { ISessionEntry } from '../types/models/i-session-entry';
 import { ServerRequest, ServerResponse } from 'http';
-import { Collection, Db } from 'mongodb';
+import { Collection, Db, ObjectID } from 'mongodb';
 import { Session } from '../core/session';
 import Controller from './controller';
 
@@ -11,8 +11,8 @@ import Controller from './controller';
 * A class that manages session data for active users
  */
 export class SessionsController extends Controller {
-  private _sessions: Collection<ISessionEntry>;
-  private _users: Collection<IUserEntry>;
+  private _sessions: Collection<ISessionEntry<'server' | 'client'>>;
+  private _users: Collection<IUserEntry<'server'>>;
   private _timeout: NodeJS.Timer | null;
   private _cleanupProxy: any;
   private _session: ISession;
@@ -76,14 +76,14 @@ export class SessionsController extends Controller {
     if ( sId !== '' ) {
 
       // We have a session ID, lets try to find it in the DB
-      await this._sessions.find( { sessionId: sId } as ISessionEntry ).limit( 1 ).next();
+      await this._sessions.find( { sessionId: sId } as ISessionEntry<'server'> ).limit( 1 ).next();
 
       // Create a new session
       const session = new Session( sId, this._session, null! );
       session.expiration = -1;
 
       // Deletes the session entry
-      await this._sessions.deleteOne( { sessionId: session.sessionId } as ISessionEntry );
+      await this._sessions.deleteOne( { sessionId: session.sessionId } as ISessionEntry<'server'> );
 
       this.emit( 'sessionRemoved', sId );
 
@@ -109,14 +109,14 @@ export class SessionsController extends Controller {
     if ( !sessionEntry )
       return null;
 
-    const userEntry = await this._users.find( { sessionId: sessionId } as IUserEntry ).limit( 1 ).next();
+    const userEntry = await this._users.find( { sessionId: sessionId } as IUserEntry<'server'> ).limit( 1 ).next();
 
     if ( !userEntry )
       return null;
 
     // Create a new session
     const session = new Session( sessionId, this._session, userEntry );
-    session.deserialize( sessionEntry );
+    session.deserialize( sessionEntry as ISessionEntry<'server'> );
 
     return session;
   }
@@ -161,14 +161,14 @@ export class SessionsController extends Controller {
   async createSession( request: ServerRequest, response: ServerResponse, userId: string ) {
 
     const sessionId = this.createID();
-    const userEntry = await this._users.findOne( { _id: userId } as IUserEntry );
+    const userEntry = await this._users.findOne( { _id: new ObjectID( userId ) } as IUserEntry<'server'> );
 
     if ( !userEntry )
       throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
     // Sets the user session id
-    await this._users.updateOne( { _id: userId } as IUserEntry, {
-      $set: { sessionId: sessionId } as ISessionEntry
+    await this._users.updateOne( { _id: new ObjectID( userId ) } as IUserEntry<'server'>, {
+      $set: { sessionId: sessionId } as ISessionEntry<'server'>
     } );
 
     const session = new Session( sessionId, this._session, userEntry );
@@ -197,14 +197,14 @@ export class SessionsController extends Controller {
       const sessions = await this._sessions.find( findToken ).toArray();
 
       // Remove query
-      const toRemoveQuery: { $or: ISessionEntry[] } = { $or: [] };
+      const toRemoveQuery: { $or: ISessionEntry<'server'>[] } = { $or: [] };
 
       for ( let i = 0, l = sessions.length; i < l; i++ ) {
         const expiration: number = parseFloat( sessions[ i ].expiration.toString() );
 
         // If the session's time is up
         if ( expiration < now || force )
-          toRemoveQuery.$or.push( { _id: sessions[ i ]._id, sessionId: sessions[ i ].sessionId } as ISessionEntry );
+          toRemoveQuery.$or.push( { _id: sessions[ i ]._id, sessionId: sessions[ i ].sessionId } as ISessionEntry<'server'> );
         else
           // Session time is not up, but may be the next time target
           next = next < expiration ? next : expiration;

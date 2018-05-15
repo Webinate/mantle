@@ -21,6 +21,7 @@ import { okJson, errJson, j200 } from '../utils/response-decorators';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { FilesController } from '../controllers/files';
+import { IBucketEntry } from '../types/models/i-bucket-entry';
 
 /**
  * Main class to use for managing users
@@ -133,9 +134,8 @@ export class BucketSerializer extends Serializer {
       if ( !inLimits )
         throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
 
-      const entry = await manager.create( bucketName, username );
-      const toRet: BucketTokens.Post.Response = entry;
-      return toRet;
+      const entry = await manager.create( bucketName, username ) as IBucketEntry<'client'>;
+      return entry;
 
     } catch ( err ) {
       return errJson( err, res );
@@ -221,9 +221,9 @@ export class BucketSerializer extends Serializer {
     let closed = false;
     const uploadedTokens: Array<IUploadToken> = [];
     const manager = this._bucketController;
-    const username = req._user!.username!;
+    const username = req._user!.username! as string;
     const parentFile = req.params.parentFile;
-    const filesUploaded: Array<IFileEntry> = [];
+    const filesUploaded: Array<Partial<IFileEntry<'server' | 'client'>>> = [];
     const bucketName = req.params.bucket;
 
     if ( !bucketName || bucketName.trim() === '' )
@@ -262,7 +262,7 @@ export class BucketSerializer extends Serializer {
         }
 
         // Deal with file upload logic
-        const fileUploaded = function( uploadedFile: IFileEntry, uploadToken: IUploadToken ) {
+        const fileUploaded = function( uploadedFile: Partial<IFileEntry<'server' | 'client'>>, uploadToken: IUploadToken ) {
           filesUploaded.push( uploadedFile );
           completedParts++;
           uploadToken.file = uploadedFile.identifier!;
@@ -361,7 +361,7 @@ export class BucketSerializer extends Serializer {
    * @param user The user who uploaded the files
    * @param tokens The upload tokens to be sent back to the client
    */
-  private async finalizeUploads( meta: any | Error, files: Array<IFileEntry>, user: string, tokens: Array<IUploadToken> ): Promise<IUploadResponse> {
+  private async finalizeUploads( meta: any | Error, files: Array<Partial<IFileEntry<'server' | 'client'>>>, user: string, tokens: Array<IUploadToken> ): Promise<IUploadResponse> {
     try {
       const manager = this._files;
       let error = false;
@@ -379,7 +379,7 @@ export class BucketSerializer extends Serializer {
       }
       // If we have any meta, then update the file entries with it
       else if ( meta && meta && files.length > 0 ) {
-        const promises: Promise<IFileEntry>[] = [];
+        const promises: Promise<IFileEntry<'server' | 'client'>>[] = [];
         for ( let i = 0, l = files.length; i < l; i++ ) {
           promises.push( manager.update( files[ i ]._id!, { meta: meta } ) );
 

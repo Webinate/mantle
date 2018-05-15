@@ -5,7 +5,7 @@ import { IFileEntry } from '../types/models/i-file-entry';
 /**
  * A model for describing comments
  */
-export class FileModel extends Model<IFileEntry> {
+export class FileModel extends Model<IFileEntry<'client' | 'server'>> {
   constructor() {
     super( 'files' );
 

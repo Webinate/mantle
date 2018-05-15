@@ -148,7 +148,7 @@ export class SchemaItem<T> {
    * doing any post update/insert operations
    * @param collection The DB collection that the model was inserted into
    */
-  public async postUpsert( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
+  public async postUpsert( schema: Schema<IModelEntry<'client' | 'server'>>, collection: string ): Promise<void> {
     collection; // Supress empty param warning
     return Promise.resolve();
   }
@@ -157,7 +157,7 @@ export class SchemaItem<T> {
    * Called after a model instance is deleted. Useful for any schema item cleanups.
    * @param collection The DB collection that the model was deleted from
    */
-  public async postDelete( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
+  public async postDelete( schema: Schema<IModelEntry<'client' | 'server'>>, collection: string ): Promise<void> {
     return Promise.resolve();
   }
 

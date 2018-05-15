@@ -53,7 +53,7 @@ export namespace SocketTokens {
    */
   export interface IFileToken extends IToken {
     username: string;
-    file: IFileEntry;
+    file: IFileEntry<'client'>;
   }
 
   /*
@@ -61,6 +61,6 @@ export namespace SocketTokens {
    */
   export interface IBucketToken extends IToken {
     username: string;
-    bucket: IBucketEntry
+    bucket: IBucketEntry<'client'>
   }
 }

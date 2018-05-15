@@ -6,7 +6,7 @@ import { GetManyOptions } from '../controllers/categories';
 const rootPath = `${apiUrl}/categories`;
 
 export async function getAll( options: Partial<GetManyOptions> ) {
-  const page = await getJson<Page<ICategory>>( rootPath + makeQueryString( options ) );
+  const page = await getJson<Page<ICategory<'client'>>>( rootPath + makeQueryString( options ) );
   return page;
 }
 
@@ -14,10 +14,10 @@ export function remove( id: string ) {
   return del( `${rootPath}/${id}` );
 }
 
-export function create( token: Partial<ICategory> ) {
-  return postJson<ICategory>( rootPath, token );
+export function create( token: Partial<ICategory<'client'>> ) {
+  return postJson<ICategory<'client'>>( rootPath, token );
 }
 
-export function edit( id: string, token: Partial<ICategory> ) {
-  return putJson<ICategory>( `${rootPath}/${id}`, token );
+export function edit( id: string, token: Partial<ICategory<'client'>> ) {
+  return putJson<ICategory<'client'>>( `${rootPath}/${id}`, token );
 }

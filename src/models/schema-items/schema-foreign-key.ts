@@ -8,7 +8,7 @@ import { SchemaIdArray } from './schema-id-array';
 import Factory from '../../core/model-factory';
 import { Schema } from '../schema';
 
-export type FKeyValues = ObjectID | string | IModelEntry | null;
+export type FKeyValues = ObjectID | string | IModelEntry<'server' | 'client'> | null;
 
 /**
  * Represents a mongodb ObjectID of a document in separate collection.
@@ -22,7 +22,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
   public canAdapt: boolean;
   public curLevel: number;
 
-  private _targetDoc: Schema<IModelEntry> | null;
+  private _targetDoc: Schema<IModelEntry<'server' | 'client'>> | null;
 
   /**
    * Creates a new schema item
@@ -75,11 +75,11 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       else
         transformedValue = null;
     }
-    else if ( this.value && ( this.value as IModelEntry )._id ) {
-      if ( !ObjectID.isValid( ( this.value as IModelEntry )._id ) )
+    else if ( this.value && ( this.value as IModelEntry<'client'> )._id ) {
+      if ( !ObjectID.isValid( ( this.value as IModelEntry<'client'> )._id ) )
         throw new Error( `${this.name} object._id must be a valid ID string, ObjectId or IModelEntry` );
 
-      transformedValue = new ObjectID( ( this.value as IModelEntry )._id );
+      transformedValue = new ObjectID( ( this.value as IModelEntry<'client'> )._id );
     }
     else if ( this.value && !ObjectID.isValid( this.value as any ) ) {
       throw new Error( `${this.name} must be a valid ID string, ObjectId or IModelEntry` );
@@ -110,7 +110,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    * @param instance The model instance that was inserted or updated
    * @param collection The DB collection that the model was inserted into
    */
-  public async postUpsert( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
+  public async postUpsert( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
     if ( !this._targetDoc )
       return;
 
@@ -134,8 +134,8 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       requiredDeps.push( { _id: schema.dbEntry._id, collection: collection } )
     }
 
-    await model.collection.updateOne( <IModelEntry>{ _id: this._targetDoc.dbEntry._id }, {
-      $set: <IModelEntry>{
+    await model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDoc.dbEntry._id }, {
+      $set: <IModelEntry<'server'>>{
         _optionalDependencies: optionalDeps,
         _requiredDependencies: requiredDeps
       }
@@ -150,7 +150,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    * Called after a model instance is deleted. Useful for any schema item cleanups.
    * @param instance The model instance that was deleted
    */
-  public async postDelete( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
+  public async postDelete( schema: Schema<IModelEntry<'client'>>, collection: string ): Promise<void> {
     // If they key is required then it must exist
     const model = Factory.get( this.targetCollection );
     if ( !model )
@@ -171,7 +171,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
     else
       query = { $pull: { _requiredDependencies: { _id: schema.dbEntry._id } } };
 
-    await model.collection.updateOne( <IModelEntry>{ _id: this._targetDoc!.dbEntry._id }, query );
+    await model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDoc!.dbEntry._id }, query );
     return;
   }
 

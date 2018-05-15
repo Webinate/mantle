@@ -9,7 +9,7 @@ import { IIdArrOptions } from '../../types/interfaces/i-schema-options';
 import { Schema } from '../schema';
 import Factory from '../../core/model-factory';
 
-export type IdTypes = string | ObjectID | IModelEntry;
+export type IdTypes = string | ObjectID | IModelEntry<'server' | 'client'>;
 
 /**
  * An ID array scheme item for use in Models. Returns objects of the specified ids from the target collection.
@@ -21,7 +21,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
   public minItems: number;
   public maxItems: number;
   public curLevel: number;
-  private _targetDocs: Array<Schema<IModelEntry>> | null;
+  private _targetDocs: Array<Schema<IModelEntry<'server'>>> | null;
 
   /**
    * Creates a new schema item that holds an array of id items
@@ -93,11 +93,11 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
       throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
     // We can assume the value is object id by this point
-    const query = { $or: [] as IModelEntry[] };
+    const query = { $or: [] as IModelEntry<'server'>[] };
     const arr = this.value;
 
     for ( let i = 0, l = arr.length; i < l; i++ )
-      query.$or.push( <IModelEntry>{ _id: <ObjectID>arr[ i ] } );
+      query.$or.push( <IModelEntry<'server'>>{ _id: <ObjectID>arr[ i ] } );
 
     const result = await model.findInstances( { selector: query } );
 
@@ -118,7 +118,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * doing any post update/insert operations
    * @param collection The DB collection that the model was inserted into
    */
-  public async postUpsert( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
+  public async postUpsert( schema: Schema<IModelEntry<'server' | 'client'>>, collection: string ): Promise<void> {
     if ( !this._targetDocs || this._targetDocs.length === 0 )
       return;
 
@@ -129,8 +129,8 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     for ( let i = 0, l = this._targetDocs.length; i < l; i++ ) {
       let arrDeps = this._targetDocs[ i ].dbEntry._arrayDependencies || [];
       arrDeps.push( { _id: schema.dbEntry._id, collection: collection, propertyName: this.name } );
-      promises.push( model.collection.updateOne( <IModelEntry>{ _id: this._targetDocs[ i ].dbEntry._id }, {
-        $set: <IModelEntry>{ _arrayDependencies: arrDeps }
+      promises.push( model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDocs[ i ].dbEntry._id }, {
+        $set: <IModelEntry<'server'>>{ _arrayDependencies: arrDeps }
       } ) );
     }
 
@@ -145,7 +145,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * Called after a model instance is deleted. Useful for any schema item cleanups.
    * @param instance The model instance that was deleted
    */
-  public async postDelete( schema: Schema<IModelEntry>, collection: string ): Promise<void> {
+  public async postDelete( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
     if ( !this.targetCollection || this.targetCollection.length === 0 )
       return;
 
@@ -158,11 +158,11 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
       return;
 
     // Get all the instances
-    const query = { $or: [] as IModelEntry[] };
+    const query = { $or: [] as IModelEntry<'server'>[] };
     const arr = this.value;
 
     for ( let i = 0, l = arr.length; i < l; i++ )
-      query.$or.push( <IModelEntry>{ _id: <ObjectID>arr[ i ] } );
+      query.$or.push( <IModelEntry<'server'>>{ _id: <ObjectID>arr[ i ] } );
 
     const results = await model.findInstances( { selector: query } );
     if ( !results || results.length === 0 )
@@ -172,7 +172,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
 
     for ( let i = 0, l = results.length; i < l; i++ )
       pullQueries.push( model.collection.updateOne(
-        <IModelEntry>{ _id: results[ i ].dbEntry._id },
+        <IModelEntry<'server'>>{ _id: results[ i ].dbEntry._id },
         { $pull: { _arrayDependencies: { _id: schema.dbEntry._id } } }
       ) );
 
@@ -184,18 +184,18 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * Gets the value of this item
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | IModelEntry>> {
+  public async getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | IModelEntry<'client'>>> {
     if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
       throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
 
     if ( !options.expandForeignKeys )
-      return this.value;
+      return this.value as IModelEntry<'client'>[];
 
     if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
-      return this.value;
+      return this.value as IModelEntry<'client'>[];
 
     if ( !this.targetCollection )
-      return this.value;
+      return this.value as IModelEntry<'client'>[];
 
     const model = Factory.get( this.targetCollection );
     if ( !model )
@@ -204,20 +204,20 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     // Make sure the current level is not beyond the max depth
     if ( options.expandMaxDepth !== undefined && options.expandMaxDepth !== -1 ) {
       if ( this.curLevel > options.expandMaxDepth )
-        return this.value;
+        return this.value as IModelEntry<'client'>[];
     }
 
     if ( this.value.length === 0 )
-      return this.value;
+      return this.value as IModelEntry<'client'>[];
 
     // Create the query for fetching the instances
-    const query = { $or: [] as IModelEntry[] };
+    const query = { $or: [] as IModelEntry<'server'>[] };
     for ( let i = 0, l = this.value.length; i < l; i++ )
-      query.$or.push( <IModelEntry>{ _id: this.value[ i ] } );
+      query.$or.push( <IModelEntry<'server'>>{ _id: this.value[ i ] } );
 
     const instances = await model.findInstances( { selector: query } );
-    let instance: Schema<IModelEntry>;
-    const promises: Array<Promise<IModelEntry>> = [];
+    let instance: Schema<IModelEntry<'server'>>;
+    const promises: Array<Promise<IModelEntry<'client'>>> = [];
 
     // Get the models items are increase their level - this ensures we dont go too deep
     for ( let i = 0, l = instances.length; i < l; i++ ) {

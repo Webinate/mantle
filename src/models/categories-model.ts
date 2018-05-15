@@ -5,7 +5,7 @@ import { ICategory } from '../types/models/i-category';
 /**
  * A model for describing post categories
  */
-export class CategoriesModel extends Model<ICategory> {
+export class CategoriesModel extends Model<ICategory<'client' | 'server'>> {
   constructor() {
     super( 'categories' );
 

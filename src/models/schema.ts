@@ -5,7 +5,7 @@ import { SchemaItem } from './schema-items/schema-item';
 /**
  * Gives an overall description of each property in a model
  */
-export class Schema<T extends IModelEntry> {
+export class Schema<T extends IModelEntry<'server' | 'client'>> {
   private _items: Array<SchemaItem<any>>;
   public dbEntry: T;
 
@@ -34,7 +34,7 @@ export class Schema<T extends IModelEntry> {
   set( data: Partial<T>, allowReadOnlyValues: boolean ) {
     const items = this._items;
 
-    this.dbEntry = { ...this.dbEntry as any, ...data as any };
+    this.dbEntry = Object.assign( {}, this.dbEntry, data );
 
     for ( const i in data ) {
       for ( const item of items )
@@ -59,8 +59,8 @@ export class Schema<T extends IModelEntry> {
   /**
    * Serializes the schema items into the JSON format for mongodb
    */
-  public uploadToken(): any {
-    const toReturn: any = {};
+  public uploadToken() {
+    const toReturn: Partial<IModelEntry<'server'>> = {};
     const items = this._items;
 
     for ( let i = 0, l = items.length; i < l; i++ )
@@ -73,8 +73,8 @@ export class Schema<T extends IModelEntry> {
    * Serializes the schema items into a JSON
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async downloadToken( options: ISchemaOptions ): Promise<T> {
-    const toReturn: T = { _id: this.dbEntry._id } as T;
+  public async downloadToken<Y extends IModelEntry<'client'>>( options: ISchemaOptions ): Promise<Y> {
+    const toReturn: IModelEntry<'client'> = { _id: this.dbEntry._id!.toString() };
     const items = this._items;
     const promises: Array<Promise<any>> = [];
     const itemsInUse: SchemaItem<any>[] = [];
@@ -96,7 +96,7 @@ export class Schema<T extends IModelEntry> {
     for ( let i = 0, l = returns.length; i < l; i++ )
       toReturn[ itemsInUse[ i ].name ] = returns[ i ];
 
-    return Promise.resolve( toReturn );
+    return Promise.resolve( toReturn ) as Promise<Y>;
   }
 
   /**
@@ -153,7 +153,7 @@ export class Schema<T extends IModelEntry> {
    * Gets a schema item from this schema by name
    * @param val The name of the item
    */
-  public getByName( val: string ): SchemaItem<any> | null {
+  public getByName<K extends keyof T>( val: K ): SchemaItem<T[ K ]> | null {
     const items = this._items;
     for ( let i = 0, l = items.length; i < l; i++ )
       if ( items[ i ].name === val )

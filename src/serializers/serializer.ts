@@ -4,9 +4,9 @@ import * as express from 'express';
 import { IModelEntry } from '../types/models/i-model-entry';
 
 export class Serializer {
-  private _models: Model<IModelEntry>[];
+  private _models: Model<IModelEntry<'client' | 'server'>>[];
 
-  constructor( models: Model<IModelEntry>[] | null ) {
+  constructor( models: Model<IModelEntry<'client' | 'server'>>[] | null ) {
     this._models = models || [];
   }
 
@@ -20,7 +20,7 @@ export class Serializer {
   /**
 	 * Gets a model by its collection name
 	 */
-  getModel( collectionName: string ): Model<IModelEntry> | null {
+  getModel( collectionName: string ): Model<IModelEntry<'client' | 'server'>> | null {
     const models = this._models;
     for ( let i = 0, l = models.length; i < l; i++ )
       if ( models[ i ].collectionName === collectionName )

@@ -12,12 +12,12 @@ export type GetAllOptions = {
 }
 
 export async function getAll( options: Partial<GetAllOptions> ) {
-  const page = await getJson<Page<IUserEntry>>( rootPath + makeQueryString( options ) );
+  const page = await getJson<Page<IUserEntry<'client'>>>( rootPath + makeQueryString( options ) );
   return page;
 }
 
 export async function getOne( options: { user: string; verbose?: boolean; } ) {
-  const page = await getJson<IUserEntry>( `${rootPath}/${options.user}${options.verbose ? makeQueryString( { verbose: true } ) : ''}` );
+  const page = await getJson<IUserEntry<'client'>>( `${rootPath}/${options.user}${options.verbose ? makeQueryString( { verbose: true } ) : ''}` );
   return page;
 }
 
@@ -25,10 +25,10 @@ export function remove( user: string ) {
   return del( `${rootPath}/${user}` );
 }
 
-export function update( user: string, token: Partial<IUserEntry> ) {
-  return putJson<IUserEntry>( `${rootPath}/${user}`, token );
+export function update( user: string, token: Partial<IUserEntry<'client'>> ) {
+  return putJson<IUserEntry<'client'>>( `${rootPath}/${user}`, token );
 }
 
-export function create( token: Partial<IUserEntry> ) {
-  return postJson<IUserEntry>( rootPath, token );
+export function create( token: Partial<IUserEntry<'client'>> ) {
+  return postJson<IUserEntry<'client'>>( rootPath, token );
 }
