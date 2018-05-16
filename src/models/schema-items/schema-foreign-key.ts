@@ -150,7 +150,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    * Called after a model instance is deleted. Useful for any schema item cleanups.
    * @param instance The model instance that was deleted
    */
-  public async postDelete( schema: Schema<IModelEntry<'client'>>, collection: string ): Promise<void> {
+  public async postDelete( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
     // If they key is required then it must exist
     const model = Factory.get( this.targetCollection );
     if ( !model )

@@ -118,7 +118,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * doing any post update/insert operations
    * @param collection The DB collection that the model was inserted into
    */
-  public async postUpsert( schema: Schema<IModelEntry<'server' | 'client'>>, collection: string ): Promise<void> {
+  public async postUpsert( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
     if ( !this._targetDocs || this._targetDocs.length === 0 )
       return;
 
