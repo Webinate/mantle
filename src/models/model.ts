@@ -56,7 +56,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   /**
 	 * Gets an array of schemas based on the selector search criteria
 	 */
-  async findInstances( options: ISearchOptions<T> = {} ) {
+  async findMany( options: ISearchOptions<T> = {} ) {
     const collection = this.collection;
 
     // Attempt to save the data to mongo collection
@@ -93,7 +93,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
    * @param selector The mongodb selector object
    */
   async findOne<Y extends IModelEntry<'server'>>( selector: any ): Promise<Schema<Y> | null> {
-    const instances = await this.findInstances( { selector: selector, limit: 1 } );
+    const instances = await this.findMany( { selector: selector, limit: 1 } );
     if ( !instances || instances.length === 0 )
       return null;
 
@@ -172,7 +172,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
 	 * Deletes a number of instances based on the selector. The promise reports how many items were deleted
 	 */
   async deleteInstances( selector: any ): Promise<number> {
-    const schemas = await this.findInstances( { selector: selector } );
+    const schemas = await this.findMany( { selector: selector } );
 
     if ( !schemas || schemas.length === 0 )
       return 0;

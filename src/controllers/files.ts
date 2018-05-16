@@ -120,7 +120,7 @@ export class FilesController extends Controller {
     const limit: number = options.limit || 10;
 
     // Save the new entry into the database
-    const schemas = await files.findInstances( {
+    const schemas = await files.findMany( {
       selector: searchQuery,
       index: index,
       limit: limit

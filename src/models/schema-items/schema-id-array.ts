@@ -99,7 +99,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     for ( let i = 0, l = arr.length; i < l; i++ )
       query.$or.push( <IModelEntry<'server'>>{ _id: <ObjectID>arr[ i ] } );
 
-    const result = await model.findInstances( { selector: query } );
+    const result = await model.findMany( { selector: query } );
 
     if ( this.value.length !== result.length ) {
       for ( const id of this.value ) {
@@ -164,7 +164,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     for ( let i = 0, l = arr.length; i < l; i++ )
       query.$or.push( <IModelEntry<'server'>>{ _id: <ObjectID>arr[ i ] } );
 
-    const results = await model.findInstances( { selector: query } );
+    const results = await model.findMany( { selector: query } );
     if ( !results || results.length === 0 )
       return;
 
@@ -215,7 +215,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     for ( let i = 0, l = this.value.length; i < l; i++ )
       query.$or.push( <IModelEntry<'server'>>{ _id: this.value[ i ] } );
 
-    const instances = await model.findInstances( { selector: query } );
+    const instances = await model.findMany( { selector: query } );
     let instance: Schema<IModelEntry<'server'>>;
     const promises: Array<Promise<IModelEntry<'client'>>> = [];
 

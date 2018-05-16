@@ -55,7 +55,7 @@ export class CategoriesController extends Controller {
     const depth = options.depth || 1;
     const root = options.root || false;
 
-    const schemas = await categories.findInstances( {
+    const schemas = await categories.findMany( {
       index: index,
       limit: limit,
       selector: root ? { parent: null } as ICategory<'server'> : undefined

@@ -302,7 +302,7 @@ export class PageSerializer extends Serializer {
     const renders = this.getModel( 'renders' ) as Model<IRender<'server' | 'client'>>;
 
     try {
-      const schemas = await renders!.findInstances( { selector: { _id: new mongodb.ObjectID( req.params.id ) } } );
+      const schemas = await renders!.findMany( { selector: { _id: new mongodb.ObjectID( req.params.id ) } } );
 
       if ( schemas.length === 0 )
         throw new Error( 'Could not find a render with that ID' );
@@ -374,7 +374,7 @@ export class PageSerializer extends Serializer {
     try {
       // First get the count
       count = await renders!.count( findToken );
-      const schemas = await renders!.findInstances( {
+      const schemas = await renders!.findMany( {
         selector: findToken,
         sort: sort,
         index: index,

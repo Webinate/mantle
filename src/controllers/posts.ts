@@ -121,7 +121,7 @@ export class PostsController extends Controller {
     const index: number = options.index || 0;
     const limit: number = options.limit || 10;
 
-    const schemas = await posts.findInstances( {
+    const schemas = await posts.findMany( {
       selector: findToken,
       sort: sort,
       index: index,

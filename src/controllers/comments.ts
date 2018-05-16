@@ -99,7 +99,7 @@ export class CommentsController extends Controller {
     // First get the count
     const count = await comments.count( findToken );
 
-    const schemas = await comments.findInstances( {
+    const schemas = await comments.findMany( {
       selector: findToken,
       sort: sort,
       index: options.index,
