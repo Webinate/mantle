@@ -134,7 +134,7 @@ export class CommentsController extends Controller {
   async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
     const comments = this._commentsModel;
     const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
-    const comment = await comments.findOne<IComment<'client'>>( findToken, {
+    const comment = await comments.download<IComment<'client'>>( findToken, {
       verbose: options.verbose || true,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
@@ -162,7 +162,7 @@ export class CommentsController extends Controller {
     const comments = this._commentsModel;
     const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
 
-    const comment = await comments.findOne( findToken, { verbose: true } );
+    const comment = await comments.download( findToken, { verbose: true } );
 
     if ( !comment )
       throw new Error( 'Could not find a comment with that ID' );

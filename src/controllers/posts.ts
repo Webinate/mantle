@@ -209,7 +209,7 @@ export class PostsController extends Controller {
     if ( options.public !== undefined )
       findToken.public = options.public;
 
-    const post = await posts!.findOne<IPost<'client'>>( findToken, { verbose: options.verbose !== undefined ? options.verbose : true, expandForeignKeys: true, expandMaxDepth: 1 } );
+    const post = await posts!.download<IPost<'client'>>( findToken, { verbose: options.verbose !== undefined ? options.verbose : true, expandForeignKeys: true, expandMaxDepth: 1 } );
 
     if ( !post )
       throw new Error( 'Could not find post' );

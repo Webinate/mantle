@@ -54,7 +54,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   }
 
   /**
-	 * Gets an arrray of instances based on the selector search criteria
+	 * Gets an array of schemas based on the selector search criteria
 	 */
   async findInstances( options: ISearchOptions<T> = {} ) {
     const collection = this.collection;
@@ -71,15 +71,15 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
     if ( options.sort )
       cursor = cursor.sort( options.sort );
 
-    const result = await cursor.toArray();
+    const result = await cursor.toArray() as IModelEntry<'server'>[];
 
     // Create the instance array
     const schemas: Schema<IModelEntry<'server'>>[] = [];
-    let schema: Schema<IModelEntry<'server' | 'client'>>;
+    let schema: Schema<IModelEntry<'server'>>;
 
     // For each data entry, create a new instance
     for ( let i = 0, l = result.length; i < l; i++ ) {
-      schema = this.schema.clone();
+      schema = this.schema.clone() as Schema<IModelEntry<'server'>>;
       schema.set( result[ i ], true );
       schemas.push( schema as Schema<IModelEntry<'server'>> );
     }
@@ -89,22 +89,27 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   }
 
   /**
-   * Gets a model instance based on the selector criteria
-   * @param selector The selector object for selecting files
-   * @param options [Optional] If options provided, the resource itself is returned instead of its schema
+   * Gets a model schema
+   * @param selector The mongodb selector object
    */
-  async findOne<Y extends IModelEntry<'server'>>( selector: any ): Promise<Schema<Y> | null>
-  async findOne<Y extends IModelEntry<'client'>>( selector: any, options: ISchemaOptions ): Promise<Y | null>
-  async findOne( selector: any, options?: ISchemaOptions ) {
+  async findOne<Y extends IModelEntry<'server'>>( selector: any ): Promise<Schema<Y> | null> {
     const instances = await this.findInstances( { selector: selector, limit: 1 } );
     if ( !instances || instances.length === 0 )
       return null;
-    else {
-      if ( options )
-        return instances[ 0 ].downloadToken( options );
-      else
-        return instances[ 0 ];
-    }
+
+    return instances[ 0 ] as Schema<Y>;
+  }
+
+  /**
+   * Downloads a client json of the model
+   * @param selector The mongodb selector object
+   */
+  async download<Y extends IModelEntry<'client'>>( selector: any, options: ISchemaOptions ): Promise<Y | null> {
+    const schema = await this.findOne( selector );
+    if ( !schema )
+      return null;
+
+    return schema.downloadToken<Y>( options );
   }
 
   /**

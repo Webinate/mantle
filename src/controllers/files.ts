@@ -76,7 +76,7 @@ export class FilesController extends Controller {
     if ( searchTerm )
       searchQuery.name = searchTerm as any;
 
-    const file = await files.findOne<IFileEntry<'client'>>( searchQuery, { verbose: true } );
+    const file = await files.download<IFileEntry<'client'>>( searchQuery, { verbose: true } );
 
     if ( !file )
       throw new Error( `File '${fileID}' does not exist` );
@@ -101,7 +101,7 @@ export class FilesController extends Controller {
       if ( options.user )
         bucketQuery.user = options.user;
 
-      const bucketEntry = await buckets.findOne( bucketQuery, { verbose: true } );
+      const bucketEntry = await buckets.download( bucketQuery, { verbose: true } );
 
       if ( !bucketEntry )
         throw new Error( `Could not find the bucket resource` );
@@ -165,7 +165,7 @@ export class FilesController extends Controller {
       throw new Error( 'Invalid ID format' );
 
     const query = typeof fileId === 'string' ? { _id: new ObjectID( fileId ) } : { _id: fileId };
-    const file = await this._files.findOne( query, { verbose: true } );
+    const file = await this._files.download( query, { verbose: true } );
 
     if ( !file )
       throw new Error( 'Resource not found' );
@@ -194,7 +194,7 @@ export class FilesController extends Controller {
     const files = this._files;
     const stats = this._stats;
 
-    const bucketEntry = await buckets.findOne<IBucketEntry<'client'>>( fileEntry.bucketId, { verbose: true } );
+    const bucketEntry = await buckets.download<IBucketEntry<'client'>>( fileEntry.bucketId, { verbose: true } );
 
     if ( bucketEntry ) {
 
