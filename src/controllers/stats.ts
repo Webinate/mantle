@@ -31,7 +31,7 @@ export class StatsController extends Controller {
    * @param user The user whos data we are fetching
    */
   async get( user?: string ) {
-    const result = await this._stats.download<IStorageStats<'client'>>( { user: user } as IStorageStats<'server'>, { verbose: true } );
+    const result = await this._stats.downloadOne<IStorageStats<'client'>>( { user: user } as IStorageStats<'server'>, { verbose: true } );
     if ( !result )
       throw new Error( `Could not find storage data for the user '${user}'` );
     return result;

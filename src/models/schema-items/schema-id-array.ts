@@ -215,21 +215,21 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     for ( let i = 0, l = this.value.length; i < l; i++ )
       query.$or.push( <IModelEntry<'server'>>{ _id: this.value[ i ] } );
 
-    const instances = await model.findMany( { selector: query } );
-    let instance: Schema<IModelEntry<'server'>>;
+    const schemas = await model.findMany( { selector: query } );
+    let schema: Schema<IModelEntry<'server'>>;
     const promises: Array<Promise<IModelEntry<'client'>>> = [];
 
     // Get the models items are increase their level - this ensures we dont go too deep
-    for ( let i = 0, l = instances.length; i < l; i++ ) {
-      instance = instances[ i ];
-      const items = instance.getItems();
+    for ( let i = 0, l = schemas.length; i < l; i++ ) {
+      schema = schemas[ i ];
+      const items = schema.getItems();
       const nextLevel = this.curLevel + 1;
 
       for ( const item of items )
         if ( item instanceof SchemaForeignKey || item instanceof SchemaIdArray )
           item.curLevel = nextLevel;
 
-      promises.push( instance.downloadToken( options ) );
+      promises.push( schema.downloadToken( options ) );
     }
 
     return await Promise.all( promises );

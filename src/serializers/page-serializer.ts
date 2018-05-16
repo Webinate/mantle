@@ -232,7 +232,7 @@ export class PageSerializer extends Serializer {
     let expiration = 0;
 
     try {
-      render = await model.download<IRender<'client'>>( { url: url }, { verbose: true } );
+      render = await model.downloadOne<IRender<'client'>>( { url: url }, { verbose: true } );
       let html = '';
 
       if ( render ) {

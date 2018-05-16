@@ -98,24 +98,20 @@ export class CommentsController extends Controller {
 
     // First get the count
     const count = await comments.count( findToken );
-
-    const schemas = await comments.findMany( {
-      selector: findToken,
-      sort: sort,
-      index: options.index,
-      limit: options.limit
-    } ) as Schema<IComment<'server'>>[];
-
-    const jsons: Array<Promise<IComment<'client'>>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].downloadToken( {
+    const sanitizedData = await comments.downloadMany<IComment<'client'>>(
+      {
+        selector: findToken,
+        sort: sort,
+        index: options.index,
+        limit: options.limit
+      }, {
         verbose: options.verbose || true,
         expandForeignKeys: options.expanded || false,
         expandMaxDepth: options.depth || 1,
         expandSchemaBlacklist: [ 'parent' ]
-      } ) );
+      }
+    );
 
-    const sanitizedData = await Promise.all( jsons );
     const response: Page<IComment<'client'>> = {
       count: count,
       data: sanitizedData,
@@ -134,7 +130,7 @@ export class CommentsController extends Controller {
   async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
     const comments = this._commentsModel;
     const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
-    const comment = await comments.download<IComment<'client'>>( findToken, {
+    const comment = await comments.downloadOne<IComment<'client'>>( findToken, {
       verbose: options.verbose || true,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
@@ -162,7 +158,7 @@ export class CommentsController extends Controller {
     const comments = this._commentsModel;
     const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
 
-    const comment = await comments.download( findToken, { verbose: true } );
+    const comment = await comments.downloadOne( findToken, { verbose: true } );
 
     if ( !comment )
       throw new Error( 'Could not find a comment with that ID' );

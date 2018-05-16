@@ -54,22 +54,22 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   }
 
   /**
-	 * Gets an array of schemas based on the selector search criteria
+	 * Gets an array of schemas based on the query options
 	 */
-  async findMany( options: ISearchOptions<T> = {} ) {
+  async findMany<Y extends IModelEntry<'server'>>( query: ISearchOptions<T> = {} ) {
     const collection = this.collection;
 
     // Attempt to save the data to mongo collection
-    let cursor = collection.find( options.selector || {} );
+    let cursor = collection.find( query.selector || {} );
 
-    if ( options.index !== undefined )
-      cursor = cursor.skip( options.index );
-    if ( options.limit !== undefined && options.limit !== -1 )
-      cursor = cursor.limit( options.limit );
-    if ( options.projection !== undefined )
-      cursor = cursor.project( options.projection );
-    if ( options.sort )
-      cursor = cursor.sort( options.sort );
+    if ( query.index !== undefined )
+      cursor = cursor.skip( query.index );
+    if ( query.limit !== undefined && query.limit !== -1 )
+      cursor = cursor.limit( query.limit );
+    if ( query.projection !== undefined )
+      cursor = cursor.project( query.projection );
+    if ( query.sort )
+      cursor = cursor.sort( query.sort );
 
     const result = await cursor.toArray() as IModelEntry<'server'>[];
 
@@ -85,31 +85,44 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
     }
 
     // Complete
-    return schemas;
+    return schemas as Schema<Y>[];
   }
 
   /**
-   * Gets a model schema
+   * Gets a single model schema
    * @param selector The mongodb selector object
    */
   async findOne<Y extends IModelEntry<'server'>>( selector: any ): Promise<Schema<Y> | null> {
-    const instances = await this.findMany( { selector: selector, limit: 1 } );
-    if ( !instances || instances.length === 0 )
+    const schemas = await this.findMany( { selector: selector, limit: 1 } );
+    if ( !schemas || schemas.length === 0 )
       return null;
 
-    return instances[ 0 ] as Schema<Y>;
+    return schemas[ 0 ] as Schema<Y>;
   }
 
   /**
    * Downloads a client json of the model
    * @param selector The mongodb selector object
    */
-  async download<Y extends IModelEntry<'client'>>( selector: any, options: ISchemaOptions ): Promise<Y | null> {
+  async downloadOne<Y extends IModelEntry<'client'>>( selector: any, options: ISchemaOptions ) {
     const schema = await this.findOne( selector );
     if ( !schema )
       return null;
 
     return schema.downloadToken<Y>( options );
+  }
+
+  /**
+   * Downloads multiple client jsons based on a query and download options
+   */
+  async downloadMany<Y extends IModelEntry<'client'>>( query: ISearchOptions<T> = {}, options: ISchemaOptions ) {
+    const schemas = await this.findMany( query );
+    const jsons: Promise<IModelEntry<'client'>>[] = [];
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      jsons.push( schemas[ i ].downloadToken<IModelEntry<'client'>>( options ) );
+
+    const sanitizedData = await Promise.all( jsons ) as Y[];
+    return sanitizedData;
   }
 
   /**
@@ -196,7 +209,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
    */
   async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<T>, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
 
-    const schema = await this.findOne<IModelEntry<'server'>>( selector );
+    const schema = await this.findOne( selector );
 
     if ( !schema )
       throw new Error( `Resource does not exist` );

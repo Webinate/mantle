@@ -55,24 +55,19 @@ export class CategoriesController extends Controller {
     const depth = options.depth || 1;
     const root = options.root || false;
 
-    const schemas = await categories.findMany( {
+    const sanitizedData = await categories.downloadMany<ICategory<'client'>>( {
       index: index,
       limit: limit,
       selector: root ? { parent: null } as ICategory<'server'> : undefined
-    } );
-
-    const jsons: Array<Promise<ICategory<'client'>>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].downloadToken( {
+    }, {
         verbose: true,
         expandMaxDepth: depth,
         expandForeignKeys: expanded,
         expandSchemaBlacklist: [ 'parent' ]
-      } ) );
+      } );
 
-    const sanitizedData = await Promise.all( jsons );
+
     const count = await categories.count( {} );
-
     const response: Page<ICategory<'client'>> = {
       count: count,
       data: sanitizedData,
@@ -101,7 +96,7 @@ export class CategoriesController extends Controller {
       throw new Error( `Please use a valid object id` );
 
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
-    const category = await this._categoriesModel.download<ICategory<'client'>>( findToken, this.getDefaultsOptions( options ) );
+    const category = await this._categoriesModel.downloadOne<ICategory<'client'>>( findToken, this.getDefaultsOptions( options ) );
 
     if ( !category )
       throw new Error( 'Could not find category' );
@@ -116,7 +111,7 @@ export class CategoriesController extends Controller {
   */
   async getBySlug( slug: string, options: Partial<GetOneOptions> = {} ) {
     const findToken: Partial<ICategory<'server'>> = { slug: slug };
-    const category = await this._categoriesModel.download<ICategory<'client'>>( findToken, this.getDefaultsOptions( options ) );
+    const category = await this._categoriesModel.downloadOne<ICategory<'client'>>( findToken, this.getDefaultsOptions( options ) );
 
     if ( !category )
       throw new Error( 'Could not find category' );
@@ -135,7 +130,7 @@ export class CategoriesController extends Controller {
     const categorys = this._categoriesModel;
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
 
-    const category = await categorys.download( findToken, { verbose: true } );
+    const category = await categorys.downloadOne( findToken, { verbose: true } );
 
     if ( !category )
       throw new Error( 'Could not find a comment with that ID' );
@@ -162,7 +157,7 @@ export class CategoriesController extends Controller {
     }
 
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
-    const curCategory = await categorys.download<ICategory<'client'>>( findToken, { expandForeignKeys: false, verbose: true } );
+    const curCategory = await categorys.downloadOne<ICategory<'client'>>( findToken, { expandForeignKeys: false, verbose: true } );
 
     // If it has a parent - then remove it from the current parent
     if ( curCategory && curCategory.parent && curCategory.parent.toString() !== token.parent ) {

@@ -76,7 +76,7 @@ export class FilesController extends Controller {
     if ( searchTerm )
       searchQuery.name = searchTerm as any;
 
-    const file = await files.download<IFileEntry<'client'>>( searchQuery, { verbose: true } );
+    const file = await files.downloadOne<IFileEntry<'client'>>( searchQuery, { verbose: true } );
 
     if ( !file )
       throw new Error( `File '${fileID}' does not exist` );
@@ -101,7 +101,7 @@ export class FilesController extends Controller {
       if ( options.user )
         bucketQuery.user = options.user;
 
-      const bucketEntry = await buckets.download( bucketQuery, { verbose: true } );
+      const bucketEntry = await buckets.downloadOne( bucketQuery, { verbose: true } );
 
       if ( !bucketEntry )
         throw new Error( `Could not find the bucket resource` );
@@ -118,21 +118,14 @@ export class FilesController extends Controller {
     const count = await files.count( searchQuery );
     const index: number = options.index || 0;
     const limit: number = options.limit || 10;
+    const verbose = options.verbose !== undefined ? options.verbose : true;
 
-    // Save the new entry into the database
-    const schemas = await files.findMany( {
+    const sanitizedData = await files.downloadMany<IFileEntry<'client'>>( {
       selector: searchQuery,
       index: index,
       limit: limit
-    } );
+    }, { verbose } );
 
-    const jsons: Array<Promise<IFileEntry<'client'>>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].downloadToken<IFileEntry<'client'>>( {
-        verbose: options.verbose !== undefined ? options.verbose : true
-      } ) );
-
-    const sanitizedData = await Promise.all( jsons );
     const toRet: Page<IFileEntry<'client'>> = {
       count: count,
       data: sanitizedData,
@@ -165,7 +158,7 @@ export class FilesController extends Controller {
       throw new Error( 'Invalid ID format' );
 
     const query = typeof fileId === 'string' ? { _id: new ObjectID( fileId ) } : { _id: fileId };
-    const file = await this._files.download( query, { verbose: true } );
+    const file = await this._files.downloadOne( query, { verbose: true } );
 
     if ( !file )
       throw new Error( 'Resource not found' );
@@ -194,7 +187,7 @@ export class FilesController extends Controller {
     const files = this._files;
     const stats = this._stats;
 
-    const bucketEntry = await buckets.download<IBucketEntry<'client'>>( fileEntry.bucketId, { verbose: true } );
+    const bucketEntry = await buckets.downloadOne<IBucketEntry<'client'>>( fileEntry.bucketId, { verbose: true } );
 
     if ( bucketEntry ) {
 

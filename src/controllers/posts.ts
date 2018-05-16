@@ -55,9 +55,8 @@ export class PostsController extends Controller {
    */
   async getPosts( options: GetManyOptions = { verbose: true } ) {
     const posts = this._postsModel;
-    let count = 0;
-
     const findToken: Partial<IPost<'server'>> & { $or: IPost<'server'>[] } = { $or: [] };
+
     if ( options.author )
       ( <any>findToken ).author = options.author;
 
@@ -116,29 +115,22 @@ export class PostsController extends Controller {
       delete findToken.$or;
 
     // First get the count
-    count = await posts.count( findToken );
-
+    const count = await posts.count( findToken );
     const index: number = options.index || 0;
     const limit: number = options.limit || 10;
-
-    const schemas = await posts.findMany( {
+    const verbose = options.verbose !== undefined ? options.verbose : true;
+    const sanitizedData = await posts.downloadMany<IPost<'client'>>( {
       selector: findToken,
       sort: sort,
       index: index,
       limit: limit,
       projection: ( getContent === false ? { content: 0 } : undefined )
-    } );
-
-    const verbose = options.verbose !== undefined ? options.verbose : true;
-    const jsons: Array<Promise<IPost<'client'>>> = [];
-    for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].downloadToken<IPost<'client'>>( {
+    }, {
         expandForeignKeys: true,
         verbose: verbose,
         expandMaxDepth: 1
-      } ) );
+      } );
 
-    const sanitizedData = await Promise.all( jsons );
     const response: Page<IPost<'client'>> = {
       count: count,
       data: sanitizedData,
@@ -209,7 +201,7 @@ export class PostsController extends Controller {
     if ( options.public !== undefined )
       findToken.public = options.public;
 
-    const post = await posts!.download<IPost<'client'>>( findToken, { verbose: options.verbose !== undefined ? options.verbose : true, expandForeignKeys: true, expandMaxDepth: 1 } );
+    const post = await posts!.downloadOne<IPost<'client'>>( findToken, { verbose: options.verbose !== undefined ? options.verbose : true, expandForeignKeys: true, expandMaxDepth: 1 } );
 
     if ( !post )
       throw new Error( 'Could not find post' );
