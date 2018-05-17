@@ -7,7 +7,7 @@ import Factory from '../core/model-factory';
 
 export interface ISearchOptions<T> {
   selector?: any;
-  sort?: { [ name: string ]: number; } | null | T;
+  sort?: { [ name: string ]: number; } | null | Partial<T>;
   index?: number;
   limit?: number;
   projection?: { [ name: string ]: number }

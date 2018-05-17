@@ -158,7 +158,7 @@ export class FilesController extends Controller {
       throw new Error( 'Invalid ID format' );
 
     const query = typeof fileId === 'string' ? { _id: new ObjectID( fileId ) } : { _id: fileId };
-    const file = await this._files.downloadOne( query, { verbose: true } );
+    const file = await this._files.downloadOne<IFileEntry<'client'>>( query, { verbose: true } );
 
     if ( !file )
       throw new Error( 'Resource not found' );

@@ -64,7 +64,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
     const items = this._items;
 
     for ( let i = 0, l = items.length; i < l; i++ )
-      toReturn[ items[ i ].name ] = items[ i ].getDbValue();
+      toReturn[ items[ i ].name as keyof IModelEntry<'server'> ] = items[ i ].getDbValue();
 
     return toReturn;
   }
@@ -94,7 +94,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
 
     // Assign the promise values
     for ( let i = 0, l = returns.length; i < l; i++ )
-      toReturn[ itemsInUse[ i ].name ] = returns[ i ];
+      toReturn[ itemsInUse[ i ].name as keyof IModelEntry<'client'> ] = returns[ i ];
 
     return Promise.resolve( toReturn ) as Promise<Y>;
   }
@@ -173,7 +173,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
       throw new Error( `You cannot use the schema item name _requiredDependencies as its a reserved keyword` );
     else if ( val.name === '_optionalDependencies' )
       throw new Error( `You cannot use the schema item name _optionalDependencies as its a reserved keyword` );
-    else if ( this.getByName( val.name ) )
+    else if ( this.getByName( val.name as keyof IModelEntry<'server' | 'client'> ) )
       throw new Error( `An item with the name ${val.name} already exists.` );
 
     this._items.push( val );

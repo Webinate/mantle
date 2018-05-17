@@ -13,6 +13,7 @@ import { adminRights } from '../utils/permission-controllers'
 import { IRenderOptions } from '../types/misc/i-render-options';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';
+import { Schema } from '../models/schema';
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -302,12 +303,12 @@ export class PageSerializer extends Serializer {
     const renders = this.getModel( 'renders' ) as Model<IRender<'server' | 'client'>>;
 
     try {
-      const schemas = await renders!.findMany( { selector: { _id: new mongodb.ObjectID( req.params.id ) } } );
+      const schemas = await renders!.findMany( { selector: { _id: new mongodb.ObjectID( req.params.id ) } } ) as Schema<IRender<'server'>>[];
 
       if ( schemas.length === 0 )
         throw new Error( 'Could not find a render with that ID' );
 
-      let html: string = await schemas[ 0 ].getByName( 'html' )!.getValue();
+      let html = await schemas[ 0 ].getByName( 'html' )!.getValue() as string;
       const matches = html.match( /<script(?:.*?)>(?:[\S\s]*?)<\/script>/gi );
       for ( let i = 0; matches && i < matches.length; i++ )
         if ( matches[ i ].indexOf( 'application/ld+json' ) === -1 ) {
