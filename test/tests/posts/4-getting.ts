@@ -10,20 +10,20 @@ describe( '4. Testing fetching of posts', function() {
   it( 'fetched all posts', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     numPosts = json.count;
   } )
 
   it( 'did delete any existing posts with the slug --public--test--', async function() {
     const resp = await header.admin.get( `/api/posts/slug/--public--test--` );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     if ( json )
       await header.admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'did delete any existing posts with the slug --private--test--', async function() {
     const resp = await header.admin.get( `/api/posts/slug/--private--test--` );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
 
     if ( json )
       await header.admin.delete( `/api/posts/${json._id}` );
@@ -39,7 +39,7 @@ describe( '4. Testing fetching of posts', function() {
       tags: [ "super-tags-1234", "supert-tags-4321" ]
     } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     publicPostId = json._id;
   } )
 
@@ -51,7 +51,7 @@ describe( '4. Testing fetching of posts', function() {
       content: "Hello world"
     } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     privatePostId = json._id;
   } )
 
@@ -65,70 +65,70 @@ describe( '4. Testing fetching of posts', function() {
   it( 'can fetch posts and impose a limit off 1 on them', async function() {
     const resp = await header.admin.get( `/api/posts?limit=1` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert( json.data.length === 1 );
   } )
 
   it( 'can fetch posts and impose an index and limit', async function() {
     const resp = await header.admin.get( `/api/posts?index=${numPosts ? numPosts - 1 : 0}&limit=1` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert( json.data.length === 1 );
   } )
 
   it( 'fetched 1 post with category specified', async function() {
     const resp = await header.admin.get( `/api/posts?categories=super-tests` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 1 post with tag specified', async function() {
     const resp = await header.admin.get( `/api/posts?tags=super-tags-1234` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 1 post with 2 tags specified', async function() {
     const resp = await header.admin.get( `/api/posts?tags=super-tags-1234,supert-tags-4321` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 1 post with 2 known tags specified & 1 unknown', async function() {
     const resp = await header.admin.get( `/api/posts?tags=super-tags-1234,supert-tags-4321,dinos` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 1 post with 1 known tag & 1 category', async function() {
     const resp = await header.admin.get( `/api/posts?tags=super-tags-1234&categories=super-tests` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 0 posts with 1 known tag & 1 unknown category', async function() {
     const resp = await header.admin.get( `/api/posts?tags=super-tags-1234&categories=super-tests-wrong` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 0 );
   } )
 
   it( 'fetched 1 posts when not logged in as admin and post is not public', async function() {
     const resp = await header.guest.get( `/api/posts?tags=super-tags-1234&categories=super-tests`, null );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'Should not fetch with a tag that is not associated with any posts', async function() {
     const resp = await header.admin.get( `/api/posts?tags=nononononononoonononono` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 0 );
   } )
 
@@ -154,7 +154,7 @@ describe( '4. Testing fetching of posts', function() {
   it( 'can fetch a public post by slug when not logged in', async function() {
     const resp = await header.guest.get( `/api/posts/slug/--public--test--` );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     assert( json.hasOwnProperty( "_id" ) )
   } )
 
@@ -171,7 +171,7 @@ describe( '4. Testing fetching of posts', function() {
   it( 'has cleaned up the posts successfully', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert( json.count === numPosts );
   } )
 } )

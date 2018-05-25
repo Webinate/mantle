@@ -1,10 +1,11 @@
 ﻿import { SchemaItem } from './schema-item';
 import { INumOptions, NumType } from '../../types/interfaces/i-schema-options';
+import { ISchemaOptions } from '../../types/misc/i-schema-options';
 
 /**
  * A numeric schema item for use in Models
  */
-export class SchemaNumber extends SchemaItem<number> {
+export class SchemaNumber extends SchemaItem<number, number> {
   public min: number;
   public max: number;
   public type: NumType;
@@ -40,7 +41,7 @@ export class SchemaNumber extends SchemaItem<number> {
    * @returns copy A sub class of the copy
    */
   public clone( copy?: SchemaNumber ): SchemaNumber {
-    copy = copy === undefined ? new SchemaNumber( this.name, <number>this.value ) : copy;
+    copy = copy === undefined ? new SchemaNumber( this.name, this.getDbValue() ) : copy;
     super.clone( copy );
 
     copy.min = this.min;
@@ -53,21 +54,26 @@ export class SchemaNumber extends SchemaItem<number> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public validate(): Promise<boolean | Error> {
+  public async validate( val: number ) {
     const type = this.type;
     const decimalPlaces = this.decimalPlaces;
-    let transformedValue: number = <number>this.value;
+    let transformedValue: number = val;
 
     if ( type === 'Int' )
       transformedValue = parseInt( transformedValue.toString() );
     else
       transformedValue = parseFloat( ( parseFloat( transformedValue.toString() ).toFixed( decimalPlaces ) ) );
 
-    this.value = transformedValue;
-
     if ( transformedValue <= this.max && transformedValue >= this.min )
-      return Promise.resolve( true );
+      return transformedValue;
     else
-      return Promise.reject<Error>( new Error( `The value of ${this.name} is not within the range of  ${this.min} and ${this.max}` ) );
+      throw new Error( `The value of ${this.name} is not within the range of  ${this.min} and ${this.max}` );
+  }
+
+  /**
+   * Gets the value of this item
+   */
+  public async getValue( options?: ISchemaOptions ) {
+    return this.getDbValue();
   }
 }

@@ -4,7 +4,7 @@ import { IDateOptions } from '../../types/interfaces/i-schema-options';
 /**
  * A date scheme item for use in Models
  */
-export class SchemaDate extends SchemaItem<number> {
+export class SchemaDate extends SchemaItem<number, number> {
   public useNow: boolean;
 
   /**
@@ -24,26 +24,30 @@ export class SchemaDate extends SchemaItem<number> {
    * @returns
    */
   public clone( copy?: SchemaDate ): SchemaDate {
-    copy = !copy ? new SchemaDate( this.name, <number>this.value ) : copy;
+    copy = !copy ? new SchemaDate( this.name, this.getDbValue() ) : copy;
     copy.useNow = this.useNow;
     super.clone( copy );
+
+    if ( this.useNow && this.getDbValue() === 0 )
+      copy.setDbValue( Date.now() )
+
     return copy;
   }
 
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public validate(): Promise<boolean | Error> {
+  public async validate( val: number ) {
     if ( this.useNow )
-      this.value = Date.now();
-
-    return Promise.resolve( true );
+      return Date.now();
+    else
+      return this.getDbValue();
   }
 
   /**
- * Gets the value of this item
- */
-  public async getValue(): Promise<number> {
-    return ( this.value !== undefined && this.value !== null ? this.value : Date.now() );
+   * Gets the value of this item
+   */
+  public async getValue() {
+    return this.getDbValue();
   }
 }

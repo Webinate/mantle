@@ -39,7 +39,7 @@ describe( '1. Testing creation of comments', function() {
       content: "Hello world"
     } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     postId = json._id;
     assert( json.public === false )
   } )
@@ -89,7 +89,7 @@ describe( '1. Testing creation of comments', function() {
   it( 'can create a comment on a valid post', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__", public: false } );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     commentId = json._id;
     assert( json._id );
     assert( json.author );
@@ -105,7 +105,7 @@ describe( '1. Testing creation of comments', function() {
   it( 'can create a another comment on the same post, with a parent comment', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments/${commentId}`, { content: "Hello world 2", public: true } );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     assert( json.hasOwnProperty( '_id' ) )
   } )
 
@@ -117,14 +117,14 @@ describe( '1. Testing creation of comments', function() {
   it( 'has cleaned up the posts successfully', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert( json.count === numPosts );
   } )
 
   it( 'should have the same number of comments as before the tests started', async function() {
     const resp = await header.admin.get( `/api/comments` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     assert( json.count !== undefined );
     assert( numComments === json.count );
   } )

@@ -1,9 +1,10 @@
 ﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from '../../types/misc/i-schema-options';
 
 /**
  * A bool scheme item for use in Models
  */
-export class SchemaBool extends SchemaItem<boolean> {
+export class SchemaBool extends SchemaItem<boolean, boolean | undefined | null> {
   /**
    * Creates a new schema item
    * @param name The name of this item
@@ -18,7 +19,7 @@ export class SchemaBool extends SchemaItem<boolean> {
    * @returns copy A sub class of the copy
     */
   public clone( copy?: SchemaBool ): SchemaBool {
-    copy = copy === undefined ? new SchemaBool( this.name, <boolean>this.value ) : copy;
+    copy = copy === undefined ? new SchemaBool( this.name, this.getDbValue() ) : copy;
     super.clone( copy );
     return copy;
   }
@@ -26,13 +27,19 @@ export class SchemaBool extends SchemaItem<boolean> {
   /**
    * Always true
    */
-  public validate(): Promise<boolean | Error> {
-    const val = this.value;
+  public async validate( val: boolean | undefined | null ) {
     if ( val === undefined )
-      return Promise.reject<Error>( new Error( `${this.name} cannot be undefined` ) );
+      throw new Error( `${this.name} cannot be undefined` );
     if ( val === null )
-      return Promise.reject<Error>( new Error( `${this.name} cannot be null` ) );
+      throw new Error( `${this.name} cannot be null` );
 
-    return Promise.resolve( true );
+    return val;
+  }
+
+  /**
+   * Gets the value of this item
+   */
+  public async getValue( options?: ISchemaOptions ) {
+    return this.getDbValue();
   }
 }

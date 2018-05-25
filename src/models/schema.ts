@@ -6,7 +6,7 @@ import { SchemaItem } from './schema-items/schema-item';
  * Gives an overall description of each property in a model
  */
 export class Schema<T extends IModelEntry<'server' | 'client'>> {
-  private _items: Array<SchemaItem<any>>;
+  private _items: Array<SchemaItem<any, any>>;
   public dbEntry: T;
 
   constructor() {
@@ -31,7 +31,19 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
    * @param data The data object we are setting
    * @param allowReadOnlyValues If true, then readonly values can be overwritten (Usually the case when the item is first created)
    */
-  set( data: Partial<T>, allowReadOnlyValues: boolean ) {
+  setClient( data: Partial<IModelEntry<'client'>>, allowReadOnlyValues: boolean ) {
+    const items = this._items;
+
+    // this.dbEntry = Object.assign( {}, this.dbEntry, data );
+
+    for ( const i in data ) {
+      for ( const item of items )
+        if ( item.name === i && ( allowReadOnlyValues || item.getReadOnly() === false ) )
+          item.setValue( data[ i as keyof Partial<IModelEntry<'client'>> ] );
+    }
+  }
+
+  setServer( data: Partial<T>, allowReadOnlyValues: boolean ) {
     const items = this._items;
 
     this.dbEntry = Object.assign( {}, this.dbEntry, data );
@@ -39,22 +51,22 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
     for ( const i in data ) {
       for ( const item of items )
         if ( item.name === i && ( allowReadOnlyValues || item.getReadOnly() === false ) )
-          item.setValue( data[ i ] );
+          item.setDbValue( data[ i ] );
     }
   }
 
-  /**
-   * Sets a schema value by name
-   * @param name The name of the schema item
-   * @param val The new value of the item
-   */
-  setVal( name: string, val: any ) {
-    const items = this._items;
+  // /**
+  //  * Sets a schema value by name
+  //  * @param name The name of the schema item
+  //  * @param val The new value of the item
+  //  */
+  // setVal( name: string, val: any ) {
+  //   const items = this._items;
 
-    for ( let i = 0, l = items.length; i < l; i++ )
-      if ( items[ i ].name === name )
-        items[ i ].setValue( val );
-  }
+  //   for ( let i = 0, l = items.length; i < l; i++ )
+  //     if ( items[ i ].name === name )
+  //       items[ i ].setValue( val );
+  // }
 
   /**
    * Serializes the schema items into the JSON format for mongodb
@@ -77,7 +89,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
     const toReturn: IModelEntry<'client'> = { _id: this.dbEntry._id!.toString() };
     const items = this._items;
     const promises: Array<Promise<any>> = [];
-    const itemsInUse: SchemaItem<any>[] = [];
+    const itemsInUse: SchemaItem<any, any>[] = [];
 
     for ( let i = 0, l = items.length; i < l; i++ ) {
       // If this data is sensitive and the request must be sanitized
@@ -111,10 +123,24 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
       if ( checkForRequiredFields && !items[ i ].getModified() && items[ i ].getRequired() )
         throw new Error( `${items[ i ].name} is required` );
 
-      promises.push( items[ i ].validate() );
+      const clientVal = items[ i ].getClientValue()
+      const dbVal = items[ i ].getDbValue();
+      if ( clientVal !== undefined )
+        promises.push( items[ i ].validate( clientVal ) );
+      else if ( dbVal )
+        promises.push( dbVal );
+      else
+        promises.push( items[ i ].validate( items[ i ].getDefaultValue() ) );
     }
 
-    await Promise.all( promises );
+    const serverValues: any[] = await Promise.all( promises );
+    for ( let i = 0, l = serverValues.length; i < l; i++ ) {
+      items[ i ].setDbValue( serverValues[ i ] );
+
+      if ( this.dbEntry )
+        this.dbEntry[ items[ i ].name as keyof IModelEntry<'server'> ] = serverValues[ i ];
+    }
+
     return this;
   }
 
@@ -153,7 +179,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
    * Gets a schema item from this schema by name
    * @param val The name of the item
    */
-  public getByName<K extends keyof T>( val: K ): SchemaItem<T[ K ]> | null {
+  public getByName<K extends keyof T>( val: K ): SchemaItem<T[ K ], T[ K ]> | null {
     const items = this._items;
     for ( let i = 0, l = items.length; i < l; i++ )
       if ( items[ i ].name === val )
@@ -166,7 +192,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
    * Adds a schema item to this schema
    * @param val The new item to add
    */
-  public add( val: SchemaItem<any> ): SchemaItem<any> {
+  public add( val: SchemaItem<any, any> ): SchemaItem<any, any> {
     if ( val.name === '_id' )
       throw new Error( `You cannot use the schema item name _id as its a reserved keyword` );
     else if ( val.name === '_requiredDependencies' )
@@ -184,11 +210,11 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
    * Removes a schema item from this schema
    * @param val The name of the item or the item itself
    */
-  public remove( val: SchemaItem<any> | string ) {
+  public remove( val: SchemaItem<any, any> | string ) {
     const items = this._items;
     let name = '';
-    if ( <SchemaItem<any>>val instanceof SchemaItem )
-      name = ( <SchemaItem<any>>val ).name;
+    if ( <SchemaItem<any, any>>val instanceof SchemaItem )
+      name = ( <SchemaItem<any, any>>val ).name;
 
     for ( let i = 0, l = items.length; i < l; i++ )
       if ( items[ i ].name === name ) {
@@ -200,7 +226,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
   /**
    * Gets the schema items associated with this schema
    */
-  public getItems(): Array<SchemaItem<any>> {
+  public getItems(): Array<SchemaItem<any, any>> {
     return this._items;
   }
 

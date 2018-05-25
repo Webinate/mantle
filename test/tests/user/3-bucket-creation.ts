@@ -24,7 +24,7 @@ describe( '3. Testing bucket creation', function() {
 
   it( 'regular user did create a new bucket called dinosaurs', async function() {
     const resp = await header.user1.post( `/buckets/user/${header.user1.username}/dinosaurs` );
-    const json: IBucketEntry = await resp.json();
+    const json: IBucketEntry<'client'> = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.hasOwnProperty( "_id" ) );
     assert.deepEqual( json.name, 'dinosaurs' );
@@ -44,7 +44,7 @@ describe( '3. Testing bucket creation', function() {
 
   it( 'admin user did create a bucket with a different name for regular user', async function() {
     const resp = await header.admin.post( `/buckets/user/${header.user1.username}/dinosaurs2` );
-    const json: IBucketEntry = await resp.json();
+    const json: IBucketEntry<'client'> = await resp.json();
     assert.deepEqual( resp.status, 200 );
 
     assert( json.hasOwnProperty( '_id' ) );
@@ -55,7 +55,7 @@ describe( '3. Testing bucket creation', function() {
 
   it( 'regular user should have 2 buckets', async function() {
     const resp = await header.user1.get( `/buckets/user/${header.user1.username}` );
-    const json: Page<IBucketEntry> = await resp.json();
+    const json: Page<IBucketEntry<'client'>> = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 2 );
   } )

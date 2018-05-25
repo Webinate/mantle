@@ -6,41 +6,46 @@ import { Schema } from '../schema';
 /**
  * A definition of each item in the model
  */
-export class SchemaItem<T> {
+export abstract class SchemaItem<TServer, TClient> {
   public name: string;
-  public value: T;
+  private defaultValue: TClient;
+  private value: TServer;
   private _sensitive: boolean;
   private _unique: boolean;
   private _uniqueIndexer: boolean;
   private _indexable: boolean;
   private _required: boolean;
-  private _modified: boolean;
   private _readOnly: boolean;
+  private _modified: boolean;
+  protected _clientVal: TClient;
 
-  constructor( name: string, value: T ) {
+  constructor( name: string, value: TClient ) {
     this.name = name;
-    this.value = value;
+    this.defaultValue = value;
     this._sensitive = false;
     this._unique = false;
     this._uniqueIndexer = false;
     this._indexable = false;
     this._required = false;
-    this._modified = false;
     this._readOnly = false;
+    this._modified = false;
   }
 
   /**
    * Creates a clone of this item
    * @returns copy A sub class of the copy
    */
-  public clone( copy?: SchemaItem<T> ) {
-    copy = copy === undefined ? new SchemaItem( this.name, this.value ) : copy;
-    copy._unique = this._unique;
-    copy._uniqueIndexer = this._uniqueIndexer;
-    copy._required = this._required;
-    copy._sensitive = this._sensitive;
-    copy._readOnly = this._readOnly;
-    return copy;
+  public clone( copy?: SchemaItem<TServer, TClient> ) {
+    const clone = copy!;
+    clone.name = this.name;
+    clone.value = this.value;
+    clone.defaultValue = this.defaultValue;
+    clone._unique = this._unique;
+    clone._uniqueIndexer = this._uniqueIndexer;
+    clone._required = this._required;
+    clone._sensitive = this._sensitive;
+    clone._readOnly = this._readOnly;
+    return clone;
   }
 
   /**
@@ -51,7 +56,7 @@ export class SchemaItem<T> {
   /**
    * Sets if this item is indexable by mongodb
    */
-  public setIndexable( val: boolean ): SchemaItem<T> {
+  public setIndexable( val: boolean ): SchemaItem<TServer, TClient> {
     this._indexable = val;
     return this;
   }
@@ -64,7 +69,7 @@ export class SchemaItem<T> {
   /**
    * Sets if this item is required. If true, then validations will fail if they are not specified
    */
-  public setRequired( val: boolean ): SchemaItem<T> {
+  public setRequired( val: boolean ): SchemaItem<TServer, TClient> {
     this._required = val;
     return this;
   }
@@ -79,7 +84,7 @@ export class SchemaItem<T> {
    * Sets if this item is required. If true, then the value can only be set when the item is created
    * and any future updates are ignored
    */
-  public setReadOnly( val: boolean ): SchemaItem<T> {
+  public setReadOnly( val: boolean ) {
     this._readOnly = val;
     return this;
   }
@@ -92,7 +97,7 @@ export class SchemaItem<T> {
   /**
  * Sets if this item represents a unique value in the database. An example might be a username
  */
-  public setUnique( val: boolean ): SchemaItem<T> {
+  public setUnique( val: boolean ) {
     this._unique = val;
     return this;
   }
@@ -109,7 +114,7 @@ export class SchemaItem<T> {
    * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
    * a given project. In this case the project item is set as a uniqueIndexer
  */
-  public setUniqueIndexer( val: boolean ): SchemaItem<T> {
+  public setUniqueIndexer( val: boolean ) {
     this._uniqueIndexer = val;
     return this;
   }
@@ -131,7 +136,7 @@ export class SchemaItem<T> {
   /**
    * Sets if this item is sensitive
    */
-  public setSensitive( val: boolean ): SchemaItem<T> {
+  public setSensitive( val: boolean ) {
     this._sensitive = val;
     return this;
   }
@@ -139,9 +144,7 @@ export class SchemaItem<T> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public validate(): Promise<boolean | Error> {
-    return Promise.resolve( true );
-  }
+  public abstract validate( val: TClient ): Promise<TServer>;
 
   /**
    * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
@@ -149,7 +152,6 @@ export class SchemaItem<T> {
    * @param collection The DB collection that the model was inserted into
    */
   public async postUpsert( schema: Schema<IModelEntry<'client' | 'server'>>, collection: string ): Promise<void> {
-    collection; // Supress empty param warning
     return Promise.resolve();
   }
 
@@ -162,26 +164,46 @@ export class SchemaItem<T> {
   }
 
   /**
+   * Gets the default client value of this item
+   */
+  public getDefaultValue(): TClient {
+    return this.defaultValue;
+  }
+
+  /**
    * Gets the value of this item in a database safe format
    */
-  public getDbValue(): T {
+  public getDbValue(): TServer {
     return this.value;
+  }
+
+  /**
+   * Sets the database value
+   */
+  public setDbValue( val: TServer ) {
+    this.value = val;
+  }
+
+  /**
+   * Gets the value of the client
+   */
+  public getClientValue(): TClient {
+    return this._clientVal;
   }
 
   /**
    * Gets the value of this item
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async getValue( options?: ISchemaOptions ): Promise<T> {
-    return this.value;
-  }
+  public abstract async getValue( options?: ISchemaOptions ): Promise<TClient>;
 
   /**
    * Sets the value of this item
-   * @param {T} val The value to set
+   * @param val The value to set
    */
-  public setValue( val: T ): T {
+  public setValue( val: TClient ): TClient {
+    this._clientVal = val;
     this._modified = true;
-    return this.value = val;
+    return this._clientVal;
   }
 }

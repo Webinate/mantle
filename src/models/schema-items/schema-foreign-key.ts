@@ -8,7 +8,7 @@ import { SchemaIdArray } from './schema-id-array';
 import Factory from '../../core/model-factory';
 import { Schema } from '../schema';
 
-export type FKeyValues = ObjectID | string | IModelEntry<'server' | 'client'> | null;
+export type Client = string | IModelEntry<'client'> | null;
 
 /**
  * Represents a mongodb ObjectID of a document in separate collection.
@@ -16,7 +16,7 @@ export type FKeyValues = ObjectID | string | IModelEntry<'server' | 'client'> | 
  * Required keys will mean that the current document cannot exist if the target does not. Optional keys
  * will simply be nullified if the target no longer exists.
  */
-export class SchemaForeignKey extends SchemaItem<FKeyValues> {
+export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
   public targetCollection: string;
   public keyCanBeNull: boolean;
   public canAdapt: boolean;
@@ -27,11 +27,10 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
   /**
    * Creates a new schema item
    * @param name The name of this item
-   * @param val The string representation of the foreign key's _id
    * @param targetCollection The name of the collection to which the target exists
    */
-  constructor( name: string, val: string, targetCollection: string, options?: IForeignKeyOptions ) {
-    super( name, val );
+  constructor( name: string, targetCollection: string, options?: IForeignKeyOptions ) {
+    super( name, null );
     options = { keyCanBeNull: true, canAdapt: true, ...options };
 
     if ( !targetCollection )
@@ -47,7 +46,7 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    * Creates a clone of this item
    */
   public clone( copy?: SchemaForeignKey ): SchemaForeignKey {
-    copy = copy === undefined ? new SchemaForeignKey( this.name, <string>this.value, this.targetCollection ) : copy;
+    copy = copy === undefined ? new SchemaForeignKey( this.name, this.targetCollection ) : copy;
     super.clone( copy );
     copy.targetCollection = this.targetCollection;
     copy.keyCanBeNull = this.keyCanBeNull;
@@ -58,8 +57,9 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public async validate(): Promise<boolean | Error> {
-    let transformedValue = this.value;
+  public async validate( val: Client ) {
+    // let transformedValue = val;
+    let toRet: ObjectID | null = null;
 
     // If they key is required then it must exist
     const model = Factory.get( this.targetCollection );
@@ -67,41 +67,39 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
     if ( !model )
       throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
-    if ( typeof this.value === 'string' ) {
-      if ( isValidObjectID( <string>this.value ) )
-        transformedValue = this.value = new ObjectID( <string>this.value );
-      else if ( ( <string>this.value ).trim() !== '' )
+    if ( typeof val === 'string' ) {
+      if ( isValidObjectID( val ) )
+        toRet = new ObjectID( val );
+      else if ( val.trim() !== '' )
         throw new Error( `Please use a valid ID for '${this.name}'` );
       else
-        transformedValue = null;
+        toRet = null;
     }
-    else if ( this.value && ( this.value as IModelEntry<'client'> )._id ) {
-      if ( !ObjectID.isValid( ( this.value as IModelEntry<'client'> )._id ) )
+    else if ( val && ( val as IModelEntry<'client'> )._id ) {
+      if ( !ObjectID.isValid( ( val as IModelEntry<'client'> )._id ) )
         throw new Error( `${this.name} object._id must be a valid ID string, ObjectId or IModelEntry` );
 
-      transformedValue = new ObjectID( ( this.value as IModelEntry<'client'> )._id );
+      toRet = new ObjectID( ( val as IModelEntry<'client'> )._id );
     }
-    else if ( this.value && !ObjectID.isValid( this.value as any ) ) {
+    else if ( val && !ObjectID.isValid( val as any ) ) {
       throw new Error( `${this.name} must be a valid ID string, ObjectId or IModelEntry` );
     }
 
-    if ( !transformedValue )
-      this.value = null;
+    if ( !toRet )
+      toRet = null;
 
-    if ( !this.keyCanBeNull && !this.value )
+    if ( !this.keyCanBeNull && !toRet )
       throw new Error( `${this.name} does not exist` );
 
-    this.value = transformedValue;
-
     // We can assume the value is object id by this point
-    const result = await model.findOne( { _id: transformedValue } );
+    const result = await model.findOne( { _id: toRet } );
 
     if ( !this.keyCanBeNull && !result )
       throw new Error( `${this.name} does not exist` );
 
     this._targetDoc = result;
 
-    return true;
+    return toRet;
   }
 
   /**
@@ -156,11 +154,13 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
     if ( !model )
       return;
 
-    if ( !this.value || this.value === '' )
+    const val = this.getDbValue();
+
+    if ( !val )
       return;
 
     // We can assume the value is object id by this point
-    const result = await model.findOne( { _id: <ObjectID>this.value } );
+    const result = await model.findOne( { _id: val } );
     if ( !result )
       return;
 
@@ -179,34 +179,36 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
    * Gets the value of this item
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async getValue( options: ISchemaOptions ): Promise<FKeyValues> {
+  public async getValue( options: ISchemaOptions ) {
 
     if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
       throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
 
-    if ( !options.expandForeignKeys )
-      return <ObjectID>this.value;
+    const val = this.getDbValue();
 
-    if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
-      return <ObjectID>this.value;
+    if ( val && !options.expandForeignKeys )
+      return val.toString();
+
+    if ( val && options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
+      return val.toString();
 
     const model = Factory.get( this.targetCollection );
     if ( !model )
       throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
 
-    if ( !this.value )
+    if ( !val )
       return null;
 
     // Make sure the current level is not beyond the max depth
     if ( options.expandMaxDepth !== undefined && options.expandMaxDepth !== -1 ) {
       if ( this.curLevel > options.expandMaxDepth )
-        return this.value;
+        return val.toString();
     }
 
-    const result = await model.findOne( { _id: <ObjectID>this.value } );
+    const result = await model.findOne( { _id: val } );
 
     if ( !result && !this.keyCanBeNull )
-      throw new Error( `Could not find an instance for ${this.name}'s in the collection '${this.targetCollection}' with value '${this.value}'` );
+      throw new Error( `Could not find an instance for ${this.name}'s in the collection '${this.targetCollection}' with value '${val.toString()}'` );
     else if ( !result && this.keyCanBeNull )
       return null;
 
@@ -218,6 +220,6 @@ export class SchemaForeignKey extends SchemaItem<FKeyValues> {
       if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
         ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
 
-    return await result!.downloadToken( options );
+    return await result!.downloadToken( options ) as Client;
   }
 }

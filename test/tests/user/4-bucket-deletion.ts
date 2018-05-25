@@ -31,7 +31,7 @@ describe( '4. Testing bucket deletion', function() {
 
   it( 'regular user has 1 bucket', async function() {
     const resp = await header.user1.get( `/buckets/user/${header.user1.username}` );
-    const json: Page<IBucketEntry> = await resp.json();
+    const json: Page<IBucketEntry<'client'>> = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 1 );
   } )
@@ -43,7 +43,7 @@ describe( '4. Testing bucket deletion', function() {
 
   it( 'regular user has 0 bucket', async function() {
     const resp = await header.user1.get( `/buckets/user/${header.user1.username}` );
-    const json: Page<IBucketEntry> = await resp.json();
+    const json: Page<IBucketEntry<'client'>> = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 0 );
   } )

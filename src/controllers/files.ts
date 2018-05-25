@@ -151,7 +151,7 @@ export class FilesController extends Controller {
    * @param fileId The id of the file to rename
    * @param name The new name of the file
    */
-  async update( fileId: string | ObjectID, token: Partial<IFileEntry<'client' | 'server'>> ) {
+  async update( fileId: string | ObjectID, token: Partial<IFileEntry<'client'>> ) {
     const files = this._files;
 
     if ( typeof fileId === 'string' && !isValidObjectID( fileId ) )

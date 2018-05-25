@@ -80,7 +80,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
     // For each data entry, create a new instance
     for ( let i = 0, l = result.length; i < l; i++ ) {
       schema = this.schema.clone() as Schema<IModelEntry<'server'>>;
-      schema.set( result[ i ], true );
+      schema.setServer( result[ i ], true );
       schemas.push( schema as Schema<IModelEntry<'server'>> );
     }
 
@@ -207,7 +207,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
    * @param selector The selector to determine which model to update
    * @param data The data to update the model with
    */
-  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<T>, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
+  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<Y>, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
 
     const schema = await this.findOne( selector );
 
@@ -218,7 +218,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
 
     // If we have data, then set the variables
     if ( data )
-      ( schema as Schema<T> ).set( data, false );
+      ( schema as Schema<T> ).setClient( data, false );
 
     // Make sure the new updates are valid
     await schema.validate( false );
@@ -254,11 +254,11 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
       if ( items[ i ].getUnique() ) {
         hasUniqueField = true;
         const searchField: any = {};
-        searchField[ items[ i ].name ] = items[ i ].getDbValue();
+        searchField[ items[ i ].name ] = items[ i ].getClientValue() || items[ i ].getDbValue();
         searchToken.$or.push( searchField );
       }
       else if ( items[ i ].getUniqueIndexer() )
-        searchToken[ items[ i ].name ] = items[ i ].getDbValue();
+        searchToken[ items[ i ].name ] = items[ i ].getClientValue() || items[ i ].getDbValue();
     }
 
     if ( !hasUniqueField )
@@ -278,12 +278,12 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
 	 * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object
 	 */
-  async createInstance( data?: Partial<T> ) {
+  async createInstance<Y extends Partial<IModelEntry<'client'>>>( data?: Partial<Y> ) {
     const schema = this.schema.clone();
 
     // If we have data, then set the variables
     if ( data )
-      schema.set( data, true );
+      schema.setClient( data, true );
 
     const unique = await this.checkUniqueness( schema as Schema<IModelEntry<'server'>> );
 
@@ -322,7 +322,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
 
     // Assign the ID's
     for ( let i = 0, l = insertResult.ops.length; i < l; i++ )
-      schemas[ i ].set( insertResult.ops[ i ], true );
+      schemas[ i ].setServer( insertResult.ops[ i ], true );
 
     // Now that everything has been added, we can do some post insert/update validation
     const postValidationPromises: Array<Promise<Schema<IModelEntry<'server'>>>> = [];

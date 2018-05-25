@@ -10,13 +10,13 @@ describe( '3. Testing editing of posts', function() {
   it( 'fetched all posts', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     numPosts = json.count;
   } )
 
   it( 'did delete any existing posts with the slug --edit--test--', async function() {
     const resp = await header.admin.get( `/api/posts/slug/--edit--test--` );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
 
     if ( json )
       await header.admin.delete( `/api/posts/${json._id}` );
@@ -24,7 +24,7 @@ describe( '3. Testing editing of posts', function() {
 
   it( 'did delete any existing posts with the slug --second--test--', async function() {
     const resp = await header.admin.get( `/api/posts/slug/--second--test--` );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
 
     if ( json )
       await header.admin.delete( `/api/posts/${json._id}` );
@@ -38,7 +38,7 @@ describe( '3. Testing editing of posts', function() {
       content: "Hello world"
     } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     postId = json._id;
   } )
 
@@ -50,7 +50,7 @@ describe( '3. Testing editing of posts', function() {
       content: "Hello world"
     } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     secondPostId = json._id;
   } )
 
@@ -85,7 +85,7 @@ describe( '3. Testing editing of posts', function() {
   it( 'can change a post slug with a slug already in use, if its the same post', async function() {
     const resp = await header.admin.put( `/api/posts/${postId}`, { id: postId, slug: "--edit--test--" } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     assert.deepEqual( json._id, postId );
     assert.deepEqual( json.slug, '--edit--test--' );
     assert.deepEqual( json.title, 'Simple Test' );
@@ -94,7 +94,7 @@ describe( '3. Testing editing of posts', function() {
   it( 'can edit a post with valid details', async function() {
     const resp = await header.admin.put( `/api/posts/${postId}`, { content: "Updated" } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     assert.deepEqual( json._id, postId );
     assert.deepEqual( json.content, 'Updated' );
   } )
@@ -112,7 +112,7 @@ describe( '3. Testing editing of posts', function() {
   it( 'has cleaned up the posts successfully', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert( json.count === numPosts );
   } )
 } )

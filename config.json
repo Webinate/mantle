@@ -12,7 +12,8 @@
     "sessionCollection": "sessions",
     "bucketsCollection": "buckets",
     "filesCollection": "files",
-    "statsCollection": "storage-stats"
+    "statsCollection": "storage-stats",
+    "foreignKeys": "_foreignKeys"
   },
   "clientsFolder": "./clients/",
   "debug": false,

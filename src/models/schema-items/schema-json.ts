@@ -1,9 +1,10 @@
 ﻿import { SchemaItem } from './schema-item';
+import { ISchemaOptions } from '../../types/misc/i-schema-options';
 
 /**
  * A json scheme item for use in Models
  */
-export class SchemaJSON extends SchemaItem<any> {
+export class SchemaJSON<TServer, YClient> extends SchemaItem<TServer | null, YClient | null | undefined> {
   /**
    * Creates a new schema item
    * @param name The name of this item
@@ -17,8 +18,8 @@ export class SchemaJSON extends SchemaItem<any> {
    * Creates a clone of this item
    * @returns copy A sub class of the copy
    */
-  public clone( copy?: SchemaJSON ): SchemaJSON {
-    copy = copy === undefined ? new SchemaJSON( this.name, this.value ) : copy;
+  public clone( copy?: SchemaJSON<any, any> ): SchemaJSON<any, any> {
+    copy = copy === undefined ? new SchemaJSON( this.name, this.getDbValue() ) : copy;
     super.clone( copy );
     return copy;
   }
@@ -26,10 +27,17 @@ export class SchemaJSON extends SchemaItem<any> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public validate(): Promise<boolean | Error> {
-    if ( this.value === undefined )
-      this.value = null;
+  public async validate( val: YClient | null | undefined ) {
+    if ( val === undefined )
+      return null;
 
-    return Promise.resolve( true );
+    return val as any as TServer;
+  }
+
+  /**
+   * Gets the value of this item
+   */
+  public async getValue( options?: ISchemaOptions ) {
+    return this.getDbValue() as any as YClient;
   }
 }

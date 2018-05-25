@@ -29,4 +29,10 @@ export interface ICollectionProperties {
    * eg: 'storageAPI'
    */
   statsCollection: string;
+
+  /**
+   * The name of the mongodb collection for storing user stats
+   * eg: '_foreignKeys'
+   */
+  foreignKeys: string;
 }

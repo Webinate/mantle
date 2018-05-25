@@ -1,10 +1,11 @@
 ﻿import { SchemaItem } from './schema-item';
 import { NumType, INumArrOptions } from '../../types/interfaces/i-schema-options';
+import { ISchemaOptions } from '../../types/misc/i-schema-options';
 
 /**
  * A number array scheme item for use in Models
  */
-export class SchemaNumArray extends SchemaItem<Array<number>> {
+export class SchemaNumArray extends SchemaItem<number[], number[]> {
   public minItems: number;
   public maxItems: number;
   public min: number;
@@ -47,7 +48,7 @@ export class SchemaNumArray extends SchemaItem<Array<number>> {
    * @returns copy A sub class of the copy
    */
   public clone( copy?: SchemaNumArray ): SchemaNumArray {
-    copy = copy === undefined ? new SchemaNumArray( this.name, this.value ) : copy;
+    copy = copy === undefined ? new SchemaNumArray( this.name, this.getDbValue() ) : copy;
     super.clone( copy );
 
     copy.max = this.max;
@@ -62,8 +63,8 @@ export class SchemaNumArray extends SchemaItem<Array<number>> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public validate(): Promise<boolean | Error> {
-    const transformedValue = this.value;
+  public async validate( val: number[] ) {
+    const transformedValue = val;
     const max = this.max;
     const min = this.min;
     const type = this.type;
@@ -77,16 +78,23 @@ export class SchemaNumArray extends SchemaItem<Array<number>> {
         temp = parseFloat( ( parseFloat( transformedValue.toString() ).toFixed( decimalPlaces ) ) );
 
       if ( temp < min || temp > max )
-        return Promise.reject<Error>( new Error( `The value of ${this.name} is not within the range of ${this.min} and ${this.max}` ) );
+        throw new Error( `The value of ${this.name} is not within the range of ${this.min} and ${this.max}` );
 
       transformedValue[ i ] = temp;
     }
 
     if ( transformedValue.length < this.minItems )
-      return Promise.reject<Error>( new Error( `You must select at least ${this.minItems} item${( this.minItems === 1 ? '' : 's' )} for ${this.name}` ) );
+      throw new Error( `You must select at least ${this.minItems} item${( this.minItems === 1 ? '' : 's' )} for ${this.name}` );
     if ( transformedValue.length > this.maxItems )
-      return Promise.reject<Error>( new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` ) );
+      throw new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` );
 
-    return Promise.resolve( true );
+    return transformedValue;
+  }
+
+  /**
+   * Gets the value of this item
+   */
+  public async getValue( options?: ISchemaOptions ) {
+    return this.getDbValue();
   }
 }

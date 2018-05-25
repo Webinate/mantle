@@ -10,7 +10,7 @@ describe( '2. Testing deletion of posts', function() {
   it( 'fetched all posts', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.strictEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     numPosts = json.count;
   } )
 
@@ -23,7 +23,7 @@ describe( '2. Testing deletion of posts', function() {
     } );
 
     assert.strictEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     postId = json._id;
   } )
 
@@ -56,7 +56,7 @@ describe( '2. Testing deletion of posts', function() {
   it( 'has cleaned up the posts successfully', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.strictEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert( json.count === numPosts );
   } )
 } )

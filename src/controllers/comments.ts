@@ -8,7 +8,6 @@ import Controller from './controller';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../utils/utils';
 import { Schema } from '../models/schema';
-import { ICategory } from '..';
 
 export type GetManyOptions = {
   public?: boolean;
@@ -194,14 +193,14 @@ export class CommentsController extends Controller {
         throw new Error( `No comment exists with the id ${token.parent}` );
     }
 
-    const instance = await comments.createInstance( token ) as Schema<ICategory<'client'>>;
+    const instance = await comments.createInstance( token );
     const json = await instance.downloadToken<IComment<'client'>>( { verbose: true } );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
-      const children = parent.getByName( 'children' )!.value!;
-      children.push( new ObjectID( instance.dbEntry._id ) );
-      await comments.update( <IComment<'server'>>{ _id: parent.dbEntry._id }, <IComment<'server'>>{ children: children } )
+      const children = parent.getByName( 'children' )!.getDbValue()!.map( id => id.toString() );
+      children.push( instance.dbEntry._id.toString() );
+      await comments.update<IComment<'client'>>( <IComment<'server'>>{ _id: parent.dbEntry._id }, { children: children } )
     }
 
     return json;

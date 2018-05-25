@@ -1,9 +1,9 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IConfig, IAdminUser } from '../../../src';
+import { IPost, IConfig, IAdminUser, IUserEntry } from '../../../src';
 import header from '../header';
 import Agent from '../agent';
-let numPosts: number, lastPost: IPost, lastPost2: IPost;
+let numPosts: number, lastPost: string, lastPost2: IPost<'client'>;
 
 describe( '1. Testing creation of posts', function() {
 
@@ -66,11 +66,11 @@ describe( '1. Testing creation of posts', function() {
       tags: [ "super-tags-1234", "supert-tags-4321" ]
     } );
     assert.strictEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
 
     lastPost = json._id;
     assert.strictEqual( json.public, false );
-    assert.strictEqual( json.author.username, ( header.config.adminUser as IAdminUser ).username );
+    assert.strictEqual( ( json.author as IUserEntry<'client'> ).username, ( header.config.adminUser as IAdminUser ).username );
     assert.strictEqual( json.content, "Hello world" );
     assert.strictEqual( json.brief, "This is brief" );
     assert.strictEqual( json.slug, "--simple--test--" );

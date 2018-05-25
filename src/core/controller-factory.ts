@@ -9,6 +9,7 @@ import { UsersController } from '../controllers/users';
 import { CommentsController } from '../controllers/comments';
 import { StatsController } from '../controllers/stats';
 import { CategoriesController } from '../controllers/categories';
+import { ForeignKeysController } from '../controllers/foreign-keys';
 
 /**
  * Factory classs for creating & getting controllers
@@ -37,6 +38,7 @@ export class ControllerFactory {
     controllers.push( await this.create( 'comments' ) );
     controllers.push( await this.create( 'users' ) );
     controllers.push( await this.create( 'stats' ) );
+    controllers.push( await this.create( 'foreign-keys' ) );
 
     for ( const controller of controllers )
       await controller.initialize( this._db );
@@ -50,6 +52,7 @@ export class ControllerFactory {
   get( type: 'files' ): FilesController
   get( type: 'stats' ): StatsController
   get( type: 'categories' ): CategoriesController
+  get( type: 'foreign-keys' ): ForeignKeysController
   get( type: string ): Controller
   get( type: string ): Controller {
     const toRet = this._controllers[ type ];
@@ -93,6 +96,9 @@ export class ControllerFactory {
         break;
       case 'stats':
         newModel = new StatsController( this._config );
+        break;
+      case 'foreign-keys':
+        newModel = new ForeignKeysController( this._config );
         break;
       default:
         throw new Error( `Controller '${type}' cannot be created` );

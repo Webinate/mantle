@@ -24,7 +24,7 @@ describe( '1. Getting and setting user stats', function() {
 
   it( 'regular user did get default stats for itself', async function() {
     const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
-    const json: IStorageStats = await resp.json();
+    const json: IStorageStats<'client'> = await resp.json();
     assert.strictEqual( resp.status, 200 );
 
     assert( json );

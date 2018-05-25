@@ -162,12 +162,12 @@ export class CategoriesController extends Controller {
     // If it has a parent - then remove it from the current parent
     if ( curCategory && curCategory.parent && curCategory.parent.toString() !== token.parent ) {
       const curParent = await categorys.findOne<ICategory<'server'>>( { _id: curCategory.parent } );
-      const children = curParent!.dbEntry.children;
+      const children = curParent!.dbEntry.children.map( id => id.toString() );
       const tokenId = new mongodb.ObjectID( token._id );
-      const index = children.findIndex( it => tokenId.equals( it as ObjectID ) )
+      const index = children.findIndex( it => tokenId.equals( new ObjectID( it ) ) )
       if ( index !== -1 ) {
         children.splice( index, 1 );
-        await categorys.update( { _id: curParent!.dbEntry._id } as ICategory<'server'>, { children: children } as ICategory<'server'> );
+        await categorys.update( { _id: curParent!.dbEntry._id } as ICategory<'server'>, { children: children } as ICategory<'client'> );
       }
     }
 
@@ -175,12 +175,12 @@ export class CategoriesController extends Controller {
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
-      const children = parent.getByName( 'children' )!.value;
-      const newId = new mongodb.ObjectID( updatedCategory._id );
-      const index = children.findIndex( it => newId.equals( it as mongodb.ObjectID ) );
+      const children = parent.getByName( 'children' )!.getDbValue().map( id => id.toString() );
+      const newId = updatedCategory._id;
+      const index = children.findIndex( it => newId === it );
       if ( index === -1 ) {
         children.push( newId );
-        await categorys.update( <ICategory<'server'>>{ _id: parent.dbEntry._id }, <ICategory<'server'>>{ children: children } );
+        await categorys.update( <ICategory<'server'>>{ _id: parent.dbEntry._id }, <ICategory<'client'>>{ children: children } );
       }
     }
 
@@ -202,14 +202,14 @@ export class CategoriesController extends Controller {
         throw new Error( `No category exists with the id ${token.parent}` );
     }
 
-    const instance = await categorys.createInstance( token ) as Schema<ICategory<'client'>>;
+    const instance = await categorys.createInstance( token );
     const json = await instance.downloadToken<ICategory<'client'>>( { verbose: true } );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
-      const children = parent.getByName( 'children' )!.value;
-      children.push( new ObjectID( instance.dbEntry._id ) );
-      await categorys.update( <ICategory<'server'>>{ _id: parent.dbEntry._id }, <ICategory<'server'>>{ children: children } )
+      const children = parent.getByName( 'children' )!.getDbValue().map( id => id.toString() );
+      children.push( instance.dbEntry._id.toString() );
+      await categorys.update<ICategory<'client'>>( <ICategory<'server'>>{ _id: parent.dbEntry._id }, { children: children } )
     }
 
     return json;

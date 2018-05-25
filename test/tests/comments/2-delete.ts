@@ -12,20 +12,20 @@ describe( '2. Testing deletion of comments', function() {
   it( 'fetched all posts', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     numPosts = json.count;
   } )
 
   it( 'fetched all comments', async function() {
     const resp = await header.admin.get( `/api/comments` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     numComments = json.count;
   } )
 
   it( 'did delete any existing posts with the slug --comments--test--', async function() {
     const resp = await header.admin.get( `/api/posts/slug/--comments--test--` );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     if ( json )
       await header.admin.delete( `/api/posts/${json._id}` );
   } )
@@ -39,7 +39,7 @@ describe( '2. Testing deletion of comments', function() {
       content: "Hello world"
     } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost = await resp.json();
+    const json: IPost<'client'> = await resp.json();
     postId = json._id;
     assert( json.public === false );
   } )
@@ -47,28 +47,28 @@ describe( '2. Testing deletion of comments', function() {
   it( 'did create a test comment', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments`, { content: "Hello world!", public: false } );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     commentId = json._id;
   } )
 
   it( 'did incremented the number of comments by 1', async function() {
     const resp = await header.admin.get( `/api/comments` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     assert( json.count === numComments + 1 );
   } )
 
   it( 'can create a another comment which will be a parent comment', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments`, { content: "Parent Comment", public: true } );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     parentCommentId = json._id;
   } )
 
   it( 'did incremented the number of comments by 2', async function() {
     const resp = await header.admin.get( `/api/comments` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     assert( json.count === numComments + 2 );
   } )
 

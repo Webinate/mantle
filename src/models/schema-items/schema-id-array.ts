@@ -9,14 +9,14 @@ import { IIdArrOptions } from '../../types/interfaces/i-schema-options';
 import { Schema } from '../schema';
 import Factory from '../../core/model-factory';
 
-export type IdTypes = string | ObjectID | IModelEntry<'server' | 'client'>;
+export type Client = ( string | IModelEntry<'client'> )[];
 
 /**
  * An ID array scheme item for use in Models. Returns objects of the specified ids from the target collection.
  * Currently we only support Id lookups that exist in the same model - i.e. if the ids are of objects
  * in different models we cannot get the object values.
  */
-export class SchemaIdArray extends SchemaItem<IdTypes[]> {
+export class SchemaIdArray extends SchemaItem<ObjectID[], Client> {
   public targetCollection: string;
   public minItems: number;
   public maxItems: number;
@@ -29,8 +29,8 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * @param val The array of ids for this schema item
    * @param targetCollection Specify the model name to which all the ids belong. If set the item can expand objects on retreival.
    */
-  constructor( name: string, val: Array<string>, targetCollection: string, options?: IIdArrOptions ) {
-    super( name, val );
+  constructor( name: string, targetCollection: string, options?: IIdArrOptions ) {
+    super( name, [] );
     options = {
       minItems: 0,
       maxItems: 10000,
@@ -48,7 +48,7 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * @returns copy A sub class of the copy
    */
   public clone( copy?: SchemaIdArray ) {
-    copy = copy === undefined ? new SchemaIdArray( this.name, <Array<string>>this.value, this.targetCollection ) : copy;
+    copy = copy === undefined ? new SchemaIdArray( this.name, this.targetCollection ) : copy;
     super.clone( copy );
     copy.maxItems = this.maxItems;
     copy.minItems = this.minItems;
@@ -60,31 +60,32 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * Checks the value stored to see if its correct in its current form
    * @returns Returns true if successful or an error message string if unsuccessful
    */
-  public async validate(): Promise<boolean | Error> {
-    const transformedValue = this.value;
+  public async validate( val: Client ) {
+    const transformedValue = val;
+    const toRet: ObjectID[] = [];
 
     for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
-      if ( typeof this.value[ i ] === 'string' ) {
-        if ( isValidObjectID( <string>this.value[ i ] ) )
-          transformedValue[ i ] = new ObjectID( <string>this.value[ i ] );
-        else if ( ( <string>this.value[ i ] ).trim() !== '' )
+      if ( typeof transformedValue[ i ] === 'string' ) {
+        if ( isValidObjectID( transformedValue[ i ] as string ) )
+          toRet.push( new ObjectID( transformedValue[ i ] as string ) );
+        else if ( ( transformedValue[ i ] as string ).trim() !== '' )
           throw new Error( `Please use a valid ID for '${this.name}'` );
         else
           throw new Error( `Please use a valid ID for '${this.name}'` );
       }
     }
 
-    if ( transformedValue.length < this.minItems )
+    if ( toRet.length < this.minItems )
       throw new Error( `You must select at least ${this.minItems} item${( this.minItems === 1 ? '' : 's' )} for ${this.name}` );
-    if ( transformedValue.length > this.maxItems )
+    if ( toRet.length > this.maxItems )
       throw new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` );
 
     // If no collection - then return
     if ( !this.targetCollection )
-      return true;
+      return toRet;
 
-    if ( this.value.length === 0 )
-      return true;
+    if ( toRet.length === 0 )
+      return toRet;
 
     // If they collection is not empty, then it must exist
     const model = Factory.get( this.targetCollection );
@@ -94,23 +95,23 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
 
     // We can assume the value is object id by this point
     const query = { $or: [] as IModelEntry<'server'>[] };
-    const arr = this.value;
 
-    for ( let i = 0, l = arr.length; i < l; i++ )
-      query.$or.push( <IModelEntry<'server'>>{ _id: <ObjectID>arr[ i ] } );
+
+    for ( let i = 0, l = toRet.length; i < l; i++ )
+      query.$or.push( <IModelEntry<'server'>>{ _id: toRet[ i ] } );
 
     const result = await model.findMany( { selector: query } );
 
-    if ( this.value.length !== result.length ) {
-      for ( const id of this.value ) {
-        if ( !result.find( category => ( new ObjectID( id as string ) ).equals( category.dbEntry._id ) ) )
+    if ( toRet.length !== result.length ) {
+      for ( const id of toRet ) {
+        if ( !result.find( category => id.equals( category.dbEntry._id ) ) )
           throw new Error( `Could not find resource in '${this.targetCollection}' with the id ${id}` );
       }
     }
 
     this._targetDocs = result;
 
-    return true;
+    return toRet;
   }
 
   /**
@@ -154,15 +155,16 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     if ( !model )
       return;
 
-    if ( !this.value || this.value.length === 0 )
+    const val = this.getDbValue();
+
+    if ( !val || val.length === 0 )
       return;
 
     // Get all the instances
     const query = { $or: [] as IModelEntry<'server'>[] };
-    const arr = this.value;
 
-    for ( let i = 0, l = arr.length; i < l; i++ )
-      query.$or.push( <IModelEntry<'server'>>{ _id: <ObjectID>arr[ i ] } );
+    for ( let i = 0, l = val.length; i < l; i++ )
+      query.$or.push( <IModelEntry<'server'>>{ _id: val[ i ] } );
 
     const results = await model.findMany( { selector: query } );
     if ( !results || results.length === 0 )
@@ -184,18 +186,20 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
    * Gets the value of this item
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async getValue( options: ISchemaOptions ): Promise<Array<string | ObjectID | IModelEntry<'client'>>> {
+  public async getValue( options: ISchemaOptions ): Promise<( string | IModelEntry<'client'> )[]> {
     if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
       throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
 
+    const val = this.getDbValue();
+
     if ( !options.expandForeignKeys )
-      return this.value as IModelEntry<'client'>[];
+      return val.map( i => i.toString() );
 
     if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
-      return this.value as IModelEntry<'client'>[];
+      return val.map( i => i.toString() );
 
     if ( !this.targetCollection )
-      return this.value as IModelEntry<'client'>[];
+      return val.map( i => i.toString() );
 
     const model = Factory.get( this.targetCollection );
     if ( !model )
@@ -204,16 +208,16 @@ export class SchemaIdArray extends SchemaItem<IdTypes[]> {
     // Make sure the current level is not beyond the max depth
     if ( options.expandMaxDepth !== undefined && options.expandMaxDepth !== -1 ) {
       if ( this.curLevel > options.expandMaxDepth )
-        return this.value as IModelEntry<'client'>[];
+        return val.map( i => i.toString() );
     }
 
-    if ( this.value.length === 0 )
-      return this.value as IModelEntry<'client'>[];
+    if ( val.length === 0 )
+      return val as any as string[];
 
     // Create the query for fetching the instances
     const query = { $or: [] as IModelEntry<'server'>[] };
-    for ( let i = 0, l = this.value.length; i < l; i++ )
-      query.$or.push( <IModelEntry<'server'>>{ _id: this.value[ i ] } );
+    for ( let i = 0, l = val.length; i < l; i++ )
+      query.$or.push( <IModelEntry<'server'>>{ _id: val[ i ] } );
 
     const schemas = await model.findMany( { selector: query } );
     let schema: Schema<IModelEntry<'server'>>;

@@ -1,7 +1,6 @@
 ﻿import { IBaseControler } from '../types/misc/i-base-controller';
 import { StatTokens } from '../types/tokens/standard-tokens';
 import { IAuthReq } from '../types/tokens/i-auth-request';
-import { IStorageStats } from '../types/models/i-storage-stats';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
@@ -96,7 +95,7 @@ export class StatsSerializer extends Serializer {
   @j200()
   private async updateCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageCalls.Response> {
     const value = parseInt( req.params.value );
-    await this._statController.update( req._target!.username! as string, <Partial<IStorageStats<'server'>>>{ apiCallsUsed: value } );
+    await this._statController.update( req._target!.username! as string, { apiCallsUsed: value } );
   }
 
   /**
@@ -105,7 +104,7 @@ export class StatsSerializer extends Serializer {
   @j200()
   private async updateMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageMemory.Response> {
     const value = parseInt( req.params.value );
-    await this._statController.update( req._target!.username! as string, <Partial<IStorageStats<'server'>>>{ memoryUsed: value } );
+    await this._statController.update( req._target!.username! as string, { memoryUsed: value } );
     return;
   }
 
@@ -115,7 +114,7 @@ export class StatsSerializer extends Serializer {
   @j200()
   private async updateAllocatedCalls( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocCalls.Response> {
     const value = parseInt( req.params.value );
-    await this._statController.update( req._target!.username! as string, <Partial<IStorageStats<'server'>>>{ apiCallsAllocated: value } );
+    await this._statController.update( req._target!.username! as string, { apiCallsAllocated: value } );
   }
 
   /**
@@ -124,7 +123,7 @@ export class StatsSerializer extends Serializer {
   @j200()
   private async updateAllocatedMemory( req: IAuthReq, res: express.Response ): Promise<StatTokens.PutStorageAlocMemory.Response> {
     const value = parseInt( req.params.value );
-    await this._statController.update( req._target!.username! as string, <Partial<IStorageStats<'server'>>>{ memoryAllocated: value } );
+    await this._statController.update( req._target!.username! as string, { memoryAllocated: value } );
   }
 
   /**

@@ -48,28 +48,28 @@ describe( '3. Testing fetching of comments', function() {
   it( 'did create a test public comment', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments`, { content: "Hello world public! __filter__", public: true } );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     publicCommentId = json._id;
   } )
 
   it( 'did create a test private comment', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments`, { content: "Hello world private! __filter__", public: false } );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     privateCommentId = json._id;
   } )
 
   it( 'can create a another comment which will be a parent comment', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments`, { content: "Parent Comment", public: true } );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     parentCommentId = json._id;
   } )
 
   it( 'can create a nested comment', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments/${parentCommentId}`, { content: "Child Comment", public: true } );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     childCommentId = json._id;
   } )
 
@@ -90,7 +90,7 @@ describe( '3. Testing fetching of comments', function() {
   it( 'can get a valid comment by ID', async function() {
     const resp = await header.admin.get( `/api/comments/${publicCommentId}` );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     assert.deepEqual( json._id, publicCommentId );
   } )
 
@@ -104,50 +104,50 @@ describe( '3. Testing fetching of comments', function() {
   it( 'can get a public comment without being logged in', async function() {
     const resp = await header.guest.get( `/api/comments/${publicCommentId}` );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     assert.deepEqual( json._id, publicCommentId );
   } )
 
   it( 'can get comments by user & there are more than 1', async function() {
     const resp = await header.admin.get( `/api/users/${header.admin.username}/comments` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     assert( json.count >= 2 );
   } )
 
   it( 'can get comments by user & there should be 2 if we filter by keyword', async function() {
     const resp = await header.admin.get( `/api/users/${header.admin.username}/comments?keyword=__filter__` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     assert( json.data.length === 2 );
   } )
 
   it( 'can get comments by user & should limit whats returned to 1', async function() {
     const resp = await header.admin.get( `/api/users/${header.admin.username}/comments?keyword=__filter__&limit=1` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     assert( json.data.length === 1 );
   } )
 
   it( 'can get comments by user & should limit whats returned to 1 if not admin', async function() {
     const resp = await header.guest.get( `/api/users/${header.admin.username}/comments?keyword=__filter__` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     assert( json.data.length === 1 );
   } )
 
   it( 'can get the parent comment and has previously created comment as child', async function() {
     const resp = await header.admin.get( `/api/comments/${parentCommentId}` );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     assert.deepEqual( json._id, parentCommentId );
-    assert( json.children.indexOf( childCommentId ) !== -1 );
+    assert( ( json.children as string[] ).indexOf( childCommentId ) !== -1 );
   } )
 
   it( 'can get a comment with parent & post, and both properties are just ids (not expanded)', async function() {
     const resp = await header.admin.get( `/api/comments/${childCommentId}` );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     assert.deepEqual( json._id, childCommentId );
     assert.deepEqual( json.parent, parentCommentId );
     assert.deepEqual( json.post, postId );
@@ -156,10 +156,10 @@ describe( '3. Testing fetching of comments', function() {
   it( 'can get a comment with parent & post, and both properties are the respective objects (expanded)', async function() {
     const resp = await header.admin.get( `/api/comments/${childCommentId}?expanded=true` );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment = await resp.json();
+    const json: IComment<'client'> = await resp.json();
     assert.deepEqual( json._id, childCommentId );
     assert.deepEqual( json.parent, parentCommentId );
-    assert.deepEqual( ( json.post as IPost )._id, postId );
+    assert.deepEqual( ( json.post as IPost<'client'> )._id, postId );
   } )
 
   it( 'did delete the test post', async function() {
@@ -170,14 +170,14 @@ describe( '3. Testing fetching of comments', function() {
   it( 'has cleaned up the posts successfully', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost> = await resp.json();
+    const json: Page<IPost<'client'>> = await resp.json();
     assert( json.count === numPosts );
   } )
 
   it( 'should have the same number of comments as before the tests started', async function() {
     const resp = await header.admin.get( `/api/comments` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment> = await resp.json();
+    const json: Page<IComment<'client'>> = await resp.json();
     assert( numComments === json.count );
   } )
 } )

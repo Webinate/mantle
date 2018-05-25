@@ -250,11 +250,11 @@ export class PageSerializer extends Serializer {
 
       if ( !render ) {
         info( `Saving render '${url}'` );
-        await model.createInstance( { expiration: Date.now() + this.expiration, html: html, url: url } );
+        await model.createInstance<IRender<'client'>>( { expiration: Date.now() + this.expiration, html: html, url: url } );
       }
       else if ( Date.now() > expiration ) {
         info( `Updating render '${url}'` );
-        await model.update( { _id: render._id }, { expiration: Date.now() + this.expiration, html: html } );
+        await model.update<IRender<'client'>>( { _id: render._id }, { expiration: Date.now() + this.expiration, html: html } );
       }
 
       info( 'Sending back render without script tags' );

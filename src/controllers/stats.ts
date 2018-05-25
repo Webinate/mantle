@@ -44,7 +44,7 @@ export class StatsController extends Controller {
   async createUserStats( user: string ) {
     const stats = this._stats;
 
-    const storage: Partial<IStorageStats<'server'>> = {
+    const storage: Partial<IStorageStats<'client'>> = {
       user: user,
       apiCallsAllocated: StatsController.API_CALLS_ALLOCATED,
       memoryAllocated: StatsController.MEMORY_ALLOCATED,
@@ -70,7 +70,7 @@ export class StatsController extends Controller {
    * @param fileID The file ID of the file on the bucket
    * @returns Returns the number of results affected
    */
-  async update( user: string, value: Partial<IStorageStats<'server'>> ) {
+  async update( user: string, value: Partial<IStorageStats<'client'>> ) {
     const stats = this._stats;
     const result = await stats.update<IStorageStats<'client'>>( { user: user } as IStorageStats<'server'>, value );
     return result;

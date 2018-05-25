@@ -12,6 +12,7 @@ export async function prepare( db: Db, config: IConfig ) {
   await db.createCollection( config.collections.statsCollection );
   await db.createCollection( config.collections.bucketsCollection );
   await db.createCollection( config.collections.filesCollection );
+  await db.createCollection( config.collections.foreignKeys );
 
   // Create the comms controller
   let comms = new CommsController( config! );

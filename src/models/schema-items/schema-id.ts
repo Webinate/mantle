@@ -1,19 +1,20 @@
 ﻿import { SchemaItem } from './schema-item';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils'
+import { ISchemaOptions } from '../../types/misc/i-schema-options';
 
 /**
  * A mongodb ObjectID scheme item for use in Models
  */
-export class SchemaId extends SchemaItem<ObjectID | string | null> {
+export class SchemaId extends SchemaItem<ObjectID | null, string | null> {
 
   /**
    * Creates a new schema item
    * @param name The name of this item
    * @param val The string representation of the object ID
    */
-  constructor( name: string, val: string ) {
-    super( name, val );
+  constructor( name: string ) {
+    super( name, null );
   }
 
   /**
@@ -21,7 +22,7 @@ export class SchemaId extends SchemaItem<ObjectID | string | null> {
   * @returns copy A sub class of the copy
   */
   public clone( copy?: SchemaId ): SchemaId {
-    copy = copy === undefined ? new SchemaId( this.name, <string>this.value ) : copy;
+    copy = copy === undefined ? new SchemaId( this.name ) : copy;
     super.clone( copy );
     return copy;
   }
@@ -29,23 +30,29 @@ export class SchemaId extends SchemaItem<ObjectID | string | null> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public validate(): Promise<boolean | Error> {
-    let transformedValue: string | ObjectID | null = this.value;
+  public async validate( val: string | null ) {
+    let transformedValue: ObjectID | null = null;
 
-    if ( typeof this.value === 'string' ) {
-      if ( isValidObjectID( <string>this.value ) )
-        transformedValue = this.value = new ObjectID( <string>this.value );
-      else if ( ( <string>this.value ).trim() !== '' )
-        return Promise.reject<Error>( new Error( `Please use a valid ID for '${this.name}'` ) );
+    if ( typeof val === 'string' ) {
+      if ( isValidObjectID( val ) )
+        transformedValue = new ObjectID( val );
+      else if ( val.trim() !== '' )
+        throw new Error( `Please use a valid ID for '${this.name}'` );
       else
         transformedValue = null;
     }
 
-    if ( !transformedValue ) {
-      this.value = null;
-      return Promise.resolve( true );
-    }
+    if ( !transformedValue )
+      return null;
 
-    return Promise.resolve( true );
+    return transformedValue;
+  }
+
+  /**
+   * Gets the value of this item
+   */
+  public async getValue( options?: ISchemaOptions ) {
+    const val = this.getDbValue();
+    return val ? val.toString() : null;
   }
 }
