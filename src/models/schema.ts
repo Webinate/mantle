@@ -6,7 +6,7 @@ import { SchemaItem } from './schema-items/schema-item';
  * Gives an overall description of each property in a model
  */
 export class Schema<T extends IModelEntry<'server' | 'client'>> {
-  private _items: Array<SchemaItem<any, any>>;
+  private _items: SchemaItem<any, any>[];
   public dbEntry: T;
 
   constructor() {
@@ -34,8 +34,6 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
   setClient( data: Partial<IModelEntry<'client'>>, allowReadOnlyValues: boolean ) {
     const items = this._items;
 
-    // this.dbEntry = Object.assign( {}, this.dbEntry, data );
-
     for ( const i in data ) {
       for ( const item of items )
         if ( item.name === i && ( allowReadOnlyValues || item.getReadOnly() === false ) )
@@ -54,19 +52,6 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
           item.setDbValue( data[ i ] );
     }
   }
-
-  // /**
-  //  * Sets a schema value by name
-  //  * @param name The name of the schema item
-  //  * @param val The new value of the item
-  //  */
-  // setVal( name: string, val: any ) {
-  //   const items = this._items;
-
-  //   for ( let i = 0, l = items.length; i < l; i++ )
-  //     if ( items[ i ].name === name )
-  //       items[ i ].setValue( val );
-  // }
 
   /**
    * Serializes the schema items into the JSON format for mongodb
