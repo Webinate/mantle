@@ -182,11 +182,19 @@ export class FilesController extends Controller {
    * Deletes the file from storage and updates the databases
    * @param fileEntry
    */
-  private async deleteFile( fileEntry: IFileEntry<'server'> ) {
-    const buckets = this._buckets;
+  private async deleteFile( fileEntry: IFileEntry<'server'>, idsAlreadyHandled?: string[] ) {
     const files = this._files;
-    const stats = this._stats;
+    const promises: Promise<any>[] = [];
 
+    // First remove any files that have this as their parent
+    const children = await files.findMany<IFileEntry<'server'>>( { selector: { parentFile: fileEntry._id } as Partial<IFileEntry<'server'>> } );
+    for ( const child of children )
+      promises.push( this.deleteFile( child.dbEntry ) );
+
+    await Promise.all( promises );
+
+    const buckets = this._buckets;
+    const stats = this._stats;
     const bucketEntry = await buckets.downloadOne<IBucketEntry<'client'>>( fileEntry.bucketId, { verbose: true } );
 
     if ( bucketEntry ) {

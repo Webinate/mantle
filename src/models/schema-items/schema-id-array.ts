@@ -3,7 +3,7 @@ import { ISchemaOptions } from '../../types/misc/i-schema-options';
 import { IModelEntry } from '../../types/models/i-model-entry';
 import { SchemaItem } from './schema-item';
 import { SchemaForeignKey } from './schema-foreign-key';
-import { ObjectID, UpdateWriteOpResult } from 'mongodb';
+import { ObjectID } from 'mongodb'; // UpdateWriteOpResult
 import { isValidObjectID } from '../../utils/utils';
 import { IIdArrOptions } from '../../types/interfaces/i-schema-options';
 import { Schema } from '../schema';
@@ -21,7 +21,7 @@ export class SchemaIdArray extends SchemaItem<ObjectID[], Client> {
   public minItems: number;
   public maxItems: number;
   public curLevel: number;
-  private _targetDocs: Array<Schema<IModelEntry<'server'>>> | null;
+  // private _targetDocs: Array<Schema<IModelEntry<'server'>>> | null;
 
   /**
    * Creates a new schema item that holds an array of id items
@@ -109,78 +109,78 @@ export class SchemaIdArray extends SchemaItem<ObjectID[], Client> {
       }
     }
 
-    this._targetDocs = result;
+    // this._targetDocs = result;
 
     return toRet;
   }
 
-  /**
-   * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
-   * doing any post update/insert operations
-   * @param collection The DB collection that the model was inserted into
-   */
-  public async postUpsert( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
-    if ( !this._targetDocs || this._targetDocs.length === 0 )
-      return;
+  // /**
+  //  * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+  //  * doing any post update/insert operations
+  //  * @param collection The DB collection that the model was inserted into
+  //  */
+  // public async postUpsert( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
+  //   if ( !this._targetDocs || this._targetDocs.length === 0 )
+  //     return;
 
-    // If they key is required then it must exist
-    const model = Factory.get( this.targetCollection );
-    const promises: Array<Promise<UpdateWriteOpResult>> = [];
+  //   // If they key is required then it must exist
+  //   const model = Factory.get( this.targetCollection );
+  //   const promises: Array<Promise<UpdateWriteOpResult>> = [];
 
-    for ( let i = 0, l = this._targetDocs.length; i < l; i++ ) {
-      let arrDeps = this._targetDocs[ i ].dbEntry._arrayDependencies || [];
-      arrDeps.push( { _id: schema.dbEntry._id, collection: collection, propertyName: this.name } );
-      promises.push( model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDocs[ i ].dbEntry._id }, {
-        $set: <IModelEntry<'server'>>{ _arrayDependencies: arrDeps }
-      } ) );
-    }
+  //   for ( let i = 0, l = this._targetDocs.length; i < l; i++ ) {
+  //     let arrDeps = this._targetDocs[ i ].dbEntry._arrayDependencies || [];
+  //     arrDeps.push( { _id: schema.dbEntry._id, collection: collection, propertyName: this.name } );
+  //     promises.push( model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDocs[ i ].dbEntry._id }, {
+  //       $set: <IModelEntry<'server'>>{ _arrayDependencies: arrDeps }
+  //     } ) );
+  //   }
 
-    await Promise.all( promises );
+  //   await Promise.all( promises );
 
-    // Nullify the target doc cache
-    this._targetDocs = null;
-    return;
-  }
+  //   // Nullify the target doc cache
+  //   this._targetDocs = null;
+  //   return;
+  // }
 
-  /**
-   * Called after a model instance is deleted. Useful for any schema item cleanups.
-   * @param instance The model instance that was deleted
-   */
-  public async postDelete( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
-    if ( !this.targetCollection || this.targetCollection.length === 0 )
-      return;
+  // /**
+  //  * Called after a model instance is deleted. Useful for any schema item cleanups.
+  //  * @param instance The model instance that was deleted
+  //  */
+  // public async postDelete( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
+  //   if ( !this.targetCollection || this.targetCollection.length === 0 )
+  //     return;
 
-    // If they key is required then it must exist
-    const model = Factory.get( this.targetCollection );
-    if ( !model )
-      return;
+  //   // If they key is required then it must exist
+  //   const model = Factory.get( this.targetCollection );
+  //   if ( !model )
+  //     return;
 
-    const val = this.getDbValue();
+  //   const val = this.getDbValue();
 
-    if ( !val || val.length === 0 )
-      return;
+  //   if ( !val || val.length === 0 )
+  //     return;
 
-    // Get all the instances
-    const query = { $or: [] as IModelEntry<'server'>[] };
+  //   // Get all the instances
+  //   const query = { $or: [] as IModelEntry<'server'>[] };
 
-    for ( let i = 0, l = val.length; i < l; i++ )
-      query.$or.push( <IModelEntry<'server'>>{ _id: val[ i ] } );
+  //   for ( let i = 0, l = val.length; i < l; i++ )
+  //     query.$or.push( <IModelEntry<'server'>>{ _id: val[ i ] } );
 
-    const results = await model.findMany( { selector: query } );
-    if ( !results || results.length === 0 )
-      return;
+  //   const results = await model.findMany( { selector: query } );
+  //   if ( !results || results.length === 0 )
+  //     return;
 
-    const pullQueries: Array<Promise<any>> = [];
+  //   const pullQueries: Array<Promise<any>> = [];
 
-    for ( let i = 0, l = results.length; i < l; i++ )
-      pullQueries.push( model.collection.updateOne(
-        <IModelEntry<'server'>>{ _id: results[ i ].dbEntry._id },
-        { $pull: { _arrayDependencies: { _id: schema.dbEntry._id } } }
-      ) );
+  //   for ( let i = 0, l = results.length; i < l; i++ )
+  //     pullQueries.push( model.collection.updateOne(
+  //       <IModelEntry<'server'>>{ _id: results[ i ].dbEntry._id },
+  //       { $pull: { _arrayDependencies: { _id: schema.dbEntry._id } } }
+  //     ) );
 
-    await Promise.all( pullQueries );
-    return;
-  }
+  //   await Promise.all( pullQueries );
+  //   return;
+  // }
 
   /**
    * Gets the value of this item

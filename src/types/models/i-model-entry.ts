@@ -5,7 +5,7 @@ import { ObjectID } from 'mongodb';
  */
 export interface IModelEntry<T extends 'client' | 'server'> {
   _id: T extends 'server' ? ObjectID : string;
-  _requiredDependencies?: Array<{ collection: string, _id: any }>
-  _optionalDependencies?: Array<{ collection: string, propertyName: string, _id: any }>
-  _arrayDependencies?: Array<{ collection: string, propertyName: string, _id: any }>
+  // _requiredDependencies?: Array<{ collection: string, _id: ObjectID }>
+  // _optionalDependencies?: Array<{ collection: string, propertyName: string, _id: ObjectID }>
+  // _arrayDependencies?: Array<{ collection: string, propertyName: string, _id: ObjectID }>
 }

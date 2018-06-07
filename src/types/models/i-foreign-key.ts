@@ -5,4 +5,8 @@ import { ObjectID } from 'mongodb';
  */
 export interface IForiegnKey {
   _id: ObjectID;
+  source: ObjectID;
+  target: ObjectID;
+  targetCollection: string;
+  targetProperty: string;
 }

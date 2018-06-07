@@ -12,6 +12,7 @@ import { Schema } from '../models/schema';
 export type GetManyOptions = {
   public?: boolean;
   parentId?: string;
+  postId?: string;
   keyword?: string;
   user?: string;
   sort?: boolean;
@@ -61,6 +62,9 @@ export class CommentsController extends Controller {
     // Set the parent filter
     if ( options.parentId )
       findToken.parent = new ObjectID( options.parentId ) as any;
+
+    if ( options.postId )
+      findToken.post = new ObjectID( options.postId );
 
     // Set the user property if its provided
     if ( options.user )
@@ -128,7 +132,7 @@ export class CommentsController extends Controller {
    */
   async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
     const comments = this._commentsModel;
-    const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
+    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
     const comment = await comments.downloadOne<IComment<'client'>>( findToken, {
       verbose: options.verbose || true,
       expandForeignKeys: options.expanded || false,
@@ -155,12 +159,19 @@ export class CommentsController extends Controller {
       throw new Error( `Please use a valid object id` );
 
     const comments = this._commentsModel;
-    const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
+    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
 
-    const comment = await comments.downloadOne( findToken, { verbose: true } );
+    const comment = await comments.findOne<IComment<'server'>>( findToken );
 
     if ( !comment )
       throw new Error( 'Could not find a comment with that ID' );
+
+    const children = comment.getByName( 'children' ).getDbValue();
+    const promises: Promise<any>[] = [];
+    for ( const child of children )
+      promises.push( this.remove( child.toString() ) );
+
+    await Promise.all( promises );
 
     // Attempt to delete the instances
     await comments.deleteInstances( findToken );
@@ -173,7 +184,7 @@ export class CommentsController extends Controller {
    */
   async update( id: string, token: Partial<IComment<'client'>> ) {
     const comments = this._commentsModel;
-    const findToken: IComment<'server'> = { _id: new mongodb.ObjectID( id ) };
+    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
     const updatedComment = await comments.update<IComment<'client'>>( findToken, token );
     return updatedComment;
   }
@@ -187,7 +198,7 @@ export class CommentsController extends Controller {
     let parent: Schema<IComment<'server'>> | null = null;
 
     if ( token.parent ) {
-      parent = await comments.findOne( <IComment<'server'>>{ _id: new mongodb.ObjectID( token.parent as string ) } );
+      parent = await comments.findOne<IComment<'server'>>( <IComment<'server'>>{ _id: new mongodb.ObjectID( token.parent as string ) } );
 
       if ( !parent )
         throw new Error( `No comment exists with the id ${token.parent}` );

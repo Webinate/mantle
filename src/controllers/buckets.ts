@@ -311,7 +311,7 @@ export class BucketsController extends Controller {
       user: user,
       bucketId: bucketEntry._id!,
       bucketName: bucketEntry.name!,
-      parentFile: ( parentFile ? parentFile : null ),
+      parentFile: ( parentFile ? new ObjectID( parentFile ) : null ),
       created: Date.now(),
       numDownloads: 0,
       size: part.byteCount,

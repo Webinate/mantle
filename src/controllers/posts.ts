@@ -3,6 +3,7 @@ import { Page } from '../types/tokens/standard-tokens';
 import { IPost } from '../types/models/i-post';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
+import ControllerFactory from '../core/controller-factory';
 import { PostsModel } from '../models/posts-model';
 import Controller from './controller';
 import { isValidObjectID } from '../utils/utils';
@@ -150,6 +151,14 @@ export class PostsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
+    const commentsFactory = ControllerFactory.get( 'comments' );
+    const comments = await commentsFactory.getAll( { postId: id, expanded: false, limit: -1 } );
+    const promises: Promise<any>[] = [];
+    for ( const comment of comments.data )
+      promises.push( commentsFactory.remove( comment._id ) );
+
+    await Promise.all( promises );
+
     // Attempt to delete the instances
     const numRemoved = await this._postsModel.deleteInstances( { _id: new mongodb.ObjectID( id ) } );
 
@@ -201,7 +210,11 @@ export class PostsController extends Controller {
     if ( options.public !== undefined )
       findToken.public = options.public;
 
-    const post = await posts!.downloadOne<IPost<'client'>>( findToken, { verbose: options.verbose !== undefined ? options.verbose : true, expandForeignKeys: true, expandMaxDepth: 1 } );
+    const post = await posts!.downloadOne<IPost<'client'>>( findToken, {
+      verbose: options.verbose !== undefined ? options.verbose : true,
+      expandForeignKeys: true,
+      expandMaxDepth: 1
+    } );
 
     if ( !post )
       throw new Error( 'Could not find post' );

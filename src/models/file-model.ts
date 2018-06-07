@@ -16,7 +16,7 @@ export class FileModel extends Model<IFileEntry<'client' | 'server'>> {
     this.schema.add( new text( 'bucketName', '' ) ).setReadOnly( true );
     this.schema.add( new text( 'publicURL', '' ) ).setReadOnly( true );
     this.schema.add( new text( 'mimeType', '' ) ).setReadOnly( true );
-    this.schema.add( new foreignKey( 'parentFile', 'files', { keyCanBeNull: true, canAdapt: false } ) );
+    this.schema.add( new foreignKey( 'parentFile', 'files', { keyCanBeNull: true } ) );
     this.schema.add( new num( 'size', 0, { min: 1 } ) ).setReadOnly( true );
     this.schema.add( new num( 'numDownloads', 0 ) );
     this.schema.add( new bool( 'isPublic', true ) );

@@ -3,7 +3,7 @@ import { IModelEntry } from '../types/models/i-model-entry';
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
-import Factory from '../core/model-factory';
+import Controllers from '../core/controller-factory';
 
 export interface ISearchOptions<T> {
   selector?: any;
@@ -129,51 +129,16 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
    * Deletes a instance and all its dependencies are updated or deleted accordingly
    */
   private async deleteInstance( schema: Schema<IModelEntry<'server'>> ) {
-    let foreignModel: Model<IModelEntry<'server' | 'client'>>;
-    const optionalDependencies = schema.dbEntry._optionalDependencies;
-    const requiredDependencies = schema.dbEntry._requiredDependencies;
-    const arrayDependencies = schema.dbEntry._arrayDependencies;
-
     const promises: Array<Promise<any>> = [];
-
-    // Nullify all dependencies that are optional
-    if ( optionalDependencies )
-      for ( let i = 0, l = optionalDependencies.length; i < l; i++ ) {
-        foreignModel = Factory.get( optionalDependencies[ i ].collection );
-        if ( !foreignModel )
-          continue;
-
-        let setToken = { $set: {} as any };
-        setToken.$set[ optionalDependencies[ i ].propertyName ] = null;
-        promises.push( foreignModel.collection.updateOne( <IModelEntry<'server'>>{ _id: optionalDependencies[ i ]._id }, setToken ) );
-      }
-
-    // Remove any dependencies that are in arrays
-    if ( arrayDependencies )
-      for ( let i = 0, l = arrayDependencies.length; i < l; i++ ) {
-        foreignModel = Factory.get( arrayDependencies[ i ].collection );
-        if ( !foreignModel )
-          continue;
-
-        let pullToken = { $pull: {} as any };
-        pullToken.$pull[ arrayDependencies[ i ].propertyName ] = schema.dbEntry._id;
-        promises.push( foreignModel.collection.updateMany( <IModelEntry<'server'>>{ _id: arrayDependencies[ i ]._id }, pullToken ) );
-      }
-
-    // For those dependencies that are required, we delete the instances
-    if ( requiredDependencies )
-      for ( let i = 0, l = requiredDependencies.length; i < l; i++ ) {
-        foreignModel = Factory.get( requiredDependencies[ i ].collection );
-        if ( !foreignModel )
-          continue;
-
-        promises.push( foreignModel.deleteInstances( <IModelEntry<'server'>>{ _id: requiredDependencies[ i ]._id } ) );
-      }
 
     // Added the schema item post deletion promises
     promises.push( schema.postDelete( this._collectionName ) );
 
     await Promise.all( promises );
+
+    const fkeys = Controllers.get( 'foreign-keys' );
+    await fkeys.nullifyTargets( schema.dbEntry._id );
+
 
     // Remove the original instance from the DB
     const deleteResult = await this.collection.deleteMany( <IModelEntry<'server'>>{ _id: schema.dbEntry._id } );

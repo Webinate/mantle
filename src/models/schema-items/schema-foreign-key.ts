@@ -6,6 +6,7 @@ import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { SchemaIdArray } from './schema-id-array';
 import Factory from '../../core/model-factory';
+import Controllers from '../../core/controller-factory';
 import { Schema } from '../schema';
 
 export type Client = string | IModelEntry<'client'> | null;
@@ -19,27 +20,36 @@ export type Client = string | IModelEntry<'client'> | null;
 export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
   public targetCollection: string;
   public keyCanBeNull: boolean;
-  public canAdapt: boolean;
+  public nullifyOnDelete: boolean;
+  // public canAdapt: boolean;
   public curLevel: number;
 
-  private _targetDoc: Schema<IModelEntry<'server' | 'client'>> | null;
+  // private _targetDoc: Schema<IModelEntry<'server' | 'client'>> | null;
+
 
   /**
    * Creates a new schema item
    * @param name The name of this item
    * @param targetCollection The name of the collection to which the target exists
    */
-  constructor( name: string, targetCollection: string, options?: IForeignKeyOptions ) {
+  constructor( name: string, targetCollection: string, options?: Partial<IForeignKeyOptions> ) {
     super( name, null );
-    options = { keyCanBeNull: true, canAdapt: true, ...options };
+
+    options = {
+      keyCanBeNull: true,
+      nullifyOnDelete: true,
+      /** canAdapt: true, */
+      ...options
+    };
 
     if ( !targetCollection )
       throw new Error( `You must specify a targetCollection property for model option '${name}'` );
 
     this.targetCollection = targetCollection;
-    this.canAdapt = options.canAdapt!;
+    // this.canAdapt = options.canAdapt!;
     this.curLevel = 1;
     this.keyCanBeNull = options.keyCanBeNull!;
+    this.nullifyOnDelete = options.nullifyOnDelete!;
   }
 
   /**
@@ -50,7 +60,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     super.clone( copy );
     copy.targetCollection = this.targetCollection;
     copy.keyCanBeNull = this.keyCanBeNull;
-    copy.canAdapt = this.canAdapt;
+    copy.nullifyOnDelete = this.nullifyOnDelete;
+    // copy.canAdapt = this.canAdapt;
     return copy;
   }
 
@@ -58,7 +69,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
    * Checks the value stored to see if its correct in its current form
    */
   public async validate( val: Client ) {
-    // let transformedValue = val;
     let toRet: ObjectID | null = null;
 
     // If they key is required then it must exist
@@ -97,7 +107,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     if ( !this.keyCanBeNull && !result )
       throw new Error( `${this.name} does not exist` );
 
-    this._targetDoc = result;
+    // this._targetDoc = result;
 
     return toRet;
   }
@@ -109,39 +119,44 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
    * @param collection The DB collection that the model was inserted into
    */
   public async postUpsert( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
-    if ( !this._targetDoc )
-      return;
-
-    // If they key is required then it must exist
-    const model = Factory.get( this.targetCollection );
-
-    let optionalDeps = this._targetDoc.dbEntry._optionalDependencies;
-    let requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
-
-    // Now we need to register the schemas source with the target model
-    if ( this.canAdapt ) {
-      if ( !optionalDeps )
-        optionalDeps = [];
-
-      optionalDeps.push( { _id: schema.dbEntry._id, collection: collection, propertyName: this.name } );
+    const dbValue = this.getDbValue();
+    if ( dbValue && this.nullifyOnDelete ) {
+      const fkeys = Controllers.get( 'foreign-keys' );
+      await fkeys.createNullTarget( dbValue, schema.dbEntry._id, this.name, this.targetCollection );
     }
-    else {
-      if ( !requiredDeps )
-        requiredDeps = [];
+    //   if ( !this._targetDoc )
+    //     return;
 
-      requiredDeps.push( { _id: schema.dbEntry._id, collection: collection } )
-    }
+    //   // If they key is required then it must exist
+    //   const model = Factory.get( this.targetCollection );
 
-    await model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDoc.dbEntry._id }, {
-      $set: <IModelEntry<'server'>>{
-        _optionalDependencies: optionalDeps,
-        _requiredDependencies: requiredDeps
-      }
-    } );
+    //   let optionalDeps = this._targetDoc.dbEntry._optionalDependencies;
+    //   let requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
 
-    // Nullify the target doc cache
-    this._targetDoc = null;
-    return;
+    //   // Now we need to register the schemas source with the target model
+    //   if ( this.canAdapt ) {
+    //     if ( !optionalDeps )
+    //       optionalDeps = [];
+
+    //     optionalDeps.push( { _id: schema.dbEntry._id, collection: collection, propertyName: this.name } );
+    //   }
+    //   else {
+    //     if ( !requiredDeps )
+    //       requiredDeps = [];
+
+    //     requiredDeps.push( { _id: schema.dbEntry._id, collection: collection } );
+    //   }
+
+    //   await model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDoc.dbEntry._id }, {
+    //     $set: <IModelEntry<'server'>>{
+    //       _optionalDependencies: optionalDeps,
+    //       _requiredDependencies: requiredDeps
+    //     }
+    //   } );
+
+    //   // Nullify the target doc cache
+    //   this._targetDoc = null;
+    //   return;
   }
 
   /**
@@ -149,30 +164,30 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
    * @param instance The model instance that was deleted
    */
   public async postDelete( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
-    // If they key is required then it must exist
-    const model = Factory.get( this.targetCollection );
-    if ( !model )
-      return;
+    //   // If they key is required then it must exist
+    //   const model = Factory.get( this.targetCollection );
+    //   if ( !model )
+    //     return;
 
-    const val = this.getDbValue();
+    //   const val = this.getDbValue();
 
-    if ( !val )
-      return;
+    //   if ( !val )
+    //     return;
 
-    // We can assume the value is object id by this point
-    const result = await model.findOne( { _id: val } );
-    if ( !result )
-      return;
+    //   // We can assume the value is object id by this point
+    //   const result = await model.findOne( { _id: val } );
+    //   if ( !result )
+    //     return;
 
-    let query;
+    //   let query;
 
-    if ( this.canAdapt )
-      query = { $pull: { _optionalDependencies: { _id: schema.dbEntry._id } } };
-    else
-      query = { $pull: { _requiredDependencies: { _id: schema.dbEntry._id } } };
+    //   if ( this.canAdapt )
+    //     query = { $pull: { _optionalDependencies: { _id: schema.dbEntry._id } } };
+    //   else
+    //     query = { $pull: { _requiredDependencies: { _id: schema.dbEntry._id } } };
 
-    await model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDoc!.dbEntry._id }, query );
-    return;
+    //   await model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDoc!.dbEntry._id }, query );
+    //   return;
   }
 
   /**

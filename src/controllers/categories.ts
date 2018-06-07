@@ -129,11 +129,19 @@ export class CategoriesController extends Controller {
 
     const categorys = this._categoriesModel;
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
-
-    const category = await categorys.downloadOne( findToken, { verbose: true } );
+    const category = await categorys.findOne<ICategory<'server'>>( findToken );
 
     if ( !category )
       throw new Error( 'Could not find a comment with that ID' );
+
+    const children = category.getByName( 'children' );
+    const promises: Promise<any>[] = [];
+
+    const childrenArr = children.getDbValue();
+    for ( const child of childrenArr )
+      promises.push( this.remove( child.toString() ) );
+
+    await Promise.all( promises );
 
     // Attempt to delete the instances
     await categorys.deleteInstances( findToken );

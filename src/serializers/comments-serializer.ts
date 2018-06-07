@@ -178,7 +178,7 @@ export class CommentsSerializer extends Serializer {
 
     // User is passed from the authentication function
     token.author = req._user!.username as string;
-    token.post = req.params.postId;
+    token.post = req.params.postId as string;
     token.parent = req.params.parent;
 
     const response = await this._controller.create( token );

@@ -161,14 +161,27 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
   }
 
   /**
-   * Gets a schema item from this schema by name
+   * Gets a schema item from this schema by name. Throws an exception if one does
+   * not exist.
    * @param val The name of the item
    */
-  public getByName<K extends keyof T>( val: K ): SchemaItem<T[ K ], T[ K ]> | null {
+  public getByName<K extends keyof T>( val: K ): SchemaItem<T[ K ], T[ K ]> {
+    const item = this.find( val );
+    if ( item === null )
+      throw new Error( `Could not find '${val}'` );
+
+    return item;
+  }
+
+  /**
+   * Finds a schema item from this schema by name. Returns null if none exists
+   * @param val The name of the item
+   */
+  public find<K extends keyof T>( val: K ): SchemaItem<T[ K ], T[ K ]> | null {
     const items = this._items;
-    for ( let i = 0, l = items.length; i < l; i++ )
-      if ( items[ i ].name === val )
-        return items[ i ];
+    for ( const item of items )
+      if ( item.name === val )
+        return item;
 
     return null;
   }
@@ -184,7 +197,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
       throw new Error( `You cannot use the schema item name _requiredDependencies as its a reserved keyword` );
     else if ( val.name === '_optionalDependencies' )
       throw new Error( `You cannot use the schema item name _optionalDependencies as its a reserved keyword` );
-    else if ( this.getByName( val.name as keyof IModelEntry<'server' | 'client'> ) )
+    else if ( this.find( val.name as keyof IModelEntry<'server' | 'client'> ) )
       throw new Error( `An item with the name ${val.name} already exists.` );
 
     this._items.push( val );
