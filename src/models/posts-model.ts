@@ -10,7 +10,7 @@ export class PostsModel extends Model<IPost<'client' | 'server'>> {
   constructor() {
     super( 'posts' );
 
-    this.schema.add( new foreignKey( 'author', 'users', { keyCanBeNull: true, nullifyOnDelete: true } ) );
+    this.schema.add( new foreignKey( 'author', 'posts', { keyCanBeNull: true, nullifyOnDelete: true } ) );
     this.schema.add( new text( 'title', '', { minCharacters: 1 } ) );
     this.schema.add( new text( 'slug', '', { maxCharacters: 512, minCharacters: 1 } ) ).setUnique( true ).setRequired( true );
     this.schema.add( new text( 'brief', '' ) );

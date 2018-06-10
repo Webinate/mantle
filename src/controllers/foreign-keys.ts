@@ -28,18 +28,20 @@ export class ForeignKeysController extends Controller {
     return this;
   }
 
-  async nullifyTargets( source: ObjectID ) {
-    const cursor = await this.collection.find( { source: source } as IForiegnKey );
-    const sources = await cursor.toArray();
+  async nullifyTargets( target: ObjectID ) {
+    const cursor = await this.collection.find( { target: target } as IForiegnKey );
+    const results: IForiegnKey[] = await cursor.toArray();
     const db = this.db;
     const promises: Promise<any>[] = [];
 
-    for ( const s of sources ) {
+    for ( const result of results ) {
       const setter = { $set: {} as any };
-      setter.$set[ s.targetProperty ] = null;
-      promises.push( db.collection( s.targetCollection ).updateOne( { _id: s.target }, setter ) );
-      promises.push( this.collection.deleteOne( { _id: source, target: s.target } as IForiegnKey ) )
+      setter.$set[ result.targetProperty ] = null;
+      promises.push( db.collection( result.targetCollection ).updateOne( { _id: result.source }, setter ) );
+      promises.push( this.collection.deleteOne( { _id: result.source } as IForiegnKey ) )
     }
+
+    await Promise.all( promises );
   }
 
   async createNullTarget( source: ObjectID, target: ObjectID, targetProperty: string, targetCollection: string ) {

@@ -129,16 +129,11 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
    * Deletes a instance and all its dependencies are updated or deleted accordingly
    */
   private async deleteInstance( schema: Schema<IModelEntry<'server'>> ) {
-    const promises: Array<Promise<any>> = [];
+    const fkeys = Controllers.get( 'foreign-keys' );
 
     // Added the schema item post deletion promises
-    promises.push( schema.postDelete( this._collectionName ) );
-
-    await Promise.all( promises );
-
-    const fkeys = Controllers.get( 'foreign-keys' );
+    await schema.postDelete( this._collectionName );
     await fkeys.nullifyTargets( schema.dbEntry._id );
-
 
     // Remove the original instance from the DB
     const deleteResult = await this.collection.deleteMany( <IModelEntry<'server'>>{ _id: schema.dbEntry._id } );
