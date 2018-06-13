@@ -141,7 +141,17 @@ export class CategoriesController extends Controller {
     for ( const child of childrenArr )
       promises.push( this.remove( child.toString() ) );
 
-    await Promise.all( promises );
+    if ( childrenArr.length > 0 )
+      await Promise.all( promises );
+
+    const p = category.getByName( 'parent' ).getDbValue();
+    if ( p ) {
+      const findToken: Partial<ICategory<'server'>> = { _id: p };
+      const parent = await categorys.findOne<ICategory<'server'>>( findToken );
+      let children = parent!.getByName( 'children' ).getDbValue();
+      children = children.filter( c => !c.equals( category.dbEntry._id ) )
+      await categorys.update<ICategory<'client'>>( { _id: parent!.dbEntry._id }, { children: children.map( c => c.toString() ) } );
+    }
 
     // Attempt to delete the instances
     await categorys.deleteInstances( findToken );

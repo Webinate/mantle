@@ -9,10 +9,15 @@ let category: ICategory<'client'>,
   sibling: ICategory<'client'>,
   child2: ICategory<'client'>,
   childDeep1: ICategory<'client'>,
+  numCategoriesBeforeTests = 0,
   numCategories = 0;
 
 describe( 'Testing category hierarchies: ', function() {
+
   before( async function() {
+    const page = await header.admin.getJson<Page<ICategory<'client'>>>( `/api/categories` );
+    numCategoriesBeforeTests = page.count;
+
     category = await header.admin.postJson<ICategory<'client'>>( `/api/categories`, {
       title: 'Test',
       slug: header.makeid(),
@@ -20,9 +25,9 @@ describe( 'Testing category hierarchies: ', function() {
     } as ICategory<'client'> );
 
     sibling = await header.admin.postJson<ICategory<'client'>>( `/api/categories`, {
-      title: 'Sibling',
+      title: 'Test Sibling',
       slug: header.makeid(),
-      description: 'This is a sibling'
+      description: 'This is test sibling'
     } as ICategory<'client'> );
 
     child1 = await header.admin.postJson<ICategory<'client'>>( `/api/categories`, {
@@ -57,10 +62,13 @@ describe( 'Testing category hierarchies: ', function() {
 
     resp = await header.admin.get( `/api/categories/${childDeep1._id}` );
     assert.equal( resp.status, 500 );
+
+    const page = await header.admin.getJson<Page<ICategory<'client'>>>( `/api/categories` );
+    assert.equal( numCategoriesBeforeTests, page.count, 'Number of categories not the same after test complete' );
   } )
 
   it( 'did fetch a single category with 2 children', async function() {
-    const resp = await header.guest.getJson<ICategory<'client'>>( `/api/categories/${category._id}` );
+    const resp = await header.admin.getJson<ICategory<'client'>>( `/api/categories/${category._id}` );
     assert.equal( resp.slug, category.slug );
     assert.equal( resp.title, `Test` );
     assert.equal( resp.children.length, 2 );
@@ -94,11 +102,11 @@ describe( 'Testing category hierarchies: ', function() {
     assert.equal( parent.data[ parent.data.length - 1 ].slug, sibling.slug );
   } )
 
-  it( 'did remove a category and its parent dropped the child instance', async function() {
+  it( 'did remove a category and its parent dropped the child instances', async function() {
     const resp = await header.admin.delete( `/api/categories/${child1._id}` );
     assert.equal( resp.status, 204 );
 
-    const parent = await header.guest.getJson<ICategory<'client'>>( `/api/categories/${category._id}` );
+    const parent = await header.admin.getJson<ICategory<'client'>>( `/api/categories/${category._id}` );
     assert.equal( parent.children.length, 1 );
   } )
 } );

@@ -9,31 +9,34 @@ let numPosts: number,
 
 describe( 'Testing creation of comments', function() {
 
-  it( 'did delete any existing posts with the slug --comments--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--comments--test--` );
-    const json = await resp.json();
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
+  before( async function() {
+    let resp = await header.admin.get( `/api/posts` );
+    assert.deepEqual( resp.status, 200 );
+    let postsArr = await resp.json();
+    numPosts = postsArr.count;
+
+    resp = await header.admin.get( `/api/comments` );
+    assert.deepEqual( resp.status, 200 );
+    let commentsArr = await resp.json();
+    numComments = commentsArr.count;
   } )
 
-  it( 'fetched all posts', async function() {
-    const resp = await header.admin.get( `/api/posts` );
+  after( async function() {
+    let resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    numPosts = json.count;
-  } )
+    const postsArr = await resp.json();
+    assert.equal( numPosts, postsArr.count )
 
-  it( 'fetched all comments', async function() {
-    const resp = await header.admin.get( `/api/comments` );
+    resp = await header.admin.get( `/api/comments` );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    numComments = json.count;
+    const commentsArr = await resp.json();
+    assert.equal( numComments, commentsArr.count )
   } )
 
   it( 'can create a temp post', async function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--comments--test--",
+      slug: header.makeid(),
       brief: "This is brief",
       public: false,
       content: "Hello world"
@@ -41,7 +44,6 @@ describe( 'Testing creation of comments', function() {
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
     postId = json._id;
-    assert( json.public === false )
   } )
 
   it( 'cannot create a comment when not logged in', async function() {
@@ -72,14 +74,14 @@ describe( 'Testing creation of comments', function() {
     assert.deepEqual( json.message, "post does not exist" );
   } )
 
-  it( 'cannot create a comment without a post that actually exists', async function() {
+  it( 'cannot create a comment without a comment that actually exists', async function() {
     const resp = await header.admin.post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "No comment exists with the id 123456789012345678901234" );
   } )
 
-  it( 'cannot create a comment on a post that does exist with illegal html', async function() {
+  it( 'cannot create a comment with illegal html', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments`, { content: "Hello world! __filter__ <script type='text/javascript'>alert(\"BOOO\")</script>" } );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
@@ -112,20 +114,5 @@ describe( 'Testing creation of comments', function() {
   it( 'did delete the test post', async function() {
     const resp = await header.admin.delete( `/api/posts/${postId}` );
     assert.deepEqual( resp.status, 204 );
-  } )
-
-  it( 'has cleaned up the posts successfully', async function() {
-    const resp = await header.admin.get( `/api/posts` );
-    assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost<'client'>> = await resp.json();
-    assert( json.count === numPosts );
-  } )
-
-  it( 'should have the same number of comments as before the tests started', async function() {
-    const resp = await header.admin.get( `/api/comments` );
-    assert.deepEqual( resp.status, 200 );
-    const json: Page<IComment<'client'>> = await resp.json();
-    assert( json.count !== undefined );
-    assert( numComments === json.count );
   } )
 } )
