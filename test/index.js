@@ -50,37 +50,51 @@ describe( 'Initializing tests', function() {
   } );
 } );
 
-require( './tests/user/1-stats-basics' );
-require( './tests/user/2-authenticated' );
-require( './tests/user/3-bucket-creation' );
-require( './tests/user/4-bucket-deletion' );
-require( './tests/user/5-bucket-fetching' );
-require( './tests/user/6-files-deletion' );
-require( './tests/user/7-files-download' );
-require( './tests/user/8-files-get' );
-require( './tests/user/9-files-rename' );
-require( './tests/user/10-files-set-accessibility' );
-require( './tests/user/11-files-upload' );
-require( './tests/user/12-get-user' );
-require( './tests/user/13-log-in' );
-require( './tests/user/15-stats-setting-values' );
-require( './tests/user/16-user-activation' );
-require( './tests/user/17-user-creation' );
-require( './tests/user/18-user-deletion' );
-require( './tests/user/19-user-fetching' );
-require( './tests/user/20-user-logout' );
-require( './tests/user/22-user-registration' );
-require( './tests/user/21-user-meta' );
+require( './tests/authentication/authenticated' );
+require( './tests/authentication/log-in' );
+require( './tests/authentication/logout' );
+require( './tests/authentication/registration' );
+require( './tests/authentication/user-activation' );
 
-require( './tests/posts/1-create' );
-require( './tests/posts/2-delete' );
-require( './tests/posts/3-editting' );
-require( './tests/posts/4-getting' );
+require( './tests/buckets/creation' );
+require( './tests/buckets/deletion' );
+require( './tests/buckets/fetching' );
 
-require( './tests/comments/1-create' );
-require( './tests/comments/2-delete' );
-require( './tests/comments/3-fetch' );
+require( './tests/categories/create' );
+require( './tests/categories/fetching' );
+require( './tests/categories/hierarchies' );
 
-require( './tests/categories/1-create' );
-require( './tests/categories/2-fetching' );
-require( './tests/categories/3-hierarchies' );
+require( './tests/comments/create' );
+require( './tests/comments/delete' );
+require( './tests/comments/fetch' );
+
+require( './tests/files/accessibility' );
+require( './tests/files/deletion' );
+require( './tests/files/download' );
+require( './tests/files/get' );
+require( './tests/files/rename' );
+require( './tests/files/upload' );
+
+require( './tests/posts/create' );
+require( './tests/posts/delete' );
+require( './tests/posts/editting' );
+require( './tests/posts/getting' );
+
+require( './tests/user/create-user' );
+require( './tests/user/delete-user' );
+require( './tests/user/fetch-user-data' );
+require( './tests/user/get-set-user-meta' );
+require( './tests/user/get-user-data' );
+
+require( './tests/user-stats/get-set-media-stats' );
+require( './tests/user-stats/get-set-user-stats' );
+require( './tests/user-stats/setting-values' );
+
+
+
+
+
+
+
+
+
