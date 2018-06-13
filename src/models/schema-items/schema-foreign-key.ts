@@ -122,72 +122,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     const dbValue = this.getDbValue();
     if ( dbValue && this.nullifyOnDelete ) {
       const fkeys = Controllers.get( 'foreign-keys' );
-      await fkeys.createNullTarget( dbValue, schema.dbEntry._id, this.name, this.targetCollection );
+      await fkeys.createNullTarget( schema.dbEntry._id, dbValue, this.name, this.targetCollection );
     }
-    //   if ( !this._targetDoc )
-    //     return;
-
-    //   // If they key is required then it must exist
-    //   const model = Factory.get( this.targetCollection );
-
-    //   let optionalDeps = this._targetDoc.dbEntry._optionalDependencies;
-    //   let requiredDeps = this._targetDoc.dbEntry._requiredDependencies;
-
-    //   // Now we need to register the schemas source with the target model
-    //   if ( this.canAdapt ) {
-    //     if ( !optionalDeps )
-    //       optionalDeps = [];
-
-    //     optionalDeps.push( { _id: schema.dbEntry._id, collection: collection, propertyName: this.name } );
-    //   }
-    //   else {
-    //     if ( !requiredDeps )
-    //       requiredDeps = [];
-
-    //     requiredDeps.push( { _id: schema.dbEntry._id, collection: collection } );
-    //   }
-
-    //   await model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDoc.dbEntry._id }, {
-    //     $set: <IModelEntry<'server'>>{
-    //       _optionalDependencies: optionalDeps,
-    //       _requiredDependencies: requiredDeps
-    //     }
-    //   } );
-
-    //   // Nullify the target doc cache
-    //   this._targetDoc = null;
-    //   return;
-  }
-
-  /**
-   * Called after a model instance is deleted. Useful for any schema item cleanups.
-   * @param instance The model instance that was deleted
-   */
-  public async postDelete( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
-    //   // If they key is required then it must exist
-    //   const model = Factory.get( this.targetCollection );
-    //   if ( !model )
-    //     return;
-
-    //   const val = this.getDbValue();
-
-    //   if ( !val )
-    //     return;
-
-    //   // We can assume the value is object id by this point
-    //   const result = await model.findOne( { _id: val } );
-    //   if ( !result )
-    //     return;
-
-    //   let query;
-
-    //   if ( this.canAdapt )
-    //     query = { $pull: { _optionalDependencies: { _id: schema.dbEntry._id } } };
-    //   else
-    //     query = { $pull: { _requiredDependencies: { _id: schema.dbEntry._id } } };
-
-    //   await model.collection.updateOne( <IModelEntry<'server'>>{ _id: this._targetDoc!.dbEntry._id }, query );
-    //   return;
   }
 
   /**
