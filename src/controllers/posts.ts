@@ -7,6 +7,7 @@ import ControllerFactory from '../core/controller-factory';
 import { PostsModel } from '../models/posts-model';
 import Controller from './controller';
 import { isValidObjectID } from '../utils/utils';
+import { UsersController } from './users';
 
 export type GetManyOptions = {
   verbose?: boolean;
@@ -35,6 +36,7 @@ export type GetOneOptions = {
  */
 export class PostsController extends Controller {
   private _postsModel: PostsModel;
+  private _users: UsersController;
 
   /**
 	 * Creates a new instance of the controller
@@ -48,6 +50,7 @@ export class PostsController extends Controller {
    */
   async initialize( db: mongodb.Db ) {
     this._postsModel = Factory.get( 'posts' );
+    this._users = ControllerFactory.get( 'users' );
     return this;
   }
 
@@ -58,8 +61,19 @@ export class PostsController extends Controller {
     const posts = this._postsModel;
     const findToken: Partial<IPost<'server'>> & { $or: IPost<'server'>[] } = { $or: [] };
 
-    if ( options.author )
-      ( <any>findToken ).author = options.author;
+    if ( options.author ) {
+      const user = await this._users.getUsers( undefined, undefined, options.author );
+      if ( user && user.data.length > 0 )
+        findToken.author = new mongodb.ObjectID( user.data[ 0 ]._id );
+      else {
+        return {
+          count: 0,
+          data: [],
+          index: options.index || 0,
+          limit: options.limit || 10
+        } as Page<IPost<'client'>>;
+      }
+    }
 
     // Check for keywords
     if ( options.keyword ) {

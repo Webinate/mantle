@@ -81,6 +81,18 @@ describe( 'Testing filtering of posts: ', function() {
     assert.equal( page.data[ lastIndex - 1 ]._id, postPublic._id );
   } )
 
+  it( 'does filter by author', async function() {
+    let resp = await header.admin.get( `/api/posts?author=${header.admin.username}` );
+    let page: Page<IPost<'client'>> = await resp.json();
+
+
+    assert.equal( page.data[ 0 ]._id, postPrivate._id );
+
+    resp = await header.admin.get( `/api/posts?author=NO_AUTHORS_WITH_THIS_NAME` );
+    page = await resp.json();
+    assert.deepEqual( page.data.length, 0 );
+  } )
+
   after( async function() {
     const resp1 = await header.admin.delete( `/api/posts/${postPublic._id}` );
     const resp2 = await header.admin.delete( `/api/posts/${postPrivate._id}` );
