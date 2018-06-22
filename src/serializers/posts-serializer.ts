@@ -63,6 +63,7 @@ export class PostsSerializer extends Serializer {
   private async getPosts( req: IAuthReq, res: express.Response ) {
     let visibility: string | undefined;
     const user = req._user;
+    let isPublic: boolean | undefined = undefined;
 
     // Check for visibility
     if ( req.query.visibility ) {
@@ -76,13 +77,19 @@ export class PostsSerializer extends Serializer {
 
     // If no user we only allow public
     if ( !user )
-      visibility = 'public';
+      isPublic = true;
     // If an admin - we do not need visibility
-    else if ( user.privileges! < UserPrivileges.Admin )
-      visibility = undefined;
+    else if ( user.privileges! > UserPrivileges.Admin )
+      isPublic = true;
     // Regular users only see public
-    else
-      visibility = 'public';
+    else {
+      if ( visibility === 'public' )
+        isPublic = true;
+      else if ( visibility === 'private' )
+        isPublic = false;
+      else
+        isPublic = undefined;
+    }
 
     let index: number | undefined = parseInt( req.query.index );
     let limit: number | undefined = parseInt( req.query.limit );
@@ -90,7 +97,7 @@ export class PostsSerializer extends Serializer {
     limit = isNaN( limit ) ? undefined : limit;
 
     const response = await this._controller.getPosts( {
-      public: visibility === 'public' ? true : false,
+      public: isPublic,
       keyword: req.query.keyword ? new RegExp( req.query.keyword, 'i' ) : undefined,
       author: req.query.author ? new RegExp( req.query.author, 'i' ) : undefined,
       tags: req.query.tags ? req.query.tags.split( ',' ) : undefined,

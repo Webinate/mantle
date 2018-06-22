@@ -79,6 +79,7 @@ require( './tests/posts/create' );
 require( './tests/posts/delete' );
 require( './tests/posts/editting' );
 require( './tests/posts/getting' );
+require( './tests/posts/get-filters' );
 
 require( './tests/user/create-user' );
 require( './tests/user/delete-user' );

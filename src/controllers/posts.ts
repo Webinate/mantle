@@ -69,7 +69,7 @@ export class PostsController extends Controller {
     }
 
     // Add the or conditions for visibility
-    if ( options.public )
+    if ( options.public !== undefined )
       findToken.public = options.public;
 
     // Check for tags (an OR request with tags)
@@ -186,7 +186,7 @@ export class PostsController extends Controller {
    * Creates a new post
    * @param token The initial post data
    */
-  async create( token: IPost<'client'> ) {
+  async create( token: Partial<IPost<'client'>> ) {
     const schema = await this._postsModel.createInstance( token );
     const json = await schema.downloadToken<IPost<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
     return json;
