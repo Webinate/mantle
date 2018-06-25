@@ -137,7 +137,7 @@ export class PostsController extends Controller {
     const sanitizedData = await posts.downloadMany<IPost<'client'>>( {
       selector: findToken,
       sort: sort,
-      index: index,
+      index: index * limit,
       limit: limit,
       projection: ( getContent === false ? { content: 0 } : undefined )
     }, {
