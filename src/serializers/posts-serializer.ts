@@ -103,7 +103,7 @@ export class PostsSerializer extends Serializer {
       tags: req.query.tags ? req.query.tags.split( ',' ) : undefined,
       categories: req.query.categories ? req.query.categories.split( ',' ) : undefined,
       requiredTags: req.query.rtags ? req.query.rtags.split( ',' ) : undefined,
-      sort: req.query.sort ? true : false,
+      sort: req.query.sort ? req.query.sort.toLowerCase() : undefined,
       sortOrder: req.query.sortOrder === 'asc' ? 'asc' : 'desc',
       minimal: req.query.minimal ? true : false,
       index: index,

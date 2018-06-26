@@ -17,7 +17,7 @@ export type GetManyOptions = {
   tags?: string[];
   requiredTags?: string[];
   categories?: string[];
-  sort?: boolean;
+  sort?: 'created' | 'modified' | 'title';
   sortOrder?: 'asc' | 'desc';
   minimal?: boolean;
   index?: number;
@@ -115,11 +115,15 @@ export class PostsController extends Controller {
     }
 
     // Sort by the date created
-    let sort: Partial<IPost<'server'>> = { createdOn: sortOrder };
+    let sort: { [ key in keyof Partial<IPost<'server'>> ]: number } | undefined = undefined;
 
     // Optionally sort by the last updated
-    if ( options.sort )
+    if ( options.sort === 'created' )
+      sort = { createdOn: sortOrder };
+    else if ( options.sort === 'modified' )
       sort = { lastUpdated: sortOrder };
+    else if ( options.sort === 'title' )
+      sort = { title: sortOrder };
 
     let getContent: boolean = true;
     if ( options.minimal )
@@ -137,7 +141,7 @@ export class PostsController extends Controller {
     const sanitizedData = await posts.downloadMany<IPost<'client'>>( {
       selector: findToken,
       sort: sort,
-      index: index * limit,
+      index: index,
       limit: limit,
       projection: ( getContent === false ? { content: 0 } : undefined )
     }, {

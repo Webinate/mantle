@@ -359,7 +359,7 @@ export class PageSerializer extends Serializer {
     }
 
     // Sort by the date created
-    const sort: Partial<IRender<'server'>> = { createdOn: sortOrder };
+    const sort: {[key in keyof Partial<IRender<'server'>>]: number} = { createdOn: sortOrder };
 
     let getContent: boolean = true;
     if ( req.query.minimal )

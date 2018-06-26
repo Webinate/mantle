@@ -9,7 +9,7 @@ export type GetAllOptions = {
   categories: string[];
   tags: string[];
   rtags: string[];
-  sort: boolean;
+  sort: 'title' | 'created' | 'modified';
   index: number;
   limit: number;
   keyword: string;

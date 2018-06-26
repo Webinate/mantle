@@ -7,7 +7,7 @@ import Controllers from '../core/controller-factory';
 
 export interface ISearchOptions<T> {
   selector?: any;
-  sort?: { [ name: string ]: number; } | null | Partial<T>;
+  sort?: { [ key in keyof Partial<T> ]: number } | null;
   index?: number;
   limit?: number;
   projection?: { [ name: string ]: number }

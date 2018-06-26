@@ -88,7 +88,7 @@ export class CommentsController extends Controller {
     }
 
     // Sort by the date created
-    let sort: Partial<IComment<'server'>> = { createdOn: sortOrder };
+    let sort: { [ key in keyof Partial<IComment<'server'>> ]: number } = { createdOn: sortOrder };
 
     // Optionally sort by the last updated
     if ( options.sort && options.sortType ) {
