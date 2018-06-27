@@ -99,7 +99,7 @@ export class PostsSerializer extends Serializer {
     const response = await this._controller.getPosts( {
       public: isPublic,
       keyword: req.query.keyword ? new RegExp( req.query.keyword, 'i' ) : undefined,
-      author: req.query.author ? new RegExp( req.query.author, 'i' ) : undefined,
+      author: req.query.author ? new RegExp( `^${req.query.author}$`, 'i' ) : undefined,
       tags: req.query.tags ? req.query.tags.split( ',' ) : undefined,
       categories: req.query.categories ? req.query.categories.split( ',' ) : undefined,
       requiredTags: req.query.rtags ? req.query.rtags.split( ',' ) : undefined,
