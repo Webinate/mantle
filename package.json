@@ -19,7 +19,7 @@
     "bump-major": "gulp bump-major",
     "dev-server-cached": "ts-node --cache-directory .tscache ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
     "dev-server": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
-    "start-server": "ts-node ./src/main.ts --config=./config.json --logging=true"
+    "start-server": "cross-env NODE_ENV=production ts-node ./src/main.ts --config=./config.json --logging=true"
   },
   "devDependencies": {
     "mocha": "~3.2.0"
@@ -58,6 +58,7 @@
     "entities": "~1.1.1",
     "express": "~4.15.3",
     "google-auth-library": "~0.9.10",
+    "cross-env": "~5.2.0",
     "googleapis": "~2.1.7",
     "gulp": "~3.9.1",
     "gulp-concat": "~2.6.1",

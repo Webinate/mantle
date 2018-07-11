@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch",
+      "name": "Modepress Debug",
       "type": "node",
       "protocol": "auto",
       "request": "launch",
@@ -29,7 +29,34 @@
       "outFiles": []
     },
     {
-      "name": "Debug Tests",
+      "name": "Modepress Production",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "stopOnEntry": false,
+      "args": [
+        "${workspaceRoot}/src/main.ts",
+        "--config=${workspaceRoot}/config.json",
+        "--numThreads=1",
+        "--logging=true",
+        "--inspect=true"
+      ],
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "runtimeExecutable": null,
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": []
+    },
+    {
+      "name": "Modepress Tests",
       "type": "node",
       "protocol": "auto",
       "request": "launch",
