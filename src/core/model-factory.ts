@@ -2,7 +2,7 @@ import { IConfig } from '../types/config/i-config';
 import { IModelEntry } from '../types/models/i-model-entry';
 import { Db, Collection } from 'mongodb';
 import { Model } from '../models/model';
-import { BucketModel } from '../models/bucket-model';
+import { VolumeModel } from '../models/volume-model';
 import { CategoriesModel } from '../models/categories-model';
 import { CommentsModel } from '../models/comments-model';
 import { FileModel } from '../models/file-model';
@@ -29,7 +29,7 @@ export class ModelFactory {
    */
   async addBaseModelFactories() {
     await Promise.all( [
-      this.create( 'buckets' ),
+      this.create( 'volumes' ),
       this.create( 'categories' ),
       this.create( 'comments' ),
       this.create( 'files' ),
@@ -89,7 +89,7 @@ export class ModelFactory {
     return collection;
   }
 
-  get( type: 'buckets' ): BucketModel
+  get( type: 'volumes' ): VolumeModel
   get( type: 'categories' ): CategoriesModel
   get( type: 'comments' ): CommentsModel
   get( type: 'files' ): FileModel
@@ -118,8 +118,8 @@ export class ModelFactory {
       return this._models[ type ];
 
     switch ( type ) {
-      case 'buckets':
-        newModel = new BucketModel();
+      case 'volumes':
+        newModel = new VolumeModel();
         break;
       case 'categories':
         newModel = new CategoriesModel();

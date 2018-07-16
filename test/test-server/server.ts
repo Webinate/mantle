@@ -45,7 +45,7 @@ export default class MainController extends Controller {
         cacheLifetime: 60000
       } ).initialize( app, db ),
 
-      new serializers.bucket( {
+      new serializers.volume( {
         rootPath: ''
       } ).initialize( app, db ),
 

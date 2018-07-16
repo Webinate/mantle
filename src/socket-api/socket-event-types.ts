@@ -41,16 +41,16 @@ export enum ClientInstructionType {
   FileRemoved = 6,
 
   /**
-   * Event sent to clients whenever a user creates a new bucket
-   * Event type: IBucketToken
+   * Event sent to clients whenever a user creates a new volume
+   * Event type: IVolumeToken
    */
-  BucketUploaded = 7,
+  VolumeUploaded = 7,
 
   /**
-   * Event sent to clients whenever a user removes a bucket
-   * Event type: IBucketToken
+   * Event sent to clients whenever a user removes a volume
+   * Event type: IVolumeToken
    */
-  BucketRemoved = 8,
+  VolumeRemoved = 8,
 
   /**
    * Event both sent to the server as well as optionally to clients. Gets or sets user meta data.

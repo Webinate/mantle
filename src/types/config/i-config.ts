@@ -1,4 +1,4 @@
-import { ILocalBucket } from './properties/i-remote-options';
+import { ILocalVolume } from './properties/i-remote-options';
 import { IGoogleProperties } from './properties/i-google';
 import { IDatabase } from './properties/i-database';
 import { ICollectionProperties } from './properties/i-collection';
@@ -20,7 +20,7 @@ export interface IConfig {
   clientsFolder: string;
 
   /**
-   * Describes each of the media buckets available to the
+   * Describes each of the media volumes available to the
    * modepress servers.
    */
   remotes: {
@@ -33,9 +33,9 @@ export interface IConfig {
 
     /**
      * If the property is a string, it must point
-     * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as ILocalBucket.
+     * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as ILocalVolume.
      */
-    'local': string | ILocalBucket;
+    'local': string | ILocalVolume;
   }
 
   /**

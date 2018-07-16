@@ -2,14 +2,14 @@ import { Readable, Writable } from 'stream';
 import { createGzip, Gzip } from 'zlib';
 import { IGoogleProperties } from '../../types/config/properties/i-google';
 import { IRemote, IUploadOptions } from '../../types/interfaces/i-remote';
-import { IBucketEntry } from '../../types/models/i-bucket-entry';
+import { IVolume } from '../../types/models/i-volume-entry';
 import { IFileEntry } from '../../types/models/i-file-entry';
 import * as compressible from 'compressible';
 import * as storage from '@google-cloud/storage';
 import { generateRandString } from '../../utils/utils';
 import { extname } from 'path';
 
-export class GoogleBucket implements IRemote {
+export class GoogleVolume implements IRemote {
   private _zipper: Gzip;
   private _gcs: any;
 
@@ -24,11 +24,11 @@ export class GoogleBucket implements IRemote {
     } );
   }
 
-  generateUrl( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'> ) {
-    return `https://storage.googleapis.com/${bucket.identifier}/${file.identifier}`;
+  generateUrl( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {
+    return `https://storage.googleapis.com/${volume.identifier}/${file.identifier}`;
   }
 
-  async createBucket( bucket: IBucketEntry<'server'>, options?: any ) {
+  async createVolume( volume: IVolume<'server'>, options?: any ) {
     const gcs = this._gcs;
     const cors = {
       location: 'EU',
@@ -56,13 +56,13 @@ export class GoogleBucket implements IRemote {
     };
 
     try {
-      await gcs.createBucket( bucket.identifier, cors );
+      await gcs.createBucket( volume.identifier, cors );
     }
     catch ( err ) {
-      throw new Error( `Could not create a new bucket: '${err.message}'` )
+      throw new Error( `Could not create a new volume: '${err.message}'` )
     }
 
-    return bucket.identifier;
+    return volume.identifier;
   }
 
   /**
@@ -86,7 +86,7 @@ export class GoogleBucket implements IRemote {
           return;
 
         earlyExit = true;
-        return reject( new Error( `Error in upload stream to bucket: '${err.message}'` ) )
+        return reject( new Error( `Error in upload stream to volume: '${err.message}'` ) )
       } );
 
       dest.on( 'finish', () => {
@@ -98,9 +98,9 @@ export class GoogleBucket implements IRemote {
     } );
   }
 
-  async uploadFile( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
+  async uploadFile( volume: IVolume<'server'>, file: IFileEntry<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
     const filename = generateRandString( 16 ) + extname( uploadOptions.filename );
-    const b = this._gcs.bucket( bucket.identifier );
+    const b = this._gcs.bucket( volume.identifier );
     const rawFile = b.file( filename );
 
     let dest: Writable;
@@ -118,12 +118,12 @@ export class GoogleBucket implements IRemote {
     return filename;
   }
 
-  async removeFile( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'> ) {
+  async removeFile( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {
     const gcs = this._gcs;
-    const b: any = gcs.bucket( bucket.identifier );
+    const b: any = gcs.bucket( volume.identifier );
 
     try {
-      // Get the bucket and delete the file
+      // Get the volume and delete the file
       await b.file( file.identifier! ).delete();
     }
     catch ( err ) {
@@ -131,19 +131,19 @@ export class GoogleBucket implements IRemote {
     }
   }
 
-  async removeBucket( entry: IBucketEntry<'server'> ) {
+  async removeVolume( entry: IVolume<'server'> ) {
     const gcs = this._gcs;
 
-    // Now remove the bucket itself
+    // Now remove the volume itself
     const bucket: any = gcs.bucket( entry.identifier );
 
     try {
       await bucket.delete()
     }
     catch ( err ) {
-      throw new Error( `Could not remove bucket from storage system: '${err.message}'` )
+      throw new Error( `Could not remove volume from storage system: '${err.message}'` )
     }
   }
 }
 
-export const googleBucket = new GoogleBucket();
+export const googleVolume = new GoogleVolume();

@@ -11,7 +11,7 @@ import { error as logError } from '../utils/logger';
 import { IAuthOptions } from '../types/misc/i-auth-options';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
-import { ILoginToken, IRegisterToken } from '../index';
+import { ILoginToken, IRegisterToken } from '..';
 
 /**
  * Main class to use for managing user authentication

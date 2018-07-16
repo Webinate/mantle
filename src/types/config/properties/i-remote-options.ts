@@ -5,9 +5,9 @@ export interface IRemoteOptions {
 }
 
 /**
- * The properties for setting up a local bucket
+ * The properties for setting up a local volume
  */
-export interface ILocalBucket extends IRemoteOptions {
+export interface ILocalVolume extends IRemoteOptions {
 
   /**
    * The system path to a system directory to store the media in.

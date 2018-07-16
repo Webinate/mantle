@@ -9,8 +9,8 @@ import { Server as MongoServer, Db } from 'mongodb';
 import { Server } from '../server';
 import { ConsoleManager } from '../../console/console-manager';
 import { prepare } from './db-preparation';
-import ModelFactory from '../../core/model-factory';
-import ControllerFactory from '../../core/controller-factory';
+import ModelFactory from '../model-factory';
+import ControllerFactory from '../controller-factory';
 import * as merge from 'deepmerge';
 
 const args: any = yargs.argv;

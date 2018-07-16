@@ -8,7 +8,7 @@ import * as FormData from 'form-data';
 
 const filePath = './test/media/file.png';
 let fileId = '';
-let bucket = '';
+let volume = '';
 
 describe( 'Getting and setting user media stat usage:', function() {
 
@@ -17,14 +17,14 @@ describe( 'Getting and setting user media stat usage:', function() {
     // Reset user 1
     await header.createUser( 'user1', 'password', 'user1@test.com' );
 
-    // Create the bucket
-    const resp = await header.user1.post( `/buckets/user/${header.user1.username}/dinosaurs` );
+    // Create the volume
+    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/dinosaurs` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
-    bucket = json._id;
+    volume = json._id;
   } )
 
-  it( 'new user with 1 bucket has minimal user stats', async function() {
+  it( 'new user with 1 volume has minimal user stats', async function() {
     const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
@@ -35,7 +35,7 @@ describe( 'Getting and setting user media stat usage:', function() {
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await header.user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
+    const resp = await header.user1.post( "/volumes/dinosaurs/upload", form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert( json.tokens )
@@ -59,7 +59,7 @@ describe( 'Getting and setting user media stat usage:', function() {
   it( 'regular user did upload another file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await header.user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
+    const resp = await header.user1.post( "/volumes/dinosaurs/upload", form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert( json.tokens );
@@ -80,8 +80,8 @@ describe( 'Getting and setting user media stat usage:', function() {
     assert.deepEqual( json.memoryUsed, 228 * 2 );
   } )
 
-  it( 'regular user fetched the uploaded file Id of the dinosaur bucket', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/buckets/${bucket}` );
+  it( 'regular user fetched the uploaded file Id of the dinosaur volume', async function() {
+    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/${volume}` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     fileId = json.data[ 1 ]._id;
@@ -100,13 +100,13 @@ describe( 'Getting and setting user media stat usage:', function() {
     assert.deepEqual( json.memoryUsed, 228 );
   } )
 
-  it( 'regular user uploaded another file to dinosaurs & then deleted bucket', async function() {
+  it( 'regular user uploaded another file to dinosaurs & then deleted volume', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    let resp = await header.user1.post( "/buckets/dinosaurs/upload", form, form.getHeaders() );
+    let resp = await header.user1.post( "/volumes/dinosaurs/upload", form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
 
-    resp = await header.user1.delete( `/buckets/${bucket}` );
+    resp = await header.user1.delete( `/volumes/${volume}` );
     assert.deepEqual( resp.status, 204 );
   } )
 

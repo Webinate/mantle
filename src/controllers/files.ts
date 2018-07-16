@@ -1,26 +1,26 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { IGoogleProperties } from '../types/config/properties/i-google';
 import { Page } from '../types/tokens/standard-tokens';
-import { ILocalBucket } from '../types/config/properties/i-remote-options';
+import { ILocalVolume } from '../types/config/properties/i-remote-options';
 import { IRemote } from '../types/interfaces/i-remote';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { IStorageStats } from '../types/models/i-storage-stats';
-import { IBucketEntry } from '../types/models/i-bucket-entry';
+import { IVolume } from '../types/models/i-volume-entry';
 import { Db, ObjectID } from 'mongodb';
-import { googleBucket } from '../core/remotes/google-bucket';
-import { localBucket } from '../core/remotes/local-bucket';
+import { googleVolume } from '../core/remotes/google-volume';
+import { localVolume } from '../core/remotes/local-volume';
 import Controller from './controller';
 import { FileModel } from '../models/file-model';
 import ModelFactory from '../core/model-factory';
 import { StorageStatsModel } from '../models/storage-stats-model';
 import { isValidObjectID } from '../utils/utils';
-import { BucketModel } from '../models/bucket-model';
+import { VolumeModel } from '../models/volume-model';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 
 export type GetOptions = {
-  bucketId?: string | ObjectID;
+  volumeId?: string | ObjectID;
   user?: string;
   index?: number;
   limit?: number;
@@ -29,7 +29,7 @@ export type GetOptions = {
 }
 
 export type DeleteOptions = {
-  bucketId?: string | ObjectID;
+  volumeId?: string | ObjectID;
   user?: string;
   fileId?: string | ObjectID;
 }
@@ -39,7 +39,7 @@ export type DeleteOptions = {
  */
 export class FilesController extends Controller {
   private _files: FileModel;
-  private _buckets: BucketModel;
+  private _volumes: VolumeModel;
   private _stats: StorageStatsModel;
   private _activeManager: IRemote;
 
@@ -52,18 +52,18 @@ export class FilesController extends Controller {
    * @param db The mongo db
    */
   async initialize( db: Db ) {
-    googleBucket.initialize( this._config.remotes.google as IGoogleProperties );
-    localBucket.initialize( this._config.remotes.local as ILocalBucket );
-    this._activeManager = localBucket;
+    googleVolume.initialize( this._config.remotes.google as IGoogleProperties );
+    localVolume.initialize( this._config.remotes.local as ILocalVolume );
+    this._activeManager = localVolume;
     this._files = ModelFactory.get( 'files' );
-    this._buckets = ModelFactory.get( 'buckets' );
+    this._volumes = ModelFactory.get( 'volumes' );
     this._stats = ModelFactory.get( 'storage' );
     return this;
   }
 
   /**
    * Fetches a file by its ID
-   * @param fileID The file ID of the file on the bucket
+   * @param fileID The file ID of the file on the volume
    * @param user Optionally specify the user of the file
    * @param searchTerm Specify a search term
    */
@@ -89,24 +89,24 @@ export class FilesController extends Controller {
    */
   async getFiles( options: GetOptions ) {
     const files = this._files;
-    const buckets = this._buckets;
+    const volumes = this._volumes;
 
     const searchQuery: Partial<IFileEntry<'server'>> = {};
 
-    if ( options.bucketId ) {
-      if ( typeof ( options.bucketId ) === 'string' && !isValidObjectID( options.bucketId ) )
-        throw new Error( 'Please use a valid identifier for bucketId' );
+    if ( options.volumeId ) {
+      if ( typeof ( options.volumeId ) === 'string' && !isValidObjectID( options.volumeId ) )
+        throw new Error( 'Please use a valid identifier for volumeId' );
 
-      const bucketQuery: Partial<IBucketEntry<'server'>> = { _id: new ObjectID( options.bucketId ) };
+      const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectID( options.volumeId ) };
       if ( options.user )
-        bucketQuery.user = options.user;
+        volumeQuery.user = options.user;
 
-      const bucketEntry = await buckets.downloadOne( bucketQuery, { verbose: true } );
+      const volume = await volumes.downloadOne( volumeQuery, { verbose: true } );
 
-      if ( !bucketEntry )
-        throw new Error( `Could not find the bucket resource` );
+      if ( !volume )
+        throw new Error( `Could not find the volume resource` );
 
-      searchQuery.bucketId = new ObjectID( options.bucketId );
+      searchQuery.volumeId = new ObjectID( options.volumeId );
     }
 
     if ( options.searchTerm )
@@ -193,17 +193,17 @@ export class FilesController extends Controller {
 
     await Promise.all( promises );
 
-    const buckets = this._buckets;
+    const volumes = this._volumes;
     const stats = this._stats;
-    const bucketEntry = await buckets.downloadOne<IBucketEntry<'client'>>( fileEntry.bucketId, { verbose: true } );
+    const volume = await volumes.downloadOne<IVolume<'client'>>( fileEntry.volumeId, { verbose: true } );
 
-    if ( bucketEntry ) {
+    if ( volume ) {
 
-      // Get the bucket and delete the file
-      await this._activeManager.removeFile( bucketEntry, fileEntry );
+      // Get the volume and delete the file
+      await this._activeManager.removeFile( volume, fileEntry );
 
-      // Update the bucket data usage
-      await buckets.collection.updateOne( { identifier: bucketEntry.identifier } as IBucketEntry<'server'>, { $inc: { memoryUsed: -fileEntry.size! } as IBucketEntry<'server'> } );
+      // Update the volume data usage
+      await volumes.collection.updateOne( { identifier: volume.identifier } as IVolume<'server'>, { $inc: { memoryUsed: -fileEntry.size! } as IVolume<'server'> } );
     }
 
     await files.deleteInstances( { _id: fileEntry._id } as IFileEntry<'server'> );
@@ -223,20 +223,20 @@ export class FilesController extends Controller {
    */
   async removeFiles( options: DeleteOptions ) {
     const files = this._files;
-    const buckets = this._buckets;
+    const volumes = this._volumes;
     const query: Partial<IFileEntry<'server'>> = {};
 
-    if ( options.bucketId !== undefined ) {
-      if ( typeof ( options.bucketId ) === 'string' && !isValidObjectID( options.bucketId ) )
-        throw new Error( 'Invalid bucket ID format' );
+    if ( options.volumeId !== undefined ) {
+      if ( typeof ( options.volumeId ) === 'string' && !isValidObjectID( options.volumeId ) )
+        throw new Error( 'Invalid volume ID format' );
 
-      const bucketQuery: Partial<IBucketEntry<'server'>> = { _id: new ObjectID( options.bucketId ) }
-      const bucket = await buckets.collection.findOne( bucketQuery );
+      const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectID( options.volumeId ) }
+      const volume = await volumes.collection.findOne( volumeQuery );
 
-      if ( !bucket )
-        throw new Error( 'Bucket resource does not exist' );
+      if ( !volume )
+        throw new Error( 'Volume resource does not exist' );
 
-      query.bucketId = bucket._id;
+      query.volumeId = volume._id;
     }
 
     if ( options.fileId !== undefined ) {

@@ -69,7 +69,7 @@
         "--config=./config.json",
         "--server=0",
         "--logging=false",
-        "--keyFile=./bucket-credentials.json",
+        "--keyFile=./volume-credentials.json",
         "--runningTests=true",
         "--clientsFolder=./test/",
         "--debug=true",

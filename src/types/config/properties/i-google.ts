@@ -1,7 +1,7 @@
 import { IRemoteOptions } from './i-remote-options';
 
 /*
- * Users stores data on an external cloud bucket with Google
+ * Users stores data on an external cloud volume with Google
  */
 export interface IGoogleProperties extends IRemoteOptions {
   /*

@@ -25,7 +25,7 @@ export class FileSerializer extends Serializer {
 	 * Creates an instance of the user manager
 	 */
   constructor( options: IFileOptions ) {
-    super( [ Factory.get( 'buckets' ) ] );
+    super( [ Factory.get( 'volumes' ) ] );
     this._options = options;
   }
 
@@ -42,7 +42,7 @@ export class FileSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/users/:user/buckets/:bucket', <any>[ ownerRights, this.getFiles.bind( this ) ] );
+    router.get( '/users/:user/volumes/:volume', <any>[ ownerRights, this.getFiles.bind( this ) ] );
     router.delete( '/:file', <any>[ requireUser, this.remove.bind( this ) ] );
     router.put( '/:file', <any>[ requireUser, this.update.bind( this ) ] );
 
@@ -73,7 +73,7 @@ export class FileSerializer extends Serializer {
 
 
   /**
-   * Fetches all file entries from the database. Optionally specifying the bucket to fetch from.
+   * Fetches all file entries from the database. Optionally specifying the volume to fetch from.
    */
   @j200()
   private async getFiles( req: IAuthReq, res: express.Response ) {
@@ -82,11 +82,11 @@ export class FileSerializer extends Serializer {
     index = isNaN( index ) ? undefined : index;
     limit = isNaN( limit ) ? undefined : limit;
 
-    if ( !req.params.bucket || req.params.bucket.trim() === '' )
-      throw new Error( 'Please specify a valid bucket name' );
+    if ( !req.params.volume || req.params.volume.trim() === '' )
+      throw new Error( 'Please specify a valid volume name' );
 
     const page = await this._files.getFiles( {
-      bucketId: req.params.bucket,
+      volumeId: req.params.volume,
       index: index,
       limit: limit,
       user: req.params.user,

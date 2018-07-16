@@ -3,13 +3,13 @@ import { resolve, basename, extname } from 'path';
 import * as rimraf from 'rimraf';
 import { mkdirSync, exists, existsSync, createWriteStream } from 'fs';
 import { createGzip, Gzip } from 'zlib';
-import { ILocalBucket } from '../../types/config/properties/i-remote-options';
+import { ILocalVolume } from '../../types/config/properties/i-remote-options';
 import { IRemote, IUploadOptions } from '../../types/interfaces/i-remote';
 import { IFileEntry } from '../../types/models/i-file-entry';
-import { IBucketEntry } from '../../types/models/i-bucket-entry';
+import { IVolume } from '../../types/models/i-volume-entry';
 import * as compressible from 'compressible';
 
-export class LocalBucket implements IRemote {
+export class LocalVolume implements IRemote {
   private _zipper: Gzip;
   private _path: string;
   private _url: string;
@@ -18,7 +18,7 @@ export class LocalBucket implements IRemote {
     this._zipper = createGzip();
   }
 
-  async initialize( options: ILocalBucket ) {
+  async initialize( options: ILocalVolume ) {
 
     if ( !options.path )
       throw new Error( `Please specify the 'path' variable to your local remote options` );
@@ -33,14 +33,14 @@ export class LocalBucket implements IRemote {
     this._url = options.url;
   }
 
-  async createBucket( bucket: IBucketEntry<'server'>, options?: any ) {
-    const path = `${this._path}/${bucket.identifier}`;
+  async createVolume( volume: IVolume<'server'>, options?: any ) {
+    const path = `${this._path}/${volume.identifier}`;
     const exists = await this.exists( path );
     if ( exists )
       throw new Error( `The folder '${path}' already exists` );
 
     await mkdirSync( path );
-    return bucket.identifier;
+    return volume.identifier;
   }
 
   private exists( path: string ) {
@@ -51,8 +51,8 @@ export class LocalBucket implements IRemote {
     } )
   }
 
-  generateUrl( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'> ) {
-    return `${this._url}/${bucket.identifier}/${file.identifier}`;
+  generateUrl( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {
+    return `${this._url}/${volume.identifier}/${file.identifier}`;
   }
 
   /**
@@ -76,7 +76,7 @@ export class LocalBucket implements IRemote {
           return;
 
         earlyExit = true;
-        return reject( new Error( `Error in upload stream to bucket: '${err.message}'` ) )
+        return reject( new Error( `Error in upload stream to volume: '${err.message}'` ) )
       } );
 
       dest.on( 'finish', () => {
@@ -88,10 +88,10 @@ export class LocalBucket implements IRemote {
     } );
   }
 
-  async uploadFile( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
+  async uploadFile( volume: IVolume<'server'>, file: IFileEntry<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
     let ext = extname( uploadOptions.filename );
     let filename = uploadOptions.filename;
-    let fileExists = await this.exists( `${this._path}/${bucket.identifier}/${filename}${ext ? '.' + ext : ''}` );
+    let fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}${ext ? '.' + ext : ''}` );
     let counter = 1;
 
     while ( fileExists ) {
@@ -101,10 +101,10 @@ export class LocalBucket implements IRemote {
       counter++;
 
       filename = base + ( ext ? '.' + ext : '' );
-      fileExists = await this.exists( `${this._path}/${bucket.identifier}/${filename}` );
+      fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}` );
     }
 
-    const writeStream = createWriteStream( `${this._path}/${bucket.identifier}/${filename}` );
+    const writeStream = createWriteStream( `${this._path}/${volume.identifier}/${filename}` );
 
     // Check if the stream content type is something that can be compressed
     // if so, then compress it before sending it to
@@ -118,8 +118,8 @@ export class LocalBucket implements IRemote {
     return filename;
   }
 
-  async removeFile( bucket: IBucketEntry<'server'>, file: IFileEntry<'server'> ) {
-    const filePath = `${this._path}/${bucket.identifier}/${file.identifier}`;
+  async removeFile( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {
+    const filePath = `${this._path}/${volume.identifier}/${file.identifier}`;
     const exists = await this.exists( filePath );
     if ( !exists )
       return;
@@ -138,8 +138,8 @@ export class LocalBucket implements IRemote {
     } );
   }
 
-  async removeBucket( bucket: IBucketEntry<'server'> ) {
-    const path = `${this._path}/${bucket.identifier}`;
+  async removeVolume( volume: IVolume<'server'> ) {
+    const path = `${this._path}/${volume.identifier}`;
     const exists = await this.exists( path );
     if ( !exists )
       return;
@@ -148,4 +148,4 @@ export class LocalBucket implements IRemote {
   }
 }
 
-export const localBucket = new LocalBucket();
+export const localVolume = new LocalVolume();

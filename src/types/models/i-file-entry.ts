@@ -8,8 +8,8 @@ export interface IFileEntry<T extends 'client' | 'server'> extends IModelEntry<T
   name: T extends 'client' ? string : RegExp | string;
   user: string;
   identifier?: string;
-  bucketId: string | ObjectID;
-  bucketName: string;
+  volumeId: string | ObjectID;
+  volumeName: string;
   publicURL?: string;
   created: number;
   size: number;

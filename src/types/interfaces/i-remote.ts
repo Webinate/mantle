@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { IBucketEntry } from '../models/i-bucket-entry';
+import { IVolume } from '../models/i-volume-entry';
 import { IFileEntry } from '../models/i-file-entry';
 import { IRemoteOptions } from '../config/properties/i-remote-options';
 
@@ -12,19 +12,19 @@ export type IUploadOptions = {
 /**
  * This interface describes a remote destination that is used to upload
  * files sent from modepress. Remote's can be thought of as drives on a
- * computer or buckets in a cloud.
+ * computer or volumes in a cloud.
  */
 export interface IRemote {
 
   initialize( options: IRemoteOptions ): Promise<void>;
 
-  createBucket( bucket: Partial<IBucketEntry<'server' | 'client'>>, options?: any ): Promise<string>;
+  createVolume( volume: Partial<IVolume<'server' | 'client'>>, options?: any ): Promise<string>;
 
-  uploadFile( bucket: IBucketEntry<'server' | 'client'>, file: Partial<IFileEntry<'server'>>, source: Readable, uploadOptions: IUploadOptions ): Promise<string>;
+  uploadFile( volume: IVolume<'server' | 'client'>, file: Partial<IFileEntry<'server'>>, source: Readable, uploadOptions: IUploadOptions ): Promise<string>;
 
-  removeFile( bucket: IBucketEntry<'server' | 'client'>, id: IFileEntry<'server'> ): Promise<void>;
+  removeFile( volume: IVolume<'server' | 'client'>, id: IFileEntry<'server'> ): Promise<void>;
 
-  removeBucket( bucket: IBucketEntry<'server' | 'client'> ): Promise<void>;
+  removeVolume( volume: IVolume<'server' | 'client'> ): Promise<void>;
 
-  generateUrl( bucket: IBucketEntry<'server' | 'client'>, file: Partial<IFileEntry<'server'>> ): string;
+  generateUrl( volume: IVolume<'server' | 'client'>, file: Partial<IFileEntry<'server'>> ): string;
 }

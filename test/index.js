@@ -56,9 +56,9 @@ require( './tests/authentication/logout' );
 require( './tests/authentication/registration' );
 require( './tests/authentication/user-activation' );
 
-require( './tests/buckets/creation' );
-require( './tests/buckets/deletion' );
-require( './tests/buckets/fetching' );
+require( './tests/volumes/creation' );
+require( './tests/volumes/deletion' );
+require( './tests/volumes/fetching' );
 
 require( './tests/categories/create' );
 require( './tests/categories/fetching' );

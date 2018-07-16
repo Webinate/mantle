@@ -2,7 +2,7 @@ import { IUserEntry } from '../models/i-user-entry';
 import { IStorageStats } from '../models/i-storage-stats';
 import { ISessionEntry } from '../models/i-session-entry';
 import { IFileEntry } from '../models/i-file-entry';
-import { IBucketEntry } from '../models/i-bucket-entry';
+import { IVolume } from '../models/i-volume-entry';
 import { IRender } from '../models/i-render';
 import { IMessage } from './i-message';
 import { IUploadToken } from './i-upload-token';
@@ -98,7 +98,7 @@ export namespace RenderTokens {
 }
 
 export namespace FileTokens {
-  /** GET /files/users/:user/buckets/:bucket */
+  /** GET /files/users/:user/volumes/:volume */
   export namespace GetAll { export type Body = void; export type Response = Page<IFileEntry<'client'>>; }
   /** PUT /files/:file/rename-file */
   export namespace Put { export type Body = { name: string }; export type Response = Partial<IFileEntry<'client'>>; }
@@ -106,14 +106,14 @@ export namespace FileTokens {
   export namespace DeleteAll { export type Body = void; export type Response = void; }
 }
 
-export namespace BucketTokens {
-  /** GET /buckets/user/:user */
-  export namespace GetAll { export type Body = void; export type Response = Page<IBucketEntry<'client'>>; }
-  /** POST /buckets/user/:user/:name */
-  export namespace Post { export type Body = void; export type Response = IBucketEntry<'client'>; }
-  /** POST /buckets/:bucket/upload/:parentFile? */
+export namespace VolumeTokens {
+  /** GET /volumes/user/:user */
+  export namespace GetAll { export type Body = void; export type Response = Page<IVolume<'client'>>; }
+  /** POST /volumes/user/:user/:name */
+  export namespace Post { export type Body = void; export type Response = IVolume<'client'>; }
+  /** POST /volumes/:volume/upload/:parentFile? */
   export namespace PostFile { export type Body = any; export type Response = IUploadResponse; }
-  /** DELETE /buckets/:buckets */
+  /** DELETE /volumes/:volumes */
   export namespace DeleteAll { export type Body = void; export type Response = void; }
 }
 

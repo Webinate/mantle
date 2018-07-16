@@ -1,7 +1,7 @@
 import { ISSL } from './i-ssl';
 
 /*
- * Users stores data on an external cloud bucket with Google
+ * Users stores data on an external cloud volume with Google
  */
 export interface IWebsocket {
   /**

@@ -1,9 +1,9 @@
 import { IModelEntry } from './i-model-entry';
 
 /**
- * The interface for describing each user's bucket
+ * The interface for describing each user's volumes
  */
-export interface IBucketEntry<T extends 'server' | 'client'> extends IModelEntry<T> {
+export interface IVolume<T extends 'server' | 'client'> extends IModelEntry<T> {
   name: string;
   identifier: string;
   user: string;

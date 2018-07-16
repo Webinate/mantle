@@ -1,13 +1,13 @@
 ﻿import { Model } from './model';
 import { text, num, date, json } from './schema-items/schema-item-factory';
-import { IBucketEntry } from '../types/models/i-bucket-entry';
+import { IVolume } from '../types/models/i-volume-entry';
 
 /**
  * A model for describing comments
  */
-export class BucketModel extends Model<IBucketEntry<'client' | 'server'>> {
+export class VolumeModel extends Model<IVolume<'client' | 'server'>> {
   constructor() {
-    super( 'buckets' );
+    super( 'volumes' );
 
     this.schema.add( new text( 'name', '' ) ).setIndexable( true );
     this.schema.add( new text( 'identifier', '' ) );

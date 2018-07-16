@@ -1,14 +1,14 @@
 ﻿import * as _Controller from './serializers/serializer';
 import ControllerFactory from './core/controller-factory';
 import { UsersController } from './controllers/users';
-import { BucketsController } from './controllers/buckets';
+import { VolumesController } from './controllers/volumes';
 import { PostsController } from './controllers/posts';
 import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
 import * as permissions from './utils/permission-controllers';
 import { AdminSerializer } from './serializers/admin-serializer';
-import { BucketSerializer } from './serializers/bucket-serializer';
+import { VolumeSerializer } from './serializers/volume-serializer';
 import { CommentsSerializer } from './serializers/comments-serializer';
 import { CORSSerializer } from './serializers/cors-serializer';
 import { EmailsSerializer } from './serializers/emails-serializer';
@@ -36,7 +36,7 @@ export const authentication = permissions;
 
 export const controllers = {
   users: ControllerFactory.get( 'users' ) as UsersController,
-  buckets: ControllerFactory.get( 'buckets' ) as BucketsController,
+  volumes: ControllerFactory.get( 'volumes' ) as VolumesController,
   posts: ControllerFactory.get( 'posts' ) as PostsController,
   categories: ControllerFactory.get( 'categories' ) as CategoriesController,
   comments: ControllerFactory.get( 'comments' ) as CommentsController,
@@ -65,8 +65,8 @@ export const serializers = {
   error: ErrorSerializer,
   /** Endpoints for managing user files */
   file: FileSerializer,
-  /** Endpoints for managing user buckets */
-  bucket: BucketSerializer,
+  /** Endpoints for managing user volumes */
+  volume: VolumeSerializer,
   /** Endpoints for managing page renders */
   renderer: PageSerializer,
   /** Endpoints for managing active sessions */
@@ -77,7 +77,7 @@ export const serializers = {
   user: UserSerializer
 }
 
-export { IBucketEntry } from './types/models/i-bucket-entry';
+export { IVolume } from './types/models/i-volume-entry';
 export { ICategory } from './types/models/i-category';
 export { IComment } from './types/models/i-comment';
 export { IFileEntry } from './types/models/i-file-entry';
@@ -89,7 +89,7 @@ export { ISessionEntry } from './types/models/i-session-entry';
 export { IStorageStats } from './types/models/i-storage-stats';
 export { IUserEntry } from './types/models/i-user-entry';
 export {
-  IAuthenticationResponse, BucketTokens, EmailTokens,
+  IAuthenticationResponse, VolumeTokens, EmailTokens,
   FileTokens, IRemoveResponse, IResponse, ISimpleResponse, IUploadBinaryResponse, IUploadResponse, IUploadTextResponse,
   Page, RenderTokens, SessionTokens, StatTokens
 } from './types/tokens/standard-tokens';

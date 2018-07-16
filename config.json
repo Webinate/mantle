@@ -10,7 +10,7 @@
   "collections": {
     "userCollection": "users",
     "sessionCollection": "sessions",
-    "bucketsCollection": "buckets",
+    "volumesCollection": "volumes",
     "filesCollection": "files",
     "statsCollection": "storage-stats",
     "foreignKeys": "_foreignKeys"

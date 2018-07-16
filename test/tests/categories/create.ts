@@ -3,6 +3,7 @@ import { } from 'mocha';
 import { ICategory, IConfig, Page } from '../../../src';
 import header from '../header';
 import Agent from '../agent';
+import { randomString } from '../utils';
 
 let category: ICategory<'client'>;
 
@@ -25,13 +26,13 @@ describe( 'Testing creation of categories', function() {
   } )
 
   it( 'did not create a category without a title', async function() {
-    const resp = await header.admin.post( `/api/categories`, { slug: 'test' } as ICategory<'client'> );
+    const resp = await header.admin.post( `/api/categories`, { slug: randomString() } as ICategory<'client'> );
     assert.equal( resp.status, 500 );
     assert.equal( resp.statusText, `title cannot be empty` );
   } )
 
   it( 'did not create a category with an empty title', async function() {
-    const resp = await header.admin.post( `/api/categories`, { title: '', slug: 'test' } as ICategory<'client'> );
+    const resp = await header.admin.post( `/api/categories`, { title: '', slug: randomString() } as ICategory<'client'> );
     assert.equal( resp.status, 500 );
     assert.equal( resp.statusText, `title cannot be empty` );
   } )

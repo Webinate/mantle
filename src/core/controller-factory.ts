@@ -1,7 +1,7 @@
 import { IConfig } from '../types/config/i-config';
 import { Db } from 'mongodb';
 import Controller from '../controllers/controller';
-import { BucketsController } from '../controllers/buckets';
+import { VolumesController } from '../controllers/volumes';
 import { FilesController } from '../controllers/files';
 import { PostsController } from '../controllers/posts';
 import { SessionsController } from '../controllers/sessions';
@@ -32,7 +32,7 @@ export class ControllerFactory {
     const controllers: Controller[] = [];
     controllers.push( await this.create( 'sessions' ) );
     controllers.push( await this.create( 'categories' ) );
-    controllers.push( await this.create( 'buckets' ) );
+    controllers.push( await this.create( 'volumes' ) );
     controllers.push( await this.create( 'files' ) );
     controllers.push( await this.create( 'posts' ) );
     controllers.push( await this.create( 'comments' ) );
@@ -44,7 +44,7 @@ export class ControllerFactory {
       await controller.initialize( this._db );
   }
 
-  get( type: 'buckets' ): BucketsController
+  get( type: 'volumes' ): VolumesController
   get( type: 'posts' ): PostsController
   get( type: 'comments' ): CommentsController
   get( type: 'sessions' ): SessionsController
@@ -73,8 +73,8 @@ export class ControllerFactory {
       return this._controllers[ type ];
 
     switch ( type ) {
-      case 'buckets':
-        newModel = new BucketsController( this._config );
+      case 'volumes':
+        newModel = new VolumesController( this._config );
         break;
       case 'files':
         newModel = new FilesController( this._config );

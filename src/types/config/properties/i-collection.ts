@@ -13,10 +13,10 @@ export interface ICollectionProperties {
   sessionCollection: string;
 
   /**
-   * The name of the mongodb collection for storing bucket details
-   * eg: 'buckets'
+   * The name of the mongodb collection for storing volume details
+   * eg: 'volumes'
    */
-  bucketsCollection: string;
+  volumesCollection: string;
 
   /**
    * The name of the mongodb collection for storing file details

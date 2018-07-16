@@ -1,4 +1,4 @@
-import { IBucketEntry } from '../models/i-bucket-entry';
+import { IVolume } from '../models/i-volume-entry';
 import { IFileEntry } from '../models/i-file-entry';
 
 /*
@@ -12,8 +12,8 @@ export namespace SocketTokens {
     'Removed' |
     'FileUploaded' |
     'FileRemoved' |
-    'BucketUploaded' |
-    'BucketRemoved' |
+    'VolumeUploaded' |
+    'VolumeRemoved' |
     'MetaRequest'
   );
 
@@ -57,10 +57,10 @@ export namespace SocketTokens {
   }
 
   /*
-   * Interface for a bucket being added
+   * Interface for a volume being added
    */
-  export interface IBucketToken extends IToken {
+  export interface IVolumeToken extends IToken {
     username: string;
-    bucket: IBucketEntry<'client'>
+    volume: IVolume<'client'>
   }
 }

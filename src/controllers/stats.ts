@@ -39,7 +39,6 @@ export class StatsController extends Controller {
 
   /**
    * Attempts to create a user usage statistics
-   * @param user The user associated with this bucket
    */
   async createUserStats( user: string ) {
     const stats = this._stats;
@@ -58,7 +57,6 @@ export class StatsController extends Controller {
 
   /**
    * Attempts to remove the usage stats of a given user
-   * @param user The user associated with this bucket
    */
   async remove( user: string ) {
     const deleteResult = await this._stats.deleteInstances( { user: user } as IStorageStats<'server'> );
@@ -67,7 +65,7 @@ export class StatsController extends Controller {
 
   /**
    * Finds and downloads a file
-   * @param fileID The file ID of the file on the bucket
+   * @param fileID The file ID of the file on the volume
    * @returns Returns the number of results affected
    */
   async update( user: string, value: Partial<IStorageStats<'client'>> ) {

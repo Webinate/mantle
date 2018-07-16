@@ -97,7 +97,7 @@ export class Header {
 
     }
     catch ( exp ) {
-      console.log( exp.toString() )
+      console.log( exp.stack )
       process.exit();
     }
   }

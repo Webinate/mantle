@@ -10,7 +10,7 @@ export async function prepare( db: Db, config: IConfig ) {
   await db.createCollection( config.collections.userCollection );
   await db.createCollection( config.collections.sessionCollection );
   await db.createCollection( config.collections.statsCollection );
-  await db.createCollection( config.collections.bucketsCollection );
+  await db.createCollection( config.collections.volumesCollection );
   await db.createCollection( config.collections.filesCollection );
   await db.createCollection( config.collections.foreignKeys );
 

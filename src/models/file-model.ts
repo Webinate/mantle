@@ -12,8 +12,8 @@ export class FileModel extends Model<IFileEntry<'client' | 'server'>> {
     this.schema.add( new text( 'name', '', { minCharacters: 3 } ) );
     this.schema.add( new text( 'user', '', { minCharacters: 3 } ) ).setReadOnly( true );
     this.schema.add( new text( 'identifier', '', { minCharacters: 6 } ) ).setReadOnly( true );
-    this.schema.add( new id( 'bucketId' ) ).setReadOnly( true );
-    this.schema.add( new text( 'bucketName', '' ) ).setReadOnly( true );
+    this.schema.add( new id( 'volumeId' ) ).setReadOnly( true );
+    this.schema.add( new text( 'volumeName', '' ) ).setReadOnly( true );
     this.schema.add( new text( 'publicURL', '' ) ).setReadOnly( true );
     this.schema.add( new text( 'mimeType', '' ) ).setReadOnly( true );
     this.schema.add( new foreignKey( 'parentFile', 'files', { keyCanBeNull: true } ) );
