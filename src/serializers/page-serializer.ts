@@ -284,7 +284,7 @@ export class PageSerializer extends Serializer {
     if ( parsedQuery && parsedQuery[ '_escaped_fragment_' ] !== undefined ) isRequestingPrerenderedPage = true;
 
     // if it is a bot...show prerendered page
-    if ( PageSerializer.crawlerUserAgents.some( function( crawlerUserAgent ) { return userAgent.toLowerCase().indexOf( crawlerUserAgent.toLowerCase() ) !== -1; } ) ) isRequestingPrerenderedPage = true;
+    if ( PageSerializer.crawlerUserAgents.some( function( crawlerUserAgent ) { return ( userAgent as string ).toLowerCase().indexOf( crawlerUserAgent.toLowerCase() ) !== -1; } ) ) isRequestingPrerenderedPage = true;
 
     // if it is BufferBot...show prerendered page
     if ( bufferAgent ) isRequestingPrerenderedPage = true;
@@ -359,7 +359,7 @@ export class PageSerializer extends Serializer {
     }
 
     // Sort by the date created
-    const sort: {[key in keyof Partial<IRender<'server'>>]: number} = { createdOn: sortOrder };
+    const sort: { [ key in keyof Partial<IRender<'server'>> ]: number } = { createdOn: sortOrder };
 
     let getContent: boolean = true;
     if ( req.query.minimal )

@@ -129,11 +129,11 @@ export class CommsController extends events.EventEmitter {
       let authorizedThirdParty = false;
       if ( headers[ 'users-api-key' ] && this._hashedApiKey ) {
         info( 'Checking socket API key' );
-        authorizedThirdParty = await this.checkApiKey( headers[ 'users-api-key' ] );
+        authorizedThirdParty = await this.checkApiKey( headers[ 'users-api-key' ] as string );
       }
 
-      if ( authorizedThirdParty || ( headers.origin && headers.origin.match( new RegExp( domain ) ) ) ) {
-        let clientConnection = new ClientConnection( ws, headers.origin || 'AUTHORIZED-ACCESS', this, authorizedThirdParty );
+      if ( authorizedThirdParty || ( headers.origin && ( headers.origin as string ).match( new RegExp( domain ) ) ) ) {
+        let clientConnection = new ClientConnection( ws, headers.origin as string || 'AUTHORIZED-ACCESS', this, authorizedThirdParty );
 
         // Remove the client when its disconnected
         clientConnection.onDisconnected = ( connection: ClientConnection ) => {

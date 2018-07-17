@@ -239,7 +239,7 @@ export class SessionsController extends Controller {
     let m: RegExpExecArray | null;
 
     // look for an existing SID in the Cookie header for which we have a session
-    if ( req.headers.cookie && ( m = /SID=([^ ,;]*)/.exec( req.headers.cookie ) ) )
+    if ( req.headers.cookie && ( m = /SID=([^ ,;]*)/.exec( req.headers.cookie as string ) ) )
       return m[ 1 ];
     else
       return '';

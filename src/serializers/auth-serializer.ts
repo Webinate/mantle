@@ -92,7 +92,7 @@ export class AuthSerializer extends Serializer {
 	 */
   @j200()
   private async resendActivation( req: express.Request, res: express.Response ) {
-    const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
+    const origin = encodeURIComponent( req.headers[ 'origin' ] as string || req.headers[ 'referer' ] as string );
 
     await this._userController.resendActivation( req.params.user, this._options.accountRedirectURL, origin );
     const response: ISimpleResponse = { message: 'An activation link has been sent, please check your email for further instructions' };
@@ -104,7 +104,7 @@ export class AuthSerializer extends Serializer {
  */
   @j200()
   private async requestPasswordReset( req: express.Request, res: express.Response ) {
-    const origin = encodeURIComponent( req.headers[ 'origin' ] || req.headers[ 'referer' ] );
+    const origin = encodeURIComponent( req.headers[ 'origin' ] as string || req.headers[ 'referer' ] as string );
     await this._userController.requestPasswordReset( req.params.user, this._options.passwordResetURL, origin );
     const response: ISimpleResponse = { message: 'Instructions have been sent to your email on how to change your password' };
     return response;

@@ -101,7 +101,7 @@ export class UsersController extends Controller {
 	 * @param response
 	 */
   async register( username: string = '', pass: string = '', email: string = '', activationUrl: string = '', meta: any = {}, request: Request ) {
-    const origin = encodeURIComponent( request.headers[ 'origin' ] || request.headers[ 'referer' ] );
+    const origin = encodeURIComponent( request.headers[ 'origin' ] as string || request.headers[ 'referer' ] as string );
 
     // First check if user exists, make sure the details supplied are ok, then create the new user
     let user: User | null = await this.getUser( username, email );

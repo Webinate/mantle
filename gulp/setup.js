@@ -1,7 +1,4 @@
 var fs = require( 'fs' );
-var download = require( 'gulp-download' );
-var rename = require( "gulp-rename" );
-var gulp = require( 'gulp' );
 
 /**
  * Goes through each of the main config files and increments
@@ -67,23 +64,3 @@ module.exports.bumpMajorNum = function( version ) {
   const major = parseInt( segments[ 0 ] ) + 1;
   return `${major}.0.0`
 };
-
-/**
- * This function downloads a definition file from github and writes it to a destination
- * @param {string} url The url of the file to download
- * @param {string} dest The destination folder to move the file to
- * @param {string} name The name of the downloaded file
- */
-module.exports.getDefinition = function( url, dest, name ) {
-  return new Promise( function( resolve, reject ) {
-    download( url )
-      .pipe( rename( name ) )
-      .pipe( gulp.dest( dest ) )
-      .on( 'error', function( err ) {
-        throw ( err )
-      } )
-      .on( 'end', function() {
-        resolve( true );
-      } )
-  } );
-}

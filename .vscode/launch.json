@@ -65,6 +65,7 @@
       "args": [
         "-t",
         "1000000",
+        "--exit",
         "test/index.js",
         "--config=./config.json",
         "--server=0",

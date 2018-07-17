@@ -34,8 +34,8 @@ export class CORSSerializer extends Serializer {
       if ( ( <http.ServerRequest>req ).headers.origin ) {
         let matched = false;
         for ( let m = 0, l = matches.length; m < l; m++ )
-          if ( ( <http.ServerRequest>req ).headers.origin.match( matches[ m ] ) ) {
-            res.setHeader( 'Access-Control-Allow-Origin', ( <http.ServerRequest>req ).headers.origin );
+          if ( ( ( <http.ServerRequest>req ).headers.origin! as string ).match( matches[ m ] ) ) {
+            res.setHeader( 'Access-Control-Allow-Origin', ( <http.ServerRequest>req ).headers.origin as string );
             res.setHeader( 'Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS' );
             res.setHeader( 'Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-Mime-Type, X-File-Name, Cache-Control' );
             res.setHeader( 'Access-Control-Allow-Credentials', 'true' );
