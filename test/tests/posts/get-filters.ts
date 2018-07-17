@@ -29,33 +29,33 @@ describe( 'Testing filtering of posts: ', function() {
   } )
 
   it( 'does filter by visibility status', async function() {
-    let resp = await header.admin.get( `/api/posts?visibility=all` );
+    let resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=desc&sort=created` );
     let page: Page<IPost<'client'>> = await resp.json();
 
     // Checks the order
     assert.equal( page.data[ 0 ]._id, postPrivate._id );
     assert.equal( page.data[ 1 ]._id, postPublic._id );
 
-    resp = await header.admin.get( `/api/posts?visibility=private` );
+    resp = await header.admin.get( `/api/posts?visibility=private&sortOrder=desc&sort=created` );
     page = await resp.json();
 
     // The first post should now be post 2, which is private
     assert.equal( page.data[ 0 ]._id, postPrivate._id );
 
-    resp = await header.admin.get( `/api/posts?visibility=public` );
+    resp = await header.admin.get( `/api/posts?visibility=public&sortOrder=desc&sort=created` );
     page = await resp.json();
 
     // The first post should now be post 1, which is public
     assert.equal( page.data[ 0 ]._id, postPublic._id );
 
-    resp = await header.admin.get( `/api/posts?visibility=all` );
+    resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=desc&sort=created` );
     page = await resp.json();
 
     // If we specify all we get both posts
     assert.equal( page.data[ 0 ]._id, postPrivate._id );
     assert.equal( page.data[ 1 ]._id, postPublic._id );
 
-    resp = await header.user1.get( `/api/posts?visibility=private` );
+    resp = await header.user1.get( `/api/posts?visibility=private&sortOrder=desc&sort=created` );
     page = await resp.json();
 
     // Regular users cannot see private posts
@@ -63,7 +63,7 @@ describe( 'Testing filtering of posts: ', function() {
   } )
 
   it( 'does filter by descending status', async function() {
-    let resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=desc` );
+    let resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=desc&sort=created` );
     let page: Page<IPost<'client'>> = await resp.json();
 
     // If we specify all we get both posts
@@ -72,7 +72,7 @@ describe( 'Testing filtering of posts: ', function() {
   } )
 
   it( 'does filter by ascending status', async function() {
-    let resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=asc` );
+    let resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=asc&sort=created&limit=-1` );
     let page: Page<IPost<'client'>> = await resp.json();
     let lastIndex = page.data.length - 1;
 
@@ -82,13 +82,13 @@ describe( 'Testing filtering of posts: ', function() {
   } )
 
   it( 'does filter by author', async function() {
-    let resp = await header.admin.get( `/api/posts?author=${header.admin.username}` );
+    let resp = await header.admin.get( `/api/posts?author=${header.admin.username}&sortOrder=desc&sort=created` );
     let page: Page<IPost<'client'>> = await resp.json();
 
 
     assert.equal( page.data[ 0 ]._id, postPrivate._id );
 
-    resp = await header.admin.get( `/api/posts?author=NO_AUTHORS_WITH_THIS_NAME` );
+    resp = await header.admin.get( `/api/posts?author=NO_AUTHORS_WITH_THIS_NAME&sortOrder=desc&sort=created` );
     page = await resp.json();
     assert.deepEqual( page.data.length, 0 );
   } )
