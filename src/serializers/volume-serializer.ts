@@ -11,8 +11,9 @@ import { VolumesController } from '../controllers/volumes';
 import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as multiparty from 'multiparty';
-import { IncomingForm, Fields, File } from 'formidable';
+import { IncomingForm, Fields, File, Part } from 'formidable';
 import * as compression from 'compression';
+import { unlink, exists } from 'fs';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
@@ -21,7 +22,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { FilesController } from '../controllers/files';
 import { IVolume } from '../types/models/i-volume-entry';
-import { extname } from 'path';
+import * as winston from 'winston';
 
 /**
  * Main class to use for managing users
@@ -63,7 +64,7 @@ export class VolumeSerializer extends Serializer {
     router.post( '/:volume/upload/:parentFile?', <any>[ requireUser, this.uploadUserFiles.bind( this ) ] );
     router.post( '/user/:user/:name', <any>[ ownerRights, this.createVolume.bind( this ) ] );
 
-    router.post( '/upload', <any>[ requireUser, this.upload.bind( this ) ] );
+    router.post( '/:volume/upload2', <any>[ requireUser, this.upload.bind( this ) ] );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/volumes`, router );
@@ -213,39 +214,70 @@ export class VolumeSerializer extends Serializer {
     } );
   }
 
+  private removeFiles( files: File[] ) {
+    files.forEach( file => {
+      exists( file.path, function( exists ) {
+        if ( exists ) {
+          unlink( file.path, function( err ) {
+            if ( err )
+              winston.error( err.message );
+          } );
+        }
+      } );
+    } );
+  }
+
   private processRequest( req: IAuthReq ) {
     return new Promise<{ fields: Fields, files: File[] }>( ( resolve, reject ) => {
       const form = new IncomingForm();
       form.encoding = 'utf-8';
-      form.keepExtensions = false;
+      form.keepExtensions = true;
       form.maxFields = 1000; // Max number of allowed fields
       form.maxFieldsSize = 20 * 1024 * 1024; // Max size allowed for fields
       form.maxFileSize = 0.5 * 1024 * 1024; // Max size allowed for files
-      // form.uploadDir =
+      form.multiples = false;
+      form.uploadDir = './temp';
 
-      form.on( 'fileBegin', ( name: string, file: File ) => {
-        const allowedTypes = this._allowedFileTypes;
-        var extension = extname( file.name ).toLowerCase();
-        if ( allowedTypes.indexOf( extension ) !== -1 )
-          new Error( 'extention not supported' )
-      } );
+      // let error = false;
 
-      const errors: Error[] = [];
+      form.onPart = ( part: Part ) => {
+        if ( part.mime ) {
+          const allowedTypes = this._allowedFileTypes;
+          var extension = part.mime.toLowerCase();
 
-      form.parse( req, function( err, fields, files ) {
+          if ( allowedTypes.indexOf( extension ) !== -1 ) {
+            form.handlePart( part );
+          }
+        }
+      }
+
+      // form.on( 'fileBegin', ( name: string, file: File ) => {
+      //   const allowedTypes = this._allowedFileTypes;
+      //   var extension = file.type.toLowerCase();
+
+      //   if ( allowedTypes.indexOf( extension ) === -1 ) {
+      //     // file.path = '/dev/null';
+      //     ( form as any )._error( new Error( `Extention ${extension} not supported` ) );
+      //   }
+      // } );
+
+      // form.on( 'file', ( name: string, file: File ) => {
+      //   if ( error )
+      //     this.removeFiles( [ file.path ] )
+      // } );
+
+      form.parse( req, ( err, fields, files ) => {
+
+        const filesArr: File[] = [];
+        for ( const key in files )
+          filesArr.push( files[ key ] );
+
         if ( err ) {
-          errors.push( err );
-          req.resume();
+          reject( err );
           return;
         }
 
-        const filesArr: File[] = [];
-
-        for ( const key in files ) {
-          const file = files[ key ];
-          filesArr.push( file );
-        }
-
+        this.removeFiles( filesArr );
         resolve( { fields, files: filesArr } );
       } );
     } );
@@ -253,10 +285,10 @@ export class VolumeSerializer extends Serializer {
 
   @j200()
   private async upload( req: IAuthReq ) {
-    const name = req.params.volume;
+    const volumeName = req.params.volume;
     // const username = req._user!.username! as string;
 
-    if ( !name || name.trim() === '' )
+    if ( !volumeName || volumeName.trim() === '' )
       throw new Error( `Please specify a volume` );
 
     // const manager = this._volumeController;
@@ -285,14 +317,14 @@ export class VolumeSerializer extends Serializer {
     const username = req._user!.username! as string;
     const parentFile = req.params.parentFile;
     const filesUploaded: Array<Partial<IFileEntry<'server' | 'client'>>> = [];
-    const name = req.params.volume;
+    const volumeName = req.params.volume;
 
-    if ( !name || name.trim() === '' )
+    if ( !volumeName || volumeName.trim() === '' )
       return okJson<IUploadResponse>( { message: `Please specify a volume`, tokens: [] }, res );
 
-    manager.get( { name: name, user: username } ).then( ( volume ) => {
+    manager.get( { name: volumeName, user: username } ).then( ( volume ) => {
       if ( !volume )
-        return okJson<IUploadResponse>( { message: `No volume exists with the name '${name}'`, tokens: [] }, res );
+        return okJson<IUploadResponse>( { message: `No volume exists with the name '${volumeName}'`, tokens: [] }, res );
 
       let metaJson: any | Error;
 
