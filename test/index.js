@@ -50,43 +50,45 @@ describe( 'Initializing tests', function() {
   } );
 } );
 
-require( './tests/authentication/authenticated' );
-require( './tests/authentication/log-in' );
-require( './tests/authentication/logout' );
-require( './tests/authentication/registration' );
-require( './tests/authentication/user-activation' );
+// require( './tests/authentication/authenticated' );
+// require( './tests/authentication/log-in' );
+// require( './tests/authentication/logout' );
+// require( './tests/authentication/registration' );
+// require( './tests/authentication/user-activation' );
 
-require( './tests/volumes/creation' );
-require( './tests/volumes/deletion' );
-require( './tests/volumes/fetching' );
+// require( './tests/volumes/creation' );
+// require( './tests/volumes/deletion' );
+// require( './tests/volumes/fetching' );
 
-require( './tests/categories/create' );
-require( './tests/categories/fetching' );
-require( './tests/categories/hierarchies' );
+// require( './tests/categories/create' );
+// require( './tests/categories/fetching' );
+// require( './tests/categories/hierarchies' );
 
-require( './tests/comments/create' );
-require( './tests/comments/delete' );
-require( './tests/comments/fetch' );
+// require( './tests/comments/create' );
+// require( './tests/comments/delete' );
+// require( './tests/comments/fetch' );
 
-require( './tests/files/accessibility' );
-require( './tests/files/deletion' );
-require( './tests/files/download' );
-require( './tests/files/get' );
-require( './tests/files/rename' );
-require( './tests/files/upload' );
+// require( './tests/files/accessibility' );
+// require( './tests/files/deletion' );
+// require( './tests/files/download' );
+// require( './tests/files/get' );
+// require( './tests/files/rename' );
+// require( './tests/files/upload' );
 
-require( './tests/posts/create' );
-require( './tests/posts/delete' );
-require( './tests/posts/editting' );
-require( './tests/posts/getting' );
-require( './tests/posts/get-filters' );
+// require( './tests/posts/create' );
+// require( './tests/posts/delete' );
+// require( './tests/posts/editting' );
+// require( './tests/posts/getting' );
+// require( './tests/posts/get-filters' );
 
-require( './tests/user/create-user' );
-require( './tests/user/delete-user' );
-require( './tests/user/fetch-user-data' );
-require( './tests/user/get-set-user-meta' );
-require( './tests/user/get-user-data' );
+// require( './tests/user/create-user' );
+// require( './tests/user/delete-user' );
+// require( './tests/user/fetch-user-data' );
+// require( './tests/user/get-set-user-meta' );
+// require( './tests/user/get-user-data' );
 
-require( './tests/user-stats/get-set-media-stats' );
-require( './tests/user-stats/get-set-user-stats' );
+// require( './tests/user-stats/get-set-media-stats' );
+// require( './tests/user-stats/get-set-user-stats' );
+// require( './tests/user-stats/setting-values' );
+
 require( './tests/user-stats/setting-values' );

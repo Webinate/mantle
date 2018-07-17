@@ -1,6 +1,4 @@
-﻿'use strict';
-
-import { IUploadToken } from '../types/tokens/i-upload-token';
+﻿import { IUploadToken } from '../types/tokens/i-upload-token';
 import { IAuthReq } from '../types/tokens/i-auth-request';
 import { VolumeTokens, IUploadResponse } from '../types/tokens/standard-tokens';
 import { IFileEntry } from '../types/models/i-file-entry';
@@ -13,6 +11,7 @@ import { VolumesController } from '../controllers/volumes';
 import { ownerRights, requireUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as multiparty from 'multiparty';
+import { IncomingForm, Fields, File } from 'formidable';
 import * as compression from 'compression';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
@@ -22,6 +21,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { FilesController } from '../controllers/files';
 import { IVolume } from '../types/models/i-volume-entry';
+import { extname } from 'path';
 
 /**
  * Main class to use for managing users
@@ -62,6 +62,8 @@ export class VolumeSerializer extends Serializer {
     router.delete( '/:id', <any>[ requireUser, this.removeVolumes.bind( this ) ] );
     router.post( '/:volume/upload/:parentFile?', <any>[ requireUser, this.uploadUserFiles.bind( this ) ] );
     router.post( '/user/:user/:name', <any>[ ownerRights, this.createVolume.bind( this ) ] );
+
+    router.post( '/upload', <any>[ requireUser, this.upload.bind( this ) ] );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/volumes`, router );
@@ -209,6 +211,65 @@ export class VolumeSerializer extends Serializer {
         }
       } );
     } );
+  }
+
+  private processRequest( req: IAuthReq ) {
+    return new Promise<{ fields: Fields, files: File[] }>( ( resolve, reject ) => {
+      const form = new IncomingForm();
+      form.encoding = 'utf-8';
+      form.keepExtensions = false;
+      form.maxFields = 1000; // Max number of allowed fields
+      form.maxFieldsSize = 20 * 1024 * 1024; // Max size allowed for fields
+      form.maxFileSize = 0.5 * 1024 * 1024; // Max size allowed for files
+      // form.uploadDir =
+
+      form.on( 'fileBegin', ( name: string, file: File ) => {
+        const allowedTypes = this._allowedFileTypes;
+        var extension = extname( file.name ).toLowerCase();
+        if ( allowedTypes.indexOf( extension ) !== -1 )
+          new Error( 'extention not supported' )
+      } );
+
+      const errors: Error[] = [];
+
+      form.parse( req, function( err, fields, files ) {
+        if ( err ) {
+          errors.push( err );
+          req.resume();
+          return;
+        }
+
+        const filesArr: File[] = [];
+
+        for ( const key in files ) {
+          const file = files[ key ];
+          filesArr.push( file );
+        }
+
+        resolve( { fields, files: filesArr } );
+      } );
+    } );
+  }
+
+  @j200()
+  private async upload( req: IAuthReq ) {
+    const name = req.params.volume;
+    // const username = req._user!.username! as string;
+
+    if ( !name || name.trim() === '' )
+      throw new Error( `Please specify a volume` );
+
+    // const manager = this._volumeController;
+    // const volume = await manager.get( { name: name, user: username } );
+
+    // if ( !volume )
+    //   throw new Error( `No volume exists with the name '${name}'` );
+
+    // parse a file upload
+    const response = await this.processRequest( req );
+    response;
+
+    return;
   }
 
   /**
