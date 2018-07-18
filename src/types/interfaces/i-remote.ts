@@ -20,11 +20,11 @@ export interface IRemote {
 
   createVolume( volume: Partial<IVolume<'server' | 'client'>>, options?: any ): Promise<string>;
 
-  uploadFile( volume: IVolume<'server' | 'client'>, file: Partial<IFileEntry<'server'>>, source: Readable, uploadOptions: IUploadOptions ): Promise<string>;
+  uploadFile( volume: IVolume<'server' | 'client'>, source: Readable, uploadOptions: IUploadOptions ): Promise<string>;
 
   removeFile( volume: IVolume<'server' | 'client'>, id: IFileEntry<'server'> ): Promise<void>;
 
   removeVolume( volume: IVolume<'server' | 'client'> ): Promise<void>;
 
-  generateUrl( volume: IVolume<'server' | 'client'>, file: Partial<IFileEntry<'server'>> ): string;
+  generateUrl( volume: IVolume<'server' | 'client'>, identifier: string ): string;
 }

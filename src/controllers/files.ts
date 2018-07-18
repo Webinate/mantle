@@ -18,6 +18,14 @@ import { VolumeModel } from '../models/volume-model';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
+import { IAuthReq } from '../types/tokens/i-auth-request';
+import { unlink, exists } from 'fs';
+import { IncomingForm, Fields, File, Part } from 'formidable';
+import * as winston from 'winston';
+import { IUploadResponse } from '..';
+import ControllerFactory from '../core/controller-factory';
+import { VolumesController } from './volumes';
+import { createReadStream } from 'fs';
 
 export type GetOptions = {
   volumeId?: string | ObjectID;
@@ -42,6 +50,8 @@ export class FilesController extends Controller {
   private _volumes: VolumeModel;
   private _stats: StorageStatsModel;
   private _activeManager: IRemote;
+  private _allowedFileTypes: Array<string>;
+  private _volumeController: VolumesController;
 
   constructor( config: IConfig ) {
     super( config );
@@ -58,6 +68,8 @@ export class FilesController extends Controller {
     this._files = ModelFactory.get( 'files' );
     this._volumes = ModelFactory.get( 'volumes' );
     this._stats = ModelFactory.get( 'storage' );
+    this._volumeController = ControllerFactory.get( 'volumes' );
+    this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
     return this;
   }
 
@@ -101,12 +113,12 @@ export class FilesController extends Controller {
       if ( options.user )
         volumeQuery.user = options.user;
 
-      const volume = await volumes.downloadOne( volumeQuery, { verbose: true } );
+      const volume = await volumes.findOne<IVolume<'server'>>( volumeQuery );
 
       if ( !volume )
         throw new Error( `Could not find the volume resource` );
 
-      searchQuery.volumeId = new ObjectID( options.volumeId );
+      searchQuery.volumeId = volume.dbEntry._id;
     }
 
     if ( options.searchTerm )
@@ -136,13 +148,136 @@ export class FilesController extends Controller {
     return toRet;
   }
 
+  private removeTempFiles( files: File[] ) {
+    files.forEach( file => {
+      exists( file.path, function( exists ) {
+        if ( exists ) {
+          unlink( file.path, function( err ) {
+            if ( err )
+              winston.error( err.message );
+          } );
+        }
+      } );
+    } );
+  }
+
+  private uploadFormToTempDir( req: IAuthReq ) {
+    return new Promise<{ fields: Fields, files: File[] }>( ( resolve, reject ) => {
+      const form = new IncomingForm();
+      const filesArr: File[] = [];
+      let fieldsToRet: Fields;
+      let error: Error | null = null;
+
+      form.encoding = 'utf-8';
+      form.keepExtensions = true;
+      form.maxFields = 1000; // Max number of allowed fields
+      form.maxFieldsSize = 20 * 1024 * 1024; // Max size allowed for fields
+      form.maxFileSize = 0.5 * 1024 * 1024; // Max size allowed for files
+      form.multiples = false;
+      form.uploadDir = './temp';
+
+
+      form.onPart = ( part: Part ) => {
+        if ( part.mime ) {
+          const allowedTypes = this._allowedFileTypes;
+          const extension = part.mime.toLowerCase();
+
+          if ( allowedTypes.indexOf( extension ) !== -1 )
+            form.handlePart( part );
+          else
+            error = new Error( `Extension ${extension} not supported` );
+        }
+        else {
+          form.handlePart( part );
+        }
+      }
+
+      form.parse( req, ( err, fields, files ) => {
+
+        if ( err ) {
+          // Not sure why - but we need to have a timeout here as without it we get
+          // an error write write ECONNABORTED
+          setTimeout( () => reject( err ), 500 );
+          return
+        }
+
+        fieldsToRet = fields;
+        for ( const key in files )
+          filesArr.push( files[ key ] );
+      } );
+
+      form.on( 'end', () => {
+        if ( error ) {
+          this.removeTempFiles( filesArr );
+          return reject( error );
+        }
+        else {
+          // TODO: Remove this line
+          this.removeTempFiles( filesArr );
+          return resolve( { fields: fieldsToRet, files: filesArr } );
+        }
+      } )
+    } );
+  }
+
+  private async uploadFileToRemote( file: File, volume: IVolume<'server'> ) {
+    const filesModel = this._files;
+    const volumesModel = this._volumes;
+    const statsModel = this._stats;
+
+    const fileIdentifier = await this._activeManager.uploadFile( volume, createReadStream( file.path ), { headers: part.headers, filename: name } );
+    const publicURL = this._activeManager.generateUrl( volume, fileIdentifier );
+    const fileEntry: Partial<IFileEntry<'client'>> = {
+      identifier: fileIdentifier,
+      publicURL: publicURL
+    };
+
+    const result = await filesModel.createInstance<IFileEntry<'client'>>( fileEntry );
+
+    await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { $inc: { memoryUsed: part.byteCount } as IVolume<'server'> } );
+    await statsModel.update<IStorageStats<'client'>>( { user: user } as IStorageStats<'server'>, { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats<'server'> } );
+    await filesModel.update<IFileEntry<'server'>>( { _id: fileEntry._id } as IFileEntry<'server'>, { $set: { identifier: fileIdentifier, publicURL: fileEntry.publicURL } as IFileEntry<'server'> } );
+
+    return fileEntry;
+  }
+
+  /**
+   * Uploads files from a from data request to the temp folder
+   * @param req The request to process form data
+   * @param volumeName The name of the volume to upload to
+   * @param username The username of the uploader
+   */
+  async uploadFilesToVolume( req: IAuthReq, volumeName: string, username: string ) {
+    if ( !volumeName || volumeName.trim() === '' )
+      throw new Error( `Please specify a volume for the upload` );
+
+    const volume = await this._volumeController.get( { name: volumeName, user: username } );
+    if ( !volume )
+      throw new Error( `Volume does not exist` );
+
+    const response = await this.uploadFormToTempDir( req );
+    const files = response.files.map( f => {
+      return {
+        size: f.size,
+        path: f.path,
+        name: f.name,
+        type: f.type,
+      }
+    } );
+
+
+
+    const toRet: IUploadResponse = { files: files };
+    return toRet;
+  }
+
   /**
    * Fetches the file count based on the given query
    * @param searchQuery The search query to idenfify files
    */
   async count( searchQuery: IFileEntry<'server'> ) {
-    const filesCollection = this._files;
-    const count = await filesCollection.count( searchQuery );
+    const files = this._files;
+    const count = await files.count( searchQuery );
     return count;
   }
 
@@ -158,12 +293,12 @@ export class FilesController extends Controller {
       throw new Error( 'Invalid ID format' );
 
     const query = typeof fileId === 'string' ? { _id: new ObjectID( fileId ) } : { _id: fileId };
-    const file = await this._files.downloadOne<IFileEntry<'client'>>( query, { verbose: true } );
+    const file = await this._files.findOne<IFileEntry<'server'>>( query );
 
     if ( !file )
       throw new Error( 'Resource not found' );
 
-    await this.incrementAPI( file.user! );
+    await this.incrementAPI( file.dbEntry.user );
     const toRet = await files.update<IFileEntry<'client'>>( query, token );
     return toRet;
   }
@@ -195,15 +330,15 @@ export class FilesController extends Controller {
 
     const volumes = this._volumes;
     const stats = this._stats;
-    const volume = await volumes.downloadOne<IVolume<'client'>>( fileEntry.volumeId, { verbose: true } );
+    const volume = await volumes.findOne<IVolume<'server'>>( fileEntry.volumeId );
 
     if ( volume ) {
 
       // Get the volume and delete the file
-      await this._activeManager.removeFile( volume, fileEntry );
+      await this._activeManager.removeFile( volume.dbEntry, fileEntry );
 
       // Update the volume data usage
-      await volumes.collection.updateOne( { identifier: volume.identifier } as IVolume<'server'>, { $inc: { memoryUsed: -fileEntry.size! } as IVolume<'server'> } );
+      await volumes.collection.updateOne( { identifier: volume.dbEntry.identifier } as IVolume<'server'>, { $inc: { memoryUsed: -fileEntry.size! } as IVolume<'server'> } );
     }
 
     await files.deleteInstances( { _id: fileEntry._id } as IFileEntry<'server'> );

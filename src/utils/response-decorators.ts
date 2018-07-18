@@ -60,6 +60,7 @@ export function errJson( err: Error, res: express.Response ) {
   else
     res.status( 500 );
 
+  res.statusMessage = err.message;
   res.setHeader( 'Content-Type', 'application/json' );
   const response: ISimpleResponse = { message: err.message };
   res.end( JSON.stringify( response ) );

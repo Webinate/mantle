@@ -24,8 +24,8 @@ export class GoogleVolume implements IRemote {
     } );
   }
 
-  generateUrl( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {
-    return `https://storage.googleapis.com/${volume.identifier}/${file.identifier}`;
+  generateUrl( volume: IVolume<'server'>, identifier: string ) {
+    return `https://storage.googleapis.com/${volume.identifier}/${identifier}`;
   }
 
   async createVolume( volume: IVolume<'server'>, options?: any ) {
@@ -98,7 +98,7 @@ export class GoogleVolume implements IRemote {
     } );
   }
 
-  async uploadFile( volume: IVolume<'server'>, file: IFileEntry<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
+  async uploadFile( volume: IVolume<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
     const filename = generateRandString( 16 ) + extname( uploadOptions.filename );
     const b = this._gcs.bucket( volume.identifier );
     const rawFile = b.file( filename );

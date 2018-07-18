@@ -286,57 +286,57 @@ export class VolumesController extends Controller {
       return false;
   }
 
-  /**
-   * Uploads a part stream as a new user file. This checks permissions, updates the local db and uploads the stream to the volume
-   * @param part
-   * @param volume The volume to which we are uploading to
-   * @param user The username
-   * @param makePublic Makes this uploaded file public to the world
-   * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
-   */
-  async uploadStream( part: Part, volume: IVolume<'server' | 'client'>, user: string, makePublic: boolean = true, parentFile: string | null = null ) {
+  // /**
+  //  * Uploads a part stream as a new user file. This checks permissions, updates the local db and uploads the stream to the volume
+  //  * @param part
+  //  * @param volume The volume to which we are uploading to
+  //  * @param user The username
+  //  * @param makePublic Makes this uploaded file public to the world
+  //  * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
+  //  */
+  // async uploadStream( part: Part, volume: IVolume<'server' | 'client'>, user: string, makePublic: boolean = true, parentFile: string | null = null ) {
 
-    await this.canUpload( user, part );
+  //   await this.canUpload( user, part );
 
-    const volumesCollection = this._volumes;
-    const statCollection = this._stats;
-    const name = part.filename || part.name;
-    const files = this._files;
+  //   const volumesCollection = this._volumes;
+  //   const statCollection = this._stats;
+  //   const name = part.filename || part.name;
+  //   const files = this._files;
 
-    if ( !name )
-      throw new Error( `Uploaded item does not have a name or filename specified` );
+  //   if ( !name )
+  //     throw new Error( `Uploaded item does not have a name or filename specified` );
 
-    const fileEntry: Partial<IFileEntry<'server'>> = {
-      name: ( part.filename || part.name ),
-      user: user,
-      volumeId: volume._id!,
-      volumeName: volume.name!,
-      parentFile: ( parentFile ? new ObjectID( parentFile ) : null ),
-      created: Date.now(),
-      numDownloads: 0,
-      size: part.byteCount,
-      isPublic: makePublic,
-      mimeType: part.headers[ 'content-type' ],
-      meta: {}
-    };
+  //   const fileEntry: Partial<IFileEntry<'server'>> = {
+  //     name: ( part.filename || part.name ),
+  //     user: user,
+  //     volumeId: volume._id!,
+  //     volumeName: volume.name!,
+  //     parentFile: ( parentFile ? new ObjectID( parentFile ) : null ),
+  //     created: Date.now(),
+  //     numDownloads: 0,
+  //     size: part.byteCount,
+  //     isPublic: makePublic,
+  //     mimeType: part.headers[ 'content-type' ],
+  //     meta: {}
+  //   };
 
-    const result = await files.insertOne( fileEntry );
-    fileEntry._id = result.insertedId;
+  //   const result = await files.insertOne( fileEntry );
+  //   fileEntry._id = result.insertedId;
 
-    const fileIdentifier = await this._activeManager.uploadFile( volume, fileEntry, part, { headers: part.headers, filename: name } );
+  //   const fileIdentifier = await this._activeManager.uploadFile( volume, fileEntry, part, { headers: part.headers, filename: name } );
 
-    fileEntry.identifier = fileIdentifier;
-    fileEntry.publicURL = this._activeManager.generateUrl( volume, fileEntry );
+  //   fileEntry.identifier = fileIdentifier;
+  //   fileEntry.publicURL = this._activeManager.generateUrl( volume, fileEntry );
 
-    await volumesCollection.updateOne( { identifier: volume.identifier } as IVolume<'server'>,
-      { $inc: { memoryUsed: part.byteCount } as IVolume<'server'> } );
+  //   await volumesCollection.updateOne( { identifier: volume.identifier } as IVolume<'server'>,
+  //     { $inc: { memoryUsed: part.byteCount } as IVolume<'server'> } );
 
-    await statCollection.updateOne( { user: user } as IStorageStats<'server'>,
-      { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats<'server'> } );
+  //   await statCollection.updateOne( { user: user } as IStorageStats<'server'>,
+  //     { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats<'server'> } );
 
-    await files.updateOne( { _id: fileEntry._id } as IFileEntry<'server'>,
-      { $set: { identifier: fileIdentifier, publicURL: fileEntry.publicURL } as IFileEntry<'server'> } );
+  //   await files.updateOne( { _id: fileEntry._id } as IFileEntry<'server'>,
+  //     { $set: { identifier: fileIdentifier, publicURL: fileEntry.publicURL } as IFileEntry<'server'> } );
 
-    return fileEntry;
-  }
+  //   return fileEntry;
+  // }
 }

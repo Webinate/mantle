@@ -74,6 +74,7 @@ describe( 'Initializing tests', function() {
 // require( './tests/files/get' );
 // require( './tests/files/rename' );
 // require( './tests/files/upload' );
+require( './tests/files/upload-validation' );
 
 // require( './tests/posts/create' );
 // require( './tests/posts/delete' );
@@ -90,5 +91,3 @@ describe( 'Initializing tests', function() {
 // require( './tests/user-stats/get-set-media-stats' );
 // require( './tests/user-stats/get-set-user-stats' );
 // require( './tests/user-stats/setting-values' );
-
-require( './tests/files/upload-validation' );

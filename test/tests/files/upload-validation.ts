@@ -43,6 +43,14 @@ describe( 'Testing volume upload validation: ', function() {
     assert.equal( resp.statusText, `Volume does not exist` );
   } )
 
+  it( 'must fail if another user tries to upload into your volume', async function() {
+    const form = new FormData();
+    form.append( 'file', fs.readFileSync( goodFilePath ) );
+    const resp = await header.user2.post( `/files/users/${header.user1.username}/volumes/${volumeName}/upload`, form, form.getHeaders() );
+    assert.equal( resp.status, 403 );
+    assert.equal( resp.statusText, `You don't have permission to make this request` );
+  } )
+
   it( 'must fail if non-supported file is uploaded', async function() {
     const form = new FormData();
     form.append( 'dangerous', fs.createReadStream( dangerousFile ) );
@@ -74,7 +82,6 @@ describe( 'Testing volume upload validation: ', function() {
     form.append( 'good-file', fs.createReadStream( goodFilePath ) );
     const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volumeName}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `maxFileSize exceeded, received 589219 bytes of file data` );
 
     let filesInTemp = 0;
 

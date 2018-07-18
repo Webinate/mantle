@@ -51,8 +51,8 @@ export class LocalVolume implements IRemote {
     } )
   }
 
-  generateUrl( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {
-    return `${this._url}/${volume.identifier}/${file.identifier}`;
+  generateUrl( volume: IVolume<'server'>, identifier: string ) {
+    return `${this._url}/${volume.identifier}/${identifier}`;
   }
 
   /**
@@ -88,7 +88,7 @@ export class LocalVolume implements IRemote {
     } );
   }
 
-  async uploadFile( volume: IVolume<'server'>, file: IFileEntry<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
+  async uploadFile( volume: IVolume<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
     let ext = extname( uploadOptions.filename );
     let filename = uploadOptions.filename;
     let fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}${ext ? '.' + ext : ''}` );
