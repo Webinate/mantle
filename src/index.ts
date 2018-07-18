@@ -88,9 +88,10 @@ export { IRender } from './types/models/i-render';
 export { ISessionEntry } from './types/models/i-session-entry';
 export { IStorageStats } from './types/models/i-storage-stats';
 export { IUserEntry } from './types/models/i-user-entry';
+export { IUploadResponse } from './types/tokens/i-file-tokens';
 export {
-  IAuthenticationResponse, VolumeTokens, EmailTokens,
-  FileTokens, IRemoveResponse, IResponse, ISimpleResponse, IUploadBinaryResponse, IUploadResponse, IUploadTextResponse,
+  IAuthenticationResponse, EmailTokens,
+  FileTokens, IRemoveResponse, IResponse, ISimpleResponse,
   Page, RenderTokens, SessionTokens, StatTokens
 } from './types/tokens/standard-tokens';
 export { IAuthReq } from './types/tokens/i-auth-request';
@@ -98,7 +99,6 @@ export { ILoginToken } from './types/tokens/i-login-token';
 export { IMessage } from './types/tokens/i-message';
 export { IRegisterToken } from './types/tokens/i-register-token';
 export { SocketTokens } from './types/tokens/i-socket-token';
-export { IUploadToken } from './types/tokens/i-upload-token';
 export { IClient, IServer } from './types/config/properties/i-client';
 export { IConfig } from './types/config/i-config';
 export { IAdminUser } from './types/config/properties/i-admin';

@@ -2,10 +2,8 @@ import { IUserEntry } from '../models/i-user-entry';
 import { IStorageStats } from '../models/i-storage-stats';
 import { ISessionEntry } from '../models/i-session-entry';
 import { IFileEntry } from '../models/i-file-entry';
-import { IVolume } from '../models/i-volume-entry';
 import { IRender } from '../models/i-render';
 import { IMessage } from './i-message';
-import { IUploadToken } from './i-upload-token';
 
 /*
 * The most basic response from the server. The base type of all responses.
@@ -32,28 +30,6 @@ export interface IAuthenticationResponse extends IResponse {
   message: string;
   authenticated: boolean;
   user?: IUserEntry<'client'> | null;
-}
-
-/*
-* A POST request that returns the details of a text upload
-*/
-export interface IUploadTextResponse extends IResponse {
-  token: IUploadToken;
-}
-
-/*
-* A POST request that returns the details of a binary upload
-*/
-export interface IUploadBinaryResponse extends IResponse {
-  token: IUploadToken;
-}
-
-/*
-* A POST request that returns the details of a multipart form upload
-*/
-export interface IUploadResponse extends IResponse {
-  message: string;
-  tokens: Array<IUploadToken>
 }
 
 /*
@@ -103,17 +79,6 @@ export namespace FileTokens {
   /** PUT /files/:file/rename-file */
   export namespace Put { export type Body = { name: string }; export type Response = Partial<IFileEntry<'client'>>; }
   /** DELETE /files/:file */
-  export namespace DeleteAll { export type Body = void; export type Response = void; }
-}
-
-export namespace VolumeTokens {
-  /** GET /volumes/user/:user */
-  export namespace GetAll { export type Body = void; export type Response = Page<IVolume<'client'>>; }
-  /** POST /volumes/user/:user/:name */
-  export namespace Post { export type Body = void; export type Response = IVolume<'client'>; }
-  /** POST /volumes/:volume/upload/:parentFile? */
-  export namespace PostFile { export type Body = any; export type Response = IUploadResponse; }
-  /** DELETE /volumes/:volumes */
   export namespace DeleteAll { export type Body = void; export type Response = void; }
 }
 
