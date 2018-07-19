@@ -22,10 +22,7 @@ import { IAuthReq } from '../types/tokens/i-auth-request';
 import { unlink, exists } from 'fs';
 import { IncomingForm, Fields, File, Part } from 'formidable';
 import * as winston from 'winston';
-import { IUploadResponse } from '..';
-import ControllerFactory from '../core/controller-factory';
-import { VolumesController } from './volumes';
-import { createReadStream } from 'fs';
+import { Error500 } from '../utils/errors';
 
 export type GetOptions = {
   volumeId?: string | ObjectID;
@@ -51,7 +48,6 @@ export class FilesController extends Controller {
   private _stats: StorageStatsModel;
   private _activeManager: IRemote;
   private _allowedFileTypes: Array<string>;
-  private _volumeController: VolumesController;
 
   constructor( config: IConfig ) {
     super( config );
@@ -68,7 +64,6 @@ export class FilesController extends Controller {
     this._files = ModelFactory.get( 'files' );
     this._volumes = ModelFactory.get( 'volumes' );
     this._stats = ModelFactory.get( 'storage' );
-    this._volumeController = ControllerFactory.get( 'volumes' );
     this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
     return this;
   }
@@ -225,20 +220,31 @@ export class FilesController extends Controller {
     const volumesModel = this._volumes;
     const statsModel = this._stats;
 
-    const fileIdentifier = await this._activeManager.uploadFile( volume, createReadStream( file.path ), { headers: part.headers, filename: name } );
-    const publicURL = this._activeManager.generateUrl( volume, fileIdentifier );
-    const fileEntry: Partial<IFileEntry<'client'>> = {
-      identifier: fileIdentifier,
-      publicURL: publicURL
+    // Upload the file to the remote
+    const uploadToken = await this._activeManager.uploadFile( volume, file );
+
+    // Create the file entry
+    const fileData: Partial<IFileEntry<'client'>> = {
+      identifier: uploadToken.id,
+      publicURL: uploadToken.url
     };
 
-    const result = await filesModel.createInstance<IFileEntry<'client'>>( fileEntry );
+    const newFile = await filesModel.createInstance<IFileEntry<'client'>>( fileData );
 
-    await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { $inc: { memoryUsed: part.byteCount } as IVolume<'server'> } );
-    await statsModel.update<IStorageStats<'client'>>( { user: user } as IStorageStats<'server'>, { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats<'server'> } );
-    await filesModel.update<IFileEntry<'server'>>( { _id: fileEntry._id } as IFileEntry<'server'>, { $set: { identifier: fileIdentifier, publicURL: fileEntry.publicURL } as IFileEntry<'server'> } );
+    // Update stat info
+    const curStats = await statsModel.findOne<IStorageStats<'server'>>( { user: volume.user } as IStorageStats<'server'> );
 
-    return fileEntry;
+    if ( !curStats )
+      throw new Error500( 'No stats found for volume' );
+
+    await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: volume.memoryUsed + file.size } );
+    await statsModel.update<IStorageStats<'client'>>( { user: volume.user } as IStorageStats<'server'>, { memoryUsed: curStats.dbEntry.memoryUsed + file.size, apiCallsUsed: curStats.dbEntry.memoryUsed + 1 } );
+
+    // Remove temp file
+    await this.removeTempFiles( [ file ] );
+
+    // Return the new file
+    return newFile.downloadToken<IFileEntry<'client'>>( { verbose: true } );
   }
 
   /**
@@ -251,24 +257,17 @@ export class FilesController extends Controller {
     if ( !volumeName || volumeName.trim() === '' )
       throw new Error( `Please specify a volume for the upload` );
 
-    const volume = await this._volumeController.get( { name: volumeName, user: username } );
-    if ( !volume )
+    const volumeSchema = await this._volumes.findOne<IVolume<'server'>>( { name: volumeName, user: username } );
+    if ( !volumeSchema )
       throw new Error( `Volume does not exist` );
 
     const response = await this.uploadFormToTempDir( req );
-    const files = response.files.map( f => {
-      return {
-        size: f.size,
-        path: f.path,
-        name: f.name,
-        type: f.type,
-      }
-    } );
+    const proimises: Promise<IFileEntry<'client'>>[] = [];
+    for ( const file of response.files )
+      proimises.push( this.uploadFileToRemote( file, volumeSchema.dbEntry ) );
 
-
-
-    const toRet: IUploadResponse = { files: files };
-    return toRet;
+    const fileEntries = await Promise.all( proimises );
+    return fileEntries;
   }
 
   /**

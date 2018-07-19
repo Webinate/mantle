@@ -1,7 +1,8 @@
 import { Readable, Writable } from 'stream';
 import { createGzip, Gzip } from 'zlib';
+import { createReadStream } from 'fs';
 import { IGoogleProperties } from '../../types/config/properties/i-google';
-import { IRemote, IUploadOptions } from '../../types/interfaces/i-remote';
+import { IRemote, IUpload, IUploadToken } from '../../types/interfaces/i-remote';
 import { IVolume } from '../../types/models/i-volume-entry';
 import { IFileEntry } from '../../types/models/i-file-entry';
 import * as compressible from 'compressible';
@@ -24,9 +25,9 @@ export class GoogleVolume implements IRemote {
     } );
   }
 
-  generateUrl( volume: IVolume<'server'>, identifier: string ) {
-    return `https://storage.googleapis.com/${volume.identifier}/${identifier}`;
-  }
+  // generateUrl( volume: IVolume<'server'>, identifier: string ) {
+  //   return `https://storage.googleapis.com/${volume.identifier}/${identifier}`;
+  // }
 
   async createVolume( volume: IVolume<'server'>, options?: any ) {
     const gcs = this._gcs;
@@ -98,24 +99,28 @@ export class GoogleVolume implements IRemote {
     } );
   }
 
-  async uploadFile( volume: IVolume<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
-    const filename = generateRandString( 16 ) + extname( uploadOptions.filename );
+  async uploadFile( volume: IVolume<'server'>, file: IUpload ): Promise<IUploadToken> {
+    const filename = generateRandString( 16 ) + extname( file.name );
     const b = this._gcs.bucket( volume.identifier );
     const rawFile = b.file( filename );
 
     let dest: Writable;
+    const source = createReadStream( file.path );
 
     // Check if the stream content type is something that can be compressed
     // if so, then compress it before sending it to
     // Google and set the content encoding
-    if ( compressible( uploadOptions.headers[ 'content-type' ] ) )
-      dest = source.pipe( this._zipper ).pipe( rawFile.createWriteStream( <any>{ metadata: { contentEncoding: 'gzip', contentType: uploadOptions.headers[ 'content-type' ], metadata: { encoded: true } } } ) );
+    if ( compressible( file.type ) )
+      dest = source.pipe( this._zipper ).pipe( rawFile.createWriteStream( <any>{ metadata: { contentEncoding: 'gzip', contentType: file.type, metadata: { encoded: true } } } ) );
     else
-      dest = source.pipe( rawFile.createWriteStream( <any>{ metadata: { contentType: uploadOptions.headers[ 'content-type' ] } } ) );
+      dest = source.pipe( rawFile.createWriteStream( <any>{ metadata: { contentType: file.type } } ) );
 
     await this.handleStreamsEvents( source, dest );
     await rawFile.makePublic();
-    return filename;
+    return {
+      id: filename,
+      url: `https://storage.googleapis.com/${volume.identifier}/${filename}`
+    };
   }
 
   async removeFile( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {

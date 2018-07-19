@@ -1,10 +1,10 @@
 import { Readable, Writable } from 'stream';
 import { resolve, basename, extname } from 'path';
 import * as rimraf from 'rimraf';
-import { mkdirSync, exists, existsSync, createWriteStream } from 'fs';
+import { mkdirSync, exists, existsSync, createWriteStream, createReadStream } from 'fs';
 import { createGzip, Gzip } from 'zlib';
 import { ILocalVolume } from '../../types/config/properties/i-remote-options';
-import { IRemote, IUploadOptions } from '../../types/interfaces/i-remote';
+import { IRemote, IUploadToken, IUpload } from '../../types/interfaces/i-remote';
 import { IFileEntry } from '../../types/models/i-file-entry';
 import { IVolume } from '../../types/models/i-volume-entry';
 import * as compressible from 'compressible';
@@ -51,9 +51,9 @@ export class LocalVolume implements IRemote {
     } )
   }
 
-  generateUrl( volume: IVolume<'server'>, identifier: string ) {
-    return `${this._url}/${volume.identifier}/${identifier}`;
-  }
+  // generateUrl( volume: IVolume<'server'>, identifier: string ) {
+  //   return `${this._url}/${volume.identifier}/${identifier}`;
+  // }
 
   /**
    * Wraps a source and destination stream in a promise that catches error
@@ -88,15 +88,15 @@ export class LocalVolume implements IRemote {
     } );
   }
 
-  async uploadFile( volume: IVolume<'server'>, source: Readable, uploadOptions: IUploadOptions ) {
-    let ext = extname( uploadOptions.filename );
-    let filename = uploadOptions.filename;
+  async uploadFile( volume: IVolume<'server'>, file: IUpload ): Promise<IUploadToken> {
+    let ext = extname( file.name );
+    let filename = file.name;
     let fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}${ext ? '.' + ext : ''}` );
     let counter = 1;
 
     while ( fileExists ) {
-      ext = extname( uploadOptions.filename );
-      let base = basename( uploadOptions.filename, ext )
+      ext = extname( file.name );
+      let base = basename( file.name, ext )
       base += counter.toString();
       counter++;
 
@@ -105,17 +105,21 @@ export class LocalVolume implements IRemote {
     }
 
     const writeStream = createWriteStream( `${this._path}/${volume.identifier}/${filename}` );
+    const source = createReadStream( file.path );
 
     // Check if the stream content type is something that can be compressed
     // if so, then compress it before sending it to
     // Google and set the content encoding
-    if ( compressible( uploadOptions.headers[ 'content-type' ] ) )
+    if ( compressible( file.type ) )
       source.pipe( this._zipper ).pipe( writeStream );
     else
       source.pipe( writeStream );
 
     await this.handleStreamsEvents( source, writeStream );
-    return filename;
+    return {
+      id: filename,
+      url: `${this._url}/${volume.identifier}/${filename}`
+    };
   }
 
   async removeFile( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {

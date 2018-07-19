@@ -4,10 +4,8 @@ import { IRemote } from '../types/interfaces/i-remote';
 import { Page } from '../types/tokens/standard-tokens';
 import { ILocalVolume } from '../types/config/properties/i-remote-options';
 import { IVolume } from '../types/models/i-volume-entry';
-import { IFileEntry } from '../types/models/i-file-entry';
 import { IStorageStats } from '../types/models/i-storage-stats';
 import { Collection, Db, ObjectID } from 'mongodb';
-import { Part } from 'multiparty';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
@@ -42,7 +40,6 @@ export type DeleteOptions = {
  */
 export class VolumesController extends Controller {
   private _volumes: Collection<IVolume<'server' | 'client'>>;
-  private _files: Collection<IFileEntry<'server' | 'client'>>;
   private _stats: Collection<IStorageStats<'server' | 'client'>>;
   private _activeManager: IRemote;
   private _filesController: FilesController;
@@ -58,7 +55,6 @@ export class VolumesController extends Controller {
    */
   async initialize( db: Db ) {
     this._volumes = await db.collection( this._config.collections.volumesCollection );
-    this._files = await db.collection( this._config.collections.filesCollection );
     this._stats = await db.collection( this._config.collections.statsCollection );
 
     googleVolume.initialize( this._config.remotes.google as IGoogleProperties );
@@ -250,26 +246,6 @@ export class VolumesController extends Controller {
   }
 
   /**
-   * Checks to see the user's storage limits to see if they are allowed to upload data
-   * @param user The username
-   * @param part
-   */
-  private async canUpload( user: string, part: Part ) {
-    const stats = this._stats;
-
-    const result = await stats.find( <IStorageStats<'server'>>{ user: user } ).limit( 1 ).next();
-
-    if ( result.memoryUsed! + part.byteCount < result.memoryAllocated! ) {
-      if ( result.apiCallsUsed! + 1 < result.apiCallsAllocated! )
-        return result;
-      else
-        throw new Error( 'You have reached your API call limit. Please upgrade your plan for more API calls' );
-    }
-    else
-      throw new Error( 'You do not have enough memory allocated. Please upgrade your account for more memory' );
-  }
-
-  /**
    * Checks to see the user's api limit and make sure they can make calls
    * @param user The username
    */
@@ -285,58 +261,4 @@ export class VolumesController extends Controller {
     else
       return false;
   }
-
-  // /**
-  //  * Uploads a part stream as a new user file. This checks permissions, updates the local db and uploads the stream to the volume
-  //  * @param part
-  //  * @param volume The volume to which we are uploading to
-  //  * @param user The username
-  //  * @param makePublic Makes this uploaded file public to the world
-  //  * @param parentFile [Optional] Set a parent file which when deleted will detelete this upload as well
-  //  */
-  // async uploadStream( part: Part, volume: IVolume<'server' | 'client'>, user: string, makePublic: boolean = true, parentFile: string | null = null ) {
-
-  //   await this.canUpload( user, part );
-
-  //   const volumesCollection = this._volumes;
-  //   const statCollection = this._stats;
-  //   const name = part.filename || part.name;
-  //   const files = this._files;
-
-  //   if ( !name )
-  //     throw new Error( `Uploaded item does not have a name or filename specified` );
-
-  //   const fileEntry: Partial<IFileEntry<'server'>> = {
-  //     name: ( part.filename || part.name ),
-  //     user: user,
-  //     volumeId: volume._id!,
-  //     volumeName: volume.name!,
-  //     parentFile: ( parentFile ? new ObjectID( parentFile ) : null ),
-  //     created: Date.now(),
-  //     numDownloads: 0,
-  //     size: part.byteCount,
-  //     isPublic: makePublic,
-  //     mimeType: part.headers[ 'content-type' ],
-  //     meta: {}
-  //   };
-
-  //   const result = await files.insertOne( fileEntry );
-  //   fileEntry._id = result.insertedId;
-
-  //   const fileIdentifier = await this._activeManager.uploadFile( volume, fileEntry, part, { headers: part.headers, filename: name } );
-
-  //   fileEntry.identifier = fileIdentifier;
-  //   fileEntry.publicURL = this._activeManager.generateUrl( volume, fileEntry );
-
-  //   await volumesCollection.updateOne( { identifier: volume.identifier } as IVolume<'server'>,
-  //     { $inc: { memoryUsed: part.byteCount } as IVolume<'server'> } );
-
-  //   await statCollection.updateOne( { user: user } as IStorageStats<'server'>,
-  //     { $inc: { memoryUsed: part.byteCount, apiCallsUsed: 1 } as IStorageStats<'server'> } );
-
-  //   await files.updateOne( { _id: fileEntry._id } as IFileEntry<'server'>,
-  //     { $set: { identifier: fileIdentifier, publicURL: fileEntry.publicURL } as IFileEntry<'server'> } );
-
-  //   return fileEntry;
-  // }
 }
