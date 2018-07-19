@@ -20,6 +20,7 @@ import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { IAuthReq } from '../types/tokens/i-auth-request';
 import { unlink, exists } from 'fs';
+import { resolve } from 'path';
 import { IncomingForm, Fields, File, Part } from 'formidable';
 import * as winston from 'winston';
 import { Error500 } from '../utils/errors';
@@ -207,8 +208,6 @@ export class FilesController extends Controller {
           return reject( error );
         }
         else {
-          // TODO: Remove this line
-          this.removeTempFiles( filesArr );
           return resolve( { fields: fieldsToRet, files: filesArr } );
         }
       } )
@@ -220,13 +219,21 @@ export class FilesController extends Controller {
     const volumesModel = this._volumes;
     const statsModel = this._stats;
 
+    file.path = resolve( file.path );
+
     // Upload the file to the remote
     const uploadToken = await this._activeManager.uploadFile( volume, file );
 
     // Create the file entry
     const fileData: Partial<IFileEntry<'client'>> = {
       identifier: uploadToken.id,
-      publicURL: uploadToken.url
+      publicURL: uploadToken.url,
+      name: file.name,
+      size: file.size,
+      mimeType: file.type,
+      user: volume.user,
+      volumeId: volume._id.toString(),
+      volumeName: volume.name
     };
 
     const newFile = await filesModel.createInstance<IFileEntry<'client'>>( fileData );

@@ -73,8 +73,8 @@ describe( 'Initializing tests', function() {
 // require( './tests/files/download' );
 // require( './tests/files/get' );
 // require( './tests/files/rename' );
-// require( './tests/files/upload' );
-require( './tests/files/upload-validation' );
+require( './tests/files/upload' );
+// require( './tests/files/upload-validation' );
 
 // require( './tests/posts/create' );
 // require( './tests/posts/delete' );

@@ -1,94 +1,58 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import Agent from '../agent';
+import * as path from 'path';
 import header from '../header';
 import * as fs from 'fs';
-import { IConfig, IAdminUser, Page, IFileEntry } from '../../../src';
+import { IFileEntry, IVolume } from '../../../src';
+import { randomString } from '../utils';
 import * as FormData from 'form-data';
+import { IDatabase } from '../../../src/types/config/properties/i-database';
 
-let volume: string;
+let volume: IVolume<'client'>;
 const filePath = './test/media/file.png';
 
-describe( 'Testing file uploads', function() {
+describe( 'Testing successful file uploads: ', function() {
 
-  it( 'regular user did create a volume dinosaurs', async function() {
-    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/dinosaurs` );
+  before( async function() {
+    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/${randomString()}` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
-    volume = json._id;
+    volume = json as IVolume<'client'>;
   } )
 
-  it( 'regular user has 0 files in the volume', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/${volume}` );
-    assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    assert( json.data.length === 0 );
-  } )
-
-  it( 'regular user did not upload a file to a volume that does not exist', async function() {
-
-    const form = new FormData();
-    form.append( '"�$^&&', fs.readFileSync( filePath ) );
-    const resp = await header.user1.post( "/volumes/dinosaurs3/upload", form, form.getHeaders() );
-    assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    assert( json.tokens )
-    assert.deepEqual( json.message, "No volume exists with the name 'dinosaurs3'" );
-    assert( json.tokens.length === 0 );
-  } )
-
-  it( 'regular user did not upload a file when the meta was invalid', async function() {
-    const form = new FormData();
-    form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    form.append( 'meta', 'BAD META' )
-    const resp = await header.user1.post( "/volumes/dinosaurs/upload", form, form.getHeaders() );
-    assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    assert( json.tokens )
-    assert.deepEqual( json.message, "Error: Meta data is not a valid JSON: SyntaxError: Unexpected token B in JSON at position 0" );
-    assert( json.tokens.length === 0 );
-  } )
-
-  it( 'regular user did upload a file when the meta was valid', async function() {
-    const form = new FormData();
-    form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    form.append( 'meta', '{ "meta" : "good" }' )
-    const resp = await header.user1.post( "/volumes/dinosaurs/upload", form, form.getHeaders() );
-    assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    assert( json.tokens )
-    assert.deepEqual( json.message, "Upload complete. [1] Files have been saved." );
-    assert( json.tokens.length === 1 );
-  } )
-
-  it( 'regular user did upload a file to dinosaurs', async function() {
-    const form = new FormData();
-    form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await header.user1.post( "/volumes/dinosaurs/upload", form, form.getHeaders() );
-    assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    assert( json.tokens );
-    assert.deepEqual( json.message, "Upload complete. [1] Files have been saved." );
-    assert( json.tokens.length === 1 )
-    assert.deepEqual( json.tokens[ 0 ].field, "small-image.png" );
-    assert.deepEqual( json.tokens[ 0 ].filename, "small-image.png" );
-    assert( json.tokens[ 0 ].error === false )
-    assert.deepEqual( json.tokens[ 0 ].errorMsg, "" );
-    assert( json.tokens[ 0 ].file )
-  } )
-
-  it( 'regular user uploaded 2 files, the second with meta', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/${volume}` );
-    assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    assert( json.data )
-    assert( json.data.length === 2 )
-    assert( json.data[ 0 ].meta );
-    assert.deepEqual( json.data[ 0 ].meta.meta, "good" );
-  } )
-
-  it( 'regular user did remove the volume dinosaurs', async function() {
-    const resp = await header.user1.delete( `/volumes/${volume}` );
+  after( async function() {
+    const resp = await header.user1.delete( `/volumes/${volume._id}` );
     assert.deepEqual( resp.status, 204 );
+  } )
+
+  it( 'Can upload a single file', async function() {
+    const form = new FormData();
+    const db = header.config.database as IDatabase;
+
+    form.append( 'good-file', fs.createReadStream( filePath ) );
+    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume.name}/upload`, form, form.getHeaders() );
+    assert.equal( resp.status, 200 );
+    const files = await resp.json() as IFileEntry<'client'>[];
+    assert.equal( files.length, 1 );
+    assert.equal( files[ 0 ].name, 'file.png' );
+    assert.equal( files[ 0 ].mimeType, 'image/png' );
+    assert.deepEqual( files[ 0 ].parentFile, null );
+
+    // Assert we have a public url
+    assert( typeof ( files[ 0 ].publicURL ) === 'string' );
+    assert( files[ 0 ].publicURL.length > 0 );
+
+    assert.equal( files[ 0 ].size, 228 );
+    assert.equal( files[ 0 ].user, header.user1.username );
+
+    // Make sure the temp folder is cleaned up
+    let filesInTemp = 0;
+
+    fs.readdirSync( path.resolve( __dirname + '/../../../temp' ) ).forEach( file => {
+      filesInTemp++;
+    } );
+
+    // There are 2 files expected in the temp - the .gitignore and readme.md - but thats it
+    assert.equal( filesInTemp, 2 );
   } )
 } )

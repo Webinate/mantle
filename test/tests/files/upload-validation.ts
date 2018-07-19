@@ -92,12 +92,4 @@ describe( 'Testing volume upload validation: ', function() {
     // There are 2 files expected in the temp - the .gitignore and readme.md - but thats it
     assert.equal( filesInTemp, 2 );
   } )
-
-  it( 'Can upload an accepted file', async function() {
-    const form = new FormData();
-    form.append( 'good-file', fs.createReadStream( goodFilePath ) );
-    form.append( 'good-file2', fs.createReadStream( goodFilePath ) );
-    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volumeName}/upload`, form, form.getHeaders() );
-    assert.equal( resp.status, 200 );
-  } )
 } )
