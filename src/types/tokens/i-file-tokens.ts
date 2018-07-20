@@ -1,8 +1,6 @@
-export interface IUploadResponse {
-  files: {
-    size: number;
-    path: string;
-    name: string;
-    type: string;
-  }[];
-}
+export type IUploadResponse = {
+  size: number;
+  path: string;
+  name: string;
+  type: string;
+}[];

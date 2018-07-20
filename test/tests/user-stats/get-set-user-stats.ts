@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, IStorageStats } from '../../../src';
+import { IAdminUser, IStorageStats } from '../../../src';
 
 describe( 'Getting and setting user stats', function() {
 
@@ -29,7 +28,7 @@ describe( 'Getting and setting user stats', function() {
 
   it( 'regular user did get default stats for itself', async function() {
     const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
-    const json: IStorageStats<'client'> = await resp.json();
+    const json = await resp.json<IStorageStats<'client'>>();
     assert.strictEqual( resp.status, 200 );
 
     assert( json );

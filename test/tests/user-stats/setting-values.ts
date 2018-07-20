@@ -2,16 +2,16 @@ import * as assert from 'assert';
 import { } from 'mocha';
 import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, Page } from '../../../src';
+import { IConfig, IAdminUser, Page, IStorageStats } from '../../../src';
 
-let stats;
+let stats: IStorageStats<'client'>;
 
 describe( 'Testing setting stat values', function() {
 
   it( 'regular did get its stat information', async function() {
     const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
+    const json = await resp.json<IStorageStats<'client'>>();
     stats = json;
   } )
 
@@ -74,7 +74,7 @@ describe( 'Testing setting stat values', function() {
   it( 'did not update the regular stats', async function() {
     const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
+    const json = await resp.json<IStorageStats<'client'>>();
     assert( stats.apiCallsAllocated == json.apiCallsAllocated );
     assert( stats.memoryAllocated == json.memoryAllocated );
     assert( stats.apiCallsUsed == json.apiCallsUsed );
@@ -104,7 +104,7 @@ describe( 'Testing setting stat values', function() {
   it( 'regular user stats have been updated', async function() {
     const resp = await header.user1.get( `/stats/users/${header.user1.username}/get-stats` );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
+    const json = await resp.json<IStorageStats<'client'>>();
     assert.deepEqual( json.apiCallsAllocated, 100 );
     assert.deepEqual( json.memoryAllocated, 100 );
     assert.deepEqual( json.apiCallsUsed, 50 );

@@ -245,7 +245,7 @@ export class FilesController extends Controller {
       throw new Error500( 'No stats found for volume' );
 
     await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: volume.memoryUsed + file.size } );
-    await statsModel.update<IStorageStats<'client'>>( { user: volume.user } as IStorageStats<'server'>, { memoryUsed: curStats.dbEntry.memoryUsed + file.size, apiCallsUsed: curStats.dbEntry.memoryUsed + 1 } );
+    await statsModel.update<IStorageStats<'client'>>( { user: volume.user } as IStorageStats<'server'>, { memoryUsed: curStats.dbEntry.memoryUsed + file.size, apiCallsUsed: curStats.dbEntry.apiCallsUsed + 1 } );
 
     // Remove temp file
     await this.removeTempFiles( [ file ] );
@@ -257,14 +257,18 @@ export class FilesController extends Controller {
   /**
    * Uploads files from a from data request to the temp folder
    * @param req The request to process form data
-   * @param volumeName The name of the volume to upload to
+   * @param volumeId The id of the volume to upload to
    * @param username The username of the uploader
    */
-  async uploadFilesToVolume( req: IAuthReq, volumeName: string, username: string ) {
-    if ( !volumeName || volumeName.trim() === '' )
+  async uploadFilesToVolume( req: IAuthReq, volumeId: string, username: string ) {
+    if ( !volumeId || volumeId.trim() === '' )
       throw new Error( `Please specify a volume for the upload` );
 
-    const volumeSchema = await this._volumes.findOne<IVolume<'server'>>( { name: volumeName, user: username } );
+    const volumeSchema = await this._volumes.findOne<IVolume<'server'>>( {
+      _id: new ObjectID( volumeId ),
+      user: username
+    } as Partial<IVolume<'server'>> );
+
     if ( !volumeSchema )
       throw new Error( `Volume does not exist` );
 

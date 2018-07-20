@@ -1,21 +1,26 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import Agent from '../agent';
+import { randomString } from '../utils';
 import header from '../header';
 import * as fs from 'fs';
-import { IConfig, IAdminUser, Page, IFileEntry } from '../../../src';
+import { IConfig, IAdminUser, Page, IFileEntry, IVolume } from '../../../src';
 import * as FormData from 'form-data';
 
-let volume: string;
+let volume: IVolume<'client'>;
 const filePath = './test/media/file.png';
 
 describe( 'Getting uploaded user files', function() {
 
-  it( 'regular user did create a volume dinosaurs', async function() {
+  before( async function() {
     const resp = await header.user1.post( `/volumes/user/${header.user1.username}/dinosaurs` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
-    volume = json._id;
+    volume = json;
+  } )
+
+  after( async function() {
+    const resp = await header.user1.delete( `/volumes/${volume._id}` );
+    assert.deepEqual( resp.status, 204 );
   } )
 
   it( 'regular user did not get files for the admin user volume', async function() {
@@ -42,19 +47,19 @@ describe( 'Getting uploaded user files', function() {
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await header.user1.post( "/volumes/dinosaurs/upload", form, form.getHeaders() );
+    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
   } )
 
   it( 'regular user did upload another file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await header.user1.post( "/volumes/dinosaurs/upload", form, form.getHeaders() );
+    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
   } )
 
   it( 'regular user fetched 2 files from the dinosaur volume', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/${volume}` );
+    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/${volume._id}` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 2 )
@@ -72,14 +77,9 @@ describe( 'Getting uploaded user files', function() {
   } )
 
   it( 'admin fetched 2 files from the regular users dinosaur volume', async function() {
-    const resp = await header.admin.get( `/files/users/${header.user1.username}/volumes/${volume}` );
+    const resp = await header.admin.get( `/files/users/${header.user1.username}/volumes/${volume._id}` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 2 );
-  } )
-
-  it( 'regular user did remove the volume dinosaurs', async function() {
-    const resp = await header.user1.delete( `/volumes/${volume}` );
-    assert.deepEqual( resp.status, 204 );
   } )
 } )

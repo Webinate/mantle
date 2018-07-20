@@ -15,9 +15,9 @@ describe( 'Testing successful file uploads: ', function() {
 
   before( async function() {
     const resp = await header.user1.post( `/volumes/user/${header.user1.username}/${randomString()}` );
-    const json = await resp.json();
+    const json = await resp.json<IVolume<'client'>>();
     assert.deepEqual( resp.status, 200 );
-    volume = json as IVolume<'client'>;
+    volume = json;
   } )
 
   after( async function() {
@@ -30,9 +30,9 @@ describe( 'Testing successful file uploads: ', function() {
     const db = header.config.database as IDatabase;
 
     form.append( 'good-file', fs.createReadStream( filePath ) );
-    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume.name}/upload`, form, form.getHeaders() );
+    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );
-    const files = await resp.json() as IFileEntry<'client'>[];
+    const files = await resp.json<IFileEntry<'client'>[]>();
     assert.equal( files.length, 1 );
     assert.equal( files[ 0 ].name, 'file.png' );
     assert.equal( files[ 0 ].mimeType, 'image/png' );

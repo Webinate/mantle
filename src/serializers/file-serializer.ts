@@ -97,8 +97,12 @@ export class FileSerializer extends Serializer {
 
   @j200()
   private async upload( req: IAuthReq ) {
-    const volumeName = req.params.volume;
+    const volumeId = req.params.volume;
     const username = req._user!.username as string;
-    return this._files.uploadFilesToVolume( req, volumeName, username );
+
+    if ( !mongodb.ObjectID.isValid( volumeId ) )
+      throw new Error( `Incorrect volume id format` );
+
+    return this._files.uploadFilesToVolume( req, volumeId, username );
   }
 }
