@@ -2,6 +2,7 @@
 import { SchemaText } from './schema-text';
 import { SchemaBool } from './schema-bool';
 import { SchemaDate } from './schema-date';
+import { SchemaEnum } from './schema-enum';
 import { SchemaTextArray } from './schema-text-array';
 import { SchemaJSON } from './schema-json';
 import { SchemaIdArray } from './schema-id-array';
@@ -21,3 +22,4 @@ export const bool = SchemaBool;
 export const id = SchemaId;
 export const html = SchemaHtml;
 export const foreignKey = SchemaForeignKey;
+export const enums = SchemaEnum;

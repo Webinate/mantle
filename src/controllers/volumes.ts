@@ -16,6 +16,8 @@ import Controller from './controller';
 import { FilesController } from './files';
 import ControllerFactory from '../core/controller-factory';
 import { StatsController } from './stats';
+import { VolumeModel } from '../models/volume-model';
+import ModelFactory from '../core/model-factory';
 
 export type GetManyOptions = {
   user?: string;
@@ -39,7 +41,8 @@ export type DeleteOptions = {
  * Class responsible for managing volumes and uploads
  */
 export class VolumesController extends Controller {
-  private _volumes: Collection<IVolume<'server' | 'client'>>;
+  private _volumes: VolumeModel;
+  // private _volumes: Collection<IVolume<'server' | 'client'>>;
   private _stats: Collection<IStorageStats<'server' | 'client'>>;
   private _activeManager: IRemote;
   private _filesController: FilesController;
@@ -54,7 +57,9 @@ export class VolumesController extends Controller {
    * @param db The mongo db
    */
   async initialize( db: Db ) {
-    this._volumes = await db.collection( this._config.collections.volumesCollection );
+
+    this._volumes = ModelFactory.get( 'volumes' );
+    // this._volumes = await db.collection( this._config.collections.volumesCollection );
     this._stats = await db.collection( this._config.collections.statsCollection );
 
     googleVolume.initialize( this._config.remotes.google as IGoogleProperties );
@@ -70,7 +75,7 @@ export class VolumesController extends Controller {
    * @param options Options for defining which volumes to return
    */
   async getMany( options: GetManyOptions = { index: 0, limit: 10 } ) {
-    const columes = this._volumes;
+    const volumeModel = this._volumes;
     const search: Partial<IVolume<'server'>> = {};
 
     if ( options.user )
@@ -79,25 +84,19 @@ export class VolumesController extends Controller {
     if ( options.searchTerm )
       search.name = options.searchTerm as any;
 
+    let limit = options.limit !== undefined ? options.limit : -1;
+    let index = options.index !== undefined ? options.index : -1;
+
     // Save the new entry into the database
-    const count = await columes.count( search );
-    let cursor = await columes.find( search );
+    const count = await volumeModel.count( search );
+    const schemas = await volumeModel.findMany<IVolume<'server'>>( { selector: search, index, limit } );
+    const volumes = await Promise.all( schemas.map( s => s.downloadToken<IVolume<'client'>>( { verbose: true } ) ) );
 
-    let limit = options.limit;
-    let index = options.index;
-
-    if ( index !== undefined )
-      cursor = cursor.skip( index );
-
-    if ( limit !== undefined )
-      cursor = cursor.limit( limit );
-
-    const result = await cursor.toArray() as IVolume<'client'>[];
     const toRet: Page<IVolume<'client'>> = {
-      limit: limit !== undefined ? limit : -1,
+      limit: limit,
       count: count,
-      index: index !== undefined ? index : -1,
-      data: result
+      index: index,
+      data: volumes
     };
     return toRet;
   }
@@ -106,7 +105,7 @@ export class VolumesController extends Controller {
    * Gets a volume by its name or ID
    */
   async get( options: GetOptions = {} ) {
-    const volumeCollection = this._volumes;
+    const volumeModel = this._volumes;
     const searchQuery: Partial<IVolume<'server'>> = {};
 
     if ( options.user )
@@ -118,12 +117,15 @@ export class VolumesController extends Controller {
     if ( options.identifier )
       searchQuery.identifier = options.identifier;
 
-    const result = await volumeCollection.findOne( searchQuery );
+    const result = await volumeModel.findOne<IVolume<'server'>>( searchQuery );
 
     if ( !result )
       return null;
-    else
-      return result;
+    else {
+      const volume = await result.downloadToken( { verbose: true } );
+      return volume;
+    }
+
   }
 
   /**
@@ -144,11 +146,11 @@ export class VolumesController extends Controller {
    */
   async create( name: string, user: string ) {
     const identifier = `webinate-volume-${generateRandString( 8 ).toLowerCase()}`;
-    const volumeCollection = this._volumes;
+    const volumeModel = this._volumes;
     const stats = this._stats;
 
     // Get the entry
-    let volume: Partial<IVolume<'server' | 'client'>> | null = await this.get( { name: name, user: user } );
+    let volume: Partial<IVolume<'client'>> | null = await this.get( { name: name, user: user } );
 
     // Make sure no volume already exists with that name
     if ( volume )
@@ -164,11 +166,10 @@ export class VolumesController extends Controller {
     }
 
     // Save the new entry into the database
-    const insertResult = await volumeCollection.insertOne( volume );
-    volume = insertResult.ops[ 0 ];
+    const schema = await volumeModel.createInstance( volume );
 
     // Attempt to create a new Google volume
-    await this._activeManager.createVolume( volume! );
+    await this._activeManager.createVolume( schema.dbEntry );
 
     // Increments the API calls
     await stats.updateOne( { user: user } as IStorageStats<'server'>, { $inc: { apiCallsUsed: 1 } as IStorageStats<'server'> } );
@@ -176,7 +177,7 @@ export class VolumesController extends Controller {
     // Send volume added events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.VolumeUploaded ], volume: volume!, username: user };
     await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user ) );
-    return volume!;
+    return schema.downloadToken<IVolume<'client'>>( { verbose: true } );
   }
 
   /**
@@ -185,7 +186,7 @@ export class VolumesController extends Controller {
    * @returns An array of ID's of the volumes removed
    */
   async remove( options: DeleteOptions ) {
-    const volumesCollection = this._volumes;
+    const volumesModel = this._volumes;
     const toRemove: string[] = [];
     const searchQuery: Partial<IVolume<'server'>> = {};
 
@@ -204,15 +205,15 @@ export class VolumesController extends Controller {
       searchQuery.user = options.user;
 
     // Get all the volumes
-    const volumes = await volumesCollection.find( searchQuery ).toArray();
+    const schemas = await volumesModel.findMany<IVolume<'server'>>( { selector: searchQuery, limit: -1 } );
 
-    if ( options._id && volumes.length === 0 )
+    if ( options._id && schemas.length === 0 )
       throw new Error( 'A volume with that ID does not exist' );
 
     // Now delete each one
-    const promises: Promise<IVolume<'server' | 'client'>>[] = []
-    for ( let i = 0, l = volumes.length; i < l; i++ )
-      promises.push( this.deleteVolume( volumes[ i ] ) );
+    const promises: Promise<IVolume<'server'>>[] = []
+    for ( let i = 0, l = schemas.length; i < l; i++ )
+      promises.push( this.deleteVolume( schemas[ i ].dbEntry ) as Promise<IVolume<'server'>> );
 
     await Promise.all( promises );
     return toRemove;
@@ -222,7 +223,7 @@ export class VolumesController extends Controller {
    * Deletes the volume from storage and updates the databases
    */
   private async deleteVolume( volume: IVolume<'server' | 'client'> ) {
-    const volumesCollection = this._volumes;
+    const volumesModel = this._volumes;
     const stats = this._stats;
 
     try {
@@ -235,7 +236,7 @@ export class VolumesController extends Controller {
     await this._activeManager.removeVolume( volume );
 
     // Remove the volume entry
-    await volumesCollection.deleteOne( { _id: volume._id } as IVolume<'server'> );
+    await volumesModel.deleteInstances( { _id: volume._id } as IVolume<'server'> );
     await stats.updateOne( { user: volume.user } as IStorageStats<'server'>, { $inc: { apiCallsUsed: 1 } as IStorageStats<'server'> } );
 
     // Send events to sockets
