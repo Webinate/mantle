@@ -1,14 +1,10 @@
 ﻿import { IConfig } from '../types/config/i-config';
-import { IGoogleProperties } from '../types/config/properties/i-google';
 import { Page } from '../types/tokens/standard-tokens';
-import { ILocalVolume } from '../types/config/properties/i-remote-options';
-import { IRemote } from '../types/interfaces/i-remote';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { IStorageStats } from '../types/models/i-storage-stats';
 import { IVolume } from '../types/models/i-volume-entry';
 import { Db, ObjectID } from 'mongodb';
-import { googleVolume } from '../core/remotes/google-volume';
-import { localVolume } from '../core/remotes/local-volume';
+import RemoteFactory from '../core/remotes/remote-factory';
 import Controller from './controller';
 import { FileModel } from '../models/file-model';
 import ModelFactory from '../core/model-factory';
@@ -47,7 +43,6 @@ export class FilesController extends Controller {
   private _files: FileModel;
   private _volumes: VolumeModel;
   private _stats: StorageStatsModel;
-  private _activeManager: IRemote;
   private _allowedFileTypes: Array<string>;
 
   constructor( config: IConfig ) {
@@ -59,9 +54,6 @@ export class FilesController extends Controller {
    * @param db The mongo db
    */
   async initialize( db: Db ) {
-    googleVolume.initialize( this._config.remotes.google as IGoogleProperties );
-    localVolume.initialize( this._config.remotes.local as ILocalVolume );
-    this._activeManager = localVolume;
     this._files = ModelFactory.get( 'files' );
     this._volumes = ModelFactory.get( 'volumes' );
     this._stats = ModelFactory.get( 'storage' );
@@ -222,7 +214,7 @@ export class FilesController extends Controller {
     file.path = resolve( file.path );
 
     // Upload the file to the remote
-    const uploadToken = await this._activeManager.uploadFile( volume, file );
+    const uploadToken = await RemoteFactory.get( volume.type ).uploadFile( volume, file );
 
     // Create the file entry
     const fileData: Partial<IFileEntry<'client'>> = {
@@ -345,7 +337,7 @@ export class FilesController extends Controller {
     if ( volume ) {
 
       // Get the volume and delete the file
-      await this._activeManager.removeFile( volume.dbEntry, fileEntry );
+      await RemoteFactory.get( volume.dbEntry.type ).removeFile( volume.dbEntry, fileEntry );
 
       // Update the volume data usage
       await volumes.collection.updateOne( { identifier: volume.dbEntry.identifier } as IVolume<'server'>, { $inc: { memoryUsed: -fileEntry.size! } as IVolume<'server'> } );

@@ -5,6 +5,7 @@ import { IModelEntry } from './i-model-entry';
  */
 export interface IVolume<T extends 'server' | 'client'> extends IModelEntry<T> {
   name: string;
+  type: 'google' | 'local';
   identifier: string;
   user: string;
   created: number;

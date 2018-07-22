@@ -12,6 +12,7 @@ import { prepare } from './db-preparation';
 import ModelFactory from '../model-factory';
 import ControllerFactory from '../controller-factory';
 import * as merge from 'deepmerge';
+import RemoteFactory from '../remotes/remote-factory';
 
 const args: any = yargs.argv;
 
@@ -128,8 +129,10 @@ export async function initialize() {
   const mongoDB = new Db( dbProps.name, mongoServer, { w: 1 } );
   const db = await mongoDB.open();
 
+
   ModelFactory.initialize( config, db );
   ControllerFactory.initialize( config, db );
+  await RemoteFactory.initialize( config, db );
   await ModelFactory.addBaseModelFactories();
   await ControllerFactory.addDefaults();
 

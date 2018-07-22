@@ -27,8 +27,6 @@ describe( 'Testing successful file uploads: ', function() {
 
   it( 'Can upload a single file', async function() {
     const form = new FormData();
-    const db = header.config.database as IDatabase;
-
     form.append( 'good-file', fs.createReadStream( filePath ) );
     const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );

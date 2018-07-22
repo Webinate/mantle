@@ -1,16 +1,11 @@
 ﻿import { IConfig } from '../types/config/i-config';
-import { IGoogleProperties } from '../types/config/properties/i-google';
-import { IRemote } from '../types/interfaces/i-remote';
 import { Page } from '../types/tokens/standard-tokens';
-import { ILocalVolume } from '../types/config/properties/i-remote-options';
 import { IVolume } from '../types/models/i-volume-entry';
 import { IStorageStats } from '../types/models/i-storage-stats';
-import { Collection, Db, ObjectID } from 'mongodb';
+import { Db, ObjectID } from 'mongodb';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import { ClientInstruction } from '../socket-api/client-instruction';
-import { googleVolume } from '../core/remotes/google-volume';
-import { localVolume } from '../core/remotes/local-volume';
 import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
 import { FilesController } from './files';
@@ -18,6 +13,8 @@ import ControllerFactory from '../core/controller-factory';
 import { StatsController } from './stats';
 import { VolumeModel } from '../models/volume-model';
 import ModelFactory from '../core/model-factory';
+import { StorageStatsModel } from '../models/storage-stats-model';
+import RemoteFactory from '../core/remotes/remote-factory';
 
 export type GetManyOptions = {
   user?: string;
@@ -42,9 +39,7 @@ export type DeleteOptions = {
  */
 export class VolumesController extends Controller {
   private _volumes: VolumeModel;
-  // private _volumes: Collection<IVolume<'server' | 'client'>>;
-  private _stats: Collection<IStorageStats<'server' | 'client'>>;
-  private _activeManager: IRemote;
+  private _stats: StorageStatsModel;
   private _filesController: FilesController;
   private _statsController: StatsController;
 
@@ -59,12 +54,7 @@ export class VolumesController extends Controller {
   async initialize( db: Db ) {
 
     this._volumes = ModelFactory.get( 'volumes' );
-    // this._volumes = await db.collection( this._config.collections.volumesCollection );
-    this._stats = await db.collection( this._config.collections.statsCollection );
-
-    googleVolume.initialize( this._config.remotes.google as IGoogleProperties );
-    localVolume.initialize( this._config.remotes.local as ILocalVolume );
-    this._activeManager = localVolume;
+    this._stats = ModelFactory.get( 'storage' );
     this._filesController = ControllerFactory.get( 'files' );
     this._statsController = ControllerFactory.get( 'stats' );
     return this;
@@ -147,7 +137,7 @@ export class VolumesController extends Controller {
   async create( name: string, user: string ) {
     const identifier = `webinate-volume-${generateRandString( 8 ).toLowerCase()}`;
     const volumeModel = this._volumes;
-    const stats = this._stats;
+    const statsModel = this._stats;
 
     // Get the entry
     let volume: Partial<IVolume<'client'>> | null = await this.get( { name: name, user: user } );
@@ -169,10 +159,15 @@ export class VolumesController extends Controller {
     const schema = await volumeModel.createInstance( volume );
 
     // Attempt to create a new Google volume
-    await this._activeManager.createVolume( schema.dbEntry );
+    await RemoteFactory.get( schema.dbEntry.type ).createVolume( schema.dbEntry );
+
+    const curStats = await statsModel.findOne<IStorageStats<'server'>>( { user: user } );
+
+    if ( !curStats )
+      throw new Error( `No storage stats found for uer` );
 
     // Increments the API calls
-    await stats.updateOne( { user: user } as IStorageStats<'server'>, { $inc: { apiCallsUsed: 1 } as IStorageStats<'server'> } );
+    await statsModel.update<IStorageStats<'client'>>( { user: user } as IStorageStats<'server'>, { apiCallsUsed: curStats.dbEntry.apiCallsUsed + 1 } as IStorageStats<'client'> );
 
     // Send volume added events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.VolumeUploaded ], volume: volume!, username: user };
@@ -224,7 +219,7 @@ export class VolumesController extends Controller {
    */
   private async deleteVolume( volume: IVolume<'server' | 'client'> ) {
     const volumesModel = this._volumes;
-    const stats = this._stats;
+    const statsModel = this._stats;
 
     try {
       // First remove all volume files
@@ -233,11 +228,15 @@ export class VolumesController extends Controller {
       throw new Error( `Could not remove the volume: '${err.toString()}'` );
     }
 
-    await this._activeManager.removeVolume( volume );
+    await RemoteFactory.get( volume.type ).removeVolume( volume );
+
+    const curStats = await statsModel.findOne<IStorageStats<'server'>>( { user: volume.user } );
+    if ( !curStats )
+      throw new Error( `No storage stats found for uer` );
 
     // Remove the volume entry
     await volumesModel.deleteInstances( { _id: volume._id } as IVolume<'server'> );
-    await stats.updateOne( { user: volume.user } as IStorageStats<'server'>, { $inc: { apiCallsUsed: 1 } as IStorageStats<'server'> } );
+    await statsModel.update<IStorageStats<'client'>>( { user: volume.user } as IStorageStats<'server'>, { apiCallsUsed: curStats.dbEntry.apiCallsUsed + 1 } as IStorageStats<'client'> );
 
     // Send events to sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.VolumeRemoved ], volume: volume, username: volume.user! };
@@ -251,13 +250,13 @@ export class VolumesController extends Controller {
    * @param user The username
    */
   async withinAPILimit( user: string ) {
-    const stats = this._stats;
-    const result = await stats.find( { user: user } as IStorageStats<'server'> ).limit( 1 ).next();
+    const statsModel = this._stats;
+    const result = await statsModel.findOne<IStorageStats<'server'>>( { user: user } as IStorageStats<'server'> );
 
     if ( !result )
       throw new Error( `Could not find the user ${user}` );
 
-    else if ( result.apiCallsUsed! + 1 < result.apiCallsAllocated! )
+    else if ( result.dbEntry.apiCallsUsed + 1 < result.dbEntry.apiCallsAllocated )
       return true;
     else
       return false;
