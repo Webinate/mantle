@@ -28,6 +28,7 @@ describe( 'Testing volume creation', function() {
     assert.deepEqual( resp.status, 200 );
     assert( json.hasOwnProperty( "_id" ) );
     assert.deepEqual( json.name, 'dinosaurs' );
+    assert.deepEqual( json.type, 'local' );
     assert.deepEqual( json.user, header.user1.username );
     assert.deepEqual( json.memoryUsed, 0 );
     assert( json.created > 0 );
