@@ -5,7 +5,7 @@ import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
 import { VolumesController } from '../controllers/volumes';
-import { ownerRights, requireUser } from '../utils/permission-controllers';
+import { ownerRights, requireUser, adminRights, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
 import { j200 } from '../utils/response-decorators';
@@ -45,7 +45,10 @@ export class VolumeSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
+    router.get( '/', <any>[ adminRights, this.getVolumes.bind( this ) ] );
     router.get( '/user/:user', <any>[ ownerRights, this.getVolumes.bind( this ) ] );
+    router.get( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
+    router.put( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
     router.delete( '/:id', <any>[ requireUser, this.removeVolumes.bind( this ) ] );
     router.post( '/user/:user/:name', <any>[ ownerRights, this.createVolume.bind( this ) ] );
 
@@ -54,6 +57,26 @@ export class VolumeSerializer extends Serializer {
 
     await super.initialize( e, db );
     return this;
+  }
+
+  @j200()
+  private async getOne( req: IAuthReq, res: express.Response ) {
+    const volume = await this._volumeController.get( { id: req.params.id } );
+
+    if ( !volume )
+      throw new Error( 'Volume does not exist' );
+
+    return volume;
+  }
+
+  /**
+   * Attempts to update a volume by ID
+   */
+  @j200()
+  private async update( req: IAuthReq, res: express.Response ) {
+    const token: IVolume<'client'> = req.body;
+    const post = await this._volumeController.update( req.params.id, token );
+    return post;
   }
 
   /**
@@ -78,11 +101,16 @@ export class VolumeSerializer extends Serializer {
     if ( req.query.search )
       searchTerm = new RegExp( req.query.search, 'i' );
 
+    let index: number | undefined = parseInt( req.query.index );
+    let limit: number | undefined = parseInt( req.query.limit );
+    index = isNaN( index ) ? undefined : index;
+    limit = isNaN( limit ) ? undefined : limit;
+
     const toRet = await manager.getMany( {
       user: user,
       searchTerm: searchTerm,
-      index: 0,
-      limit: 100
+      index: index,
+      limit: limit
     } );
 
     return toRet;

@@ -17,21 +17,22 @@ import { StorageStatsModel } from '../models/storage-stats-model';
 import RemoteFactory from '../core/remotes/remote-factory';
 
 export type GetManyOptions = {
-  user?: string;
-  searchTerm?: RegExp;
-  index?: number;
-  limit?: number;
+  user: string;
+  searchTerm: RegExp;
+  index: number;
+  limit: number;
 };
 
 export type GetOptions = {
-  user?: string;
-  identifier?: string;
-  name?: string;
+  id: string;
+  user: string;
+  identifier: string;
+  name: string;
 };
 
 export type DeleteOptions = {
-  user?: string;
-  _id?: string | ObjectID;
+  user: string;
+  _id: string | ObjectID;
 };
 
 /**
@@ -64,7 +65,7 @@ export class VolumesController extends Controller {
    * Fetches all volume entries from the database
    * @param options Options for defining which volumes to return
    */
-  async getMany( options: GetManyOptions = { index: 0, limit: 10 } ) {
+  async getMany( options: Partial<GetManyOptions> = { index: 0, limit: 10 } ) {
     const volumeModel = this._volumes;
     const search: Partial<IVolume<'server'>> = {};
 
@@ -74,8 +75,8 @@ export class VolumesController extends Controller {
     if ( options.searchTerm )
       search.name = options.searchTerm as any;
 
-    let limit = options.limit !== undefined ? options.limit : -1;
-    let index = options.index !== undefined ? options.index : -1;
+    let limit = options.limit !== undefined ? options.limit : 10;
+    let index = options.index !== undefined ? options.index : 0;
 
     // Save the new entry into the database
     const count = await volumeModel.count( search );
@@ -94,7 +95,7 @@ export class VolumesController extends Controller {
   /**
    * Gets a volume by its name or ID
    */
-  async get( options: GetOptions = {} ) {
+  async get( options: Partial<GetOptions> = {} ) {
     const volumeModel = this._volumes;
     const searchQuery: Partial<IVolume<'server'>> = {};
 
@@ -107,15 +108,31 @@ export class VolumesController extends Controller {
     if ( options.identifier )
       searchQuery.identifier = options.identifier;
 
+    if ( options.id )
+      searchQuery._id = new ObjectID( options.id );
+
     const result = await volumeModel.findOne<IVolume<'server'>>( searchQuery );
 
     if ( !result )
       return null;
     else {
-      const volume = await result.downloadToken( { verbose: true } );
+      const volume = await result.downloadToken<IVolume<'client'>>( { verbose: true } );
       return volume;
     }
+  }
 
+  /**
+   * Updates a volume resource
+   * @param id The id of the volume to edit
+   * @param token The edit token
+   */
+  async update( id: string, token: IVolume<'client'> ) {
+
+    if ( !isValidObjectID( id ) )
+      throw new Error( `Please use a valid object id` );
+
+    const updatedVolume = await this._volumes.update<IVolume<'client'>>( { _id: new ObjectID( id ) }, token );
+    return updatedVolume;
   }
 
   /**
@@ -180,7 +197,7 @@ export class VolumesController extends Controller {
    * @param searchQuery A valid mongodb search query
    * @returns An array of ID's of the volumes removed
    */
-  async remove( options: DeleteOptions ) {
+  async remove( options: Partial<DeleteOptions> ) {
     const volumesModel = this._volumes;
     const toRemove: string[] = [];
     const searchQuery: Partial<IVolume<'server'>> = {};
