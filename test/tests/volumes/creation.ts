@@ -9,21 +9,31 @@ let volume1: string, volume2: string;
 describe( 'Testing volume creation', function() {
 
   it( 'regular user did not create a volume for another user', async function() {
-    const resp = await header.user1.post( `/volumes/user/${( header.config.adminUser as IAdminUser ).username}/test` );
+    const resp = await header.user1.post( `/volumes`, { name: 'test', user: 'user2' } );
     const json = await resp.json();
     assert.deepEqual( resp.status, 403 );
-    assert.deepEqual( json.message, "You don't have permission to make this request" );
+    assert.deepEqual( json.message, "You do not have permission" );
   } )
 
   it( 'regular user did not create a volume with bad characters', async function() {
-    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/�BAD!CHARS` );
+    const resp = await header.user1.post( `/volumes`, { name: '�BAD!CHARS' } );
     const json = await resp.json();
-    assert.deepEqual( resp.status, 500 );
     assert.deepEqual( json.message, "Please only use safe characters" );
+    assert.deepEqual( resp.status, 500 );
+  } )
+
+  it( 'regular user is not allowed to set memoryUsed for volume creation', async function() {
+    const resp = await header.user1.post( `/volumes`, { memoryUsed: 0, name: 'dinosaurs' } as IVolume<'client'> );
+    assert.deepEqual( resp.status, 403 );
+  } )
+
+  it( 'regular user is not allowed to set memoryAllocated for volume creation', async function() {
+    const resp = await header.user1.post( `/volumes`, { memoryAllocated: 0, name: 'dinosaurs' } as IVolume<'client'> );
+    assert.deepEqual( resp.status, 403 );
   } )
 
   it( 'regular user did create a new volume called dinosaurs', async function() {
-    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/dinosaurs` );
+    const resp = await header.user1.post( `/volumes`, { name: 'dinosaurs' } );
     const json: IVolume<'client'> = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.hasOwnProperty( "_id" ) );
@@ -31,20 +41,21 @@ describe( 'Testing volume creation', function() {
     assert.deepEqual( json.type, 'local' );
     assert.deepEqual( json.user, header.user1.username );
     assert.deepEqual( json.memoryUsed, 0 );
+    assert.equal( json.memoryAllocated, 500000000 );
     assert( json.created > 0 );
     assert( json.identifier !== '' );
     volume1 = json._id as string;
   } )
 
   it( 'regular user did not create a volume with the same name as an existing one', async function() {
-    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/dinosaurs` );
+    const resp = await header.user1.post( `/volumes`, { name: 'dinosaurs' } );
     const json = await resp.json();
     assert.deepEqual( resp.status, 500 );
     assert.deepEqual( json.message, "A volume with the name 'dinosaurs' has already been registered" );
   } )
 
   it( 'admin user did create a volume with a different name for regular user', async function() {
-    const resp = await header.admin.post( `/volumes/user/${header.user1.username}/dinosaurs2` );
+    const resp = await header.admin.post( `/volumes`, { name: 'dinosaurs2', user: 'user1' } );
     const json: IVolume<'client'> = await resp.json();
     assert.deepEqual( resp.status, 200 );
 

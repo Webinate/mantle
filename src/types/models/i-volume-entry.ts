@@ -10,5 +10,6 @@ export interface IVolume<T extends 'server' | 'client'> extends IModelEntry<T> {
   user: string;
   created: number;
   memoryUsed: number;
+  memoryAllocated: number;
   meta: any;
 }

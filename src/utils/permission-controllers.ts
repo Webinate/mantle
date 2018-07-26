@@ -68,6 +68,8 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
       throw new Error403( 'You do not have permission' );
     else {
       req._user = session.user.dbEntry as IUserEntry<'server'>;
+      req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+
       if ( next )
         next();
 
@@ -110,6 +112,8 @@ export async function adminRights( req: IAuthReq, res: express.Response, next?: 
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
     req._user = session.user.dbEntry as IUserEntry<'server'>;
+    req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+
     if ( session.user.dbEntry.privileges! > UserPrivileges.Admin )
       return errJson( new Error403( `You don't have permission to make this request` ), res );
     else
@@ -133,8 +137,10 @@ export async function identifyUser( req: IAuthReq, res: express.Response, next?:
     if ( session )
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
-    if ( session )
+    if ( session ) {
       req._user = session.user.dbEntry as IUserEntry<'server'>;
+      req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+    }
 
     if ( next )
       next();
@@ -160,6 +166,8 @@ export async function requireUser( req: IAuthReq, res: express.Response, next?: 
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
     req._user = session.user.dbEntry as IUserEntry<'server'>;
+    req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+
     if ( next )
       next();
 
@@ -198,6 +206,7 @@ export async function requestHasPermission( level: UserPrivileges, req: IAuthReq
     throw new Error403( 'You don\'t have permission to make this request' );
 
   req._user = session.user.dbEntry as IUserEntry<'server'>;
+  req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
 
   return true;
 }

@@ -88,7 +88,3 @@ require( './tests/user/delete-user' );
 require( './tests/user/fetch-user-data' );
 require( './tests/user/get-set-user-meta' );
 require( './tests/user/get-user-data' );
-
-require( './tests/user-stats/get-set-media-stats' );
-require( './tests/user-stats/get-set-user-stats' );
-require( './tests/user-stats/setting-values' );

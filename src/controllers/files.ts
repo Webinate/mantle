@@ -1,14 +1,12 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
 import { IFileEntry } from '../types/models/i-file-entry';
-import { IStorageStats } from '../types/models/i-storage-stats';
 import { IVolume } from '../types/models/i-volume-entry';
 import { Db, ObjectID } from 'mongodb';
 import RemoteFactory from '../core/remotes/remote-factory';
 import Controller from './controller';
 import { FileModel } from '../models/file-model';
 import ModelFactory from '../core/model-factory';
-import { StorageStatsModel } from '../models/storage-stats-model';
 import { isValidObjectID } from '../utils/utils';
 import { VolumeModel } from '../models/volume-model';
 import { CommsController } from '../socket-api/comms-controller';
@@ -19,7 +17,6 @@ import { unlink, exists } from 'fs';
 import { resolve } from 'path';
 import { IncomingForm, Fields, File, Part } from 'formidable';
 import * as winston from 'winston';
-import { Error500 } from '../utils/errors';
 
 export type GetOptions = {
   volumeId?: string | ObjectID;
@@ -42,7 +39,6 @@ export type DeleteOptions = {
 export class FilesController extends Controller {
   private _files: FileModel;
   private _volumes: VolumeModel;
-  private _stats: StorageStatsModel;
   private _allowedFileTypes: Array<string>;
 
   constructor( config: IConfig ) {
@@ -56,7 +52,6 @@ export class FilesController extends Controller {
   async initialize( db: Db ) {
     this._files = ModelFactory.get( 'files' );
     this._volumes = ModelFactory.get( 'volumes' );
-    this._stats = ModelFactory.get( 'storage' );
     this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
     return this;
   }
@@ -209,7 +204,6 @@ export class FilesController extends Controller {
   private async uploadFileToRemote( file: File, volume: IVolume<'server'> ) {
     const filesModel = this._files;
     const volumesModel = this._volumes;
-    const statsModel = this._stats;
 
     file.path = resolve( file.path );
 
@@ -230,14 +224,7 @@ export class FilesController extends Controller {
 
     const newFile = await filesModel.createInstance<IFileEntry<'client'>>( fileData );
 
-    // Update stat info
-    const curStats = await statsModel.findOne<IStorageStats<'server'>>( { user: volume.user } as IStorageStats<'server'> );
-
-    if ( !curStats )
-      throw new Error500( 'No stats found for volume' );
-
     await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: volume.memoryUsed + file.size } );
-    await statsModel.update<IStorageStats<'client'>>( { user: volume.user } as IStorageStats<'server'>, { memoryUsed: curStats.dbEntry.memoryUsed + file.size, apiCallsUsed: curStats.dbEntry.apiCallsUsed + 1 } );
 
     // Remove temp file
     await this.removeTempFiles( [ file ] );
@@ -265,6 +252,16 @@ export class FilesController extends Controller {
       throw new Error( `Volume does not exist` );
 
     const response = await this.uploadFormToTempDir( req );
+
+    let memory = 0;
+    for ( const f of response.files )
+      memory += f.size;
+
+    if ( memory + volumeSchema.dbEntry.memoryUsed > volumeSchema.dbEntry.memoryAllocated ) {
+      await this.removeTempFiles( response.files )
+      throw new Error( `You dont have sufficient memory in the volume` );
+    }
+
     const proimises: Promise<IFileEntry<'client'>>[] = [];
     for ( const file of response.files )
       proimises.push( this.uploadFileToRemote( file, volumeSchema.dbEntry ) );
@@ -300,19 +297,8 @@ export class FilesController extends Controller {
     if ( !file )
       throw new Error( 'Resource not found' );
 
-    await this.incrementAPI( file.dbEntry.user );
     const toRet = await files.update<IFileEntry<'client'>>( query, token );
     return toRet;
-  }
-
-  /**
-   * Adds an API call to a user
-   * @param user The username
-   */
-  private async incrementAPI( user: string ) {
-    const stats = this._stats.collection;
-    await stats.update( { user: user } as IStorageStats<'server'>, { $inc: { apiCallsUsed: 1 } as IStorageStats<'server'> } );
-    return true;
   }
 
   /**
@@ -331,7 +317,6 @@ export class FilesController extends Controller {
     await Promise.all( promises );
 
     const volumes = this._volumes;
-    const stats = this._stats;
     const volume = await volumes.findOne<IVolume<'server'>>( fileEntry.volumeId );
 
     if ( volume ) {
@@ -340,11 +325,10 @@ export class FilesController extends Controller {
       await RemoteFactory.get( volume.dbEntry.type ).removeFile( volume.dbEntry, fileEntry );
 
       // Update the volume data usage
-      await volumes.collection.updateOne( { identifier: volume.dbEntry.identifier } as IVolume<'server'>, { $inc: { memoryUsed: -fileEntry.size! } as IVolume<'server'> } );
+      await volumes.update<IVolume<'client'>>( { identifier: volume.dbEntry.identifier } as IVolume<'server'>, { memoryUsed: volume.dbEntry.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>> );
     }
 
     await files.deleteInstances( { _id: fileEntry._id } as IFileEntry<'server'> );
-    await stats.collection.updateOne( { user: fileEntry.user }, { $inc: { memoryUsed: -fileEntry.size!, apiCallsUsed: 1 } as IStorageStats<'server'> } );
 
     // Update any listeners on the sockets
     const token = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };

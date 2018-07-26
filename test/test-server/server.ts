@@ -36,9 +36,9 @@ export default class MainController extends Controller {
         rootPath: api
       } ).initialize( app, db ),
 
-      new serializers.stats( {
-        rootPath: ''
-      } ).initialize( app, db ),
+      // new serializers.stats( {
+      //   rootPath: ''
+      // } ).initialize( app, db ),
 
       new serializers.file( {
         rootPath: '',

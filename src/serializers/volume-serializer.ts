@@ -12,6 +12,7 @@ import { j200 } from '../utils/response-decorators';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { IVolume } from '../types/models/i-volume-entry';
+import { Error403 } from '../utils/errors';
 
 /**
  * Main class to use for managing users
@@ -50,7 +51,7 @@ export class VolumeSerializer extends Serializer {
     router.get( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
     router.put( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
     router.delete( '/:id', <any>[ requireUser, this.removeVolumes.bind( this ) ] );
-    router.post( '/user/:user/:name', <any>[ ownerRights, this.createVolume.bind( this ) ] );
+    router.post( '/', <any>[ requireUser, this.createVolume.bind( this ) ] );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/volumes`, router );
@@ -75,8 +76,14 @@ export class VolumeSerializer extends Serializer {
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
     const token: IVolume<'client'> = req.body;
-    const post = await this._volumeController.update( req.params.id, token );
-    return post;
+
+    if ( token.memoryAllocated !== undefined && !req._isAdmin )
+      throw new Error403( `You don't have permission to set the memoryAllocated` );
+    if ( token.memoryUsed !== undefined && !req._isAdmin )
+      throw new Error403( `You don't have permission to set the memoryUsed` );
+
+    const vol = await this._volumeController.update( req.params.id, token );
+    return vol;
   }
 
   /**
@@ -128,26 +135,35 @@ export class VolumeSerializer extends Serializer {
    */
   @j200()
   private async createVolume( req: IAuthReq, res: express.Response ) {
+    const token: IVolume<'client'> = req.body;
     const manager = this._volumeController;
-    const username: string = req.params.user;
-    const name: string = req.params.name;
 
-    if ( !username || username.trim() === '' )
+    if ( !token.user )
+      token.user = req._user!.username as string;
+    else if ( !req._isAdmin )
+      throw new Error403()
+
+    if ( !token.user || token.user.trim() === '' )
       throw new Error( 'Please specify a valid username' );
-    if ( !name || name.trim() === '' )
+    if ( !token.name || token.name.trim() === '' )
       throw new Error( 'Please specify a valid name' );
-    if ( !this.alphaNumericDashSpace( name ) )
+    if ( !this.alphaNumericDashSpace( token.name ) )
       throw new Error( 'Please only use safe characters' );
 
-    const user = await this._userController.getUser( username );
+    const user = await this._userController.getUser( token.user );
     if ( !user )
-      throw new Error( `Could not find a user with the name '${username}'` );
+      throw new Error( `Could not find a user with the name '${token.user}'` );
 
-    const inLimits = await manager.withinAPILimit( username );
-    if ( !inLimits )
-      throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
+    if ( token.memoryAllocated !== undefined && !req._isAdmin )
+      throw new Error403( `You don't have permission to set the memoryAllocated` );
+    if ( token.memoryUsed !== undefined && !req._isAdmin )
+      throw new Error403( `You don't have permission to set the memoryUsed` );
 
-    const entry = await manager.create( name, username ) as IVolume<'client'>;
+    // const inLimits = await manager.withinAPILimit( username );
+    // if ( !inLimits )
+    //   throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
+
+    const entry = await manager.create( token ) as IVolume<'client'>;
     return entry;
   }
 }

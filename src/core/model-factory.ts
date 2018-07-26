@@ -9,7 +9,6 @@ import { FileModel } from '../models/file-model';
 import { PostsModel } from '../models/posts-model';
 import { RendersModel } from '../models/renders-model';
 import { SessionModel } from '../models/session-model';
-import { StorageStatsModel } from '../models/storage-stats-model';
 import { UsersModel } from '../models/users-model';
 
 /**
@@ -36,7 +35,6 @@ export class ModelFactory {
       this.create( 'posts' ),
       this.create( 'renders' ),
       this.create( 'sessions' ),
-      this.create( 'storage' ),
       this.create( 'users' )
     ] );
   }
@@ -96,7 +94,6 @@ export class ModelFactory {
   get( type: 'posts' ): PostsModel
   get( type: 'renders' ): RendersModel
   get( type: 'sessions' ): SessionModel
-  get( type: 'storage' ): StorageStatsModel
   get( type: 'users' ): UsersModel
   get( type: string ): Model<IModelEntry<'client' | 'server'>>
   get( type: string ): Model<IModelEntry<'client' | 'server'>> {
@@ -138,9 +135,6 @@ export class ModelFactory {
         break;
       case 'sessions':
         newModel = new SessionModel();
-        break;
-      case 'storage':
-        newModel = new StorageStatsModel();
         break;
       case 'users':
         newModel = new UsersModel();

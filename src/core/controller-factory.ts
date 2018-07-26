@@ -7,7 +7,6 @@ import { PostsController } from '../controllers/posts';
 import { SessionsController } from '../controllers/sessions';
 import { UsersController } from '../controllers/users';
 import { CommentsController } from '../controllers/comments';
-import { StatsController } from '../controllers/stats';
 import { CategoriesController } from '../controllers/categories';
 import { ForeignKeysController } from '../controllers/foreign-keys';
 
@@ -37,7 +36,6 @@ export class ControllerFactory {
     controllers.push( await this.create( 'posts' ) );
     controllers.push( await this.create( 'comments' ) );
     controllers.push( await this.create( 'users' ) );
-    controllers.push( await this.create( 'stats' ) );
     controllers.push( await this.create( 'foreign-keys' ) );
 
     for ( const controller of controllers )
@@ -50,7 +48,6 @@ export class ControllerFactory {
   get( type: 'sessions' ): SessionsController
   get( type: 'users' ): UsersController
   get( type: 'files' ): FilesController
-  get( type: 'stats' ): StatsController
   get( type: 'categories' ): CategoriesController
   get( type: 'foreign-keys' ): ForeignKeysController
   get( type: string ): Controller
@@ -93,9 +90,6 @@ export class ControllerFactory {
         break;
       case 'users':
         newModel = new UsersController( this._config );
-        break;
-      case 'stats':
-        newModel = new StatsController( this._config );
         break;
       case 'foreign-keys':
         newModel = new ForeignKeysController( this._config );

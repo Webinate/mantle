@@ -3,7 +3,7 @@
 import { IResponse, ISimpleResponse } from '../types/tokens/standard-tokens';
 import * as express from 'express';
 import { error as logError } from './logger';
-import { Error401, Error403, Error404 } from './errors';
+import { Error401, Error403, Error404, StatusError } from './errors';
 
 /**
  * A decorator for transforming an async express function handler.
@@ -24,8 +24,12 @@ export function j200( code: number = 200, errCode: number = 500 ) {
           res.setHeader( 'Content-Type', 'application/json' );
           res.status( code ).json( result );
         } ).catch( ( err: Error ) => {
+
           res.setHeader( 'Content-Type', 'application/json' );
-          res.status( errCode )
+          if ( err instanceof StatusError )
+            res.status( err.status );
+          else
+            res.status( errCode )
           res.statusMessage = err.message;
           res.json( { message: err.message } );
         } );

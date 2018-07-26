@@ -445,9 +445,6 @@ export class UsersController extends Controller {
     // Assing the ID and pass the user on
     newUser.dbEntry = insertResult.ops[ 0 ];
 
-    // All users have default stats created for them
-    await ControllerFactory.get( 'stats' ).createUserStats( newUser.dbEntry.username! as string );
-
     return newUser;
   }
 

@@ -1,5 +1,4 @@
 import { IUserEntry } from '../models/i-user-entry';
-import { IStorageStats } from '../models/i-storage-stats';
 import { ISessionEntry } from '../models/i-session-entry';
 import { IFileEntry } from '../models/i-file-entry';
 import { IRender } from '../models/i-render';
@@ -40,21 +39,6 @@ export interface Page<T> {
   data: Array<T>;
   index: number;
   limit: number;
-}
-
-export namespace StatTokens {
-  /** GET /stats/users/:user/get-stats */
-  export namespace GetOne { export type Body = void; export type Response = IStorageStats<'client'>; }
-  /** POST /stats/create-stats/:target */
-  export namespace Post { export type Body = void; export type Response = IStorageStats<'client'>; }
-  /** PUT /stats/storage-calls/:target/:value */
-  export namespace PutStorageCalls { export type Body = void; export type Response = void; }
-  /** PUT /stats/storage-memory/:target/:value */
-  export namespace PutStorageMemory { export type Body = void; export type Response = void; }
-  /** PUT /stats/storage-allocated-calls/:target/:value */
-  export namespace PutStorageAlocCalls { export type Body = void; export type Response = void; }
-  /** PUT /stats/storage-allocated-memory/:target/:value */
-  export namespace PutStorageAlocMemory { export type Body = void; export type Response = void; }
 }
 
 export namespace SessionTokens {

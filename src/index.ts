@@ -18,11 +18,9 @@ import { PageSerializer } from './serializers/page-serializer';
 import { PostsSerializer } from './serializers/posts-serializer';
 import { CategoriesSerializer } from './serializers/categories-serializer';
 import { SessionSerializer } from './serializers/session-serializer';
-import { StatsSerializer } from './serializers/stats-serializer';
 import { UserSerializer } from './serializers/user-serializer';
 import { AuthSerializer } from './serializers/auth-serializer';
 import { FilesController } from './controllers/files';
-import { StatsController } from './controllers/stats';
 import { CommentsController } from './controllers/comments';
 import { SessionsController } from './controllers/sessions';
 import { CategoriesController } from './controllers/categories';
@@ -41,7 +39,6 @@ export const controllers = {
   categories: ControllerFactory.get( 'categories' ) as CategoriesController,
   comments: ControllerFactory.get( 'comments' ) as CommentsController,
   files: ControllerFactory.get( 'files' ) as FilesController,
-  stats: ControllerFactory.get( 'stats' ) as StatsController,
   sessions: ControllerFactory.get( 'sessions' ) as SessionsController,
   foreignKeys: ControllerFactory.get( 'foreign-keys' ) as ForeignKeysController
 };
@@ -71,8 +68,6 @@ export const serializers = {
   renderer: PageSerializer,
   /** Endpoints for managing active sessions */
   session: SessionSerializer,
-  /** Endpoints for managing user stats and allowances */
-  stats: StatsSerializer,
   /** Endpoints for managing users */
   user: UserSerializer
 }
@@ -86,13 +81,12 @@ export { IModelEntry } from './types/models/i-model-entry';
 export { IPost } from './types/models/i-post';
 export { IRender } from './types/models/i-render';
 export { ISessionEntry } from './types/models/i-session-entry';
-export { IStorageStats } from './types/models/i-storage-stats';
 export { IUserEntry } from './types/models/i-user-entry';
 export { IUploadResponse } from './types/tokens/i-file-tokens';
 export {
   IAuthenticationResponse, EmailTokens,
   FileTokens, IRemoveResponse, IResponse, ISimpleResponse,
-  Page, RenderTokens, SessionTokens, StatTokens
+  Page, RenderTokens, SessionTokens,
 } from './types/tokens/standard-tokens';
 export { IAuthReq } from './types/tokens/i-auth-request';
 export { ILoginToken } from './types/tokens/i-login-token';

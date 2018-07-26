@@ -15,7 +15,7 @@ let volume: IVolume<'client'>;
 describe( 'Testing volume upload validation: ', function() {
 
   before( async function() {
-    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/${randomString()}` );
+    const resp = await header.user1.post( `/volumes`, { name: randomString() } );
     const json = await resp.json<IVolume<'client'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;

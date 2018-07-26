@@ -14,7 +14,7 @@ const filePath = './test/media/file.png';
 describe( 'Testing successful file uploads: ', function() {
 
   before( async function() {
-    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/${randomString()}` );
+    const resp = await header.user1.post( `/volumes`, { name: randomString() } );
     const json = await resp.json<IVolume<'client'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
@@ -52,5 +52,17 @@ describe( 'Testing successful file uploads: ', function() {
 
     // There are 2 files expected in the temp - the .gitignore and readme.md - but thats it
     assert.equal( filesInTemp, 2 );
+  } )
+
+  it( 'Should error when no more space available', async function() {
+    let resp = await header.admin.put( `/volumes/${volume._id}`, { memoryUsed: 5000, memoryAllocated: 5000 } as IVolume<'client'> );
+    assert.equal( resp.status, 200 );
+
+    const form = new FormData();
+    form.append( 'good-file', fs.createReadStream( filePath ) );
+    resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
+
+    assert.equal( resp.statusText, 'You dont have sufficient memory in the volume' );
+    assert.equal( resp.status, 500 );
   } )
 } )

@@ -6,5 +6,6 @@ import { IUserEntry } from '../models/i-user-entry';
  */
 export interface IAuthReq extends Request {
   _user: IUserEntry<'server'> | null;
+  _isAdmin?: boolean;
   _target: IUserEntry<'server'> | null;
 }

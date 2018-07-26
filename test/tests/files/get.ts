@@ -12,7 +12,7 @@ const filePath = './test/media/file.png';
 describe( 'Getting uploaded user files', function() {
 
   before( async function() {
-    const resp = await header.user1.post( `/volumes/user/${header.user1.username}/dinosaurs` );
+    const resp = await header.user1.post( `/volumes`, { name: 'dinosaurs' } );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
     volume = json;
