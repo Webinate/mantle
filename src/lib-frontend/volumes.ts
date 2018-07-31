@@ -33,6 +33,6 @@ export function update( id: string, token: Partial<IVolume<'client'>> ) {
   return putJson<IVolume<'client'>>( `${rootPath}/${id}`, token );
 }
 
-export function create( user: string, name: string ) {
-  return postJson<IVolume<'client'>>( `${rootPath}/user/${user}/${name}`, {} );
+export function create( volume: Partial<IVolume<'client'>> ) {
+  return postJson<IVolume<'client'>>( `${rootPath}`, volume );
 }
