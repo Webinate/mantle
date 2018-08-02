@@ -173,7 +173,13 @@ export class VolumesController extends Controller {
     const schema = await volumeModel.createInstance( volume );
 
     // Attempt to create a new Google volume
-    await RemoteFactory.get( schema.dbEntry.type ).createVolume( schema.dbEntry );
+    try {
+      await RemoteFactory.get( schema.dbEntry.type ).createVolume( schema.dbEntry );
+    }
+    catch ( err ) {
+      await volumeModel.deleteInstances( { _id: schema.dbEntry._id } as IVolume<'server'> );
+      throw new Error( `Could not create remote: ${err.message}` );
+    }
 
     // Send volume added events to sockets
     const socketToken = { type: ClientInstructionType[ ClientInstructionType.VolumeUploaded ], volume: volume!, username: token.user };
