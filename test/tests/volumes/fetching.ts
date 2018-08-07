@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, Page, IVolume } from '../../../src';
+import { IAdminUser, Page, IVolume, IUserEntry } from '../../../src';
 
 let volumeJson: IVolume<'client'>;
 
@@ -23,7 +22,7 @@ describe( 'Testing volume get requests', function() {
     const volume = json.data[ 0 ];
     assert.equal( volume._id, volumeJson._id )
     assert.deepEqual( volume.name, 'dinosaurs' );
-    assert.deepEqual( volume.user, header.user1.username );
+    assert.deepEqual( ( volume.user as IUserEntry<'client'> ).username, header.user1.username );
     assert.deepEqual( volume.memoryUsed, 0 );
     assert( volume.created > 0 )
     assert( volume.identifier !== '' );
@@ -53,7 +52,7 @@ describe( 'Testing volume get requests', function() {
     assert.deepEqual( resp.status, 200 );
     assert.equal( volume._id, volumeJson._id );
     assert.deepEqual( volume.name, 'dinosaurs' );
-    assert.deepEqual( volume.user, header.user1.username );
+    assert.deepEqual( ( volume.user as IUserEntry<'client'> ).username, header.user1.username );
     assert.deepEqual( volume.memoryUsed, 0 );
     assert( volume.created > 0 )
     assert( volume.identifier !== '' );

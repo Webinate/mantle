@@ -3,7 +3,7 @@ import { } from 'mocha';
 import { randomString } from '../utils';
 import header from '../header';
 import * as fs from 'fs';
-import { IConfig, IAdminUser, Page, IFileEntry, IVolume, IUploadResponse } from '../../../src';
+import { IFileEntry, IVolume, IUserEntry } from '../../../src';
 import * as FormData from 'form-data';
 
 let volume: IVolume<'client'>, fileId: string;
@@ -55,15 +55,14 @@ describe( 'Testing file renaming', function() {
   it( 'regular user did rename a correct file to testy', async function() {
     const resp = await header.user1.put( `/files/${fileId}`, { name: "testy" } );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
+    const json = await resp.json<IFileEntry<'client'>>();
     assert( json._id );
     assert.deepEqual( json.name, 'testy' );
-    assert.deepEqual( json.user, header.user1.username );
+    assert.deepEqual( ( json.user as IUserEntry<'client'> ).username, header.user1.username );
   } )
 
   it( 'regular user cannot set readonly attributes', async function() {
     const resp = await header.user1.put( `/files/${fileId}`, {
-      user: 'badvalue',
       volumetId: 'badvalue',
       volumeName: 'badvalue',
       publicURL: 'badvalue',
@@ -72,8 +71,8 @@ describe( 'Testing file renaming', function() {
       size: 20
     } );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    assert.notDeepEqual( json.user, 'badvalue' );
+    const json = await resp.json<IFileEntry<'client'>>();
+    assert.notDeepEqual( ( json.user as IUserEntry<'client'> ), 'user1' );
     assert.notDeepEqual( json.volumeId, 'badvalue' );
     assert.notDeepEqual( json.volumeName, 'badvalue' );
     assert.notDeepEqual( json.publicURL, 'badvalue' );

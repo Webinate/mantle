@@ -3,7 +3,6 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
-import { UsersController } from '../controllers/users';
 import { VolumesController } from '../controllers/volumes';
 import { ownerRights, requireUser, adminRights, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
@@ -20,7 +19,6 @@ import { Error403 } from '../utils/errors';
 export class VolumeSerializer extends Serializer {
 
   private _options: IBaseControler;
-  private _userController: UsersController;
   private _volumeController: VolumesController;
 
   /**
@@ -36,7 +34,6 @@ export class VolumeSerializer extends Serializer {
  */
   async initialize( e: express.Express, db: mongodb.Db ) {
 
-    this._userController = ControllerFactory.get( 'users' );
     this._volumeController = ControllerFactory.get( 'volumes' );
 
     // Setup the rest calls
@@ -123,13 +120,6 @@ export class VolumeSerializer extends Serializer {
     return toRet;
   }
 
-  private alphaNumericDashSpace( str: string ): boolean {
-    if ( !str.match( /^[0-9A-Z _\-]+$/i ) )
-      return false;
-    else
-      return true;
-  }
-
   /**
    * Creates a new user volume based on the target provided
    */
@@ -139,29 +129,14 @@ export class VolumeSerializer extends Serializer {
     const manager = this._volumeController;
 
     if ( !token.user )
-      token.user = req._user!.username as string;
+      token.user = req._user!._id.toString();
     else if ( !req._isAdmin )
-      throw new Error403()
-
-    if ( !token.user || token.user.trim() === '' )
-      throw new Error( 'Please specify a valid username' );
-    if ( !token.name || token.name.trim() === '' )
-      throw new Error( 'Please specify a valid name' );
-    if ( !this.alphaNumericDashSpace( token.name ) )
-      throw new Error( 'Please only use safe characters' );
-
-    const user = await this._userController.getUser( token.user );
-    if ( !user )
-      throw new Error( `Could not find a user with the name '${token.user}'` );
+      throw new Error403();
 
     if ( token.memoryAllocated !== undefined && !req._isAdmin )
       throw new Error403( `You don't have permission to set the memoryAllocated` );
     if ( token.memoryUsed !== undefined && !req._isAdmin )
       throw new Error403( `You don't have permission to set the memoryUsed` );
-
-    // const inLimits = await manager.withinAPILimit( username );
-    // if ( !inLimits )
-    //   throw new Error( `You have run out of API calls, please contact one of our sales team or upgrade your account.` );
 
     const entry = await manager.create( token ) as IVolume<'client'>;
     return entry;

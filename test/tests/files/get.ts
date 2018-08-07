@@ -3,7 +3,7 @@ import { } from 'mocha';
 import { randomString } from '../utils';
 import header from '../header';
 import * as fs from 'fs';
-import { IConfig, IAdminUser, Page, IFileEntry, IVolume } from '../../../src';
+import { IAdminUser, IVolume, IUserEntry } from '../../../src';
 import * as FormData from 'form-data';
 
 let volume: IVolume<'client'>;
@@ -66,7 +66,7 @@ describe( 'Getting uploaded user files', function() {
     assert.deepEqual( json.data[ 0 ].numDownloads, 0 );
     assert.deepEqual( json.data[ 0 ].size, 228 );
     assert.deepEqual( json.data[ 0 ].mimeType, "image/png" );
-    assert.deepEqual( json.data[ 0 ].user, header.user1.username );
+    assert.deepEqual( ( json.data[ 0 ].user as IUserEntry<'client'> ).username, header.user1.username );
     assert( json.data[ 0 ].publicURL )
     assert( json.data[ 0 ].isPublic )
     assert( json.data[ 0 ].identifier )

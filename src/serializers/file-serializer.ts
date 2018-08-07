@@ -11,6 +11,8 @@ import { IFileOptions } from '../types/misc/i-file-options';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { FilesController } from '../controllers/files';
+import { IFileEntry } from '../types/models/i-file-entry';
+import { Error403 } from '../utils/errors';
 
 /**
  * Main class to use for managing users
@@ -65,7 +67,11 @@ export class FileSerializer extends Serializer {
    */
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
-    const file = req.body as FileTokens.Put.Body;
+    const file = req.body as IFileEntry<'client'>;
+
+    if ( !req._isAdmin && file.user )
+      throw new Error403( 'Permission deniedd - cannot set user as non-admin' );
+
     const updatedFile: FileTokens.Put.Response = await this._files.update( req.params.file, file );
     return updatedFile;
   }

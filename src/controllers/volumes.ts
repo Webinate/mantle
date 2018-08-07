@@ -2,9 +2,6 @@
 import { Page } from '../types/tokens/standard-tokens';
 import { IVolume } from '../types/models/i-volume-entry';
 import { Db, ObjectID } from 'mongodb';
-import { CommsController } from '../socket-api/comms-controller';
-import { ClientInstructionType } from '../socket-api/socket-event-types';
-import { ClientInstruction } from '../socket-api/client-instruction';
 import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
 import { FilesController } from './files';
@@ -12,7 +9,8 @@ import ControllerFactory from '../core/controller-factory';
 import { VolumeModel } from '../models/volume-model';
 import ModelFactory from '../core/model-factory';
 import RemoteFactory from '../core/remotes/remote-factory';
-import { Error500 } from '../utils/errors';
+import { Error500, Error404 } from '../utils/errors';
+import { UsersController } from './users';
 
 export type GetManyOptions = {
   user: string;
@@ -41,6 +39,7 @@ export class VolumesController extends Controller {
 
   private _volumes: VolumeModel;
   private _filesController: FilesController;
+  private _users: UsersController;
 
   constructor( config: IConfig ) {
     super( config );
@@ -54,6 +53,7 @@ export class VolumesController extends Controller {
 
     this._volumes = ModelFactory.get( 'volumes' );
     this._filesController = ControllerFactory.get( 'files' );
+    this._users = ControllerFactory.get( 'users' );
     return this;
   }
 
@@ -65,8 +65,13 @@ export class VolumesController extends Controller {
     const volumeModel = this._volumes;
     const search: Partial<IVolume<'server'>> = {};
 
-    if ( options.user )
-      search.user = options.user;
+    if ( options.user ) {
+      const user = await this._users.getUser( options.user );
+      if ( user )
+        search.user = new ObjectID( user.dbEntry._id );
+      else
+        throw new Error404( `User not found` );
+    }
 
     if ( options.searchTerm )
       search.name = options.searchTerm as any;
@@ -77,7 +82,7 @@ export class VolumesController extends Controller {
     // Save the new entry into the database
     const count = await volumeModel.count( search );
     const schemas = await volumeModel.findMany<IVolume<'server'>>( { selector: search, index, limit } );
-    const volumes = await Promise.all( schemas.map( s => s.downloadToken<IVolume<'client'>>( { verbose: true } ) ) );
+    const volumes = await Promise.all( schemas.map( s => s.downloadToken<IVolume<'client'>>( { verbose: true, expandMaxDepth: 2, expandForeignKeys: true } ) ) );
 
     const toRet: Page<IVolume<'client'>> = {
       limit: limit,
@@ -95,8 +100,13 @@ export class VolumesController extends Controller {
     const volumeModel = this._volumes;
     const searchQuery: Partial<IVolume<'server'>> = {};
 
-    if ( options.user )
-      searchQuery.user = options.user;
+    if ( options.user ) {
+      const user = await this._users.getUser( options.user );
+      if ( user )
+        searchQuery.user = new ObjectID( user.dbEntry._id );
+      else
+        throw new Error404( `User not found` );
+    }
 
     if ( options.name )
       searchQuery.name = options.name;
@@ -112,7 +122,7 @@ export class VolumesController extends Controller {
     if ( !result )
       return null;
     else {
-      const volume = await result.downloadToken<IVolume<'client'>>( { verbose: true } );
+      const volume = await result.downloadToken<IVolume<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
       return volume;
     }
   }
@@ -127,7 +137,7 @@ export class VolumesController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const updatedVolume = await this._volumes.update<IVolume<'client'>>( { _id: new ObjectID( id ) }, token );
+    const updatedVolume = await this._volumes.update<IVolume<'client'>>( { _id: new ObjectID( id ) }, token, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
     return updatedVolume;
   }
 
@@ -149,15 +159,8 @@ export class VolumesController extends Controller {
     const identifier = `webinate-volume-${generateRandString( 8 ).toLowerCase()}`;
     const volumeModel = this._volumes;
 
-    // Get the entry
-    let volume: Partial<IVolume<'client'>> | null = await this.get( { name: token.name, user: token.user } );
-
-    // Make sure no volume already exists with that name
-    if ( volume )
-      throw new Error( `A volume with the name '${token.name}' has already been registered` );
-
     // Create the new volume
-    volume = {
+    const volume: Partial<IVolume<'client'>> = {
       name: 'New Volume',
       identifier: identifier,
       created: Date.now(),
@@ -181,10 +184,7 @@ export class VolumesController extends Controller {
       throw new Error( `Could not create remote: ${err.message}` );
     }
 
-    // Send volume added events to sockets
-    const socketToken = { type: ClientInstructionType[ ClientInstructionType.VolumeUploaded ], volume: volume!, username: token.user };
-    await CommsController.singleton.processClientInstruction( new ClientInstruction( socketToken, null, token.user ) );
-    return schema.downloadToken<IVolume<'client'>>( { verbose: true } );
+    return schema.downloadToken<IVolume<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
   }
 
   /**
@@ -208,8 +208,13 @@ export class VolumesController extends Controller {
         searchQuery._id = options._id;
     }
 
-    if ( options.user )
-      searchQuery.user = options.user;
+    if ( options.user ) {
+      const user = await this._users.getUser( options.user );
+      if ( user )
+        searchQuery.user = new ObjectID( user.dbEntry._id );
+      else
+        throw new Error404( `User not found` );
+    }
 
     // Get all the volumes
     const schemas = await volumesModel.findMany<IVolume<'server'>>( { selector: searchQuery, limit: -1 } );
@@ -243,11 +248,6 @@ export class VolumesController extends Controller {
 
     // Remove the volume entry
     await volumesModel.deleteInstances( { _id: volume._id } as IVolume<'server'> );
-
-    // Send events to sockets
-    const token = { type: ClientInstructionType[ ClientInstructionType.VolumeRemoved ], volume: volume, username: volume.user! };
-    await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, volume.user ) );
-
     return volume;
   }
 }

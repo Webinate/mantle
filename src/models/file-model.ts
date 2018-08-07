@@ -10,7 +10,7 @@ export class FileModel extends Model<IFileEntry<'client' | 'server'>> {
     super( 'files' );
 
     this.schema.add( new text( 'name', '', { minCharacters: 3 } ) );
-    this.schema.add( new text( 'user', '', { minCharacters: 3 } ) ).setReadOnly( true );
+    this.schema.add( new foreignKey( 'user', 'users', { keyCanBeNull: true, nullifyOnDelete: true } ) );
     this.schema.add( new text( 'identifier', '', { minCharacters: 6 } ) ).setReadOnly( true );
     this.schema.add( new id( 'volumeId' ) ).setReadOnly( true );
     this.schema.add( new text( 'volumeName', '' ) ).setReadOnly( true );

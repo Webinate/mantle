@@ -9,14 +9,14 @@ import { FileModel } from '../models/file-model';
 import ModelFactory from '../core/model-factory';
 import { isValidObjectID } from '../utils/utils';
 import { VolumeModel } from '../models/volume-model';
-import { CommsController } from '../socket-api/comms-controller';
-import { ClientInstruction } from '../socket-api/client-instruction';
-import { ClientInstructionType } from '../socket-api/socket-event-types';
+import ControllerFactory from '../core/controller-factory';
 import { IAuthReq } from '../types/tokens/i-auth-request';
 import { unlink, exists } from 'fs';
 import { resolve } from 'path';
 import { IncomingForm, Fields, File, Part } from 'formidable';
 import * as winston from 'winston';
+import { Error404 } from '../utils/errors';
+import { UsersController } from './users';
 
 export type GetOptions = {
   volumeId?: string | ObjectID;
@@ -40,6 +40,7 @@ export class FilesController extends Controller {
   private _files: FileModel;
   private _volumes: VolumeModel;
   private _allowedFileTypes: Array<string>;
+  private _users: UsersController;
 
   constructor( config: IConfig ) {
     super( config );
@@ -52,6 +53,7 @@ export class FilesController extends Controller {
   async initialize( db: Db ) {
     this._files = ModelFactory.get( 'files' );
     this._volumes = ModelFactory.get( 'volumes' );
+    this._users = ControllerFactory.get( 'users' );
     this._allowedFileTypes = [ 'image/bmp', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff', 'text/plain', 'text/json', 'application/octet-stream' ];
     return this;
   }
@@ -65,13 +67,19 @@ export class FilesController extends Controller {
   async getFile( fileID: string, user?: string, searchTerm?: RegExp ) {
     const files = this._files;
     const searchQuery: Partial<IFileEntry<'server'>> = { identifier: fileID };
-    if ( user )
-      searchQuery.user = user;
+
+    if ( user ) {
+      const u = await this._users.getUser( user );
+      if ( !u )
+        throw new Error404( `User not found` );
+
+      searchQuery.user = new ObjectID( u.dbEntry._id );
+    }
 
     if ( searchTerm )
       searchQuery.name = searchTerm as any;
 
-    const file = await files.downloadOne<IFileEntry<'client'>>( searchQuery, { verbose: true } );
+    const file = await files.downloadOne<IFileEntry<'client'>>( searchQuery, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
 
     if ( !file )
       throw new Error( `File '${fileID}' does not exist` );
@@ -93,8 +101,13 @@ export class FilesController extends Controller {
         throw new Error( 'Please use a valid identifier for volumeId' );
 
       const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectID( options.volumeId ) };
-      if ( options.user )
-        volumeQuery.user = options.user;
+      if ( options.user ) {
+        const user = await this._users.getUser( options.user );
+        if ( user )
+          volumeQuery.user = new ObjectID( user.dbEntry._id );
+        else
+          throw new Error404( `User not found` );
+      }
 
       const volume = await volumes.findOne<IVolume<'server'>>( volumeQuery );
 
@@ -107,8 +120,13 @@ export class FilesController extends Controller {
     if ( options.searchTerm )
       searchQuery.name = new RegExp( options.searchTerm ) as any;
 
-    if ( options.user )
-      searchQuery.user = options.user;
+    if ( options.user ) {
+      const u = await this._users.getUser( options.user );
+      if ( !u )
+        throw new Error404( `User not found` );
+
+      searchQuery.user = new ObjectID( u.dbEntry._id );
+    }
 
     const count = await files.count( searchQuery );
     const index: number = options.index || 0;
@@ -119,7 +137,7 @@ export class FilesController extends Controller {
       selector: searchQuery,
       index: index,
       limit: limit
-    }, { verbose } );
+    }, { verbose, expandForeignKeys: true, expandMaxDepth: 1 } );
 
     const toRet: Page<IFileEntry<'client'>> = {
       count: count,
@@ -217,7 +235,7 @@ export class FilesController extends Controller {
       name: file.name,
       size: file.size,
       mimeType: file.type,
-      user: volume.user,
+      user: volume.user.toString(),
       volumeId: volume._id.toString(),
       volumeName: volume.name
     };
@@ -230,7 +248,7 @@ export class FilesController extends Controller {
     await this.removeTempFiles( [ file ] );
 
     // Return the new file
-    return newFile.downloadToken<IFileEntry<'client'>>( { verbose: true } );
+    return newFile.downloadToken<IFileEntry<'client'>>( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
   }
 
   /**
@@ -243,9 +261,14 @@ export class FilesController extends Controller {
     if ( !volumeId || volumeId.trim() === '' )
       throw new Error( `Please specify a volume for the upload` );
 
+
+    const user = await this._users.getUser( username );
+    if ( !user )
+      throw new Error404( `User not found` );
+
     const volumeSchema = await this._volumes.findOne<IVolume<'server'>>( {
       _id: new ObjectID( volumeId ),
-      user: username
+      user: user.dbEntry._id
     } as Partial<IVolume<'server'>> );
 
     if ( !volumeSchema )
@@ -297,7 +320,7 @@ export class FilesController extends Controller {
     if ( !file )
       throw new Error( 'Resource not found' );
 
-    const toRet = await files.update<IFileEntry<'client'>>( query, token );
+    const toRet = await files.update<IFileEntry<'client'>>( query, token, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
     return toRet;
   }
 
@@ -329,11 +352,6 @@ export class FilesController extends Controller {
     }
 
     await files.deleteInstances( { _id: fileEntry._id } as IFileEntry<'server'> );
-
-    // Update any listeners on the sockets
-    const token = { type: ClientInstructionType[ ClientInstructionType.FileRemoved ], file: fileEntry, username: fileEntry.user! };
-    await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, fileEntry.user ) );
-
     return fileEntry;
   }
 
@@ -368,7 +386,11 @@ export class FilesController extends Controller {
     }
 
     if ( options.user ) {
-      query.user = options.user;
+      const u = await this._users.getUser( options.user );
+      if ( !u )
+        throw new Error404( `User not found` );
+
+      query.user = new ObjectID( u.dbEntry._id );
     }
 
     const fileEntries = await files.collection.find( query ).toArray();

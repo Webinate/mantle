@@ -3,7 +3,7 @@ import { } from 'mocha';
 import * as path from 'path';
 import header from '../header';
 import * as fs from 'fs';
-import { IFileEntry, IVolume } from '../../../src';
+import { IFileEntry, IVolume, IUserEntry } from '../../../src';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
 import { IDatabase } from '../../../src/types/config/properties/i-database';
@@ -41,7 +41,7 @@ describe( 'Testing successful file uploads: ', function() {
     assert( files[ 0 ].publicURL.length > 0 );
 
     assert.equal( files[ 0 ].size, 228 );
-    assert.equal( files[ 0 ].user, header.user1.username );
+    assert.equal( ( files[ 0 ].user as IUserEntry<'client'> ).username, header.user1.username );
 
     // Make sure the temp folder is cleaned up
     let filesInTemp = 0;
