@@ -1,7 +1,7 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { ownerRights, requireUser } from '../utils/permission-controllers';
+import { requireUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import ControllerFactory from '../core/controller-factory';
 import * as compression from 'compression';
@@ -41,10 +41,10 @@ export class FileSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/users/:user/volumes/:volume', <any>[ ownerRights, this.getFiles.bind( this ) ] );
+    router.get( '/volumes/:volume', <any>[ requireUser, this.getFiles.bind( this ) ] );
     router.delete( '/:file', <any>[ requireUser, this.remove.bind( this ) ] );
     router.put( '/:file', <any>[ requireUser, this.update.bind( this ) ] );
-    router.post( '/users/:user/volumes/:volume/upload/:directory?', <any>[ ownerRights, this.upload.bind( this ) ] );
+    router.post( '/volumes/:volume/upload/:directory?', <any>[ requireUser, this.upload.bind( this ) ] );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/files`, router );
@@ -91,7 +91,7 @@ export class FileSerializer extends Serializer {
       volumeId: req.params.volume,
       index: index,
       limit: limit,
-      user: req.params.user,
+      user: req._isAdmin ? undefined : req._user!.username as string,
       searchTerm: req.query.search ? new RegExp( req.query.search, 'i' ) : undefined
     } );
 

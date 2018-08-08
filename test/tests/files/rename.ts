@@ -26,12 +26,12 @@ describe( 'Testing file renaming', function() {
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
+    const resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
   } )
 
   it( 'uploaded file has the name "file.png"', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/${volume._id}` );
+    const resp = await header.user1.get( `/files/volumes/${volume._id}` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     fileId = json.data[ 0 ]._id;
@@ -82,7 +82,7 @@ describe( 'Testing file renaming', function() {
   } )
 
   it( 'did rename the file to "testy" as reflected in the GET', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/${volume._id}` );
+    const resp = await header.user1.get( `/files/volumes/${volume._id}` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert.deepEqual( json.data[ 0 ].name, "testy" );

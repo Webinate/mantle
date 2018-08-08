@@ -23,22 +23,15 @@ describe( 'Getting uploaded user files', function() {
     assert.deepEqual( resp.status, 204 );
   } )
 
-  it( 'regular user did not get files for the admin user volume', async function() {
-    const resp = await header.user1.get( `/files/users/${( header.config.adminUser as IAdminUser ).username}/volumes/BAD_ENTRY` );
-    const json = await resp.json();
-    assert.deepEqual( resp.status, 403 );
-    assert.deepEqual( json.message, "You don't have permission to make this request" );
-  } )
-
   it( 'regular user did not get files for a volume with bad id', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/test` );
+    const resp = await header.user1.get( `/files/volumes/test` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 500 );
     assert.deepEqual( json.message, "Please use a valid identifier for volumeId" );
   } )
 
   it( 'regular user did not get files for a non existant volume', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/123456789012345678901234` );
+    const resp = await header.user1.get( `/files/volumes/123456789012345678901234` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 500 );
     assert.deepEqual( json.message, "Could not find the volume resource" );
@@ -47,19 +40,25 @@ describe( 'Getting uploaded user files', function() {
   it( 'regular user did upload a file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
+    const resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
   } )
 
   it( 'regular user did upload another file to dinosaurs', async function() {
     const form = new FormData();
     form.append( 'small-image.png', fs.readFileSync( filePath ), { filename: 'small-image.png', contentType: 'image/png' } );
-    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
+    const resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.deepEqual( resp.status, 200 );
   } )
 
+  it( 'regular cannot access another users volume', async function() {
+    const resp = await header.user2.get( `/files/volumes/${volume._id}` );
+    assert.deepEqual( resp.statusText, "Could not find the volume resource" )
+    assert.deepEqual( resp.status, 500 );
+  } )
+
   it( 'regular user fetched 2 files from the dinosaur volume', async function() {
-    const resp = await header.user1.get( `/files/users/${header.user1.username}/volumes/${volume._id}` );
+    const resp = await header.user1.get( `/files/volumes/${volume._id}` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 2 )
@@ -77,7 +76,7 @@ describe( 'Getting uploaded user files', function() {
   } )
 
   it( 'admin fetched 2 files from the regular users dinosaur volume', async function() {
-    const resp = await header.admin.get( `/files/users/${header.user1.username}/volumes/${volume._id}` );
+    const resp = await header.admin.get( `/files/volumes/${volume._id}` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 2 );

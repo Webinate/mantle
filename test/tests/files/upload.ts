@@ -28,7 +28,7 @@ describe( 'Testing successful file uploads: ', function() {
   it( 'Can upload a single file', async function() {
     const form = new FormData();
     form.append( 'good-file', fs.createReadStream( filePath ) );
-    const resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
+    const resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );
     const files = await resp.json<IFileEntry<'client'>[]>();
     assert.equal( files.length, 1 );
@@ -60,7 +60,7 @@ describe( 'Testing successful file uploads: ', function() {
 
     const form = new FormData();
     form.append( 'good-file', fs.createReadStream( filePath ) );
-    resp = await header.user1.post( `/files/users/${header.user1.username}/volumes/${volume._id}/upload`, form, form.getHeaders() );
+    resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
 
     assert.equal( resp.statusText, 'You dont have sufficient memory in the volume' );
     assert.equal( resp.status, 500 );

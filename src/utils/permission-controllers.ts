@@ -28,7 +28,7 @@ export function hasId( idName: string, idLabel: string = '', optional: boolean =
   }
 }
 
-function hasPermission( user: User, level: number, existingUser?: string ): boolean {
+export function hasPermission( user: User, level: number, existingUser?: string ): boolean {
   if ( existingUser !== undefined ) {
     if ( ( user.dbEntry.email !== existingUser && user.dbEntry.username !== existingUser ) && user.dbEntry.privileges! > level )
       return false;
