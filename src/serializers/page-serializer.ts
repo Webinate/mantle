@@ -1,5 +1,4 @@
-﻿import { RenderTokens } from '../types/tokens/standard-tokens';
-import { IAuthReq } from '../types/tokens/i-auth-request';
+﻿import { IAuthReq } from '../types/tokens/i-auth-request';
 import { IRender } from '../types/models/i-render';
 import * as mongodb from 'mongodb';
 import { error as logError, info } from '../utils/logger';
@@ -14,6 +13,7 @@ import { IRenderOptions } from '../types/misc/i-render-options';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';
 import { Schema } from '../models/schema';
+import { Page } from '../types/tokens/standard-tokens';
 
 /**
  * Sets up a prerender server and saves the rendered html requests to mongodb.
@@ -195,7 +195,7 @@ export class PageSerializer extends Serializer {
           return resolve( html );
         }
 
-        timer = setTimeout( checkComplete, 300 );
+        timer = global.setTimeout( checkComplete, 300 );
       }
 
       jsdom.env( {
@@ -389,7 +389,7 @@ export class PageSerializer extends Serializer {
 
       const sanitizedData = await Promise.all( jsons );
 
-      okJson<RenderTokens.GetAll.Response>( {
+      okJson<Page<IRender<'client'>>>( {
         count: count,
         index: index,
         limit: limit,
@@ -405,7 +405,7 @@ export class PageSerializer extends Serializer {
    * Removes all cache items from the db
    */
   @j200( 204 )
-  private async clearRenders( req: IAuthReq, res: express.Response ): Promise<RenderTokens.DeleteAll.Response> {
+  private async clearRenders( req: IAuthReq, res: express.Response ) {
     const renders = this.getModel( 'renders' );
     await renders!.deleteInstances( {} );
     return;

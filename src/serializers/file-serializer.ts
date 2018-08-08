@@ -1,5 +1,4 @@
-﻿import { FileTokens } from '../types/tokens/standard-tokens';
-import { IAuthReq } from '../types/tokens/i-auth-request';
+﻿import { IAuthReq } from '../types/tokens/i-auth-request';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import { ownerRights, requireUser } from '../utils/permission-controllers';
@@ -72,8 +71,7 @@ export class FileSerializer extends Serializer {
     if ( !req._isAdmin && file.user )
       throw new Error403( 'Permission deniedd - cannot set user as non-admin' );
 
-    const updatedFile: FileTokens.Put.Response = await this._files.update( req.params.file, file );
-    return updatedFile;
+    return await this._files.update( req.params.file, file );
   }
 
   /**
@@ -97,18 +95,16 @@ export class FileSerializer extends Serializer {
       searchTerm: req.query.search ? new RegExp( req.query.search, 'i' ) : undefined
     } );
 
-    const resp: FileTokens.GetAll.Response = page;
-    return resp;
+    return page;
   }
 
   @j200()
   private async upload( req: IAuthReq ) {
     const volumeId = req.params.volume;
-    const username = req._user!.username as string;
 
     if ( !mongodb.ObjectID.isValid( volumeId ) )
       throw new Error( `Incorrect volume id format` );
 
-    return this._files.uploadFilesToVolume( req, volumeId, username );
+    return this._files.uploadFilesToVolume( req, volumeId, req._user!._id.toString() );
   }
 }

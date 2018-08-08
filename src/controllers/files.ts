@@ -257,18 +257,13 @@ export class FilesController extends Controller {
    * @param volumeId The id of the volume to upload to
    * @param username The username of the uploader
    */
-  async uploadFilesToVolume( req: IAuthReq, volumeId: string, username: string ) {
+  async uploadFilesToVolume( req: IAuthReq, volumeId: string, userId: string ) {
     if ( !volumeId || volumeId.trim() === '' )
       throw new Error( `Please specify a volume for the upload` );
 
-
-    const user = await this._users.getUser( username );
-    if ( !user )
-      throw new Error404( `User not found` );
-
     const volumeSchema = await this._volumes.findOne<IVolume<'server'>>( {
       _id: new ObjectID( volumeId ),
-      user: user.dbEntry._id
+      user: new ObjectID( userId )
     } as Partial<IVolume<'server'>> );
 
     if ( !volumeSchema )

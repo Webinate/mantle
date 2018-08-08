@@ -85,8 +85,8 @@ export { IUserEntry } from './types/models/i-user-entry';
 export { IUploadResponse } from './types/tokens/i-file-tokens';
 export {
   IAuthenticationResponse, EmailTokens,
-  FileTokens, IRemoveResponse, IResponse, ISimpleResponse,
-  Page, RenderTokens, SessionTokens,
+  IRemoveResponse, IResponse, ISimpleResponse,
+  Page,
 } from './types/tokens/standard-tokens';
 export { IAuthReq } from './types/tokens/i-auth-request';
 export { ILoginToken } from './types/tokens/i-login-token';
