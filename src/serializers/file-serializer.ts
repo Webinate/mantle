@@ -69,7 +69,7 @@ export class FileSerializer extends Serializer {
     const file = req.body as IFileEntry<'client'>;
 
     if ( !req._isAdmin && file.user )
-      throw new Error403( 'Permission deniedd - cannot set user as non-admin' );
+      throw new Error403( 'Permission denied - cannot set user as non-admin' );
 
     return await this._files.update( req.params.file, file );
   }
