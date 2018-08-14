@@ -65,14 +65,24 @@ export async function postJson<T>( url: string, data: any ) {
   return await resp.json() as T;
 }
 
-export async function post( url: string, data: any ) {
+export async function post( url: string, data: any, headers?: any ) {
+  let header = {};
+  let body: any;
+
+  if ( data instanceof FormData ) {
+    body = data;
+    header = headers;
+  }
+  else {
+    body = JSON.stringify( data );
+    header = { 'content-type': 'application/json', ...headers };
+  }
+
   const resp = await fetch( url, {
     method: 'post',
-    body: JSON.stringify( data ),
+    body: body,
     credentials: 'include',
-    headers: new Headers( {
-      'content-type': 'application/json'
-    } )
+    headers: new Headers( header )
   } );
 
   if ( resp.status >= 400 && resp.status <= 500 )

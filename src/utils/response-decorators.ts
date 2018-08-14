@@ -30,7 +30,7 @@ export function j200( code: number = 200, errCode: number = 500 ) {
             res.status( err.status );
           else
             res.status( errCode )
-          res.statusMessage = err.message;
+          res.statusMessage = encodeURIComponent( err.message );
           res.json( { message: err.message } );
         } );
       }

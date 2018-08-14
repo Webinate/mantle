@@ -12,11 +12,12 @@ import { VolumeModel } from '../models/volume-model';
 import ControllerFactory from '../core/controller-factory';
 import { IAuthReq } from '../types/tokens/i-auth-request';
 import { unlink, exists } from 'fs';
-import { resolve } from 'path';
+import * as path from 'path';
 import { IncomingForm, Fields, File, Part } from 'formidable';
 import * as winston from 'winston';
-import { Error404 } from '../utils/errors';
+import { Error404, Error500 } from '../utils/errors';
 import { UsersController } from './users';
+import { IUploadToken } from '../types/interfaces/i-remote';
 
 export type GetOptions = {
   volumeId?: string | ObjectID;
@@ -173,9 +174,9 @@ export class FilesController extends Controller {
       form.keepExtensions = true;
       form.maxFields = 1000; // Max number of allowed fields
       form.maxFieldsSize = 20 * 1024 * 1024; // Max size allowed for fields
-      form.maxFileSize = 0.5 * 1024 * 1024; // Max size allowed for files
+      form.maxFileSize = 20 * 1024 * 1024; // Max size allowed for files
       form.multiples = false;
-      form.uploadDir = './temp';
+      form.uploadDir = path.resolve( __dirname + '/../../temp' );
 
 
       form.onPart = ( part: Part ) => {
@@ -223,15 +224,20 @@ export class FilesController extends Controller {
     const filesModel = this._files;
     const volumesModel = this._volumes;
 
-    file.path = resolve( file.path );
+    file.path = path.resolve( file.path );
+    let uploadToken: IUploadToken | null = null;
 
     // Upload the file to the remote
-    const uploadToken = await RemoteFactory.get( volume.type ).uploadFile( volume, file );
+    try {
+      uploadToken = await RemoteFactory.get( volume.type ).uploadFile( volume, file );
+    } catch ( err ) {
+      throw new Error500( err.message );
+    }
 
     // Create the file entry
     const fileData: Partial<IFileEntry<'client'>> = {
-      identifier: uploadToken.id,
-      publicURL: uploadToken.url,
+      identifier: uploadToken!.id,
+      publicURL: uploadToken!.url,
       name: file.name,
       size: file.size,
       mimeType: file.type,

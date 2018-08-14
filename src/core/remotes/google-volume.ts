@@ -115,7 +115,12 @@ export class GoogleVolume implements IRemote {
     else
       dest = source.pipe( rawFile.createWriteStream( <any>{ metadata: { contentType: file.type } } ) );
 
-    await this.handleStreamsEvents( source, dest );
+    try {
+      await this.handleStreamsEvents( source, dest );
+    } catch ( err ) {
+      throw err
+    }
+
     await rawFile.makePublic();
     return {
       id: filename,

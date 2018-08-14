@@ -112,7 +112,7 @@ export class PageSerializer extends Serializer {
    */
   async initialize( e: express.Express, db: mongodb.Db ) {
     this.renderQueryFlag = '__render__request';
-    this.expiration = this._options.cacheLifetime * 1000;
+    this.expiration = ( this._options.cacheLifetime || 60000 ) * 1000;
 
     e.use( this.processBotRequest.bind( this ) );
     const router = express.Router();

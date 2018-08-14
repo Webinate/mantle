@@ -1,4 +1,4 @@
-import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
+import { getJson, makeQueryString, del, putJson, post, apiUrl } from './http-clients';
 import { Page } from '../types/tokens/standard-tokens';
 import { IFileEntry } from '../types/models/i-file-entry';
 
@@ -23,6 +23,11 @@ export function update( id: string, token: Partial<IFileEntry<'client'>> ) {
   return putJson<IFileEntry<'client'>>( `${rootPath}/${id}`, token );
 }
 
-export function create( volumeId: string, file: Partial<IFileEntry<'client'>> ) {
-  return postJson<IFileEntry<'client'>>( `${rootPath}/volumes/${volumeId}/upload/`, file );
+export async function create( volumeId: string, file: File ) {
+  const data = new FormData();
+  data.append( 'file', file );
+
+  const resp = await post( `${rootPath}/volumes/${volumeId}/upload/`, data );
+  const toRet: IFileEntry<'client'> = await resp.json();
+  return toRet;
 }
