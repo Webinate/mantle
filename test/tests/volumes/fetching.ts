@@ -30,19 +30,19 @@ describe( 'Testing volume get requests', function() {
 
   it( 'prevents getting a single volume with a bad id', async function() {
     const resp = await header.admin.get( `/volumes/BAD` );
-    assert.deepEqual( resp.statusText, 'Invalid ID format' );
+    assert.deepEqual( decodeURIComponent( resp.statusText ), 'Invalid ID format' );
     assert.deepEqual( resp.status, 500 );
   } )
 
   it( 'prevents getting a single volume that doesnt exist', async function() {
     const resp = await header.admin.get( `/volumes/123456789123456789123456` );
-    assert.deepEqual( resp.statusText, 'Volume does not exist' );
+    assert.deepEqual( decodeURIComponent( resp.statusText ), 'Volume does not exist' );
     assert.deepEqual( resp.status, 500 );
   } )
 
   it( 'prevents regular users from getting a volume', async function() {
     const resp = await header.user1.get( `/volumes/${volumeJson._id}` );
-    assert.deepEqual( resp.statusText, 'You don\'t have permission to make this request' );
+    assert.deepEqual( decodeURIComponent( resp.statusText ), 'You don\'t have permission to make this request' );
     assert.deepEqual( resp.status, 403 );
   } )
 

@@ -22,25 +22,25 @@ describe( 'Testing creation of categories', function() {
   it( 'did not create a category without a slug', async function() {
     const resp = await header.admin.post( `/api/categories`, { title: 'Test' } as ICategory<'client'> );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `slug cannot be empty` );
+    assert.equal( decodeURIComponent( resp.statusText ), `slug cannot be empty` );
   } )
 
   it( 'did not create a category without a title', async function() {
     const resp = await header.admin.post( `/api/categories`, { slug: randomString() } as ICategory<'client'> );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `title cannot be empty` );
+    assert.equal( decodeURIComponent( resp.statusText ), `title cannot be empty` );
   } )
 
   it( 'did not create a category with an empty title', async function() {
     const resp = await header.admin.post( `/api/categories`, { title: '', slug: randomString() } as ICategory<'client'> );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `title cannot be empty` );
+    assert.equal( decodeURIComponent( resp.statusText ), `title cannot be empty` );
   } )
 
   it( 'did not create a category with an empty slug', async function() {
     const resp = await header.admin.post( `/api/categories`, { title: 'Test', slug: '' } as ICategory<'client'> );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `slug cannot be empty` );
+    assert.equal( decodeURIComponent( resp.statusText ), `slug cannot be empty` );
   } )
 
   it( 'did create category called _test with no html', async function() {
@@ -67,7 +67,7 @@ describe( 'Testing creation of categories', function() {
       slug: '_test'
     } as ICategory<'client'> );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `'slug' must be unique` );
+    assert.equal( decodeURIComponent( resp.statusText ), `'slug' must be unique` );
   } )
 
   it( 'did delete the category from the create test', async function() {

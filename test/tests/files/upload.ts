@@ -62,7 +62,7 @@ describe( 'Testing successful file uploads: ', function() {
     form.append( 'good-file', fs.createReadStream( filePath ) );
     resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
 
-    assert.equal( resp.statusText, 'You dont have sufficient memory in the volume' );
+    assert.equal( decodeURIComponent( resp.statusText ), 'You dont have sufficient memory in the volume' );
     assert.equal( resp.status, 500 );
   } )
 } )

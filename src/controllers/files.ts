@@ -174,7 +174,7 @@ export class FilesController extends Controller {
       form.keepExtensions = true;
       form.maxFields = 1000; // Max number of allowed fields
       form.maxFieldsSize = 20 * 1024 * 1024; // Max size allowed for fields
-      form.maxFileSize = 20 * 1024 * 1024; // Max size allowed for files
+      form.maxFileSize = this._config.remotes.maxFileSize || ( 20 * 1024 * 1024 ); // Max size allowed for files
       form.multiples = false;
       form.uploadDir = path.resolve( __dirname + '/../../temp' );
 

@@ -26,6 +26,11 @@ export interface IConfig {
   remotes: {
 
     /**
+     * Specify the max file size allowed in bytes
+     */
+    maxFileSize: number;
+
+    /**
      * If the property is a string, it must point
      * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as IGoogleProperties.
      */

@@ -31,7 +31,7 @@ describe( 'Testing volume upload validation: ', function() {
     form.append( 'file', fs.readFileSync( goodFilePath ) );
     const resp = await header.user1.post( `/files/volumes/ /upload`, form, form.getHeaders() );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `Incorrect volume id format` );
+    assert.equal( decodeURIComponent( resp.statusText ), `Incorrect volume id format` );
   } )
 
   it( 'must fail if volume does not use a valid volume id', async function() {
@@ -39,7 +39,7 @@ describe( 'Testing volume upload validation: ', function() {
     form.append( 'file', fs.readFileSync( goodFilePath ) );
     const resp = await header.user1.post( `/files/volumes/BAD_ID/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `Incorrect volume id format` );
+    assert.equal( decodeURIComponent( resp.statusText ), `Incorrect volume id format` );
   } )
 
   it( 'must fail if volume does not exist', async function() {
@@ -47,14 +47,14 @@ describe( 'Testing volume upload validation: ', function() {
     form.append( 'file', fs.readFileSync( goodFilePath ) );
     const resp = await header.user1.post( `/files/volumes/123456789012/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `Volume does not exist` );
+    assert.equal( decodeURIComponent( resp.statusText ), `Volume does not exist` );
   } )
 
   it( 'must fail if another user tries to upload into your volume', async function() {
     const form = new FormData();
     form.append( 'file', fs.readFileSync( goodFilePath ) );
     const resp = await header.user2.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
-    assert.equal( resp.statusText, `Volume does not exist` );
+    assert.equal( decodeURIComponent( resp.statusText ), `Volume does not exist` );
     assert.equal( resp.status, 500 );
   } )
 
@@ -63,7 +63,7 @@ describe( 'Testing volume upload validation: ', function() {
     form.append( 'dangerous', fs.createReadStream( dangerousFile ) );
     const resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `Extension application/x-sh not supported` );
+    assert.equal( decodeURIComponent( resp.statusText ), `Extension application/x-sh not supported` );
   } )
 
   it( 'must ignore form fields', async function() {
@@ -80,7 +80,7 @@ describe( 'Testing volume upload validation: ', function() {
     form.append( 'big-file', fs.createReadStream( bigFile ) );
     const resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 500 );
-    assert.equal( resp.statusText, `maxFileSize exceeded, received 589205 bytes of file data` );
+    assert.equal( decodeURIComponent( resp.statusText ), `maxFileSize exceeded, received 589205 bytes of file data` );
   } )
 
   it( 'Must fail all uploads if even one is not accepted', async function() {

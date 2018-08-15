@@ -13,7 +13,7 @@
     "migrate-down": "migrate-mongo down --file=mm-config.js",
     "migrate-status": "migrate-mongo status --file=mm-config.js",
     "migrate-create": "migrate-mongo create RENAME --file=mm-config.js",
-    "test": "mocha ./test/index.js --exit --config=./config.json --server=0 --logging=false --keyFile=./volume-credentials.json --runningTests=true --clientsFolder=./test/ --remotes.local.url=http://localhost:8000 --remotes.local.path=test/test-server/media",
+    "test": "mocha ./test/index.js --exit --config=./config.json --server=0 --logging=false --keyFile=./volume-credentials.json --runningTests=true --clientsFolder=./test/ --remotes.local.url=http://localhost:8000 --remotes.local.path=test/test-server/media --remotes.maxFileSize=524288",
     "bump-patch": "gulp bump-patch",
     "bump-minor": "gulp bump-minor",
     "bump-major": "gulp bump-major",

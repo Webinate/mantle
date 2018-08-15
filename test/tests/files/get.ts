@@ -53,7 +53,7 @@ describe( 'Getting uploaded user files', function() {
 
   it( 'regular cannot access another users volume', async function() {
     const resp = await header.user2.get( `/files/volumes/${volume._id}` );
-    assert.deepEqual( resp.statusText, "Could not find the volume resource" )
+    assert.deepEqual( decodeURIComponent( resp.statusText ), "Could not find the volume resource" )
     assert.deepEqual( resp.status, 500 );
   } )
 
