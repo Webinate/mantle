@@ -26,6 +26,8 @@ export type GetOptions = {
   limit?: number;
   searchTerm?: RegExp;
   verbose?: boolean;
+  sort?: 'created' | 'name' | 'memory';
+  sortOrder?: 'asc' | 'desc';
 }
 
 export type DeleteOptions = {
@@ -129,6 +131,27 @@ export class FilesController extends Controller {
       searchQuery.user = new ObjectID( u.dbEntry._id );
     }
 
+    // Set the default sort order to ascending
+    let sortOrder = -1;
+
+    if ( options.sortOrder ) {
+      if ( options.sortOrder.toLowerCase() === 'asc' )
+        sortOrder = 1;
+      else
+        sortOrder = -1;
+    }
+
+    // Sort by the date created
+    let sort: { [ key in keyof Partial<IFileEntry<'server'>> ]: number } | undefined = undefined;
+
+    // Optionally sort by the last updated
+    if ( options.sort === 'created' )
+      sort = { created: sortOrder };
+    else if ( options.sort === 'name' )
+      sort = { name: sortOrder };
+    else if ( options.sort === 'memory' )
+      sort = { size: sortOrder };
+
     const count = await files.count( searchQuery );
     const index: number = options.index || 0;
     const limit: number = options.limit || 10;
@@ -136,6 +159,7 @@ export class FilesController extends Controller {
 
     const sanitizedData = await files.downloadMany<IFileEntry<'client'>>( {
       selector: searchQuery,
+      sort: sort,
       index: index,
       limit: limit
     }, { verbose, expandForeignKeys: true, expandMaxDepth: 1 } );

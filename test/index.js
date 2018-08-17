@@ -60,6 +60,7 @@ require( './tests/volumes/creation' );
 require( './tests/volumes/deletion' );
 require( './tests/volumes/fetching' );
 require( './tests/volumes/updating' );
+require( './tests/volumes/getting-many-filters' );
 
 require( './tests/categories/create' );
 require( './tests/categories/fetching' );
@@ -76,6 +77,7 @@ require( './tests/files/get' );
 require( './tests/files/rename' );
 require( './tests/files/upload' );
 require( './tests/files/upload-validation' );
+require( './tests/files/getting-many-filters' );
 
 require( './tests/posts/create' );
 require( './tests/posts/delete' );

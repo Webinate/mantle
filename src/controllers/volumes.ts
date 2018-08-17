@@ -17,6 +17,8 @@ export type GetManyOptions = {
   searchTerm: RegExp;
   index: number;
   limit: number;
+  sort: 'created' | 'name' | 'memory';
+  sortOrder: 'asc' | 'desc';
 };
 
 export type GetOptions = {
@@ -79,10 +81,40 @@ export class VolumesController extends Controller {
     let limit = options.limit !== undefined ? options.limit : 10;
     let index = options.index !== undefined ? options.index : 0;
 
+    // Set the default sort order to ascending
+    let sortOrder = -1;
+
+    if ( options.sortOrder ) {
+      if ( options.sortOrder.toLowerCase() === 'asc' )
+        sortOrder = 1;
+      else
+        sortOrder = -1;
+    }
+
+    // Sort by the date created
+    let sort: { [ key in keyof Partial<IVolume<'server'>> ]: number } | undefined = undefined;
+
+    // Optionally sort by the last updated
+    if ( options.sort === 'created' )
+      sort = { created: sortOrder };
+    else if ( options.sort === 'name' )
+      sort = { name: sortOrder };
+    else if ( options.sort === 'memory' )
+      sort = { memoryUsed: sortOrder };
+
     // Save the new entry into the database
     const count = await volumeModel.count( search );
-    const schemas = await volumeModel.findMany<IVolume<'server'>>( { selector: search, index, limit } );
-    const volumes = await Promise.all( schemas.map( s => s.downloadToken<IVolume<'client'>>( { verbose: true, expandMaxDepth: 2, expandForeignKeys: true } ) ) );
+    const schemas = await volumeModel.findMany<IVolume<'server'>>( {
+      selector: search,
+      index,
+      limit,
+      sort
+    } );
+    const volumes = await Promise.all( schemas.map( s => s.downloadToken<IVolume<'client'>>( {
+      verbose: true,
+      expandMaxDepth: 2,
+      expandForeignKeys: true
+    } ) ) );
 
     const toRet: Page<IVolume<'client'>> = {
       limit: limit,

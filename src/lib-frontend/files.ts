@@ -8,6 +8,8 @@ export type GetAllOptions = {
   search: string;
   index: number;
   limit: number;
+  sort: 'created' | 'name' | 'memory';
+  sortOrder: 'asc' | 'desc';
 }
 
 export async function getAll( volumeId: string, options: Partial<GetAllOptions> ) {

@@ -113,6 +113,8 @@ export class VolumeSerializer extends Serializer {
     const toRet = await manager.getMany( {
       user: user,
       searchTerm: searchTerm,
+      sort: req.query.sort ? req.query.sort.toLowerCase() : undefined,
+      sortOrder: req.query.sortOrder === 'asc' ? 'asc' : 'desc',
       index: index,
       limit: limit
     } );

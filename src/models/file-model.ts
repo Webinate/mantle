@@ -22,6 +22,5 @@ export class FileModel extends Model<IFileEntry<'client' | 'server'>> {
     this.schema.add( new bool( 'isPublic', true ) );
     this.schema.add( new json( 'meta', {} ) );
     this.schema.add( new date( 'created' ) ).setIndexable( true );
-    this.schema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true );
   }
 }
