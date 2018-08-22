@@ -13,7 +13,7 @@ export type GetAllOptions = {
 }
 
 export async function getAll( volumeId: string, options: Partial<GetAllOptions> ) {
-  const page = await getJson<Page<IFileEntry<'client'>>>( `${rootPath}//volumes/${volumeId}` + makeQueryString( options ) );
+  const page = await getJson<Page<IFileEntry<'client'>>>( `${rootPath}/volumes/${volumeId}` + makeQueryString( options ) );
   return page;
 }
 

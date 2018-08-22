@@ -4,7 +4,7 @@ import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { VolumesController } from '../controllers/volumes';
-import { ownerRights, requireUser, adminRights, hasId } from '../utils/permission-controllers';
+import { requireUser, adminRights, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
 import { j200 } from '../utils/response-decorators';
