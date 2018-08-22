@@ -58,7 +58,7 @@ describe( 'Testing volume get requests', function() {
   } )
 
   it( 'filters by creation date by default', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}` );
+    const resp = await header.user1.get( `/volumes` );
     const json = await resp.json<Page<IVolume<'client'>>>();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 3 );
@@ -68,7 +68,7 @@ describe( 'Testing volume get requests', function() {
   } )
 
   it( 'can filter by name [asc]', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}?sort=name&sortOrder=asc` );
+    const resp = await header.user1.get( `/volumes?sort=name&sortOrder=asc` );
     const json = await resp.json<Page<IVolume<'client'>>>();
     assert( json.data[ 0 ]._id === volA._id );
     assert( json.data[ 1 ]._id === volB._id );
@@ -76,7 +76,7 @@ describe( 'Testing volume get requests', function() {
   } )
 
   it( 'can filter by name [desc]', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}?sort=name&sortOrder=desc` );
+    const resp = await header.user1.get( `/volumes?sort=name&sortOrder=desc` );
     const json = await resp.json<Page<IVolume<'client'>>>();
     assert( json.data[ 0 ]._id === volC._id );
     assert( json.data[ 1 ]._id === volB._id );
@@ -84,7 +84,7 @@ describe( 'Testing volume get requests', function() {
   } )
 
   it( 'can filter by creation date [asc]', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}?sort=created&sortOrder=asc` );
+    const resp = await header.user1.get( `/volumes?sort=created&sortOrder=asc` );
     const json = await resp.json<Page<IVolume<'client'>>>();
     assert( json.data[ 0 ]._id === volA._id );
     assert( json.data[ 1 ]._id === volB._id );
@@ -92,7 +92,7 @@ describe( 'Testing volume get requests', function() {
   } )
 
   it( 'can filter by creation date [desc]', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}?sort=created&sortOrder=desc` );
+    const resp = await header.user1.get( `/volumes?sort=created&sortOrder=desc` );
     const json = await resp.json<Page<IVolume<'client'>>>();
     assert( json.data[ 0 ]._id === volC._id );
     assert( json.data[ 1 ]._id === volB._id );
@@ -100,7 +100,7 @@ describe( 'Testing volume get requests', function() {
   } )
 
   it( 'can filter by memory used [asc]', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}?sort=memory&sortOrder=asc` );
+    const resp = await header.user1.get( `/volumes?sort=memory&sortOrder=asc` );
     const json = await resp.json<Page<IVolume<'client'>>>();
     assert( json.data[ 0 ]._id === volA._id );
     assert( json.data[ 1 ]._id === volB._id );
@@ -108,7 +108,7 @@ describe( 'Testing volume get requests', function() {
   } )
 
   it( 'can filter by memory used [desc]', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}?sort=memory&sortOrder=desc` );
+    const resp = await header.user1.get( `/volumes?sort=memory&sortOrder=desc` );
     const json = await resp.json<Page<IVolume<'client'>>>();
     assert( json.data[ 0 ]._id === volC._id );
     assert( json.data[ 1 ]._id === volB._id );

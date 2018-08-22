@@ -30,7 +30,7 @@ describe( 'Testing volume deletion', function() {
   } )
 
   it( 'regular user has 1 volume', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}` );
+    const resp = await header.user1.get( `/volumes` );
     const json: Page<IVolume<'client'>> = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 1 );
@@ -42,7 +42,7 @@ describe( 'Testing volume deletion', function() {
   } )
 
   it( 'regular user has 0 volume', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}` );
+    const resp = await header.user1.get( `/volumes` );
     const json: Page<IVolume<'client'>> = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 0 );

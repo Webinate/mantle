@@ -10,15 +10,11 @@ export type GetAllOptions = {
   limit: number;
   sort: 'created' | 'name' | 'memory';
   sortOrder: 'asc' | 'desc';
+  username: string;
 }
 
 export async function getAll( options: Partial<GetAllOptions> ) {
   const page = await getJson<Page<IVolume<'client'>>>( `${rootPath}` + makeQueryString( options ) );
-  return page;
-}
-
-export async function getAllForUser( username: string, options: Partial<GetAllOptions> ) {
-  const page = await getJson<Page<IVolume<'client'>>>( `${rootPath}/user/${username}` + makeQueryString( options ) );
   return page;
 }
 

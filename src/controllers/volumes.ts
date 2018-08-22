@@ -11,9 +11,10 @@ import ModelFactory from '../core/model-factory';
 import RemoteFactory from '../core/remotes/remote-factory';
 import { Error500, Error404 } from '../utils/errors';
 import { UsersController } from './users';
+import { IUserEntry } from '../types/models/i-user-entry';
 
 export type GetManyOptions = {
-  user: string;
+  user: string | IUserEntry<'client' | 'server'>;
   searchTerm: RegExp;
   index: number;
   limit: number;
@@ -68,11 +69,16 @@ export class VolumesController extends Controller {
     const search: Partial<IVolume<'server'>> = {};
 
     if ( options.user ) {
-      const user = await this._users.getUser( options.user );
-      if ( user )
-        search.user = new ObjectID( user.dbEntry._id );
-      else
-        throw new Error404( `User not found` );
+      if ( options.user && ( options.user as IUserEntry<'client' | 'server'> )._id ) {
+        search.user = new ObjectID( ( options.user as IUserEntry<'client' | 'server'> )._id );
+      }
+      else {
+        const user = await this._users.getUser( options.user as string );
+        if ( user )
+          search.user = new ObjectID( user.dbEntry._id );
+        else
+          throw new Error404( `User not found` );
+      }
     }
 
     if ( options.searchTerm )

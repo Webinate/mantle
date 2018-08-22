@@ -43,8 +43,7 @@ export class VolumeSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/', <any>[ adminRights, this.getVolumes.bind( this ) ] );
-    router.get( '/user/:user', <any>[ ownerRights, this.getVolumes.bind( this ) ] );
+    router.get( '/', <any>[ requireUser, this.getVolumes.bind( this ) ] );
     router.get( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
     router.put( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
     router.delete( '/:id', <any>[ requireUser, this.removeVolumes.bind( this ) ] );
@@ -97,7 +96,7 @@ export class VolumeSerializer extends Serializer {
    */
   @j200()
   private async getVolumes( req: IAuthReq, res: express.Response ) {
-    const user = req.params.user;
+    const user = req._user!;
     const manager = this._volumeController;
     let searchTerm: RegExp | undefined;
 
@@ -107,11 +106,15 @@ export class VolumeSerializer extends Serializer {
 
     let index: number | undefined = parseInt( req.query.index );
     let limit: number | undefined = parseInt( req.query.limit );
+    let username: string | undefined = req.query.username;
     index = isNaN( index ) ? undefined : index;
     limit = isNaN( limit ) ? undefined : limit;
 
+    if ( req._isAdmin === false && username !== undefined )
+      throw new Error403();
+
     const toRet = await manager.getMany( {
-      user: user,
+      user: username || user,
       searchTerm: searchTerm,
       sort: req.query.sort ? req.query.sort.toLowerCase() : undefined,
       sortOrder: req.query.sortOrder === 'asc' ? 'asc' : 'desc',

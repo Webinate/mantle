@@ -55,7 +55,7 @@ describe( 'Testing volume creation', function() {
   } )
 
   it( 'regular user should have 2 volumes', async function() {
-    const resp = await header.user1.get( `/volumes/user/${header.user1.username}` );
+    const resp = await header.user1.get( `/volumes` );
     const json: Page<IVolume<'client'>> = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 2 );
