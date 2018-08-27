@@ -244,7 +244,7 @@ export class FilesController extends Controller {
     } );
   }
 
-  private async uploadFileToRemote( file: File, volume: IVolume<'server'> ) {
+  async uploadFileToRemote( file: File, volume: IVolume<'client' | 'server'>, removeFile: boolean = true ) {
     const filesModel = this._files;
     const volumesModel = this._volumes;
 
@@ -275,7 +275,8 @@ export class FilesController extends Controller {
     await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: volume.memoryUsed + file.size } );
 
     // Remove temp file
-    await this.removeTempFiles( [ file ] );
+    if ( removeFile )
+      await this.removeTempFiles( [ file ] );
 
     // Return the new file
     return newFile.downloadToken<IFileEntry<'client'>>( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
