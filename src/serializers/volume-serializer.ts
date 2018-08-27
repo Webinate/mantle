@@ -110,11 +110,15 @@ export class VolumeSerializer extends Serializer {
     index = isNaN( index ) ? undefined : index;
     limit = isNaN( limit ) ? undefined : limit;
 
+    let getAll = false;
+
     if ( req._isAdmin === false && username !== undefined )
       throw new Error403();
+    else if ( req._isAdmin && username === undefined )
+      getAll = true;
 
     const toRet = await manager.getMany( {
-      user: username || user,
+      user: getAll ? undefined : ( username || user ),
       searchTerm: searchTerm,
       sort: req.query.sort ? req.query.sort.toLowerCase() : undefined,
       sortOrder: req.query.sortOrder === 'asc' ? 'asc' : 'desc',
