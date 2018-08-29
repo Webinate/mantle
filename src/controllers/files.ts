@@ -255,6 +255,10 @@ export class FilesController extends Controller {
     try {
       uploadToken = await RemoteFactory.get( volume.type ).uploadFile( volume, file );
     } catch ( err ) {
+      // Remove temp file
+      if ( removeFile )
+        await this.removeTempFiles( [ file ] );
+
       throw new Error500( err.message );
     }
 

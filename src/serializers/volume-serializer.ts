@@ -4,7 +4,7 @@ import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { VolumesController } from '../controllers/volumes';
-import { requireUser, adminRights, hasId } from '../utils/permission-controllers';
+import { requireUser, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
 import { j200 } from '../utils/response-decorators';
@@ -44,8 +44,8 @@ export class VolumeSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/', <any>[ requireUser, this.getVolumes.bind( this ) ] );
-    router.get( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
-    router.put( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
+    router.get( '/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
+    router.put( '/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
     router.delete( '/:id', <any>[ requireUser, this.removeVolumes.bind( this ) ] );
     router.post( '/', <any>[ requireUser, this.createVolume.bind( this ) ] );
 
