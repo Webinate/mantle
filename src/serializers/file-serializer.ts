@@ -58,7 +58,7 @@ export class FileSerializer extends Serializer {
    */
   @j200( 204 )
   private async remove( req: IAuthReq, res: express.Response ) {
-    await this._files.removeFiles( { fileId: req.params.file, user: req._user!.username as string } );
+    await this._files.removeFiles( { fileId: req.params.file, user: req._isAdmin ? undefined : req._user!.username as string } );
   }
 
   /**
