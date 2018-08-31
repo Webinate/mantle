@@ -90,17 +90,18 @@ export class LocalVolume implements IRemote {
 
   async uploadFile( volume: IVolume<'server'>, file: IUpload ): Promise<IUploadToken> {
     let ext = extname( file.name );
-    let filename = file.name;
-    let fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}${ext ? '.' + ext : ''}` );
+    let base = basename( file.name, ext )
+    let filename = base + ( ext ? ext : '' );
+    let fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}` );
     let counter = 1;
 
     while ( fileExists ) {
       ext = extname( file.name );
-      let base = basename( file.name, ext )
+      base = basename( file.name, ext )
       base += counter.toString();
       counter++;
 
-      filename = base + ( ext ? '.' + ext : '' );
+      filename = base + ( ext ? ext : '' );
       fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}` );
     }
 
