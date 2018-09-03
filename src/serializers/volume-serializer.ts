@@ -11,7 +11,8 @@ import { j200 } from '../utils/response-decorators';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { IVolume } from '../types/models/i-volume-entry';
-import { Error403 } from '../utils/errors';
+import { Error403, Error404 } from '../utils/errors';
+import { IUserEntry } from '../types/models/i-user-entry';
 
 /**
  * Main class to use for managing users
@@ -63,6 +64,9 @@ export class VolumeSerializer extends Serializer {
     if ( !volume )
       throw new Error( 'Volume does not exist' );
 
+    if ( !req._isAdmin && ( volume.user as IUserEntry<'client'> ).username !== req._user!.username )
+      throw new Error403();
+
     return volume;
   }
 
@@ -77,6 +81,14 @@ export class VolumeSerializer extends Serializer {
       throw new Error403( `You don't have permission to set the memoryAllocated` );
     if ( token.memoryUsed !== undefined && !req._isAdmin )
       throw new Error403( `You don't have permission to set the memoryUsed` );
+
+    const volume = await this._volumeController.get( { id: req.params.id } );
+
+    if ( !volume )
+      throw new Error404( 'Volume does not exist' );
+
+    if ( !req._isAdmin && volume && ( volume.user as IUserEntry<'client'> ).username !== req._user!.username )
+      throw new Error403();
 
     const vol = await this._volumeController.update( req.params.id, token );
     return vol;

@@ -12,6 +12,7 @@ import { IAuthOptions } from '../types/misc/i-auth-options';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { ILoginToken, IRegisterToken } from '..';
+import { IUserEntry } from '../types/models/i-user-entry';
 
 /**
  * Main class to use for managing user authentication
@@ -148,14 +149,17 @@ export class AuthSerializer extends Serializer {
   private async login( req: express.Request, res: express.Response ) {
     const token: ILoginToken = req.body;
     const session = await this._userController.logIn( token.username, token.password, token.rememberMe, req, res );
+    let user: IUserEntry<'client'> | null = null;
 
-    if ( session )
+    if ( session ) {
       await ControllerFactory.get( 'sessions' ).setSessionHeader( session, req, res );
+      user = await this._userController.getUser( { username: session.user.username as string, verbose: true } );
+    }
 
     const response: IAuthenticationResponse = {
       message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
       authenticated: ( session ? true : false ),
-      user: ( session ? session.user.generateCleanedData( true ) : null )
+      user: ( session ? user : null )
     };
     return response;
   }
@@ -181,7 +185,7 @@ export class AuthSerializer extends Serializer {
     const response: IAuthenticationResponse = {
       message: ( user ? 'Please activate your account with the link sent to your email address' : 'User is not authenticated' ),
       authenticated: ( user ? true : false ),
-      user: ( user ? user.generateCleanedData( true ) : null )
+      user: ( user ? user : null )
     };
     return response;
   }
@@ -193,14 +197,17 @@ export class AuthSerializer extends Serializer {
   private async authenticated( req: express.Request, res: express.Response ) {
 
     const session = await ControllerFactory.get( 'sessions' ).getSession( req );
+    let user: IUserEntry<'client'> | null = null;
 
-    if ( session )
+    if ( session ) {
       await ControllerFactory.get( 'sessions' ).setSessionHeader( session, req, res );
+      user = await this._userController.getUser( { username: session.user.username as string, verbose: req.query.verbose === 'true' ? true : false } );
+    }
 
     const response: IAuthenticationResponse = {
       message: ( session ? 'User is authenticated' : 'User is not authenticated' ),
       authenticated: ( session ? true : false ),
-      user: ( session ? session.user.generateCleanedData( req.query.verbose === 'true' ) : null ),
+      user: ( session ? user : null ),
     };
 
     return response;

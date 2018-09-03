@@ -40,9 +40,9 @@ describe( 'Testing volume get requests', function() {
     assert.deepEqual( resp.status, 500 );
   } )
 
-  it( 'prevents regular users from getting a volume', async function() {
-    const resp = await header.user1.get( `/volumes/${volumeJson._id}` );
-    assert.deepEqual( decodeURIComponent( resp.statusText ), 'You don\'t have permission to make this request' );
+  it( 'prevents regular users from getting other users\' volumes', async function() {
+    const resp = await header.user2.get( `/volumes/${volumeJson._id}` );
+    assert.deepEqual( decodeURIComponent( resp.statusText ), 'You do not have permission' );
     assert.deepEqual( resp.status, 403 );
   } )
 

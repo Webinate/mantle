@@ -4,14 +4,13 @@ import { IUserEntry } from '../types/models/i-user-entry';
 import { ISessionEntry } from '../types/models/i-session-entry';
 import { ServerRequest } from 'http';
 import { ObjectID } from 'mongodb';
-import { User } from './user';
 
 /**
  * A class to represent session data
  */
 export class Session {
 
-  user: User
+  user: IUserEntry<'server'>;
   _id: ObjectID;
 
   /*
@@ -39,7 +38,7 @@ export class Session {
    */
   constructor( sessionId: string, options: ISession, userEntry: IUserEntry<'server'> ) {
     this.sessionId = sessionId;
-    this.user = new User( userEntry );
+    this.user = userEntry;
     this.data = {};
     this.options = options;
     this.expiration = ( new Date( Date.now() + options.lifetime * 1000 ) ).getTime();

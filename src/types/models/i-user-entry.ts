@@ -1,4 +1,5 @@
 import { ObjectID } from 'mongodb';
+import { IFileEntry } from './i-file-entry';
 
 /*
  * An interface to describe the data stored in the database for users
@@ -11,6 +12,7 @@ export interface IUserEntry<T extends 'server' | 'client'> {
   registerKey: string;
   sessionId: string;
   avatar: string;
+  avatarFile: T extends 'client' ? string | IFileEntry<'client'> : ObjectID;
   createdOn: number;
   lastLoggedIn: number;
   privileges: number;

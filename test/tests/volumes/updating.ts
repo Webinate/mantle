@@ -32,8 +32,8 @@ describe( 'Testing volume update requests: ', function() {
 
   it( 'prevents updating a single volume that doesnt exist', async function() {
     const resp = await header.admin.put( `/volumes/123456789123456789123456`, {} );
-    assert.deepEqual( decodeURIComponent( resp.statusText ), 'Resource does not exist' );
-    assert.deepEqual( resp.status, 500 );
+    assert.deepEqual( decodeURIComponent( resp.statusText ), 'Volume does not exist' );
+    assert.deepEqual( resp.status, 404 );
   } )
 
   it( 'should disallow a regular user to update memoryUsed', async function() {

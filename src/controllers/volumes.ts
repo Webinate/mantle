@@ -73,9 +73,9 @@ export class VolumesController extends Controller {
         search.user = new ObjectID( ( options.user as IUserEntry<'client' | 'server'> )._id );
       }
       else {
-        const user = await this._users.getUser( options.user as string );
+        const user = await this._users.getUser( { username: options.user as string } );
         if ( user )
-          search.user = new ObjectID( user.dbEntry._id );
+          search.user = new ObjectID( user._id );
         else
           throw new Error404( `User not found` );
       }
@@ -139,9 +139,9 @@ export class VolumesController extends Controller {
     const searchQuery: Partial<IVolume<'server'>> = {};
 
     if ( options.user ) {
-      const user = await this._users.getUser( options.user );
+      const user = await this._users.getUser( { username: options.user } );
       if ( user )
-        searchQuery.user = new ObjectID( user.dbEntry._id );
+        searchQuery.user = new ObjectID( user._id );
       else
         throw new Error404( `User not found` );
     }
@@ -247,9 +247,9 @@ export class VolumesController extends Controller {
     }
 
     if ( options.user ) {
-      const user = await this._users.getUser( options.user );
+      const user = await this._users.getUser( { username: options.user } );
       if ( user )
-        searchQuery.user = new ObjectID( user.dbEntry._id );
+        searchQuery.user = new ObjectID( user._id );
       else
         throw new Error404( `User not found` );
     }

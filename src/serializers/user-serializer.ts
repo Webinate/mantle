@@ -1,9 +1,9 @@
 ﻿import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserPrivileges } from '../core/user';
+import { UserPrivileges } from '../core/user-privileges';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
-import { ownerRights, adminRights, identifyUser } from '../utils/permission-controllers';
+import { ownerRights, adminRights, identifyUser, requireUser, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../utils/response-decorators';
 import { IBaseControler } from '../types/misc/i-base-controller';
@@ -44,6 +44,7 @@ export class UserSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/', <any>[ identifyUser, this.getUsers.bind( this ) ] );
+    router.put( '/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.edit.bind( this ) ] );
     router.post( '/', <any>[ adminRights, this.createUser.bind( this ) ] );
     router.get( '/:user/meta', <any>[ ownerRights, this.getData.bind( this ) ] );
     router.get( '/:user/meta/:name', <any>[ ownerRights, this.getVal.bind( this ) ] );
@@ -60,25 +61,40 @@ export class UserSerializer extends Serializer {
   }
 
   /**
- * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
+   * Gets a specific user by username or email - the 'username' parameter must be set. Some of the user data will be obscured unless the verbose parameter
    * is specified. Specify the verbose=true parameter in order to get all user data.
- */
+   */
   @j200()
   private async getUser( req: IAuthReq, res: express.Response ) {
-    const user = await this._userController.getUser( req.params.username );
+    const user = await this._userController.getUser( {
+      username: req.params.username,
+      verbose: req.query.verbose === 'true'
+    } );
 
     if ( !user )
       throw new Error( 'No user found' );
 
-    const response = user.generateCleanedData( req.query.verbose === 'true' );
-    return response;
+    return user;
+  }
+
+  @j200()
+  private async edit( req: IAuthReq, res: express.Response ) {
+    const user = await this._userController.getUser( req.query.username );
+
+    if ( !user )
+      throw new Error( 'No user found' );
+
+    // const response: Page<IUserEntry<'client'>> = await this._userController.getUser( index, limit, query, verbose );
+
+    // const response = user.generateCleanedData( req.query.verbose === 'true' );
+    // return response;
   }
 
   /**
- * Gets a list of users. You can limit the haul by specifying the 'index' and 'limit' query parameters.
+   * Gets a list of users. You can limit the haul by specifying the 'index' and 'limit' query parameters.
    * Also specify the verbose=true parameter in order to get all user data. You can also filter usernames with the
    * search query
- */
+   */
   @j200()
   private async getUsers( req: IAuthReq, res: express.Response ) {
     let verbose = req.query.verbose === 'true';
@@ -180,7 +196,6 @@ export class UserSerializer extends Serializer {
       meta: token.meta
     }, true, true );
 
-    const response: IUserEntry<'client'> = user.dbEntry as IUserEntry<'client'>;
-    return response;
+    return user;
   }
 }

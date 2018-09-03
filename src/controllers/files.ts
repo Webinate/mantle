@@ -72,11 +72,11 @@ export class FilesController extends Controller {
     const searchQuery: Partial<IFileEntry<'server'>> = { identifier: fileID };
 
     if ( user ) {
-      const u = await this._users.getUser( user );
+      const u = await this._users.getUser( { username: user } );
       if ( !u )
         throw new Error404( `User not found` );
 
-      searchQuery.user = new ObjectID( u.dbEntry._id );
+      searchQuery.user = new ObjectID( u._id );
     }
 
     if ( searchTerm )
@@ -105,9 +105,9 @@ export class FilesController extends Controller {
 
       const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectID( options.volumeId ) };
       if ( options.user ) {
-        const user = await this._users.getUser( options.user );
+        const user = await this._users.getUser( { username: options.user } );
         if ( user )
-          volumeQuery.user = new ObjectID( user.dbEntry._id );
+          volumeQuery.user = new ObjectID( user._id );
         else
           throw new Error404( `User not found` );
       }
@@ -124,11 +124,11 @@ export class FilesController extends Controller {
       searchQuery.name = new RegExp( options.searchTerm ) as any;
 
     if ( options.user ) {
-      const u = await this._users.getUser( options.user );
+      const u = await this._users.getUser( { username: options.user } );
       if ( !u )
         throw new Error404( `User not found` );
 
-      searchQuery.user = new ObjectID( u.dbEntry._id );
+      searchQuery.user = new ObjectID( u._id );
     }
 
     // Set the default sort order to ascending
@@ -416,11 +416,11 @@ export class FilesController extends Controller {
     }
 
     if ( options.user ) {
-      const u = await this._users.getUser( options.user );
+      const u = await this._users.getUser( { username: options.user } );
       if ( !u )
         throw new Error404( `User not found` );
 
-      query.user = new ObjectID( u.dbEntry._id );
+      query.user = new ObjectID( u._id );
     }
 
     const fileEntries = await files.collection.find( query ).toArray();

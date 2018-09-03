@@ -7,7 +7,7 @@ import * as compression from 'compression';
 import { Serializer } from './serializer';
 import { identifyUser, adminRights, hasId } from '../utils/permission-controllers';
 import { j200 } from '../utils/response-decorators';
-import { UserPrivileges } from '../core/user';
+import { UserPrivileges } from '../core/user-privileges';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IPost } from '../types/models/i-post';
 import Factory from '../core/model-factory';

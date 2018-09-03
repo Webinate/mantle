@@ -2,10 +2,10 @@
 
 import * as ws from 'ws';
 import { error as logError, info } from '../utils/logger';
-import { User } from '../core/user';
 import Factory from '../core/controller-factory';
 import { CommsController } from './comms-controller';
 import { ServerInstruction } from './server-instruction';
+import { IUserEntry } from '../types/models/i-user-entry';
 
 /**
  * A wrapper class for client connections made to the CommsController
@@ -13,7 +13,7 @@ import { ServerInstruction } from './server-instruction';
 export class ClientConnection {
   public onDisconnected: ( connection: ClientConnection ) => void;
   public ws: ws;
-  public user: User | null;
+  public user: IUserEntry<'server'> | null;
   public domain: string;
   public authorizedThirdParty: boolean;
   private _controller: CommsController;

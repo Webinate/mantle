@@ -68,7 +68,7 @@ export class CommsController extends events.EventEmitter {
     }
     else {
       for ( let recipient of recipients )
-        if ( recipient.authorizedThirdParty || ( recipient.user && recipient.user.dbEntry.username === username ) )
+        if ( recipient.authorizedThirdParty || ( recipient.user && recipient.user.username === username ) )
           this.sendToken( recipient, instruction.token );
     }
   }

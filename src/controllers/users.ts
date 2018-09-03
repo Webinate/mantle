@@ -8,7 +8,7 @@ import { ServerRequest, ServerResponse } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
 import { Request } from 'express';
-import { User, UserPrivileges } from '../core/user';
+import { UserPrivileges } from '../core/user-privileges';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
@@ -18,12 +18,16 @@ import { GMailer } from '../mailers/gmail';
 import { Mailguner } from '../mailers/mailgun';
 import { Session } from '../core/session';
 import Controller from './controller';
+import { UsersModel } from '../models/users-model';
+import ModelFactory from '../core/model-factory';
+import { IFileEntry } from '..';
 
 /**
  * Main class to use for managing users
  */
 export class UsersController extends Controller {
   private _collection: Collection<IUserEntry<'server' | 'client'>>;
+  private _users: UsersModel;
   private _mailer: IMailer;
 
   /**
@@ -40,6 +44,8 @@ export class UsersController extends Controller {
   async initialize( db: Db ) {
     this._collection = await db.collection( this._config.collections.userCollection );
     ControllerFactory.get( 'sessions' ).on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
+
+    this._users = ModelFactory.get( 'users' );
 
     if ( this._config.mail ) {
       if ( this._config.mail.type === 'gmail' ) {
@@ -58,7 +64,7 @@ export class UsersController extends Controller {
     const adminUser = this._config.adminUser as IAdminUser;
 
     // See if we have an admin user
-    let user = await this.getUser( adminUser.username );
+    let user: IUserEntry<'client' | 'server'> | null = await this.getUser( { username: adminUser.username } );
 
     // If no admin user exists, so lets try to create one
     if ( !user )
@@ -104,7 +110,7 @@ export class UsersController extends Controller {
     const origin = encodeURIComponent( request.headers[ 'origin' ] as string || request.headers[ 'referer' ] as string );
 
     // First check if user exists, make sure the details supplied are ok, then create the new user
-    let user: User | null = await this.getUser( username, email );
+    let user = await this.getUser( { username, email } );
 
     // If we already a user then error out
     if ( user )
@@ -135,7 +141,7 @@ export class UsersController extends Controller {
 
     // Send mail using the mailer
     await this._mailer.sendMail(
-      user.dbEntry.email! as string,
+      user.email! as string,
       ( this._config.mail.options as IMailOptions ).from,
       'Activate your account',
       message
@@ -150,8 +156,8 @@ export class UsersController extends Controller {
    * @param resetUrl The url of where the activation link should go
    * @param origin The origin of where the activation link came from
 	 */
-  private createActivationLink( user: User, resetUrl: string, origin: string ): string {
-    return `${resetUrl}?key=${user.dbEntry.registerKey}&user=${user.dbEntry.username}&origin=${origin}`;
+  private createActivationLink( user: IUserEntry<'client' | 'server'>, resetUrl: string, origin: string ): string {
+    return `${resetUrl}?key=${user.registerKey}&user=${user.username}&origin=${origin}`;
   }
 
   /**
@@ -160,8 +166,8 @@ export class UsersController extends Controller {
    * @param origin The origin of where the password reset link came from
    * @param resetUrl The url of where the password reset link should go
 	 */
-  private createResetLink( user: User, origin: string, resetUrl: string ): string {
-    return `${resetUrl}?key=${user.dbEntry.passwordTag}&user=${user.dbEntry.username}&origin=${origin}`;
+  private createResetLink( user: IUserEntry<'client' | 'server'>, origin: string, resetUrl: string ): string {
+    return `${resetUrl}?key=${user.passwordTag}&user=${user.username}&origin=${origin}`;
   }
 
   /**
@@ -169,21 +175,33 @@ export class UsersController extends Controller {
 	 * @param username The username or email of the user
 	 */
   async approveActivation( username: string ): Promise<void> {
-    // Get the user
-    const user: User | null = await this.getUser( username );
+    const selector = [ { email: username }, { username: username } ];
+    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
 
     if ( !user )
       throw new Error( 'No user exists with the specified details' );
 
-    // Clear the user's activation
-    await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { registerKey: '' } as IUserEntry<'server'> } );
+    await this._users.update(
+      { _id: user.dbEntry._id } as IUserEntry<'server'>,
+      { registerKey: '' } as Partial<IUserEntry<'client'>> );
 
-    // Send activated event
-    const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
-    await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, username ) );
 
     info( `User '${username}' has been activated` );
     return;
+  }
+
+  async update( username: string, token: IUserEntry<'client'> ) {
+    const selector = [ { email: username }, { username: username } ];
+    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+
+    if ( !user )
+      throw new Error( 'No user exists with the specified details' );
+
+    let t: IFileEntry<'client'> | null = null;
+    t;
+
+    const resp = await this._users.update( { _id: user.dbEntry._id } as IUserEntry<'server'>, token, { expandForeignKeys: true, expandMaxDepth: 1, verbose: true } );
+    return resp;
   }
 
   /**
@@ -214,8 +232,8 @@ export class UsersController extends Controller {
    * @param origin The origin of where the request came from (this is emailed to the user)
 	 */
   async resendActivation( username: string, resetUrl: string, origin: string ) {
-    // Get the user
-    const user: User | null = await this.getUser( username );
+    const selector = [ { email: username }, { username: username } ];
+    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
 
     if ( !user )
       throw new Error( 'No user exists with the specified details' );
@@ -223,7 +241,7 @@ export class UsersController extends Controller {
     if ( user.dbEntry.registerKey === '' )
       throw new Error( 'Account has already been activated' );
 
-    const newKey = user.generateKey();
+    const newKey = this.generateKey();
     user.dbEntry.registerKey = newKey;
 
     // Update the collection with a new key
@@ -231,7 +249,7 @@ export class UsersController extends Controller {
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string = 'Thank you for registering with Webinate!\nTo activate your account please click the link below:' +
-      this.createActivationLink( user, resetUrl, origin ) +
+      this.createActivationLink( user.dbEntry, resetUrl, origin ) +
       'Thanks\n\n' +
       'The Webinate Team';
 
@@ -250,19 +268,33 @@ export class UsersController extends Controller {
   }
 
   /**
+	 * Creates a random string that is assigned to the dbEntry registration key
+	 * @param length The length of the password
+	 */
+  private generateKey( length: number = 10 ): string {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    for ( let i = 0; i < length; i++ )
+      text += possible.charAt( Math.floor( Math.random() * possible.length ) );
+
+    return text;
+  }
+
+  /**
    * Sends the user an email with instructions on how to reset their password
    * @param username The username of the user
    * @param resetUrl The url where the reset password link should direct to
    * @param origin The site where the request came from
    */
   async requestPasswordReset( username: string, resetUrl: string, origin: string ) {
-    // Get the user
-    const user: User | null = await this.getUser( username );
+    const selector = [ { email: username }, { username: username } ];
+    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
 
     if ( !user )
       throw new Error( 'No user exists with the specified details' );
 
-    const newKey = user.generateKey();
+    const newKey = this.generateKey();
 
     // Password token
     user.dbEntry.passwordTag = newKey;
@@ -272,7 +304,7 @@ export class UsersController extends Controller {
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string = 'A request has been made to reset your password. To change your password please click the link below:\n\n' +
-      this.createResetLink( user, origin, resetUrl ) +
+      this.createResetLink( user.dbEntry, origin, resetUrl ) +
       'Thanks\n\n' +
       'The Webinate Team';
 
@@ -329,8 +361,8 @@ export class UsersController extends Controller {
    * @param newPassword The new password
    */
   async resetPassword( username: string, code: string, newPassword: string ) {
-    // Get the user
-    const user: User | null = await this.getUser( username );
+    const selector = [ { email: username }, { username: username } ];
+    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
 
     // No user - so invalid
     if ( !user )
@@ -358,8 +390,8 @@ export class UsersController extends Controller {
 	 * @param username The username of the user
 	 */
   async checkActivation( username: string, code: string ) {
-    // Get the user
-    const user = await this.getUser( username );
+    const selector = [ { email: username }, { username: username } ];
+    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
 
     // No user - so invalid
     if ( !user )
@@ -419,54 +451,49 @@ export class UsersController extends Controller {
 
     // Check if the user already exists
     const hashedPsw: string = await this.hashPassword( options.password );
-    const existingUser = await this.getUser( options.username, options.email );
+    const existingUser = await this.getUser( { username: options.username, email: options.email } );
 
     if ( existingUser )
       throw new Error( `A user with that name or email already exists` );
 
     const randNum = Math.floor( Math.random() * 20 );
     const avatar = options.avatar && options.avatar !== '' ? options.avatar : randNum.toString();
-
-    // Create the user
-    const newUser: User = new User( {
+    const data: Partial<IUserEntry<'client'>> = {
       username: options.username,
       password: hashedPsw,
       email: options.email,
       privileges: options.privileges,
       passwordTag: '',
       meta: options.meta || {},
+      createdOn: Date.now(),
+      lastLoggedIn: Date.now(),
       avatar: avatar,
-      registerKey: ( activateAccount ? '' : undefined )
-    } as IUserEntry<'server'> );
+      registerKey: ( activateAccount || options.privileges === UserPrivileges.SuperAdmin ? '' : this.generateKey( 10 ) )
+    }
 
-    // Update the database
-    const insertResult = await this._collection.insertOne( newUser.generateDbEntry() );
+    const schema = await this._users.createInstance<IUserEntry<'client'>>( data );
 
-    // Assing the ID and pass the user on
-    newUser.dbEntry = insertResult.ops[ 0 ];
-
-    return newUser;
+    // return newUser;
+    return await schema.downloadToken<IUserEntry<'client'>>( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
   }
 
   /**
 	 * Deletes a user from the database
 	 * @param user The unique username or email of the user to remove
 	 */
-  async removeUser( user: string ) {
-    let username: string = '';
-    const userInstance = await this.getUser( user );
+  async removeUser( username: string ) {
+    const selector = [ { email: username }, { username: username } ];
+    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
 
-    if ( !userInstance )
+    if ( !user )
       throw new Error( 'Could not find any users with those credentials' );
 
-    if ( userInstance.dbEntry.privileges === UserPrivileges.SuperAdmin )
+    if ( user.dbEntry.privileges === UserPrivileges.SuperAdmin )
       throw new Error( 'You cannot remove a super user' );
 
-    username = userInstance.dbEntry.username! as string;
+    await ControllerFactory.get( 'volumes' ).removeUser( user.dbEntry.username as string );
 
-    await ControllerFactory.get( 'volumes' ).removeUser( username );
-
-    const result = await this._collection.deleteOne( { _id: userInstance.dbEntry._id! } as IUserEntry<'server'> );
+    const result = await this._collection.deleteOne( { _id: user.dbEntry._id! } as IUserEntry<'server'> );
 
     if ( result.deletedCount === 0 )
       throw new Error( 'Could not remove the user from the database' );
@@ -482,30 +509,27 @@ export class UsersController extends Controller {
 
   /**
 	 * Gets a user by a username or email
-	 * @param user The username or email of the user to get
-	 * @param email [Optional] Do a check if the email exists as well
-	 * @returns Resolves with either a valid user or null if none exists
 	 */
-  async getUser( user: string, email?: string ) {
-    email = email !== undefined ? email : user;
+  async getUser( options: { username: string, email?: string; verbose?: boolean; } ) {
+    options.email = options.email !== undefined ? options.email : options.username;
+    options.verbose = options.verbose === undefined ? true : options.verbose;
 
     // Validate user string
-    user = trim( user );
+    options.username = trim( options.username );
 
-    if ( !user || user === '' )
+    if ( !options.username || options.username === '' )
       throw new Error( 'Please enter a valid username' );
 
-    if ( !isAlphanumeric( user ) && !isEmail( user ) )
+    if ( !isAlphanumeric( options.username ) && !isEmail( options.username ) )
       throw new Error( 'Please only use alpha numeric characters for your username' );
 
-    const target = [ { email: email }, { username: user } ];
+    const target = [ { email: options.email }, { username: options.username } ];
 
-    // Search the collection for the user
-    const userEntry = await this._collection.find( { $or: target } ).limit( 1 ).next();
-    if ( !userEntry )
+    const resp = await this._users.findOne<IUserEntry<'server'>>( { $or: target } );
+    if ( !resp )
       return null;
     else
-      return new User( userEntry as IUserEntry<'server'> );
+      return resp.downloadToken<IUserEntry<'client'>>( { expandForeignKeys: true, expandMaxDepth: 1, verbose: options.verbose } );
   }
 
   /**
@@ -518,7 +542,7 @@ export class UsersController extends Controller {
 	 */
   async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: ServerRequest, response: ServerResponse ): Promise<Session> {
     await this.logOut( request, response );
-    const user: User | null = await this.getUser( username );
+    const user = await this.getUser( { username } );
 
     // If no user - then reject
     if ( !user )
@@ -530,23 +554,23 @@ export class UsersController extends Controller {
       throw new Error( 'Please enter a valid password' );
 
     // Check if the registration key has been removed yet
-    if ( user.dbEntry.registerKey !== '' )
+    if ( user.registerKey !== '' )
       throw new Error( 'Please authorise your account by clicking on the link that was sent to your email' );
 
-    const passworldValid: boolean = await this.comparePassword( pass, user.dbEntry.password! );
+    const passworldValid: boolean = await this.comparePassword( pass, user.password );
     if ( !passworldValid )
       throw new Error( 'The username or password is incorrect.' );
 
     // Set the user last login time
-    user.dbEntry.lastLoggedIn = Date.now();
+    user.lastLoggedIn = Date.now();
 
     // Update the collection
-    let result = await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { lastLoggedIn: user.dbEntry.lastLoggedIn } } );
+    let result = await this._collection.updateOne( { _id: new ObjectID( user._id ) } as IUserEntry<'server'>, { $set: { lastLoggedIn: user.lastLoggedIn } as IUserEntry<'server'> } );
 
     if ( result.matchedCount === 0 )
       throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
 
-    const session = await ControllerFactory.get( 'sessions' ).createSession( request, response, user.dbEntry._id.toString() );
+    const session = await ControllerFactory.get( 'sessions' ).createSession( request, response, user._id );
 
     // Send logged in event to socket
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Login ] };
@@ -560,14 +584,15 @@ export class UsersController extends Controller {
 	 * @returns True if the user was in the DB or false if they were not
 	 */
   async remove( username: string = '' ) {
-    const user = await this.getUser( username );
+    const selector = [ { email: username }, { username: username } ];
+    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
 
     // There was no user
     if ( !user )
       return false;
 
     // Remove the user from the DB
-    const result = await this._collection.deleteOne( { _id: user.dbEntry._id } );
+    const result = await this._collection.deleteOne( { _id: user.dbEntry._id } as IUserEntry<'server'> );
     if ( result.deletedCount === 0 )
       return false;
     else
@@ -666,7 +691,7 @@ export class UsersController extends Controller {
     const results: IUserEntry<'server' | 'client'>[] = await cursor.toArray();
     const users: IUserEntry<'client'>[] = [];
     for ( let i = 0, l = results.length; i < l; i++ )
-      users.push( new User( results[ i ] as IUserEntry<'server'> ).generateCleanedData( verbose ) );
+      users.push( results[ i ] as IUserEntry<'client'> );
 
     const toRet: Page<IUserEntry<'client'>> = {
       count: count,

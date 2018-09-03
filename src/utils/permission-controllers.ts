@@ -2,7 +2,7 @@
 import { ISimpleResponse } from '../types/tokens/standard-tokens';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
-import { UserPrivileges, User } from '../core/user';
+import { UserPrivileges } from '../core/user-privileges';
 import Factory from '../core/controller-factory';
 import { errJson } from './response-decorators';
 import { Error401, Error403 } from './errors';
@@ -28,12 +28,12 @@ export function hasId( idName: string, idLabel: string = '', optional: boolean =
   }
 }
 
-export function hasPermission( user: User, level: number, existingUser?: string ): boolean {
+export function hasPermission( user: IUserEntry<'server'>, level: number, existingUser?: string ): boolean {
   if ( existingUser !== undefined ) {
-    if ( ( user.dbEntry.email !== existingUser && user.dbEntry.username !== existingUser ) && user.dbEntry.privileges! > level )
+    if ( ( user.email !== existingUser && user.username !== existingUser ) && user.privileges! > level )
       return false;
   }
-  else if ( user.dbEntry.privileges! > level )
+  else if ( user.privileges! > level )
     return false;
 
   return true;
@@ -54,11 +54,11 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
     if ( session )
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
-    let target: User | null = null;
+    let target: IUserEntry<'client'> | null = null;
 
     // Check if the target user exists
     if ( targetUser !== undefined ) {
-      target = await Factory.get( 'users' ).getUser( targetUser );
+      target = await Factory.get( 'users' ).getUser( { username: targetUser } );
       if ( !target )
         throw new Error( `User ${targetUser} does not exist` );
     }
@@ -67,8 +67,8 @@ export async function canEdit( req: IAuthReq, res: express.Response, next?: Func
     else if ( !hasPermission( session.user, 2, targetUser ) )
       throw new Error403( 'You do not have permission' );
     else {
-      req._user = session.user.dbEntry as IUserEntry<'server'>;
-      req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+      req._user = session.user;
+      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
 
       if ( next )
         next();
@@ -111,10 +111,10 @@ export async function adminRights( req: IAuthReq, res: express.Response, next?: 
     if ( session )
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
-    req._user = session.user.dbEntry as IUserEntry<'server'>;
-    req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+    req._user = session.user;
+    req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
 
-    if ( session.user.dbEntry.privileges! > UserPrivileges.Admin )
+    if ( session.user.privileges! > UserPrivileges.Admin )
       return errJson( new Error403( `You don't have permission to make this request` ), res );
     else
       if ( next )
@@ -138,8 +138,8 @@ export async function identifyUser( req: IAuthReq, res: express.Response, next?:
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
     if ( session ) {
-      req._user = session.user.dbEntry as IUserEntry<'server'>;
-      req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+      req._user = session.user;
+      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
     }
 
     if ( next )
@@ -165,8 +165,8 @@ export async function requireUser( req: IAuthReq, res: express.Response, next?: 
     if ( session )
       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
-    req._user = session.user.dbEntry as IUserEntry<'server'>;
-    req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+    req._user = session.user;
+    req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
 
     if ( next )
       next();
@@ -197,16 +197,16 @@ export async function requestHasPermission( level: UserPrivileges, req: IAuthReq
 
   if ( existingUser !== undefined ) {
     if ( (
-      session.user.dbEntry.email !== existingUser &&
-      session.user.dbEntry.username !== existingUser ) &&
-      session.user.dbEntry.privileges! > level )
+      session.user.email !== existingUser &&
+      session.user.username !== existingUser ) &&
+      session.user.privileges! > level )
       throw new Error403( 'You don\'t have permission to make this request' );
   }
-  else if ( session.user.dbEntry.privileges! > level )
+  else if ( session.user.privileges! > level )
     throw new Error403( 'You don\'t have permission to make this request' );
 
-  req._user = session.user.dbEntry as IUserEntry<'server'>;
-  req._isAdmin = session.user.dbEntry.privileges <= UserPrivileges.Admin;
+  req._user = session.user;
+  req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
 
   return true;
 }
