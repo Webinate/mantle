@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IConfig, IAdminUser, Page } from '../../../src';
+import { IPost, Page } from '../../../src';
 import header from '../header';
-import Agent from '../agent';
 let numPosts: number, postId: string, secondPostId: string;
 
 describe( 'Testing editing of posts', function() {

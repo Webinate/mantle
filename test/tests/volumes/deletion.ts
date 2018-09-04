@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, Page, IVolume } from '../../../src';
+import { Page, IVolume } from '../../../src';
 
 let volume: string;
 

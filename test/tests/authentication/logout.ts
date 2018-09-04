@@ -2,9 +2,8 @@ import * as assert from 'assert';
 import { } from 'mocha';
 import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, Page } from '../../../src';
 
-let numUsers: number, agent: Agent,
+let agent: Agent,
   testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com';
 

@@ -1,8 +1,6 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, Page } from '../../../src';
 
 let
   testUserName = 'fancyUser123',

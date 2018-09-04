@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IConfig, IAdminUser, Page } from '../../../src';
+import { IPost, Page } from '../../../src';
 import header from '../header';
-import Agent from '../agent';
 let numPosts: number, publicPostId: string, privatePostId: string;
 
 describe( 'Testing fetching of posts', function() {

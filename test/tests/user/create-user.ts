@@ -1,10 +1,6 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, Page } from '../../../src';
-
-let userId: string;
 
 let testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com';
@@ -88,8 +84,6 @@ describe( 'Testing creating a user', function() {
   it( `did create regular user ${testUserName} with valid details`, async function() {
     const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    userId = json._id;
   } )
 
   it( 'did not create an activation key for george', async function() {

@@ -6,7 +6,6 @@ import * as fs from 'fs';
 import { IFileEntry, IVolume, IUserEntry } from '../../../src';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
-import { IDatabase } from '../../../src/types/config/properties/i-database';
 
 let volume: IVolume<'client'>;
 const filePath = './test/media/file.png';

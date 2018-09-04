@@ -1,9 +1,8 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { randomString } from '../utils';
 import header from '../header';
 import * as fs from 'fs';
-import { IConfig, IAdminUser, Page, IFileEntry, IVolume } from '../../../src';
+import { IVolume } from '../../../src';
 import * as FormData from 'form-data';
 
 let volume: IVolume<'client'>;

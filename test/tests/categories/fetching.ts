@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { ICategory, IConfig, Page } from '../../../src';
+import { ICategory, Page } from '../../../src';
 import header from '../header';
-import Agent from '../agent';
 
 let category: ICategory<'client'>,
   category2: ICategory<'client'>,

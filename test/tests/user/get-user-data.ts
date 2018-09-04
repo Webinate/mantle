@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import Agent from '../agent';
 import header from '../header';
-import { IConfig, IAdminUser, Page } from '../../../src';
+import { IAdminUser } from '../../../src';
 
 describe( 'Getting user data', function() {
 

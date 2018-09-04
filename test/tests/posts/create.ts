@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IConfig, IAdminUser, IUserEntry } from '../../../src';
+import { IPost, IAdminUser, IUserEntry } from '../../../src';
 import header from '../header';
-import Agent from '../agent';
 let numPosts: number, lastPost: string, lastPost2: IPost<'client'>;
 
 describe( 'Testing creation of posts', function() {

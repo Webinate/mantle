@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IConfig, IAdminUser, IComment, Page } from '../../../src';
+import { IPost, IComment } from '../../../src';
 import header from '../header';
-import Agent from '../agent';
 
 let numPosts: number,
   numComments: number, postId: string, commentId: string;
