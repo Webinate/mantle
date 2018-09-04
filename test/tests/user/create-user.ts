@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
 import header from '../header';
+import { IUserEntry } from '../../../src';
 
 let testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com';
@@ -83,7 +84,9 @@ describe( 'Testing creating a user', function() {
 
   it( `did create regular user ${testUserName} with valid details`, async function() {
     const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } );
+    const data = await resp.json<IUserEntry<'client'>>();
     assert.deepEqual( resp.status, 200 );
+    assert.deepEqual( data.username, testUserName );
   } )
 
   it( 'did not create an activation key for george', async function() {

@@ -65,7 +65,7 @@ describe( 'Getting user data', function() {
     assert.deepEqual( json.privileges, 1 )
   } )
 
-  it( 'should get no user with username', async function() {
+  it( 'should not allow a guest to get user data with username', async function() {
     const resp = await header.guest.get( `/api/users/${( header.config.adminUser as IAdminUser ).username}` );
     assert.deepEqual( resp.status, 401 );
     const json = await resp.json();
@@ -73,7 +73,7 @@ describe( 'Getting user data', function() {
 
   } ).timeout( 20000 )
 
-  it( 'should get no user with email or verbose', async function() {
+  it( 'should not allow a guest to get user data with email when verbose', async function() {
     const resp = await header.guest.get( `/api/users/${( header.config.adminUser as IAdminUser ).email}?verbose=true` );
     assert.deepEqual( resp.status, 401 );
     const json = await resp.json();

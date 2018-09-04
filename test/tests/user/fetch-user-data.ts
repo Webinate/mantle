@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { } from 'mocha';
 import header from '../header';
+import { IUserEntry } from '../../../src';
 
 let numUsers: number;
 
@@ -30,16 +31,17 @@ describe( 'Testing fetching users', function() {
   it( 'did get regular users own data', async function() {
     const resp = await header.user1.get( `/api/users/${header.user1.username}?verbose=true` );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
-    assert( json._id )
-    assert.deepEqual( json.email, header.user1.email )
-    assert( json.lastLoggedIn )
-    assert( json.password )
-    assert( json.registerKey === '' )
-    assert( json.sessionId )
-    assert( json.passwordTag === '' )
-    assert( json.avatar !== '' )
-    assert.deepEqual( json.username, header.user1.username )
+    const json = await resp.json<IUserEntry<'client'>>();
+    assert( json._id );
+    assert.deepEqual( json.email, header.user1.email );
+    assert( json.lastLoggedIn );
+    assert( json.password );
+    assert( json.registerKey === '' );
+    assert( json.sessionId );
+    assert( json.passwordTag === '' );
+    assert( json.avatar !== '' );
+    assert.deepEqual( json.avatarFile, null );
+    assert.deepEqual( json.username, header.user1.username );
     assert.deepEqual( json.privileges, 3 );
   } )
 
@@ -48,8 +50,8 @@ describe( 'Testing fetching users', function() {
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     assert( json.count > 0 );
-    assert.deepEqual( json.index, 0 )
-    assert.deepEqual( json.limit, 10 )
+    assert.deepEqual( json.index, 0 );
+    assert.deepEqual( json.limit, 10 );
   } )
 
   it( 'did get client driven page information from the URL', async function() {

@@ -36,8 +36,10 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
 
     for ( const i in data ) {
       for ( const item of items )
-        if ( item.name === i && ( allowReadOnlyValues || item.getReadOnly() === false ) )
+        if ( item.name === i && ( allowReadOnlyValues || item.getReadOnly() === false ) ) {
           item.setValue( data[ i as keyof Partial<IModelEntry<'client'>> ] );
+          break;
+        }
     }
   }
 

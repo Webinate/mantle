@@ -9,7 +9,7 @@ export class UsersModel extends Model<IUserEntry<'client' | 'server'>> {
   constructor() {
     super( 'users' );
 
-    this.schema.add( new text( 'username', '' ) ).setRequired( true ).setUnique( true );
+    this.schema.add( new text( 'username', '' ) ).setRequired( true ).setUnique( true ).setReadOnly( true );
     this.schema.add( new text( 'email', '' ) ).setRequired( true ).setUnique( true ).setSensitive( true );
     this.schema.add( new text( 'password', '' ) ).setRequired( true ).setSensitive( true );
     this.schema.add( new text( 'registerKey', '' ) ).setSensitive( true );
@@ -19,7 +19,7 @@ export class UsersModel extends Model<IUserEntry<'client' | 'server'>> {
     this.schema.add( new foreignKey( 'avatarFile', 'files', { keyCanBeNull: true, nullifyOnDelete: true } ) );
     this.schema.add( new num( 'privileges', 0 ) );
     this.schema.add( new json( 'meta', {} ) ).setSensitive( true );
-    this.schema.add( new date( 'createdOn' ) ).setIndexable( true );
-    this.schema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true );
+    this.schema.add( new date( 'createdOn' ) ).setIndexable( true ).setReadOnly( true );
+    this.schema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true ).setReadOnly( true );
   }
 }

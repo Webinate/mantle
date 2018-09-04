@@ -20,7 +20,8 @@ import { Session } from '../core/session';
 import Controller from './controller';
 import { UsersModel } from '../models/users-model';
 import ModelFactory from '../core/model-factory';
-import { IFileEntry } from '..';
+import { Error400 } from '../utils/errors';
+import { ISchemaOptions } from '../types/misc/i-schema-options';
 
 /**
  * Main class to use for managing users
@@ -188,17 +189,23 @@ export class UsersController extends Controller {
     return;
   }
 
-  async update( username: string, token: IUserEntry<'client'> ) {
-    const selector = [ { email: username }, { username: username } ];
-    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+  /**
+   * Updates the user details if they are valid
+   */
+  async update( id: string, token: IUserEntry<'client'> ) {
+    if ( token.username )
+      throw new Error400( `You cannot set a username directly` );
+    if ( token.password )
+      throw new Error400( `You cannot set a password directly` );
+    if ( token.email )
+      throw new Error400( `You cannot set an email directly` );
+    if ( token.registerKey !== undefined || token.sessionId !== undefined || token.passwordTag !== undefined || token.privileges !== undefined )
+      throw new Error400( `Invalid value` );
 
-    if ( !user )
-      throw new Error( 'No user exists with the specified details' );
+    const resp = await this._users.update<IUserEntry<'client'>>(
+      { _id: new ObjectID( id ) } as IUserEntry<'server'>, token,
+      { expandForeignKeys: true, expandMaxDepth: 1, verbose: true } );
 
-    let t: IFileEntry<'client'> | null = null;
-    t;
-
-    const resp = await this._users.update( { _id: user.dbEntry._id } as IUserEntry<'server'>, token, { expandForeignKeys: true, expandMaxDepth: 1, verbose: true } );
     return resp;
   }
 
@@ -517,12 +524,28 @@ export class UsersController extends Controller {
   /**
 	 * Gets a user by a username or email
 	 */
-  async getUser( options: { username: string, email?: string; verbose?: boolean; } ) {
+  async getUser( options: { username?: string, id?: string; email?: string; verbose?: boolean; } ) {
+
+    const schemaOptions: ISchemaOptions = {
+      expandForeignKeys: true,
+      expandMaxDepth: 1,
+      verbose: options.verbose !== undefined ? options.verbose : true
+    };
+
+    // If id - then leave early
+    if ( options.id ) {
+      const resp = await this._users.findOne<IUserEntry<'server'>>( { _id: new ObjectID( options.id ) } as IUserEntry<'server'> );
+      if ( !resp )
+        return null;
+      else
+        return resp.downloadToken<IUserEntry<'client'>>( schemaOptions );
+    }
+
     options.email = options.email !== undefined ? options.email : options.username;
-    options.verbose = options.verbose === undefined ? true : options.verbose;
+    // options.verbose = options.verbose === undefined ? true : options.verbose;
 
     // Validate user string
-    options.username = trim( options.username );
+    options.username = trim( options.username || '' );
 
     if ( !options.username || options.username === '' )
       throw new Error( 'Please enter a valid username' );
@@ -536,7 +559,7 @@ export class UsersController extends Controller {
     if ( !resp )
       return null;
     else
-      return resp.downloadToken<IUserEntry<'client'>>( { expandForeignKeys: true, expandMaxDepth: 1, verbose: options.verbose } );
+      return resp.downloadToken<IUserEntry<'client'>>( schemaOptions );
   }
 
   /**

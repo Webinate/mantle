@@ -7,6 +7,15 @@ export class StatusError extends Error {
 }
 
 /**
+ * Basic 400 error
+ */
+export class Error400 extends StatusError {
+  constructor( message: string = 'You do not have permission', code = 400 ) {
+    super( message, code )
+  }
+}
+
+/**
  * 403 Forbidden errors: The request was valid, but the server is refusing action.
  * The user might not have the necessary permissions for a resource, or may need an account of some sort.
  */

@@ -13,6 +13,7 @@ import * as compression from 'compression';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { IUserEntry } from '..';
+import { Error404, Error403 } from '../utils/errors';
 
 /**
  * Main class to use for managing user data
@@ -79,15 +80,14 @@ export class UserSerializer extends Serializer {
 
   @j200()
   private async edit( req: IAuthReq, res: express.Response ) {
-    const user = await this._userController.getUser( req.query.username );
+    const user = await this._userController.getUser( { id: req.params.id } );
 
     if ( !user )
-      throw new Error( 'No user found' );
+      throw new Error404( `User does not exist` );
+    if ( !req._isAdmin && user.username !== req._user!.username )
+      throw new Error403();
 
-    // const response: Page<IUserEntry<'client'>> = await this._userController.getUser( index, limit, query, verbose );
-
-    // const response = user.generateCleanedData( req.query.verbose === 'true' );
-    // return response;
+    return await this._userController.update( req.params.id, req.body as IUserEntry<'client'> );
   }
 
   /**
