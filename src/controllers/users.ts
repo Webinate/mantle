@@ -3,7 +3,7 @@ import { IMailer, IGMail, IMailgun, IMailOptions } from '../types/config/propert
 import { IAdminUser } from '../types/config/properties/i-admin';
 import { Page } from '../types/tokens/standard-tokens';
 import { IUserEntry } from '../types/models/i-user-entry';
-import { Collection, Db, ObjectID } from 'mongodb';
+import { Db, ObjectID } from 'mongodb';
 import { ServerRequest, ServerResponse } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
@@ -26,7 +26,6 @@ import { IFileEntry } from '..';
  * Main class to use for managing users
  */
 export class UsersController extends Controller {
-  private _collection: Collection<IUserEntry<'server' | 'client'>>;
   private _users: UsersModel;
   private _mailer: IMailer;
 
@@ -42,7 +41,6 @@ export class UsersController extends Controller {
    * @param db The mongo db
    */
   async initialize( db: Db ) {
-    this._collection = await db.collection( this._config.collections.userCollection );
     ControllerFactory.get( 'sessions' ).on( 'sessionRemoved', this.onSessionRemoved.bind( this ) );
 
     this._users = ModelFactory.get( 'users' );
@@ -86,12 +84,12 @@ export class UsersController extends Controller {
     if ( !sessionId || sessionId === '' )
       return;
 
-    const useEntry = await this._collection.find( { sessionId: sessionId } as IUserEntry<'server'> ).limit( 1 ).next();
-    if ( useEntry ) {
+    const user = await this._users.findOne<IUserEntry<'server'>>( { sessionId: sessionId } as IUserEntry<'server'> );
+    if ( user ) {
       // Send logged out event to socket
-      const token = { username: useEntry.username!, type: ClientInstructionType[ ClientInstructionType.Logout ] };
-      await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, useEntry.username as string ) );
-      info( `User '${useEntry.username}' has logged out` );
+      const token = { username: user.dbEntry.username as string, type: ClientInstructionType[ ClientInstructionType.Logout ] };
+      await CommsController.singleton.processClientInstruction( new ClientInstruction( token, null, user.dbEntry.username as string ) );
+      info( `User '${user.dbEntry.username}' has logged out` );
     }
 
     return;
@@ -245,7 +243,10 @@ export class UsersController extends Controller {
     user.dbEntry.registerKey = newKey;
 
     // Update the collection with a new key
-    await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { registerKey: newKey } as IUserEntry<'server'> } );
+    await this._users.update<IUserEntry<'client'>>(
+      { _id: user.dbEntry._id } as IUserEntry<'server'>,
+      { registerKey: newKey } as Partial<IUserEntry<'client'>> );
+
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string = 'Thank you for registering with Webinate!\nTo activate your account please click the link below:' +
@@ -300,7 +301,9 @@ export class UsersController extends Controller {
     user.dbEntry.passwordTag = newKey;
 
     // Update the collection with a new key
-    await this._collection.updateOne( { _id: user.dbEntry._id }, { $set: { passwordTag: newKey } as IUserEntry<'server'> } );
+    await this._users.update<IUserEntry<'client'>>(
+      { _id: user.dbEntry._id } as IUserEntry<'server'>,
+      { passwordTag: newKey } as Partial<IUserEntry<'client'>> );
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string = 'A request has been made to reset your password. To change your password please click the link below:\n\n' +
@@ -379,7 +382,9 @@ export class UsersController extends Controller {
     const hashed = await this.hashPassword( newPassword );
 
     // Update the key to be blank
-    await this._collection.updateOne( { _id: user.dbEntry._id } as IUserEntry<'server'>, { $set: { passwordTag: '', password: hashed } as IUserEntry<'server'> } );
+    await this._users.update<IUserEntry<'client'>>(
+      { _id: user.dbEntry._id } as IUserEntry<'server'>,
+      { passwordTag: '', password: hashed } as Partial<IUserEntry<'client'>> );
 
     // All done :)
     return true;
@@ -406,7 +411,9 @@ export class UsersController extends Controller {
       throw new Error( 'Activation key is not valid. Please try send another.' );
 
     // Update the key to be blank
-    await this._collection.updateOne( { _id: user.dbEntry._id } as IUserEntry<'server'>, { $set: { registerKey: '' } as IUserEntry<'server'> } );
+    await this._users.update<IUserEntry<'client'>>(
+      { _id: user.dbEntry._id } as IUserEntry<'server'>,
+      { registerKey: '' } as Partial<IUserEntry<'client'>> );
 
     // Send activated event
     const token = { username: username, type: ClientInstructionType[ ClientInstructionType.Activated ] };
@@ -493,9 +500,9 @@ export class UsersController extends Controller {
 
     await ControllerFactory.get( 'volumes' ).removeUser( user.dbEntry.username as string );
 
-    const result = await this._collection.deleteOne( { _id: user.dbEntry._id! } as IUserEntry<'server'> );
+    const result = await this._users.deleteInstances( { _id: user.dbEntry._id! } as IUserEntry<'server'> );
 
-    if ( result.deletedCount === 0 )
+    if ( result === 0 )
       throw new Error( 'Could not remove the user from the database' );
 
     // Send event to sockets
@@ -565,10 +572,9 @@ export class UsersController extends Controller {
     user.lastLoggedIn = Date.now();
 
     // Update the collection
-    let result = await this._collection.updateOne( { _id: new ObjectID( user._id ) } as IUserEntry<'server'>, { $set: { lastLoggedIn: user.lastLoggedIn } as IUserEntry<'server'> } );
-
-    if ( result.matchedCount === 0 )
-      throw new Error( 'Could not find the user in the database, please make sure its setup correctly' );
+    await this._users.update<IUserEntry<'client'>>(
+      { _id: new ObjectID( user._id ) } as IUserEntry<'server'>,
+      { lastLoggedIn: user.lastLoggedIn } as Partial<IUserEntry<'client'>> );
 
     const session = await ControllerFactory.get( 'sessions' ).createSession( request, response, user._id );
 
@@ -592,8 +598,8 @@ export class UsersController extends Controller {
       return false;
 
     // Remove the user from the DB
-    const result = await this._collection.deleteOne( { _id: user.dbEntry._id } as IUserEntry<'server'> );
-    if ( result.deletedCount === 0 )
+    const numDeleted = await this._users.deleteInstances( { _id: user.dbEntry._id } as IUserEntry<'server'> );
+    if ( numDeleted === 0 )
       return false;
     else
       return true;
@@ -606,8 +612,10 @@ export class UsersController extends Controller {
    * @returns Returns the data set
    */
   async setMeta( id: ObjectID, data?: any ) {
-    // Remove the user from the DB
-    await this._collection.updateOne( { _id: id } as IUserEntry<'server'>, { $set: { meta: ( data ? data : {} ) } as IUserEntry<'server'> } );
+    await this._users.update<IUserEntry<'client'>>(
+      { _id: new ObjectID( id ) } as IUserEntry<'server'>,
+      { meta: ( data ? data : {} ) } as Partial<IUserEntry<'client'>> );
+
     return data;
   }
 
@@ -619,12 +627,11 @@ export class UsersController extends Controller {
    * @returns Returns the value of the set
    */
   async setMetaVal( id: ObjectID, name: string, val: any ) {
-    const datum = 'meta.' + name;
-    const updateToken = { $set: {} as any };
-    updateToken.$set[ datum ] = val;
+    const meta = await this.getMetaData( id );
+    meta[ name ] = val;
 
     // Remove the user from the DB
-    await this._collection.updateOne( { _id: id } as IUserEntry<'server'>, updateToken );
+    await this._users.update( { _id: id } as IUserEntry<'server'>, { meta } as IUserEntry<'client'> );
     return val;
   }
 
@@ -635,8 +642,11 @@ export class UsersController extends Controller {
    * @returns The value to get
    */
   async getMetaVal( id: ObjectID, name: string ) {
-    const result = await this._collection.find( { _id: id } as IUserEntry<'server'> ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
-    return result.meta[ name ];
+    const meta = await this.getMetaData( id );
+    if ( !meta )
+      return null;
+
+    return meta[ name ];
   }
 
   /**
@@ -645,8 +655,11 @@ export class UsersController extends Controller {
    * @returns The value to get
    */
   async getMetaData( id: ObjectID ) {
-    const result = await this._collection.find( { _id: id } as IUserEntry<'server'> ).project( { _id: 0, meta: 1 } ).limit( 1 ).next();
-    return result.meta;
+    const result = await this._users.findOne<IUserEntry<'server'>>( { _id: id } as IUserEntry<'server'> );
+    if ( !result )
+      return null;
+
+    return result.dbEntry.meta;
   }
 
   /**
@@ -662,7 +675,7 @@ export class UsersController extends Controller {
       ]
     } : {};
 
-    const result: number = await this._collection.count( findToken );
+    const result: number = await this._users.count( findToken );
     return result;
   }
 
@@ -677,25 +690,16 @@ export class UsersController extends Controller {
     const findToken: { $or?: Partial<IUserEntry<'server'>>[] } = {};
 
     if ( searchPhrases )
-      findToken.$or = [ { username: <any>searchPhrases }, { email: <any>searchPhrases } ];
+      findToken.$or = [ { username: searchPhrases }, { email: searchPhrases } ];
 
-    const cursor = this._collection.find( findToken );
-    const count = await this._collection.count( findToken );
-
-    if ( index )
-      cursor.skip( index )
-
-    if ( limit )
-      cursor.limit( limit )
-
-    const results: IUserEntry<'server' | 'client'>[] = await cursor.toArray();
-    const users: IUserEntry<'client'>[] = [];
-    for ( let i = 0, l = results.length; i < l; i++ )
-      users.push( results[ i ] as IUserEntry<'client'> );
+    const count = await this._users.count( findToken );
+    const data = await this._users.downloadMany<IUserEntry<'client'>>(
+      { index: index, limit: limit, selector: findToken },
+      { expandForeignKeys: true, expandMaxDepth: 1, verbose: verbose } );
 
     const toRet: Page<IUserEntry<'client'>> = {
       count: count,
-      data: results as IUserEntry<'client'>[],
+      data: data,
       index: index,
       limit: limit
     };
