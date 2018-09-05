@@ -147,7 +147,7 @@ export class PostsController extends Controller {
     }, {
         expandForeignKeys: true,
         verbose: verbose,
-        expandMaxDepth: 1
+        expandMaxDepth: 2
       } );
 
     const response: Page<IPost<'client'>> = {
@@ -231,7 +231,7 @@ export class PostsController extends Controller {
     const post = await posts!.downloadOne<IPost<'client'>>( findToken, {
       verbose: options.verbose !== undefined ? options.verbose : true,
       expandForeignKeys: true,
-      expandMaxDepth: 1
+      expandMaxDepth: 2
     } );
 
     if ( !post )
