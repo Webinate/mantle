@@ -97,7 +97,7 @@ export class UserSerializer extends Serializer {
    */
   @j200()
   private async getUsers( req: IAuthReq, res: express.Response ) {
-    let verbose = req.query.verbose === 'true';
+    let verbose = req.query.verbose === undefined ? true : req.query.verbose === 'true';
 
     // Only admins are allowed to see sensitive data
     if ( req._user && req._user.privileges === UserPrivileges.SuperAdmin && verbose )
