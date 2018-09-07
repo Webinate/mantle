@@ -21,7 +21,7 @@ export class UsersModel extends Model<IUserEntry<'client' | 'server'>> {
       new num( 'privileges', 0 ),
       new json( 'meta', {} ).setSensitive( true ),
       new date( 'createdOn' ).setIndexable( true ).setReadOnly( true ),
-      new date( 'lastLoggedIn', undefined ).setIndexable( true ).setReadOnly( true )
+      new date( 'lastLoggedIn', { useNow: true } ).setIndexable( true ).setReadOnly( true )
     ] );
   }
 }

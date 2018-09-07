@@ -18,7 +18,7 @@ export class CommentsModel extends Model<IComment<'server' | 'client'>> {
       new html( 'content', '', { allowedTags: SchemaHtml.defaultTags.concat( 'img' ), errorBadHTML: true } ),
       new bool( 'public', true ),
       new date( 'createdOn' ).setIndexable( true ),
-      new date( 'lastUpdated', undefined ).setIndexable( true )
+      new date( 'lastUpdated', { useNow: true } ).setIndexable( true )
     ] );
   }
 }

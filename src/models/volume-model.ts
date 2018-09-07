@@ -18,7 +18,7 @@ export class VolumeModel extends Model<IVolume<'client' | 'server'>> {
       new num( 'memoryAllocated', 0 ),
       new json( 'meta', {} ),
       new date( 'created' ).setIndexable( true ),
-      new date( 'lastLoggedIn', undefined ).setIndexable( true )
+      new date( 'lastLoggedIn', { useNow: true } ).setIndexable( true )
     ] );
   }
 }

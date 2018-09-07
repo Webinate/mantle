@@ -21,7 +21,7 @@ export class PostsModel extends Model<IPost<'client' | 'server'>> {
       new textArray( 'categories', [] ),
       new textArray( 'tags', [] ),
       new date( 'createdOn' ).setIndexable( true ),
-      new date( 'lastUpdated', undefined ).setIndexable( true )
+      new date( 'lastUpdated', { useNow: true } ).setIndexable( true )
     ] );
   }
 }

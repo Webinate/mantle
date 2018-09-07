@@ -112,6 +112,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
 
       const clientVal = items[ i ].getClientValue()
       const dbVal = items[ i ].getDbValue();
+
       if ( clientVal !== undefined )
         promises.push( items[ i ].validate( clientVal ) );
       else if ( dbVal )

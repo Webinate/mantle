@@ -12,7 +12,7 @@ export class RendersModel extends Model<IRender<'client' | 'server'>> {
     this.schema.addItems( [
       new text( 'url', '', { minCharacters: 1, maxCharacters: 1000, htmlClean: false } ),
       new text( 'html', '', { maxCharacters: Number.MAX_VALUE, htmlClean: false } ),
-      new date( 'expiration', undefined, { useNow: false } ),
+      new date( 'expiration', { useNow: false } ),
       new date( 'createdOn' ).setIndexable( true )
     ] );
   }
