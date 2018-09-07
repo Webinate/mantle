@@ -9,14 +9,16 @@ export class VolumeModel extends Model<IVolume<'client' | 'server'>> {
   constructor() {
     super( 'volumes' );
 
-    this.schema.add( new text( 'name', '', { minCharacters: 1 } ) ).setIndexable( true );
-    this.schema.add( new enums( 'type', 'local', [ 'local', 'google' ] ) );
-    this.schema.add( new text( 'identifier', '' ) );
-    this.schema.add( new foreignKey( 'user', 'users', { keyCanBeNull: true, nullifyOnDelete: true } ) );
-    this.schema.add( new num( 'memoryUsed', 0 ) ).setIndexable( true );
-    this.schema.add( new num( 'memoryAllocated', 0 ) );
-    this.schema.add( new json( 'meta', {} ) );
-    this.schema.add( new date( 'created' ) ).setIndexable( true );
-    this.schema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true );
+    this.schema.addItems( [
+      new text( 'name', '', { minCharacters: 1 } ).setIndexable( true ),
+      new enums( 'type', 'local', [ 'local', 'google' ] ),
+      new text( 'identifier', '' ),
+      new foreignKey( 'user', 'users', { keyCanBeNull: true, nullifyOnDelete: true } ),
+      new num( 'memoryUsed', 0 ).setIndexable( true ),
+      new num( 'memoryAllocated', 0 ),
+      new json( 'meta', {} ),
+      new date( 'created' ).setIndexable( true ),
+      new date( 'lastLoggedIn', undefined ).setIndexable( true )
+    ] );
   }
 }

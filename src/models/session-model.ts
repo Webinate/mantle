@@ -8,8 +8,10 @@ import { ISessionEntry } from '../types/models/i-session-entry';
 export class SessionModel extends Model<ISessionEntry<'client' | 'server'>> {
   constructor() {
     super( 'sessions' );
-    this.schema.add( new text( 'sessionId', '' ) );
-    this.schema.add( new json( 'data', {} ) );
-    this.schema.add( new num( 'expiration', 0 ) );
+    this.schema.addItems( [
+      new text( 'sessionId', '' ),
+      new json( 'data', {} ),
+      new num( 'expiration', 0 )
+    ] );
   }
 }

@@ -10,13 +10,15 @@ export class CommentsModel extends Model<IComment<'server' | 'client'>> {
   constructor() {
     super( 'comments' );
 
-    this.schema.add( new text( 'author', '' ) ).setRequired( true )
-    this.schema.add( new foreignKey( 'post', 'posts', { keyCanBeNull: false } ) ).setRequired( true )
-    this.schema.add( new foreignKey( 'parent', 'comments', { keyCanBeNull: true } ) )
-    this.schema.add( new idArray( 'children', 'comments' ) )
-    this.schema.add( new html( 'content', '', { allowedTags: SchemaHtml.defaultTags.concat( 'img' ), errorBadHTML: true } ) );
-    this.schema.add( new bool( 'public', true ) );
-    this.schema.add( new date( 'createdOn' ) ).setIndexable( true );
-    this.schema.add( new date( 'lastUpdated', undefined, ) ).setIndexable( true );
+    this.schema.addItems( [
+      new text( 'author', '' ).setRequired( true ),
+      new foreignKey( 'post', 'posts', { keyCanBeNull: false } ).setRequired( true ),
+      new foreignKey( 'parent', 'comments', { keyCanBeNull: true } ),
+      new idArray( 'children', 'comments' ),
+      new html( 'content', '', { allowedTags: SchemaHtml.defaultTags.concat( 'img' ), errorBadHTML: true } ),
+      new bool( 'public', true ),
+      new date( 'createdOn' ).setIndexable( true ),
+      new date( 'lastUpdated', undefined ).setIndexable( true )
+    ] );
   }
 }

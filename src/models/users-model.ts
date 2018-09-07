@@ -9,17 +9,19 @@ export class UsersModel extends Model<IUserEntry<'client' | 'server'>> {
   constructor() {
     super( 'users' );
 
-    this.schema.add( new text( 'username', '' ) ).setRequired( true ).setUnique( true ).setReadOnly( true );
-    this.schema.add( new text( 'email', '' ) ).setRequired( true ).setUnique( true ).setSensitive( true );
-    this.schema.add( new text( 'password', '' ) ).setRequired( true ).setSensitive( true );
-    this.schema.add( new text( 'registerKey', '' ) ).setSensitive( true );
-    this.schema.add( new text( 'sessionId', '' ) ).setSensitive( true );
-    this.schema.add( new text( 'passwordTag', '' ) ).setSensitive( true );
-    this.schema.add( new text( 'avatar', '' ) );
-    this.schema.add( new foreignKey( 'avatarFile', 'files', { keyCanBeNull: true, nullifyOnDelete: true } ) );
-    this.schema.add( new num( 'privileges', 0 ) );
-    this.schema.add( new json( 'meta', {} ) ).setSensitive( true );
-    this.schema.add( new date( 'createdOn' ) ).setIndexable( true ).setReadOnly( true );
-    this.schema.add( new date( 'lastLoggedIn', undefined ) ).setIndexable( true ).setReadOnly( true );
+    this.schema.addItems( [
+      new text( 'username', '' ).setRequired( true ).setUnique( true ).setReadOnly( true ),
+      new text( 'email', '' ).setRequired( true ).setUnique( true ).setSensitive( true ),
+      new text( 'password', '' ).setRequired( true ).setSensitive( true ),
+      new text( 'registerKey', '' ).setSensitive( true ),
+      new text( 'sessionId', '' ).setSensitive( true ),
+      new text( 'passwordTag', '' ).setSensitive( true ),
+      new text( 'avatar', '' ),
+      new foreignKey( 'avatarFile', 'files', { keyCanBeNull: true, nullifyOnDelete: true } ),
+      new num( 'privileges', 0 ),
+      new json( 'meta', {} ).setSensitive( true ),
+      new date( 'createdOn' ).setIndexable( true ).setReadOnly( true ),
+      new date( 'lastLoggedIn', undefined ).setIndexable( true ).setReadOnly( true )
+    ] );
   }
 }

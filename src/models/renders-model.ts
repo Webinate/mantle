@@ -9,9 +9,11 @@ export class RendersModel extends Model<IRender<'client' | 'server'>> {
   constructor() {
     super( 'renders' );
 
-    this.schema.add( new text( 'url', '', { minCharacters: 1, maxCharacters: 1000, htmlClean: false } ) );
-    this.schema.add( new text( 'html', '', { maxCharacters: Number.MAX_VALUE, htmlClean: false } ) );
-    this.schema.add( new date( 'expiration', undefined, { useNow: false } ) );
-    this.schema.add( new date( 'createdOn' ) ).setIndexable( true );
+    this.schema.addItems( [
+      new text( 'url', '', { minCharacters: 1, maxCharacters: 1000, htmlClean: false } ),
+      new text( 'html', '', { maxCharacters: Number.MAX_VALUE, htmlClean: false } ),
+      new date( 'expiration', undefined, { useNow: false } ),
+      new date( 'createdOn' ).setIndexable( true )
+    ] );
   }
 }

@@ -189,21 +189,24 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
   }
 
   /**
-   * Adds a schema item to this schema
-   * @param val The new item to add
+   * Adds an array of schema items
+   * @param val The new items to add
    */
-  public add( val: SchemaItem<any, any> ): SchemaItem<any, any> {
-    if ( val.name === '_id' )
-      throw new Error( `You cannot use the schema item name _id as its a reserved keyword` );
-    else if ( val.name === '_requiredDependencies' )
-      throw new Error( `You cannot use the schema item name _requiredDependencies as its a reserved keyword` );
-    else if ( val.name === '_optionalDependencies' )
-      throw new Error( `You cannot use the schema item name _optionalDependencies as its a reserved keyword` );
-    else if ( this.find( val.name as keyof IModelEntry<'server' | 'client'> ) )
-      throw new Error( `An item with the name ${val.name} already exists.` );
+  public addItems( items: SchemaItem<any, any>[] ): SchemaItem<any, any>[] {
+    for ( const val of items ) {
+      if ( val.name === '_id' )
+        throw new Error( `You cannot use the schema item name _id as its a reserved keyword` );
+      else if ( val.name === '_requiredDependencies' )
+        throw new Error( `You cannot use the schema item name _requiredDependencies as its a reserved keyword` );
+      else if ( val.name === '_optionalDependencies' )
+        throw new Error( `You cannot use the schema item name _optionalDependencies as its a reserved keyword` );
+      else if ( this.find( val.name as keyof IModelEntry<'server' | 'client'> ) )
+        throw new Error( `An item with the name ${val.name} already exists.` );
 
-    this._items.push( val );
-    return val;
+      this._items.push( val );
+    }
+
+    return items;
   }
 
   /**
