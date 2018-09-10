@@ -2,7 +2,8 @@ import * as assert from 'assert';
 import { } from 'mocha';
 import { IPost, Page } from '../../../src';
 import header from '../header';
-let numPosts: number, postId: string, secondPostId: string;
+let numPosts: number, secondPostId: string;
+let post: IPost<'client'>;
 
 describe( 'Testing editing of posts', function() {
 
@@ -37,8 +38,7 @@ describe( 'Testing editing of posts', function() {
       content: "Hello world"
     } );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost<'client'> = await resp.json();
-    postId = json._id;
+    post = await resp.json<IPost<'client'>>();
   } )
 
   it( 'did create a second post to test editting post data', async function() {
@@ -68,7 +68,7 @@ describe( 'Testing editing of posts', function() {
   } )
 
   it( 'cannot edit a post without permission', async function() {
-    const resp = await header.guest.put( `/api/posts/${postId}`, { title: "Simple Test 3" } );
+    const resp = await header.guest.put( `/api/posts/${post._id}`, { title: "Simple Test 3" } );
     assert.deepEqual( resp.status, 401 );
     const json = await resp.json();
     assert.deepEqual( json.message, "You must be logged in to make this request" );
@@ -82,24 +82,36 @@ describe( 'Testing editing of posts', function() {
   } )
 
   it( 'can change a post slug with a slug already in use, if its the same post', async function() {
-    const resp = await header.admin.put( `/api/posts/${postId}`, { id: postId, slug: "--edit--test--" } );
+    const resp = await header.admin.put( `/api/posts/${post._id}`, { id: post._id, slug: "--edit--test--" } );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
-    assert.deepEqual( json._id, postId );
+    assert.deepEqual( json._id, post._id );
     assert.deepEqual( json.slug, '--edit--test--' );
     assert.deepEqual( json.title, 'Simple Test' );
   } )
 
   it( 'can edit a post with valid details', async function() {
-    const resp = await header.admin.put( `/api/posts/${postId}`, { content: "Updated" } );
+    const resp = await header.admin.put( `/api/posts/${post._id}`, { content: "Updated" } );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
-    assert.deepEqual( json._id, postId );
+    assert.deepEqual( json._id, post._id );
     assert.deepEqual( json.content, 'Updated' );
   } )
 
+  it( 'did update the posts modified property', async function() {
+    const resp = await header.admin.get( `/api/posts/${post._id}` );
+    assert.deepEqual( resp.status, 200 );
+    const json = await resp.json<IPost<'client'>>();
+
+    // Creation date should be the same
+    assert.deepEqual( json.createdOn, post.createdOn );
+
+    // Modified date should be greater than creation
+    assert( json.lastUpdated > json.createdOn );
+  } )
+
   it( 'did cleanup the test post', async function() {
-    const resp = await header.admin.delete( `/api/posts/${postId}` );
+    const resp = await header.admin.delete( `/api/posts/${post._id}` );
     assert.deepEqual( resp.status, 204 );
   } )
 

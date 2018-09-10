@@ -85,12 +85,34 @@ describe( 'Testing filtering of posts: ', function() {
     let resp = await header.admin.get( `/api/posts?author=${header.admin.username}&sortOrder=desc&sort=created` );
     let page: Page<IPost<'client'>> = await resp.json();
 
-
     assert.equal( page.data[ 0 ]._id, postPrivate._id );
 
     resp = await header.admin.get( `/api/posts?author=NO_AUTHORS_WITH_THIS_NAME&sortOrder=desc&sort=created` );
     page = await resp.json();
     assert.deepEqual( page.data.length, 0 );
+  } )
+
+  it( 'can filter based on modified in ascending order', async function() {
+    let resp = await header.admin.put( `/api/posts/${postPublic._id}`, { content: "Updated" } );
+    assert.deepEqual( resp.status, 200 );
+
+    resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=asc&sort=modified&limit=-1` );
+    let page: Page<IPost<'client'>> = await resp.json();
+    let lastIndex = page.data.length - 1;
+
+    // If we specify all we get both posts
+    assert.equal( page.data[ lastIndex ]._id, postPublic._id );
+    assert.equal( page.data[ lastIndex - 1 ]._id, postPrivate._id );
+  } )
+
+  it( 'can filter based on modified in descending order', async function() {
+    const resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=desc&sort=modified&limit=-1` );
+    let page: Page<IPost<'client'>> = await resp.json();
+    let lastIndex = page.data.length - 1;
+
+    // If we specify all we get both posts
+    assert.equal( page.data[ 0 ]._id, postPublic._id );
+    assert.equal( page.data[ 1 ]._id, postPrivate._id );
   } )
 
   after( async function() {

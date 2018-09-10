@@ -8,6 +8,7 @@ import { Schema } from '../schema';
  */
 export abstract class SchemaItem<TServer, TClient> {
   public name: string;
+  public autoValidate: boolean;
   private defaultValue: TClient;
   private value: TServer;
   private _sensitive: boolean;
@@ -29,6 +30,7 @@ export abstract class SchemaItem<TServer, TClient> {
     this._required = false;
     this._readOnly = false;
     this._modified = false;
+    this.autoValidate = false;
   }
 
   /**
@@ -40,6 +42,7 @@ export abstract class SchemaItem<TServer, TClient> {
     clone.name = this.name;
     clone.value = this.value;
     clone.defaultValue = this.defaultValue;
+    clone.autoValidate = this.autoValidate;
     clone._unique = this._unique;
     clone._uniqueIndexer = this._uniqueIndexer;
     clone._required = this._required;

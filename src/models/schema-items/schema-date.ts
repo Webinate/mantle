@@ -16,6 +16,8 @@ export class SchemaDate extends SchemaItem<number, number> {
     super( name, 0 );
     options = { useNow: false, ...options };
     this.useNow = options.useNow!;
+    if ( options.useNow )
+      this.autoValidate = true;
   }
 
   /**

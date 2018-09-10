@@ -110,15 +110,18 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
       if ( checkForRequiredFields && !items[ i ].getModified() && items[ i ].getRequired() )
         throw new Error( `${items[ i ].name} is required` );
 
-      const clientVal = items[ i ].getClientValue()
+      const clientVal = items[ i ].getClientValue();
       const dbVal = items[ i ].getDbValue();
+      const defaultVal = items[ i ].getDefaultValue();
 
-      if ( clientVal !== undefined )
+      if ( items[ i ].autoValidate )
+        promises.push( items[ i ].validate( clientVal || dbVal || defaultVal ) );
+      else if ( clientVal !== undefined )
         promises.push( items[ i ].validate( clientVal ) );
       else if ( dbVal )
         promises.push( dbVal );
       else
-        promises.push( items[ i ].validate( items[ i ].getDefaultValue() ) );
+        promises.push( items[ i ].validate( defaultVal ) );
     }
 
     const serverValues: any[] = await Promise.all( promises );
