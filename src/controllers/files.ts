@@ -267,6 +267,7 @@ export class FilesController extends Controller {
       identifier: uploadToken!.id,
       publicURL: uploadToken!.url,
       name: file.name,
+      created: Date.now(),
       size: file.size,
       mimeType: file.type,
       user: volume.user.toString(),

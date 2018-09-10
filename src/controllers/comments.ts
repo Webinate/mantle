@@ -204,6 +204,8 @@ export class CommentsController extends Controller {
         throw new Error( `No comment exists with the id ${token.parent}` );
     }
 
+    token.createdOn = Date.now();
+
     const instance = await comments.createInstance( token );
     const json = await instance.downloadToken<IComment<'client'>>( { verbose: true } );
 

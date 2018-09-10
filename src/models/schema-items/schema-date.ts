@@ -36,6 +36,8 @@ export class SchemaDate extends SchemaItem<number, number> {
   public async validate( val: number ) {
     if ( this.useNow )
       return Date.now();
+    else if ( val )
+      return val;
     else
       return this.getDbValue();
   }

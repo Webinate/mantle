@@ -205,6 +205,7 @@ export class PostsController extends Controller {
    * @param token The initial post data
    */
   async create( token: Partial<IPost<'client'>> ) {
+    token.createdOn = Date.now();
     const schema = await this._postsModel.createInstance( token );
     const json = await schema.downloadToken<IPost<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
     return json;
