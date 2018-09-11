@@ -1,10 +1,22 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, Page } from '../../../src';
+import { IPost, Page, IFileEntry, IUserEntry } from '../../../src';
 import header from '../header';
-let numPosts: number, publicPostId: string, privatePostId: string;
+import ControllerFactory from '../../../src/core/controller-factory';
+import { uploadFileToVolume } from '../file';
+
+let numPosts: number, publicPostId: string, privatePostId: string, file: IFileEntry<'client'>;
 
 describe( 'Testing fetching of posts', function() {
+
+  before( async function() {
+    const users = ControllerFactory.get( 'users' );
+    const user = await users.getUser( { username: header.admin.username } );
+
+    const volumes = ControllerFactory.get( 'volumes' );
+    const volume = await volumes.create( { name: 'test', user: user._id } );
+    file = await uploadFileToVolume( 'img-a.png', volume, 'File A' );
+  } )
 
   it( 'fetched all posts', async function() {
     const resp = await header.admin.get( `/api/posts` );
@@ -34,9 +46,10 @@ describe( 'Testing fetching of posts', function() {
       slug: "--public--test--",
       public: true,
       content: "Hello world",
+      featuredImage: file._id.toString(),
       categories: [ "super-tests" ],
       tags: [ "super-tags-1234", "supert-tags-4321" ]
-    } );
+    } as IPost<'client'> );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
     publicPostId = json._id;
@@ -140,6 +153,16 @@ describe( 'Testing fetching of posts', function() {
 
   it( 'can fetch single post by slug', async function() {
     const resp = await header.admin.get( `/api/posts/slug/--public--test--` );
+    const post = await resp.json<IPost<'client'>>();
+
+    assert.deepEqual( ( post.author as IUserEntry<'client'> ).username, header.admin.username );
+    assert.deepEqual( post.title, 'Simple Test' );
+    assert.deepEqual( post.slug, '--public--test--' );
+    assert.deepEqual( post.public, true );
+    assert.deepEqual( post.content, 'Hello world' );
+    assert.deepEqual( post.categories.length, 1 );
+    assert.deepEqual( post.tags.length, 2 );
+    assert.deepEqual( ( post.featuredImage as IFileEntry<'client'> )._id, file._id.toString() );
   } )
 
   it( 'cannot fetch a private post by slug when not logged in', async function() {
