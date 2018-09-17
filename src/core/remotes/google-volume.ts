@@ -6,7 +6,7 @@ import { IRemote, IUpload, IUploadToken } from '../../types/interfaces/i-remote'
 import { IVolume } from '../../types/models/i-volume-entry';
 import { IFileEntry } from '../../types/models/i-file-entry';
 import * as compressible from 'compressible';
-import * as storage from '@google-cloud/storage';
+import { Storage } from '@google-cloud/storage';
 import { generateRandString } from '../../utils/utils';
 import { extname } from 'path';
 
@@ -19,7 +19,7 @@ export class GoogleVolume implements IRemote {
   }
 
   async initialize( options: IGoogleProperties ) {
-    this._gcs = storage( {
+    this._gcs = new Storage( {
       projectId: options.projectId,
       keyFilename: options.keyFile
     } );
