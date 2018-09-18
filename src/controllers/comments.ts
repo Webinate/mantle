@@ -108,7 +108,7 @@ export class CommentsController extends Controller {
         index: options.index,
         limit: options.limit
       }, {
-        verbose: options.verbose || true,
+        verbose: options.verbose === undefined ? true : options.verbose,
         expandForeignKeys: options.expanded || false,
         expandMaxDepth: options.depth || 1,
         expandSchemaBlacklist: [ 'parent' ]
@@ -134,7 +134,7 @@ export class CommentsController extends Controller {
     const comments = this._commentsModel;
     const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
     const comment = await comments.downloadOne<IComment<'client'>>( findToken, {
-      verbose: options.verbose || true,
+      verbose: options.verbose === undefined ? true : options.verbose,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
       expandSchemaBlacklist: [ 'parent' ]

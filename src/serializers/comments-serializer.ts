@@ -93,6 +93,10 @@ export class CommentsSerializer extends Serializer {
     if ( isNaN( limit ) )
       limit = undefined;
 
+    let verbose = false;
+    if ( req._isAdmin )
+      verbose = true;
+
     const response = await this._controller.getAll( {
       depth: depth,
       index: index,
@@ -102,7 +106,7 @@ export class CommentsSerializer extends Serializer {
       parentId: req.query.parentId,
       public: visibility === 'public' ? true : false,
       sort: req.query.sort ? true : false,
-      verbose: req.query.verbose !== undefined ? req.query.verbose === 'true' : undefined,
+      verbose,
       sortOrder: req.query.sortOrder,
       sortType: req.query.sort,
       user: req.params.user || req.query.user
@@ -123,10 +127,14 @@ export class CommentsSerializer extends Serializer {
     if ( isNaN( depth ) )
       depth = undefined;
 
+    let verbose = false;
+    if ( req._isAdmin )
+      verbose = true;
+
     const comment = await this._controller.getOne( req.params.id, {
       depth: depth,
       expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
-      verbose: req.query.verbose !== undefined ? req.query.verbose === 'true' : undefined,
+      verbose,
     } );
 
     // Only admins are allowed to see private comments
@@ -177,6 +185,7 @@ export class CommentsSerializer extends Serializer {
     const token: Partial<IComment<'client'>> = req.body;
 
     // User is passed from the authentication function
+    token.user = req._user!._id.toString();
     token.author = req._user!.username as string;
     token.post = req.params.postId as string;
     token.parent = req.params.parent;

@@ -177,7 +177,7 @@ describe( 'Testing fetching of posts', function() {
     const resp = await header.guest.get( `/api/posts/slug/--public--test--` );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
-    assert( json.hasOwnProperty( "_id" ) )
+    assert( json.hasOwnProperty( "_id" ) );
   } )
 
   it( 'did cleanup the test public post', async function() {

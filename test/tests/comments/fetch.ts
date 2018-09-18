@@ -1,13 +1,21 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IComment, Page } from '../../../src';
+import { IPost, IComment, Page, IAdminUser, IUserEntry } from '../../../src';
 import header from '../header';
+import ControllerFactory from '../../../src/core/controller-factory';
+
 
 let numPosts: number,
   numComments: number, postId: string, publicCommentId: string,
-  privateCommentId: string, parentCommentId: string, childCommentId: string;
+  privateCommentId: string, parentCommentId: string, childCommentId: string,
+  admin: IUserEntry<'client'>;
 
 describe( 'Testing fetching of comments', function() {
+
+  before( async function() {
+    const users = ControllerFactory.get( 'users' );
+    admin = await users.getUser( { username: ( header.config.adminUser as IAdminUser ).username } )
+  } )
 
   it( 'did delete any existing posts with the slug --comments--test--', async function() {
     const resp = await header.admin.get( `/api/posts/slug/--comments--test--` );
@@ -91,6 +99,10 @@ describe( 'Testing fetching of comments', function() {
     assert.deepEqual( resp.status, 200 );
     const json: IComment<'client'> = await resp.json();
     assert.deepEqual( json._id, publicCommentId );
+    assert.deepEqual( json.author, admin.username );
+    assert.deepEqual( json.user, admin._id );
+    assert.deepEqual( json.content, 'Hello world public! __filter__' );
+    assert.deepEqual( json.public, true );
   } )
 
   it( 'cannot get a private comment without being logged in', async function() {
@@ -104,7 +116,12 @@ describe( 'Testing fetching of comments', function() {
     const resp = await header.guest.get( `/api/comments/${publicCommentId}` );
     assert.deepEqual( resp.status, 200 );
     const json: IComment<'client'> = await resp.json();
+
     assert.deepEqual( json._id, publicCommentId );
+    assert.deepEqual( json.author, admin.username );
+    assert.deepEqual( json.user, admin._id );
+    assert.deepEqual( json.content, 'Hello world public! __filter__' );
+    assert.deepEqual( json.public, true );
   } )
 
   it( 'can get comments by user & there are more than 1', async function() {
@@ -159,6 +176,14 @@ describe( 'Testing fetching of comments', function() {
     assert.deepEqual( json._id, childCommentId );
     assert.deepEqual( json.parent, parentCommentId );
     assert.deepEqual( ( json.post as IPost<'client'> )._id, postId );
+    assert.deepEqual( ( json.user as IUserEntry<'client'> )._id, admin._id );
+  } )
+
+  it( 'should prevent guests from getting sensitive data (expanded)', async function() {
+    const resp = await header.guest.get( `/api/comments/${childCommentId}?expanded=true` );
+    assert.deepEqual( resp.status, 200 );
+    const json: IComment<'client'> = await resp.json();
+    assert.deepEqual( ( json.user as IUserEntry<'client'> ).email, undefined );
   } )
 
   it( 'did delete the test post', async function() {
