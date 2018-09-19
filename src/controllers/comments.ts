@@ -55,7 +55,7 @@ export class CommentsController extends Controller {
   /**
    * Returns an array of comment entries
    */
-  async getAll( options: GetManyOptions = { verbose: true } ) {
+  async getAll( options: Partial<GetManyOptions> = { verbose: true } ) {
     const comments = this._commentsModel;
     const findToken: Partial<IComment<'server'>> & { $or: Partial<IComment<'server'>>[] } = { $or: [] };
 
@@ -105,8 +105,8 @@ export class CommentsController extends Controller {
       {
         selector: findToken,
         sort: sort,
-        index: options.index,
-        limit: options.limit
+        index: options.index || 0,
+        limit: options.limit || 10
       }, {
         verbose: options.verbose === undefined ? true : options.verbose,
         expandForeignKeys: options.expanded || false,

@@ -14,6 +14,7 @@ export type GetAllOptions = {
   expanded: boolean;
   keyword: string;
   parentId: string;
+  postId: string;
   sortOrder: 'asc' | 'desc';
   verbose: boolean;
 }

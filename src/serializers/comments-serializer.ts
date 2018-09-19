@@ -104,6 +104,7 @@ export class CommentsSerializer extends Serializer {
       expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
       keyword: req.query.keyword,
       parentId: req.query.parentId,
+      postId: req.query.postId,
       public: visibility === 'public' ? true : false,
       sort: req.query.sort ? true : false,
       verbose,
