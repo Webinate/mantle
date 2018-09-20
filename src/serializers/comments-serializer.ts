@@ -9,7 +9,7 @@ import { j200 } from '../utils/response-decorators';
 import { UserPrivileges } from '../core/user-privileges';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
-import { CommentsController } from '../controllers/comments';
+import { CommentsController, CommentVisibility } from '../controllers/comments';
 import ControllerFactory from '../core/controller-factory';
 import { IComment } from '..';
 
@@ -105,8 +105,7 @@ export class CommentsSerializer extends Serializer {
       keyword: req.query.keyword,
       parentId: req.query.parentId,
       postId: req.query.postId,
-      public: visibility === 'public' ? true : false,
-      sort: req.query.sort ? true : false,
+      visibility: visibility as CommentVisibility,
       verbose,
       sortOrder: req.query.sortOrder,
       sortType: req.query.sort,

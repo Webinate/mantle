@@ -2,14 +2,14 @@ export interface IMailProperties {
 
   /**
    * Specify the type of mailer to use.
-   * Currently we support either 'gmail' or 'mailgun'
+   * Currently we support 'mailgun'
    */
-  type: 'gmail' | 'mailgun';
+  type: 'mailgun';
 
   /**
    * Options to be sent to the desired mailer
    */
-  options: string | IGMail | IMailgun;
+  options: string | IMailgun;
 }
 
 export interface IMailOptions {
@@ -37,22 +37,6 @@ export interface IMailer {
    * @returns {Promise<boolean>}
    */
   sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>
-}
-
-/**
- * Options for a gmail mailer
- */
-export interface IGMail extends IMailOptions {
-  /*
-      * The email account to use the gmail API through. This account must be authorized to
-      * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
-      */
-  apiEmail: string;
-
-  /*
-      * Path to the key file
-      */
-  keyFile: string;
 }
 
 /**

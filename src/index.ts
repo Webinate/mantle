@@ -72,11 +72,13 @@ export const serializers = {
   user: UserSerializer
 }
 
+export { CommentGetAllOptions } from './controllers/comments';
+export { PostsGetAllOptions } from './controllers/posts';
 export { IVolume } from './types/models/i-volume-entry';
 export { ICategory } from './types/models/i-category';
 export { IComment } from './types/models/i-comment';
 export { IFileEntry } from './types/models/i-file-entry';
-export { IGMail, IMailer, IMailgun, IMailOptions } from './types/models/i-mail';
+export { IMailer, IMailgun, IMailOptions } from './types/models/i-mail';
 export { IModelEntry } from './types/models/i-model-entry';
 export { IPost } from './types/models/i-post';
 export { IRender } from './types/models/i-render';
@@ -86,7 +88,7 @@ export { IUploadResponse } from './types/tokens/i-file-tokens';
 export {
   IAuthenticationResponse, EmailTokens,
   IRemoveResponse, IResponse, ISimpleResponse,
-  Page,
+  Page
 } from './types/tokens/standard-tokens';
 export { IAuthReq } from './types/tokens/i-auth-request';
 export { ILoginToken } from './types/tokens/i-login-token';

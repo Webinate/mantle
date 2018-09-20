@@ -1,5 +1,5 @@
 ﻿import { IConfig } from '../types/config/i-config';
-import { IMailer, IGMail, IMailgun, IMailOptions } from '../types/config/properties/i-mail';
+import { IMailer, IMailgun, IMailOptions } from '../types/config/properties/i-mail';
 import { IAdminUser } from '../types/config/properties/i-admin';
 import { Page } from '../types/tokens/standard-tokens';
 import { IUserEntry } from '../types/models/i-user-entry';
@@ -14,7 +14,6 @@ import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
 import { ClientInstructionType } from '../socket-api/socket-event-types';
 import ControllerFactory from '../core/controller-factory';
-import { GMailer } from '../mailers/gmail';
 import { Mailguner } from '../mailers/mailgun';
 import { Session } from '../core/session';
 import Controller from './controller';
@@ -47,11 +46,7 @@ export class UsersController extends Controller {
     this._users = ModelFactory.get( 'users' );
 
     if ( this._config.mail ) {
-      if ( this._config.mail.type === 'gmail' ) {
-        this._mailer = new GMailer( this._config.debug );
-        this._mailer.initialize( this._config.mail.options as IGMail );
-      }
-      else if ( this._config.mail.type === 'mailgun' ) {
+      if ( this._config.mail.type === 'mailgun' ) {
         this._mailer = new Mailguner( this._config.debug );
         this._mailer.initialize( this._config.mail.options as IMailgun );
       }

@@ -1,35 +1,21 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
 import { Page } from '../types/tokens/standard-tokens';
 import { IComment } from '..';
+import { CommentGetAllOptions } from '../controllers/comments';
 
 const rootPath = `${apiUrl}/comments`;
 
-export type GetAllOptions = {
-  visibility: 'all' | 'public' | 'private';
-  sort: string;
-  user: string;
-  index: number;
-  depth: number;
-  limit: number;
-  expanded: boolean;
-  keyword: string;
-  parentId: string;
-  postId: string;
-  sortOrder: 'asc' | 'desc';
-  verbose: boolean;
-}
-
-export async function getAll( options: Partial<GetAllOptions> ) {
+export async function getAll( options: Partial<CommentGetAllOptions> ) {
   const page = await getJson<Page<IComment<'client'>>>( rootPath + makeQueryString( options ) );
   return page;
 }
 
-export async function getAllFromParent( parentId: string, options: Partial<GetAllOptions> ) {
+export async function getAllFromParent( parentId: string, options: Partial<CommentGetAllOptions> ) {
   const page = await getJson<Page<IComment<'client'>>>( `${apiUrl}/nested-comments/${parentId}` + makeQueryString( options ) );
   return page;
 }
 
-export async function getAllFromUser( user: string, options: Partial<GetAllOptions> ) {
+export async function getAllFromUser( user: string, options: Partial<CommentGetAllOptions> ) {
   const page = await getJson<Page<IComment<'client'>>>( `${apiUrl}/users/${user}/comments` + makeQueryString( options ) );
   return page;
 }

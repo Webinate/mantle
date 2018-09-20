@@ -21,22 +21,6 @@ export interface IMailer {
 }
 
 /**
- * Options for a gmail mailer
- */
-export interface IGMail extends IMailOptions {
-  /*
-      * The email account to use the gmail API through. This account must be authorized to
-      * use this application. See: https://admin.google.com/AdminHome?fral=1#SecuritySettings:
-      */
-  apiEmail: string;
-
-  /*
-      * Path to the key file
-      */
-  keyFile: string;
-}
-
-/**
  * Options for a mailgun mailer
  */
 export interface IMailgun extends IMailOptions {

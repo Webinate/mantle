@@ -12,7 +12,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 import { IPost } from '../types/models/i-post';
 import Factory from '../core/model-factory';
 import ControllerFactory from '../core/controller-factory';
-import { PostsController } from '../controllers/posts';
+import { PostsController, PostVisibility } from '../controllers/posts';
 
 /**
  * A controller that deals with the management of posts
@@ -61,34 +61,27 @@ export class PostsSerializer extends Serializer {
    */
   @j200()
   private async getPosts( req: IAuthReq, res: express.Response ) {
-    let visibility: string | undefined;
+    let visibility: PostVisibility | undefined;
     const user = req._user;
-    let isPublic: boolean | undefined = undefined;
 
     // Check for visibility
-    if ( req.query.visibility ) {
-      if ( ( <string>req.query.visibility ).toLowerCase() === 'all' )
-        visibility = 'all';
-      else if ( ( <string>req.query.visibility ).toLowerCase() === 'private' )
-        visibility = 'private';
-      else
-        visibility = 'public';
-    }
+    if ( req.query.visibility )
+      visibility = ( req.query.visibility as string ).toLowerCase() as PostVisibility;
 
     // If no user we only allow public
     if ( !user )
-      isPublic = true;
+      visibility = 'public';
     // If an admin - we do not need visibility
     else if ( user.privileges! > UserPrivileges.Admin )
-      isPublic = true;
+      visibility = 'public';
     // Regular users only see public
     else {
       if ( visibility === 'public' )
-        isPublic = true;
+        visibility = 'public';
       else if ( visibility === 'private' )
-        isPublic = false;
+        visibility = 'private';
       else
-        isPublic = undefined;
+        visibility = 'all';
     }
 
     let index: number | undefined = parseInt( req.query.index );
@@ -97,9 +90,9 @@ export class PostsSerializer extends Serializer {
     limit = isNaN( limit ) ? undefined : limit;
 
     const response = await this._controller.getPosts( {
-      public: isPublic,
-      keyword: req.query.keyword ? new RegExp( req.query.keyword, 'i' ) : undefined,
-      author: req.query.author ? new RegExp( `^${req.query.author}$`, 'i' ) : undefined,
+      visibility: visibility as PostVisibility,
+      keyword: req.query.keyword,
+      author: req.query.author,
       tags: req.query.tags ? req.query.tags.split( ',' ) : undefined,
       categories: req.query.categories ? req.query.categories.split( ',' ) : undefined,
       requiredTags: req.query.rtags ? req.query.rtags.split( ',' ) : undefined,

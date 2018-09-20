@@ -9,23 +9,24 @@ import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../utils/utils';
 import { Schema } from '../models/schema';
 
-export type GetManyOptions = {
-  public?: boolean;
-  parentId?: string;
-  postId?: string;
-  keyword?: string;
-  user?: string;
-  sort?: boolean;
-  verbose?: boolean;
-  expanded?: boolean;
-  depth?: number;
-  sortType?: 'updated';
-  sortOrder?: 'asc' | 'desc';
-  index?: number;
-  limit?: number;
+export type CommentVisibility = 'all' | 'public' | 'private';
+
+export type CommentGetAllOptions = {
+  visibility: CommentVisibility;
+  user: string;
+  index: number;
+  depth: number;
+  limit: number;
+  expanded: boolean;
+  keyword: string;
+  parentId: string;
+  postId: string;
+  sortType: 'updated' | 'created';
+  sortOrder: 'asc' | 'desc';
+  verbose: boolean;
 }
 
-export type GetOneOptions = {
+export type CommentGetOneOptions = {
   verbose?: boolean,
   expanded?: boolean,
   depth?: number
@@ -55,7 +56,7 @@ export class CommentsController extends Controller {
   /**
    * Returns an array of comment entries
    */
-  async getAll( options: Partial<GetManyOptions> = { verbose: true } ) {
+  async getAll( options: Partial<CommentGetAllOptions> = { verbose: true } ) {
     const comments = this._commentsModel;
     const findToken: Partial<IComment<'server'>> & { $or: Partial<IComment<'server'>>[] } = { $or: [] };
 
@@ -75,8 +76,8 @@ export class CommentsController extends Controller {
       findToken.$or.push( { content: <any>new RegExp( options.keyword, 'i' ) } );
 
     // Add the or conditions for visibility
-    if ( options.public )
-      findToken.public = options.public;
+    if ( options.visibility === 'public' )
+      findToken.public = true;
 
     // Set the default sort order to ascending
     let sortOrder = -1;
@@ -91,9 +92,11 @@ export class CommentsController extends Controller {
     let sort: { [ key in keyof Partial<IComment<'server'>> ]: number } = { createdOn: sortOrder };
 
     // Optionally sort by the last updated
-    if ( options.sort && options.sortType ) {
+    if ( options.sortType ) {
       if ( options.sortType === 'updated' )
         sort = { lastUpdated: sortOrder };
+      else if ( options.sortType === 'created' )
+        sort = { createdOn: sortOrder };
     }
 
     if ( findToken.$or.length === 0 )
@@ -130,7 +133,7 @@ export class CommentsController extends Controller {
    * @param id The id of the comment to fetch
    * @param options Options for getting the resource
    */
-  async getOne( id: string, options: GetOneOptions = { verbose: true } ) {
+  async getOne( id: string, options: CommentGetOneOptions = { verbose: true } ) {
     const comments = this._commentsModel;
     const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
     const comment = await comments.downloadOne<IComment<'client'>>( findToken, {

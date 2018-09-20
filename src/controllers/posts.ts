@@ -9,22 +9,25 @@ import Controller from './controller';
 import { isValidObjectID } from '../utils/utils';
 import { UsersController } from './users';
 
-export type GetManyOptions = {
-  verbose?: boolean;
-  keyword?: RegExp;
-  author?: RegExp;
-  public?: boolean;
-  tags?: string[];
+export type PostVisibility = 'all' | 'public' | 'private';
+
+export type PostsGetAllOptions = {
+  visibility: PostVisibility;
+  categories: string[];
+  tags: string[];
+  rtags: string[];
+  sort: 'title' | 'created' | 'modified';
   requiredTags?: string[];
-  categories?: string[];
-  sort?: 'created' | 'modified' | 'title';
-  sortOrder?: 'asc' | 'desc';
-  minimal?: boolean;
-  index?: number;
-  limit?: number;
+  index: number;
+  limit: number;
+  keyword: string;
+  author: string;
+  sortOrder: 'asc' | 'desc';
+  minimal: boolean;
+  verbose: boolean;
 }
 
-export type GetOneOptions = {
+export type PostsGetOneOptions = {
   id?: string;
   slug?: string;
   verbose?: boolean;
@@ -57,12 +60,12 @@ export class PostsController extends Controller {
   /**
    * Returns an array of IPost items
    */
-  async getPosts( options: GetManyOptions = { verbose: true } ) {
+  async getPosts( options: Partial<PostsGetAllOptions> = { verbose: true } ) {
     const posts = this._postsModel;
     const findToken: Partial<IPost<'server'>> & { $or: IPost<'server'>[] } = { $or: [] };
 
     if ( options.author ) {
-      const user = await this._users.getUsers( undefined, undefined, options.author );
+      const user = await this._users.getUsers( undefined, undefined, new RegExp( `^${options.author!}$`, 'i' ) );
       if ( user && user.data.length > 0 )
         findToken.author = new mongodb.ObjectID( user.data[ 0 ]._id );
       else {
@@ -77,14 +80,17 @@ export class PostsController extends Controller {
 
     // Check for keywords
     if ( options.keyword ) {
-      findToken.$or.push( <IPost<'server'>>{ title: <any>options.keyword } );
-      findToken.$or.push( <IPost<'server'>>{ content: <any>options.keyword } );
-      findToken.$or.push( <IPost<'server'>>{ brief: <any>options.keyword } );
+      const keyword = new RegExp( options.keyword, 'i' );
+      findToken.$or.push( <IPost<'server'>>{ title: <any>keyword } );
+      findToken.$or.push( <IPost<'server'>>{ content: <any>keyword } );
+      findToken.$or.push( <IPost<'server'>>{ brief: <any>keyword } );
     }
 
     // Add the or conditions for visibility
-    if ( options.public !== undefined )
-      findToken.public = options.public;
+    if ( options.visibility === 'public' )
+      findToken.public = true;
+    else if ( options.visibility === 'private' )
+      findToken.public = false;
 
     // Check for tags (an OR request with tags)
     if ( options.tags && options.tags.length > 0 ) {
@@ -215,7 +221,7 @@ export class PostsController extends Controller {
    * Gets a single post resource
    * @param options Options for getting the post resource
    */
-  async getPost( options: GetOneOptions = { verbose: true } ) {
+  async getPost( options: PostsGetOneOptions = { verbose: true } ) {
     const posts = this._postsModel;
     let findToken: Partial<IPost<'server'>>;
 

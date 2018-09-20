@@ -1,25 +1,11 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
 import { IPost } from '../types/models/i-post';
 import { Page } from '../types/tokens/standard-tokens';
+import { PostsGetAllOptions } from '../controllers/posts';
 
 const rootPath = `${apiUrl}/posts`;
 
-export type GetAllOptions = {
-  visibility: 'all' | 'public' | 'private';
-  categories: string[];
-  tags: string[];
-  rtags: string[];
-  sort: 'title' | 'created' | 'modified';
-  index: number;
-  limit: number;
-  keyword: string;
-  author: string;
-  sortOrder: 'asc' | 'desc';
-  minimal: boolean;
-  verbose: boolean;
-}
-
-export async function getAll( options: Partial<GetAllOptions> ) {
+export async function getAll( options: Partial<PostsGetAllOptions> ) {
   const page = await getJson<Page<IPost<'client'>>>( rootPath + makeQueryString( options ) );
   return page;
 }
