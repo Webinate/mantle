@@ -22,6 +22,13 @@ import ModelFactory from '../core/model-factory';
 import { Error400 } from '../utils/errors';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 
+export type UsersGetAllOptions = {
+  search: string;
+  index: number;
+  limit: number;
+  verbose: boolean;
+}
+
 /**
  * Main class to use for managing users
  */

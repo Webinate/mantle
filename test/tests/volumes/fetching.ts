@@ -59,19 +59,19 @@ describe( 'Testing volume get requests', function() {
   } )
 
   it( 'regular user did not get volumes for admin', async function() {
-    const resp = await header.user1.get( `/volumes?username=${( header.config.adminUser as IAdminUser ).username}` );
+    const resp = await header.user1.get( `/volumes?user=${( header.config.adminUser as IAdminUser ).username}` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 403 );
   } )
 
   it( 'other regular user did not get volumes for regular user', async function() {
-    const resp = await header.user2.get( `/volumes?username=${( header.config.adminUser as IAdminUser ).username}` );
+    const resp = await header.user2.get( `/volumes?user=${( header.config.adminUser as IAdminUser ).username}` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 403 );
   } )
 
   it( 'admin can see regular user has 1 volume', async function() {
-    const resp = await header.admin.get( `/volumes?username=${header.user1.username}` );
+    const resp = await header.admin.get( `/volumes?user=${header.user1.username}` );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
     assert( json.data.length === 1 )

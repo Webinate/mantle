@@ -1,20 +1,12 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
 import { Page } from '../types/tokens/standard-tokens';
 import { IVolume } from '../types/models/i-volume-entry';
+import { VolumesGetOptions } from '../controllers/volumes';
 
 const rootPath = `${apiUrl}/volumes`;
 
-export type GetAllOptions = {
-  search: string;
-  index: number;
-  limit: number;
-  sort: 'created' | 'name' | 'memory';
-  sortOrder: 'asc' | 'desc';
-  username: string;
-}
-
-export async function getAll( options: Partial<GetAllOptions> ) {
-  const page = await getJson<Page<IVolume<'client'>>>( `${rootPath}` + makeQueryString( options ) );
+export async function getAll( options: Partial<VolumesGetOptions> ) {
+  const page = await getJson<Page<IVolume<'client'>>>( `${rootPath}` + makeQueryString( options as any ) );
   return page;
 }
 

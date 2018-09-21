@@ -1,11 +1,11 @@
 import { getJson, makeQueryString, del, postJson, putJson, apiUrl } from './http-clients';
 import { ICategory } from '../types/models/i-category';
 import { Page } from '../types/tokens/standard-tokens';
-import { GetManyOptions } from '../controllers/categories';
+import { CategoriesGetManyOptions } from '../controllers/categories';
 
 const rootPath = `${apiUrl}/categories`;
 
-export async function getAll( options: Partial<GetManyOptions> ) {
+export async function getAll( options: Partial<CategoriesGetManyOptions> ) {
   const page = await getJson<Page<ICategory<'client'>>>( rootPath + makeQueryString( options ) );
   return page;
 }

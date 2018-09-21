@@ -19,12 +19,12 @@ import { Error404, Error500 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUploadToken } from '../types/interfaces/i-remote';
 
-export type GetOptions = {
+export type FilesGetOptions = {
   volumeId?: string | ObjectID;
   user?: string;
   index?: number;
   limit?: number;
-  searchTerm?: RegExp;
+  search?: RegExp;
   verbose?: boolean;
   sort?: 'created' | 'name' | 'memory';
   sortOrder?: 'asc' | 'desc';
@@ -93,7 +93,7 @@ export class FilesController extends Controller {
   /**
    * Fetches all file entries by a given query
    */
-  async getFiles( options: GetOptions ) {
+  async getFiles( options: FilesGetOptions ) {
     const files = this._files;
     const volumes = this._volumes;
 
@@ -120,8 +120,8 @@ export class FilesController extends Controller {
       searchQuery.volumeId = volume.dbEntry._id;
     }
 
-    if ( options.searchTerm )
-      searchQuery.name = new RegExp( options.searchTerm ) as any;
+    if ( options.search )
+      searchQuery.name = new RegExp( options.search ) as any;
 
     if ( options.user ) {
       const u = await this._users.getUser( { username: options.user } );

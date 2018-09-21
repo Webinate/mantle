@@ -72,6 +72,10 @@ export const serializers = {
   user: UserSerializer
 }
 
+export { CategoriesGetManyOptions } from './controllers/categories';
+export { FilesGetOptions } from './controllers/files';
+export { UsersGetAllOptions } from './controllers/users';
+export { VolumesGetOptions } from './controllers/volumes';
 export { CommentGetAllOptions } from './controllers/comments';
 export { PostsGetAllOptions } from './controllers/posts';
 export { IVolume } from './types/models/i-volume-entry';

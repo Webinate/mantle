@@ -13,9 +13,9 @@ import { Error500, Error404 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
 
-export type GetManyOptions = {
+export type VolumesGetOptions = {
   user: string | IUserEntry<'client' | 'server'>;
-  searchTerm: RegExp;
+  search: RegExp | string;
   index: number;
   limit: number;
   sort: 'created' | 'name' | 'memory';
@@ -64,7 +64,7 @@ export class VolumesController extends Controller {
    * Fetches all volume entries from the database
    * @param options Options for defining which volumes to return
    */
-  async getMany( options: Partial<GetManyOptions> = { index: 0, limit: 10 } ) {
+  async getMany( options: Partial<VolumesGetOptions> = { index: 0, limit: 10 } ) {
     const volumeModel = this._volumes;
     const search: Partial<IVolume<'server'>> = {};
 
@@ -73,16 +73,25 @@ export class VolumesController extends Controller {
         search.user = new ObjectID( ( options.user as IUserEntry<'client' | 'server'> )._id );
       }
       else {
-        const user = await this._users.getUser( { username: options.user as string } );
-        if ( user )
-          search.user = new ObjectID( user._id );
-        else
-          throw new Error404( `User not found` );
+        if ( ObjectID.isValid( options.user as string ) ) {
+          const user = await this._users.getUser( { id: options.user as string } );
+          if ( user )
+            search.user = new ObjectID( user._id );
+          else
+            throw new Error404( `User not found` );
+        }
+        else {
+          const user = await this._users.getUser( { username: options.user as string } );
+          if ( user )
+            search.user = new ObjectID( user._id );
+          else
+            throw new Error404( `User not found` );
+        }
       }
     }
 
-    if ( options.searchTerm )
-      search.name = options.searchTerm as any;
+    if ( options.search )
+      search.name = options.search as string;
 
     let limit = options.limit !== undefined ? options.limit : 10;
     let index = options.index !== undefined ? options.index : 0;

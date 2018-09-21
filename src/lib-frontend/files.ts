@@ -1,19 +1,12 @@
 import { getJson, makeQueryString, del, putJson, post, apiUrl } from './http-clients';
 import { Page } from '../types/tokens/standard-tokens';
 import { IFileEntry } from '../types/models/i-file-entry';
+import { FilesGetOptions } from '../controllers/files';
 
 const rootPath = `${apiUrl}/files`;
 
-export type GetAllOptions = {
-  search: string;
-  index: number;
-  limit: number;
-  sort: 'created' | 'name' | 'memory';
-  sortOrder: 'asc' | 'desc';
-}
-
-export async function getAll( volumeId: string, options: Partial<GetAllOptions> ) {
-  const page = await getJson<Page<IFileEntry<'client'>>>( `${rootPath}/volumes/${volumeId}` + makeQueryString( options ) );
+export async function getAll( volumeId: string, options: Partial<FilesGetOptions> ) {
+  const page = await getJson<Page<IFileEntry<'client'>>>( `${rootPath}/volumes/${volumeId}` + makeQueryString( options as any ) );
   return page;
 }
 

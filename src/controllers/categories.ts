@@ -10,7 +10,7 @@ import { ICategory } from '../types/models/i-category';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { ObjectID } from 'mongodb';
 
-export type GetManyOptions = {
+export type CategoriesGetManyOptions = {
   index: number;
   limit: number;
   root: boolean;
@@ -47,7 +47,7 @@ export class CategoriesController extends Controller {
   /**
    * Returns an array of category entries
    */
-  async getAll( options: Partial<GetManyOptions> = {} ) {
+  async getAll( options: Partial<CategoriesGetManyOptions> = {} ) {
     const categories = this._categoriesModel;
     const index: number = options.index || 0;
     const limit: number = options.limit || -1;

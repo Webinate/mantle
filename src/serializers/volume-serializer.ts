@@ -108,30 +108,30 @@ export class VolumeSerializer extends Serializer {
    */
   @j200()
   private async getVolumes( req: IAuthReq, res: express.Response ) {
-    const user = req._user!;
+    const authUser = req._user!;
     const manager = this._volumeController;
-    let searchTerm: RegExp | undefined;
+    let search: RegExp | undefined;
 
     // Check for keywords
     if ( req.query.search )
-      searchTerm = new RegExp( req.query.search, 'i' );
+      search = new RegExp( req.query.search, 'i' );
 
     let index: number | undefined = parseInt( req.query.index );
     let limit: number | undefined = parseInt( req.query.limit );
-    let username: string | undefined = req.query.username;
+    let user: string | undefined = req.query.user;
     index = isNaN( index ) ? undefined : index;
     limit = isNaN( limit ) ? undefined : limit;
 
     let getAll = false;
 
-    if ( req._isAdmin === false && username !== undefined )
+    if ( req._isAdmin === false && user !== undefined )
       throw new Error403();
-    else if ( req._isAdmin && username === undefined )
+    else if ( req._isAdmin && user === undefined )
       getAll = true;
 
     const toRet = await manager.getMany( {
-      user: getAll ? undefined : ( username || user ),
-      searchTerm: searchTerm,
+      user: getAll ? undefined : ( user ? user : authUser ),
+      search: search,
       sort: req.query.sort ? req.query.sort.toLowerCase() : undefined,
       sortOrder: req.query.sortOrder === 'asc' ? 'asc' : 'desc',
       index: index,

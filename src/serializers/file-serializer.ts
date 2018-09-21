@@ -94,7 +94,7 @@ export class FileSerializer extends Serializer {
       sort: req.query.sort ? req.query.sort.toLowerCase() : undefined,
       sortOrder: req.query.sortOrder === 'asc' ? 'asc' : 'desc',
       user: req._isAdmin ? undefined : req._user!.username as string,
-      searchTerm: req.query.search ? new RegExp( req.query.search, 'i' ) : undefined
+      search: req.query.search ? new RegExp( req.query.search, 'i' ) : undefined
     } );
 
     return page;

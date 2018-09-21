@@ -1,17 +1,11 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { Page } from '../types/tokens/standard-tokens';
+import { UsersGetAllOptions } from '../controllers/users';
 
 const rootPath = `${apiUrl}/users`;
 
-export type GetAllOptions = {
-  search: string;
-  index: number;
-  limit: number;
-  verbose: boolean;
-}
-
-export async function getAll( options: Partial<GetAllOptions> ) {
+export async function getAll( options: Partial<UsersGetAllOptions> ) {
   const page = await getJson<Page<IUserEntry<'client'>>>( rootPath + makeQueryString( options ) );
   return page;
 }
