@@ -63,7 +63,7 @@ export class CategoriesController extends Controller {
         verbose: true,
         expandMaxDepth: depth,
         expandForeignKeys: expanded,
-        expandSchemaBlacklist: [ 'parent' ]
+        expandSchemaBlacklist: [ /parent/ ]
       } );
 
 
@@ -82,7 +82,7 @@ export class CategoriesController extends Controller {
       verbose: true,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
-      expandSchemaBlacklist: [ 'parent' ]
+      expandSchemaBlacklist: [ /parent/ ]
     }
   }
 

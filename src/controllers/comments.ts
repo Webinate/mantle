@@ -114,7 +114,7 @@ export class CommentsController extends Controller {
         verbose: options.verbose === undefined ? true : options.verbose,
         expandForeignKeys: options.expanded || false,
         expandMaxDepth: options.depth || 1,
-        expandSchemaBlacklist: [ 'parent' ]
+        expandSchemaBlacklist: [ /parent/, /avatarFile\.user/ ]
       }
     );
 
@@ -140,7 +140,7 @@ export class CommentsController extends Controller {
       verbose: options.verbose === undefined ? true : options.verbose,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
-      expandSchemaBlacklist: [ 'parent' ]
+      expandSchemaBlacklist: [ /parent/, /avatarFile\.user/ ]
     } );
 
     if ( !isValidObjectID( id ) )

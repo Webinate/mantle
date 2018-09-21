@@ -21,7 +21,7 @@ export class SchemaIdArray extends SchemaItem<ObjectID[], Client> {
   public minItems: number;
   public maxItems: number;
   public curLevel: number;
-  // private _targetDocs: Array<Schema<IModelEntry<'server'>>> | null;
+  public namespace: string;
 
   /**
    * Creates a new schema item that holds an array of id items
@@ -41,6 +41,7 @@ export class SchemaIdArray extends SchemaItem<ObjectID[], Client> {
     this.minItems = options.minItems!;
     this.targetCollection = targetCollection;
     this.curLevel = 1;
+    this.namespace = name;
   }
 
   /**
@@ -195,8 +196,10 @@ export class SchemaIdArray extends SchemaItem<ObjectID[], Client> {
     if ( !options.expandForeignKeys )
       return val.map( i => i.toString() );
 
-    if ( options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
-      return val.map( i => i.toString() );
+    if ( options.expandSchemaBlacklist )
+      for ( const r of options.expandSchemaBlacklist )
+        if ( this.namespace.match( r ) )
+          return val.map( i => i.toString() );
 
     if ( !this.targetCollection )
       return val.map( i => i.toString() );
@@ -230,8 +233,10 @@ export class SchemaIdArray extends SchemaItem<ObjectID[], Client> {
       const nextLevel = this.curLevel + 1;
 
       for ( const item of items )
-        if ( item instanceof SchemaForeignKey || item instanceof SchemaIdArray )
+        if ( item instanceof SchemaForeignKey || item instanceof SchemaIdArray ) {
           item.curLevel = nextLevel;
+          item.namespace = `${this.namespace}.${item.namespace}`;
+        }
 
       promises.push( schema.downloadToken( options ) );
     }

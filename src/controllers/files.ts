@@ -24,7 +24,7 @@ export type FilesGetOptions = {
   user?: string;
   index?: number;
   limit?: number;
-  search?: RegExp;
+  search?: string | RegExp;
   verbose?: boolean;
   sort?: 'created' | 'name' | 'memory';
   sortOrder?: 'asc' | 'desc';

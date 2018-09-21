@@ -21,7 +21,7 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
   public targetCollection: string;
   public keyCanBeNull: boolean;
   public nullifyOnDelete: boolean;
-  // public canAdapt: boolean;
+  public namespace: string;
   public curLevel: number;
 
   // private _targetDoc: Schema<IModelEntry<'server' | 'client'>> | null;
@@ -38,7 +38,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     options = {
       keyCanBeNull: true,
       nullifyOnDelete: true,
-      /** canAdapt: true, */
       ...options
     };
 
@@ -46,8 +45,8 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
       throw new Error( `You must specify a targetCollection property for model option '${name}'` );
 
     this.targetCollection = targetCollection;
-    // this.canAdapt = options.canAdapt!;
     this.curLevel = 1;
+    this.namespace = name;
     this.keyCanBeNull = options.keyCanBeNull!;
     this.nullifyOnDelete = options.nullifyOnDelete!;
   }
@@ -140,8 +139,10 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     if ( val && !options.expandForeignKeys )
       return val.toString();
 
-    if ( val && options.expandSchemaBlacklist && options.expandSchemaBlacklist.indexOf( this.name ) !== -1 )
-      return val.toString();
+    if ( val && options.expandSchemaBlacklist )
+      for ( const r of options.expandSchemaBlacklist )
+        if ( this.namespace.match( r ) )
+          return val.toString();
 
     const model = Factory.get( this.targetCollection );
     if ( !model )
@@ -168,8 +169,11 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     const nextLevel = this.curLevel + 1;
 
     for ( let i = 0, l = items.length; i < l; i++ )
-      if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray )
-        ( <SchemaForeignKey | SchemaIdArray>items[ i ] ).curLevel = nextLevel;
+      if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray ) {
+        const item = items[ i ] as ( SchemaForeignKey | SchemaIdArray );
+        item.curLevel = nextLevel;
+        item.namespace = `${this.namespace}.${item.namespace}`;
+      }
 
     return await result!.downloadToken( options ) as Client;
   }

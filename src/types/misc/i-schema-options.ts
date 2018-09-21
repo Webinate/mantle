@@ -27,5 +27,5 @@ export interface ISchemaOptions {
   /**
    * Defines an array of schema names that must not be expanded when expandForeignKeys is true.
    */
-  expandSchemaBlacklist?: Array<string>;
+  expandSchemaBlacklist?: RegExp[];
 }

@@ -532,7 +532,7 @@ export class UsersController extends Controller {
       expandForeignKeys: true,
       expandMaxDepth: 2,
       verbose: options.verbose !== undefined ? options.verbose : true,
-      expandSchemaBlacklist: [ 'user' ]
+      expandSchemaBlacklist: [ /user/ ]
     };
 
     // If id - then leave early
@@ -721,7 +721,7 @@ export class UsersController extends Controller {
     const count = await this._users.count( findToken );
     const data = await this._users.downloadMany<IUserEntry<'client'>>(
       { index: index, limit: limit, selector: findToken },
-      { expandForeignKeys: true, expandMaxDepth: 1, verbose: verbose, expandSchemaBlacklist: [ 'user' ] } );
+      { expandForeignKeys: true, expandMaxDepth: 1, verbose: verbose, expandSchemaBlacklist: [ /user/ ] } );
 
     const toRet: Page<IUserEntry<'client'>> = {
       count: count,
