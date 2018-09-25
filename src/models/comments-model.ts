@@ -20,7 +20,7 @@ export class CommentsModel extends Model<IComment<'server' | 'client'>> {
       new foreignKey( 'post', 'posts', { keyCanBeNull: false } ).setRequired( true ),
       new foreignKey( 'parent', 'comments', { keyCanBeNull: true } ),
       new idArray( 'children', 'comments' ),
-      new html( 'content', '', { allowedTags: allowedTags, errorBadHTML: true } ),
+      new html( 'content', '', { minCharacters: 1, allowedTags: allowedTags, errorBadHTML: true } ),
       new bool( 'public', true ),
       new date( 'createdOn' ).setIndexable( true ),
       new date( 'lastUpdated', { useNow: true } ).setIndexable( true )

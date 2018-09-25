@@ -103,7 +103,7 @@ export class CommentsSerializer extends Serializer {
       limit: limit,
       expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
       keyword: req.query.keyword,
-      parentId: req.query.parentId,
+      parentId: req.query.parentId || null,
       postId: req.query.postId,
       visibility: visibility as CommentVisibility,
       verbose,

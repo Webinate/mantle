@@ -10,7 +10,7 @@ export interface IComment<T extends 'client' | 'server'> extends IModelEntry<T> 
   author: string;
   user: T extends 'client' ? string | IUserEntry<T> : ObjectID;
   post: T extends 'client' ? string | IPost<T> : ObjectID;
-  parent: T extends 'client' ? string | IComment<T> : ObjectID;
+  parent: T extends 'client' ? string | IComment<T> | null : ObjectID | null;
   public: boolean;
   content: string;
   children: T extends 'client' ? string[] | IComment<T>[] : ObjectID[];

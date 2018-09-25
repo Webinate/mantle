@@ -11,7 +11,7 @@ export class ClientError extends Error {
   }
 }
 
-export function makeQueryString( options: Partial<{ [ name: string ]: boolean | string | number | Array<any> }> ) {
+export function makeQueryString( options: Partial<{ [ name: string ]: boolean | string | number | Array<any> | null }> ) {
   let toRet = '?';
   for ( const i in options ) {
 
