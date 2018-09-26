@@ -80,7 +80,7 @@ describe( 'Testing volume upload validation: ', function() {
     form.append( 'big-file', fs.createReadStream( bigFile ) );
     const resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 500 );
-    assert.equal( decodeURIComponent( resp.statusText ), `maxFileSize exceeded, received 589205 bytes of file data` );
+    assert.equal( decodeURIComponent( resp.statusText ), `maxFileSize exceeded, received 589217 bytes of file data` );
   } )
 
   it( 'Must fail all uploads if even one is not accepted', async function() {
