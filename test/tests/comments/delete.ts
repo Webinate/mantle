@@ -74,14 +74,13 @@ describe( 'Testing deletion of comments', function() {
   it( 'can create a nested comment', async function() {
     const resp = await header.admin.post( `/api/posts/${postId}/comments/${parentCommentId}`, { content: "Child Comment", public: true } );
     assert.deepEqual( resp.status, 200 );
-    const json = await resp.json();
   } )
 
   it( 'did incremented the number of comments by 3', async function() {
     const resp = await header.admin.get( `/api/comments` );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
-    assert( json.count === numComments + 3 );
+    assert.deepEqual( json.count, numComments + 3 );
   } )
 
   it( 'cannot delete a comment with a bad id', async function() {

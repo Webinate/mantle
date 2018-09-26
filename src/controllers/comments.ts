@@ -19,6 +19,7 @@ export type CommentGetAllOptions = {
   limit: number;
   expanded: boolean;
   keyword: string;
+  root: boolean;
   parentId: string | null;
   postId: string;
   sortType: 'updated' | 'created';
@@ -63,7 +64,7 @@ export class CommentsController extends Controller {
     // Set the parent filter
     if ( options.parentId )
       findToken.parent = new ObjectID( options.parentId ) as any;
-    else
+    else if ( options.root === true )
       findToken.parent = null;
 
     if ( options.postId )

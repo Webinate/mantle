@@ -47,9 +47,9 @@ describe( 'Testing creation of comments', function() {
 
   it( 'cannot create a comment when not logged in', async function() {
     const resp = await header.guest.post( `/api/posts/123456789012345678901234/comments/123456789012345678901234` );
-    assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "You must be logged in to make this request" );
+    assert.deepEqual( resp.status, 401 );
   } )
 
   it( 'cannot create a comment with a badly formatted post id', async function() {
@@ -67,7 +67,7 @@ describe( 'Testing creation of comments', function() {
   } )
 
   it( 'cannot create a comment without a post that actually exists', async function() {
-    const resp = await header.admin.post( `/api/posts/123456789012345678901234/comments` );
+    const resp = await header.admin.post( `/api/posts/123456789012345678901234/comments`, { content: 'Test' } );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "post does not exist" );
