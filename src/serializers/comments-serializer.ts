@@ -109,7 +109,7 @@ export class CommentsSerializer extends Serializer {
       visibility: visibility as CommentVisibility,
       verbose,
       sortOrder: req.query.sortOrder,
-      sortType: req.query.sort,
+      sortType: req.query.sortType,
       user: req.params.user || req.query.user
     } );
 

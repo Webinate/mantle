@@ -69,6 +69,7 @@ require( './tests/categories/hierarchies' );
 require( './tests/comments/create' );
 require( './tests/comments/delete' );
 require( './tests/comments/fetch' );
+require( './tests/comments/getting-sorted-comments' );
 
 require( './tests/files/accessibility' );
 require( './tests/files/deletion' );
