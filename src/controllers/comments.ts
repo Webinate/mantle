@@ -117,7 +117,11 @@ export class CommentsController extends Controller {
         verbose: options.verbose === undefined ? true : options.verbose,
         expandForeignKeys: options.expanded || false,
         expandMaxDepth: options.depth || 1,
-        expandSchemaBlacklist: [ /parent/, /avatarFile\.user/ ]
+        expandSchemaBlacklist: [
+          /parent/, // Do not expand parent comment
+          /avatarFile\.user/,  // Do not expand a comments user's avatar file
+          /children\.post/ // Do not expand sub comment posts
+        ]
       }
     );
 
