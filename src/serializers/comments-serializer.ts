@@ -44,8 +44,8 @@ export class CommentsSerializer extends Serializer {
     router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, this.getComment.bind( this ) ] );
     router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), identifyUser, this.getComments.bind( this ) ] );
     router.get( '/users/:user/comments', <any>[ identifyUser, this.getComments.bind( this ) ] );
-    router.delete( '/comments/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
-    router.put( '/comments/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
+    router.delete( '/comments/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
+    router.put( '/comments/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
     router.post( '/posts/:postId/comments/:parent?', <any>[ requireUser, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
 
     // Register the path
@@ -150,12 +150,11 @@ export class CommentsSerializer extends Serializer {
    */
   @j200( 204 )
   private async remove( req: IAuthReq, res: express.Response ) {
-    const user = req._user;
-
+    const user = req._user!;
     const comment = await this._controller.getOne( req.params.id );
 
     // Only admins are allowed to see private comments
-    if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== comment.author ) )
+    if ( user.privileges > UserPrivileges.Admin && user.username !== comment.author )
       throw new Error( 'You do not have permission' );
 
     await this._controller.remove( req.params.id );
@@ -167,11 +166,11 @@ export class CommentsSerializer extends Serializer {
   @j200()
   private async update( req: IAuthReq, res: express.Response ) {
     const token: Partial<IComment<'client'>> = req.body;
-    const user = req._user;
+    const user = req._user!;
     let comment = await this._controller.getOne( req.params.id );
 
     // Only admins are allowed to see private comments
-    if ( !user || ( user.privileges! < UserPrivileges.Admin && user.username !== comment.author ) )
+    if ( user.privileges > UserPrivileges.Admin && user.username !== comment.author )
       throw new Error( 'You do not have permission' );
 
     comment = await this._controller.update( req.params.id, token );
