@@ -7,7 +7,7 @@ import { IFileEntry } from './i-file-entry';
  * Describes the post model
  */
 export interface IPost<T extends 'client' | 'server'> extends IModelEntry<T> {
-  author: T extends 'client' ? IUserEntry<T> | string : ObjectID;
+  author: T extends 'client' ? IUserEntry<T> | string | null : ObjectID | null;
   title: string;
   slug: string;
   brief: string;
