@@ -12,7 +12,7 @@ export interface IUserEntry<T extends 'server' | 'client'> {
   registerKey: string;
   sessionId: string;
   avatar: string;
-  avatarFile: T extends 'client' ? string | IFileEntry<'client'> : ObjectID;
+  avatarFile: T extends 'client' ? string | IFileEntry<'client'> | null : ObjectID | null;
   createdOn: number;
   lastLoggedIn: number;
   privileges: number;

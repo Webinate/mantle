@@ -15,7 +15,7 @@ export class CommentsModel extends Model<IComment<'server' | 'client'>> {
     ];
 
     this.schema.addItems( [
-      new foreignKey( 'user', 'users', { keyCanBeNull: true, nullifyOnDelete: true } ),
+      new foreignKey( 'user', 'users', { keyCanBeNull: true } ),
       new text( 'author', '' ).setRequired( true ),
       new foreignKey( 'post', 'posts', { keyCanBeNull: false } ).setRequired( true ),
       new foreignKey( 'parent', 'comments', { keyCanBeNull: true } ),

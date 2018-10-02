@@ -8,6 +8,7 @@ import Controller from './controller';
 import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../utils/utils';
 import { Schema } from '../models/schema';
+import { IUserEntry } from '../types/models/i-user-entry';
 
 export type CommentVisibility = 'all' | 'public' | 'private';
 
@@ -136,6 +137,30 @@ export class CommentsController extends Controller {
   }
 
   /**
+   * When a user is removed, we removed comments originated by the user
+   * and nullify those that are replies
+   */
+  async userRemoved( user: IUserEntry<'server'> ) {
+    const collection = this._commentsModel.collection as mongodb.Collection<IComment<'server'>>;
+    const cursor = collection.find( { user: user._id } as IComment<'server'> );
+    const comments = await cursor.toArray();
+    const promisesToRemove: Promise<void>[] = [];
+    const promisesToNullify: Promise<any>[] = [];
+
+    for ( const comment of comments )
+      if ( !comment.parent )
+        promisesToRemove.push( this.remove( comment._id.toString() ) );
+      else
+        promisesToNullify.push( collection.updateMany(
+          { _id: comment._id } as IComment<'server'>,
+          { $set: { user: null } as IComment<'server'> }
+        ) );
+
+    await Promise.all( promisesToNullify );
+    await Promise.all( promisesToRemove );
+  }
+
+  /**
    * Gets a single comment resource
    * @param id The id of the comment to fetch
    * @param options Options for getting the resource
@@ -181,7 +206,15 @@ export class CommentsController extends Controller {
     for ( const child of children )
       promises.push( this.remove( child.toString() ) );
 
-    await Promise.all( promises );
+    if ( promises.length > 0 )
+      await Promise.all( promises );
+
+    // Remove from parent children
+    if ( comment.dbEntry.parent ) {
+      const parent = await comments.findOne<IComment<'server'>>( { _id: comment.dbEntry.parent } as IComment<'server'> );
+      const newChildren = parent!.dbEntry.children.filter( c => !c.equals( comment.dbEntry._id ) );
+      await comments.update<IComment<'client'>>( { _id: comment.dbEntry.parent! } as IComment<'server'>, { children: newChildren.map( child => child.toString() ) } );
+    }
 
     // Attempt to delete the instances
     await comments.deleteInstances( findToken );

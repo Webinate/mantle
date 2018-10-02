@@ -11,11 +11,11 @@ export class PostsModel extends Model<IPost<'client' | 'server'>> {
     super( 'posts' );
 
     this.schema.addItems( [
-      new foreignKey( 'author', 'users', { keyCanBeNull: true, nullifyOnDelete: true } ),
+      new foreignKey( 'author', 'users', { keyCanBeNull: true } ),
       new text( 'title', '', { minCharacters: 1 } ),
       new text( 'slug', '', { maxCharacters: 512, minCharacters: 1 } ).setUnique( true ).setRequired( true ),
       new text( 'brief', '' ),
-      new foreignKey( 'featuredImage', 'files', { keyCanBeNull: true, nullifyOnDelete: true } ),
+      new foreignKey( 'featuredImage', 'files', { keyCanBeNull: true } ),
       new html( 'content', '', { allowedTags: SchemaHtml.defaultTags.concat( 'img' ), errorBadHTML: false } ),
       new bool( 'public', true ),
       new textArray( 'categories', [] ),

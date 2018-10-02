@@ -70,6 +70,8 @@ require( './tests/comments/create' );
 require( './tests/comments/delete' );
 require( './tests/comments/fetch' );
 require( './tests/comments/getting-sorted-comments' );
+require( './tests/comments/comment-hierarchy' );
+require( './tests/comments/user-deletion-of-comments' );
 
 require( './tests/files/accessibility' );
 require( './tests/files/deletion' );
@@ -85,6 +87,9 @@ require( './tests/posts/delete' );
 require( './tests/posts/editting' );
 require( './tests/posts/getting' );
 require( './tests/posts/get-filters' );
+require( './tests/posts/delete-post-delete-comments' );
+require( './tests/posts/delete-user-nullifys-post-author' );
+require( './tests/posts/deletion-of-featured-img' );
 
 require( './tests/user/create-user' );
 require( './tests/user/delete-user' );
@@ -92,3 +97,4 @@ require( './tests/user/fetch-user-data' );
 require( './tests/user/get-set-user-meta' );
 require( './tests/user/get-user-data' );
 require( './tests/user/edit-user-details' );
+require( './tests/user/deletion-of-avatar-file-is-nullified' );

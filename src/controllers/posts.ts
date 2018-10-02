@@ -8,6 +8,8 @@ import { PostsModel } from '../models/posts-model';
 import Controller from './controller';
 import { isValidObjectID } from '../utils/utils';
 import { UsersController } from './users';
+import { IUserEntry } from '../types/models/i-user-entry';
+import { IFileEntry } from '../types/models/i-file-entry';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 
@@ -167,6 +169,39 @@ export class PostsController extends Controller {
   }
 
   /**
+   * Nullifys the user on all relevant posts
+   */
+  async userRemoved( userId: IUserEntry<'server'> ) {
+    await this._postsModel.collection.updateMany(
+      { author: userId._id } as IPost<'server'>,
+      { $set: { author: null } as IPost<'server'> }
+    )
+  }
+
+  /**
+   * Nullifys the featured image if its deleted
+   */
+  async onFileRemoved( file: IFileEntry<'server'> ) {
+    const collection = this._postsModel.collection as mongodb.Collection<IPost<'server'>>;
+    await collection.updateMany(
+      { featuredImage: file._id } as IPost<'server'>,
+      { $set: { featuredImage: null } as IPost<'server'> }
+    );
+  }
+
+  /**
+   * Removes many posts by a selector
+   */
+  async removeBy( selector: Partial<IPost<'client'>> ) {
+    const schemas = await this._postsModel.findMany<IPost<'server'>>( { selector } );
+    const promises: Promise<void>[] = [];
+    for ( const schema of schemas )
+      promises.push( this.removePost( schema.dbEntry._id.toString() ) );
+
+    return Promise.all( promises );
+  }
+
+  /**
    * Removes a post by ID
    * @param id The id of the post we are removing
    */
@@ -197,7 +232,7 @@ export class PostsController extends Controller {
    * @param id The id of the post to edit
    * @param token The edit token
    */
-  async update( id: string, token: IPost<'client'> ) {
+  async update( id: string, token: Partial<IPost<'client'>> ) {
 
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );

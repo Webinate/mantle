@@ -1,5 +1,5 @@
 import { } from 'mocha';
-import { IVolume, IUserEntry } from 'modepress';
+import { IVolume, IUserEntry } from '../../src';
 import { resolve } from 'path';
 import { statSync } from 'fs';
 import ControllerFactory from '../../src/core/controller-factory';

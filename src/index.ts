@@ -24,7 +24,6 @@ import { FilesController } from './controllers/files';
 import { CommentsController } from './controllers/comments';
 import { SessionsController } from './controllers/sessions';
 import { CategoriesController } from './controllers/categories';
-import { ForeignKeysController } from './controllers/foreign-keys';
 
 export const Controller = _Controller.Serializer;
 export const Model = _Models.Model;
@@ -39,8 +38,7 @@ export const controllers = {
   categories: ControllerFactory.get( 'categories' ) as CategoriesController,
   comments: ControllerFactory.get( 'comments' ) as CommentsController,
   files: ControllerFactory.get( 'files' ) as FilesController,
-  sessions: ControllerFactory.get( 'sessions' ) as SessionsController,
-  foreignKeys: ControllerFactory.get( 'foreign-keys' ) as ForeignKeysController
+  sessions: ControllerFactory.get( 'sessions' ) as SessionsController
 };
 
 export const serializers = {

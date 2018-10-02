@@ -3,7 +3,6 @@ import { IModelEntry } from '../types/models/i-model-entry';
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Schema } from './schema';
 import { info } from '../utils/logger';
-import Controllers from '../core/controller-factory';
 
 export interface ISearchOptions<T> {
   selector?: any;
@@ -129,15 +128,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
    * Deletes a instance and all its dependencies are updated or deleted accordingly
    */
   private async deleteInstance( schema: Schema<IModelEntry<'server'>> ) {
-    const fkeys = Controllers.get( 'foreign-keys' );
-
-    // Added the schema item post deletion promises
-    await schema.postDelete( this._collectionName );
-    await fkeys.nullifyTargets( schema.dbEntry._id );
-
-    // Remove the original instance from the DB
     const deleteResult = await this.collection.deleteMany( <IModelEntry<'server'>>{ _id: schema.dbEntry._id } );
-
     return deleteResult.deletedCount!;
   }
 
@@ -193,9 +184,6 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
     const json = schema.uploadToken();
     const collection = this.collection;
     await collection.updateOne( { _id: typeof ( schema.dbEntry._id ) === 'string' ? new ObjectID( schema.dbEntry._id ) : schema.dbEntry._id }, { $set: json } );
-
-    // Now that everything has been added, we can do some post insert/update validation
-    await schema.postUpsert( this._collectionName );
     return schema.downloadToken<Y>( options );
   }
 
@@ -283,13 +271,6 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
     // Assign the ID's
     for ( let i = 0, l = insertResult.ops.length; i < l; i++ )
       schemas[ i ].setServer( insertResult.ops[ i ], true );
-
-    // Now that everything has been added, we can do some post insert/update validation
-    const postValidationPromises: Array<Promise<Schema<IModelEntry<'server'>>>> = [];
-    for ( let i = 0, l = instances.length; i < l; i++ )
-      postValidationPromises.push( instances[ i ].postUpsert( this._collectionName ) );
-
-    await Promise.all( postValidationPromises );
 
     return instances;
   }

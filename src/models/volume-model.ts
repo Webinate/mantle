@@ -13,7 +13,7 @@ export class VolumeModel extends Model<IVolume<'client' | 'server'>> {
       new text( 'name', '', { minCharacters: 1 } ).setIndexable( true ),
       new enums( 'type', 'local', [ 'local', 'google' ] ),
       new text( 'identifier', '' ),
-      new foreignKey( 'user', 'users', { keyCanBeNull: true, nullifyOnDelete: true } ),
+      new foreignKey( 'user', 'users', { keyCanBeNull: true } ),
       new num( 'memoryUsed', 0 ).setIndexable( true ),
       new num( 'memoryAllocated', 0 ),
       new json( 'meta', {} ),

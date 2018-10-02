@@ -17,7 +17,7 @@ export class UsersModel extends Model<IUserEntry<'client' | 'server'>> {
       new text( 'sessionId', '' ).setSensitive( true ),
       new text( 'passwordTag', '' ).setSensitive( true ),
       new text( 'avatar', '' ),
-      new foreignKey( 'avatarFile', 'files', { keyCanBeNull: true, nullifyOnDelete: true } ),
+      new foreignKey( 'avatarFile', 'files', { keyCanBeNull: true } ),
       new num( 'privileges', 0 ),
       new json( 'meta', {} ).setSensitive( true ),
       new date( 'createdOn' ).setIndexable( true ).setReadOnly( true ),

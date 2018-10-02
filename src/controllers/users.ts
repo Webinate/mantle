@@ -3,7 +3,7 @@ import { IMailer, IMailgun, IMailOptions } from '../types/config/properties/i-ma
 import { IAdminUser } from '../types/config/properties/i-admin';
 import { Page } from '../types/tokens/standard-tokens';
 import { IUserEntry } from '../types/models/i-user-entry';
-import { Db, ObjectID } from 'mongodb';
+import { Db, ObjectID, Collection } from 'mongodb';
 import { ServerRequest, ServerResponse } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
@@ -21,12 +21,20 @@ import { UsersModel } from '../models/users-model';
 import ModelFactory from '../core/model-factory';
 import { Error400 } from '../utils/errors';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
+import { IFileEntry } from '../types/models/i-file-entry';
 
 export type UsersGetAllOptions = {
   search: string;
   index: number;
   limit: number;
   verbose: boolean;
+}
+
+export type UserEvents = 'user-removed';
+export type UserEvent<T extends UserEvents> = {
+  type: T;
+  data: T extends 'user-removed' ? IUserEntry<'server'> : null;
+  promises: Promise<void>[];
 }
 
 /**
@@ -494,6 +502,17 @@ export class UsersController extends Controller {
   }
 
   /**
+   * Nullifys the avatar image if its deleted
+   */
+  async onFileRemoved( file: IFileEntry<'server'> ) {
+    const collection = this._users.collection as Collection<IUserEntry<'server'>>;
+    await collection.updateMany(
+      { avatarFile: file._id } as IUserEntry<'server'>,
+      { $set: { avatarFile: null } as IUserEntry<'server'> }
+    );
+  }
+
+  /**
 	 * Deletes a user from the database
 	 * @param user The unique username or email of the user to remove
 	 */
@@ -507,6 +526,8 @@ export class UsersController extends Controller {
     if ( user.dbEntry.privileges === UserPrivileges.SuperAdmin )
       throw new Error( 'You cannot remove a super user' );
 
+    await ControllerFactory.get( 'comments' ).userRemoved( user.dbEntry );
+    await ControllerFactory.get( 'posts' ).userRemoved( user.dbEntry );
     await ControllerFactory.get( 'volumes' ).removeUser( user.dbEntry.username as string );
 
     const result = await this._users.deleteInstances( { _id: user.dbEntry._id! } as IUserEntry<'server'> );

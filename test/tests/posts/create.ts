@@ -63,7 +63,7 @@ describe( 'Testing creation of posts', function() {
       content: "Hello world",
       categories: [ "super-tests" ],
       tags: [ "super-tags-1234", "supert-tags-4321" ]
-    } );
+    } as IPost<'client'> );
     assert.strictEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
 
@@ -74,6 +74,7 @@ describe( 'Testing creation of posts', function() {
     assert.strictEqual( json.brief, "This is brief" );
     assert.strictEqual( json.slug, "--simple--test--" );
     assert.strictEqual( json.title, "Simple Test" );
+    assert.strictEqual( json.featuredImage, null );
     assert( json.categories.length === 1 );
     assert.strictEqual( json.categories[ 0 ], "super-tests" );
     assert( json.tags.length === 2 );

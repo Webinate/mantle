@@ -6,8 +6,6 @@ import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../../utils/utils';
 import { SchemaIdArray } from './schema-id-array';
 import Factory from '../../core/model-factory';
-import Controllers from '../../core/controller-factory';
-import { Schema } from '../schema';
 
 export type Client = string | IModelEntry<'client'> | null;
 
@@ -20,7 +18,6 @@ export type Client = string | IModelEntry<'client'> | null;
 export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
   public targetCollection: string;
   public keyCanBeNull: boolean;
-  public nullifyOnDelete: boolean;
   public namespace: string;
   public curLevel: number;
 
@@ -37,7 +34,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
 
     options = {
       keyCanBeNull: true,
-      nullifyOnDelete: true,
       ...options
     };
 
@@ -48,7 +44,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     this.curLevel = 1;
     this.namespace = name;
     this.keyCanBeNull = options.keyCanBeNull!;
-    this.nullifyOnDelete = options.nullifyOnDelete!;
   }
 
   /**
@@ -59,8 +54,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     super.clone( copy );
     copy.targetCollection = this.targetCollection;
     copy.keyCanBeNull = this.keyCanBeNull;
-    copy.nullifyOnDelete = this.nullifyOnDelete;
-    // copy.canAdapt = this.canAdapt;
     return copy;
   }
 
@@ -109,20 +102,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
     // this._targetDoc = result;
 
     return toRet;
-  }
-
-  /**
-   * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
-   * doing any post update/insert operations
-   * @param instance The model instance that was inserted or updated
-   * @param collection The DB collection that the model was inserted into
-   */
-  public async postUpsert( schema: Schema<IModelEntry<'server'>>, collection: string ): Promise<void> {
-    const dbValue = this.getDbValue();
-    if ( dbValue && this.nullifyOnDelete ) {
-      const fkeys = Controllers.get( 'foreign-keys' );
-      await fkeys.createNullTarget( schema.dbEntry._id, dbValue, this.name, this.targetCollection );
-    }
   }
 
   /**

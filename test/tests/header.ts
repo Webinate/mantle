@@ -1,6 +1,4 @@
-import * as fs from 'fs';
 import * as yargs from "yargs";
-import fetch from "node-fetch";
 import Agent from './agent';
 import loadConfig from './load-config';
 import { IAdminUser } from '../../src';
@@ -15,6 +13,7 @@ export class Header {
   get admin() { return this.users[ 'admin' ]; }
   get user1() { return this.users[ 'user1' ]; }
   get user2() { return this.users[ 'user2' ]; }
+  get user3() { return this.users[ 'user3' ]; }
 
   /**
    * Used to create a agent to test with
@@ -88,13 +87,14 @@ export class Header {
       this.users = {
         guest: new Agent( "http://localhost:8000" ),
         admin: new Agent( "http://localhost:8000", adminCookie, ( config.adminUser as IAdminUser ).username, ( config.adminUser as IAdminUser ).password, ( config.adminUser as IAdminUser ).email ),
-        user1: null,
-        user2: null
+        user1: null as any,
+        user2: null as any,
+        user3: null as any
       };
 
       await this.createUser( 'user1', 'password', 'user1@test.com' );
       await this.createUser( 'user2', 'password', 'user2@test.com' );
-
+      await this.createUser( 'user3', 'password', 'user3@test.com', 2 );
     }
     catch ( exp ) {
       console.log( exp.stack )

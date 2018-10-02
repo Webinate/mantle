@@ -383,6 +383,10 @@ export class FilesController extends Controller {
     }
 
     await files.deleteInstances( { _id: fileEntry._id } as IFileEntry<'server'> );
+
+    await ControllerFactory.get( 'users' ).onFileRemoved( fileEntry );
+    await ControllerFactory.get( 'posts' ).onFileRemoved( fileEntry );
+
     return fileEntry;
   }
 

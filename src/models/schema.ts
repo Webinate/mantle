@@ -136,37 +136,6 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
   }
 
   /**
-   * Called after a model instance and its schema has been validated and inserted/updated into the database. Useful for
-   * doing any post update/insert operations
-   * @param collection The DB collection that the model was inserted into
-   */
-  public async postUpsert( collection: string ) {
-    const items = this._items;
-    const promises: Array<Promise<any>> = [];
-
-    for ( let i = 0, l = items.length; i < l; i++ )
-      promises.push( items[ i ].postUpsert( this, collection ) );
-
-    await Promise.all( promises );
-    return this;
-  }
-
-  /**
-   * Called after a model instance is deleted. Useful for any schema item cleanups.
-   * @param collection The DB collection that the model was deleted from
-   */
-  public async postDelete( collection: string ) {
-    const items = this._items;
-    const promises: Array<Promise<any>> = [];
-
-    for ( let i = 0, l = items.length; i < l; i++ )
-      promises.push( items[ i ].postUpsert( this, collection ) );
-
-    await Promise.all( promises );
-    return this;
-  }
-
-  /**
    * Gets a schema item from this schema by name. Throws an exception if one does
    * not exist.
    * @param val The name of the item

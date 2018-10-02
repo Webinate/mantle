@@ -11,7 +11,7 @@ export class FileModel extends Model<IFileEntry<'client' | 'server'>> {
 
     this.schema.addItems( [
       new text( 'name', '', { minCharacters: 3 } ),
-      new foreignKey( 'user', 'users', { keyCanBeNull: true, nullifyOnDelete: true } ),
+      new foreignKey( 'user', 'users', { keyCanBeNull: true } ),
       new text( 'identifier', '', { minCharacters: 6 } ).setReadOnly( true ),
       new id( 'volumeId' ).setReadOnly( true ),
       new text( 'volumeName', '' ).setReadOnly( true ),

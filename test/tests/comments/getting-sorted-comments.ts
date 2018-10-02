@@ -1,9 +1,9 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IComment, Page, IAdminUser, IUserEntry } from 'modepress';
-import header from 'modepress/test/tests/header';
+import { IPost, IComment, Page, IAdminUser, IUserEntry } from '../../../src';
+import header from '../header';
 import { randomString } from '../utils';
-import ControllerFactory from 'modepress/src/core/controller-factory';
+import ControllerFactory from '../../../src/core/controller-factory';
 
 
 let post: IPost<'client'>,

@@ -1,7 +1,5 @@
 ﻿
 import { ISchemaOptions } from '../../types/misc/i-schema-options';
-import { IModelEntry } from '../../types/models/i-model-entry';
-import { Schema } from '../schema';
 
 /**
  * A definition of each item in the model
@@ -149,22 +147,22 @@ export abstract class SchemaItem<TServer, TClient> {
    */
   public abstract validate( val: TClient ): Promise<TServer>;
 
-  /**
-   * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
-   * doing any post update/insert operations
-   * @param collection The DB collection that the model was inserted into
-   */
-  public async postUpsert( schema: Schema<IModelEntry<'client' | 'server'>>, collection: string ): Promise<void> {
-    return Promise.resolve();
-  }
+  // /**
+  //  * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+  //  * doing any post update/insert operations
+  //  * @param collection The DB collection that the model was inserted into
+  //  */
+  // public async postUpsert( schema: Schema<IModelEntry<'client' | 'server'>>, collection: string ): Promise<void> {
+  //   return Promise.resolve();
+  // }
 
-  /**
-   * Called after a model instance is deleted. Useful for any schema item cleanups.
-   * @param collection The DB collection that the model was deleted from
-   */
-  public async postDelete( schema: Schema<IModelEntry<'client' | 'server'>>, collection: string ): Promise<void> {
-    return Promise.resolve();
-  }
+  // /**
+  //  * Called after a model instance is deleted. Useful for any schema item cleanups.
+  //  * @param collection The DB collection that the model was deleted from
+  //  */
+  // public async postDelete( schema: Schema<IModelEntry<'client' | 'server'>>, collection: string ): Promise<void> {
+  //   return Promise.resolve();
+  // }
 
   /**
    * Gets the default client value of this item

@@ -13,7 +13,7 @@ export interface IPost<T extends 'client' | 'server'> extends IModelEntry<T> {
   brief: string;
   public: boolean;
   content: string;
-  featuredImage: T extends 'client' ? IFileEntry<T> | string : ObjectID;
+  featuredImage: T extends 'client' ? IFileEntry<T> | string | null : ObjectID | null;
   categories: Array<string>;
   tags: Array<string>;
   createdOn: number;

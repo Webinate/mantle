@@ -12,12 +12,12 @@ export default class Agent {
   public password: string;
   public email: string;
 
-  constructor( host: string, cookie?: string, username?: string, password?: string, email?: string ) {
+  constructor( host: string, cookie?: string | null, username?: string, password?: string, email?: string ) {
     this.host = host;
-    this.cookie = cookie;
-    this.username = username;
-    this.password = password;
-    this.email = email;
+    this.cookie = cookie!;
+    this.username = username!;
+    this.password = password!;
+    this.email = email!;
   }
 
   async get( url: string, options: Headers = {}, init?: RequestInit ) {

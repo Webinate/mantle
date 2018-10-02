@@ -71,14 +71,6 @@ export type IHtmlOptions = {
 export type IForeignKeyOptions = {
   /** If true, then the key is allowed to be null */
   keyCanBeNull: boolean;
-  // /**
-  //  * Determines if the model can adapt to this item not being present.
-  //  * If true, then item will be nullified if the target is removed.
-  //  * If false, then the model instance will be removed as it cannot exist without the target item.
-  //  */
-  // canAdapt?: boolean;
-
-  nullifyOnDelete: boolean;
 }
 
 export type IDateOptions = {
