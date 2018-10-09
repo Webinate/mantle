@@ -182,7 +182,7 @@ export class CommsController extends events.EventEmitter {
       const theCert = cfg.websocket.ssl.cert ? fs.readFileSync( cfg.websocket.ssl.cert ) : null;
 
       info( `Attempting to start Websocket server with SSL...` );
-      httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: cfg.websocket.ssl.passPhrase, ca: caChain }, processRequest );
+      httpsServer = https.createServer( { key: privkey!, cert: theCert!, passphrase: cfg.websocket.ssl.passPhrase, ca: caChain }, processRequest );
       httpsServer.listen( cfg.websocket.port );
       this._server = new ws.Server( { host: cfg.websocket.host, server: httpsServer } );
     }

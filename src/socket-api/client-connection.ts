@@ -6,6 +6,7 @@ import Factory from '../core/controller-factory';
 import { CommsController } from './comms-controller';
 import { ServerInstruction } from './server-instruction';
 import { IUserEntry } from '../types/models/i-user-entry';
+import { Request } from 'express';
 
 /**
  * A wrapper class for client connections made to the CommsController
@@ -23,7 +24,7 @@ export class ClientConnection {
     this._controller = controller;
     this.authorizedThirdParty = authorizedThirdParty;
 
-    Factory.get( 'sessions' ).getSession( ws.upgradeReq ).then( ( session ) => {
+    Factory.get( 'sessions' ).getSession( ws.upgradeReq as Request ).then( ( session ) => {
       this.ws = ws;
       this.user = session ? session.user : null;
       ws.on( 'message', this.onMessage.bind( this ) );

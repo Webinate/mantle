@@ -1,5 +1,4 @@
-﻿import * as http from 'http';
-import { error as logError } from '../utils/logger';
+﻿import { error as logError } from '../utils/logger';
 import { Serializer } from './serializer';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
@@ -31,11 +30,11 @@ export class CORSSerializer extends Serializer {
 
     // Approves the valid domains for CORS requests
     e.use( function( req: express.Request, res: express.Response, next: Function ) {
-      if ( ( <http.ServerRequest>req ).headers.origin ) {
+      if ( req.headers.origin ) {
         let matched = false;
         for ( let m = 0, l = matches.length; m < l; m++ )
-          if ( ( ( <http.ServerRequest>req ).headers.origin! as string ).match( matches[ m ] ) ) {
-            res.setHeader( 'Access-Control-Allow-Origin', ( <http.ServerRequest>req ).headers.origin as string );
+          if ( ( req.headers.origin! as string ).match( matches[ m ] ) ) {
+            res.setHeader( 'Access-Control-Allow-Origin', req.headers.origin as string );
             res.setHeader( 'Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS' );
             res.setHeader( 'Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-Mime-Type, X-File-Name, Cache-Control' );
             res.setHeader( 'Access-Control-Allow-Credentials', 'true' );
@@ -44,7 +43,7 @@ export class CORSSerializer extends Serializer {
           }
 
         if ( !matched )
-          logError( `${( <http.ServerRequest>req ).headers.origin} Does not have permission. Add it to the allowed ` );
+          logError( `${req.headers.origin} Does not have permission. Add it to the allowed ` );
       }
 
       if ( req.method === 'OPTIONS' ) {

@@ -2,7 +2,7 @@
 import { ISession } from '../types/config/properties/i-session';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { ISessionEntry } from '../types/models/i-session-entry';
-import { ServerRequest } from 'http';
+import { IncomingMessage } from 'http';
 import { ObjectID } from 'mongodb';
 
 /**
@@ -66,7 +66,7 @@ export class Session {
     return data;
   }
 
-  private getHost( request: ServerRequest ) {
+  private getHost( request: IncomingMessage ) {
     if ( request.headers.host && ( request.headers.host as string ).indexOf( 'localhost' ) !== -1 )
       return '';
     if ( request.headers.host && request.headers.host !== '' )
@@ -79,7 +79,7 @@ export class Session {
    * This method returns the value to send in the Set-Cookie header which you should send with every request that goes back to the browser, e.g.
    * response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
    */
-  getSetCookieHeaderValue( request: ServerRequest ) {
+  getSetCookieHeaderValue( request: IncomingMessage ) {
     let parts;
     parts = [ 'SID=' + this.sessionId ];
 

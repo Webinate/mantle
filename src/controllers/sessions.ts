@@ -2,7 +2,8 @@ import { IConfig } from '../types/config/i-config';
 import { ISession } from '../types/config/properties/i-session';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { ISessionEntry } from '../types/models/i-session-entry';
-import { ServerRequest, ServerResponse } from 'http';
+import { ServerResponse, IncomingMessage } from 'http';
+import { Request } from 'express';
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Session } from '../core/session';
 import Controller from './controller';
@@ -69,7 +70,7 @@ export class SessionsController extends Controller {
    * @param request
    * @param response
    */
-  async clearSession( sessionId: string | null, request: ServerRequest, response: ServerResponse ) {
+  async clearSession( sessionId: string | null, request: IncomingMessage, response: ServerResponse ) {
     // Check if the request has a valid session ID
     const sId: string = sessionId || this.getIDFromRequest( request );
 
@@ -124,7 +125,7 @@ export class SessionsController extends Controller {
   /**
    * Attempts to get a session from the request object of the client
    */
-  async getSession( request: ServerRequest ) {
+  async getSession( request: Request ) {
 
     // Check if the request has a valid session ID
     const sessionId: string = this.getIDFromRequest( request );
@@ -147,7 +148,7 @@ export class SessionsController extends Controller {
       return null;
   }
 
-  async setSessionHeader( session: Session, request: ServerRequest, response: ServerResponse ) {
+  async setSessionHeader( session: Session, request: IncomingMessage, response: ServerResponse ) {
 
     response.setHeader( 'Set-Cookie', session.getSetCookieHeaderValue( request ) );
 
@@ -158,7 +159,7 @@ export class SessionsController extends Controller {
   /**
    * Attempts to create a session from the request object of the client
    */
-  async createSession( request: ServerRequest, response: ServerResponse, userId: string ) {
+  async createSession( request: IncomingMessage, response: ServerResponse, userId: string ) {
 
     const sessionId = this.createID();
     const userEntry = await this._users.findOne( { _id: new ObjectID( userId ) } as IUserEntry<'server'> );
@@ -235,7 +236,7 @@ export class SessionsController extends Controller {
    * @param req
    * @returns The ID of the user session, or an empty string
    */
-  private getIDFromRequest( req: ServerRequest ) {
+  private getIDFromRequest( req: IncomingMessage ) {
     let m: RegExpExecArray | null;
 
     // look for an existing SID in the Cookie header for which we have a session

@@ -4,7 +4,7 @@ import { IAdminUser } from '../types/config/properties/i-admin';
 import { Page } from '../types/tokens/standard-tokens';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { Db, ObjectID, Collection } from 'mongodb';
-import { ServerRequest, ServerResponse } from 'http';
+import { ServerResponse, IncomingMessage } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
 import { Request } from 'express';
@@ -445,7 +445,7 @@ export class UsersController extends Controller {
 	 * @param request
 	 * @param response
 	 */
-  async logOut( request: ServerRequest, response: ServerResponse ) {
+  async logOut( request: IncomingMessage, response: ServerResponse ) {
     const sessionCleaered = await ControllerFactory.get( 'sessions' ).clearSession( null, request, response );
     return sessionCleaered;
   }
@@ -594,7 +594,7 @@ export class UsersController extends Controller {
 	 * @param request
 	 * @param response
 	 */
-  async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: ServerRequest, response: ServerResponse ): Promise<Session> {
+  async logIn( username: string = '', pass: string = '', rememberMe: boolean = true, request: IncomingMessage, response: ServerResponse ): Promise<Session> {
     await this.logOut( request, response );
     const user = await this.getUser( { username } );
 
