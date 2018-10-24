@@ -5,9 +5,9 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
-import { identifyUser, hasId } from '../utils/permission-controllers';
+import { hasId } from '../utils/permission-controllers';
 import { j200 } from '../decorators/responses';
-import { admin } from '../decorators/permissions';
+import { admin, identify } from '../decorators/permissions';
 import { UserPrivileges } from '../core/user-privileges';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IPost } from '../types/models/i-post';
@@ -43,9 +43,9 @@ export class PostsSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/', <any>[ identifyUser, this.getPosts.bind( this ) ] );
-    router.get( '/slug/:slug', <any>[ identifyUser, this.getPost.bind( this ) ] );
-    router.get( '/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
+    router.get( '/', this.getPosts.bind( this ) );
+    router.get( '/slug/:slug', this.getPost.bind( this ) );
+    router.get( '/:id', <any>[ hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
     router.delete( '/:id', <any>[ hasId( 'id', 'ID' ), this.removePost.bind( this ) ] );
     router.put( '/:id', <any>[ hasId( 'id', 'ID' ), this.updatePost.bind( this ) ] );
     router.post( '/', this.createPost.bind( this ) );
@@ -61,6 +61,7 @@ export class PostsSerializer extends Serializer {
    * Returns an array of IPost items
    */
   @j200()
+  @identify()
   private async getPosts( req: IAuthReq, res: express.Response ) {
     let visibility: PostVisibility | undefined;
     const user = req._user;
@@ -112,6 +113,7 @@ export class PostsSerializer extends Serializer {
    * Returns a single post
    */
   @j200()
+  @identify()
   private async getPost( req: IAuthReq, res: express.Response ) {
     const user: IUserEntry<'server'> = req._user!;
     const post = await this._controller.getPost( {

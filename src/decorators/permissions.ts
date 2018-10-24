@@ -37,3 +37,33 @@ export function admin() {
     return descriptor;
   }
 }
+
+/**
+ * Identifies the user in the request before calling the handler
+ */
+export function identify() {
+  return function( target: any, propertyKey: string, descriptor: PropertyDescriptor ) {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = async function() {
+      const req = arguments[ 0 ] as IAuthReq;
+      const res = arguments[ 1 ] as express.Response;
+
+      const session = await Factory.get( 'sessions' ).getSession( req );
+
+      if ( session )
+        await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
+
+      if ( session ) {
+        req._user = session.user;
+        req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+      }
+
+      const result = originalMethod.apply( this, arguments );
+      return result;
+    };
+
+    // return edited descriptor as opposed to overwriting the descriptor
+    return descriptor;
+  }
+}

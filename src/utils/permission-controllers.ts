@@ -126,31 +126,31 @@ export function ownerRights( req: IAuthReq, res: express.Response, next?: Functi
 //   }
 // }
 
-/**
- * Checks for session data and fetches the user. Does not throw an error if the user is not present.
- */
-export async function identifyUser( req: IAuthReq, res: express.Response, next?: Function ) {
+// /**
+//  * Checks for session data and fetches the user. Does not throw an error if the user is not present.
+//  */
+// export async function identifyUser( req: IAuthReq, res: express.Response, next?: Function ) {
 
-  try {
-    const session = await Factory.get( 'sessions' ).getSession( req );
+//   try {
+//     const session = await Factory.get( 'sessions' ).getSession( req );
 
-    if ( session )
-      await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
+//     if ( session )
+//       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
-    if ( session ) {
-      req._user = session.user;
-      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
-    }
+//     if ( session ) {
+//       req._user = session.user;
+//       req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+//     }
 
-    if ( next )
-      next();
+//     if ( next )
+//       next();
 
-  }
-  catch ( err ) {
-    if ( next )
-      next( err );
-  }
-}
+//   }
+//   catch ( err ) {
+//     if ( next )
+//       next( err );
+//   }
+// }
 
 /**
  * Checks for session data and fetches the user. Sends back an error if no user present

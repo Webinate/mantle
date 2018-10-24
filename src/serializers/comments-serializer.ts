@@ -4,8 +4,9 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
-import { identifyUser, hasId, requireUser } from '../utils/permission-controllers';
+import { hasId, requireUser } from '../utils/permission-controllers';
 import { j200 } from '../decorators/responses';
+import { identify } from '../decorators/permissions';
 import { UserPrivileges } from '../core/user-privileges';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
@@ -40,10 +41,10 @@ export class CommentsSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/comments', <any>[ identifyUser, this.getComments.bind( this ) ] );
-    router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, this.getComment.bind( this ) ] );
-    router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), identifyUser, this.getComments.bind( this ) ] );
-    router.get( '/users/:user/comments', <any>[ identifyUser, this.getComments.bind( this ) ] );
+    router.get( '/comments', this.getComments.bind( this ) );
+    router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), this.getComment.bind( this ) ] );
+    router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), this.getComments.bind( this ) ] );
+    router.get( '/users/:user/comments', this.getComments.bind( this ) );
     router.delete( '/comments/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
     router.put( '/comments/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
     router.post( '/posts/:postId/comments/:parent?', <any>[ requireUser, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
@@ -59,6 +60,7 @@ export class CommentsSerializer extends Serializer {
    * Returns an array of IComment items
    */
   @j200()
+  @identify()
   private async getComments( req: IAuthReq, res: express.Response ) {
     const user = req._user;
     let visibility: string | undefined;
@@ -120,6 +122,7 @@ export class CommentsSerializer extends Serializer {
    * Returns a single comment
    */
   @j200()
+  @identify()
   private async getComment( req: IAuthReq, res: express.Response ) {
 
     const user = req._user;

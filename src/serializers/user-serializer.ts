@@ -3,10 +3,10 @@ import bodyParser = require( 'body-parser' );
 import { UserPrivileges } from '../core/user-privileges';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
-import { ownerRights, identifyUser, requireUser, hasId } from '../utils/permission-controllers';
+import { ownerRights, requireUser, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../decorators/responses';
-import { admin } from '../decorators/permissions';
+import { admin, identify } from '../decorators/permissions';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IAuthReq } from '../types/tokens/i-auth-request';
 import { Page } from '../types/tokens/standard-tokens';
@@ -45,7 +45,7 @@ export class UserSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/', <any>[ identifyUser, this.getUsers.bind( this ) ] );
+    router.get( '/', this.getUsers.bind( this ) );
     router.put( '/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.edit.bind( this ) ] );
     router.post( '/', this.createUser.bind( this ) );
     router.get( '/:user/meta', <any>[ ownerRights, this.getData.bind( this ) ] );
@@ -97,6 +97,7 @@ export class UserSerializer extends Serializer {
    * search query
    */
   @j200()
+  @identify()
   private async getUsers( req: IAuthReq, res: express.Response ) {
     let verbose = req.query.verbose === undefined ? true : req.query.verbose === 'true';
 
