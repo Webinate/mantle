@@ -267,7 +267,7 @@ export class PostsController extends Controller {
     let schema = await this._postsModel.createInstance( token );
 
     // Create a new document for the post
-    const docId = await this._documents.create();
+    const docId = await this._documents.create( token.author as string );
 
     schema = await this._postsModel.update<IPost<'client'>>(
       { _id: schema.dbEntry._id } as IPost<'server'>,
@@ -298,7 +298,8 @@ export class PostsController extends Controller {
     const post = await posts!.downloadOne<IPost<'client'>>( findToken, {
       verbose: options.verbose !== undefined ? options.verbose : true,
       expandForeignKeys: true,
-      expandMaxDepth: 2
+      expandMaxDepth: 2,
+      expandSchemaBlacklist: [ /document\.author/ ]
     } );
 
     if ( !post )

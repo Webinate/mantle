@@ -7,16 +7,26 @@ let templates: ITemplate<'client'>[];
 
 describe( 'Testing fetching of templates: ', function() {
 
-  it( 'did fetch all templates', async function() {
+  it( 'did fetch all default templates', async function() {
     const resp = await header.guest.getJson<Page<ITemplate<'client'>>>( `/api/templates` );
     assert( resp.count > 0 );
     assert( resp.limit === -1 );
     templates = resp.data;
+
+    // Check first template
     assert.deepEqual( templates[ 0 ].name, 'Simple Post' );
-    assert.deepEqual( templates[ 0 ].description, 'A simple post with a single column' );
+    assert.deepEqual( templates[ 0 ].description, 'A simple page layout with a single column' );
     assert.deepEqual( templates[ 0 ].defaultZone, 'main' );
     assert.deepEqual( templates[ 0 ].zones.length, 1 );
     assert.deepEqual( templates[ 0 ].zones[ 0 ], 'main' );
+
+    // Check second template
+    assert.deepEqual( templates[ 1 ].name, 'Double Column' );
+    assert.deepEqual( templates[ 1 ].description, 'A two column page layout' );
+    assert.deepEqual( templates[ 1 ].defaultZone, 'left' );
+    assert.deepEqual( templates[ 1 ].zones.length, 2 );
+    assert.deepEqual( templates[ 1 ].zones[ 0 ], 'left' );
+    assert.deepEqual( templates[ 1 ].zones[ 1 ], 'right' );
   } )
 
   it( 'did fetch a single template', async function() {

@@ -79,6 +79,7 @@ describe( 'Testing creation of posts', function() {
     assert.notDeepEqual( doc.currentDraft, null );
     assert.deepEqual( typeof doc.template, 'string' );
     assert.deepEqual( typeof doc.currentDraft, 'string' );
+    assert.deepEqual( typeof doc.author, 'string' );
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
   } )

@@ -1,6 +1,6 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
-import { Db, ObjectID } from 'mongodb';
+import { Db, ObjectID, ObjectId } from 'mongodb';
 import Controller from './controller';
 import ModelFactory from '../core/model-factory';
 import { DocumentsModel } from '../models/documents-model';
@@ -9,8 +9,14 @@ import { IDocument } from '../types/models/i-document';
 import { DraftsModel } from '../models/drafts-model';
 import { IDraft } from '../types/models/i-draft';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
-import { Error404, Error400 } from '../utils/errors';
+import { Error404, Error400, Error403 } from '../utils/errors';
 import { isValidObjectID } from '../utils/utils';
+import { ITemplate } from '../types/models/i-template';
+
+export type GetOptions = {
+  id: string;
+  checkPermissions?: { userId: ObjectID };
+}
 
 /**
  * Class responsible for managing documents
@@ -33,6 +39,39 @@ export class DocumentsController extends Controller {
     this._templates = ModelFactory.get( 'templates' );
     this._drafts = ModelFactory.get( 'drafts' );
     return this;
+  }
+
+  /**
+   * Changes the document template, as well as the current draft's
+   * @param options The options for finding the resource
+   * @param templateId The id of the template to change to
+   */
+  async changeTemplate( findOptions: GetOptions, templateId: string ) {
+    const docsModel = this._docs;
+    const templates = this._templates;
+    const drafts = this._drafts;
+
+    const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    if ( !doc )
+      throw new Error404( 'Document not found' );
+
+    if ( findOptions.checkPermissions )
+      if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
+        throw new Error403();
+
+    const template = await templates.findOne<IDocument<'server'>>( { _id: new ObjectId( templateId ) } as ITemplate<'server'> );
+    if ( !template )
+      throw new Error404( 'Template not found' );
+
+    const options: ISchemaOptions = {
+      expandForeignKeys: true,
+      verbose: true,
+      expandMaxDepth: 1
+    }
+
+    await drafts.update<IDraft<'client'>>( { _id: doc.dbEntry.currentDraft! } as IDraft<'server'>, { template: templateId } );
+    const toRet = await docsModel.update<IDocument<'client'>>( { _id: doc.dbEntry._id } as IDocument<'server'>, { template: templateId }, options );
+    return toRet;
   }
 
   /**
@@ -80,9 +119,9 @@ export class DocumentsController extends Controller {
   /**
    * Creates a new document
    */
-  async create(): Promise<ObjectID>
-  async create( options: ISchemaOptions ): Promise<IDocument<'client'>>
-  async create( options?: ISchemaOptions ) {
+  async create( author: string ): Promise<ObjectID>
+  async create( author: string, options: ISchemaOptions ): Promise<IDocument<'client'>>
+  async create( author: string, options?: ISchemaOptions ) {
 
     // Get the templates
     const templates = await this._templates.findMany( {} );
@@ -92,7 +131,8 @@ export class DocumentsController extends Controller {
     const token: Partial<IDocument<'client'>> = {
       createdOn: Date.now(),
       lastUpdated: Date.now(),
-      template: firstTemplate
+      template: firstTemplate,
+      author: author ? author : null
     };
 
     // Create the doc
@@ -125,16 +165,22 @@ export class DocumentsController extends Controller {
   /**
    * Gets a document by its name or ID
    */
-  async get( id: string ) {
+  async get( options: GetOptions ) {
     const docModel = this._docs;
     const searchQuery: Partial<IDocument<'server'>> = {
-      _id: new ObjectID( id )
+      _id: new ObjectID( options.id )
     };
+
     const result = await docModel.findOne<IDocument<'server'>>( searchQuery );
 
     if ( !result )
       return null;
     else {
+      if ( options.checkPermissions ) {
+        if ( result.dbEntry.author && !result.dbEntry.author.equals( options.checkPermissions.userId ) )
+          throw new Error403();
+      }
+
       const volume = await result.downloadToken<IDocument<'client'>>( {
         verbose: true,
         expandForeignKeys: true,

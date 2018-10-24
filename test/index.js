@@ -90,6 +90,7 @@ require( './tests/posts/get-filters' );
 require( './tests/posts/delete-post-delete-comments' );
 require( './tests/posts/delete-user-nullifys-post-author' );
 require( './tests/posts/deletion-of-featured-img' );
+require( './tests/posts/documents-fetching' );
 
 require( './tests/templates/get-default-templates' );
 

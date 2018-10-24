@@ -161,6 +161,7 @@ describe( 'Testing fetching of posts', function() {
     assert.notDeepEqual( doc.currentDraft, null );
     assert.deepEqual( typeof doc.template, 'object' );
     assert.deepEqual( typeof doc.currentDraft, 'object' );
+    assert.deepEqual( typeof doc.author, 'string' );
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
   } )

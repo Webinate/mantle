@@ -10,6 +10,7 @@ export class DocumentsModel extends Model<IDocument<'client' | 'server'>> {
     super( 'documents' );
 
     this.schema.addItems( [
+      new foreignKey( 'author', 'users', { keyCanBeNull: true } ),
       new foreignKey( 'template', 'templates', { keyCanBeNull: false } ),
       new foreignKey( 'currentDraft', 'drafts', { keyCanBeNull: true } ),
       new foreignKey( 'publishedDraft', 'drafts', { keyCanBeNull: true } ),
