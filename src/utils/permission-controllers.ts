@@ -98,33 +98,33 @@ export function ownerRights( req: IAuthReq, res: express.Response, next?: Functi
   } );
 }
 
-/**
- * Checks if the request has admin rights. If not, an error is sent back to the user
- */
-export async function adminRights( req: IAuthReq, res: express.Response, next?: Function ) {
-  try {
-    const session = await Factory.get( 'sessions' ).getSession( req );
+// /**
+//  * Checks if the request has admin rights. If not, an error is sent back to the user
+//  */
+// export async function adminRights( req: IAuthReq, res: express.Response, next?: Function ) {
+//   try {
+//     const session = await Factory.get( 'sessions' ).getSession( req );
 
-    if ( !session )
-      return errJson( new Error401( 'You must be logged in to make this request' ), res );
+//     if ( !session )
+//       return errJson( new Error401( 'You must be logged in to make this request' ), res );
 
-    if ( session )
-      await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
+//     if ( session )
+//       await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
-    req._user = session.user;
-    req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+//     req._user = session.user;
+//     req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
 
-    if ( session.user.privileges! > UserPrivileges.Admin )
-      return errJson( new Error403( `You don't have permission to make this request` ), res );
-    else
-      if ( next )
-        next();
-  }
-  catch ( err ) {
-    if ( next )
-      next( err );
-  }
-}
+//     if ( session.user.privileges! > UserPrivileges.Admin )
+//       return errJson( new Error403( `You don't have permission to make this request` ), res );
+//     else
+//       if ( next )
+//         next();
+//   }
+//   catch ( err ) {
+//     if ( next )
+//       next( err );
+//   }
+// }
 
 /**
  * Checks for session data and fetches the user. Does not throw an error if the user is not present.

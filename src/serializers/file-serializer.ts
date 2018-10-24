@@ -5,7 +5,7 @@ import { requireUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import ControllerFactory from '../core/controller-factory';
 import * as compression from 'compression';
-import { j200 } from '../utils/response-decorators';
+import { j200 } from '../decorators/responses';
 import { IFileOptions } from '../types/misc/i-file-options';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';

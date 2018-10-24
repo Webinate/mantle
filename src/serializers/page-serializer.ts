@@ -7,8 +7,9 @@ import * as bodyParser from 'body-parser';
 import { Serializer } from './serializer';
 import * as url from 'url';
 import * as jsdom from 'jsdom';
-import { okJson, errJson, j200 } from '../utils/response-decorators';
-import { adminRights } from '../utils/permission-controllers'
+import { okJson, errJson } from '../utils/response-decorators';
+import { j200 } from '../decorators/responses';
+import { admin } from '../decorators/permissions';
 import { IRenderOptions } from '../types/misc/i-render-options';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';
@@ -120,10 +121,10 @@ export class PageSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/', <any>[ adminRights, this.getRenders.bind( this ) ] );
-    router.get( '/preview/:id', <any>[ this.previewRender.bind( this ) ] );
-    router.delete( '/clear', <any>[ adminRights, this.clearRenders.bind( this ) ] );
-    router.delete( '/:id', <any>[ adminRights, this.removeRender.bind( this ) ] );
+    router.get( '/', this.getRenders.bind( this ) );
+    router.get( '/preview/:id', this.previewRender.bind( this ) );
+    router.delete( '/clear', this.clearRenders.bind( this ) );
+    router.delete( '/:id', this.removeRender.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + '/api/renders', router );
@@ -326,6 +327,7 @@ export class PageSerializer extends Serializer {
   /**
    * Attempts to remove a render by ID
    */
+  @admin()
   private async removeRender( req: IAuthReq, res: express.Response ) {
     const renders = this.getModel( 'renders' );
 
@@ -344,6 +346,7 @@ export class PageSerializer extends Serializer {
   /**
    * Returns an array of IPost items
    */
+  @admin()
   private async getRenders( req: IAuthReq, res: express.Response ) {
     const renders = this.getModel( 'renders' ) as Model<IRender<'server' | 'client'>>;
     let count = 0;
@@ -405,6 +408,7 @@ export class PageSerializer extends Serializer {
    * Removes all cache items from the db
    */
   @j200( 204 )
+  @admin()
   private async clearRenders( req: IAuthReq, res: express.Response ) {
     const renders = this.getModel( 'renders' );
     await renders!.deleteInstances( {} );

@@ -5,8 +5,9 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
-import { adminRights, hasId, identifyUser } from '../utils/permission-controllers';
-import { j200 } from '../utils/response-decorators';
+import { hasId, identifyUser } from '../utils/permission-controllers';
+import { admin } from '../decorators/permissions';
+import { j200 } from '../decorators/responses';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { CategoriesController } from '../controllers/categories';
@@ -44,9 +45,9 @@ export class CategoriesSerializer extends Serializer {
     router.get( '/', this.getMany.bind( this ) );
     router.get( '/:id', <any>[ hasId( 'id', 'ID' ), identifyUser, this.getOne.bind( this ) ] );
     router.get( '/slug/:slug', <any>[ identifyUser, this.getBySlug.bind( this ) ] );
-    router.put( '/:id', <any>[ adminRights, this.update.bind( this ) ] );
-    router.post( '/', <any>[ adminRights, this.create.bind( this ) ] );
-    router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
+    router.put( '/:id', this.update.bind( this ) );
+    router.post( '/', this.create.bind( this ) );
+    router.delete( '/:id', <any>[ hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + '/categories', router );
@@ -82,6 +83,7 @@ export class CategoriesSerializer extends Serializer {
    * Attempts to update a post by ID
    */
   @j200()
+  @admin()
   private async update( req: IAuthReq, res: express.Response ) {
     const token: Partial<ICategory<'client'>> = req.body;
     const post = await this._controller.update( req.params.id, token );
@@ -114,6 +116,7 @@ export class CategoriesSerializer extends Serializer {
    * Attempts to remove a category by ID
    */
   @j200( 204 )
+  @admin()
   private async remove( req: IAuthReq, res: express.Response ) {
     await this._controller.remove( req.params.id );
   }
@@ -122,6 +125,7 @@ export class CategoriesSerializer extends Serializer {
    * Attempts to create a new category item
    */
   @j200()
+  @admin()
   private async create( req: IAuthReq, res: express.Response ) {
     const token: Partial<ICategory<'client'>> = req.body;
     return await this._controller.create( token );

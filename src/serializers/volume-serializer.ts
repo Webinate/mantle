@@ -7,7 +7,7 @@ import { VolumesController } from '../controllers/volumes';
 import { requireUser, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
-import { j200 } from '../utils/response-decorators';
+import { j200 } from '../decorators/responses';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { IVolume } from '../types/models/i-volume-entry';

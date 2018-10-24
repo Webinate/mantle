@@ -5,8 +5,9 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
-import { identifyUser, adminRights, hasId } from '../utils/permission-controllers';
-import { j200 } from '../utils/response-decorators';
+import { identifyUser, hasId } from '../utils/permission-controllers';
+import { j200 } from '../decorators/responses';
+import { admin } from '../decorators/permissions';
 import { UserPrivileges } from '../core/user-privileges';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IPost } from '../types/models/i-post';
@@ -45,9 +46,9 @@ export class PostsSerializer extends Serializer {
     router.get( '/', <any>[ identifyUser, this.getPosts.bind( this ) ] );
     router.get( '/slug/:slug', <any>[ identifyUser, this.getPost.bind( this ) ] );
     router.get( '/:id', <any>[ identifyUser, hasId( 'id', 'ID' ), this.getPost.bind( this ) ] );
-    router.delete( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.removePost.bind( this ) ] );
-    router.put( '/:id', <any>[ adminRights, hasId( 'id', 'ID' ), this.updatePost.bind( this ) ] );
-    router.post( '/', <any>[ adminRights, this.createPost.bind( this ) ] );
+    router.delete( '/:id', <any>[ hasId( 'id', 'ID' ), this.removePost.bind( this ) ] );
+    router.put( '/:id', <any>[ hasId( 'id', 'ID' ), this.updatePost.bind( this ) ] );
+    router.post( '/', this.createPost.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + '/posts', router );
@@ -130,6 +131,7 @@ export class PostsSerializer extends Serializer {
    * Attempts to remove a post by ID
    */
   @j200( 204 )
+  @admin()
   private async removePost( req: IAuthReq, res: express.Response ) {
     await this._controller.removePost( req.params.id );
     return;
@@ -139,6 +141,7 @@ export class PostsSerializer extends Serializer {
    * Attempts to update a post by ID
    */
   @j200()
+  @admin()
   private async updatePost( req: IAuthReq, res: express.Response ) {
     const token: IPost<'client'> = req.body;
     const post = await this._controller.update( req.params.id, token );
@@ -149,6 +152,7 @@ export class PostsSerializer extends Serializer {
    * Attempts to create a new post
    */
   @j200()
+  @admin()
   private async createPost( req: IAuthReq, res: express.Response ) {
     const token: IPost<'client'> = req.body;
 

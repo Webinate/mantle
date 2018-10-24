@@ -5,7 +5,7 @@ import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
 import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
-import { j200 } from '../utils/response-decorators';
+import { j200 } from '../decorators/responses';
 import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
 import { IAuthOptions } from '../types/misc/i-auth-options';

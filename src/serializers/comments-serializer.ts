@@ -5,7 +5,7 @@ import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
 import { identifyUser, hasId, requireUser } from '../utils/permission-controllers';
-import { j200 } from '../utils/response-decorators';
+import { j200 } from '../decorators/responses';
 import { UserPrivileges } from '../core/user-privileges';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';

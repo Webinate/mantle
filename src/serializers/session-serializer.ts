@@ -7,7 +7,7 @@ import ControllerFactory from '../core/controller-factory';
 import { SessionsController } from '../controllers/sessions';
 import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
-import { j200 } from '../utils/response-decorators';
+import { j200 } from '../decorators/responses';
 import * as compression from 'compression';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import * as mongodb from 'mongodb';
