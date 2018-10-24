@@ -4,10 +4,10 @@ import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { TemplatesController } from '../controllers/templates';
-import { hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
+import { validId } from '../decorators/path-sanity';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { Error400 } from '../utils/errors';
@@ -41,7 +41,7 @@ export class TemplatesSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/', this.getMany.bind( this ) );
-    router.get( '/:id', <any>[ hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
+    router.get( '/:id', this.getOne.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/templates`, router );
@@ -50,6 +50,7 @@ export class TemplatesSerializer extends Serializer {
   }
 
   @j200()
+  @validId( 'id', 'ID' )
   private async getOne( req: IAuthReq, res: express.Response ) {
     const template = await this._templatesController.get( req.params.id );
 

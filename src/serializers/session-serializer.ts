@@ -5,9 +5,9 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
 import { SessionsController } from '../controllers/sessions';
-import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../decorators/responses';
+import { hasPermission } from '../decorators/permissions';
 import * as compression from 'compression';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import * as mongodb from 'mongodb';
@@ -42,8 +42,8 @@ export class SessionSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/', <any>[ ownerRights, this.getSessions.bind( this ) ] );
-    router.delete( '/:id', <any>[ ownerRights, this.deleteSession.bind( this ) ] );
+    router.get( '/', this.getSessions.bind( this ) );
+    router.delete( '/:id', this.deleteSession.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + '/sessions', router );
@@ -56,6 +56,7 @@ export class SessionSerializer extends Serializer {
 	 * Gets a list of active sessions. You can limit the haul by specifying the 'index' and 'limit' query parameters.
 	 */
   @j200()
+  @hasPermission()
   private async getSessions( req: express.Request, res: express.Response ) {
     const numSessions = await this._sessionController.numActiveSessions();
     const index = parseInt( req.query.index );
@@ -75,6 +76,7 @@ export class SessionSerializer extends Serializer {
  	 * Resends the activation link to the user
 	 */
   @j200( 204 )
+  @hasPermission()
   private async deleteSession( req: express.Request, res: express.Response ) {
     await this._sessionController.clearSession( req.params.id, req, res );
     return;

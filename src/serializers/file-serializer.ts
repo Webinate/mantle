@@ -1,11 +1,11 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { requireUser } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import ControllerFactory from '../core/controller-factory';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
+import { authorize } from '../decorators/permissions';
 import { IFileOptions } from '../types/misc/i-file-options';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
@@ -41,10 +41,10 @@ export class FileSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/volumes/:volume', <any>[ requireUser, this.getFiles.bind( this ) ] );
-    router.delete( '/:file', <any>[ requireUser, this.remove.bind( this ) ] );
-    router.put( '/:file', <any>[ requireUser, this.update.bind( this ) ] );
-    router.post( '/volumes/:volume/upload/:directory?', <any>[ requireUser, this.upload.bind( this ) ] );
+    router.get( '/volumes/:volume', this.getFiles.bind( this ) );
+    router.delete( '/:file', this.remove.bind( this ) );
+    router.put( '/:file', this.update.bind( this ) );
+    router.post( '/volumes/:volume/upload/:directory?', this.upload.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/files`, router );
@@ -57,6 +57,7 @@ export class FileSerializer extends Serializer {
    * Removes a file specified in the URL
    */
   @j200( 204 )
+  @authorize()
   private async remove( req: IAuthReq, res: express.Response ) {
     await this._files.removeFiles( { fileId: req.params.file, user: req._isAdmin ? undefined : req._user!.username as string } );
   }
@@ -65,6 +66,7 @@ export class FileSerializer extends Serializer {
    * Renames a file
    */
   @j200()
+  @authorize()
   private async update( req: IAuthReq, res: express.Response ) {
     const file = req.body as IFileEntry<'client'>;
 
@@ -78,6 +80,7 @@ export class FileSerializer extends Serializer {
    * Fetches all file entries from the database. Optionally specifying the volume to fetch from.
    */
   @j200()
+  @authorize()
   private async getFiles( req: IAuthReq, res: express.Response ) {
     let index: number | undefined = parseInt( req.query.index );
     let limit: number | undefined = parseInt( req.query.limit );
@@ -101,6 +104,7 @@ export class FileSerializer extends Serializer {
   }
 
   @j200()
+  @authorize()
   private async upload( req: IAuthReq ) {
     const volumeId = req.params.volume;
 

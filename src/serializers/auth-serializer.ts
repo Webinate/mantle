@@ -3,9 +3,9 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
-import { ownerRights } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../decorators/responses';
+import { hasPermission } from '../decorators/permissions';
 import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
 import { IAuthOptions } from '../types/misc/i-auth-options';
@@ -59,7 +59,7 @@ export class AuthSerializer extends Serializer {
     router.put( '/password-reset', this.passwordReset.bind( this ) );
     router.get( '/:user/resend-activation', this.resendActivation.bind( this ) );
     router.get( '/:user/request-password-reset', this.requestPasswordReset.bind( this ) );
-    router.put( '/:user/approve-activation', <any>[ ownerRights, this.approveActivation.bind( this ) ] );
+    router.put( '/:user/approve-activation', this.approveActivation.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + '/auth', router );
@@ -136,6 +136,7 @@ export class AuthSerializer extends Serializer {
 	 * Approves a user's activation code so they can login without email validation
 	 */
   @j200()
+  @hasPermission( 'user' )
   private async approveActivation( req: express.Request, res: express.Response ) {
     await this._userController.approveActivation( req.params.user );
     const response: ISimpleResponse = { message: 'Activation code has been approved' };

@@ -67,3 +67,80 @@ export function identify() {
     return descriptor;
   }
 }
+
+/**
+ * Checks the request for a user session. If none is present
+ * a 401 auth error is thrown
+ */
+export function authorize() {
+  return function( target: any, propertyKey: string, descriptor: PropertyDescriptor ) {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = async function() {
+      const req = arguments[ 0 ] as IAuthReq;
+      const res = arguments[ 1 ] as express.Response;
+
+      const session = await Factory.get( 'sessions' ).getSession( req );
+
+      if ( !session )
+        throw new Error401( `You must be logged in to make this request` );
+
+      if ( session )
+        await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
+
+      req._user = session.user;
+      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+
+      const result = originalMethod.apply( this, arguments );
+      return result;
+    };
+
+    // return edited descriptor as opposed to overwriting the descriptor
+    return descriptor;
+  }
+}
+
+/**
+ * Checks if the user in the path as a certain permission. Throws a 403 if permission are not set
+ * @param pathId The path parameter to check for. Usually 'user' or 'username'
+ * @param permission The permission to check for
+ */
+export function hasPermission( pathId?: string, permission: UserPrivileges = UserPrivileges.Admin ) {
+  return function( target: any, propertyKey: string, descriptor: PropertyDescriptor ) {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = async function() {
+      const req = arguments[ 0 ] as IAuthReq;
+      const res = arguments[ 1 ] as express.Response;
+      const session = await Factory.get( 'sessions' ).getSession( req );
+
+      if ( !session )
+        throw new Error401( 'You must be logged in to make this request' );
+
+      if ( session )
+        await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
+
+      const targetUser = pathId ? req.params[ pathId ] : undefined;
+      const curUser = session.user;
+
+      if ( targetUser !== undefined ) {
+        if ( (
+          curUser.email !== targetUser &&
+          curUser.username !== targetUser ) &&
+          curUser.privileges! > permission )
+          throw new Error403( 'You don\'t have permission to make this request' );
+      }
+      else if ( session.user.privileges! > permission )
+        throw new Error403( 'You don\'t have permission to make this request' );
+
+      req._user = session.user;
+      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+
+      const result = originalMethod.apply( this, arguments );
+      return result;
+    };
+
+    // return edited descriptor as opposed to overwriting the descriptor
+    return descriptor;
+  }
+}

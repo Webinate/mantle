@@ -5,9 +5,9 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
-import { hasId } from '../utils/permission-controllers';
 import { admin, identify } from '../decorators/permissions';
 import { j200 } from '../decorators/responses';
+import { validId } from '../decorators/path-sanity';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { CategoriesController } from '../controllers/categories';
@@ -43,11 +43,11 @@ export class CategoriesSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/', this.getMany.bind( this ) );
-    router.get( '/:id', <any>[ hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
+    router.get( '/:id', this.getOne.bind( this ) );
     router.get( '/slug/:slug', this.getBySlug.bind( this ) );
     router.put( '/:id', this.update.bind( this ) );
     router.post( '/', this.create.bind( this ) );
-    router.delete( '/:id', <any>[ hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
+    router.delete( '/:id', this.remove.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + '/categories', router );
@@ -94,6 +94,7 @@ export class CategoriesSerializer extends Serializer {
    * Returns a single category
    */
   @j200()
+  @validId( 'id', 'ID' )
   @identify()
   private async getOne( req: IAuthReq, res: express.Response ) {
     return await this._controller.getOne( req.params.id, {
@@ -118,6 +119,7 @@ export class CategoriesSerializer extends Serializer {
    * Attempts to remove a category by ID
    */
   @j200( 204 )
+  @validId( 'id', 'ID' )
   @admin()
   private async remove( req: IAuthReq, res: express.Response ) {
     await this._controller.remove( req.params.id );

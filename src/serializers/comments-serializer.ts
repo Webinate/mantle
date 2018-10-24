@@ -4,16 +4,15 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Serializer } from './serializer';
-import { hasId, requireUser } from '../utils/permission-controllers';
 import { j200 } from '../decorators/responses';
-import { identify } from '../decorators/permissions';
+import { validId } from '../decorators/path-sanity';
+import { identify, authorize } from '../decorators/permissions';
 import { UserPrivileges } from '../core/user-privileges';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { CommentsController, CommentVisibility } from '../controllers/comments';
 import ControllerFactory from '../core/controller-factory';
 import { IComment } from '..';
-
 /**
  * A controller that deals with the management of comments
  */
@@ -42,12 +41,12 @@ export class CommentsSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/comments', this.getComments.bind( this ) );
-    router.get( '/comments/:id', <any>[ hasId( 'id', 'ID' ), this.getComment.bind( this ) ] );
-    router.get( '/nested-comments/:parentId', <any>[ hasId( 'parentId', 'parent ID' ), this.getComments.bind( this ) ] );
+    router.get( '/comments/:id', this.getComment.bind( this ) );
+    router.get( '/nested-comments/:parentId', this.getCommentsByParent.bind( this ) );
     router.get( '/users/:user/comments', this.getComments.bind( this ) );
-    router.delete( '/comments/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.remove.bind( this ) ] );
-    router.put( '/comments/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
-    router.post( '/posts/:postId/comments/:parent?', <any>[ requireUser, hasId( 'postId', 'parent ID' ), hasId( 'parent', 'Parent ID', true ), this.create.bind( this ) ] );
+    router.delete( '/comments/:id', this.remove.bind( this ) );
+    router.put( '/comments/:id', this.update.bind( this ) );
+    router.post( '/posts/:postId/comments/:parent?', this.create.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + '/', router );
@@ -62,7 +61,18 @@ export class CommentsSerializer extends Serializer {
   @j200()
   @identify()
   private async getComments( req: IAuthReq, res: express.Response ) {
-    const user = req._user;
+    return this._getAll( req );
+  }
+
+  @j200()
+  @validId( 'parentId', 'parent ID' )
+  @identify()
+  private async getCommentsByParent( req: IAuthReq, res: express.Response ) {
+    return this._getAll( req );
+  }
+
+  private async _getAll( req: IAuthReq ) {
+    const user = req._user!;
     let visibility: string | undefined;
 
     // Check for visibility
@@ -122,6 +132,7 @@ export class CommentsSerializer extends Serializer {
    * Returns a single comment
    */
   @j200()
+  @validId( 'id', 'ID' )
   @identify()
   private async getComment( req: IAuthReq, res: express.Response ) {
 
@@ -152,6 +163,8 @@ export class CommentsSerializer extends Serializer {
    * Attempts to remove a comment by ID
    */
   @j200( 204 )
+  @validId( 'id', 'ID' )
+  @authorize()
   private async remove( req: IAuthReq, res: express.Response ) {
     const user = req._user!;
     const comment = await this._controller.getOne( req.params.id );
@@ -167,6 +180,8 @@ export class CommentsSerializer extends Serializer {
    * Attempts to update a comment by ID
    */
   @j200()
+  @validId( 'id', 'ID' )
+  @authorize()
   private async update( req: IAuthReq, res: express.Response ) {
     const token: Partial<IComment<'client'>> = req.body;
     const user = req._user!;
@@ -184,6 +199,9 @@ export class CommentsSerializer extends Serializer {
    * Attempts to create a new comment
    */
   @j200()
+  @validId( 'postId', 'parent ID' )
+  @validId( 'parent', 'parent ID', true )
+  @authorize()
   private async create( req: IAuthReq, res: express.Response ) {
     const token: Partial<IComment<'client'>> = req.body;
 

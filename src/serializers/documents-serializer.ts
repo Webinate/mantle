@@ -4,10 +4,10 @@ import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { DocumentsController } from '../controllers/documents';
-import { hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
+import { validId } from '../decorators/path-sanity';
 import { admin } from '../decorators/permissions';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
@@ -42,7 +42,7 @@ export class DocumentsSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/', this.getMany.bind( this ) );
-    router.get( '/:id', <any>[ hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
+    router.get( '/:id', this.getOne.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/documents`, router );
@@ -51,6 +51,7 @@ export class DocumentsSerializer extends Serializer {
   }
 
   @j200()
+  @validId( 'id', 'ID' )
   @admin()
   private async getOne( req: IAuthReq, res: express.Response ) {
     const document = await this._docsController.get( req.params.id );

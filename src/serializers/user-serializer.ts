@@ -3,10 +3,10 @@ import bodyParser = require( 'body-parser' );
 import { UserPrivileges } from '../core/user-privileges';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
-import { ownerRights, requireUser, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer'
 import { j200 } from '../decorators/responses';
-import { admin, identify } from '../decorators/permissions';
+import { validId } from '../decorators/path-sanity';
+import { admin, identify, authorize, hasPermission } from '../decorators/permissions';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IAuthReq } from '../types/tokens/i-auth-request';
 import { Page } from '../types/tokens/standard-tokens';
@@ -46,12 +46,12 @@ export class UserSerializer extends Serializer {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/', this.getUsers.bind( this ) );
-    router.put( '/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.edit.bind( this ) ] );
+    router.put( '/:id', this.edit.bind( this ) );
     router.post( '/', this.createUser.bind( this ) );
-    router.get( '/:user/meta', <any>[ ownerRights, this.getData.bind( this ) ] );
-    router.get( '/:user/meta/:name', <any>[ ownerRights, this.getVal.bind( this ) ] );
-    router.get( '/:username', <any>[ ownerRights, this.getUser.bind( this ) ] );
-    router.delete( '/:user', <any>[ ownerRights, this.removeUser.bind( this ) ] );
+    router.get( '/:user/meta', this.getData.bind( this ) );
+    router.get( '/:user/meta/:name', this.getVal.bind( this ) );
+    router.get( '/:username', this.getUser.bind( this ) );
+    router.delete( '/:user', this.removeUser.bind( this ) );
     router.post( '/:user/meta/:name', this.setVal.bind( this ) );
     router.post( '/:user/meta', this.setData.bind( this ) );
 
@@ -67,6 +67,7 @@ export class UserSerializer extends Serializer {
    * is specified. Specify the verbose=true parameter in order to get all user data.
    */
   @j200()
+  @hasPermission( 'username' )
   private async getUser( req: IAuthReq, res: express.Response ) {
     const user = await this._userController.getUser( {
       username: req.params.username,
@@ -80,6 +81,8 @@ export class UserSerializer extends Serializer {
   }
 
   @j200()
+  @validId( 'id', 'ID' )
+  @authorize()
   private async edit( req: IAuthReq, res: express.Response ) {
     const user = await this._userController.getUser( { id: req.params.id } );
 
@@ -149,6 +152,7 @@ export class UserSerializer extends Serializer {
  * Gets a user's meta value
  */
   @j200()
+  @hasPermission( 'user' )
   private async getVal( req: IAuthReq, res: express.Response ) {
     const user = req._user!;
     const name = req.params.name;
@@ -161,6 +165,7 @@ export class UserSerializer extends Serializer {
  * Gets a user's meta data
  */
   @j200()
+  @hasPermission( 'user' )
   private async getData( req: IAuthReq, res: express.Response ) {
     const user = req._user!;
     const response = await this._userController.getMetaData( user._id );
@@ -171,6 +176,7 @@ export class UserSerializer extends Serializer {
 	 * Removes a user from the database
 	 */
   @j200( 204 )
+  @hasPermission( 'user' )
   private async removeUser( req: IAuthReq, res: express.Response ) {
     const toRemove = req.params.user;
     if ( !toRemove )

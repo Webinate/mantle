@@ -6,7 +6,6 @@ import { PostsController } from './controllers/posts';
 import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
-import * as permissions from './utils/permission-controllers';
 import { AdminSerializer } from './serializers/admin-serializer';
 import { VolumeSerializer } from './serializers/volume-serializer';
 import { CommentsSerializer } from './serializers/comments-serializer';
@@ -27,11 +26,15 @@ import { CommentsController } from './controllers/comments';
 import { SessionsController } from './controllers/sessions';
 import { CategoriesController } from './controllers/categories';
 
+import { validId } from './decorators/path-sanity';
+import { j200 } from './decorators/responses';
+import { admin, hasPermission, authorize, identify } from './decorators/permissions';
+
 export const Controller = _Controller.Serializer;
 export const Model = _Models.Model;
 export const SchemaFactory = _SchemaFactory;
 export const isValidID = isValidObjectID;
-export const authentication = permissions;
+export const decorators = { validId, j200, admin, hasPermission, authorize, identify };
 
 export const controllers = {
   users: ControllerFactory.get( 'users' ) as UsersController,

@@ -4,10 +4,11 @@ import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { VolumesController } from '../controllers/volumes';
-import { requireUser, hasId } from '../utils/permission-controllers';
 import { Serializer } from './serializer';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
+import { authorize } from '../decorators/permissions';
+import { validId } from '../decorators/path-sanity';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { IVolume } from '../types/models/i-volume-entry';
@@ -44,11 +45,11 @@ export class VolumeSerializer extends Serializer {
     router.use( bodyParser.json() );
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
-    router.get( '/', <any>[ requireUser, this.getVolumes.bind( this ) ] );
-    router.get( '/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.getOne.bind( this ) ] );
-    router.put( '/:id', <any>[ requireUser, hasId( 'id', 'ID' ), this.update.bind( this ) ] );
-    router.delete( '/:id', <any>[ requireUser, this.removeVolumes.bind( this ) ] );
-    router.post( '/', <any>[ requireUser, this.createVolume.bind( this ) ] );
+    router.get( '/', this.getVolumes.bind( this ) );
+    router.get( '/:id', this.getOne.bind( this ) );
+    router.put( '/:id', this.update.bind( this ) );
+    router.delete( '/:id', this.removeVolumes.bind( this ) );
+    router.post( '/', this.createVolume.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/volumes`, router );
@@ -58,6 +59,8 @@ export class VolumeSerializer extends Serializer {
   }
 
   @j200()
+  @validId( 'id', 'ID' )
+  @authorize()
   private async getOne( req: IAuthReq, res: express.Response ) {
     const volume = await this._volumeController.get( { id: req.params.id } );
 
@@ -74,6 +77,8 @@ export class VolumeSerializer extends Serializer {
    * Attempts to update a volume by ID
    */
   @j200()
+  @validId( 'id', 'ID' )
+  @authorize()
   private async update( req: IAuthReq, res: express.Response ) {
     const token: IVolume<'client'> = req.body;
 
@@ -98,6 +103,7 @@ export class VolumeSerializer extends Serializer {
    * Removes volumes specified in the URL
    */
   @j200( 204 )
+  @authorize()
   private async removeVolumes( req: IAuthReq, res: express.Response ) {
     await this._volumeController.remove( { _id: req.params.id as string } );
     return;
@@ -107,6 +113,7 @@ export class VolumeSerializer extends Serializer {
    * Fetches all volume entries from the database
    */
   @j200()
+  @authorize()
   private async getVolumes( req: IAuthReq, res: express.Response ) {
     const authUser = req._user!;
     const manager = this._volumeController;
@@ -145,6 +152,7 @@ export class VolumeSerializer extends Serializer {
    * Creates a new user volume based on the target provided
    */
   @j200()
+  @authorize()
   private async createVolume( req: IAuthReq, res: express.Response ) {
     const token: IVolume<'client'> = req.body;
     const manager = this._volumeController;
