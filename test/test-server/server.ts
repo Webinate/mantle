@@ -51,6 +51,14 @@ export default class MainController extends Controller {
 
       new serializers.categories( {
         rootPath: api
+      } ).initialize( app, db ),
+
+      new serializers.templates( {
+        rootPath: api
+      } ).initialize( app, db ),
+
+      new serializers.documents( {
+        rootPath: api
       } ).initialize( app, db )
 
     ] );

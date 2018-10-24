@@ -72,7 +72,8 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
    * Serializes the schema items into a JSON
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async downloadToken<Y extends IModelEntry<'client'>>( options: ISchemaOptions ): Promise<Y> {
+  public async downloadToken<Y extends IModelEntry<'client'>>( options?: ISchemaOptions ): Promise<Y> {
+    options = options ? options : { expandForeignKeys: true, expandMaxDepth: -1, verbose: true };
     const toReturn: IModelEntry<'client'> = { _id: this.dbEntry._id!.toString() };
     const items = this._items;
     const promises: Array<Promise<any>> = [];
@@ -118,7 +119,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
         promises.push( items[ i ].validate( clientVal || dbVal || defaultVal ) );
       else if ( clientVal !== undefined )
         promises.push( items[ i ].validate( clientVal ) );
-      else if ( dbVal )
+      else if ( dbVal || dbVal === false )
         promises.push( dbVal );
       else
         promises.push( items[ i ].validate( defaultVal ) );

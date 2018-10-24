@@ -10,6 +10,9 @@ import { isValidObjectID } from '../utils/utils';
 import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { IFileEntry } from '../types/models/i-file-entry';
+import { DocumentsController } from './documents';
+import { Error404 } from '../utils/errors';
+import { Schema } from '../models/schema';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 
@@ -42,6 +45,7 @@ export type PostsGetOneOptions = {
 export class PostsController extends Controller {
   private _postsModel: PostsModel;
   private _users: UsersController;
+  private _documents: DocumentsController;
 
   /**
 	 * Creates a new instance of the controller
@@ -56,6 +60,7 @@ export class PostsController extends Controller {
   async initialize( db: mongodb.Db ) {
     this._postsModel = Factory.get( 'posts' );
     this._users = ControllerFactory.get( 'users' );
+    this._documents = ControllerFactory.get( 'documents' );
     return this;
   }
 
@@ -210,13 +215,20 @@ export class PostsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
+    const post = await this._postsModel.findOne<IPost<'server'>>( { _id: new mongodb.ObjectID( id ) } as IPost<'server'> );
+
+    if ( !post )
+      throw new Error404( `Could not find post` )
+
     const commentsFactory = ControllerFactory.get( 'comments' );
     const comments = await commentsFactory.getAll( { postId: id, expanded: false, limit: -1 } );
     const promises: Promise<any>[] = [];
+
     for ( const comment of comments.data )
       promises.push( commentsFactory.remove( comment._id ) );
 
     await Promise.all( promises );
+    await this._documents.remove( post.dbEntry.document!.toString() );
 
     // Attempt to delete the instances
     const numRemoved = await this._postsModel.deleteInstances( { _id: new mongodb.ObjectID( id ) } );
@@ -237,7 +249,11 @@ export class PostsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const updatedPost = await this._postsModel.update<IPost<'client'>>( { _id: new mongodb.ObjectID( id ) }, token );
+    const updatedPost = await this._postsModel.update<IPost<'client'>>( { _id: new mongodb.ObjectID( id ) }, token, {
+      verbose: true,
+      expandForeignKeys: false
+    } );
+
     return updatedPost;
   }
 
@@ -247,7 +263,16 @@ export class PostsController extends Controller {
    */
   async create( token: Partial<IPost<'client'>> ) {
     token.createdOn = Date.now();
-    const schema = await this._postsModel.createInstance( token );
+
+    let schema = await this._postsModel.createInstance( token );
+
+    // Create a new document for the post
+    const docId = await this._documents.create();
+
+    schema = await this._postsModel.update<IPost<'client'>>(
+      { _id: schema.dbEntry._id } as IPost<'server'>,
+      { document: docId.toString() } ) as Schema<IPost<'server'>>;
+
     const json = await schema.downloadToken<IPost<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
     return json;
   }

@@ -189,12 +189,12 @@ export class CategoriesController extends Controller {
       }
     }
 
-    const updatedCategory = await categorys.update<ICategory<'client'>>( findToken, token );
+    const updatedCategory = await categorys.update<ICategory<'client'>>( findToken, token ) as Schema<ICategory<'server'>>;
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
       const children = parent.getByName( 'children' )!.getDbValue().map( id => id.toString() );
-      const newId = updatedCategory._id;
+      const newId = updatedCategory.dbEntry._id.toString();
       const index = children.findIndex( it => newId === it );
       if ( index === -1 ) {
         children.push( newId );

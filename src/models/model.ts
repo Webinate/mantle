@@ -158,7 +158,9 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
    * @param selector The selector to determine which model to update
    * @param data The data to update the model with
    */
-  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<Y>, options: ISchemaOptions = { verbose: true, expandForeignKeys: false } ) {
+  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<Y> ): Promise<Schema<IModelEntry<'server'>>>
+  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<Y>, options: ISchemaOptions ): Promise<Y>
+  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<Y>, options?: ISchemaOptions ): Promise<any> {
 
     const schema = await this.findOne( selector );
 
@@ -184,7 +186,10 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
     const json = schema.uploadToken();
     const collection = this.collection;
     await collection.updateOne( { _id: typeof ( schema.dbEntry._id ) === 'string' ? new ObjectID( schema.dbEntry._id ) : schema.dbEntry._id }, { $set: json } );
-    return schema.downloadToken<Y>( options );
+    if ( options )
+      return schema.downloadToken<Y>( options );
+    else
+      return schema;
   }
 
   /**

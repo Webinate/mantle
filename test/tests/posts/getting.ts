@@ -1,10 +1,16 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, Page, IFileEntry, IUserEntry } from '../../../src';
+import { IPost, Page, IFileEntry, IUserEntry, IDocument } from '../../../src';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
+import { generateRandString } from '../../../src/utils/utils';
 
+const randomSlug = generateRandString( 10 );
+const privateSlug = generateRandString( 10 );
+const randomCategory = generateRandString( 10 );
+const randomTag = generateRandString( 10 );
+const randomTag2 = generateRandString( 10 );
 let numPosts: number, publicPostId: string, privatePostId: string, file: IFileEntry<'client'>;
 
 describe( 'Testing fetching of posts', function() {
@@ -25,30 +31,15 @@ describe( 'Testing fetching of posts', function() {
     numPosts = json.count;
   } )
 
-  it( 'did delete any existing posts with the slug --public--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--public--test--` );
-    const json: IPost<'client'> = await resp.json();
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
-  } )
-
-  it( 'did delete any existing posts with the slug --private--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--private--test--` );
-    const json: IPost<'client'> = await resp.json();
-
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
-  } )
-
   it( 'did create a public post to test fetching public post data', async function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--public--test--",
+      slug: randomSlug,
       public: true,
       content: "Hello world",
       featuredImage: file._id.toString(),
-      categories: [ "super-tests" ],
-      tags: [ "super-tags-1234", "supert-tags-4321" ]
+      categories: [ randomCategory ],
+      tags: [ randomTag, randomTag2 ]
     } as IPost<'client'> );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
@@ -58,7 +49,7 @@ describe( 'Testing fetching of posts', function() {
   it( 'did create a private post to test fetching private post data', async function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--private--test--",
+      slug: privateSlug,
       public: false,
       content: "Hello world"
     } );
@@ -89,49 +80,49 @@ describe( 'Testing fetching of posts', function() {
   } )
 
   it( 'fetched 1 post with category specified', async function() {
-    const resp = await header.admin.get( `/api/posts?categories=super-tests` );
+    const resp = await header.admin.get( `/api/posts?categories=${randomCategory}` );
     assert.deepEqual( resp.status, 200 );
     const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 1 post with tag specified', async function() {
-    const resp = await header.admin.get( `/api/posts?tags=super-tags-1234` );
+    const resp = await header.admin.get( `/api/posts?tags=${randomTag}` );
     assert.deepEqual( resp.status, 200 );
     const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 1 post with 2 tags specified', async function() {
-    const resp = await header.admin.get( `/api/posts?tags=super-tags-1234,supert-tags-4321` );
+    const resp = await header.admin.get( `/api/posts?tags=${randomTag},${randomTag2}` );
     assert.deepEqual( resp.status, 200 );
     const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 1 post with 2 known tags specified & 1 unknown', async function() {
-    const resp = await header.admin.get( `/api/posts?tags=super-tags-1234,supert-tags-4321,dinos` );
+    const resp = await header.admin.get( `/api/posts?tags=${randomTag},${randomTag2},dinos` );
     assert.deepEqual( resp.status, 200 );
     const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 1 post with 1 known tag & 1 category', async function() {
-    const resp = await header.admin.get( `/api/posts?tags=super-tags-1234&categories=super-tests` );
+    const resp = await header.admin.get( `/api/posts?tags=${randomTag}&categories=${randomCategory}` );
     assert.deepEqual( resp.status, 200 );
     const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
   } )
 
   it( 'fetched 0 posts with 1 known tag & 1 unknown category', async function() {
-    const resp = await header.admin.get( `/api/posts?tags=super-tags-1234&categories=super-tests-wrong` );
+    const resp = await header.admin.get( `/api/posts?tags=${randomTag}&categories=super-tests-wrong` );
     assert.deepEqual( resp.status, 200 );
     const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 0 );
   } )
 
   it( 'fetched 1 posts when not logged in as admin and post is not public', async function() {
-    const resp = await header.guest.get( `/api/posts?tags=super-tags-1234&categories=super-tests`, null );
+    const resp = await header.guest.get( `/api/posts?tags=${randomTag}&categories=${randomCategory}`, null );
     assert.deepEqual( resp.status, 200 );
     const json: Page<IPost<'client'>> = await resp.json();
     assert.deepEqual( json.count, 1 );
@@ -152,29 +143,37 @@ describe( 'Testing fetching of posts', function() {
   } )
 
   it( 'can fetch single post by slug', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--public--test--` );
+    const resp = await header.admin.get( `/api/posts/slug/${randomSlug}` );
     const post = await resp.json<IPost<'client'>>();
 
     assert.deepEqual( ( post.author as IUserEntry<'client'> ).username, header.admin.username );
     assert.deepEqual( post.title, 'Simple Test' );
-    assert.deepEqual( post.slug, '--public--test--' );
+    assert.deepEqual( post.slug, randomSlug );
     assert.deepEqual( post.public, true );
     assert.deepEqual( post.content, 'Hello world' );
     assert.deepEqual( post.categories.length, 1 );
     assert.deepEqual( post.tags.length, 2 );
     assert.deepEqual( ( post.featuredImage as IFileEntry<'client'> )._id, file._id.toString() );
+
+    // Check that we get the doc
+    const doc = post.document as IDocument<'client'>;
+    assert.notDeepEqual( doc.template, null );
+    assert.notDeepEqual( doc.currentDraft, null );
+    assert.deepEqual( typeof doc.template, 'object' );
+    assert.deepEqual( typeof doc.currentDraft, 'object' );
+    assert( doc.createdOn > 0 );
+    assert( doc.lastUpdated > 0 );
   } )
 
   it( 'cannot fetch a private post by slug when not logged in', async function() {
-    const resp = await header.guest.get( `/api/posts/slug/--private--test--` );
+    const resp = await header.guest.get( `/api/posts/slug/${privateSlug}` );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "That post is marked private" );
-
   } )
 
   it( 'can fetch a public post by slug when not logged in', async function() {
-    const resp = await header.guest.get( `/api/posts/slug/--public--test--` );
+    const resp = await header.guest.get( `/api/posts/slug/${randomSlug}` );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
     assert( json.hasOwnProperty( "_id" ) );

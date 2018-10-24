@@ -228,7 +228,10 @@ export class CommentsController extends Controller {
   async update( id: string, token: Partial<IComment<'client'>> ) {
     const comments = this._commentsModel;
     const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
-    const updatedComment = await comments.update<IComment<'client'>>( findToken, token );
+    const updatedComment = await comments.update<IComment<'client'>>( findToken, token, {
+      verbose: true,
+      expandForeignKeys: false
+    } );
     return updatedComment;
   }
 

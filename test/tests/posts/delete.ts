@@ -1,8 +1,9 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, Page } from '../../../src';
+import { IPost, Page, IDocument } from '../../../src';
 import header from '../header';
-let numPosts: number, postId: string;
+import { generateRandString } from '../../../src/utils/utils';
+let numPosts: number, post: IPost<'client'>;
 
 describe( 'Testing deletion of posts', function() {
 
@@ -14,16 +15,17 @@ describe( 'Testing deletion of posts', function() {
   } )
 
   it( 'did create a post to test deletion', async function() {
+    const slug = generateRandString( 10 );
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--simple--test--",
+      slug: slug,
       public: true,
       content: "Hello world"
     } );
 
     assert.strictEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
-    postId = json._id;
+    post = json;
   } )
 
   it( 'cannot delete a post with invalid ID format', async function() {
@@ -35,21 +37,26 @@ describe( 'Testing deletion of posts', function() {
 
   it( 'cannot delete a post with invalid ID', async function() {
     const resp = await header.admin.delete( `/api/posts/123456789012345678901234` );
-    assert.strictEqual( resp.status, 500 );
+    assert.strictEqual( resp.status, 404 );
     const json = await resp.json();
-    assert.strictEqual( json.message, "Could not find a post with that ID" );
+    assert.strictEqual( json.message, "Could not find post" );
   } )
 
   it( 'cannot delete a post without permission', async function() {
-    const resp = await header.guest.delete( `/api/posts/${postId}`, null );
+    const resp = await header.guest.delete( `/api/posts/${post._id}`, null );
     assert.strictEqual( resp.status, 401 );
     const json = await resp.json();
     assert.strictEqual( json.message, "You must be logged in to make this request" );
   } )
 
   it( 'can delete a post with valid ID & admin permissions', async function() {
-    const resp = await header.admin.delete( `/api/posts/${postId}` );
+    const resp = await header.admin.delete( `/api/posts/${post._id}` );
     assert.strictEqual( resp.status, 204 );
+  } )
+
+  it( 'has removed the document', async function() {
+    const resp = await header.admin.get( `/api/documents/${( post.document as IDocument<'client'> )._id}` );
+    assert.strictEqual( resp.status, 404 );
   } )
 
   it( 'has cleaned up the posts successfully', async function() {

@@ -17,6 +17,8 @@ import { FileSerializer } from './serializers/file-serializer';
 import { PageSerializer } from './serializers/page-serializer';
 import { PostsSerializer } from './serializers/posts-serializer';
 import { CategoriesSerializer } from './serializers/categories-serializer';
+import { TemplatesSerializer } from './serializers/templates-serializer';
+import { DocumentsSerializer } from './serializers/documents-serializer';
 import { SessionSerializer } from './serializers/session-serializer';
 import { UserSerializer } from './serializers/user-serializer';
 import { AuthSerializer } from './serializers/auth-serializer';
@@ -50,6 +52,10 @@ export const serializers = {
   posts: PostsSerializer,
   /** Endpoints for managing categories */
   categories: CategoriesSerializer,
+  /** Endpoints for managing templates */
+  templates: TemplatesSerializer,
+  /** Endpoints for managing documents */
+  documents: DocumentsSerializer,
   /** Endpoints for managing comments of posts */
   comments: CommentsSerializer,
   /** Endpoints for managing cross origin allowances */
@@ -77,6 +83,9 @@ export { VolumesGetOptions } from './controllers/volumes';
 export { CommentGetAllOptions } from './controllers/comments';
 export { PostsGetAllOptions } from './controllers/posts';
 export { IVolume } from './types/models/i-volume-entry';
+export { ITemplate } from './types/models/i-template';
+export { IDocument } from './types/models/i-document';
+export { IDraft } from './types/models/i-draft';
 export { ICategory } from './types/models/i-category';
 export { IComment } from './types/models/i-comment';
 export { IFileEntry } from './types/models/i-file-entry';

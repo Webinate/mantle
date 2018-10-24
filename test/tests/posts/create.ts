@@ -1,17 +1,12 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IAdminUser, IUserEntry } from '../../../src';
+import { IPost, IAdminUser, IUserEntry, IDocument } from '../../../src';
 import header from '../header';
-let numPosts: number, lastPost: string, lastPost2: IPost<'client'>;
+import { generateRandString } from '../../../src/utils/utils';
+let lastPost: IPost<'client'>, lastPost2: IPost<'client'>;
+let numPosts = 0;
 
 describe( 'Testing creation of posts', function() {
-
-  it( 'fetched all posts', async function() {
-    const resp = await header.admin.get( `/api/posts` );
-    assert.strictEqual( resp.status, 200 );
-    const json = await resp.json();
-    numPosts = json.count;
-  } )
 
   it( 'cannot create post when not logged in', async function() {
     const resp = await header.guest.post( `/api/posts`, { name: "" } );
@@ -46,18 +41,12 @@ describe( 'Testing creation of posts', function() {
     assert.strictEqual( json.message, "slug cannot be empty" );
   } )
 
-  it( 'did delete any existing posts with the slug --simple--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--simple--test--` );
-    const json = await resp.json();
-
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
-  } )
-
   it( 'can create a post with valid data', async function() {
+    const slug = generateRandString( 10 );
+
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--simple--test--",
+      slug: slug,
       brief: "This is brief",
       public: false,
       content: "Hello world",
@@ -67,12 +56,12 @@ describe( 'Testing creation of posts', function() {
     assert.strictEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
 
-    lastPost = json._id;
+    lastPost = json;
     assert.strictEqual( json.public, false );
     assert.strictEqual( ( json.author as IUserEntry<'client'> ).username, ( header.config.adminUser as IAdminUser ).username );
     assert.strictEqual( json.content, "Hello world" );
     assert.strictEqual( json.brief, "This is brief" );
-    assert.strictEqual( json.slug, "--simple--test--" );
+    assert.strictEqual( json.slug, slug );
     assert.strictEqual( json.title, "Simple Test" );
     assert.strictEqual( json.featuredImage, null );
     assert( json.categories.length === 1 );
@@ -83,19 +72,27 @@ describe( 'Testing creation of posts', function() {
     assert( json._id );
     assert( json.createdOn > 0 );
     assert( json.lastUpdated > 0 );
+
+    // Check the default doc is created
+    const doc = json.document as IDocument<'client'>;
+    assert.notDeepEqual( doc.template, null );
+    assert.notDeepEqual( doc.currentDraft, null );
+    assert.deepEqual( typeof doc.template, 'string' );
+    assert.deepEqual( typeof doc.currentDraft, 'string' );
+    assert( doc.createdOn > 0 );
+    assert( doc.lastUpdated > 0 );
   } )
 
-  it( 'did delete any existing posts with this slug --strip--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--strip--test--` );
-    const json = await resp.json();
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
+  it( 'can get the document associated with the post', async function() {
+    const resp = await header.admin.get( `/api/documents/${( lastPost.document as IDocument<'client'> )._id}` );
+    assert.strictEqual( resp.status, 200 );
   } )
 
   it( 'should create a post & strip HTML from title', async function() {
+    const slug = generateRandString( 10 );
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test <h2>NO</h2>",
-      slug: "--strip--test--",
+      slug: slug,
       brief: "This is brief"
     } );
 
@@ -106,18 +103,12 @@ describe( 'Testing creation of posts', function() {
   } )
 
   it( 'did delete the first post', async function() {
-    const resp = await header.admin.delete( `/api/posts/${lastPost}` );
+    const resp = await header.admin.delete( `/api/posts/${lastPost._id}` );
     assert.strictEqual( resp.status, 204 );
   } )
 
   it( 'did delete the second post', async function() {
     const resp = await header.admin.delete( `/api/posts/${lastPost2}` );
     assert.strictEqual( resp.status, 204 );
-  } )
-
-  it( 'has cleaned up the posts successfully', async function() {
-    const resp = await header.admin.get( `/api/posts` );
-    assert.strictEqual( resp.status, 200 );
-    const json = await resp.json();
   } )
 } )

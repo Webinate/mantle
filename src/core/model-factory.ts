@@ -10,6 +10,13 @@ import { PostsModel } from '../models/posts-model';
 import { RendersModel } from '../models/renders-model';
 import { SessionModel } from '../models/session-model';
 import { UsersModel } from '../models/users-model';
+import { DocumentsModel } from '../models/documents-model';
+import { DraftsModel } from '../models/drafts-model';
+import { TemplatesModel } from '../models/templates-model';
+
+export type CommonModelType = 'volumes' | 'categories' |
+  'comments' | 'files' | 'posts' | 'renders' | 'sessions' |
+  'users' | 'documents' | 'drafts' | 'templates';
 
 /**
  * Factory classs for creating & getting models
@@ -35,7 +42,10 @@ export class ModelFactory {
       this.create( 'posts' ),
       this.create( 'renders' ),
       this.create( 'sessions' ),
-      this.create( 'users' )
+      this.create( 'users' ),
+      this.create( 'documents' ),
+      this.create( 'drafts' ),
+      this.create( 'templates' ),
     ] );
   }
 
@@ -95,6 +105,9 @@ export class ModelFactory {
   get( type: 'renders' ): RendersModel
   get( type: 'sessions' ): SessionModel
   get( type: 'users' ): UsersModel
+  get( type: 'templates' ): TemplatesModel
+  get( type: 'drafts' ): DraftsModel
+  get( type: 'documents' ): DocumentsModel
   get( type: string ): Model<IModelEntry<'client' | 'server'>>
   get( type: string ): Model<IModelEntry<'client' | 'server'>> {
     const toRet = this._models[ type ];
@@ -108,7 +121,7 @@ export class ModelFactory {
    * A factory method for creating models
    * @param type The type of model to create
    */
-  private async create( type: string ): Promise<Model<IModelEntry<'client' | 'server'>>> {
+  private async create( type: CommonModelType ): Promise<Model<IModelEntry<'client' | 'server'>>> {
     let newModel: Model<IModelEntry<'client' | 'server'>>;
 
     if ( this._models[ type ] )
@@ -138,6 +151,15 @@ export class ModelFactory {
         break;
       case 'users':
         newModel = new UsersModel();
+        break;
+      case 'drafts':
+        newModel = new DraftsModel();
+        break;
+      case 'documents':
+        newModel = new DocumentsModel();
+        break;
+      case 'templates':
+        newModel = new TemplatesModel();
         break;
       default:
         throw new Error( `Controller '${type}' cannot be created` );
