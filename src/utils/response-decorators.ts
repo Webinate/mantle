@@ -1,9 +1,10 @@
-'use strict';
-
+import Factory from '../core/controller-factory';
 import { IResponse, ISimpleResponse } from '../types/tokens/standard-tokens';
 import * as express from 'express';
 import { error as logError } from './logger';
 import { Error401, Error403, Error404, StatusError } from './errors';
+import { IAuthReq } from '../types/tokens/i-auth-request';
+import { UserPrivileges } from '../core/user-privileges';
 
 /**
  * A decorator for transforming an async express function handler.
@@ -34,6 +35,40 @@ export function j200( code: number = 200, errCode: number = 500 ) {
           res.json( { message: err.message } );
         } );
       }
+    };
+
+    // return edited descriptor as opposed to overwriting the descriptor
+    return descriptor;
+  }
+}
+
+/**
+ * Checks if the request is a logged in user. If not then a 400 error is thrown
+ * for either permission (403) or lack of authorization (401)
+ */
+export function admin() {
+  return function( target: any, propertyKey: string, descriptor: PropertyDescriptor ) {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = async function() {
+      const req = arguments[ 0 ] as IAuthReq;
+      const res = arguments[ 1 ] as express.Response;
+      const session = await Factory.get( 'sessions' ).getSession( req );
+
+      if ( !session )
+        throw new Error401( 'You must be logged in to make this request' );
+
+      if ( session )
+        await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
+
+      req._user = session.user;
+      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+
+      if ( session.user.privileges! > UserPrivileges.Admin )
+        throw new Error403( `You don't have permission to make this request` );
+
+      const result = originalMethod.apply( this, arguments );
+      return result;
     };
 
     // return edited descriptor as opposed to overwriting the descriptor
