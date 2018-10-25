@@ -14,7 +14,7 @@ export function validId( idName: string, idLabel: string = '', optional: boolean
 
       // Make sure the id format is correct
       else if ( req.params[ idName ] && !ObjectID.isValid( req.params[ idName ] ) )
-        throw new Error( `Invalid ID format` );
+        throw new Error( `Invalid ${idLabel} format` );
 
       const result = originalMethod.apply( this, arguments );
       return result;

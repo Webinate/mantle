@@ -160,7 +160,8 @@ export class PostsController extends Controller {
     }, {
         expandForeignKeys: true,
         verbose: verbose,
-        expandMaxDepth: 2
+        expandMaxDepth: 2,
+        expandSchemaBlacklist: [ /document\.author/ ]
       } );
 
     const response: Page<IPost<'client'>> = {
@@ -251,7 +252,9 @@ export class PostsController extends Controller {
 
     const updatedPost = await this._postsModel.update<IPost<'client'>>( { _id: new mongodb.ObjectID( id ) }, token, {
       verbose: true,
-      expandForeignKeys: false
+      expandForeignKeys: false,
+      expandMaxDepth: 2,
+      expandSchemaBlacklist: [ /document\.author/ ]
     } );
 
     return updatedPost;
@@ -273,7 +276,13 @@ export class PostsController extends Controller {
       { _id: schema.dbEntry._id } as IPost<'server'>,
       { document: docId.toString() } ) as Schema<IPost<'server'>>;
 
-    const json = await schema.downloadToken<IPost<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
+    const json = await schema.downloadToken<IPost<'client'>>( {
+      verbose: true,
+      expandForeignKeys: true,
+      expandMaxDepth: 2,
+      expandSchemaBlacklist: [ /document\.author/ ]
+    } );
+
     return json;
   }
 

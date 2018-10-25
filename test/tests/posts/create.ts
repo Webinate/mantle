@@ -77,8 +77,8 @@ describe( 'Testing creation of posts', function() {
     const doc = json.document as IDocument<'client'>;
     assert.notDeepEqual( doc.template, null );
     assert.notDeepEqual( doc.currentDraft, null );
-    assert.deepEqual( typeof doc.template, 'string' );
-    assert.deepEqual( typeof doc.currentDraft, 'string' );
+    assert.deepEqual( typeof doc.template, 'object' );
+    assert.deepEqual( typeof doc.currentDraft, 'object' );
     assert.deepEqual( typeof doc.author, 'string' );
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );

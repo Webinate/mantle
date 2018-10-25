@@ -91,6 +91,7 @@ require( './tests/posts/delete-post-delete-comments' );
 require( './tests/posts/delete-user-nullifys-post-author' );
 require( './tests/posts/deletion-of-featured-img' );
 require( './tests/posts/documents-fetching' );
+require( './tests/posts/documents-change-template' );
 
 require( './tests/templates/get-default-templates' );
 

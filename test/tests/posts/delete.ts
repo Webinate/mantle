@@ -59,6 +59,11 @@ describe( 'Testing deletion of posts', function() {
     assert.strictEqual( resp.status, 404 );
   } )
 
+  it( 'has removed the current draft', async function() {
+    const resp = await header.admin.get( `/api/documents/${( post.document as IDocument<'client'> )._id}` );
+    assert.strictEqual( resp.status, 404 );
+  } )
+
   it( 'has cleaned up the posts successfully', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.strictEqual( resp.status, 200 );

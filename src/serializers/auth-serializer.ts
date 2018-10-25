@@ -30,8 +30,8 @@ export class AuthSerializer extends Serializer {
   }
 
   /**
- * Called to initialize this controller and its related database objects
- */
+   * Called to initialize this controller and its related database objects
+   */
   async initialize( e: express.Express, db: mongodb.Db ) {
 
     this._userController = ControllerFactory.get( 'users' );
@@ -101,8 +101,8 @@ export class AuthSerializer extends Serializer {
   }
 
   /**
- * Resends the activation link to the user
- */
+   * Resends the activation link to the user
+   */
   @j200()
   private async requestPasswordReset( req: express.Request, res: express.Response ) {
     const origin = encodeURIComponent( req.headers[ 'origin' ] as string || req.headers[ 'referer' ] as string );
@@ -112,8 +112,8 @@ export class AuthSerializer extends Serializer {
   }
 
   /**
- * resets the password if the user has a valid password token
- */
+   * resets the password if the user has a valid password token
+   */
   @j200()
   private async passwordReset( req: express.Request, res: express.Response ) {
 
