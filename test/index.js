@@ -92,13 +92,16 @@ require( './tests/posts/delete-user-nullifys-post-author' );
 require( './tests/posts/deletion-of-featured-img' );
 require( './tests/posts/documents-fetching' );
 require( './tests/posts/documents-change-template' );
+require( './tests/posts/documents-elms-update' );
+require( './tests/posts/documents-elms-add' );
+require( './tests/posts/documents-elms-remove' );
 
 require( './tests/templates/get-default-templates' );
 
-// require( './tests/user/create-user' );
-// require( './tests/user/delete-user' );
-// require( './tests/user/fetch-user-data' );
-// require( './tests/user/get-set-user-meta' );
-// require( './tests/user/get-user-data' );
-// require( './tests/user/edit-user-details' );
-// require( './tests/user/deletion-of-avatar-file-is-nullified' );
+require( './tests/user/create-user' );
+require( './tests/user/delete-user' );
+require( './tests/user/fetch-user-data' );
+require( './tests/user/get-set-user-meta' );
+require( './tests/user/get-user-data' );
+require( './tests/user/edit-user-details' );
+require( './tests/user/deletion-of-avatar-file-is-nullified' );

@@ -6,7 +6,7 @@ import { randomString } from '../utils';
 import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import { IPopulatedDrfat } from '../../../src/types/models/i-draft';
+import { IPopulatedDraft } from '../../../src/types/models/i-draft';
 
 let post: IPost<'client'>,
   document: IDocument<'client'>,
@@ -50,7 +50,7 @@ describe( 'Testing the fetching of documents: ', function() {
     assert( doc.lastUpdated > 0 );
 
     // Check the current draft
-    const draft = doc.currentDraft as IPopulatedDrfat<'client'>;
+    const draft = doc.currentDraft as IPopulatedDraft<'client'>;
     assert.deepEqual( draft.templateMap[ ( doc.template as ITemplate<'client'> ).defaultZone ][ 0 ], draft.elements[ 0 ]._id );
     assert.deepEqual( draft.elements.length, 1 );
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );

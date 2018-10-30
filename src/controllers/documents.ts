@@ -7,12 +7,13 @@ import { DocumentsModel } from '../models/documents-model';
 import { TemplatesModel } from '../models/templates-model';
 import { IDocument } from '../types/models/i-document';
 import { DraftsModel } from '../models/drafts-model';
-import { IDraft, IPopulatedDrfat } from '../types/models/i-draft';
+import { IDraft, IPopulatedDraft } from '../types/models/i-draft';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { Error404, Error400, Error403 } from '../utils/errors';
 import { isValidObjectID } from '../utils/utils';
 import { ITemplate } from '../types/models/i-template';
 import { IDraftElement } from '../types/models/i-draft-elements';
+import { Model } from '../models/model';
 
 export type GetOptions = {
   id: string;
@@ -80,7 +81,7 @@ export class DocumentsController extends Controller {
   /**
    * Populates a draft json with its elements
    */
-  async populateDraft( draft: IPopulatedDrfat<'client'> ) {
+  async populateDraft( draft: IPopulatedDraft<'client'> ) {
     const elements: IDraftElement<'client' | 'server'>[] = await this._elementsCollection.find( {
       parent: new ObjectID( draft._id )
     } as IDraftElement<'server'>
@@ -112,7 +113,7 @@ export class DocumentsController extends Controller {
 
     await Promise.all( docs.map( document => {
       if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        return this.populateDraft( document.currentDraft as IPopulatedDrfat<'client'> );
+        return this.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
       else
         return Promise.resolve();
     } ) )
@@ -126,6 +127,79 @@ export class DocumentsController extends Controller {
     };
 
     return toRet;
+  }
+
+  async addElement( findOptions: GetOptions, token: IDraftElement<'client'> ) {
+    const docsModel = this._docs;
+    const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    if ( !doc )
+      throw new Error404( 'Document not found' );
+
+    if ( findOptions.checkPermissions )
+      if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
+        throw new Error403();
+
+    if ( !token.type )
+      throw new Error400( 'You must specify an element type' );
+
+    token.parent = doc.dbEntry.currentDraft!.toString();
+
+    let model: Model<IDraftElement<'client' | 'server'>>;
+    try {
+      model = ModelFactory.get( token.type ) as Model<IDraftElement<'client' | 'server'>>;
+    }
+    catch ( err ) {
+      throw new Error400( 'Type not recognised' );
+    }
+
+    const schema = await model.createInstance<IDraftElement<'client'>>( token );
+    return schema.downloadToken<IDraftElement<'client'>>( { expandForeignKeys: false, verbose: true } );
+  }
+
+  async removeElement( findOptions: GetOptions, elementId: string ) {
+    const docsModel = this._docs;
+    const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    if ( !doc )
+      throw new Error404( 'Document not found' );
+
+    if ( findOptions.checkPermissions )
+      if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
+        throw new Error403();
+
+    const elm = await this._elementsCollection.findOne( { _id: new ObjectID( elementId ) } as IDraftElement<'server'> );
+
+    if ( !elm )
+      throw new Error404();
+
+    await this._elementsCollection.remove( { _id: new ObjectID( elementId ) } as IDraftElement<'server'> );
+  }
+
+  async updateElement( findOptions: GetOptions, elmId: string, token: IDraftElement<'client'> ) {
+
+    // Remove any attempt to change the parent
+    delete token.parent;
+
+    const selector = { _id: new ObjectID( elmId ) } as IDraftElement<'server'>;
+    const json = await this._elementsCollection.findOne<IDraftElement<'server'>>( selector );
+
+    if ( !json )
+      throw new Error404();
+
+    if ( token.type && json.type !== token.type )
+      throw new Error400( 'You cannot change an element type' );
+
+    const docsModel = this._docs;
+    const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    if ( !doc )
+      throw new Error404( 'Document not found' );
+
+    if ( findOptions.checkPermissions )
+      if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
+        throw new Error403();
+
+    const model = ModelFactory.get( json.type );
+    const updatedJson = await model.update<IDraftElement<'client'>>( selector, token, { verbose: true, expandForeignKeys: false } );
+    return updatedJson;
   }
 
   async remove( id: string ) {
@@ -203,7 +277,7 @@ export class DocumentsController extends Controller {
       const document = await schema.downloadToken<IDocument<'client'>>( options );
 
       if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        await this.populateDraft( document.currentDraft as IPopulatedDrfat<'client'> );
+        await this.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
 
       return document;
     }
@@ -238,7 +312,7 @@ export class DocumentsController extends Controller {
       } );
 
       if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        await this.populateDraft( document.currentDraft as IPopulatedDrfat<'client'> );
+        await this.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
 
       return document;
     }

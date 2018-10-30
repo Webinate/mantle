@@ -13,6 +13,6 @@ export interface IDraft<T extends 'server' | 'client'> {
   published: boolean;
 }
 
-export interface IPopulatedDrfat<T extends 'server' | 'client'> extends IDraft<T> {
+export interface IPopulatedDraft<T extends 'server' | 'client'> extends IDraft<T> {
   elements: IDraftElement<T>[];
 }

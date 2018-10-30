@@ -40,7 +40,7 @@ export class Error401 extends StatusError {
  * found but may be available in the future. Subsequent requests by the client are permissible.
  */
 export class Error404 extends StatusError {
-  constructor( message: string ) {
+  constructor( message: string = 'Could not find resource' ) {
     super( message, 404 )
   }
 }

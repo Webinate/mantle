@@ -8,7 +8,7 @@ import { Serializer } from './serializer';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
-import { admin, identify } from '../decorators/permissions';
+import { admin, identify, authorize } from '../decorators/permissions';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { Error400 } from '../utils/errors';
@@ -44,6 +44,9 @@ export class DocumentsSerializer extends Serializer {
     router.get( '/', this.getMany.bind( this ) );
     router.get( '/:id', this.getOne.bind( this ) );
     router.put( '/:id/set-template/:templateId', this.changeTemplate.bind( this ) );
+    router.post( '/:id/elements', this.addElement.bind( this ) );
+    router.put( '/:id/elements/:elementId', this.updateElement.bind( this ) );
+    router.delete( '/:id/elements/:elementId', this.removeElement.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/documents`, router );
@@ -64,6 +67,44 @@ export class DocumentsSerializer extends Serializer {
       throw new Error400( 'Document does not exist', 404 );
 
     return document;
+  }
+
+  @j200()
+  @validId( 'id', 'ID' )
+  @authorize()
+  private async addElement( req: IAuthReq, res: express.Response ) {
+    const element = await this._docsController.addElement( {
+      id: req.params.id,
+      checkPermissions: req._isAdmin ? undefined : { userId: req._user!._id }
+    }, req.body );
+
+    return element;
+  }
+
+  @j200( 204 )
+  @validId( 'id', 'ID' )
+  @validId( 'elementId', 'element ID' )
+  @authorize()
+  private async removeElement( req: IAuthReq, res: express.Response ) {
+    const element = await this._docsController.removeElement( {
+      id: req.params.id,
+      checkPermissions: req._isAdmin ? undefined : { userId: req._user!._id }
+    }, req.params.elementId );
+
+    return element;
+  }
+
+  @j200()
+  @validId( 'id', 'ID' )
+  @validId( 'elementId', 'element ID' )
+  @authorize()
+  private async updateElement( req: IAuthReq, res: express.Response ) {
+    const element = await this._docsController.updateElement( {
+      id: req.params.id,
+      checkPermissions: req._isAdmin ? undefined : { userId: req._user!._id }
+    }, req.params.elementId, req.body );
+
+    return element;
   }
 
   @j200()
