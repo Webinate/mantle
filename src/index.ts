@@ -89,6 +89,7 @@ export { IVolume } from './types/models/i-volume-entry';
 export { ITemplate } from './types/models/i-template';
 export { IDocument } from './types/models/i-document';
 export { IDraft } from './types/models/i-draft';
+export { IDraftElement } from './types/models/i-draft-elements';
 export { ICategory } from './types/models/i-category';
 export { IComment } from './types/models/i-comment';
 export { IFileEntry } from './types/models/i-file-entry';

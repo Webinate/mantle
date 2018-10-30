@@ -2,8 +2,11 @@ import * as assert from 'assert';
 import { } from 'mocha';
 import { IPost, Page } from '../../../src';
 import header from '../header';
+import { generateRandString } from '../../../src/utils/utils';
 let numPosts: number, secondPostId: string;
 let post: IPost<'client'>;
+
+const randomSlug = generateRandString( 10 );
 
 describe( 'Testing editing of posts', function() {
 
@@ -14,26 +17,10 @@ describe( 'Testing editing of posts', function() {
     numPosts = json.count;
   } )
 
-  it( 'did delete any existing posts with the slug --edit--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--edit--test--` );
-    const json: IPost<'client'> = await resp.json();
-
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
-  } )
-
-  it( 'did delete any existing posts with the slug --second--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--second--test--` );
-    const json: IPost<'client'> = await resp.json();
-
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
-  } )
-
   it( 'did create a post to test editting post data', async function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--edit--test--",
+      slug: randomSlug,
       public: true,
       content: "Hello world"
     } );
@@ -44,7 +31,7 @@ describe( 'Testing editing of posts', function() {
   it( 'did create a second post to test editting post data', async function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--second--test--",
+      slug: generateRandString( 10 ),
       public: true,
       content: "Hello world"
     } );
@@ -75,18 +62,18 @@ describe( 'Testing editing of posts', function() {
   } )
 
   it( 'cannot change an existing post with a slug already in use', async function() {
-    const resp = await header.admin.put( `/api/posts/${secondPostId}`, { slug: "--edit--test--" } );
+    const resp = await header.admin.put( `/api/posts/${secondPostId}`, { slug: randomSlug } );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "'slug' must be unique" );
   } )
 
   it( 'can change a post slug with a slug already in use, if its the same post', async function() {
-    const resp = await header.admin.put( `/api/posts/${post._id}`, { id: post._id, slug: "--edit--test--" } );
+    const resp = await header.admin.put( `/api/posts/${post._id}`, { id: post._id, slug: randomSlug } );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
     assert.deepEqual( json._id, post._id );
-    assert.deepEqual( json.slug, '--edit--test--' );
+    assert.deepEqual( json.slug, randomSlug );
     assert.deepEqual( json.title, 'Simple Test' );
   } )
 

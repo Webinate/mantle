@@ -13,6 +13,8 @@ import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
 import { Error404 } from '../utils/errors';
 import { Schema } from '../models/schema';
+import { IDocument } from '../types/models/i-document';
+import { IPopulatedDrfat } from '../types/models/i-draft';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 
@@ -151,6 +153,7 @@ export class PostsController extends Controller {
     const index: number = options.index || 0;
     const limit: number = options.limit || 10;
     const verbose = options.verbose !== undefined ? options.verbose : true;
+
     const sanitizedData = await posts.downloadMany<IPost<'client'>>( {
       selector: findToken,
       sort: sort,
@@ -163,6 +166,11 @@ export class PostsController extends Controller {
         expandMaxDepth: 2,
         expandSchemaBlacklist: [ /document\.author/ ]
       } );
+
+
+    await Promise.all( sanitizedData.filter( post => post.document ? true : false ).map( post => this._documents.populateDraft(
+      ( post.document as IDocument<'client'> ).currentDraft as IPopulatedDrfat<'client'> ) )
+    );
 
     const response: Page<IPost<'client'>> = {
       count: count,
@@ -276,14 +284,18 @@ export class PostsController extends Controller {
       { _id: schema.dbEntry._id } as IPost<'server'>,
       { document: docId.toString() } ) as Schema<IPost<'server'>>;
 
-    const json = await schema.downloadToken<IPost<'client'>>( {
+    const post = await schema.downloadToken<IPost<'client'>>( {
       verbose: true,
       expandForeignKeys: true,
       expandMaxDepth: 2,
       expandSchemaBlacklist: [ /document\.author/ ]
     } );
 
-    return json;
+    // Populate the document draft with its elements
+    const document = post.document as IDocument<'client'>;
+    await this._documents.populateDraft( document.currentDraft as IPopulatedDrfat<'client'> );
+
+    return post;
   }
 
   /**

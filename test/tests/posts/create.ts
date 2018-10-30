@@ -1,8 +1,9 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IAdminUser, IUserEntry, IDocument } from '../../../src';
+import { IPost, IAdminUser, IUserEntry, IDocument, ITemplate } from '../../../src';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
+import { IPopulatedDrfat } from '../../../src/types/models/i-draft';
 let lastPost: IPost<'client'>, lastPost2: IPost<'client'>;
 let numPosts = 0;
 
@@ -82,6 +83,14 @@ describe( 'Testing creation of posts', function() {
     assert.deepEqual( typeof doc.author, 'string' );
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
+
+    // Check the current draft
+    const draft = doc.currentDraft as IPopulatedDrfat<'client'>;
+    assert.deepEqual( draft.templateMap[ ( doc.template as ITemplate<'client'> ).defaultZone ][ 0 ], draft.elements[ 0 ]._id );
+    assert.deepEqual( draft.elements.length, 1 );
+    assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
+    assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
+    assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
   } )
 
   it( 'can get the document associated with the post', async function() {

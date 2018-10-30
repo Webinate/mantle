@@ -13,10 +13,13 @@ import { UsersModel } from '../models/users-model';
 import { DocumentsModel } from '../models/documents-model';
 import { DraftsModel } from '../models/drafts-model';
 import { TemplatesModel } from '../models/templates-model';
+import { DraftElements } from '../types/models/i-draft-elements';
+import { ElmParagraph } from '../models/draft-elements/elm-paragraph';
 
 export type CommonModelType = 'volumes' | 'categories' |
   'comments' | 'files' | 'posts' | 'renders' | 'sessions' |
-  'users' | 'documents' | 'drafts' | 'templates';
+  'users' | 'documents' | 'drafts' | 'templates' |
+  DraftElements;
 
 /**
  * Factory classs for creating & getting models
@@ -46,6 +49,7 @@ export class ModelFactory {
       this.create( 'documents' ),
       this.create( 'drafts' ),
       this.create( 'templates' ),
+      this.create( 'elm-paragraph' ),
     ] );
   }
 
@@ -108,6 +112,7 @@ export class ModelFactory {
   get( type: 'templates' ): TemplatesModel
   get( type: 'drafts' ): DraftsModel
   get( type: 'documents' ): DocumentsModel
+  get( type: 'elm-paragraph' ): ElmParagraph
   get( type: string ): Model<IModelEntry<'client' | 'server'>>
   get( type: string ): Model<IModelEntry<'client' | 'server'>> {
     const toRet = this._models[ type ];
@@ -160,6 +165,9 @@ export class ModelFactory {
         break;
       case 'templates':
         newModel = new TemplatesModel();
+        break;
+      case 'elm-paragraph':
+        newModel = new ElmParagraph();
         break;
       default:
         throw new Error( `Controller '${type}' cannot be created` );

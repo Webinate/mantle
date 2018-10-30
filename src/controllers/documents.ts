@@ -1,17 +1,18 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
-import { Db, ObjectID, ObjectId } from 'mongodb';
+import { Db, ObjectID, ObjectId, Collection } from 'mongodb';
 import Controller from './controller';
 import ModelFactory from '../core/model-factory';
 import { DocumentsModel } from '../models/documents-model';
 import { TemplatesModel } from '../models/templates-model';
 import { IDocument } from '../types/models/i-document';
 import { DraftsModel } from '../models/drafts-model';
-import { IDraft } from '../types/models/i-draft';
+import { IDraft, IPopulatedDrfat } from '../types/models/i-draft';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { Error404, Error400, Error403 } from '../utils/errors';
 import { isValidObjectID } from '../utils/utils';
 import { ITemplate } from '../types/models/i-template';
+import { IDraftElement } from '../types/models/i-draft-elements';
 
 export type GetOptions = {
   id: string;
@@ -25,6 +26,7 @@ export class DocumentsController extends Controller {
   private _docs: DocumentsModel;
   private _drafts: DraftsModel;
   private _templates: TemplatesModel;
+  private _elementsCollection: Collection<IDraftElement<'server'>>;
 
   constructor( config: IConfig ) {
     super( config );
@@ -38,6 +40,7 @@ export class DocumentsController extends Controller {
     this._docs = ModelFactory.get( 'documents' );
     this._templates = ModelFactory.get( 'templates' );
     this._drafts = ModelFactory.get( 'drafts' );
+    this._elementsCollection = db.collection( 'elements' );
     return this;
   }
 
@@ -75,6 +78,18 @@ export class DocumentsController extends Controller {
   }
 
   /**
+   * Populates a draft json with its elements
+   */
+  async populateDraft( draft: IPopulatedDrfat<'client'> ) {
+    const elements: IDraftElement<'client' | 'server'>[] = await this._elementsCollection.find( {
+      parent: new ObjectID( draft._id )
+    } as IDraftElement<'server'>
+    ).toArray();
+
+    draft.elements = elements as IDraftElement<'client'>[];
+  }
+
+  /**
    * Fetches all documents
    */
   async getMany() {
@@ -94,6 +109,15 @@ export class DocumentsController extends Controller {
       expandSchemaBlacklist: [ /parent/ ]
     } ) ) );
 
+
+    await Promise.all( docs.map( document => {
+      if ( document.currentDraft && typeof document.currentDraft !== 'string' )
+        return this.populateDraft( document.currentDraft as IPopulatedDrfat<'client'> );
+      else
+        return Promise.resolve();
+    } ) )
+
+
     const toRet: Page<IDocument<'client'>> = {
       limit: -1,
       count: responses[ 0 ],
@@ -112,6 +136,10 @@ export class DocumentsController extends Controller {
     if ( !doc )
       throw new Error404( `Could not find document` );
 
+    // Remove all draft elements
+    const drafts = await this._drafts.findMany( { selector: { parent: doc.dbEntry._id } as IDraft<'server'> } );
+    await Promise.all( drafts.map( draft => this._elementsCollection.remove( { parent: draft.dbEntry._id } as IDraftElement<'server'> ) ) );
+
     await this._drafts.deleteInstances( { parent: doc.dbEntry._id } as IDraft<'server'> );
     await this._docs.deleteInstances( { _id: doc.dbEntry._id } as IDocument<'server'> );
   }
@@ -124,7 +152,7 @@ export class DocumentsController extends Controller {
   async create( author: string, options?: ISchemaOptions ) {
 
     // Get the templates
-    const templates = await this._templates.findMany( {} );
+    const templates = await this._templates.findMany<ITemplate<'server'>>( {} );
     const firstTemplate = templates[ 0 ].dbEntry._id.toString();
 
     // Create the doc token
@@ -144,9 +172,26 @@ export class DocumentsController extends Controller {
       lastUpdated: Date.now(),
       published: false,
       parent: schema.dbEntry._id.toString(),
-      template: firstTemplate,
-      elements: []
+      template: firstTemplate
     } );
+
+    const pModel = ModelFactory.get( 'elm-paragraph' );
+    const firstElm = await pModel.createInstance<IDraftElement<'client'>>( {
+      html: '<p></p>', parent: draft.dbEntry._id.toString(), type: 'elm-paragraph'
+    } );
+
+    // Update the draft with the default element
+    const firstElmId = firstElm.dbEntry._id.toString();
+    const elmTemplateMap: { [ zone: string ]: string[] } = {};
+
+    // Assign the first element to the default zone
+    elmTemplateMap[ templates[ 0 ].dbEntry.defaultZone ] = [ firstElmId ];
+
+    // Update the draft with the element in the template map
+    await this._drafts.update<IDraft<'client'>>(
+      { _id: draft.dbEntry._id } as IDraft<'server'>, {
+        templateMap: elmTemplateMap
+      } );
 
     // Update the doc to point to the draft
     await this._docs.update<IDocument<'client'>>(
@@ -155,8 +200,12 @@ export class DocumentsController extends Controller {
       } )
 
     if ( options ) {
-      const json = await schema.downloadToken<IDocument<'client'>>( options );
-      return json;
+      const document = await schema.downloadToken<IDocument<'client'>>( options );
+
+      if ( document.currentDraft && typeof document.currentDraft !== 'string' )
+        await this.populateDraft( document.currentDraft as IPopulatedDrfat<'client'> );
+
+      return document;
     }
     else
       return schema.dbEntry._id;
@@ -181,13 +230,17 @@ export class DocumentsController extends Controller {
           throw new Error403();
       }
 
-      const volume = await result.downloadToken<IDocument<'client'>>( {
+      const document = await result.downloadToken<IDocument<'client'>>( {
         verbose: true,
         expandForeignKeys: true,
         expandMaxDepth: 1,
         expandSchemaBlacklist: [ /parent/ ]
       } );
-      return volume;
+
+      if ( document.currentDraft && typeof document.currentDraft !== 'string' )
+        await this.populateDraft( document.currentDraft as IPopulatedDrfat<'client'> );
+
+      return document;
     }
   }
 }

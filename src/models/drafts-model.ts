@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { foreignKey, textArray, date } from './schema-items/schema-item-factory';
+import { foreignKey, date, json } from './schema-items/schema-item-factory';
 import { IDraft } from '../types/models/i-draft';
 
 /**
@@ -12,7 +12,7 @@ export class DraftsModel extends Model<IDraft<'client' | 'server'>> {
     this.schema.addItems( [
       new foreignKey( 'parent', 'documents', { keyCanBeNull: false } ),
       new foreignKey( 'template', 'templates', { keyCanBeNull: false } ),
-      new textArray( 'elements', [] ),
+      new json( 'templateMap', {} ),
       new date( 'lastModified', { useNow: true } ),
       new date( 'createdOn' ).setIndexable( true ),
       new date( 'lastUpdated', { useNow: true } ).setIndexable( true )

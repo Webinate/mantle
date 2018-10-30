@@ -1,10 +1,11 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, Page, IFileEntry, IUserEntry, IDocument } from '../../../src';
+import { IPost, Page, IFileEntry, IUserEntry, IDocument, ITemplate } from '../../../src';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { generateRandString } from '../../../src/utils/utils';
+import { IPopulatedDrfat } from '../../../src/types/models/i-draft';
 
 const randomSlug = generateRandString( 10 );
 const privateSlug = generateRandString( 10 );
@@ -63,6 +64,41 @@ describe( 'Testing fetching of posts', function() {
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, 'Could not find post' );
+  } )
+
+  it( 'can fetch multiple posts, and those posts have correct data', async function() {
+    const resp = await header.guest.get( `/api/posts?visibility=public&sortOrder=desc&sort=created` );
+    assert.deepEqual( resp.status, 200 );
+    const page: Page<IPost<'client'>> = await resp.json();
+
+    const post = page.data[ 0 ];
+
+    assert.deepEqual( ( post.author as IUserEntry<'client'> ).username, header.admin.username );
+    assert.deepEqual( post.title, 'Simple Test' );
+    assert.deepEqual( post.slug, randomSlug );
+    assert.deepEqual( post.public, true );
+    assert.deepEqual( post.content, 'Hello world' );
+    assert.deepEqual( post.categories.length, 1 );
+    assert.deepEqual( post.tags.length, 2 );
+    assert.deepEqual( ( post.featuredImage as IFileEntry<'client'> )._id, file._id.toString() );
+
+    // Check that we get the doc
+    const doc = post.document as IDocument<'client'>;
+    assert.notDeepEqual( doc.template, null );
+    assert.notDeepEqual( doc.currentDraft, null );
+    assert.deepEqual( typeof doc.template, 'object' );
+    assert.deepEqual( typeof doc.currentDraft, 'object' );
+    assert.deepEqual( typeof doc.author, 'string' );
+    assert( doc.createdOn > 0 );
+    assert( doc.lastUpdated > 0 );
+
+    // Check the current draft
+    const draft = doc.currentDraft as IPopulatedDrfat<'client'>;
+    assert.deepEqual( draft.templateMap[ ( doc.template as ITemplate<'client'> ).defaultZone ][ 0 ], draft.elements[ 0 ]._id );
+    assert.deepEqual( draft.elements.length, 1 );
+    assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
+    assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
+    assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
   } )
 
   it( 'can fetch posts and impose a limit off 1 on them', async function() {
