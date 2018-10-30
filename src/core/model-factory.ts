@@ -15,6 +15,10 @@ import { DraftsModel } from '../models/drafts-model';
 import { TemplatesModel } from '../models/templates-model';
 import { DraftElements } from '../types/models/i-draft-elements';
 import { ElmParagraph } from '../models/draft-elements/elm-paragraph';
+import { ElmHeader } from '../models/draft-elements/elm-header';
+import { ElmImg } from '../models/draft-elements/elm-img';
+import { ElmList } from '../models/draft-elements/elm-list';
+import { ElmCode } from '../models/draft-elements/elm-code';
 
 export type CommonModelType = 'volumes' | 'categories' |
   'comments' | 'files' | 'posts' | 'renders' | 'sessions' |
@@ -50,6 +54,10 @@ export class ModelFactory {
       this.create( 'drafts' ),
       this.create( 'templates' ),
       this.create( 'elm-paragraph' ),
+      this.create( 'elm-header' ),
+      this.create( 'elm-list' ),
+      this.create( 'elm-image' ),
+      this.create( 'elm-code' )
     ] );
   }
 
@@ -113,6 +121,10 @@ export class ModelFactory {
   get( type: 'drafts' ): DraftsModel
   get( type: 'documents' ): DocumentsModel
   get( type: 'elm-paragraph' ): ElmParagraph
+  get( type: 'elm-header' ): ElmHeader
+  get( type: 'elm-list' ): ElmList
+  get( type: 'elm-image' ): ElmImg
+  get( type: 'elm-code' ): ElmCode
   get( type: string ): Model<IModelEntry<'client' | 'server'>>
   get( type: string ): Model<IModelEntry<'client' | 'server'>> {
     const toRet = this._models[ type ];
@@ -168,6 +180,18 @@ export class ModelFactory {
         break;
       case 'elm-paragraph':
         newModel = new ElmParagraph();
+        break;
+      case 'elm-header':
+        newModel = new ElmHeader();
+        break;
+      case 'elm-image':
+        newModel = new ElmImg();
+        break;
+      case 'elm-list':
+        newModel = new ElmList();
+        break;
+      case 'elm-code':
+        newModel = new ElmList();
         break;
       default:
         throw new Error( `Controller '${type}' cannot be created` );
