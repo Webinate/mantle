@@ -56,14 +56,14 @@ describe( 'Testing creation of comments', function() {
     const resp = await header.admin.post( `/api/posts/bad/comments/bad` );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
-    assert.deepEqual( json.message, "Invalid ID format" );
+    assert.deepEqual( json.message, "Invalid parent ID format" );
   } )
 
   it( 'cannot create a comment with a badly formatted parent comment id', async function() {
     const resp = await header.admin.post( `/api/posts/123456789012345678901234/comments/bad` );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
-    assert.deepEqual( json.message, "Invalid ID format" );
+    assert.deepEqual( json.message, "Invalid parent ID format" );
   } )
 
   it( 'cannot create a comment without a post that actually exists', async function() {

@@ -191,7 +191,7 @@ export class ModelFactory {
         newModel = new ElmList();
         break;
       case 'elm-code':
-        newModel = new ElmList();
+        newModel = new ElmCode();
         break;
       default:
         throw new Error( `Controller '${type}' cannot be created` );
