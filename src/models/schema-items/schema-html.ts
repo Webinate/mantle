@@ -15,13 +15,13 @@ export class SchemaHtml extends SchemaItem<string, string> {
    */
   public static defaultTags: Array<string> = [ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
     'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'iframe',
-    'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre' ];
+    'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'span' ];
 
   /**
    * An array of common inline tags
    * includes: a, b, i, strong, em, u, strike, hr, br
    */
-  public static inlineTags: Array<string> = [ 'a', 'b', 'i', 'strong', 'em', 'u', 'strike', 'hr', 'br' ];
+  public static inlineTags: Array<string> = [ 'a', 'b', 'i', 'strong', 'em', 'u', 'strike', 'hr', 'br', 'span' ];
 
   /**
    * The default allowed attributes for each tag

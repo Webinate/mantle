@@ -54,7 +54,12 @@ export class ModelFactory {
       this.create( 'drafts' ),
       this.create( 'templates' ),
       this.create( 'elm-paragraph' ),
-      this.create( 'elm-header' ),
+      this.create( 'elm-header-1' ),
+      this.create( 'elm-header-2' ),
+      this.create( 'elm-header-3' ),
+      this.create( 'elm-header-4' ),
+      this.create( 'elm-header-5' ),
+      this.create( 'elm-header-6' ),
       this.create( 'elm-list' ),
       this.create( 'elm-image' ),
       this.create( 'elm-code' )
@@ -121,7 +126,12 @@ export class ModelFactory {
   get( type: 'drafts' ): DraftsModel
   get( type: 'documents' ): DocumentsModel
   get( type: 'elm-paragraph' ): ElmParagraph
-  get( type: 'elm-header' ): ElmHeader
+  get( type: 'elm-header-1' ): ElmHeader
+  get( type: 'elm-header-2' ): ElmHeader
+  get( type: 'elm-header-3' ): ElmHeader
+  get( type: 'elm-header-4' ): ElmHeader
+  get( type: 'elm-header-5' ): ElmHeader
+  get( type: 'elm-header-6' ): ElmHeader
   get( type: 'elm-list' ): ElmList
   get( type: 'elm-image' ): ElmImg
   get( type: 'elm-code' ): ElmCode
@@ -181,8 +191,23 @@ export class ModelFactory {
       case 'elm-paragraph':
         newModel = new ElmParagraph();
         break;
-      case 'elm-header':
-        newModel = new ElmHeader();
+      case 'elm-header-1':
+        newModel = new ElmHeader( 'elm-header-1' );
+        break;
+      case 'elm-header-2':
+        newModel = new ElmHeader( 'elm-header-2' );
+        break;
+      case 'elm-header-3':
+        newModel = new ElmHeader( 'elm-header-3' );
+        break;
+      case 'elm-header-4':
+        newModel = new ElmHeader( 'elm-header-4' );
+        break;
+      case 'elm-header-5':
+        newModel = new ElmHeader( 'elm-header-5' );
+        break;
+      case 'elm-header-6':
+        newModel = new ElmHeader( 'elm-header-6' );
         break;
       case 'elm-image':
         newModel = new ElmImg();
