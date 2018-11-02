@@ -4,8 +4,6 @@ import { IPost, IDocument, IUserEntry, IDraftElement } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { IPopulatedDraft } from '../../../src/types/models/i-draft';
-import Agent from '../agent';
 import { DraftElements } from '../../../src';
 
 let post: IPost<'client'>,
@@ -125,3 +123,4 @@ describe( 'Testing the validation of document element html: ', function() {
       } )
     } )
   } )
+} )
