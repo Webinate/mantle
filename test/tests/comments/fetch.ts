@@ -3,6 +3,7 @@ import { } from 'mocha';
 import { IPost, IComment, Page, IAdminUser, IUserEntry } from '../../../src';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
+import { generateRandString } from '../../../src/utils/utils';
 
 
 let numPosts: number,
@@ -15,13 +16,6 @@ describe( 'Testing fetching of comments', function() {
   before( async function() {
     const users = ControllerFactory.get( 'users' );
     admin = await users.getUser( { username: ( header.config.adminUser as IAdminUser ).username } )
-  } )
-
-  it( 'did delete any existing posts with the slug --comments--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--comments--test--` );
-    const json = await resp.json();
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
   } )
 
   it( 'fetched all posts', async function() {
@@ -41,7 +35,7 @@ describe( 'Testing fetching of comments', function() {
   it( 'can create a temp post', async function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--comments--test--",
+      slug: generateRandString( 10 ),
       brief: "This is brief",
       public: false,
       content: "Hello world"

@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import { } from 'mocha';
 import { IPost, Page, IComment } from '../../../src';
 import header from '../header';
+import { generateRandString } from '../../../src/utils/utils';
 
 let numPosts, numComments,
   postId, commentId, parentCommentId;
@@ -22,17 +23,10 @@ describe( 'Testing deletion of comments', function() {
     numComments = json.count;
   } )
 
-  it( 'did delete any existing posts with the slug --comments--test--', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--comments--test--` );
-    const json: IPost<'client'> = await resp.json();
-    if ( json )
-      await header.admin.delete( `/api/posts/${json._id}` );
-  } )
-
   it( 'can create a temp post', async function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
-      slug: "--comments--test--",
+      slug: generateRandString( 10 ),
       brief: "This is brief",
       public: false,
       content: "Hello world"
