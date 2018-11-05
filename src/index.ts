@@ -29,6 +29,8 @@ import { CategoriesController } from './controllers/categories';
 import { validId } from './decorators/path-sanity';
 import { j200 } from './decorators/responses';
 import { admin, hasPermission, authorize, identify } from './decorators/permissions';
+import { TemplatesController } from './controllers/templates';
+import { DocumentsController } from './controllers/documents';
 
 export const Controller = _Controller.Serializer;
 export const Model = _Models.Model;
@@ -43,7 +45,9 @@ export const controllers = {
   categories: ControllerFactory.get( 'categories' ) as CategoriesController,
   comments: ControllerFactory.get( 'comments' ) as CommentsController,
   files: ControllerFactory.get( 'files' ) as FilesController,
-  sessions: ControllerFactory.get( 'sessions' ) as SessionsController
+  sessions: ControllerFactory.get( 'sessions' ) as SessionsController,
+  templates: ControllerFactory.get( 'templates' ) as TemplatesController,
+  documents: ControllerFactory.get( 'documents' ) as DocumentsController
 };
 
 export const serializers = {
