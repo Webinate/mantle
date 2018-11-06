@@ -326,6 +326,12 @@ export class PostsController extends Controller {
       throw new Error( 'Could not find post' );
 
     const sanitizedData = await post;
+
+    // Populate the document draft with its elements
+    const document = sanitizedData.document as IDocument<'client'>;
+    await this._documents.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
+
+
     return sanitizedData;
   }
 }
