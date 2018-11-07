@@ -15,7 +15,7 @@ export class ElmImg extends Model<IDraftElement<'client' | 'server'>> {
     this.schema.addItems( [
       new foreignKey( 'parent', 'drafts', { keyCanBeNull: false } ),
       new text( 'type', type ),
-      new html( 'html', '', { allowedTags: SchemaHtml.inlineTags.concat( [ 'img' ] ) } )
+      new html( 'html', '<figure></figure>', { allowedTags: SchemaHtml.inlineTags.concat( [ 'img' ] ) } )
     ] );
   }
 }

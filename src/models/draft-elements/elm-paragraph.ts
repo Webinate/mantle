@@ -15,7 +15,7 @@ export class ElmParagraph extends Model<IDraftElement<'client' | 'server'>> {
     this.schema.addItems( [
       new foreignKey( 'parent', 'drafts', { keyCanBeNull: false } ),
       new text( 'type', type ),
-      new html( 'html', '', { allowedTags: SchemaHtml.inlineTags.concat( 'p' ) } )
+      new html( 'html', '<p></p>', { allowedTags: SchemaHtml.inlineTags.concat( 'p' ) } )
     ] );
   }
 }
