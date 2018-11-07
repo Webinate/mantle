@@ -92,7 +92,7 @@ export { PostsGetAllOptions } from './controllers/posts';
 export { IVolume } from './types/models/i-volume-entry';
 export { ITemplate } from './types/models/i-template';
 export { IDocument } from './types/models/i-document';
-export { IDraft } from './types/models/i-draft';
+export { IDraft, IPopulatedDraft } from './types/models/i-draft';
 export { IDraftElement } from './types/models/i-draft-elements';
 export { ICategory } from './types/models/i-category';
 export { IComment } from './types/models/i-comment';
@@ -105,6 +105,7 @@ export { ISessionEntry } from './types/models/i-session-entry';
 export { IUserEntry } from './types/models/i-user-entry';
 export { IUploadResponse } from './types/tokens/i-file-tokens';
 export { DraftElements } from './types/models/i-draft-elements';
+
 export {
   IAuthenticationResponse, EmailTokens,
   IRemoveResponse, IResponse, ISimpleResponse,
