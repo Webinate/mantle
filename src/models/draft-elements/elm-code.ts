@@ -15,7 +15,10 @@ export class ElmCode extends Model<IDraftElement<'client' | 'server'>> {
     this.schema.addItems( [
       new foreignKey( 'parent', 'drafts', { keyCanBeNull: false } ),
       new text( 'type', type ),
-      new html( 'html', '<pre></pre>', { allowedTags: SchemaHtml.inlineTags.concat( [ 'pre' ] ) } )
+      new html( 'html', '<pre></pre>', {
+        allowedTags: SchemaHtml.inlineTags.concat( [ 'pre' ] ),
+        errorBadHTML: false
+      } )
     ] );
   }
 }

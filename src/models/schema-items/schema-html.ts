@@ -21,7 +21,7 @@ export class SchemaHtml extends SchemaItem<string, string> {
    * An array of common inline tags
    * includes: a, b, i, strong, em, u, strike, hr, br
    */
-  public static inlineTags: Array<string> = [ 'a', 'b', 'i', 'strong', 'em', 'u', 'strike', 'hr', 'br', 'span' ];
+  public static inlineTags: Array<string> = [ 'a', 'b', 'i', 'strong', 'em', 'u', 'blockquote', 'strike', 'hr', 'br', 'span' ];
 
   /**
    * The default allowed attributes for each tag
@@ -93,7 +93,7 @@ export class SchemaHtml extends SchemaItem<string, string> {
     else if ( transformedValue.length < minCharacters )
       throw new Error( `The character length of '${this.name}' is too short, please keep it above ${minCharacters}` );
 
-    const sanitizedHTML = sanitizeHtml( val, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags } ).trim();
+    const sanitizedHTML = sanitizeHtml( val, { allowedAttributes: this.allowedAttributes, allowedTags: this.allowedTags, } ).trim();
     if ( this.errorBadHTML && transformedValue !== sanitizedHTML )
       throw new Error( `'${this.name}' has html code that is not allowed` );
 

@@ -41,7 +41,7 @@ export class ElmHeader extends Model<IDraftElement<'client' | 'server'>> {
     this.schema.addItems( [
       new foreignKey( 'parent', 'drafts', { keyCanBeNull: false } ),
       new text( 'type', type ),
-      new html( 'html', htmlStr, { allowedTags: allowedTags } )
+      new html( 'html', htmlStr, { allowedTags: allowedTags, errorBadHTML: false } )
     ] );
   }
 }
