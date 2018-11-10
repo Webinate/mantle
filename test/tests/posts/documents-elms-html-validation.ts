@@ -1,34 +1,35 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IDocument, IUserEntry, IDraftElement } from '../../../src';
+import { IPost, IDocument, IUserEntry, IDraftElement, DraftElements } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { DraftElements } from '../../../src';
 
 let post: IPost<'client'>,
   document: IDocument<'client'>,
   user1: IUserEntry<'client'>;
 
-const blocks = [
-  '<ul><li>test</li></ul>',
-  '<ol><li>test</li></ol>',
-  '<figure><img src="" />< /figure>',
-  '<img src="" />',
-  '<pre>thing</pre>',
-  '<div>Not allowed</div>',
-  '<script src="bad" />',
-  '<blockquote></blockquote>',
-  '<table><thead><th>HEADER</th></thead><tbody><tr><td>DATA</td></tr></tbody></table>',
-  '<caption></caption>',
-  '<video></video>',
-  '<iframe src></iframe>',
-  '<h1></h1>',
-  '<h2></h2>',
-  '<h3></h3>',
-  '<h4></h4>',
-  '<h5></h5>'
-];
+const blocks: {
+  source: string;
+  replacedWith: null | { [ testType: string ]: string; }
+}[] = [
+    { source: '<ul><li></li></ul>', replacedWith: null },
+    { source: '<ol><li></li></ol>', replacedWith: null },
+    { source: '<figure><img src="" /></figure>', replacedWith: null },
+    { source: '<img src="" />', replacedWith: null },
+    { source: '<pre></pre>', replacedWith: null },
+    { source: '<div></div>', replacedWith: null },
+    { source: '<script src="bad" />', replacedWith: null },
+    { source: '<table><thead><th></th></thead><tbody><tr><td></td></tr></tbody></table>', replacedWith: null },
+    { source: '<caption></caption>', replacedWith: null },
+    { source: '<video></video>', replacedWith: null },
+    { source: '<iframe src></iframe>', replacedWith: null },
+    { source: '<h1></h1>', replacedWith: { 'elm-paragraph': '<p></p><p></p>' } },
+    { source: '<h2></h2>', replacedWith: { 'elm-paragraph': '<p></p><p></p>' } },
+    { source: '<h3></h3>', replacedWith: { 'elm-paragraph': '<p></p><p></p>' } },
+    { source: '<h4></h4>', replacedWith: { 'elm-paragraph': '<p></p><p></p>' } },
+    { source: '<h5></h5>', replacedWith: { 'elm-paragraph': '<p></p><p></p>' } }
+  ];
 
 const inlines = [
   '<span>Regular text</span>',
@@ -38,6 +39,7 @@ const inlines = [
   '<strike>bold</strike>',
   '<em>bold</em>',
   '<i>allowed</i>',
+  '<blockquote></blockquote>',
   '<u>bold</u>',
   '<a href="https://other.com">bold</a>'
 ];
@@ -47,17 +49,17 @@ const testConfig: {
   pre: string,
   post: string,
   allowed: string[],
-  disallowed: string[]
+  disallowed: { source: string, replacedWith: null | { [ testType: string ]: string; } }[]
 }[] = [
     { type: 'elm-paragraph', pre: '<p>', post: '</p>', allowed: [ ...inlines ], disallowed: [ ...blocks ] },
     { type: 'elm-code', pre: '<pre>', post: '</pre>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 4 ) },
     { type: 'elm-list', pre: '<ul>', post: '</ul>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 0 && i !== 1 ) },
-    { type: 'elm-header-1', pre: '<h1>', post: '</h1>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 12 ) },
-    { type: 'elm-header-2', pre: '<h2>', post: '</h2>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 13 ) },
-    { type: 'elm-header-3', pre: '<h3>', post: '</h3>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 14 ) },
-    { type: 'elm-header-4', pre: '<h4>', post: '</h4>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 15 ) },
-    { type: 'elm-header-5', pre: '<h5>', post: '</h5>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 16 ) },
-    { type: 'elm-header-6', pre: '<h6>', post: '</h6>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 17 ) }
+    { type: 'elm-header-1', pre: '<h1>', post: '</h1>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 11 ) },
+    { type: 'elm-header-2', pre: '<h2>', post: '</h2>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 12 ) },
+    { type: 'elm-header-3', pre: '<h3>', post: '</h3>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 13 ) },
+    { type: 'elm-header-4', pre: '<h4>', post: '</h4>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 14 ) },
+    { type: 'elm-header-5', pre: '<h5>', post: '</h5>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 15 ) },
+    { type: 'elm-header-6', pre: '<h6>', post: '</h6>', allowed: [ ...inlines ], disallowed: [ ...blocks ].filter( ( v, i ) => i !== 16 ) }
   ]
 
 
@@ -107,17 +109,24 @@ describe( 'Testing the validation of document element html: ', function() {
 
       describe( `Disallowed: `, function() {
 
-        test.disallowed.forEach( innerHtml => {
+        test.disallowed.forEach( disallowedTest => {
 
-          it( `did not allow ${innerHtml}`, async function() {
+          it( `did not allow ${disallowedTest.source}`, async function() {
 
             const response = await header.user1.post( `/api/documents/${document._id}/elements`, {
               type: test.type,
-              html: `${test.pre}${innerHtml}${test.post}`
+              html: `${test.pre}${disallowedTest.source}${test.post}`
             } as IDraftElement<'client'> );
+            const elm = await response.json<IDraftElement<'client'>>();
 
-            assert.equal( response.status, 500 );
-            assert.equal( decodeURIComponent( response.statusText ), "'html' has html code that is not allowed" );
+            assert.equal( response.status, 200 );
+
+            // Essentially we are checking that the disallowed html is stripped, and therefore we should only have
+            // the wrapper
+            if ( disallowedTest.replacedWith && disallowedTest.replacedWith[ test.type ] )
+              assert.equal( elm.html, disallowedTest.replacedWith[ test.type ] );
+            else
+              assert.equal( elm.html, `${test.pre}${test.post}` );
           } )
         } )
       } )
