@@ -67,7 +67,7 @@ describe( 'Testing the editting of document elements: ', function() {
   } )
 
   it( 'did not allow an element type to be changed', async function() {
-    const resp = await header.user1.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { type: 'elm-header' } as IDraftElement<'client'> );
+    const resp = await header.user1.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { type: 'elm-header-1' } as IDraftElement<'client'> );
     assert.equal( resp.status, 400 );
     assert.equal( decodeURIComponent( resp.statusText ), 'You cannot change an element type' );
   } )

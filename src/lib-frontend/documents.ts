@@ -20,8 +20,8 @@ export async function setTemplate( docId: string, templateId: string ) {
   return doc;
 }
 
-export async function addElement( docId: string, elm: Partial<IDraftElement<'client'>> ) {
-  const doc = await postJson<IDraftElement<'client'>>( `${rootPath}/${docId}/elements`, elm );
+export async function addElement( docId: string, elm: Partial<IDraftElement<'client'>>, index?: number ) {
+  const doc = await postJson<IDraftElement<'client'>>( `${rootPath}/${docId}/elements${index ? '?index=' + index : ''}`, elm );
   return doc;
 }
 

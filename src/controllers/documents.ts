@@ -129,11 +129,18 @@ export class DocumentsController extends Controller {
     return toRet;
   }
 
-  async addElement( findOptions: GetOptions, token: IDraftElement<'client'> ) {
+  async addElement( findOptions: GetOptions, token: IDraftElement<'client'>, index?: number ) {
     const docsModel = this._docs;
+    const draftsModel = this._drafts;
     const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+
     if ( !doc )
       throw new Error404( 'Document not found' );
+
+    const curDraft = await draftsModel.findOne<IDraft<'server'>>( { _id: doc.dbEntry.currentDraft! } as IDocument<'server'> );
+
+    if ( !curDraft )
+      throw new Error404( 'Could not find active draft' );
 
     if ( findOptions.checkPermissions )
       if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
@@ -153,14 +160,34 @@ export class DocumentsController extends Controller {
     }
 
     const schema = await model.createInstance<IDraftElement<'client'>>( token );
+    const elementsOrder = curDraft.dbEntry.elementsOrder;
+
+    if ( index === undefined )
+      index = elementsOrder.length;
+    else if ( index < 0 )
+      index = elementsOrder.length;
+    else if ( index > elementsOrder.length )
+      index = elementsOrder.length;
+
+    curDraft.dbEntry.elementsOrder.splice( index, 0, schema.dbEntry._id.toString() );
+    await draftsModel.update<IDraft<'client'>>( { _id: curDraft.dbEntry._id } as IDraftElement<'server'>, {
+      elementsOrder: curDraft.dbEntry.elementsOrder
+    } );
+
     return schema.downloadToken<IDraftElement<'client'>>( { expandForeignKeys: false, verbose: true } );
   }
 
   async removeElement( findOptions: GetOptions, elementId: string ) {
     const docsModel = this._docs;
+    const draftsModel = this._drafts;
+
     const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
     if ( !doc )
       throw new Error404( 'Document not found' );
+
+    const curDraft = await draftsModel.findOne<IDraft<'server'>>( { _id: doc.dbEntry.currentDraft! } as IDocument<'server'> );
+    if ( !curDraft )
+      throw new Error404( 'Could not find active draft' );
 
     if ( findOptions.checkPermissions )
       if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
@@ -172,6 +199,9 @@ export class DocumentsController extends Controller {
       throw new Error404();
 
     await this._elementsCollection.remove( { _id: new ObjectID( elementId ) } as IDraftElement<'server'> );
+    await draftsModel.update<IDraft<'client'>>( { _id: curDraft.dbEntry._id } as IDraftElement<'server'>, {
+      elementsOrder: curDraft.dbEntry.elementsOrder.filter( e => e !== elementId )
+    } );
   }
 
   async updateElement( findOptions: GetOptions, elmId: string, token: IDraftElement<'client'> ) {
@@ -264,7 +294,8 @@ export class DocumentsController extends Controller {
     // Update the draft with the element in the template map
     await this._drafts.update<IDraft<'client'>>(
       { _id: draft.dbEntry._id } as IDraft<'server'>, {
-        templateMap: elmTemplateMap
+        templateMap: elmTemplateMap,
+        elementsOrder: [ firstElmId ]
       } );
 
     // Update the doc to point to the draft

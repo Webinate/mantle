@@ -8,6 +8,7 @@ export interface IDraft<T extends 'server' | 'client'> {
   parent: T extends 'client' ? IDocument<T> | string : ObjectID;
   template: T extends 'client' ? ITemplate<T> | string : ObjectID;
   templateMap: { [ zone: string ]: string[] };
+  elementsOrder: string[];
   lastUpdated: number;
   createdOn: number;
   published: boolean;

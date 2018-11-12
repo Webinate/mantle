@@ -99,6 +99,8 @@ describe( 'Testing fetching of posts', function() {
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
     assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
     assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
+    assert( Array.isArray( draft.elementsOrder ) );
+    assert.deepEqual( draft.elementsOrder[ 0 ], draft.elements[ 0 ]._id );
   } )
 
   it( 'can fetch posts and impose a limit off 1 on them', async function() {
@@ -208,6 +210,8 @@ describe( 'Testing fetching of posts', function() {
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
     assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
     assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
+    assert( Array.isArray( draft.elementsOrder ) );
+    assert.deepEqual( draft.elementsOrder[ 0 ], draft.elements[ 0 ]._id );
   } )
 
   it( 'cannot fetch a private post by slug when not logged in', async function() {

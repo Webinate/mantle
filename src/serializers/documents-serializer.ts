@@ -73,10 +73,14 @@ export class DocumentsSerializer extends Serializer {
   @validId( 'id', 'ID' )
   @authorize()
   private async addElement( req: IAuthReq, res: express.Response ) {
+    let index: number | undefined = parseInt( req.query.index );
+    if ( isNaN( index ) )
+      index = undefined;
+
     const element = await this._docsController.addElement( {
       id: req.params.id,
       checkPermissions: req._isAdmin ? undefined : { userId: req._user!._id }
-    }, req.body );
+    }, req.body, index );
 
     return element;
   }

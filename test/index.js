@@ -96,6 +96,7 @@ require( './tests/posts/documents-elms-update' );
 require( './tests/posts/documents-elms-add' );
 require( './tests/posts/documents-elms-remove' );
 require( './tests/posts/documents-elms-html-validation' );
+require( './tests/posts/documents-elms-order' );
 
 require( './tests/templates/get-default-templates' );
 
