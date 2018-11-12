@@ -87,7 +87,7 @@ export class DocumentsController extends Controller {
     } as IDraftElement<'server'>
     ).toArray();
 
-    draft.elements = elements as IDraftElement<'client'>[];
+    draft.elements = draft.elementsOrder.map( elmId => elements.find( elm => elm._id.toString() === elmId ) ) as IDraftElement<'client'>[];
   }
 
   /**
@@ -199,9 +199,15 @@ export class DocumentsController extends Controller {
       throw new Error404();
 
     await this._elementsCollection.remove( { _id: new ObjectID( elementId ) } as IDraftElement<'server'> );
-    await draftsModel.update<IDraft<'client'>>( { _id: curDraft.dbEntry._id } as IDraftElement<'server'>, {
-      elementsOrder: curDraft.dbEntry.elementsOrder.filter( e => e !== elementId )
-    } );
+    // await draftsModel.update<IDraft<'client'>>( { _id: curDraft.dbEntry._id } as IDraftElement<'server'>, {
+    //   elementsOrder: curDraft.dbEntry.elementsOrder.filter( e => e !== elementId )
+    // } );
+
+    await draftsModel.collection.update(
+      { _id: curDraft.dbEntry._id } as IDraftElement<'server'>,
+      { $pull: { elementsOrder: { $in: [ elementId ] } } },
+      { multi: true }
+    )
   }
 
   async updateElement( findOptions: GetOptions, elmId: string, token: IDraftElement<'client'> ) {
