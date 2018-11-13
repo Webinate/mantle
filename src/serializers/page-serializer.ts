@@ -6,7 +6,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Serializer } from './serializer';
 import * as url from 'url';
-import * as jsdom from 'jsdom';
+import { JSDOM } from 'jsdom';
 import { okJson, errJson } from '../utils/response-decorators';
 import { j200 } from '../decorators/responses';
 import { admin } from '../decorators/permissions';
@@ -168,7 +168,7 @@ export class PageSerializer extends Serializer {
   /**
    * Fetches a page and strips it of all its script tags
    */
-  private renderPage( url: string ): Promise<string> {
+  private async renderPage( url: string ): Promise<string> {
     return new Promise<string>( ( resolve, reject ) => {
       let timer: NodeJS.Timer;
       let win: any | null;
@@ -199,21 +199,12 @@ export class PageSerializer extends Serializer {
         timer = global.setTimeout( checkComplete, 300 );
       }
 
-      jsdom.env( {
-        url: url,
-        features: {
-          FetchExternalResources: [ 'script' ],
-          ProcessExternalResources: [ 'script' ],
-          SkipExternalResources: false
-        },
-        done: function( errors, window ) {
-          if ( errors && errors.length > 0 )
-            return reject( errors[ 0 ] );
-
-          win = window;
-          checkComplete();
-        }
-      } );
+      JSDOM.fromURL( url, { resources: "usable" } ).then( dom => {
+        win = dom.window;
+        checkComplete();
+      } ).catch( err => {
+        reject( err );
+      } )
     } );
   }
 
