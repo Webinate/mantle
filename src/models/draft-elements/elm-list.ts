@@ -15,6 +15,7 @@ export class ElmList extends Model<IDraftElement<'client' | 'server'>> {
     this.schema.addItems( [
       new foreignKey( 'parent', 'drafts', { keyCanBeNull: false } ),
       new text( 'type', type ),
+      new text( 'zone', 'unassigned' ),
       new html( 'html', '<ul></ul>', {
         allowedTags: SchemaHtml.inlineTags.concat( [ 'ul', 'ol', 'li' ] ),
         errorBadHTML: false

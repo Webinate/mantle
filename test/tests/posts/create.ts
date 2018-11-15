@@ -86,7 +86,6 @@ describe( 'Testing creation of posts', function() {
 
     // Check the current draft
     const draft = doc.currentDraft as IPopulatedDraft<'client'>;
-    assert.deepEqual( draft.templateMap[ ( doc.template as ITemplate<'client'> ).defaultZone ][ 0 ], draft.elements[ 0 ]._id );
     assert.deepEqual( draft.elements.length, 1 );
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
     assert.deepEqual( draft.elements[ 0 ].parent, draft._id );

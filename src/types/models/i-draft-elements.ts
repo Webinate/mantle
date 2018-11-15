@@ -9,4 +9,5 @@ export interface IDraftElement<T extends 'server' | 'client'> {
   parent: T extends 'client' ? IDraft<T> | string : ObjectID;
   type: DraftElements;
   html: string;
+  zone: string;
 }

@@ -199,10 +199,6 @@ export class DocumentsController extends Controller {
       throw new Error404();
 
     await this._elementsCollection.remove( { _id: new ObjectID( elementId ) } as IDraftElement<'server'> );
-    // await draftsModel.update<IDraft<'client'>>( { _id: curDraft.dbEntry._id } as IDraftElement<'server'>, {
-    //   elementsOrder: curDraft.dbEntry.elementsOrder.filter( e => e !== elementId )
-    // } );
-
     await draftsModel.collection.update(
       { _id: curDraft.dbEntry._id } as IDraftElement<'server'>,
       { $pull: { elementsOrder: { $in: [ elementId ] } } },
@@ -292,15 +288,10 @@ export class DocumentsController extends Controller {
 
     // Update the draft with the default element
     const firstElmId = firstElm.dbEntry._id.toString();
-    const elmTemplateMap: { [ zone: string ]: string[] } = {};
-
-    // Assign the first element to the default zone
-    elmTemplateMap[ templates[ 0 ].dbEntry.defaultZone ] = [ firstElmId ];
 
     // Update the draft with the element in the template map
     await this._drafts.update<IDraft<'client'>>(
       { _id: draft.dbEntry._id } as IDraft<'server'>, {
-        templateMap: elmTemplateMap,
         elementsOrder: [ firstElmId ]
       } );
 

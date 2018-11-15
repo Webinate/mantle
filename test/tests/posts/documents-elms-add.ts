@@ -72,19 +72,21 @@ describe( 'Testing the adding of document elements: ', function() {
 
   it( 'did create a regular element', async function() {
     const html = '<p>Hello world</p>';
-    const resp = await header.user1.post( `/api/documents/${document._id}/elements`, { type: 'elm-paragraph', html: html } as IDraftElement<'client'> );
+    const resp = await header.user1.post( `/api/documents/${document._id}/elements`, { type: 'elm-paragraph', html: html, zone: 'zone-a' } as IDraftElement<'client'> );
     assert.equal( resp.status, 200 );
     const updated = await resp.json<IDraftElement<'client'>>();
     assert.deepEqual( updated.type, 'elm-paragraph' );
+    assert.deepEqual( updated.zone, 'zone-a' );
     assert.deepEqual( updated.html, html );
   } )
 
   it( 'did allow an admin to create a regular element', async function() {
     const html = '<p>Hello world2</p>';
-    const resp = await header.admin.post( `/api/documents/${document._id}/elements`, { type: 'elm-paragraph', html: html } as IDraftElement<'client'> );
+    const resp = await header.admin.post( `/api/documents/${document._id}/elements`, { type: 'elm-paragraph', html: html, zone: 'zone-a' } as IDraftElement<'client'> );
     assert.equal( resp.status, 200 );
     const updated = await resp.json<IDraftElement<'client'>>();
     assert.deepEqual( updated.type, 'elm-paragraph' );
+    assert.deepEqual( updated.zone, 'zone-a' );
     assert.deepEqual( updated.html, html );
   } )
 } )

@@ -74,17 +74,19 @@ describe( 'Testing the editting of document elements: ', function() {
 
   it( 'did allow a regular edit opertion', async function() {
     const updatedHTML = '<p>This is something <strong>new</strong> and <u>exciting</u></p>';
-    const resp = await header.user1.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { html: updatedHTML } as IDraftElement<'client'> );
+    const resp = await header.user1.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { html: updatedHTML, zone: 'zone-a' } as IDraftElement<'client'> );
     assert.equal( resp.status, 200 );
     const updated = await resp.json<IDraftElement<'client'>>();
     assert.deepEqual( updated.html, updatedHTML );
+    assert.deepEqual( updated.zone, 'zone-a' );
   } )
 
   it( 'did allow an admin to edit', async function() {
     const updatedHTML = '<p>This is something else</p>';
-    const resp = await header.admin.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { html: updatedHTML } as IDraftElement<'client'> );
+    const resp = await header.admin.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { html: updatedHTML, zone: 'zone-a' } as IDraftElement<'client'> );
     assert.equal( resp.status, 200 );
     const updated = await resp.json<IDraftElement<'client'>>();
     assert.deepEqual( updated.html, updatedHTML );
+    assert.deepEqual( updated.zone, 'zone-a' );
   } )
 } )
