@@ -283,7 +283,10 @@ export class DocumentsController extends Controller {
 
     const pModel = ModelFactory.get( 'elm-paragraph' );
     const firstElm = await pModel.createInstance<IDraftElement<'client'>>( {
-      html: '<p></p>', parent: draft.dbEntry._id.toString(), type: 'elm-paragraph'
+      html: '<p></p>',
+      parent: draft.dbEntry._id.toString(),
+      type: 'elm-paragraph',
+      zone: templates[ 0 ].dbEntry.defaultZone
     } );
 
     // Update the draft with the default element
