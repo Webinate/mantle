@@ -95,7 +95,7 @@ describe( 'Testing fetching of posts', function() {
     // Check the current draft
     const draft = doc.currentDraft as IPopulatedDraft<'client'>;
     assert.deepEqual( draft.elements.length, 1 );
-    assert.deepEqual( draft.elements[ 0 ].zone, 'unassigned' );
+    assert.deepEqual( draft.elements[ 0 ].zone, 'main' );
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
     assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
     assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
@@ -207,7 +207,7 @@ describe( 'Testing fetching of posts', function() {
     const draft = doc.currentDraft as IPopulatedDraft<'client'>;
     assert.deepEqual( draft.elements.length, 1 );
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
-    assert.deepEqual( draft.elements[ 0 ].zone, 'unassigned' );
+    assert.deepEqual( draft.elements[ 0 ].zone, 'main' );
     assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
     assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
     assert( Array.isArray( draft.elementsOrder ) );
