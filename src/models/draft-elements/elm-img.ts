@@ -17,7 +17,7 @@ export class ElmImg extends Model<IDraftElement<'client' | 'server'>> {
       new text( 'type', type ),
       new text( 'zone', 'unassigned' ),
       new html( 'html', '<figure></figure>', {
-        allowedTags: SchemaHtml.inlineTags.concat( [ 'img' ] ),
+        allowedTags: SchemaHtml.inlineTags.concat( [ 'img', 'figure' ] ),
         errorBadHTML: false
       } )
     ] );
