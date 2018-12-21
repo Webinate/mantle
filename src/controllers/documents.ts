@@ -88,6 +88,9 @@ export class DocumentsController extends Controller {
     } as IDraftElement<'server'>
     ).toArray();
 
+    if ( !elements || elements.length === 0 )
+      return;
+
     draft.elements = draft.elementsOrder.map( elmId => elements.find( elm => elm._id.toString() === elmId ) ) as IDraftElement<'client'>[];
 
     const jsons = await Promise.all(
