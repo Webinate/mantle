@@ -81,6 +81,7 @@ require( './tests/files/rename' );
 require( './tests/files/upload' );
 require( './tests/files/upload-validation' );
 require( './tests/files/getting-many-filters' );
+require( './tests/files/replace-file-upload' );
 
 require( './tests/posts/create' );
 require( './tests/posts/delete' );
@@ -97,6 +98,7 @@ require( './tests/posts/documents-elms-add' );
 require( './tests/posts/documents-elms-remove' );
 require( './tests/posts/documents-elms-html-validation' );
 require( './tests/posts/documents-elms-order' );
+require( './tests/posts/documents-elms-image-html' );
 
 require( './tests/templates/get-default-templates' );
 

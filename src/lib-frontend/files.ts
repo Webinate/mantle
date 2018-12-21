@@ -18,6 +18,15 @@ export function update( id: string, token: Partial<IFileEntry<'client'>> ) {
   return putJson<IFileEntry<'client'>>( `${rootPath}/${id}`, token );
 }
 
+export async function replaceFile( fileId: string, file: File ) {
+  const data = new FormData();
+  data.append( 'file', file );
+
+  const resp = await post( `${rootPath}/replace/${fileId}`, data );
+  const toRet: IFileEntry<'client'> = await resp.json();
+  return toRet;
+}
+
 export async function create( volumeId: string, file: File ) {
   const data = new FormData();
   data.append( 'file', file );

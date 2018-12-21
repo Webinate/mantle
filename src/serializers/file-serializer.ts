@@ -45,6 +45,7 @@ export class FileSerializer extends Serializer {
     router.delete( '/:file', this.remove.bind( this ) );
     router.put( '/:file', this.update.bind( this ) );
     router.post( '/volumes/:volume/upload/:directory?', this.upload.bind( this ) );
+    router.post( '/replace/:fileId', this.replace.bind( this ) );
 
     // Register the path
     e.use( ( this._options.rootPath || '' ) + `/files`, router );
@@ -72,6 +73,12 @@ export class FileSerializer extends Serializer {
 
     if ( !req._isAdmin && file.user )
       throw new Error403( 'Permission denied - cannot set user as non-admin' );
+
+    delete file.size;
+    delete file.numDownloads;
+    delete file.mimeType;
+    delete file.publicURL;
+    delete file.identifier;
 
     return await this._files.update( req.params.file, file );
   }
@@ -112,5 +119,16 @@ export class FileSerializer extends Serializer {
       throw new Error( `Incorrect volume id format` );
 
     return this._files.uploadFilesToVolume( req, volumeId, req._user!._id.toString() );
+  }
+
+  @j200()
+  @authorize()
+  private async replace( req: IAuthReq ) {
+    const fileId = req.params.fileId;
+
+    if ( !mongodb.ObjectID.isValid( fileId ) )
+      throw new Error( `Incorrect file id format` );
+
+    return this._files.replaceFileContent( req, fileId, req._user!._id.toString() );
   }
 }

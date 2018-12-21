@@ -15,9 +15,10 @@ import { unlink, exists } from 'fs';
 import * as path from 'path';
 import { IncomingForm, Fields, File, Part } from 'formidable';
 import * as winston from 'winston';
-import { Error404, Error500 } from '../utils/errors';
+import { Error404, Error500, Error400 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUploadToken } from '../types/interfaces/i-remote';
+import { Schema } from '../models/schema';
 
 export type FilesGetOptions = {
   volumeId?: string | ObjectID;
@@ -244,7 +245,7 @@ export class FilesController extends Controller {
     } );
   }
 
-  async uploadFileToRemote( file: File, volume: IVolume<'client' | 'server'>, removeFile: boolean = true ) {
+  async uploadFileToRemote( file: File, volume: IVolume<'client' | 'server'>, removeFile: boolean = true, existinFile: Schema<IFileEntry<'server' | 'client'>> | null = null ) {
     const filesModel = this._files;
     const volumesModel = this._volumes;
 
@@ -275,16 +276,26 @@ export class FilesController extends Controller {
       volumeName: volume.name
     };
 
-    const newFile = await filesModel.createInstance<IFileEntry<'client'>>( fileData );
+    let newFile = existinFile;
+    let newVolumeSize = volume.memoryUsed;
 
-    await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: volume.memoryUsed + file.size } );
+    if ( !newFile ) {
+      newVolumeSize = newVolumeSize + fileData.size!;
+      newFile = await filesModel.createInstance<IFileEntry<'client'>>( fileData );
+    }
+    else {
+      newVolumeSize = newVolumeSize - newFile.dbEntry.size + fileData.size!;
+      newFile = await filesModel.update( { _id: newFile.dbEntry._id } as IFileEntry<'server'>, fileData ) as Schema<IFileEntry<'server'>>;
+    }
+
+    await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: newVolumeSize } );
 
     // Remove temp file
     if ( removeFile )
       await this.removeTempFiles( [ file ] );
 
     // Return the new file
-    return newFile.downloadToken<IFileEntry<'client'>>( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
+    return newFile!.downloadToken<IFileEntry<'client'>>( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
   }
 
   /**
@@ -325,6 +336,55 @@ export class FilesController extends Controller {
   }
 
   /**
+   * Uploads a file to replace an existing file's content
+   * @param req The request to process form data
+   * @param fileId The id of the file to replace
+   * @param username The username of the uploader
+   */
+  async replaceFileContent( req: IAuthReq, fileId: string, userId: string ) {
+    if ( !fileId || fileId.trim() === '' )
+      throw new Error( `Please specify a volume for the upload` );
+
+    const file = await this._files.findOne<IFileEntry<'server'>>( { _id: new ObjectID( fileId ) } as IFileEntry<'server'> );
+
+    if ( !file )
+      throw new Error404( 'File not found' );
+
+    const volumeSchema = await this._volumes.findOne<IVolume<'server'>>( {
+      _id: file.dbEntry.volumeId,
+      user: new ObjectID( userId )
+    } as Partial<IVolume<'server'>> );
+
+    if ( !volumeSchema )
+      throw new Error( `Volume does not exist` );
+
+    const response = await this.uploadFormToTempDir( req );
+
+    let memory = 0;
+    for ( const f of response.files )
+      memory += f.size;
+
+    if ( response.files.length > 1 ) {
+      await this.removeTempFiles( response.files )
+      throw new Error400( `You must only upload 1 file when replacing`, 400 );
+    }
+
+    if ( memory + volumeSchema.dbEntry.memoryUsed > volumeSchema.dbEntry.memoryAllocated ) {
+      await this.removeTempFiles( response.files )
+      throw new Error( `You dont have sufficient memory in the volume` );
+    }
+
+    await this.deleteFile( file.dbEntry, false );
+
+    const proimises: Promise<IFileEntry<'client'>>[] = [];
+    for ( const f of response.files )
+      proimises.push( this.uploadFileToRemote( f, volumeSchema.dbEntry, false, file ) );
+
+    const fileEntries = await Promise.all( proimises );
+    return fileEntries;
+  }
+
+  /**
    * Fetches the file count based on the given query
    * @param searchQuery The search query to idenfify files
    */
@@ -359,7 +419,7 @@ export class FilesController extends Controller {
    * Deletes the file from storage and updates the databases
    * @param fileEntry
    */
-  private async deleteFile( fileEntry: IFileEntry<'server'>, idsAlreadyHandled?: string[] ) {
+  private async deleteFile( fileEntry: IFileEntry<'server'>, removeFileEntry: boolean = true ) {
     const files = this._files;
     const promises: Promise<any>[] = [];
 
@@ -382,10 +442,11 @@ export class FilesController extends Controller {
       await volumes.update<IVolume<'client'>>( { identifier: volume.dbEntry.identifier } as IVolume<'server'>, { memoryUsed: volume.dbEntry.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>> );
     }
 
-    await files.deleteInstances( { _id: fileEntry._id } as IFileEntry<'server'> );
-
-    await ControllerFactory.get( 'users' ).onFileRemoved( fileEntry );
-    await ControllerFactory.get( 'posts' ).onFileRemoved( fileEntry );
+    if ( removeFileEntry ) {
+      await files.deleteInstances( { _id: fileEntry._id } as IFileEntry<'server'> );
+      await ControllerFactory.get( 'users' ).onFileRemoved( fileEntry );
+      await ControllerFactory.get( 'posts' ).onFileRemoved( fileEntry );
+    }
 
     return fileEntry;
   }

@@ -199,7 +199,7 @@ export class PageSerializer extends Serializer {
         timer = global.setTimeout( checkComplete, 300 );
       }
 
-      JSDOM.fromURL( url, { resources: "usable" } ).then( dom => {
+      JSDOM.fromURL( url, { resources: 'usable' } ).then( dom => {
         win = dom.window;
         checkComplete();
       } ).catch( err => {

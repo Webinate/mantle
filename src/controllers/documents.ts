@@ -14,6 +14,7 @@ import { isValidObjectID } from '../utils/utils';
 import { ITemplate } from '../types/models/i-template';
 import { IDraftElement } from '../types/models/i-draft-elements';
 import { Model } from '../models/model';
+import { buildHtml } from './build-html';
 
 export type GetOptions = {
   id: string;
@@ -88,6 +89,24 @@ export class DocumentsController extends Controller {
     ).toArray();
 
     draft.elements = draft.elementsOrder.map( elmId => elements.find( elm => elm._id.toString() === elmId ) ) as IDraftElement<'client'>[];
+
+    const jsons = await Promise.all(
+      draft.elements.map( elm => {
+        const model = ModelFactory.get( elm.type );
+        const schema = model.schema.clone();
+        schema.setServer( elm, true );
+        return schema.downloadToken<IDraftElement<'client'>>( {
+          expandMaxDepth: 1,
+          expandForeignKeys: true,
+          verbose: true,
+          expandSchemaBlacklist: [ /parent/ ]
+        } );
+      } )
+    );
+
+    draft.elements = jsons;
+    for ( const elm of draft.elements )
+      elm.html = buildHtml( elm );
   }
 
   /**
@@ -174,7 +193,14 @@ export class DocumentsController extends Controller {
       elementsOrder: curDraft.dbEntry.elementsOrder
     } );
 
-    return schema.downloadToken<IDraftElement<'client'>>( { expandForeignKeys: false, verbose: true } );
+    const toRet = await schema.downloadToken<IDraftElement<'client'>>( {
+      expandForeignKeys: true,
+      verbose: true,
+      expandMaxDepth: 1,
+      expandSchemaBlacklist: [ /parent/ ]
+    } );
+    toRet.html = buildHtml( toRet );
+    return toRet;
   }
 
   async removeElement( findOptions: GetOptions, elementId: string ) {
@@ -230,7 +256,14 @@ export class DocumentsController extends Controller {
         throw new Error403();
 
     const model = ModelFactory.get( json.type );
-    const updatedJson = await model.update<IDraftElement<'client'>>( selector, token, { verbose: true, expandForeignKeys: false } );
+    const updatedJson = await model.update<IDraftElement<'client'>>( selector, token, {
+      verbose: true,
+      expandForeignKeys: true,
+      expandMaxDepth: 1,
+      expandSchemaBlacklist: [ /parent/ ]
+    } );
+
+    updatedJson.html = buildHtml( updatedJson );
     return updatedJson;
   }
 
