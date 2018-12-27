@@ -119,7 +119,6 @@ export class DocumentsController extends Controller {
         htmlMap[ elm.zone ] += elm.html;
     }
 
-    const zones = Object.keys( htmlMap );
     draft.html = htmlMap;
   }
 
