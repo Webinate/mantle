@@ -8,11 +8,9 @@ export interface IDraft<T extends 'server' | 'client'> {
   parent: T extends 'client' ? IDocument<T> | string : ObjectID;
   template: T extends 'client' ? ITemplate<T> | string : ObjectID;
   elementsOrder: string[];
+  elements: IDraftElement<T>[];
+  html: { [ zone: string ]: string };
   lastUpdated: number;
   createdOn: number;
   published: boolean;
-}
-
-export interface IPopulatedDraft<T extends 'server' | 'client'> extends IDraft<T> {
-  elements: IDraftElement<T>[];
 }

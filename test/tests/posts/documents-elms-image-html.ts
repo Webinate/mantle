@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IDocument, IUserEntry, IDraftElement, IVolume, IFileEntry, IDraft, IPopulatedDraft } from '../../../src';
+import { IPost, IDocument, IUserEntry, IDraftElement, IVolume, IFileEntry, IDraft } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
@@ -73,7 +73,7 @@ describe( 'Testing the rendered html of elements: ', function() {
   it( 'did get the image html from a doc request', async function() {
     const resp = await header.admin.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IPopulatedDraft<'client'>;
+    const draft = doc.currentDraft as IDraft<'client'>;
     assert.equal( resp.status, 200 );
     assert.equal( draft.elements[ 1 ].html, `<figure><img src="${file.publicURL}" /></figure>` );
   } )
@@ -86,7 +86,7 @@ describe( 'Testing the rendered html of elements: ', function() {
   it( 'did get the render missing image html after image removed', async function() {
     const resp = await header.admin.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IPopulatedDraft<'client'>;
+    const draft = doc.currentDraft as IDraft<'client'>;
     assert.equal( resp.status, 200 );
     assert.equal( draft.elements[ 1 ].html, `<figure>Image not found</figure>` );
   } )

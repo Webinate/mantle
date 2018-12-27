@@ -4,11 +4,11 @@ import { IPost, IDocument, IUserEntry } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { IPopulatedDraft } from '../../../src/types/models/i-draft';
+import { IDraft } from '../../../src/types/models/i-draft';
 
 let post: IPost<'client'>,
   document: IDocument<'client'>,
-  curDraft: IPopulatedDraft<'client'>,
+  curDraft: IDraft<'client'>,
   user1: IUserEntry<'client'>;
 
 describe( 'Testing the deletion of document elements: ', function() {
@@ -27,7 +27,7 @@ describe( 'Testing the deletion of document elements: ', function() {
     } );
 
     document = post.document as IDocument<'client'>;
-    curDraft = document.currentDraft as IPopulatedDraft<'client'>;
+    curDraft = document.currentDraft as IDraft<'client'>;
   } )
 
   after( async function() {
@@ -50,7 +50,7 @@ describe( 'Testing the deletion of document elements: ', function() {
     assert.equal( resp.status, 404 );
   } )
 
-  it( 'did not update an element on a document that doesnt exist', async function() {
+  it( 'did not delete an element on a document that doesnt exist', async function() {
     const resp = await header.user1.delete( `/api/documents/${document._id}/elements/123456789012345678901234` );
     assert.equal( resp.status, 404 );
   } )
@@ -68,5 +68,13 @@ describe( 'Testing the deletion of document elements: ', function() {
   it( 'did allow a regular user to delete the unit', async function() {
     const resp = await header.user1.delete( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}` );
     assert.equal( resp.status, 204 );
+  } )
+
+  it( 'did update the draft html', async function() {
+    const resp = await header.user1.get( `/api/documents/${document._id}` );
+    assert.equal( resp.status, 200 );
+    const docJson = await resp.json<IDocument<'client'>>();
+    const draftJson = docJson.currentDraft as IDraft<'client'>;
+    assert.deepEqual( draftJson.html.main, undefined );
   } )
 } )

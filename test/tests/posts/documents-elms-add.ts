@@ -4,11 +4,11 @@ import { IPost, IDocument, IUserEntry, IDraftElement } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { IPopulatedDraft } from '../../../src/types/models/i-draft';
+import { IDraft } from '../../../src/types/models/i-draft';
 
 let post: IPost<'client'>,
   document: IDocument<'client'>,
-  curDraft: IPopulatedDraft<'client'>,
+  curDraft: IDraft<'client'>,
   user1: IUserEntry<'client'>;
 
 describe( 'Testing the adding of document elements: ', function() {
@@ -27,7 +27,7 @@ describe( 'Testing the adding of document elements: ', function() {
     } );
 
     document = post.document as IDocument<'client'>;
-    curDraft = document.currentDraft as IPopulatedDraft<'client'>;
+    curDraft = document.currentDraft as IDraft<'client'>;
   } )
 
   after( async function() {
@@ -80,12 +80,22 @@ describe( 'Testing the adding of document elements: ', function() {
   } )
 
   it( 'did allow an admin to create a regular element', async function() {
-    const html = '<p>Hello world2</p>';
+    const html = '<p>Hello world 2</p>';
     const resp = await header.admin.post( `/api/documents/${document._id}/elements`, { type: 'elm-paragraph', html: html, zone: 'zone-a' } as IDraftElement<'client'> );
     assert.equal( resp.status, 200 );
     const updated = await resp.json<IDraftElement<'client'>>();
     assert.deepEqual( updated.type, 'elm-paragraph' );
     assert.deepEqual( updated.zone, 'zone-a' );
     assert.deepEqual( updated.html, html );
+  } )
+
+  it( 'did update the draft html', async function() {
+    const resp = await header.user1.get( `/api/documents/${document._id}` );
+    assert.equal( resp.status, 200 );
+    const docJson = await resp.json<IDocument<'client'>>();
+    const draftJson = docJson.currentDraft as IDraft<'client'>;
+
+    assert.deepEqual( draftJson.html[ 'main' ], '<p></p>' );
+    assert.deepEqual( draftJson.html[ 'zone-a' ], '<p>Hello world</p><p>Hello world 2</p>' );
   } )
 } )

@@ -14,7 +14,7 @@ import { DocumentsController } from './documents';
 import { Error404 } from '../utils/errors';
 import { Schema } from '../models/schema';
 import { IDocument } from '../types/models/i-document';
-import { IPopulatedDraft } from '../types/models/i-draft';
+import { IDraft } from '../types/models/i-draft';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 
@@ -167,7 +167,7 @@ export class PostsController extends Controller {
       } );
 
     await Promise.all( sanitizedData.filter( post => post.document ? true : false ).map( post => this._documents.populateDraft(
-      ( post.document as IDocument<'client'> ).currentDraft as IPopulatedDraft<'client'> ) )
+      ( post.document as IDocument<'client'> ).currentDraft as IDraft<'client'> ) )
     );
 
     const response: Page<IPost<'client'>> = {
@@ -291,7 +291,7 @@ export class PostsController extends Controller {
 
     // Populate the document draft with its elements
     const document = post.document as IDocument<'client'>;
-    await this._documents.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
+    await this._documents.populateDraft( document.currentDraft as IDraft<'client'> );
 
     return post;
   }
@@ -328,7 +328,7 @@ export class PostsController extends Controller {
 
     // Populate the document draft with its elements
     const document = sanitizedData.document as IDocument<'client'>;
-    await this._documents.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
+    await this._documents.populateDraft( document.currentDraft as IDraft<'client'> );
 
 
     return sanitizedData;

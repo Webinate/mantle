@@ -7,7 +7,7 @@ import { DocumentsModel } from '../models/documents-model';
 import { TemplatesModel } from '../models/templates-model';
 import { IDocument } from '../types/models/i-document';
 import { DraftsModel } from '../models/drafts-model';
-import { IDraft, IPopulatedDraft } from '../types/models/i-draft';
+import { IDraft } from '../types/models/i-draft';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { Error404, Error400, Error403 } from '../utils/errors';
 import { isValidObjectID } from '../utils/utils';
@@ -82,7 +82,7 @@ export class DocumentsController extends Controller {
   /**
    * Populates a draft json with its elements
    */
-  async populateDraft( draft: IPopulatedDraft<'client'> ) {
+  async populateDraft( draft: IDraft<'client'> ) {
     const elements: IDraftElement<'client' | 'server'>[] = await this._elementsCollection.find( {
       parent: new ObjectID( draft._id )
     } as IDraftElement<'server'>
@@ -107,9 +107,20 @@ export class DocumentsController extends Controller {
       } )
     );
 
+    const htmlMap: { [ zone: string ]: string } = {};
     draft.elements = jsons;
-    for ( const elm of draft.elements )
+
+    for ( const elm of draft.elements ) {
       elm.html = buildHtml( elm );
+
+      if ( !htmlMap[ elm.zone ] )
+        htmlMap[ elm.zone ] = elm.html;
+      else
+        htmlMap[ elm.zone ] += elm.html;
+    }
+
+    const zones = Object.keys( htmlMap );
+    draft.html = htmlMap;
   }
 
   /**
@@ -135,7 +146,7 @@ export class DocumentsController extends Controller {
 
     await Promise.all( docs.map( document => {
       if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        return this.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
+        return this.populateDraft( document.currentDraft as IDraft<'client'> );
       else
         return Promise.resolve();
     } ) )
@@ -344,7 +355,7 @@ export class DocumentsController extends Controller {
       const document = await schema.downloadToken<IDocument<'client'>>( options );
 
       if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        await this.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
+        await this.populateDraft( document.currentDraft );
 
       return document;
     }
@@ -379,7 +390,7 @@ export class DocumentsController extends Controller {
       } );
 
       if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        await this.populateDraft( document.currentDraft as IPopulatedDraft<'client'> );
+        await this.populateDraft( document.currentDraft );
 
       return document;
     }

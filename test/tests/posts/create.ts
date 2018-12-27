@@ -3,7 +3,7 @@ import { } from 'mocha';
 import { IPost, IAdminUser, IUserEntry, IDocument, ITemplate } from '../../../src';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
-import { IPopulatedDraft } from '../../../src/types/models/i-draft';
+import { IDraft } from '../../../src/types/models/i-draft';
 let lastPost: IPost<'client'>, lastPost2: IPost<'client'>;
 let numPosts = 0;
 
@@ -83,7 +83,7 @@ describe( 'Testing creation of posts', function() {
     assert( doc.lastUpdated > 0 );
 
     // Check the current draft
-    const draft = doc.currentDraft as IPopulatedDraft<'client'>;
+    const draft = doc.currentDraft as IDraft<'client'>;
     assert.deepEqual( draft.elements.length, 1 );
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
     assert.deepEqual( draft.elements[ 0 ].parent, draft._id );

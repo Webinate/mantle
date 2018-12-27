@@ -5,7 +5,7 @@ import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { generateRandString } from '../../../src/utils/utils';
-import { IPopulatedDraft } from '../../../src/types/models/i-draft';
+import { IDraft } from '../../../src/types/models/i-draft';
 
 const randomSlug = generateRandString( 10 );
 const privateSlug = generateRandString( 10 );
@@ -90,7 +90,7 @@ describe( 'Testing fetching of posts', function() {
     assert( doc.lastUpdated > 0 );
 
     // Check the current draft
-    const draft = doc.currentDraft as IPopulatedDraft<'client'>;
+    const draft = doc.currentDraft as IDraft<'client'>;
     assert.deepEqual( draft.elements.length, 1 );
     assert.deepEqual( draft.elements[ 0 ].zone, 'main' );
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
@@ -200,7 +200,7 @@ describe( 'Testing fetching of posts', function() {
     assert( doc.lastUpdated > 0 );
 
     // Check the current draft
-    const draft = doc.currentDraft as IPopulatedDraft<'client'>;
+    const draft = doc.currentDraft as IDraft<'client'>;
     assert.deepEqual( draft.elements.length, 1 );
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
     assert.deepEqual( draft.elements[ 0 ].zone, 'main' );

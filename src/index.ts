@@ -92,7 +92,7 @@ export { PostsGetAllOptions } from './controllers/posts';
 export { IVolume } from './types/models/i-volume-entry';
 export { ITemplate } from './types/models/i-template';
 export { IDocument } from './types/models/i-document';
-export { IDraft, IPopulatedDraft } from './types/models/i-draft';
+export { IDraft } from './types/models/i-draft';
 export { IDraftElement, IImageElement } from './types/models/i-draft-elements';
 export { ICategory } from './types/models/i-category';
 export { IComment } from './types/models/i-comment';
