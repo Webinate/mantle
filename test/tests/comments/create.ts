@@ -38,7 +38,6 @@ describe( 'Testing creation of comments', function() {
       slug: header.makeid(),
       brief: "This is brief",
       public: false,
-      content: "Hello world"
     } );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();

@@ -13,7 +13,6 @@ describe( 'Testing the parent child relationship of comments: ', function() {
   before( async function() {
     const posts = ControllerFactory.get( 'posts' );
     post = await posts.create( {
-      content: 'This is a temp post',
       slug: randomString(),
       title: 'Temp Post',
       public: true

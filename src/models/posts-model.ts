@@ -1,6 +1,5 @@
 ﻿import { Model } from './model';
-import { text, bool, textArray, date, html, foreignKey } from './schema-items/schema-item-factory';
-import { SchemaHtml } from './schema-items/schema-html';
+import { text, bool, textArray, date, foreignKey } from './schema-items/schema-item-factory';
 import { IPost } from '../types/models/i-post';
 
 /**
@@ -17,7 +16,6 @@ export class PostsModel extends Model<IPost<'client' | 'server'>> {
       new text( 'brief', '' ),
       new foreignKey( 'featuredImage', 'files', { keyCanBeNull: true } ),
       new foreignKey( 'document', 'documents', { keyCanBeNull: true } ),
-      new html( 'content', '', { allowedTags: SchemaHtml.defaultTags.concat( 'img' ), errorBadHTML: false } ),
       new bool( 'public', true ),
       new textArray( 'categories', [] ),
       new textArray( 'tags', [] ),

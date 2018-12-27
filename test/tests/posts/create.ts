@@ -50,7 +50,6 @@ describe( 'Testing creation of posts', function() {
       slug: slug,
       brief: "This is brief",
       public: false,
-      content: "Hello world",
       categories: [ "super-tests" ],
       tags: [ "super-tags-1234", "supert-tags-4321" ]
     } as IPost<'client'> );
@@ -60,7 +59,6 @@ describe( 'Testing creation of posts', function() {
     lastPost = json;
     assert.strictEqual( json.public, false );
     assert.strictEqual( ( json.author as IUserEntry<'client'> ).username, ( header.config.adminUser as IAdminUser ).username );
-    assert.strictEqual( json.content, "Hello world" );
     assert.strictEqual( json.brief, "This is brief" );
     assert.strictEqual( json.slug, slug );
     assert.strictEqual( json.title, "Simple Test" );

@@ -20,7 +20,6 @@ describe( 'Testing deletion of user is nullified on posts: ', function() {
     // Create post and comments
     post = await posts.create( {
       author: newUser._id,
-      content: 'This is a temp post',
       slug: randomString(),
       title: 'Temp Post',
       public: true

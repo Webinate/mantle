@@ -25,7 +25,6 @@ describe( 'When user deleted, comments must be nullified or removed: ', function
     newUser = await users.getUser( { username: 'user3' } ) as IUserEntry<'client'>;
 
     post = await posts.create( {
-      content: 'This is a temp post',
       slug: randomString(),
       title: 'Temp Post',
       public: true

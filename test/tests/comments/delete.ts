@@ -29,7 +29,6 @@ describe( 'Testing deletion of comments', function() {
       slug: generateRandString( 10 ),
       brief: "This is brief",
       public: false,
-      content: "Hello world"
     } );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();

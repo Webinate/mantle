@@ -18,7 +18,7 @@ describe( 'Testing of fetching sorted comments:', function() {
     const comments = ControllerFactory.get( 'comments' );
     const posts = ControllerFactory.get( 'posts' );
     admin = await users.getUser( { username: ( header.config.adminUser as IAdminUser ).username } ) as IUserEntry<'client'>;
-    post = await posts.create( { content: 'Test', title: 'test', author: admin._id, slug: randomString() } );
+    post = await posts.create( { title: 'test', author: admin._id, slug: randomString() } );
     comment1 = await comments.create( { post: post._id, author: admin.username, user: admin._id, content: 'AAA' } );
     comment2 = await comments.create( { post: post._id, author: admin.username, user: admin._id, content: 'BBBB' } );
 

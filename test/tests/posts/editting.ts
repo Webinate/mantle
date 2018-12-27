@@ -21,8 +21,7 @@ describe( 'Testing editing of posts', function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
       slug: randomSlug,
-      public: true,
-      content: "Hello world"
+      public: true
     } );
     assert.deepEqual( resp.status, 200 );
     post = await resp.json<IPost<'client'>>();
@@ -32,8 +31,7 @@ describe( 'Testing editing of posts', function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
       slug: generateRandString( 10 ),
-      public: true,
-      content: "Hello world"
+      public: true
     } );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
@@ -78,11 +76,11 @@ describe( 'Testing editing of posts', function() {
   } )
 
   it( 'can edit a post with valid details', async function() {
-    const resp = await header.admin.put( `/api/posts/${post._id}`, { content: "Updated" } );
+    const resp = await header.admin.put( `/api/posts/${post._id}`, { brief: 'Updated' } as Partial<IPost<'client'>> );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
     assert.deepEqual( json._id, post._id );
-    assert.deepEqual( json.content, 'Updated' );
+    assert.deepEqual( json.brief, 'Updated' );
   } )
 
   it( 'did update the posts modified property', async function() {

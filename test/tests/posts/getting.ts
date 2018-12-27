@@ -37,7 +37,6 @@ describe( 'Testing fetching of posts', function() {
       title: "Simple Test",
       slug: randomSlug,
       public: true,
-      content: "Hello world",
       featuredImage: file._id.toString(),
       categories: [ randomCategory ],
       tags: [ randomTag, randomTag2 ]
@@ -51,8 +50,7 @@ describe( 'Testing fetching of posts', function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
       slug: privateSlug,
-      public: false,
-      content: "Hello world"
+      public: false
     } );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
@@ -77,7 +75,6 @@ describe( 'Testing fetching of posts', function() {
     assert.deepEqual( post.title, 'Simple Test' );
     assert.deepEqual( post.slug, randomSlug );
     assert.deepEqual( post.public, true );
-    assert.deepEqual( post.content, 'Hello world' );
     assert.deepEqual( post.categories.length, 1 );
     assert.deepEqual( post.tags.length, 2 );
     assert.deepEqual( ( post.featuredImage as IFileEntry<'client'> )._id, file._id.toString() );
@@ -188,7 +185,6 @@ describe( 'Testing fetching of posts', function() {
     assert.deepEqual( post.title, 'Simple Test' );
     assert.deepEqual( post.slug, randomSlug );
     assert.deepEqual( post.public, true );
-    assert.deepEqual( post.content, 'Hello world' );
     assert.deepEqual( post.categories.length, 1 );
     assert.deepEqual( post.tags.length, 2 );
     assert.deepEqual( ( post.featuredImage as IFileEntry<'client'> )._id, file._id.toString() );

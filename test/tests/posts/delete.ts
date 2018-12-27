@@ -19,8 +19,7 @@ describe( 'Testing deletion of posts', function() {
     const resp = await header.admin.post( `/api/posts`, {
       title: "Simple Test",
       slug: slug,
-      public: true,
-      content: "Hello world"
+      public: true
     } );
 
     assert.strictEqual( resp.status, 200 );

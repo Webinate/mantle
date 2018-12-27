@@ -37,8 +37,7 @@ describe( 'Testing fetching of comments', function() {
       title: "Simple Test",
       slug: generateRandString( 10 ),
       brief: "This is brief",
-      public: false,
-      content: "Hello world"
+      public: false
     } );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();

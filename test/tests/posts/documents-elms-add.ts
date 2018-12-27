@@ -21,7 +21,6 @@ describe( 'Testing the adding of document elements: ', function() {
     // Create post and comments
     post = await posts.create( {
       author: user1!._id,
-      content: 'This is a temp post',
       slug: randomString(),
       title: 'Temp Post',
       public: true

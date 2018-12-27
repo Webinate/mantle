@@ -23,7 +23,6 @@ describe( 'Testing deletion of a featured image nullifies it on the post: ', fun
     // Create post and comments
     post = await posts.create( {
       author: user3!._id,
-      content: 'This is a temp post',
       slug: randomString(),
       title: 'Temp Post',
       public: true

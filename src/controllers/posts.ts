@@ -91,7 +91,6 @@ export class PostsController extends Controller {
     if ( options.keyword ) {
       const keyword = new RegExp( options.keyword, 'i' );
       findToken.$or.push( <IPost<'server'>>{ title: <any>keyword } );
-      findToken.$or.push( <IPost<'server'>>{ content: <any>keyword } );
       findToken.$or.push( <IPost<'server'>>{ brief: <any>keyword } );
     }
 

@@ -13,7 +13,7 @@ export interface IPost<T extends 'client' | 'server'> extends IModelEntry<T> {
   slug: string;
   brief: string;
   public: boolean;
-  content: string;
+  // content: string;
   featuredImage: T extends 'client' ? IFileEntry<T> | string | null : ObjectID | null;
   document: T extends 'client' ? IDocument<T> | string : ObjectID;
   categories: Array<string>;

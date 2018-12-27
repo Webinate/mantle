@@ -57,9 +57,9 @@ export type IIdArrOptions = {
 
 export type IHtmlOptions = {
   /** The tags allowed by the html parser */
-  allowedTags?: string[],
+  allowedTags?: string[] | false,
   /** The attributes allowed by each attribute */
-  allowedAttributes?: { [ name: string ]: Array<string> };
+  allowedAttributes?: { [ name: string ]: Array<string> } | false;
   /** If true, the server will disallow a save or insert value with banned html. If false, the value will be transformed silently for you */
   errorBadHTML?: boolean;
   /** Specify the minimum number of characters for use with this text item */

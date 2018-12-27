@@ -32,8 +32,8 @@ export class SchemaHtml extends SchemaItem<string, string> {
     iframe: [ 'src', 'width', 'height', 'frameborder', 'allowfullscreen' ]
   };
 
-  public allowedTags: Array<string>;
-  public allowedAttributes: { [ name: string ]: Array<string> };
+  public allowedTags: Array<string> | false;
+  public allowedAttributes: { [ name: string ]: Array<string> } | false;
   public errorBadHTML: boolean;
   public minCharacters: number;
   public maxCharacters: number;
@@ -69,7 +69,7 @@ export class SchemaHtml extends SchemaItem<string, string> {
   public clone( copy?: SchemaHtml ): SchemaHtml {
     copy = copy === undefined ? new SchemaHtml( this.name, this.getDbValue() ) : copy;
     super.clone( copy );
-    copy.allowedTags = this.allowedTags.slice( 0, this.allowedTags.length );
+    copy.allowedTags = !this.allowedTags ? false : this.allowedTags.slice( 0, this.allowedTags.length );
     copy.allowedAttributes = this.allowedAttributes;
     copy.errorBadHTML = this.errorBadHTML;
     copy.maxCharacters = this.maxCharacters;

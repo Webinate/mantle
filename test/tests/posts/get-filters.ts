@@ -93,7 +93,7 @@ describe( 'Testing filtering of posts: ', function() {
   } )
 
   it( 'can filter based on modified in ascending order', async function() {
-    let resp = await header.admin.put( `/api/posts/${postPublic._id}`, { content: "Updated" } );
+    let resp = await header.admin.put( `/api/posts/${postPublic._id}`, { brief: "Updated" } as Partial<IPost<'client'>> );
     assert.deepEqual( resp.status, 200 );
 
     resp = await header.admin.get( `/api/posts?visibility=all&sortOrder=asc&sort=modified&limit=-1` );
