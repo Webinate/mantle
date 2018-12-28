@@ -223,7 +223,7 @@ export class SchemaIdArray extends SchemaItem<ObjectID[], Client> {
       query.$or.push( <IModelEntry<'server'>>{ _id: val[ i ] } );
 
     const schemas = await model.findMany( { selector: query } );
-    let schema: Schema<IModelEntry<'server'>>;
+    let schema: Schema<IModelEntry<'server'>, IModelEntry<'client'>>;
     const promises: Array<Promise<IModelEntry<'client'>>> = [];
 
     // Get the models items are increase their level - this ensures we dont go too deep

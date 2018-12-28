@@ -5,7 +5,7 @@ import { IVolume } from '../types/models/i-volume-entry';
 /**
  * A model for describing comments
  */
-export class VolumeModel extends Model<IVolume<'client' | 'server'>> {
+export class VolumeModel extends Model<IVolume<'server'>, IVolume<'client'>> {
   constructor() {
     super( 'volumes' );
 

@@ -108,7 +108,7 @@ export class CommentsController extends Controller {
 
     // First get the count
     const count = await comments.count( findToken );
-    const sanitizedData = await comments.downloadMany<IComment<'client'>>(
+    const sanitizedData = await comments.downloadMany(
       {
         selector: findToken,
         sort: sort,
@@ -168,7 +168,7 @@ export class CommentsController extends Controller {
   async getOne( id: string, options: CommentGetOneOptions = { verbose: true } ) {
     const comments = this._commentsModel;
     const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
-    const comment = await comments.downloadOne<IComment<'client'>>( findToken, {
+    const comment = await comments.downloadOne( findToken, {
       verbose: options.verbose === undefined ? true : options.verbose,
       expandForeignKeys: options.expanded || false,
       expandMaxDepth: options.depth || 1,
@@ -196,7 +196,7 @@ export class CommentsController extends Controller {
     const comments = this._commentsModel;
     const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
 
-    const comment = await comments.findOne<IComment<'server'>>( findToken );
+    const comment = await comments.findOne( findToken );
 
     if ( !comment )
       throw new Error( 'Could not find a comment with that ID' );
@@ -211,9 +211,9 @@ export class CommentsController extends Controller {
 
     // Remove from parent children
     if ( comment.dbEntry.parent ) {
-      const parent = await comments.findOne<IComment<'server'>>( { _id: comment.dbEntry.parent } as IComment<'server'> );
+      const parent = await comments.findOne( { _id: comment.dbEntry.parent } as IComment<'server'> );
       const newChildren = parent!.dbEntry.children.filter( c => !c.equals( comment.dbEntry._id ) );
-      await comments.update<IComment<'client'>>( { _id: comment.dbEntry.parent! } as IComment<'server'>, { children: newChildren.map( child => child.toString() ) } );
+      await comments.update( { _id: comment.dbEntry.parent! } as IComment<'server'>, { children: newChildren.map( child => child.toString() ) } );
     }
 
     // Attempt to delete the instances
@@ -228,7 +228,7 @@ export class CommentsController extends Controller {
   async update( id: string, token: Partial<IComment<'client'>> ) {
     const comments = this._commentsModel;
     const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID( id ) };
-    const updatedComment = await comments.update<IComment<'client'>>( findToken, token, {
+    const updatedComment = await comments.update( findToken, token, {
       verbose: true,
       expandForeignKeys: false
     } );
@@ -241,10 +241,10 @@ export class CommentsController extends Controller {
    */
   async create( token: Partial<IComment<'client'>> ) {
     const comments = this._commentsModel;
-    let parent: Schema<IComment<'server'>> | null = null;
+    let parent: Schema<IComment<'server'>, IComment<'client'>> | null = null;
 
     if ( token.parent ) {
-      parent = await comments.findOne<IComment<'server'>>( <IComment<'server'>>{ _id: new mongodb.ObjectID( token.parent as string ) } );
+      parent = await comments.findOne( <IComment<'server'>>{ _id: new mongodb.ObjectID( token.parent as string ) } );
 
       if ( !parent )
         throw new Error( `No comment exists with the id ${token.parent}` );
@@ -253,13 +253,13 @@ export class CommentsController extends Controller {
     token.createdOn = Date.now();
 
     const instance = await comments.createInstance( token );
-    const json = await instance.downloadToken<IComment<'client'>>( { verbose: true } );
+    const json = await instance.downloadToken( { verbose: true } );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
       const children = parent.getByName( 'children' )!.getDbValue()!.map( id => id.toString() );
       children.push( instance.dbEntry._id.toString() );
-      await comments.update<IComment<'client'>>( <IComment<'server'>>{ _id: parent.dbEntry._id }, { children: children } )
+      await comments.update( <IComment<'server'>>{ _id: parent.dbEntry._id }, { children: children } )
     }
 
     return json;

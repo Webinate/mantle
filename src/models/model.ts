@@ -15,18 +15,18 @@ export interface ISearchOptions<T> {
 /**
  * Models map data in the application/client to data in the database
  */
-export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
+export abstract class Model<T extends IModelEntry<'server'>, Y extends IModelEntry<'client'>> {
   public collection: Collection<T>;
-  public schema: Schema<T>;
+  public schema: Schema<T, Y>;
   private _collectionName: string;
 
   /**
 	 * Creates an instance of a Model
 	 * @param collection The collection name associated with this model
 	 */
-  constructor( collection: string ) {
+  constructor( collection: string, customSchema?: Schema<T, Y> ) {
     this._collectionName = collection;
-    this.schema = new Schema();
+    this.schema = customSchema || new Schema();
   }
 
   /**
@@ -37,7 +37,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   /**
 	 * Initializes the model by setting up the database collections
 	 */
-  async initialize( collection: Collection, db: Db ): Promise<Model<T>> {
+  async initialize( collection: Collection, db: Db ): Promise<Model<T, Y>> {
     info( `Successfully created model '${this._collectionName}'` );
     this.collection = collection;
 
@@ -55,7 +55,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   /**
 	 * Gets an array of schemas based on the query options
 	 */
-  async findMany<Y extends IModelEntry<'server'>>( query: ISearchOptions<T> = {} ) {
+  async findMany( query: ISearchOptions<T> = {} ) {
     const collection = this.collection;
 
     // Attempt to save the data to mongo collection
@@ -70,55 +70,55 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
     if ( query.sort )
       cursor = cursor.sort( query.sort );
 
-    const result = await cursor.toArray() as IModelEntry<'server'>[];
+    const result = await cursor.toArray() as T[];
 
     // Create the instance array
-    const schemas: Schema<IModelEntry<'server'>>[] = [];
-    let schema: Schema<IModelEntry<'server'>>;
+    const schemas: Schema<T, Y>[] = [];
+    let schema: Schema<T, Y>;
 
     // For each data entry, create a new instance
     for ( let i = 0, l = result.length; i < l; i++ ) {
-      schema = this.schema.clone() as Schema<IModelEntry<'server'>>;
+      schema = this.schema.clone() as Schema<T, Y>;
       schema.setServer( result[ i ], true );
-      schemas.push( schema as Schema<IModelEntry<'server'>> );
+      schemas.push( schema as Schema<T, Y> );
     }
 
     // Complete
-    return schemas as Schema<Y>[];
+    return schemas as Schema<T, Y>[];
   }
 
   /**
    * Gets a single model schema
    * @param selector The mongodb selector object
    */
-  async findOne<Y extends IModelEntry<'server'>>( selector: any ): Promise<Schema<Y> | null> {
+  async findOne( selector: any ) {
     const schemas = await this.findMany( { selector: selector, limit: 1 } );
     if ( !schemas || schemas.length === 0 )
       return null;
 
-    return schemas[ 0 ] as Schema<Y>;
+    return schemas[ 0 ] as Schema<T, Y>;
   }
 
   /**
    * Downloads a client json of the model
    * @param selector The mongodb selector object
    */
-  async downloadOne<Y extends IModelEntry<'client'>>( selector: any, options: ISchemaOptions ) {
+  async downloadOne( selector: any, options: ISchemaOptions ) {
     const schema = await this.findOne( selector );
     if ( !schema )
       return null;
 
-    return schema.downloadToken<Y>( options );
+    return schema.downloadToken( options );
   }
 
   /**
    * Downloads multiple client jsons based on a query and download options
    */
-  async downloadMany<Y extends IModelEntry<'client'>>( query: ISearchOptions<T> = {}, options: ISchemaOptions ) {
+  async downloadMany( query: ISearchOptions<T> = {}, options: ISchemaOptions ) {
     const schemas = await this.findMany( query );
-    const jsons: Promise<IModelEntry<'client'>>[] = [];
+    const jsons: Promise<Y>[] = [];
     for ( let i = 0, l = schemas.length; i < l; i++ )
-      jsons.push( schemas[ i ].downloadToken<IModelEntry<'client'>>( options ) );
+      jsons.push( schemas[ i ].downloadToken( options ) );
 
     const sanitizedData = await Promise.all( jsons ) as Y[];
     return sanitizedData;
@@ -127,8 +127,8 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   /**
    * Deletes a instance and all its dependencies are updated or deleted accordingly
    */
-  private async deleteInstance( schema: Schema<IModelEntry<'server'>> ) {
-    const deleteResult = await this.collection.deleteMany( <IModelEntry<'server'>>{ _id: schema.dbEntry._id } );
+  private async deleteInstance( schema: Schema<T, Y> ) {
+    const deleteResult = await this.collection.deleteMany( <T>{ _id: schema.dbEntry._id } );
     return deleteResult.deletedCount!;
   }
 
@@ -158,9 +158,9 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
    * @param selector The selector to determine which model to update
    * @param data The data to update the model with
    */
-  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<Y> ): Promise<Schema<IModelEntry<'server'>>>
-  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<Y>, options: ISchemaOptions ): Promise<Y>
-  async update<Y extends IModelEntry<'client'>>( selector: any, data: Partial<Y>, options?: ISchemaOptions ): Promise<any> {
+  async update( selector: any, data: Partial<Y> ): Promise<Schema<T, Y>>
+  async update( selector: any, data: Partial<Y>, options: ISchemaOptions ): Promise<Y>
+  async update( selector: any, data: Partial<Y>, options?: ISchemaOptions ): Promise<any> {
 
     const schema = await this.findOne( selector );
 
@@ -171,7 +171,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
 
     // If we have data, then set the variables
     if ( data )
-      ( schema as Schema<T> ).setClient( data, false );
+      schema.setClient( data, false );
 
     // Make sure the new updates are valid
     await schema.validate( false );
@@ -187,7 +187,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
     const collection = this.collection;
     await collection.updateOne( { _id: typeof ( schema.dbEntry._id ) === 'string' ? new ObjectID( schema.dbEntry._id ) : schema.dbEntry._id }, { $set: json } );
     if ( options )
-      return schema.downloadToken<Y>( options );
+      return schema.downloadToken( options );
     else
       return schema;
   }
@@ -195,7 +195,7 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
   /**
    * Checks if the schema item being ammended is unique
    */
-  async checkUniqueness( schema: Schema<IModelEntry<'server'>>, id?: ObjectID ): Promise<boolean> {
+  async checkUniqueness( schema: Schema<T, Y>, id?: ObjectID ) {
     const items = schema.getItems();
     let hasUniqueField: boolean = false;
     const searchToken: any = { $or: [] as any[] };
@@ -231,38 +231,38 @@ export abstract class Model<T extends IModelEntry<'client' | 'server'>> {
 	 * @param data [Optional] You can pass a data object that will attempt to set the instance's schema variables
 	 * by parsing the data object and setting each schema item's value by the name/value in the data object
 	 */
-  async createInstance<Y extends Partial<IModelEntry<'client'>>>( data?: Partial<Y> ) {
+  async createInstance( data?: Partial<Y> ) {
     const schema = this.schema.clone();
 
     // If we have data, then set the variables
     if ( data )
       schema.setClient( data, true );
 
-    const unique = await this.checkUniqueness( schema as Schema<IModelEntry<'server'>> );
+    const unique = await this.checkUniqueness( schema );
 
     if ( !unique )
       throw new Error( `'${this.schema.uniqueFieldNames()}' must be unique` );
 
     // Now try to create a new instance
-    const schemas = await this.insert( [ schema as Schema<IModelEntry<'server'>> ] );
+    const schemas = await this.insert( [ schema ] );
 
     // All ok
-    return schemas[ 0 ] as Schema<T>;
+    return schemas[ 0 ];
   }
 
   /**
 	 * Attempts to insert an array of instances of this model into the database.
 	 * @param instances An array of instances to save
 	 */
-  private async insert( instances: Schema<IModelEntry<'server'>>[] ) {
+  private async insert( instances: Schema<T, Y>[] ) {
     const documents: Array<any> = [];
-    const promises: Array<Promise<Schema<IModelEntry<'server'>>>> = [];
+    const promises: Array<Promise<Schema<T, Y>>> = [];
 
     // Make sure the parameters are valid
     for ( let i = 0, l = instances.length; i < l; i++ )
       promises.push( instances[ i ].validate( true ) );
 
-    const schemas = await Promise.all<Schema<IModelEntry<'server'>>>( promises );
+    const schemas = await Promise.all<Schema<T, Y>>( promises );
 
     // Transform the schema into a JSON ready format
     for ( let i = 0, l = schemas.length; i < l; i++ ) {

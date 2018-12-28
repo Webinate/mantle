@@ -4,9 +4,9 @@ import * as express from 'express';
 import { IModelEntry } from '../types/models/i-model-entry';
 
 export class Router {
-  private _models: Model<IModelEntry<'client' | 'server'>>[];
+  private _models: Model<IModelEntry<'server'>, IModelEntry<'client'>>[];
 
-  constructor( models: Model<IModelEntry<'client' | 'server'>>[] | null ) {
+  constructor( models: Model<IModelEntry<'server'>, IModelEntry<'client'>>[] | null ) {
     this._models = models || [];
   }
 
@@ -20,7 +20,7 @@ export class Router {
   /**
 	 * Gets a model by its collection name
 	 */
-  getModel( collectionName: string ): Model<IModelEntry<'client' | 'server'>> | null {
+  getModel( collectionName: string ): Model<IModelEntry<'server'>, IModelEntry<'client'>> | null {
     const models = this._models;
     for ( let i = 0, l = models.length; i < l; i++ )
       if ( models[ i ].collectionName === collectionName )

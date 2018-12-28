@@ -5,7 +5,7 @@ import { SchemaItem } from './schema-items/schema-item';
 /**
  * Gives an overall description of each property in a model
  */
-export class Schema<T extends IModelEntry<'server' | 'client'>> {
+export class Schema<T extends IModelEntry<'server'>, Y extends IModelEntry<'client'>> {
   private _items: SchemaItem<any, any>[];
   public dbEntry: T;
 
@@ -16,14 +16,14 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
   /**
    * Creates a copy of the schema
    */
-  public clone(): Schema<T> {
+  public clone(): Schema<T, Y> {
     const items = this._items;
     const copy = new Schema();
 
     for ( let i = 0, l = items.length; i < l; i++ )
       copy._items.push( items[ i ].clone() );
 
-    return copy as Schema<T>;
+    return copy as Schema<T, Y>;
   }
 
   /**
@@ -59,11 +59,11 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
    * Serializes the schema items into the JSON format for mongodb
    */
   public uploadToken() {
-    const toReturn: Partial<IModelEntry<'server'>> = {};
+    const toReturn: Partial<T> = {};
     const items = this._items;
 
     for ( let i = 0, l = items.length; i < l; i++ )
-      toReturn[ items[ i ].name as keyof IModelEntry<'server'> ] = items[ i ].getDbValue();
+      toReturn[ items[ i ].name as keyof T ] = items[ i ].getDbValue();
 
     return toReturn;
   }
@@ -72,9 +72,9 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
    * Serializes the schema items into a JSON
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async downloadToken<Y extends IModelEntry<'client'>>( options?: ISchemaOptions ): Promise<Y> {
+  public async downloadToken( options?: ISchemaOptions ): Promise<Y> {
     options = options ? options : { expandForeignKeys: true, expandMaxDepth: -1, verbose: true };
-    const toReturn: IModelEntry<'client'> = { _id: this.dbEntry._id!.toString() };
+    const toReturn: Y = { _id: this.dbEntry._id!.toString() } as IModelEntry<'client'> as Y;
     const items = this._items;
     const promises: Array<Promise<any>> = [];
     const itemsInUse: SchemaItem<any, any>[] = [];
@@ -94,7 +94,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
 
     // Assign the promise values
     for ( let i = 0, l = returns.length; i < l; i++ )
-      toReturn[ itemsInUse[ i ].name as keyof IModelEntry<'client'> ] = returns[ i ];
+      toReturn[ itemsInUse[ i ].name as keyof Y ] = returns[ i ];
 
     return Promise.resolve( toReturn ) as Promise<Y>;
   }
@@ -130,7 +130,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
       items[ i ].setDbValue( serverValues[ i ] );
 
       if ( this.dbEntry )
-        this.dbEntry[ items[ i ].name as keyof IModelEntry<'server'> ] = serverValues[ i ];
+        this.dbEntry[ items[ i ].name as keyof T ] = serverValues[ i ];
     }
 
     return this;
@@ -174,7 +174,7 @@ export class Schema<T extends IModelEntry<'server' | 'client'>> {
         throw new Error( `You cannot use the schema item name _requiredDependencies as its a reserved keyword` );
       else if ( val.name === '_optionalDependencies' )
         throw new Error( `You cannot use the schema item name _optionalDependencies as its a reserved keyword` );
-      else if ( this.find( val.name as keyof IModelEntry<'server' | 'client'> ) )
+      else if ( this.find( val.name as keyof ( Y | T ) ) )
         throw new Error( `An item with the name ${val.name} already exists.` );
 
       this._items.push( val );

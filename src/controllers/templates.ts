@@ -41,10 +41,10 @@ export class TemplatesController extends Controller {
     // Save the new entry into the database
     const responses = await Promise.all( [
       templatesModel.count( {} ),
-      templatesModel.findMany<ITemplate<'server'>>( { selector: {}, index: 0, limit: - 1 } )
+      templatesModel.findMany( { selector: {}, index: 0, limit: - 1 } )
     ] );
     const schemas = responses[ 1 ];
-    const templates = await Promise.all( schemas.map( s => s.downloadToken<ITemplate<'client'>>() ) );
+    const templates = await Promise.all( schemas.map( s => s.downloadToken() ) );
 
     const toRet: Page<ITemplate<'client'>> = {
       limit: -1,
@@ -57,20 +57,20 @@ export class TemplatesController extends Controller {
   }
 
   /**
-   * Gets a volume by its name or ID
+   * Gets a template by its name or ID
    */
   async get( id: string ) {
     const templateModel = this._templates;
     const searchQuery: Partial<ITemplate<'server'>> = {
       _id: new ObjectID( id )
     };
-    const result = await templateModel.findOne<ITemplate<'server'>>( searchQuery );
+    const result = await templateModel.findOne( searchQuery );
 
     if ( !result )
       return null;
     else {
-      const volume = await result.downloadToken<ITemplate<'client'>>();
-      return volume;
+      const template = await result.downloadToken();
+      return template;
     }
   }
 }

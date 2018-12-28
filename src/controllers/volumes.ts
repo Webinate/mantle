@@ -119,13 +119,13 @@ export class VolumesController extends Controller {
 
     // Save the new entry into the database
     const count = await volumeModel.count( search );
-    const schemas = await volumeModel.findMany<IVolume<'server'>>( {
+    const schemas = await volumeModel.findMany( {
       selector: search,
       index,
       limit,
       sort
     } );
-    const volumes = await Promise.all( schemas.map( s => s.downloadToken<IVolume<'client'>>( {
+    const volumes = await Promise.all( schemas.map( s => s.downloadToken( {
       verbose: true,
       expandMaxDepth: 2,
       expandForeignKeys: true
@@ -164,12 +164,12 @@ export class VolumesController extends Controller {
     if ( options.id )
       searchQuery._id = new ObjectID( options.id );
 
-    const result = await volumeModel.findOne<IVolume<'server'>>( searchQuery );
+    const result = await volumeModel.findOne( searchQuery );
 
     if ( !result )
       return null;
     else {
-      const volume = await result.downloadToken<IVolume<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
+      const volume = await result.downloadToken( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
       return volume;
     }
   }
@@ -184,7 +184,7 @@ export class VolumesController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const updatedVolume = await this._volumes.update<IVolume<'client'>>( { _id: new ObjectID( id ) }, token, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
+    const updatedVolume = await this._volumes.update( { _id: new ObjectID( id ) }, token, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
     return updatedVolume;
   }
 
@@ -231,7 +231,7 @@ export class VolumesController extends Controller {
       throw new Error( `Could not create remote: ${err.message}` );
     }
 
-    return schema.downloadToken<IVolume<'client'>>( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
+    return schema.downloadToken( { verbose: true, expandForeignKeys: true, expandMaxDepth: 1 } );
   }
 
   /**
@@ -264,7 +264,7 @@ export class VolumesController extends Controller {
     }
 
     // Get all the volumes
-    const schemas = await volumesModel.findMany<IVolume<'server'>>( { selector: searchQuery, limit: -1 } );
+    const schemas = await volumesModel.findMany( { selector: searchQuery, limit: -1 } );
 
     if ( options._id && schemas.length === 0 )
       throw new Error( 'A volume with that ID does not exist' );

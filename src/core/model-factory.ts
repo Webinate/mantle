@@ -30,7 +30,7 @@ export type CommonModelType = 'volumes' | 'categories' |
  */
 export class ModelFactory {
   private _db: Db;
-  private _models: { [ name: string ]: Model<IModelEntry<'client' | 'server'>> };
+  private _models: { [ name: string ]: Model<IModelEntry<'server'>, IModelEntry<'client'>> };
 
   initialize( config: IConfig, database: Db ) {
     this._db = database;
@@ -70,7 +70,7 @@ export class ModelFactory {
    * Sets up a model's indices
    * @param model The model to setup
    */
-  async setupIndices( model: Model<IModelEntry<'client' | 'server'>> ) {
+  async setupIndices( model: Model<IModelEntry<'server'>, IModelEntry<'client'>> ) {
 
     // The collection does not exist - so create it
     let collection: Collection = await this._db.createCollection( model.collectionName );
@@ -135,8 +135,8 @@ export class ModelFactory {
   get( type: 'elm-list' ): ElmList
   get( type: 'elm-image' ): ElmImg
   get( type: 'elm-code' ): ElmCode
-  get( type: string ): Model<IModelEntry<'client' | 'server'>>
-  get( type: string ): Model<IModelEntry<'client' | 'server'>> {
+  get( type: string ): Model<IModelEntry<'server'>, IModelEntry<'client'>>
+  get( type: string ): Model<IModelEntry<'server'>, IModelEntry<'client'>> {
     const toRet = this._models[ type ];
     if ( !toRet )
       throw new Error( `Cannot find model '${type}'` );
@@ -148,8 +148,8 @@ export class ModelFactory {
    * A factory method for creating models
    * @param type The type of model to create
    */
-  private async create( type: CommonModelType ): Promise<Model<IModelEntry<'client' | 'server'>>> {
-    let newModel: Model<IModelEntry<'client' | 'server'>>;
+  private async create( type: CommonModelType ): Promise<Model<IModelEntry<'server'>, IModelEntry<'client'>>> {
+    let newModel: Model<IModelEntry<'server'>, IModelEntry<'client'>>;
 
     if ( this._models[ type ] )
       return this._models[ type ];

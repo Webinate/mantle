@@ -55,7 +55,7 @@ export class CategoriesController extends Controller {
     const depth = options.depth || 1;
     const root = options.root || false;
 
-    const sanitizedData = await categories.downloadMany<ICategory<'client'>>( {
+    const sanitizedData = await categories.downloadMany( {
       index: index,
       limit: limit,
       selector: root ? { parent: null } as ICategory<'server'> : undefined
@@ -96,7 +96,7 @@ export class CategoriesController extends Controller {
       throw new Error( `Please use a valid object id` );
 
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
-    const category = await this._categoriesModel.downloadOne<ICategory<'client'>>( findToken, this.getDefaultsOptions( options ) );
+    const category = await this._categoriesModel.downloadOne( findToken, this.getDefaultsOptions( options ) );
 
     if ( !category )
       throw new Error( 'Could not find category' );
@@ -111,7 +111,7 @@ export class CategoriesController extends Controller {
   */
   async getBySlug( slug: string, options: Partial<GetOneOptions> = {} ) {
     const findToken: Partial<ICategory<'server'>> = { slug: slug };
-    const category = await this._categoriesModel.downloadOne<ICategory<'client'>>( findToken, this.getDefaultsOptions( options ) );
+    const category = await this._categoriesModel.downloadOne( findToken, this.getDefaultsOptions( options ) );
 
     if ( !category )
       throw new Error( 'Could not find category' );
@@ -129,7 +129,7 @@ export class CategoriesController extends Controller {
 
     const categorys = this._categoriesModel;
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
-    const category = await categorys.findOne<ICategory<'server'>>( findToken );
+    const category = await categorys.findOne( findToken );
 
     if ( !category )
       throw new Error( 'Could not find a comment with that ID' );
@@ -147,10 +147,10 @@ export class CategoriesController extends Controller {
     const p = category.getByName( 'parent' ).getDbValue();
     if ( p ) {
       const findToken: Partial<ICategory<'server'>> = { _id: p };
-      const parent = await categorys.findOne<ICategory<'server'>>( findToken );
+      const parent = await categorys.findOne( findToken );
       let children = parent!.getByName( 'children' ).getDbValue();
       children = children.filter( c => !c.equals( category.dbEntry._id ) )
-      await categorys.update<ICategory<'client'>>( { _id: parent!.dbEntry._id }, { children: children.map( c => c.toString() ) } );
+      await categorys.update( { _id: parent!.dbEntry._id }, { children: children.map( c => c.toString() ) } );
     }
 
     // Attempt to delete the instances
@@ -164,22 +164,22 @@ export class CategoriesController extends Controller {
    */
   async update( id: string, token: Partial<ICategory<'client'>> ) {
     const categorys = this._categoriesModel;
-    let parent: Schema<ICategory<'server'>> | null = null;
+    let parent: Schema<ICategory<'server'>, ICategory<'client'>> | null = null;
 
     // Check if target parent exists
     if ( token.parent ) {
-      parent = await categorys.findOne( <ICategory<'server'>>{ _id: new mongodb.ObjectID( token.parent ) } ) as Schema<ICategory<'server'>>;
+      parent = await categorys.findOne( <ICategory<'server'>>{ _id: new mongodb.ObjectID( token.parent ) } );
 
       if ( !parent )
         throw new Error( `No category exists with the id ${token.parent}` );
     }
 
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID( id ) };
-    const curCategory = await categorys.downloadOne<ICategory<'client'>>( findToken, { expandForeignKeys: false, verbose: true } );
+    const curCategory = await categorys.downloadOne( findToken, { expandForeignKeys: false, verbose: true } );
 
     // If it has a parent - then remove it from the current parent
     if ( curCategory && curCategory.parent && curCategory.parent.toString() !== token.parent ) {
-      const curParent = await categorys.findOne<ICategory<'server'>>( { _id: curCategory.parent } );
+      const curParent = await categorys.findOne( { _id: curCategory.parent } );
       const children = curParent!.dbEntry.children.map( id => id.toString() );
       const tokenId = new mongodb.ObjectID( token._id );
       const index = children.findIndex( it => tokenId.equals( new ObjectID( it ) ) )
@@ -189,7 +189,7 @@ export class CategoriesController extends Controller {
       }
     }
 
-    const updatedCategory = await categorys.update<ICategory<'client'>>( findToken, token ) as Schema<ICategory<'server'>>;
+    const updatedCategory = await categorys.update( findToken, token );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
@@ -211,23 +211,23 @@ export class CategoriesController extends Controller {
    */
   async create( token: Partial<ICategory<'client'>> ) {
     const categorys = this._categoriesModel;
-    let parent: Schema<ICategory<'server'>> | null = null;
+    let parent: Schema<ICategory<'server'>, ICategory<'client'>> | null = null;
 
     if ( token.parent ) {
-      parent = await categorys.findOne( <ICategory<'server'>>{ _id: new mongodb.ObjectID( token.parent ) } ) as Schema<ICategory<'server'>>;
+      parent = await categorys.findOne( <ICategory<'server'>>{ _id: new mongodb.ObjectID( token.parent ) } );
 
       if ( !parent )
         throw new Error( `No category exists with the id ${token.parent}` );
     }
 
     const instance = await categorys.createInstance( token );
-    const json = await instance.downloadToken<ICategory<'client'>>( { verbose: true } );
+    const json = await instance.downloadToken( { verbose: true } );
 
     // Assign this comment as a child to its parent comment if it exists
     if ( parent ) {
       const children = parent.getByName( 'children' )!.getDbValue().map( id => id.toString() );
       children.push( instance.dbEntry._id.toString() );
-      await categorys.update<ICategory<'client'>>( <ICategory<'server'>>{ _id: parent.dbEntry._id }, { children: children } )
+      await categorys.update( <ICategory<'server'>>{ _id: parent.dbEntry._id }, { children: children } )
     }
 
     return json;

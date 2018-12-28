@@ -56,7 +56,7 @@ export class DocumentsController extends Controller {
     const templates = this._templates;
     const drafts = this._drafts;
 
-    const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
     if ( !doc )
       throw new Error404( 'Document not found' );
 
@@ -64,7 +64,7 @@ export class DocumentsController extends Controller {
       if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
         throw new Error403();
 
-    const template = await templates.findOne<IDocument<'server'>>( { _id: new ObjectId( templateId ) } as ITemplate<'server'> );
+    const template = await templates.findOne( { _id: new ObjectId( templateId ) } as ITemplate<'server'> );
     if ( !template )
       throw new Error404( 'Template not found' );
 
@@ -74,15 +74,15 @@ export class DocumentsController extends Controller {
       expandMaxDepth: 1
     }
 
-    await drafts.update<IDraft<'client'>>( { _id: doc.dbEntry.currentDraft! } as IDraft<'server'>, { template: templateId } );
-    const toRet = await docsModel.update<IDocument<'client'>>( { _id: doc.dbEntry._id } as IDocument<'server'>, { template: templateId }, options );
+    await drafts.update( { _id: doc.dbEntry.currentDraft! } as IDraft<'server'>, { template: templateId } );
+    const toRet = await docsModel.update( { _id: doc.dbEntry._id } as IDocument<'server'>, { template: templateId }, options );
     return toRet;
   }
 
   /**
    * Populates a draft json with its elements
    */
-  async populateDraft( draft: IDraft<'client'> ) {
+  async populateDraft( draft: IDraft<'client' | 'server'> ) {
     const elements: IDraftElement<'client' | 'server'>[] = await this._elementsCollection.find( {
       parent: new ObjectID( draft._id )
     } as IDraftElement<'server'>
@@ -95,10 +95,10 @@ export class DocumentsController extends Controller {
 
     const jsons = await Promise.all(
       draft.elements.map( elm => {
-        const model = ModelFactory.get( elm.type );
+        const model = ModelFactory.get( elm.type ) as Model<IDraftElement<'server'>, IDraftElement<'client'>>;
         const schema = model.schema.clone();
-        schema.setServer( elm, true );
-        return schema.downloadToken<IDraftElement<'client'>>( {
+        schema.setServer( elm as IDraftElement<'server'>, true );
+        return schema.downloadToken( {
           expandMaxDepth: 1,
           expandForeignKeys: true,
           verbose: true,
@@ -132,10 +132,10 @@ export class DocumentsController extends Controller {
     // Save the new entry into the database
     const responses = await Promise.all( [
       docsModel.count( selector ),
-      docsModel.findMany<IDocument<'server'>>( { selector, index: 0, limit: - 1 } )
+      docsModel.findMany( { selector, index: 0, limit: - 1 } )
     ] );
     const schemas = responses[ 1 ];
-    const docs = await Promise.all( schemas.map( s => s.downloadToken<IDocument<'client'>>( {
+    const docs = await Promise.all( schemas.map( s => s.downloadToken( {
       verbose: true,
       expandForeignKeys: true,
       expandMaxDepth: 1,
@@ -164,12 +164,12 @@ export class DocumentsController extends Controller {
   async addElement( findOptions: GetOptions, token: IDraftElement<'client'>, index?: number ) {
     const docsModel = this._docs;
     const draftsModel = this._drafts;
-    const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
 
     if ( !doc )
       throw new Error404( 'Document not found' );
 
-    const curDraft = await draftsModel.findOne<IDraft<'server'>>( { _id: doc.dbEntry.currentDraft! } as IDocument<'server'> );
+    const curDraft = await draftsModel.findOne( { _id: doc.dbEntry.currentDraft! } as IDocument<'server'> );
 
     if ( !curDraft )
       throw new Error404( 'Could not find active draft' );
@@ -183,15 +183,15 @@ export class DocumentsController extends Controller {
 
     token.parent = doc.dbEntry.currentDraft!.toString();
 
-    let model: Model<IDraftElement<'client' | 'server'>>;
+    let model: Model<IDraftElement<'server'>, IDraftElement<'client'>>;
     try {
-      model = ModelFactory.get( token.type ) as Model<IDraftElement<'client' | 'server'>>;
+      model = ModelFactory.get( token.type ) as Model<IDraftElement<'server'>, IDraftElement<'client'>>;
     }
     catch ( err ) {
       throw new Error400( 'Type not recognised' );
     }
 
-    const schema = await model.createInstance<IDraftElement<'client'>>( token );
+    const schema = await model.createInstance( token );
     const elementsOrder = curDraft.dbEntry.elementsOrder;
 
     if ( index === undefined )
@@ -202,11 +202,11 @@ export class DocumentsController extends Controller {
       index = elementsOrder.length;
 
     curDraft.dbEntry.elementsOrder.splice( index, 0, schema.dbEntry._id.toString() );
-    await draftsModel.update<IDraft<'client'>>( { _id: curDraft.dbEntry._id } as IDraftElement<'server'>, {
+    await draftsModel.update( { _id: curDraft.dbEntry._id } as IDraftElement<'server'>, {
       elementsOrder: curDraft.dbEntry.elementsOrder
     } );
 
-    const toRet = await schema.downloadToken<IDraftElement<'client'>>( {
+    const toRet = await schema.downloadToken( {
       expandForeignKeys: true,
       verbose: true,
       expandMaxDepth: 1,
@@ -220,11 +220,11 @@ export class DocumentsController extends Controller {
     const docsModel = this._docs;
     const draftsModel = this._drafts;
 
-    const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
     if ( !doc )
       throw new Error404( 'Document not found' );
 
-    const curDraft = await draftsModel.findOne<IDraft<'server'>>( { _id: doc.dbEntry.currentDraft! } as IDocument<'server'> );
+    const curDraft = await draftsModel.findOne( { _id: doc.dbEntry.currentDraft! } as IDocument<'server'> );
     if ( !curDraft )
       throw new Error404( 'Could not find active draft' );
 
@@ -260,7 +260,7 @@ export class DocumentsController extends Controller {
       throw new Error400( 'You cannot change an element type' );
 
     const docsModel = this._docs;
-    const doc = await docsModel.findOne<IDocument<'server'>>( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
     if ( !doc )
       throw new Error404( 'Document not found' );
 
@@ -268,8 +268,8 @@ export class DocumentsController extends Controller {
       if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
         throw new Error403();
 
-    const model = ModelFactory.get( json.type );
-    const updatedJson = await model.update<IDraftElement<'client'>>( selector, token, {
+    const model = ModelFactory.get( json.type ) as Model<IDraftElement<'server'>, IDraftElement<'client'>>;
+    const updatedJson = await model.update( selector, token, {
       verbose: true,
       expandForeignKeys: true,
       expandMaxDepth: 1,
@@ -284,7 +284,7 @@ export class DocumentsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error400( `Please use a valid object id` );
 
-    const doc = await this._docs.findOne<IDocument<'server'>>( { _id: new ObjectID( id ) } as IDocument<'server'> );
+    const doc = await this._docs.findOne( { _id: new ObjectID( id ) } as IDocument<'server'> );
     if ( !doc )
       throw new Error404( `Could not find document` );
 
@@ -304,7 +304,7 @@ export class DocumentsController extends Controller {
   async create( author: string, options?: ISchemaOptions ) {
 
     // Get the templates
-    const templates = await this._templates.findMany<ITemplate<'server'>>( {} );
+    const templates = await this._templates.findMany( {} );
     const firstTemplate = templates[ 0 ].dbEntry._id.toString();
 
     // Create the doc token
@@ -319,7 +319,7 @@ export class DocumentsController extends Controller {
     const schema = await this._docs.createInstance( token );
 
     // Now create the draft
-    const draft = await this._drafts.createInstance<IDraft<'client'>>( {
+    const draft = await this._drafts.createInstance( {
       createdOn: Date.now(),
       lastUpdated: Date.now(),
       published: false,
@@ -328,7 +328,7 @@ export class DocumentsController extends Controller {
     } );
 
     const pModel = ModelFactory.get( 'elm-paragraph' );
-    const firstElm = await pModel.createInstance<IDraftElement<'client'>>( {
+    const firstElm = await pModel.createInstance( {
       html: '<p></p>',
       parent: draft.dbEntry._id.toString(),
       type: 'elm-paragraph',
@@ -339,19 +339,19 @@ export class DocumentsController extends Controller {
     const firstElmId = firstElm.dbEntry._id.toString();
 
     // Update the draft with the element in the template map
-    await this._drafts.update<IDraft<'client'>>(
+    await this._drafts.update(
       { _id: draft.dbEntry._id } as IDraft<'server'>, {
         elementsOrder: [ firstElmId ]
       } );
 
     // Update the doc to point to the draft
-    await this._docs.update<IDocument<'client'>>(
+    await this._docs.update(
       { _id: schema.dbEntry._id } as IDocument<'server'>, {
         currentDraft: draft.dbEntry._id.toString()
       } )
 
     if ( options ) {
-      const document = await schema.downloadToken<IDocument<'client'>>( options );
+      const document = await schema.downloadToken( options );
 
       if ( document.currentDraft && typeof document.currentDraft !== 'string' )
         await this.populateDraft( document.currentDraft );
@@ -371,7 +371,7 @@ export class DocumentsController extends Controller {
       _id: new ObjectID( options.id )
     };
 
-    const result = await docModel.findOne<IDocument<'server'>>( searchQuery );
+    const result = await docModel.findOne( searchQuery );
 
     if ( !result )
       return null;
@@ -381,7 +381,7 @@ export class DocumentsController extends Controller {
           throw new Error403();
       }
 
-      const document = await result.downloadToken<IDocument<'client'>>( {
+      const document = await result.downloadToken( {
         verbose: true,
         expandForeignKeys: true,
         expandMaxDepth: 1,

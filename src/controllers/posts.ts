@@ -153,7 +153,7 @@ export class PostsController extends Controller {
     const limit: number = options.limit || 10;
     const verbose = options.verbose !== undefined ? options.verbose : true;
 
-    const sanitizedData = await posts.downloadMany<IPost<'client'>>( {
+    const sanitizedData = await posts.downloadMany( {
       selector: findToken,
       sort: sort,
       index: index,
@@ -205,7 +205,7 @@ export class PostsController extends Controller {
    * Removes many posts by a selector
    */
   async removeBy( selector: Partial<IPost<'client'>> ) {
-    const schemas = await this._postsModel.findMany<IPost<'server'>>( { selector } );
+    const schemas = await this._postsModel.findMany( { selector } );
     const promises: Promise<void>[] = [];
     for ( const schema of schemas )
       promises.push( this.removePost( schema.dbEntry._id.toString() ) );
@@ -222,7 +222,7 @@ export class PostsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const post = await this._postsModel.findOne<IPost<'server'>>( { _id: new mongodb.ObjectID( id ) } as IPost<'server'> );
+    const post = await this._postsModel.findOne( { _id: new mongodb.ObjectID( id ) } as IPost<'server'> );
 
     if ( !post )
       throw new Error404( `Could not find post` )
@@ -256,7 +256,7 @@ export class PostsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const updatedPost = await this._postsModel.update<IPost<'client'>>( { _id: new mongodb.ObjectID( id ) }, token, {
+    const updatedPost = await this._postsModel.update( { _id: new mongodb.ObjectID( id ) }, token, {
       verbose: true,
       expandForeignKeys: false,
       expandMaxDepth: 2,
@@ -278,11 +278,11 @@ export class PostsController extends Controller {
     // Create a new document for the post
     const docId = await this._documents.create( token.author as string );
 
-    schema = await this._postsModel.update<IPost<'client'>>(
+    schema = await this._postsModel.update(
       { _id: schema.dbEntry._id } as IPost<'server'>,
-      { document: docId.toString() } ) as Schema<IPost<'server'>>;
+      { document: docId.toString() } ) as Schema<IPost<'server'>, IPost<'client'>>;
 
-    const post = await schema.downloadToken<IPost<'client'>>( {
+    const post = await schema.downloadToken( {
       verbose: true,
       expandForeignKeys: true,
       expandMaxDepth: 2,
@@ -314,7 +314,7 @@ export class PostsController extends Controller {
     if ( options.public !== undefined )
       findToken.public = options.public;
 
-    const post = await posts!.downloadOne<IPost<'client'>>( findToken, {
+    const post = await posts!.downloadOne( findToken, {
       verbose: options.verbose !== undefined ? options.verbose : true,
       expandForeignKeys: true,
       expandMaxDepth: 2,

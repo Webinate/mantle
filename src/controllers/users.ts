@@ -95,7 +95,7 @@ export class UsersController extends Controller {
     if ( !sessionId || sessionId === '' )
       return;
 
-    const user = await this._users.findOne<IUserEntry<'server'>>( { sessionId: sessionId } as IUserEntry<'server'> );
+    const user = await this._users.findOne( { sessionId: sessionId } as IUserEntry<'server'> );
     if ( user ) {
       // Send logged out event to socket
       const token = { username: user.dbEntry.username as string, type: ClientInstructionType[ ClientInstructionType.Logout ] };
@@ -185,7 +185,7 @@ export class UsersController extends Controller {
 	 */
   async approveActivation( username: string ): Promise<void> {
     const selector = [ { email: username }, { username: username } ];
-    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+    const user = await this._users.findOne( { $or: selector } );
 
     if ( !user )
       throw new Error( 'No user exists with the specified details' );
@@ -212,7 +212,7 @@ export class UsersController extends Controller {
     if ( token.registerKey !== undefined || token.sessionId !== undefined || token.passwordTag !== undefined || token.privileges !== undefined )
       throw new Error400( `Invalid value` );
 
-    const resp = await this._users.update<IUserEntry<'client'>>(
+    const resp = await this._users.update(
       { _id: new ObjectID( id ) } as IUserEntry<'server'>, token,
       { expandForeignKeys: true, expandMaxDepth: 1, verbose: true } );
 
@@ -248,7 +248,7 @@ export class UsersController extends Controller {
 	 */
   async resendActivation( username: string, resetUrl: string, origin: string ) {
     const selector = [ { email: username }, { username: username } ];
-    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+    const user = await this._users.findOne( { $or: selector } );
 
     if ( !user )
       throw new Error( 'No user exists with the specified details' );
@@ -260,7 +260,7 @@ export class UsersController extends Controller {
     user.dbEntry.registerKey = newKey;
 
     // Update the collection with a new key
-    await this._users.update<IUserEntry<'client'>>(
+    await this._users.update(
       { _id: user.dbEntry._id } as IUserEntry<'server'>,
       { registerKey: newKey } as Partial<IUserEntry<'client'>> );
 
@@ -307,7 +307,7 @@ export class UsersController extends Controller {
    */
   async requestPasswordReset( username: string, resetUrl: string, origin: string ) {
     const selector = [ { email: username }, { username: username } ];
-    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+    const user = await this._users.findOne( { $or: selector } );
 
     if ( !user )
       throw new Error( 'No user exists with the specified details' );
@@ -318,7 +318,7 @@ export class UsersController extends Controller {
     user.dbEntry.passwordTag = newKey;
 
     // Update the collection with a new key
-    await this._users.update<IUserEntry<'client'>>(
+    await this._users.update(
       { _id: user.dbEntry._id } as IUserEntry<'server'>,
       { passwordTag: newKey } as Partial<IUserEntry<'client'>> );
 
@@ -382,7 +382,7 @@ export class UsersController extends Controller {
    */
   async resetPassword( username: string, code: string, newPassword: string ) {
     const selector = [ { email: username }, { username: username } ];
-    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+    const user = await this._users.findOne( { $or: selector } );
 
     // No user - so invalid
     if ( !user )
@@ -399,7 +399,7 @@ export class UsersController extends Controller {
     const hashed = await this.hashPassword( newPassword );
 
     // Update the key to be blank
-    await this._users.update<IUserEntry<'client'>>(
+    await this._users.update(
       { _id: user.dbEntry._id } as IUserEntry<'server'>,
       { passwordTag: '', password: hashed } as Partial<IUserEntry<'client'>> );
 
@@ -413,7 +413,7 @@ export class UsersController extends Controller {
 	 */
   async checkActivation( username: string, code: string ) {
     const selector = [ { email: username }, { username: username } ];
-    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+    const user = await this._users.findOne( { $or: selector } );
 
     // No user - so invalid
     if ( !user )
@@ -428,7 +428,7 @@ export class UsersController extends Controller {
       throw new Error( 'Activation key is not valid. Please try send another.' );
 
     // Update the key to be blank
-    await this._users.update<IUserEntry<'client'>>(
+    await this._users.update(
       { _id: user.dbEntry._id } as IUserEntry<'server'>,
       { registerKey: '' } as Partial<IUserEntry<'client'>> );
 
@@ -495,10 +495,10 @@ export class UsersController extends Controller {
       registerKey: ( activateAccount || options.privileges === UserPrivileges.SuperAdmin ? '' : this.generateKey( 10 ) )
     }
 
-    const schema = await this._users.createInstance<IUserEntry<'client'>>( data );
+    const schema = await this._users.createInstance( data );
 
     // return newUser;
-    return await schema.downloadToken<IUserEntry<'client'>>( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
+    return await schema.downloadToken( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
   }
 
   /**
@@ -518,7 +518,7 @@ export class UsersController extends Controller {
 	 */
   async removeUser( username: string ) {
     const selector = [ { email: username }, { username: username } ];
-    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+    const user = await this._users.findOne( { $or: selector } );
 
     if ( !user )
       throw new Error( 'Could not find any users with those credentials' );
@@ -558,11 +558,11 @@ export class UsersController extends Controller {
 
     // If id - then leave early
     if ( options.id ) {
-      const resp = await this._users.findOne<IUserEntry<'server'>>( { _id: new ObjectID( options.id ) } as IUserEntry<'server'> );
+      const resp = await this._users.findOne( { _id: new ObjectID( options.id ) } as IUserEntry<'server'> );
       if ( !resp )
         return null;
       else
-        return resp.downloadToken<IUserEntry<'client'>>( schemaOptions );
+        return resp.downloadToken( schemaOptions );
     }
 
     options.email = options.email !== undefined ? options.email : options.username;
@@ -579,11 +579,11 @@ export class UsersController extends Controller {
 
     const target = [ { email: options.email }, { username: options.username } ];
 
-    const resp = await this._users.findOne<IUserEntry<'server'>>( { $or: target } );
+    const resp = await this._users.findOne( { $or: target } );
     if ( !resp )
       return null;
     else
-      return resp.downloadToken<IUserEntry<'client'>>( schemaOptions );
+      return resp.downloadToken( schemaOptions );
   }
 
   /**
@@ -619,7 +619,7 @@ export class UsersController extends Controller {
     user.lastLoggedIn = Date.now();
 
     // Update the collection
-    await this._users.update<IUserEntry<'client'>>(
+    await this._users.update(
       { _id: new ObjectID( user._id ) } as IUserEntry<'server'>,
       { lastLoggedIn: user.lastLoggedIn } as Partial<IUserEntry<'client'>> );
 
@@ -638,7 +638,7 @@ export class UsersController extends Controller {
 	 */
   async remove( username: string = '' ) {
     const selector = [ { email: username }, { username: username } ];
-    const user = await this._users.findOne<IUserEntry<'server'>>( { $or: selector } );
+    const user = await this._users.findOne( { $or: selector } );
 
     // There was no user
     if ( !user )
@@ -659,7 +659,7 @@ export class UsersController extends Controller {
    * @returns Returns the data set
    */
   async setMeta( id: ObjectID, data?: any ) {
-    await this._users.update<IUserEntry<'client'>>(
+    await this._users.update(
       { _id: new ObjectID( id ) } as IUserEntry<'server'>,
       { meta: ( data ? data : {} ) } as Partial<IUserEntry<'client'>> );
 
@@ -702,7 +702,7 @@ export class UsersController extends Controller {
    * @returns The value to get
    */
   async getMetaData( id: ObjectID ) {
-    const result = await this._users.findOne<IUserEntry<'server'>>( { _id: id } as IUserEntry<'server'> );
+    const result = await this._users.findOne( { _id: id } as IUserEntry<'server'> );
     if ( !result )
       return null;
 
@@ -740,7 +740,7 @@ export class UsersController extends Controller {
       findToken.$or = [ { username: searchPhrases }, { email: searchPhrases } ];
 
     const count = await this._users.count( findToken );
-    const data = await this._users.downloadMany<IUserEntry<'client'>>(
+    const data = await this._users.downloadMany(
       { index: index, limit: limit, selector: findToken },
       { expandForeignKeys: true, expandMaxDepth: 1, verbose: verbose, expandSchemaBlacklist: [ /user/ ] } );
 

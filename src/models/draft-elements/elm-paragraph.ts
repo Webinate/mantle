@@ -6,7 +6,7 @@ import { SchemaHtml } from '../schema-items/schema-html';
 /**
  * A model for describing paragraph elements
  */
-export class ElmParagraph extends Model<IDraftElement<'client' | 'server'>> {
+export class ElmParagraph extends Model<IDraftElement<'server'>, IDraftElement<'client'>> {
   constructor() {
     super( 'elements' );
 

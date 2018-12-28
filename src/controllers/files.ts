@@ -83,7 +83,7 @@ export class FilesController extends Controller {
     if ( searchTerm )
       searchQuery.name = searchTerm as any;
 
-    const file = await files.downloadOne<IFileEntry<'client'>>( searchQuery, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
+    const file = await files.downloadOne( searchQuery, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
 
     if ( !file )
       throw new Error( `File '${fileID}' does not exist` );
@@ -113,7 +113,7 @@ export class FilesController extends Controller {
           throw new Error404( `User not found` );
       }
 
-      const volume = await volumes.findOne<IVolume<'server'>>( volumeQuery );
+      const volume = await volumes.findOne( volumeQuery );
 
       if ( !volume )
         throw new Error( `Could not find the volume resource` );
@@ -158,7 +158,7 @@ export class FilesController extends Controller {
     const limit: number = options.limit || 10;
     const verbose = options.verbose !== undefined ? options.verbose : true;
 
-    const sanitizedData = await files.downloadMany<IFileEntry<'client'>>( {
+    const sanitizedData = await files.downloadMany( {
       selector: searchQuery,
       sort: sort,
       index: index,
@@ -245,7 +245,7 @@ export class FilesController extends Controller {
     } );
   }
 
-  async uploadFileToRemote( file: File, volume: IVolume<'client' | 'server'>, removeFile: boolean = true, existinFile: Schema<IFileEntry<'server' | 'client'>> | null = null ) {
+  async uploadFileToRemote( file: File, volume: IVolume<'client' | 'server'>, removeFile: boolean = true, existinFile: Schema<IFileEntry<'server'>, IFileEntry<'client'>> | null = null ) {
     const filesModel = this._files;
     const volumesModel = this._volumes;
 
@@ -281,21 +281,21 @@ export class FilesController extends Controller {
 
     if ( !newFile ) {
       newVolumeSize = newVolumeSize + fileData.size!;
-      newFile = await filesModel.createInstance<IFileEntry<'client'>>( fileData );
+      newFile = await filesModel.createInstance( fileData );
     }
     else {
       newVolumeSize = newVolumeSize - newFile.dbEntry.size + fileData.size!;
-      newFile = await filesModel.update( { _id: newFile.dbEntry._id } as IFileEntry<'server'>, fileData ) as Schema<IFileEntry<'server'>>;
+      newFile = await filesModel.update( { _id: newFile.dbEntry._id } as IFileEntry<'server'>, fileData );
     }
 
-    await volumesModel.update<IVolume<'client'>>( { identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: newVolumeSize } );
+    await volumesModel.update( { identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: newVolumeSize } );
 
     // Remove temp file
     if ( removeFile )
       await this.removeTempFiles( [ file ] );
 
     // Return the new file
-    return newFile!.downloadToken<IFileEntry<'client'>>( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
+    return newFile!.downloadToken( { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
   }
 
   /**
@@ -308,7 +308,7 @@ export class FilesController extends Controller {
     if ( !volumeId || volumeId.trim() === '' )
       throw new Error( `Please specify a volume for the upload` );
 
-    const volumeSchema = await this._volumes.findOne<IVolume<'server'>>( {
+    const volumeSchema = await this._volumes.findOne( {
       _id: new ObjectID( volumeId ),
       user: new ObjectID( userId )
     } as Partial<IVolume<'server'>> );
@@ -345,12 +345,12 @@ export class FilesController extends Controller {
     if ( !fileId || fileId.trim() === '' )
       throw new Error( `Please specify a volume for the upload` );
 
-    const file = await this._files.findOne<IFileEntry<'server'>>( { _id: new ObjectID( fileId ) } as IFileEntry<'server'> );
+    const file = await this._files.findOne( { _id: new ObjectID( fileId ) } as IFileEntry<'server'> );
 
     if ( !file )
       throw new Error404( 'File not found' );
 
-    const volumeSchema = await this._volumes.findOne<IVolume<'server'>>( {
+    const volumeSchema = await this._volumes.findOne( {
       _id: file.dbEntry.volumeId,
       user: new ObjectID( userId )
     } as Partial<IVolume<'server'>> );
@@ -406,12 +406,12 @@ export class FilesController extends Controller {
       throw new Error( 'Invalid ID format' );
 
     const query = typeof fileId === 'string' ? { _id: new ObjectID( fileId ) } : { _id: fileId };
-    const file = await this._files.findOne<IFileEntry<'server'>>( query );
+    const file = await this._files.findOne( query );
 
     if ( !file )
       throw new Error( 'Resource not found' );
 
-    const toRet = await files.update<IFileEntry<'client'>>( query, token, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
+    const toRet = await files.update( query, token, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true } );
     return toRet;
   }
 
@@ -424,14 +424,14 @@ export class FilesController extends Controller {
     const promises: Promise<any>[] = [];
 
     // First remove any files that have this as their parent
-    const children = await files.findMany<IFileEntry<'server'>>( { selector: { parentFile: fileEntry._id } as Partial<IFileEntry<'server'>> } );
+    const children = await files.findMany( { selector: { parentFile: fileEntry._id } as Partial<IFileEntry<'server'>> } );
     for ( const child of children )
       promises.push( this.deleteFile( child.dbEntry ) );
 
     await Promise.all( promises );
 
     const volumes = this._volumes;
-    const volume = await volumes.findOne<IVolume<'server'>>( fileEntry.volumeId );
+    const volume = await volumes.findOne( fileEntry.volumeId );
 
     if ( volume ) {
 
@@ -439,7 +439,7 @@ export class FilesController extends Controller {
       await RemoteFactory.get( volume.dbEntry.type ).removeFile( volume.dbEntry, fileEntry );
 
       // Update the volume data usage
-      await volumes.update<IVolume<'client'>>( { identifier: volume.dbEntry.identifier } as IVolume<'server'>, { memoryUsed: volume.dbEntry.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>> );
+      await volumes.update( { identifier: volume.dbEntry.identifier } as IVolume<'server'>, { memoryUsed: volume.dbEntry.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>> );
     }
 
     if ( removeFileEntry ) {

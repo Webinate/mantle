@@ -219,13 +219,13 @@ export class PageRouter extends Router {
     if ( !this.shouldShowPrerenderedPage( req ) )
       return next();
 
-    const model = this.getModel( 'renders' )! as Model<IRender<'server' | 'client'>>;
+    const model = this.getModel( 'renders' )! as Model<IRender<'server'>, IRender<'client'>>;
     const url = this.getUrl( req );
     let render: IRender<'client'> | null = null;
     let expiration = 0;
 
     try {
-      render = await model.downloadOne<IRender<'client'>>( { url: url }, { verbose: true } );
+      render = await model.downloadOne( { url: url }, { verbose: true } );
       let html = '';
 
       if ( render ) {
@@ -242,11 +242,11 @@ export class PageRouter extends Router {
 
       if ( !render ) {
         info( `Saving render '${url}'` );
-        await model.createInstance<IRender<'client'>>( { expiration: Date.now() + this.expiration, html: html, url: url } );
+        await model.createInstance( { expiration: Date.now() + this.expiration, html: html, url: url } );
       }
       else if ( Date.now() > expiration ) {
         info( `Updating render '${url}'` );
-        await model.update<IRender<'client'>>( { _id: render._id }, { expiration: Date.now() + this.expiration, html: html } );
+        await model.update( { _id: render._id }, { expiration: Date.now() + this.expiration, html: html } );
       }
 
       info( 'Sending back render without script tags' );
@@ -292,10 +292,10 @@ export class PageRouter extends Router {
    */
   private async previewRender( req: express.Request, res: express.Response ) {
     res.setHeader( 'Content-Type', 'text/html' );
-    const renders = this.getModel( 'renders' ) as Model<IRender<'server' | 'client'>>;
+    const renders = this.getModel( 'renders' ) as Model<IRender<'server'>, IRender<'client'>>;
 
     try {
-      const schemas = await renders!.findMany( { selector: { _id: new mongodb.ObjectID( req.params.id ) } } ) as Schema<IRender<'server'>>[];
+      const schemas = await renders!.findMany( { selector: { _id: new mongodb.ObjectID( req.params.id ) } } ) as Schema<IRender<'server'>, IRender<'client'>>[];
 
       if ( schemas.length === 0 )
         throw new Error( 'Could not find a render with that ID' );
@@ -339,7 +339,7 @@ export class PageRouter extends Router {
    */
   @admin()
   private async getRenders( req: IAuthReq, res: express.Response ) {
-    const renders = this.getModel( 'renders' ) as Model<IRender<'server' | 'client'>>;
+    const renders = this.getModel( 'renders' ) as Model<IRender<'server'>, IRender<'client'>>;
     let count = 0;
     const findToken: Partial<IRender<'server'>> = {};
 

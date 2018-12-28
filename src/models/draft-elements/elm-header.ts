@@ -6,7 +6,7 @@ import { SchemaHtml } from '../schema-items/schema-html';
 /**
  * A model for describing header elements
  */
-export class ElmHeader extends Model<IDraftElement<'client' | 'server'>> {
+export class ElmHeader extends Model<IDraftElement<'server'>, IDraftElement<'client'>> {
   constructor( type: DraftElements ) {
     super( 'elements' );
 

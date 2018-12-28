@@ -6,7 +6,7 @@ import { SchemaHtml } from '../schema-items/schema-html';
 /**
  * A model for describing ul elements
  */
-export class ElmList extends Model<IDraftElement<'client' | 'server'>> {
+export class ElmList extends Model<IDraftElement<'server'>, IDraftElement<'client'>> {
   constructor() {
     super( 'elements' );
 
