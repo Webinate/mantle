@@ -3,7 +3,7 @@ import bodyParser = require( 'body-parser' );
 import { UserPrivileges } from '../core/user-privileges';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
-import { Serializer } from './serializer'
+import { Router } from './router'
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
 import { admin, identify, authorize, hasPermission } from '../decorators/permissions';
@@ -19,7 +19,7 @@ import { Error404, Error403 } from '../utils/errors';
 /**
  * Main class to use for managing user data
  */
-export class UserSerializer extends Serializer {
+export class UserRouter extends Router {
   private _options: IBaseControler;
   private _userController: UsersController;
 

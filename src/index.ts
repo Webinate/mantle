@@ -1,4 +1,4 @@
-﻿import * as _Controller from './serializers/serializer';
+﻿import * as _Controller from './routers/router';
 import ControllerFactory from './core/controller-factory';
 import { UsersController } from './controllers/users';
 import { VolumesController } from './controllers/volumes';
@@ -6,21 +6,21 @@ import { PostsController } from './controllers/posts';
 import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
-import { AdminSerializer } from './serializers/admin-serializer';
-import { VolumeSerializer } from './serializers/volume-serializer';
-import { CommentsSerializer } from './serializers/comments-serializer';
-import { CORSSerializer } from './serializers/cors-serializer';
-import { EmailsSerializer } from './serializers/emails-serializer';
-import { ErrorSerializer } from './serializers/error-serializer';
-import { FileSerializer } from './serializers/file-serializer';
-import { PageSerializer } from './serializers/page-serializer';
-import { PostsSerializer } from './serializers/posts-serializer';
-import { CategoriesSerializer } from './serializers/categories-serializer';
-import { TemplatesSerializer } from './serializers/templates-serializer';
-import { DocumentsSerializer } from './serializers/documents-serializer';
-import { SessionSerializer } from './serializers/session-serializer';
-import { UserSerializer } from './serializers/user-serializer';
-import { AuthSerializer } from './serializers/auth-serializer';
+import { AdminRouter } from './routers/admin';
+import { VolumeRouter } from './routers/volume';
+import { CommentsRouter } from './routers/comments';
+import { CORSRouter } from './routers/cors';
+import { EmailsRouter } from './routers/emails';
+import { ErrorRouter } from './routers/error';
+import { FileRouter } from './routers/file';
+import { PageRouter } from './routers/page';
+import { PostsRouter } from './routers/posts';
+import { CategoriesRouter } from './routers/categories';
+import { TemplatesRouter } from './routers/templates';
+import { DocumentsRouter } from './routers/documents';
+import { SessionRouter } from './routers/session';
+import { UserRouter } from './routers/user';
+import { AuthRouter } from './routers/auth';
 import { FilesController } from './controllers/files';
 import { CommentsController } from './controllers/comments';
 import { SessionsController } from './controllers/sessions';
@@ -32,7 +32,7 @@ import { admin, hasPermission, authorize, identify } from './decorators/permissi
 import { TemplatesController } from './controllers/templates';
 import { DocumentsController } from './controllers/documents';
 
-export const Controller = _Controller.Serializer;
+export const Controller = _Controller.Router;
 export const Model = _Models.Model;
 export const SchemaFactory = _SchemaFactory;
 export const isValidID = isValidObjectID;
@@ -50,37 +50,37 @@ export const controllers = {
   documents: ControllerFactory.get( 'documents' ) as DocumentsController
 };
 
-export const serializers = {
+export const routers = {
   /** Endpoints for administritive tasks */
-  admin: AdminSerializer,
+  admin: AdminRouter,
   /** Endpoints for authenticating users */
-  auth: AuthSerializer,
+  auth: AuthRouter,
   /** Endpoints for managing posts */
-  posts: PostsSerializer,
+  posts: PostsRouter,
   /** Endpoints for managing categories */
-  categories: CategoriesSerializer,
+  categories: CategoriesRouter,
   /** Endpoints for managing templates */
-  templates: TemplatesSerializer,
+  templates: TemplatesRouter,
   /** Endpoints for managing documents */
-  documents: DocumentsSerializer,
+  documents: DocumentsRouter,
   /** Endpoints for managing comments of posts */
-  comments: CommentsSerializer,
+  comments: CommentsRouter,
   /** Endpoints for managing cross origin allowances */
-  cors: CORSSerializer,
+  cors: CORSRouter,
   /** TODO: This must be removed in favour of the admin controller */
-  email: EmailsSerializer,
+  email: EmailsRouter,
   /** Can be used to catch and return errors */
-  error: ErrorSerializer,
+  error: ErrorRouter,
   /** Endpoints for managing user files */
-  file: FileSerializer,
+  file: FileRouter,
   /** Endpoints for managing user volumes */
-  volume: VolumeSerializer,
+  volume: VolumeRouter,
   /** Endpoints for managing page renders */
-  renderer: PageSerializer,
+  renderer: PageRouter,
   /** Endpoints for managing active sessions */
-  session: SessionSerializer,
+  session: SessionRouter,
   /** Endpoints for managing users */
-  user: UserSerializer
+  user: UserRouter
 }
 
 export { CategoriesGetManyOptions } from './controllers/categories';

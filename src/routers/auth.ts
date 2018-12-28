@@ -3,7 +3,7 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
-import { Serializer } from './serializer'
+import { Router } from './router'
 import { j200 } from '../decorators/responses';
 import { hasPermission } from '../decorators/permissions';
 import * as compression from 'compression';
@@ -17,7 +17,7 @@ import { IUserEntry } from '../types/models/i-user-entry';
 /**
  * Main class to use for managing user authentication
  */
-export class AuthSerializer extends Serializer {
+export class AuthRouter extends Router {
   private _options: IAuthOptions;
   private _userController: UsersController;
 

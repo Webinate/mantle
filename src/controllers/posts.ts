@@ -324,7 +324,7 @@ export class PostsController extends Controller {
     if ( !post )
       throw new Error( 'Could not find post' );
 
-    const sanitizedData = await post;
+    const sanitizedData = post;
 
     // Populate the document draft with its elements
     const document = sanitizedData.document as IDocument<'client'>;

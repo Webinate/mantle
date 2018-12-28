@@ -3,7 +3,7 @@ import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
-import { Serializer } from './serializer';
+import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
 import { identify, authorize } from '../decorators/permissions';
@@ -16,7 +16,7 @@ import { IComment } from '..';
 /**
  * A controller that deals with the management of comments
  */
-export class CommentsSerializer extends Serializer {
+export class CommentsRouter extends Router {
   private _options: IBaseControler;
   private _controller: CommentsController;
 

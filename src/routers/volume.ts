@@ -4,7 +4,7 @@ import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { VolumesController } from '../controllers/volumes';
-import { Serializer } from './serializer';
+import { Router } from './router';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
 import { authorize } from '../decorators/permissions';
@@ -18,7 +18,7 @@ import { IUserEntry } from '../types/models/i-user-entry';
 /**
  * Main class to use for managing users
  */
-export class VolumeSerializer extends Serializer {
+export class VolumeRouter extends Router {
 
   private _options: IBaseControler;
   private _volumeController: VolumesController;

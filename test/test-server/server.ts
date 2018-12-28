@@ -1,4 +1,4 @@
-import { Controller, serializers } from "../../src/index";
+import { Controller, routers } from "../../src/index";
 
 /**
  * Create a basic controller
@@ -17,22 +17,22 @@ export default class MainController extends Controller {
 
       super.initialize( app, db ),
 
-      new serializers.auth( {
+      new routers.auth( {
         rootPath: api,
         accountRedirectURL: '/message',
         activateAccountUrl: '/auth/activate-account',
         passwordResetURL: '/reset-password'
       } ).initialize( app, db ),
 
-      new serializers.user( {
+      new routers.user( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new serializers.comments( {
+      new routers.comments( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new serializers.posts( {
+      new routers.posts( {
         rootPath: api
       } ).initialize( app, db ),
 
@@ -40,24 +40,24 @@ export default class MainController extends Controller {
       //   rootPath: ''
       // } ).initialize( app, db ),
 
-      new serializers.file( {
+      new routers.file( {
         rootPath: '',
         cacheLifetime: 60000
       } ).initialize( app, db ),
 
-      new serializers.volume( {
+      new routers.volume( {
         rootPath: ''
       } ).initialize( app, db ),
 
-      new serializers.categories( {
+      new routers.categories( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new serializers.templates( {
+      new routers.templates( {
         rootPath: api
       } ).initialize( app, db ),
 
-      new serializers.documents( {
+      new routers.documents( {
         rootPath: api
       } ).initialize( app, db )
 

@@ -4,7 +4,7 @@ import * as mongodb from 'mongodb';
 import { error as logError, info } from '../utils/logger';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { Serializer } from './serializer';
+import { Router } from './router';
 import * as url from 'url';
 import { JSDOM } from 'jsdom';
 import { okJson, errJson } from '../utils/response-decorators';
@@ -20,7 +20,7 @@ import { Page } from '../types/tokens/standard-tokens';
  * Sets up a prerender server and saves the rendered html requests to mongodb.
  * These saved HTML documents can then be sent to web crawlers who cannot interpret javascript.
  */
-export class PageSerializer extends Serializer {
+export class PageRouter extends Router {
   private renderQueryFlag: string;
   private expiration: number;
   private _options: IRenderOptions;
@@ -276,13 +276,13 @@ export class PageSerializer extends Serializer {
     if ( parsedQuery && parsedQuery[ '_escaped_fragment_' ] !== undefined ) isRequestingPrerenderedPage = true;
 
     // if it is a bot...show prerendered page
-    if ( PageSerializer.crawlerUserAgents.some( function( crawlerUserAgent ) { return ( userAgent as string ).toLowerCase().indexOf( crawlerUserAgent.toLowerCase() ) !== -1; } ) ) isRequestingPrerenderedPage = true;
+    if ( PageRouter.crawlerUserAgents.some( function( crawlerUserAgent ) { return ( userAgent as string ).toLowerCase().indexOf( crawlerUserAgent.toLowerCase() ) !== -1; } ) ) isRequestingPrerenderedPage = true;
 
     // if it is BufferBot...show prerendered page
     if ( bufferAgent ) isRequestingPrerenderedPage = true;
 
     // if it is a bot and is requesting a resource...dont prerender
-    if ( PageSerializer.extensionsToIgnore.some( function( extension ) { return req.url.indexOf( extension ) !== -1; } ) ) return false;
+    if ( PageRouter.extensionsToIgnore.some( function( extension ) { return req.url.indexOf( extension ) !== -1; } ) ) return false;
 
     return isRequestingPrerenderedPage;
   }

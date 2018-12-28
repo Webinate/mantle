@@ -1,5 +1,5 @@
 ﻿import { error as logError } from '../utils/logger';
-import { Serializer } from './serializer';
+import { Router } from './router';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
 import { IBaseControler } from '../types/misc/i-base-controller';
@@ -7,7 +7,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 /**
  * Checks all incomming requests to see if they are CORS approved
  */
-export class CORSSerializer extends Serializer {
+export class CORSRouter extends Router {
 
   private _approvedDomains: string[];
 

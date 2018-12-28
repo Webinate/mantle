@@ -5,7 +5,7 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
 import { SessionsController } from '../controllers/sessions';
-import { Serializer } from './serializer'
+import { Router } from './router'
 import { j200 } from '../decorators/responses';
 import { hasPermission } from '../decorators/permissions';
 import * as compression from 'compression';
@@ -17,7 +17,7 @@ import { ISessionEntry } from '..';
 /**
  * Main class to use for managing users
  */
-export class SessionSerializer extends Serializer {
+export class SessionRouter extends Router {
   private _options: IBaseControler;
   private _sessionController: SessionsController;
   /**

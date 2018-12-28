@@ -1,7 +1,7 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
 import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { Serializer } from './serializer'
+import { Router } from './router'
 import ControllerFactory from '../core/controller-factory';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
@@ -16,7 +16,7 @@ import { Error403 } from '../utils/errors';
 /**
  * Main class to use for managing users
  */
-export class FileSerializer extends Serializer {
+export class FileRouter extends Router {
   private _options: IFileOptions;
   private _files: FilesController;
 

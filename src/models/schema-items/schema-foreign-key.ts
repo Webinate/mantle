@@ -21,9 +21,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
   public namespace: string;
   public curLevel: number;
 
-  // private _targetDoc: Schema<IModelEntry<'server' | 'client'>> | null;
-
-
   /**
    * Creates a new schema item
    * @param name The name of this item
@@ -98,8 +95,6 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
 
     if ( !this.keyCanBeNull && !result )
       throw new Error( `${this.name} does not exist` );
-
-    // this._targetDoc = result;
 
     return toRet;
   }

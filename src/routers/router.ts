@@ -3,7 +3,7 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import { IModelEntry } from '../types/models/i-model-entry';
 
-export class Serializer {
+export class Router {
   private _models: Model<IModelEntry<'client' | 'server'>>[];
 
   constructor( models: Model<IModelEntry<'client' | 'server'>>[] | null ) {

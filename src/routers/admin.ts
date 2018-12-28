@@ -3,7 +3,7 @@ import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
-import { Serializer } from './serializer'
+import { Router } from './router'
 import { j200 } from '../decorators/responses';
 import * as compression from 'compression';
 import { IBaseControler } from '../types/misc/i-base-controller';
@@ -13,7 +13,7 @@ import Factory from '../core/model-factory';
 /**
  * Main class to use for managing users
  */
-export class AdminSerializer extends Serializer {
+export class AdminRouter extends Router {
   private _options: IBaseControler;
   private _userController: UsersController;
 

@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
-import { Serializer } from './serializer';
+import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
 import { admin, identify } from '../decorators/permissions';
@@ -18,7 +18,7 @@ import { PostsController, PostVisibility } from '../controllers/posts';
 /**
  * A controller that deals with the management of posts
  */
-export class PostsSerializer extends Serializer {
+export class PostsRouter extends Router {
 
   private _options: IBaseControler;
   private _controller: PostsController;

@@ -1,14 +1,14 @@
 ﻿'use strict';
 
 import { ISimpleResponse } from '../types/tokens/standard-tokens';
-import { Serializer } from './serializer'
+import { Router } from './router'
 import express = require( 'express' );
 import * as mongodb from 'mongodb';
 
 /**
  * Handles express errors
  */
-export class ErrorSerializer extends Serializer {
+export class ErrorRouter extends Router {
 
   /**
  * Creates an instance

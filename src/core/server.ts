@@ -8,12 +8,12 @@ import { createServer as createSecureServer } from 'https';
 import { existsSync, readFileSync } from 'fs';
 import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
-import { Serializer } from '../serializers/serializer'
-import { ErrorSerializer } from '../serializers/error-serializer';
+import { Router } from '../routers/router'
+import { ErrorRouter } from '../routers/error';
 
 export class Server {
   server: IServer;
-  private _controllers: Serializer[];
+  private _controllers: Router[];
   private _path: string;
   public name: string;
 
@@ -58,7 +58,7 @@ export class Server {
     const app = express();
 
     // Create the controllers
-    const controllers: Serializer[] = [ ...this._controllers, new ErrorSerializer() ];
+    const controllers: Router[] = [ ...this._controllers, new ErrorRouter() ];
 
     // Enable GZIPPING
     app.use( compression() );

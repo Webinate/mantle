@@ -4,7 +4,7 @@ import bodyParser = require( 'body-parser' );
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { DocumentsController } from '../controllers/documents';
-import { Serializer } from './serializer';
+import { Router } from './router';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
@@ -16,7 +16,7 @@ import { Error400 } from '../utils/errors';
 /**
  * Main class to use for managing documents
  */
-export class DocumentsSerializer extends Serializer {
+export class DocumentsRouter extends Router {
   private _options: IBaseControler;
   private _docsController: DocumentsController;
 

@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
-import { Serializer } from './serializer';
+import { Router } from './router';
 import { admin, identify } from '../decorators/permissions';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
@@ -16,7 +16,7 @@ import ControllerFactory from '../core/controller-factory';
 /**
  * A controller that deals with the management of categories
  */
-export class CategoriesSerializer extends Serializer {
+export class CategoriesRouter extends Router {
 
   private _options: IBaseControler;
   private _controller: CategoriesController;
