@@ -16,9 +16,9 @@ export class Schema<T extends IModelEntry<'server'>, Y extends IModelEntry<'clie
   /**
    * Creates a copy of the schema
    */
-  public clone(): Schema<T, Y> {
+  public clone( clone?: Schema<T, Y> ): Schema<T, Y> {
     const items = this._items;
-    const copy = new Schema();
+    const copy = clone || new Schema();
 
     for ( let i = 0, l = items.length; i < l; i++ )
       copy._items.push( items[ i ].clone() );

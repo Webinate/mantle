@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { } from 'mocha';
-import { IPost, IComment, Page, IAdminUser, IUserEntry } from '../../../src';
+import { IPost, IComment, Page, IAdminUser, IUserEntry, IDocument, IDraft, ITemplate } from '../../../src';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { generateRandString } from '../../../src/utils/utils';

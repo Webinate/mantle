@@ -80,49 +80,6 @@ export class DocumentsController extends Controller {
   }
 
   /**
-   * Populates a draft json with its elements
-   */
-  async populateDraft( draft: IDraft<'client' | 'server'> ) {
-    const elements: IDraftElement<'client' | 'server'>[] = await this._elementsCollection.find( {
-      parent: new ObjectID( draft._id )
-    } as IDraftElement<'server'>
-    ).toArray();
-
-    if ( !elements || elements.length === 0 )
-      return;
-
-    draft.elements = draft.elementsOrder.map( elmId => elements.find( elm => elm._id.toString() === elmId ) ) as IDraftElement<'client'>[];
-
-    const jsons = await Promise.all(
-      draft.elements.map( elm => {
-        const model = ModelFactory.get( elm.type ) as Model<IDraftElement<'server'>, IDraftElement<'client'>>;
-        const schema = model.schema.clone();
-        schema.setServer( elm as IDraftElement<'server'>, true );
-        return schema.downloadToken( {
-          expandMaxDepth: 1,
-          expandForeignKeys: true,
-          verbose: true,
-          expandSchemaBlacklist: [ /parent/ ]
-        } );
-      } )
-    );
-
-    const htmlMap: { [ zone: string ]: string } = {};
-    draft.elements = jsons;
-
-    for ( const elm of draft.elements ) {
-      elm.html = buildHtml( elm );
-
-      if ( !htmlMap[ elm.zone ] )
-        htmlMap[ elm.zone ] = elm.html;
-      else
-        htmlMap[ elm.zone ] += elm.html;
-    }
-
-    draft.html = htmlMap;
-  }
-
-  /**
    * Fetches all documents
    */
   async getMany() {
@@ -141,15 +98,6 @@ export class DocumentsController extends Controller {
       expandMaxDepth: 1,
       expandSchemaBlacklist: [ /parent/ ]
     } ) ) );
-
-
-    await Promise.all( docs.map( document => {
-      if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        return this.populateDraft( document.currentDraft as IDraft<'client'> );
-      else
-        return Promise.resolve();
-    } ) )
-
 
     const toRet: Page<IDocument<'client'>> = {
       limit: -1,
@@ -353,8 +301,8 @@ export class DocumentsController extends Controller {
     if ( options ) {
       const document = await schema.downloadToken( options );
 
-      if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        await this.populateDraft( document.currentDraft );
+      // if ( document.currentDraft && typeof document.currentDraft !== 'string' )
+      //   await this.populateDraft( document.currentDraft );
 
       return document;
     }
@@ -387,9 +335,6 @@ export class DocumentsController extends Controller {
         expandMaxDepth: 1,
         expandSchemaBlacklist: [ /parent/ ]
       } );
-
-      if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-        await this.populateDraft( document.currentDraft );
 
       return document;
     }
