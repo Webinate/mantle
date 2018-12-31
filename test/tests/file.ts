@@ -21,7 +21,7 @@ export class File {
   }
 }
 
-export async function uploadFileToVolume( file: string, volume: IVolume<'client'>, name: string = 'test-file' ) {
+export async function uploadFileToVolume( file: string, volume: IVolume<'client' | 'expanded'>, name: string = 'test-file' ) {
   const files = ControllerFactory.get( 'files' );
   const filePath = resolve( __dirname + '/../media/' + file );
   const f = new File( name, filePath, statSync( filePath ).size, 'image/png' );

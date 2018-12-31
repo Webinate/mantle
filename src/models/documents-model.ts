@@ -7,7 +7,7 @@ import { Collection, Db } from 'mongodb';
 /**
  * A model for describing documents
  */
-export class DocumentsModel extends Model<IDocument<'server'>, IDocument<'client'>> {
+export class DocumentsModel extends Model<IDocument<'server'>, IDocument<'client' | 'expanded'>> {
   constructor() {
     super( 'documents', new DocumentSchema() );
 

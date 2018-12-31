@@ -6,13 +6,13 @@ import header from '../header';
 import { randomString } from '../utils';
 import Agent from '../agent';
 
-let post: IPost<'client'>,
+let post: IPost<'expanded'>,
   newUserAgent: Agent,
-  newUser: IUserEntry<'client'>,
-  root: IComment<'client'>,
-  rootChild: IComment<'client'>,
-  otherUserComment: IComment<'client'>,
-  replyComment: IComment<'client'>;
+  newUser: IUserEntry<'expanded'>,
+  root: IComment<'expanded'>,
+  rootChild: IComment<'expanded'>,
+  otherUserComment: IComment<'expanded'>,
+  replyComment: IComment<'expanded'>;
 
 describe( 'When user deleted, comments must be nullified or removed: ', function() {
 
@@ -22,13 +22,13 @@ describe( 'When user deleted, comments must be nullified or removed: ', function
 
     // Create new user
     newUserAgent = await header.createUser( 'user3', 'password', 'user3@test.com', 3 );
-    newUser = await users.getUser( { username: 'user3' } ) as IUserEntry<'client'>;
+    newUser = await users.getUser( { username: 'user3' } ) as IUserEntry<'expanded'>;
 
     post = await posts.create( {
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } )
+    } ) as IPost<'expanded'>
   } )
 
   after( async function() {
@@ -42,14 +42,14 @@ describe( 'When user deleted, comments must be nullified or removed: ', function
     } );
 
     assert.deepEqual( resp.status, 200 );
-    root = await resp.json<IComment<'client'>>();
+    root = await resp.json<IComment<'expanded'>>();
 
     resp = await newUserAgent.post( `/api/posts/${post._id}/comments/${root._id}`, {
       content: "Root comment", public: true
     } );
 
     assert.deepEqual( resp.status, 200 );
-    rootChild = await resp.json<IComment<'client'>>();
+    rootChild = await resp.json<IComment<'expanded'>>();
   } );
 
   it( 'did create a reply comment', async function() {
@@ -58,14 +58,14 @@ describe( 'When user deleted, comments must be nullified or removed: ', function
     } );
 
     assert.deepEqual( resp.status, 200 );
-    otherUserComment = await resp.json<IComment<'client'>>();
+    otherUserComment = await resp.json<IComment<'expanded'>>();
 
     resp = await newUserAgent.post( `/api/posts/${post._id}/comments/${otherUserComment._id}`, {
       content: "Reply comment", public: true
     } );
 
     assert.deepEqual( resp.status, 200 );
-    replyComment = await resp.json<IComment<'client'>>();
+    replyComment = await resp.json<IComment<'expanded'>>();
   } );
 
   it( 'did allow an admin to see the comments', async function() {

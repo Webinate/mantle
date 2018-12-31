@@ -7,14 +7,14 @@ import { IFileEntry, IVolume, IUserEntry } from '../../../src';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
 
-let volume: IVolume<'client'>;
+let volume: IVolume<'expanded'>;
 const filePath = './test/media/file.png';
 
 describe( 'Testing successful file uploads: ', function() {
 
   before( async function() {
     const resp = await header.user1.post( `/volumes`, { name: randomString() } );
-    const json = await resp.json<IVolume<'client'>>();
+    const json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
   } )

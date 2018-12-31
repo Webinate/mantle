@@ -68,7 +68,7 @@ export class CategoriesController extends Controller {
 
 
     const count = await categories.count( {} );
-    const response: Page<ICategory<'client'>> = {
+    const response: Page<ICategory<'client' | 'expanded'>> = {
       count: count,
       data: sanitizedData,
       index: index,
@@ -164,7 +164,7 @@ export class CategoriesController extends Controller {
    */
   async update( id: string, token: Partial<ICategory<'client'>> ) {
     const categorys = this._categoriesModel;
-    let parent: Schema<ICategory<'server'>, ICategory<'client'>> | null = null;
+    let parent: Schema<ICategory<'server'>, ICategory<'client' | 'expanded'>> | null = null;
 
     // Check if target parent exists
     if ( token.parent ) {
@@ -211,7 +211,7 @@ export class CategoriesController extends Controller {
    */
   async create( token: Partial<ICategory<'client'>> ) {
     const categorys = this._categoriesModel;
-    let parent: Schema<ICategory<'server'>, ICategory<'client'>> | null = null;
+    let parent: Schema<ICategory<'server'>, ICategory<'client' | 'expanded'>> | null = null;
 
     if ( token.parent ) {
       parent = await categorys.findOne( <ICategory<'server'>>{ _id: new mongodb.ObjectID( token.parent ) } );

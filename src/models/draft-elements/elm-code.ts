@@ -6,7 +6,7 @@ import { SchemaHtml } from '../schema-items/schema-html';
 /**
  * A model for describing code elements
  */
-export class ElmCode extends Model<IDraftElement<'server'>, IDraftElement<'client'>> {
+export class ElmCode extends Model<IDraftElement<'server'>, IDraftElement<'client' | 'expanded'>> {
   constructor() {
     super( 'elements' );
 

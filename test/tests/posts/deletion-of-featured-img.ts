@@ -7,9 +7,9 @@ import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
 
-let post: IPost<'client'>,
-  volume: IVolume<'client'>,
-  file: IFileEntry<'client'>;
+let post: IPost<'expanded'>,
+  volume: IVolume<'expanded'>,
+  file: IFileEntry<'expanded'>;
 
 describe( 'Testing deletion of a featured image nullifies it on the post: ', function() {
 
@@ -26,10 +26,10 @@ describe( 'Testing deletion of a featured image nullifies it on the post: ', fun
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } );
+    } ) as IPost<'expanded'>;
 
     const resp = await header.user3.post( `/volumes`, { name: randomString() } );
-    const json = await resp.json<IVolume<'client'>>();
+    const json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
   } )
@@ -48,7 +48,7 @@ describe( 'Testing deletion of a featured image nullifies it on the post: ', fun
     form.append( 'good-file', fs.createReadStream( filePath ) );
     const resp = await header.user3.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );
-    const files = await resp.json<IFileEntry<'client'>[]>();
+    const files = await resp.json<IFileEntry<'expanded'>[]>();
     assert.equal( files.length, 1 );
     file = files[ 0 ];
   } )

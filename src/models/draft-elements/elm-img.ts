@@ -5,7 +5,7 @@ import { IDraftElement, DraftElements } from '../../types/models/i-draft-element
 /**
  * A model for describing image elements
  */
-export class ElmImg extends Model<IDraftElement<'server'>, IDraftElement<'client'>> {
+export class ElmImg extends Model<IDraftElement<'server'>, IDraftElement<'client' | 'expanded'>> {
   constructor() {
     super( 'elements' );
 

@@ -7,9 +7,9 @@ import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
 
-let user: IUserEntry<'client'>,
-  volume: IVolume<'client'>,
-  file: IFileEntry<'client'>;
+let user: IUserEntry<'expanded'>,
+  volume: IVolume<'expanded'>,
+  file: IFileEntry<'expanded'>;
 
 describe( 'Testing deletion of an avatar image nullifies it on the user: ', function() {
 
@@ -17,10 +17,10 @@ describe( 'Testing deletion of an avatar image nullifies it on the user: ', func
     const users = ControllerFactory.get( 'users' );
 
     await header.createUser( 'user3', 'password', 'user3@test.com', 2 );
-    user = await users.getUser( { username: 'user3' } ) as IUserEntry<'client'>;
+    user = await users.getUser( { username: 'user3' } ) as IUserEntry<'expanded'>;
 
     const resp = await header.user3.post( `/volumes`, { name: randomString() } );
-    const json = await resp.json<IVolume<'client'>>();
+    const json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
   } )
@@ -36,7 +36,7 @@ describe( 'Testing deletion of an avatar image nullifies it on the user: ', func
     form.append( 'good-file', fs.createReadStream( filePath ) );
     const resp = await header.user3.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );
-    const files = await resp.json<IFileEntry<'client'>[]>();
+    const files = await resp.json<IFileEntry<'expanded'>[]>();
     assert.equal( files.length, 1 );
     file = files[ 0 ];
   } )

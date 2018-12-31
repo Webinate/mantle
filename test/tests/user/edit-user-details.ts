@@ -4,17 +4,17 @@ import header from '../header';
 import { IUserEntry, IFileEntry } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
-let user: IUserEntry<'client'>, file: IFileEntry<'client'>;
+let user: IUserEntry<'expanded'>, file: IFileEntry<'expanded'>;
 
 describe( 'Editting user data:', function() {
 
   before( async function() {
     const users = ControllerFactory.get( 'users' );
-    user = await users.getUser( { username: header.user1.username } );
+    user = await users.getUser( { username: header.user1.username } ) as IUserEntry<'expanded'>;
 
     const volumes = ControllerFactory.get( 'volumes' );
     const volume = await volumes.create( { name: 'test', user: user._id } );
-    file = await uploadFileToVolume( 'img-a.png', volume, 'File A' );
+    file = await uploadFileToVolume( 'img-a.png', volume, 'File A' ) as IFileEntry<'expanded'>;
   } )
 
   it( 'should error if user does not exist', async function() {
@@ -117,7 +117,7 @@ describe( 'Editting user data:', function() {
     const data = await resp.json<IUserEntry<'client'>>();
     const avatarFile = data.avatarFile as IFileEntry<'client'>;
     assert.deepEqual( avatarFile._id, file._id );
-    assert.deepEqual( avatarFile.user, ( file.user as IUserEntry<'client'> )._id );
+    assert.deepEqual( avatarFile.user, file.user._id );
     assert.deepEqual( avatarFile.size, file.size );
   } )
 

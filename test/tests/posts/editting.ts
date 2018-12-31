@@ -4,7 +4,7 @@ import { IPost, Page } from '../../../src';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 let numPosts: number, secondPostId: string;
-let post: IPost<'client'>;
+let post: IPost<'expanded'>;
 
 const randomSlug = generateRandString( 10 );
 
@@ -13,7 +13,7 @@ describe( 'Testing editing of posts', function() {
   it( 'fetched all posts', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.deepEqual( resp.status, 200 );
-    const json: Page<IPost<'client'>> = await resp.json();
+    const json: Page<IPost<'expanded'>> = await resp.json();
     numPosts = json.count;
   } )
 
@@ -24,7 +24,7 @@ describe( 'Testing editing of posts', function() {
       public: true
     } );
     assert.deepEqual( resp.status, 200 );
-    post = await resp.json<IPost<'client'>>();
+    post = await resp.json<IPost<'expanded'>>();
   } )
 
   it( 'did create a second post to test editting post data', async function() {

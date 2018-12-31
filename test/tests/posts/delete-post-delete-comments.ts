@@ -5,9 +5,9 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 
-let post: IPost<'client'>,
-  comment1: IComment<'client'>,
-  comment2: IComment<'client'>;
+let post: IPost<'expanded'>,
+  comment1: IComment<'expanded'>,
+  comment2: IComment<'expanded'>;
 
 describe( 'Testing deletion of comments when a post is deleted', function() {
 
@@ -22,18 +22,17 @@ describe( 'Testing deletion of comments when a post is deleted', function() {
     // Create post and comments
     post = await posts.create( {
       author: admin._id,
-      content: 'This is a temp post',
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } );
+    } ) as IPost<'expanded'>;
 
     comment1 = await comments.create( {
       author: user1._id,
       post: post._id,
       content: 'parent comment',
       public: true
-    } );
+    } ) as IComment<'expanded'>;
 
     comment2 = await comments.create( {
       author: user1._id,
@@ -41,7 +40,7 @@ describe( 'Testing deletion of comments when a post is deleted', function() {
       content: 'parent comment',
       parent: comment1._id,
       public: true
-    } );
+    } ) as IComment<'expanded'>;
   } )
 
   it( 'get two comments for a post', async function() {

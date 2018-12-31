@@ -51,17 +51,17 @@ export class DocumentsController extends Controller {
    * @param options The options for finding the resource
    * @param templateId The id of the template to change to
    */
-  async changeTemplate( findOptions: GetOptions, templateId: string ) {
+  async changeTemplate( findDocOptions: GetOptions, templateId: string ) {
     const docsModel = this._docs;
     const templates = this._templates;
     const drafts = this._drafts;
 
-    const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
+    const doc = await docsModel.findOne( { _id: new ObjectId( findDocOptions.id ) } as IDocument<'server'> );
     if ( !doc )
       throw new Error404( 'Document not found' );
 
-    if ( findOptions.checkPermissions )
-      if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
+    if ( findDocOptions.checkPermissions )
+      if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findDocOptions.checkPermissions.userId ) )
         throw new Error403();
 
     const template = await templates.findOne( { _id: new ObjectId( templateId ) } as ITemplate<'server'> );
@@ -99,7 +99,7 @@ export class DocumentsController extends Controller {
       expandSchemaBlacklist: [ /parent/ ]
     } ) ) );
 
-    const toRet: Page<IDocument<'client'>> = {
+    const toRet: Page<IDocument<'client' | 'expanded'>> = {
       limit: -1,
       count: responses[ 0 ],
       index: 0,
@@ -109,7 +109,7 @@ export class DocumentsController extends Controller {
     return toRet;
   }
 
-  async addElement( findOptions: GetOptions, token: IDraftElement<'client'>, index?: number ) {
+  async addElement( findOptions: GetOptions, token: Partial<IDraftElement<'client'>>, index?: number ) {
     const docsModel = this._docs;
     const draftsModel = this._drafts;
     const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
@@ -193,7 +193,7 @@ export class DocumentsController extends Controller {
     )
   }
 
-  async updateElement( findOptions: GetOptions, elmId: string, token: IDraftElement<'client'> ) {
+  async updateElement( findOptions: GetOptions, elmId: string, token: Partial<IDraftElement<'client'>> ) {
 
     // Remove any attempt to change the parent
     delete token.parent;

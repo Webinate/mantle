@@ -6,7 +6,7 @@ import { FilesGetOptions } from '../controllers/files';
 const rootPath = `${apiUrl}/files`;
 
 export async function getAll( volumeId: string, options: Partial<FilesGetOptions> ) {
-  const page = await getJson<Page<IFileEntry<'client'>>>( `${rootPath}/volumes/${volumeId}` + makeQueryString( options as any ) );
+  const page = await getJson<Page<IFileEntry<'client' | 'expanded'>>>( `${rootPath}/volumes/${volumeId}` + makeQueryString( options as any ) );
   return page;
 }
 
@@ -15,7 +15,7 @@ export function remove( id: string ) {
 }
 
 export function update( id: string, token: Partial<IFileEntry<'client'>> ) {
-  return putJson<IFileEntry<'client'>>( `${rootPath}/${id}`, token );
+  return putJson<IFileEntry<'client' | 'expanded'>>( `${rootPath}/${id}`, token );
 }
 
 export async function replaceFile( fileId: string, file: File ) {
@@ -23,7 +23,7 @@ export async function replaceFile( fileId: string, file: File ) {
   data.append( 'file', file );
 
   const resp = await post( `${rootPath}/replace/${fileId}`, data );
-  const toRet: IFileEntry<'client'> = await resp.json();
+  const toRet: IFileEntry<'client' | 'expanded'> = await resp.json();
   return toRet;
 }
 
@@ -32,6 +32,6 @@ export async function create( volumeId: string, file: File ) {
   data.append( 'file', file );
 
   const resp = await post( `${rootPath}/volumes/${volumeId}/upload/`, data );
-  const toRet: IFileEntry<'client'> = await resp.json();
+  const toRet: IFileEntry<'client' | 'expanded'> = await resp.json();
   return toRet;
 }

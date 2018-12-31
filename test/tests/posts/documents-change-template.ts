@@ -6,17 +6,17 @@ import { randomString } from '../utils';
 import header from '../header';
 import controllerFactory from '../../../src/core/controller-factory';
 
-let post: IPost<'client'>,
-  document: IDocument<'client'>,
-  user1: IUserEntry<'client'>,
-  templates: ITemplate<'client'>[];
+let post: IPost<'expanded'>,
+  document: IDocument<'expanded'>,
+  user1: IUserEntry<'expanded'>,
+  templates: ITemplate<'expanded'>[];
 
 describe( 'Testing the changing of a document template: ', function() {
 
   before( async function() {
     const posts = ControllerFactory.get( 'posts' );
     const users = ControllerFactory.get( 'users' );
-    user1 = await users.getUser( { username: 'user1' } );
+    user1 = await users.getUser( { username: 'user1' } ) as IUserEntry<'expanded'>;
     const templatePage = await controllerFactory.get( 'templates' ).getMany();
     templates = templatePage.data;
 
@@ -26,9 +26,9 @@ describe( 'Testing the changing of a document template: ', function() {
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } );
+    } ) as IPost<'expanded'>;
 
-    document = post.document as IDocument<'client'>;
+    document = post.document;
   } )
 
   after( async function() {
@@ -67,11 +67,11 @@ describe( 'Testing the changing of a document template: ', function() {
     const resp = await header.user1.put( `/api/documents/${document._id}/set-template/${templates[ 1 ]._id}` );
     assert.equal( resp.status, 200 );
 
-    const updatedDoc = await resp.json<IDocument<'client'>>();
-    const newTemplate = updatedDoc.template as ITemplate<'client'>;
-    const prevTemplate = document.template as ITemplate<'client'>;
-    const newDraft = updatedDoc.currentDraft as IDraft<'client'>;
-    const oldDraft = document.currentDraft as IDraft<'client'>;
+    const updatedDoc = await resp.json<IDocument<'expanded'>>();
+    const newTemplate = updatedDoc.template;
+    const prevTemplate = document.template;
+    const newDraft = updatedDoc.currentDraft;
+    const oldDraft = document.currentDraft;
 
     assert.notDeepEqual( newTemplate._id, prevTemplate );
     assert.notDeepEqual( newDraft.template, oldDraft.template );

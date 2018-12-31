@@ -5,7 +5,7 @@ import { SchemaItem } from './schema-items/schema-item';
 /**
  * Gives an overall description of each property in a model
  */
-export class Schema<T extends IModelEntry<'server'>, Y extends IModelEntry<'client'>> {
+export class Schema<T extends IModelEntry<'server'>, Y extends IModelEntry<'client' | 'expanded'>> {
   private _items: SchemaItem<any, any>[];
   public dbEntry: T;
 

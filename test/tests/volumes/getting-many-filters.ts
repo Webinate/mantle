@@ -5,25 +5,25 @@ import { Page, IVolume } from '../../../src';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
 
-let volA: IVolume<'client'>;
-let volB: IVolume<'client'>;
-let volC: IVolume<'client'>;
+let volA: IVolume<'expanded'>;
+let volB: IVolume<'expanded'>;
+let volC: IVolume<'expanded'>;
 
 describe( 'Testing volume get requests', function() {
 
   before( async function() {
     let resp = await header.user1.post( `/volumes`, { name: 'aaa' } as IVolume<'client'> );
-    let json = await resp.json<IVolume<'client'>>();
+    let json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volA = json;
 
     resp = await header.user1.post( `/volumes`, { name: 'bbb' } as IVolume<'client'> );
-    json = await resp.json<IVolume<'client'>>();
+    json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volB = json;
 
     resp = await header.user1.post( `/volumes`, { name: 'ccc' } as IVolume<'client'> );
-    json = await resp.json<IVolume<'client'>>();
+    json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volC = json;
 

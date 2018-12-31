@@ -165,7 +165,7 @@ export class FilesController extends Controller {
       limit: limit
     }, { verbose, expandForeignKeys: true, expandMaxDepth: 1 } );
 
-    const toRet: Page<IFileEntry<'client'>> = {
+    const toRet: Page<IFileEntry<'client' | 'expanded'>> = {
       count: count,
       data: sanitizedData,
       index: index,
@@ -276,7 +276,7 @@ export class FilesController extends Controller {
       volumeName: volume.name
     };
 
-    let newFile = existinFile;
+    let newFile: Schema<IFileEntry<'server'>, IFileEntry<'client' | 'expanded'>> | null = existinFile;
     let newVolumeSize = volume.memoryUsed;
 
     if ( !newFile ) {
@@ -327,7 +327,7 @@ export class FilesController extends Controller {
       throw new Error( `You dont have sufficient memory in the volume` );
     }
 
-    const proimises: Promise<IFileEntry<'client'>>[] = [];
+    const proimises: Promise<IFileEntry<'client' | 'expanded'>>[] = [];
     for ( const file of response.files )
       proimises.push( this.uploadFileToRemote( file, volumeSchema.dbEntry ) );
 
@@ -376,9 +376,9 @@ export class FilesController extends Controller {
 
     await this.deleteFile( file.dbEntry, false );
 
-    const proimises: Promise<IFileEntry<'client'>>[] = [];
+    const proimises: Promise<IFileEntry<'client' | 'expanded'>>[] = [];
     for ( const f of response.files )
-      proimises.push( this.uploadFileToRemote( f, volumeSchema.dbEntry, false, file ) );
+      proimises.push( this.uploadFileToRemote( f, volumeSchema.dbEntry, false, file as Schema<IFileEntry<'server'>, IFileEntry<'client'>> | null ) );
 
     const fileEntries = await Promise.all( proimises );
     return fileEntries;

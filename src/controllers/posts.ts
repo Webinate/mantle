@@ -164,7 +164,7 @@ export class PostsController extends Controller {
         expandSchemaBlacklist: [ /document\.author/ ]
       } );
 
-    const response: Page<IPost<'client'>> = {
+    const response: Page<IPost<'client' | 'expanded'>> = {
       count: count,
       data: sanitizedData,
       index: index,

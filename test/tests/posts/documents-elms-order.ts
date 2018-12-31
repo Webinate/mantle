@@ -6,19 +6,19 @@ import { randomString } from '../utils';
 import header from '../header';
 import { IDraft } from '../../../src/types/models/i-draft';
 
-let post: IPost<'client'>,
-  document: IDocument<'client'>,
-  user1: IUserEntry<'client'>;
+let post: IPost<'expanded'>,
+  document: IDocument<'expanded'>,
+  user1: IUserEntry<'expanded'>;
 
-let firstElm: IDraftElement<'client'>;
-let secondElm: IDraftElement<'client'>;
+let firstElm: IDraftElement<'expanded'>;
+let secondElm: IDraftElement<'expanded'>;
 
 describe( 'Testing the order of document elements: ', function() {
 
   before( async function() {
     const posts = ControllerFactory.get( 'posts' );
     const users = ControllerFactory.get( 'users' );
-    user1 = await users.getUser( { username: 'user1' } ) as IUserEntry<'client'>;
+    user1 = await users.getUser( { username: 'user1' } ) as IUserEntry<'expanded'>;
 
     // Create post and comments
     post = await posts.create( {
@@ -26,9 +26,9 @@ describe( 'Testing the order of document elements: ', function() {
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } );
+    } ) as IPost<'expanded'>;
 
-    document = post.document as IDocument<'client'>;
+    document = post.document;
   } )
 
   after( async function() {
@@ -43,18 +43,18 @@ describe( 'Testing the order of document elements: ', function() {
       html: '<p>A</p>'
     } as IDraftElement<'client'> );
     assert.equal( resp.status, 200 );
-    firstElm = await resp.json<IDraftElement<'client'>>();
+    firstElm = await resp.json<IDraftElement<'expanded'>>();
 
     resp = await header.user1.post( `/api/documents/${document._id}/elements`, {
       type: 'elm-paragraph',
       html: '<p>B</p>'
-    } as IDraftElement<'client'> );
+    } as IDraftElement<'expanded'> );
     assert.equal( resp.status, 200 );
-    secondElm = await resp.json<IDraftElement<'client'>>();
+    secondElm = await resp.json<IDraftElement<'expanded'>>();
 
     resp = await header.user1.get( `/api/documents/${document._id}` );
-    const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IDraft<'client'>;
+    const doc = await resp.json<IDocument<'expanded'>>();
+    const draft = doc.currentDraft as IDraft<'expanded'>;
     assert.equal( resp.status, 200 );
     assert.equal( draft.elementsOrder[ 1 ], firstElm._id );
     assert.equal( draft.elementsOrder[ 2 ], secondElm._id );

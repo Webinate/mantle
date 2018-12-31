@@ -73,7 +73,7 @@ export class UsersController extends Controller {
     const adminUser = this._config.adminUser as IAdminUser;
 
     // See if we have an admin user
-    let user: IUserEntry<'client' | 'server'> | null = await this.getUser( { username: adminUser.username } );
+    let user: IUserEntry<'client' | 'server' | 'expanded'> | null = await this.getUser( { username: adminUser.username } );
 
     // If no admin user exists, so lets try to create one
     if ( !user )
@@ -165,7 +165,7 @@ export class UsersController extends Controller {
    * @param resetUrl The url of where the activation link should go
    * @param origin The origin of where the activation link came from
 	 */
-  private createActivationLink( user: IUserEntry<'client' | 'server'>, resetUrl: string, origin: string ): string {
+  private createActivationLink( user: IUserEntry<'client' | 'server' | 'expanded'>, resetUrl: string, origin: string ): string {
     return `${resetUrl}?key=${user.registerKey}&user=${user.username}&origin=${origin}`;
   }
 
@@ -744,7 +744,7 @@ export class UsersController extends Controller {
       { index: index, limit: limit, selector: findToken },
       { expandForeignKeys: true, expandMaxDepth: 1, verbose: verbose, expandSchemaBlacklist: [ /user/ ] } );
 
-    const toRet: Page<IUserEntry<'client'>> = {
+    const toRet: Page<IUserEntry<'client' | 'expanded'>> = {
       count: count,
       data: data,
       index: index,

@@ -5,7 +5,7 @@ import { IDraft } from '../types/models/i-draft';
 /**
  * A model for describing drafts
  */
-export class DraftsModel extends Model<IDraft<'server'>, IDraft<'client'>> {
+export class DraftsModel extends Model<IDraft<'server'>, IDraft<'client' | 'expanded'>> {
   constructor() {
     super( 'drafts' );
 

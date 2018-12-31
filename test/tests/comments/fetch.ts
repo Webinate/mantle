@@ -9,13 +9,13 @@ import { generateRandString } from '../../../src/utils/utils';
 let numPosts: number,
   numComments: number, postId: string, publicCommentId: string,
   privateCommentId: string, parentCommentId: string, childCommentId: string,
-  admin: IUserEntry<'client'>;
+  admin: IUserEntry<'expanded'>;
 
 describe( 'Testing fetching of comments', function() {
 
   before( async function() {
     const users = ControllerFactory.get( 'users' );
-    admin = await users.getUser( { username: ( header.config.adminUser as IAdminUser ).username } )
+    admin = await users.getUser( { username: ( header.config.adminUser as IAdminUser ).username } ) as IUserEntry<'expanded'>
   } )
 
   it( 'fetched all posts', async function() {

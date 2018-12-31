@@ -5,7 +5,7 @@ import { ITemplate } from '../types/models/i-template';
 /**
  * A model for describing templates
  */
-export class TemplatesModel extends Model<ITemplate<'server'>, ITemplate<'client'>> {
+export class TemplatesModel extends Model<ITemplate<'server'>, ITemplate<'client' | 'expanded'>> {
   constructor() {
     super( 'templates' );
 

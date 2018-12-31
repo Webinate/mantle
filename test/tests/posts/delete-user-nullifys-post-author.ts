@@ -5,8 +5,8 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 
-let post: IPost<'client'>,
-  newUser: IUserEntry<'client'>;
+let post: IPost<'expanded'>,
+  newUser: IUserEntry<'expanded'>;
 
 describe( 'Testing deletion of user is nullified on posts: ', function() {
 
@@ -15,7 +15,7 @@ describe( 'Testing deletion of user is nullified on posts: ', function() {
     const users = ControllerFactory.get( 'users' );
 
     await header.createUser( 'user3', 'password', 'user3@test.com', 2 );
-    newUser = await users.getUser( { username: 'user3' } );
+    newUser = await users.getUser( { username: 'user3' } ) as IUserEntry<'expanded'>;
 
     // Create post and comments
     post = await posts.create( {
@@ -23,7 +23,7 @@ describe( 'Testing deletion of user is nullified on posts: ', function() {
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } );
+    } ) as IPost<'expanded'>;
   } )
 
   after( async function() {

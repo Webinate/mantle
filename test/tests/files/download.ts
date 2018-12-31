@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { IVolume } from '../../../src';
 import * as FormData from 'form-data';
 
-let volume: IVolume<'client'>;
+let volume: IVolume<'expanded'>;
 const filePath = './test/media/file.png';
 let fileUrl;
 

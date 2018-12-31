@@ -150,7 +150,7 @@ export class AuthRouter extends Router {
   private async login( req: express.Request, res: express.Response ) {
     const token: ILoginToken = req.body;
     const session = await this._userController.logIn( token.username, token.password, token.rememberMe, req, res );
-    let user: IUserEntry<'client'> | null = null;
+    let user: IUserEntry<'client' | 'expanded'> | null = null;
 
     if ( session ) {
       await ControllerFactory.get( 'sessions' ).setSessionHeader( session, req, res );
@@ -198,7 +198,7 @@ export class AuthRouter extends Router {
   private async authenticated( req: express.Request, res: express.Response ) {
 
     const session = await ControllerFactory.get( 'sessions' ).getSession( req );
-    let user: IUserEntry<'client'> | null = null;
+    let user: IUserEntry<'client' | 'expanded'> | null = null;
 
     if ( session ) {
       await ControllerFactory.get( 'sessions' ).setSessionHeader( session, req, res );

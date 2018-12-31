@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { IVolume, IUserEntry } from '../../../src';
 import * as FormData from 'form-data';
 
-let volume: IVolume<'client'>;
+let volume: IVolume<'expanded'>;
 const filePath = './test/media/file.png';
 
 describe( 'Getting uploaded user files', function() {

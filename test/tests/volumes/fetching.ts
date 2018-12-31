@@ -3,12 +3,12 @@ import { } from 'mocha';
 import header from '../header';
 import { IAdminUser, Page, IVolume, IUserEntry } from '../../../src';
 
-let volumeJson: IVolume<'client'>;
+let volumeJson: IVolume<'expanded'>;
 
 describe( 'Testing volume get requests', function() {
 
   it( 'regular user did create a volume dinosaurs', async function() {
-    const resp = await header.user1.post( `/volumes`, { name: 'dinosaurs' } as IVolume<'client'> );
+    const resp = await header.user1.post( `/volumes`, { name: 'dinosaurs' } as IVolume<'expanded'> );
     const json = await resp.json();
     assert.deepEqual( resp.status, 200 );
     volumeJson = json;

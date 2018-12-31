@@ -8,16 +8,16 @@ import * as fs from 'fs';
 import * as FormData from 'form-data';
 import { IDraft } from '../../../src/types/models/i-draft';
 
-let post: IPost<'client'>,
-  document: IDocument<'client'>,
-  user1: IUserEntry<'client'>;
+let post: IPost<'expanded'>,
+  document: IDocument<'expanded'>,
+  user1: IUserEntry<'expanded'>;
 
 describe( 'Testing the fetching of documents: ', function() {
 
   before( async function() {
     const posts = ControllerFactory.get( 'posts' );
     const users = ControllerFactory.get( 'users' );
-    user1 = await users.getUser( { username: 'user1' } );
+    user1 = await users.getUser( { username: 'user1' } ) as IUserEntry<'expanded'>;
 
     // Create post and comments
     post = await posts.create( {
@@ -25,9 +25,9 @@ describe( 'Testing the fetching of documents: ', function() {
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } );
+    } ) as IPost<'expanded'>;
 
-    document = post.document as IDocument<'client'>;
+    document = post.document;
   } )
 
   after( async function() {

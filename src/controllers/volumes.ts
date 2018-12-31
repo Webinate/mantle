@@ -131,7 +131,7 @@ export class VolumesController extends Controller {
       expandForeignKeys: true
     } ) ) );
 
-    const toRet: Page<IVolume<'client'>> = {
+    const toRet: Page<IVolume<'client' | 'expanded'>> = {
       limit: limit,
       count: count,
       index: index,

@@ -8,19 +8,19 @@ import * as fs from 'fs';
 import * as FormData from 'form-data';
 import { IImageElement } from '../../../src/types/models/i-draft-elements';
 
-let post: IPost<'client'>,
-  document: IDocument<'client'>,
-  volume: IVolume<'client'>,
-  imageElm: IImageElement<'client'>,
-  user1: IUserEntry<'client'>,
-  file: IFileEntry<'client'>;
+let post: IPost<'expanded'>,
+  document: IDocument<'expanded'>,
+  volume: IVolume<'expanded'>,
+  imageElm: IImageElement<'expanded'>,
+  user1: IUserEntry<'expanded'>,
+  file: IFileEntry<'expanded'>;
 
 describe( 'Testing the rendered html of elements: ', function() {
 
   before( async function() {
     const posts = ControllerFactory.get( 'posts' );
     const users = ControllerFactory.get( 'users' );
-    user1 = await users.getUser( { username: 'user1' } );
+    user1 = await users.getUser( { username: 'user1' } ) as IUserEntry<'expanded'>;
 
     // Create post and comments
     post = await posts.create( {
@@ -28,12 +28,12 @@ describe( 'Testing the rendered html of elements: ', function() {
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } );
+    } ) as IPost<'expanded'>;
 
-    document = post.document as IDocument<'client'>;
+    document = post.document;
 
     const resp = await header.admin.post( `/volumes`, { name: randomString() } );
-    const json = await resp.json<IVolume<'client'>>();
+    const json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
   } )
@@ -52,7 +52,7 @@ describe( 'Testing the rendered html of elements: ', function() {
     form.append( 'good-file', fs.createReadStream( filePath ) );
     const resp = await header.admin.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );
-    const files = await resp.json<IFileEntry<'client'>[]>();
+    const files = await resp.json<IFileEntry<'expanded'>[]>();
     assert.equal( files.length, 1 );
     file = files[ 0 ];
   } )
@@ -66,7 +66,7 @@ describe( 'Testing the rendered html of elements: ', function() {
 
     assert.equal( resp.status, 200 );
 
-    imageElm = await resp.json<IImageElement<'client'>>();
+    imageElm = await resp.json<IImageElement<'expanded'>>();
     assert.deepEqual( imageElm.html, `<figure><img src="${file.publicURL}" /></figure>` );
   } )
 
@@ -85,8 +85,8 @@ describe( 'Testing the rendered html of elements: ', function() {
 
   it( 'did get the render missing image html after image removed', async function() {
     const resp = await header.admin.get( `/api/documents/${document._id}` );
-    const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IDraft<'client'>;
+    const doc = await resp.json<IDocument<'expanded'>>();
+    const draft = doc.currentDraft;
     assert.equal( resp.status, 200 );
     assert.equal( draft.elements[ 1 ].html, `<figure>Image not found</figure>` );
   } )
@@ -97,7 +97,7 @@ describe( 'Testing the rendered html of elements: ', function() {
     form.append( 'good-file', fs.createReadStream( filePath ) );
     const resp = await header.admin.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );
-    const files = await resp.json<IFileEntry<'client'>[]>();
+    const files = await resp.json<IFileEntry<'expanded'>[]>();
     assert.equal( files.length, 1 );
     file = files[ 0 ];
   } )
@@ -108,7 +108,7 @@ describe( 'Testing the rendered html of elements: ', function() {
     } as IImageElement<'client'> );
     assert.equal( resp.status, 200 );
 
-    imageElm = await resp.json<IImageElement<'client'>>();
+    imageElm = await resp.json<IImageElement<'expanded'>>();
     assert.deepEqual( imageElm.html, `<figure><img src="${file.publicURL}" /></figure>` );
   } )
 } )

@@ -3,14 +3,14 @@ import { } from 'mocha';
 import { IPost, Page, IDocument } from '../../../src';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
-let numPosts: number, post: IPost<'client'>;
+let numPosts: number, post: IPost<'expanded'>;
 
 describe( 'Testing deletion of posts', function() {
 
   it( 'fetched all posts', async function() {
     const resp = await header.admin.get( `/api/posts` );
     assert.strictEqual( resp.status, 200 );
-    const json: Page<IPost<'client'>> = await resp.json();
+    const json: Page<IPost<'expanded'>> = await resp.json();
     numPosts = json.count;
   } )
 
@@ -23,7 +23,7 @@ describe( 'Testing deletion of posts', function() {
     } );
 
     assert.strictEqual( resp.status, 200 );
-    const json: IPost<'client'> = await resp.json();
+    const json: IPost<'expanded'> = await resp.json();
     post = json;
   } )
 
@@ -54,12 +54,12 @@ describe( 'Testing deletion of posts', function() {
   } )
 
   it( 'has removed the document', async function() {
-    const resp = await header.admin.get( `/api/documents/${( post.document as IDocument<'client'> )._id}` );
+    const resp = await header.admin.get( `/api/documents/${post.document._id}` );
     assert.strictEqual( resp.status, 404 );
   } )
 
   it( 'has removed the current draft', async function() {
-    const resp = await header.admin.get( `/api/documents/${( post.document as IDocument<'client'> )._id}` );
+    const resp = await header.admin.get( `/api/documents/${post.document._id}` );
     assert.strictEqual( resp.status, 404 );
   } )
 

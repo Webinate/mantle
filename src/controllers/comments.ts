@@ -126,7 +126,7 @@ export class CommentsController extends Controller {
       }
     );
 
-    const response: Page<IComment<'client'>> = {
+    const response: Page<IComment<'client' | 'expanded'>> = {
       count: count,
       data: sanitizedData,
       index: options.index || 0,
@@ -241,7 +241,7 @@ export class CommentsController extends Controller {
    */
   async create( token: Partial<IComment<'client'>> ) {
     const comments = this._commentsModel;
-    let parent: Schema<IComment<'server'>, IComment<'client'>> | null = null;
+    let parent: Schema<IComment<'server'>, IComment<'client' | 'expanded'>> | null = null;
 
     if ( token.parent ) {
       parent = await comments.findOne( <IComment<'server'>>{ _id: new mongodb.ObjectID( token.parent as string ) } );

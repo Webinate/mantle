@@ -7,9 +7,9 @@ import { IFileEntry, IVolume, IUserEntry } from '../../../src';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
 
-let volume: IVolume<'client'>;
-let uploadedFile: IFileEntry<'client'>;
-let newFile: IFileEntry<'client'>;
+let volume: IVolume<'expanded'>;
+let uploadedFile: IFileEntry<'expanded'>;
+let newFile: IFileEntry<'expanded'>;
 const filePath = './test/media/file.png';
 const filePath2 = './test/media/img-a.png';
 
@@ -17,7 +17,7 @@ describe( 'Testing replacing of a file upload: ', function() {
 
   before( async function() {
     const resp = await header.user1.post( `/volumes`, { name: randomString() } );
-    const json = await resp.json<IVolume<'client'>>();
+    const json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
   } )
@@ -33,7 +33,7 @@ describe( 'Testing replacing of a file upload: ', function() {
     const resp = await header.user1.post( `/files/volumes/${volume._id}/upload`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );
 
-    const files = await resp.json<IFileEntry<'client'>[]>();
+    const files = await resp.json<IFileEntry<'expanded'>[]>();
     assert.equal( files.length, 1 );
     assert.equal( files[ 0 ].name, 'file.png' );
     assert.equal( files[ 0 ].mimeType, 'image/png' );
@@ -52,7 +52,7 @@ describe( 'Testing replacing of a file upload: ', function() {
     const resp = await header.user1.post( `/files/replace/${uploadedFile._id}`, form, form.getHeaders() );
     assert.equal( resp.status, 200 );
 
-    const files = await resp.json<IFileEntry<'client'>[]>();
+    const files = await resp.json<IFileEntry<'expanded'>[]>();
     assert.equal( files.length, 1 );
     assert.equal( files[ 0 ].name, 'img-a.png' );
     assert.equal( files[ 0 ].mimeType, 'image/png' );

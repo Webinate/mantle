@@ -5,7 +5,7 @@ import { ISessionEntry } from '../types/models/i-session-entry';
 /**
  * A model for describing comments
  */
-export class SessionModel extends Model<ISessionEntry<'server'>, ISessionEntry<'client'>> {
+export class SessionModel extends Model<ISessionEntry<'server'>, ISessionEntry<'client' | 'expanded'>> {
   constructor() {
     super( 'sessions' );
     this.schema.addItems( [

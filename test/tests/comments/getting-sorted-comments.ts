@@ -6,10 +6,10 @@ import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 
 
-let post: IPost<'client'>,
-  comment1: IComment<'client'>,
-  comment2: IComment<'client'>,
-  admin: IUserEntry<'client'>;
+let post: IPost<'expanded'>,
+  comment1: IComment<'expanded'>,
+  comment2: IComment<'expanded'>,
+  admin: IUserEntry<'expanded'>;
 
 describe( 'Testing of fetching sorted comments:', function() {
 
@@ -17,13 +17,13 @@ describe( 'Testing of fetching sorted comments:', function() {
     const users = ControllerFactory.get( 'users' );
     const comments = ControllerFactory.get( 'comments' );
     const posts = ControllerFactory.get( 'posts' );
-    admin = await users.getUser( { username: ( header.config.adminUser as IAdminUser ).username } ) as IUserEntry<'client'>;
-    post = await posts.create( { title: 'test', author: admin._id, slug: randomString() } );
-    comment1 = await comments.create( { post: post._id, author: admin.username, user: admin._id, content: 'AAA' } );
-    comment2 = await comments.create( { post: post._id, author: admin.username, user: admin._id, content: 'BBBB' } );
+    admin = await users.getUser( { username: ( header.config.adminUser as IAdminUser ).username } ) as IUserEntry<'expanded'>;
+    post = await posts.create( { title: 'test', author: admin._id, slug: randomString() } ) as IPost<'expanded'>;
+    comment1 = await comments.create( { post: post._id, author: admin.username, user: admin._id, content: 'AAA' } ) as IComment<'expanded'>;
+    comment2 = await comments.create( { post: post._id, author: admin.username, user: admin._id, content: 'BBBB' } ) as IComment<'expanded'>;
 
     // Modify comment 1
-    comment1 = await comments.update( comment1._id, { content: 'AAAA' } );
+    comment1 = await comments.update( comment1._id, { content: 'AAAA' } ) as IComment<'expanded'>;
   } )
 
   it( 'gets comments filtered by creation date by default', async function() {

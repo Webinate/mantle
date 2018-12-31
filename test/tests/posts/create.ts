@@ -4,7 +4,7 @@ import { IPost, IAdminUser, IUserEntry, IDocument, ITemplate } from '../../../sr
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import { IDraft } from '../../../src/types/models/i-draft';
-let lastPost: IPost<'client'>, lastPost2: IPost<'client'>;
+let lastPost: IPost<'expanded'>, lastPost2: IPost<'expanded'>;
 let numPosts = 0;
 
 describe( 'Testing creation of posts', function() {
@@ -54,11 +54,11 @@ describe( 'Testing creation of posts', function() {
       tags: [ "super-tags-1234", "supert-tags-4321" ]
     } as IPost<'client'> );
     assert.strictEqual( resp.status, 200 );
-    const json: IPost<'client'> = await resp.json();
+    const json: IPost<'expanded'> = await resp.json();
 
     lastPost = json;
     assert.strictEqual( json.public, false );
-    assert.strictEqual( ( json.author as IUserEntry<'client'> ).username, ( header.config.adminUser as IAdminUser ).username );
+    assert.strictEqual( json.author.username, ( header.config.adminUser as IAdminUser ).username );
     assert.strictEqual( json.brief, "This is brief" );
     assert.strictEqual( json.slug, slug );
     assert.strictEqual( json.title, "Simple Test" );
@@ -73,7 +73,7 @@ describe( 'Testing creation of posts', function() {
     assert( json.lastUpdated > 0 );
 
     // Check the default doc is created
-    const doc = json.document as IDocument<'client'>;
+    const doc = json.document;
     assert.notDeepEqual( doc.template, null );
     assert.notDeepEqual( doc.currentDraft, null );
     assert.deepEqual( typeof doc.template, 'object' );
@@ -83,7 +83,7 @@ describe( 'Testing creation of posts', function() {
     assert( doc.lastUpdated > 0 );
 
     // Check the current draft
-    const draft = doc.currentDraft as IDraft<'client'>;
+    const draft = doc.currentDraft;
     assert.deepEqual( draft.elements.length, 1 );
     assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
     assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
@@ -93,7 +93,7 @@ describe( 'Testing creation of posts', function() {
   } )
 
   it( 'can get the document associated with the post', async function() {
-    const resp = await header.admin.get( `/api/documents/${( lastPost.document as IDocument<'client'> )._id}` );
+    const resp = await header.admin.get( `/api/documents/${lastPost.document._id}` );
     assert.strictEqual( resp.status, 200 );
   } )
 

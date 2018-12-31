@@ -5,11 +5,11 @@ import { IUserEntry } from './i-user-entry';
 /**
  * The interface for describing each user's file
  */
-export interface IFileEntry<T extends 'client' | 'server'> extends IModelEntry<T> {
-  name: T extends 'client' ? string : RegExp | string;
-  user: T extends 'client' ? IUserEntry<T> | string : ObjectID;
+export interface IFileEntry<T extends 'expanded' | 'client' | 'server'> extends IModelEntry<T> {
+  name: T extends 'client' | 'expanded' ? string : RegExp | string;
+  user: T extends 'expanded' ? IUserEntry<T> : T extends 'client' ? IUserEntry<T> | string : ObjectID;
   identifier?: string;
-  volumeId: string | ObjectID;
+  volumeId: T extends 'expanded' | 'client' ? string : string | ObjectID;
   volumeName: string;
   publicURL?: string;
   created: number;
@@ -17,6 +17,6 @@ export interface IFileEntry<T extends 'client' | 'server'> extends IModelEntry<T
   mimeType: string;
   isPublic: boolean;
   numDownloads: number;
-  parentFile: T extends 'client' ? ( string | null ) : ( ObjectID | null );
+  parentFile: T extends 'expanded' ? ( IFileEntry<T> | null ) : T extends 'client' ? ( string | null ) : ( ObjectID | null );
   meta: any;
 }

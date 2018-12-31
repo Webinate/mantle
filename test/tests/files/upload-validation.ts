@@ -10,13 +10,13 @@ import { IUploadResponse, IVolume } from '../../../src';
 const goodFilePath = './test/media/file.png';
 const dangerousFile = './test/media/dangerous.sh';
 const bigFile = './test/media/big-image.bmp';
-let volume: IVolume<'client'>;
+let volume: IVolume<'expanded'>;
 
 describe( 'Testing volume upload validation: ', function() {
 
   before( async function() {
     const resp = await header.user1.post( `/volumes`, { name: randomString() } );
-    const json = await resp.json<IVolume<'client'>>();
+    const json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
   } )

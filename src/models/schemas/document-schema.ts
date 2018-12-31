@@ -8,14 +8,14 @@ import ModelFactory from '../../core/model-factory';
 import { Model } from '../model';
 import { IFileEntry } from '../../types/models/i-file-entry';
 
-export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'client'>> {
+export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'client' | 'expanded'>> {
   private _elementsCollection: Collection<IDraftElement<'server'>>;
 
   public async downloadToken( options?: ISchemaOptions ) {
     const toRet = await super.downloadToken( options );
 
     if ( toRet.currentDraft && typeof ( toRet.currentDraft ) !== 'string' )
-      await this.populateDraft( toRet.currentDraft );
+      await this.populateDraft( toRet.currentDraft as IDraft<'client'> );
 
     return toRet;
   }

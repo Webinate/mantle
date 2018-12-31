@@ -3,12 +3,12 @@ import { } from 'mocha';
 import { ITemplate, Page } from '../../../src';
 import header from '../header';
 
-let templates: ITemplate<'client'>[];
+let templates: ITemplate<'expanded'>[];
 
 describe( 'Testing fetching of templates: ', function() {
 
   it( 'did fetch all default templates', async function() {
-    const resp = await header.guest.getJson<Page<ITemplate<'client'>>>( `/api/templates` );
+    const resp = await header.guest.getJson<Page<ITemplate<'expanded'>>>( `/api/templates` );
     assert( resp.count > 0 );
     assert( resp.limit === -1 );
     templates = resp.data;

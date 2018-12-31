@@ -5,7 +5,7 @@ import { foreignKey, text, num, date, json } from './schema-items/schema-item-fa
 /**
  * A model for describing comments
  */
-export class UsersModel extends Model<IUserEntry<'server'>, IUserEntry<'client'>> {
+export class UsersModel extends Model<IUserEntry<'server'>, IUserEntry<'client' | 'expanded'>> {
   constructor() {
     super( 'users' );
 

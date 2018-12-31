@@ -5,16 +5,16 @@ import { Page, IVolume, IFileEntry } from '../../../src';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
 
-let volume: IVolume<'client'>;
-let fileA: IFileEntry<'client'>;
-let fileB: IFileEntry<'client'>;
-let fileC: IFileEntry<'client'>;
+let volume: IVolume<'expanded'>;
+let fileA: IFileEntry<'expanded'>;
+let fileB: IFileEntry<'expanded'>;
+let fileC: IFileEntry<'expanded'>;
 
 describe( 'Testing volume get requests', function() {
 
   before( async function() {
     let resp = await header.user1.post( `/volumes`, { name: 'aaa' } as IVolume<'client'> );
-    let json = await resp.json<IVolume<'client'>>();
+    let json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
 

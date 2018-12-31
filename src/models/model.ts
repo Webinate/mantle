@@ -15,7 +15,7 @@ export interface ISearchOptions<T> {
 /**
  * Models map data in the application/client to data in the database
  */
-export abstract class Model<T extends IModelEntry<'server'>, Y extends IModelEntry<'client'>> {
+export abstract class Model<T extends IModelEntry<'server'>, Y extends IModelEntry<'client' | 'expanded'>> {
   public collection: Collection<T>;
   public schema: Schema<T, Y>;
   private _collectionName: string;

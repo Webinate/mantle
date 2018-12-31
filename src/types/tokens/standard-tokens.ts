@@ -25,7 +25,7 @@ export interface IRemoveResponse extends IResponse {
 export interface IAuthenticationResponse extends IResponse {
   message: string;
   authenticated: boolean;
-  user?: IUserEntry<'client'> | null;
+  user?: IUserEntry<'client' | 'expanded'> | null;
 }
 
 /*

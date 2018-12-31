@@ -7,15 +7,14 @@ import { IDocument } from './i-document';
 /*
  * Describes the post model
  */
-export interface IPost<T extends 'client' | 'server'> extends IModelEntry<T> {
-  author: T extends 'client' ? IUserEntry<T> | string | null : ObjectID | null;
+export interface IPost<T extends 'expanded' | 'client' | 'server'> extends IModelEntry<T> {
+  author: T extends 'expanded' ? ( IUserEntry<T> | null ) : T extends 'client' ? IUserEntry<T> | string | null : ObjectID | null;
   title: string;
   slug: string;
   brief: string;
   public: boolean;
-  // content: string;
-  featuredImage: T extends 'client' ? IFileEntry<T> | string | null : ObjectID | null;
-  document: T extends 'client' ? IDocument<T> | string : ObjectID;
+  featuredImage: T extends 'expanded' ? ( IFileEntry<T> | null ) : T extends 'client' ? IFileEntry<T> | string | null : ObjectID | null;
+  document: T extends 'expanded' ? IDocument<T> : T extends 'client' ? IDocument<T> | string : ObjectID;
   categories: Array<string>;
   tags: Array<string>;
   createdOn: number;

@@ -5,7 +5,7 @@ import { IComment } from '../types/models/i-comment';
 /**
  * A model for describing comments
  */
-export class CommentsModel extends Model<IComment<'server'>, IComment<'client'>> {
+export class CommentsModel extends Model<IComment<'server'>, IComment<'client' | 'expanded'>> {
   constructor() {
     super( 'comments' );
 

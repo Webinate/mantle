@@ -5,14 +5,14 @@ import * as fs from 'fs';
 import { IFileEntry, IVolume, IUserEntry } from '../../../src';
 import * as FormData from 'form-data';
 
-let volume: IVolume<'client'>, fileId: string;
+let volume: IVolume<'expanded'>, fileId: string;
 const filePath = './test/media/file.png';
 
 describe( 'Testing file renaming', function() {
 
   before( async function() {
     const resp = await header.user1.post( `/volumes`, { name: 'dinosaurs' } );
-    const json = await resp.json<IVolume<'client'>>();
+    const json = await resp.json<IVolume<'expanded'>>();
     assert.deepEqual( resp.status, 200 );
     volume = json;
   } )

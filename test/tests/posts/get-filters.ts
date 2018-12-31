@@ -4,7 +4,7 @@ import { IPost, Page } from '../../../src';
 import header from '../header';
 import { randomString } from '../utils';
 
-let postPublic: IPost<'client'>, postPrivate: IPost<'client'>;
+let postPublic: IPost<'expanded'>, postPrivate: IPost<'expanded'>;
 
 describe( 'Testing filtering of posts: ', function() {
 
@@ -13,7 +13,7 @@ describe( 'Testing filtering of posts: ', function() {
       title: randomString() + '_first',
       slug: randomString(),
       public: true
-    } as IPost<'client'> );
+    } as IPost<'expanded'> );
 
     const resp2 = await header.admin.post( `/api/posts`, {
       title: randomString() + '_second',
@@ -24,8 +24,8 @@ describe( 'Testing filtering of posts: ', function() {
     assert.equal( resp1.status, 200 );
     assert.equal( resp2.status, 200 );
 
-    postPublic = await resp1.json() as IPost<'client'>;
-    postPrivate = await resp2.json() as IPost<'client'>;
+    postPublic = await resp1.json() as IPost<'expanded'>;
+    postPrivate = await resp2.json() as IPost<'expanded'>;
   } )
 
   it( 'does filter by visibility status', async function() {

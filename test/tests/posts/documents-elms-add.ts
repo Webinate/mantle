@@ -6,17 +6,17 @@ import { randomString } from '../utils';
 import header from '../header';
 import { IDraft } from '../../../src/types/models/i-draft';
 
-let post: IPost<'client'>,
-  document: IDocument<'client'>,
-  curDraft: IDraft<'client'>,
-  user1: IUserEntry<'client'>;
+let post: IPost<'expanded'>,
+  document: IDocument<'expanded'>,
+  curDraft: IDraft<'expanded'>,
+  user1: IUserEntry<'expanded'>;
 
 describe( 'Testing the adding of document elements: ', function() {
 
   before( async function() {
     const posts = ControllerFactory.get( 'posts' );
     const users = ControllerFactory.get( 'users' );
-    user1 = await users.getUser( { username: 'user1' } );
+    user1 = await users.getUser( { username: 'user1' } ) as IUserEntry<'expanded'>;
 
     // Create post and comments
     post = await posts.create( {
@@ -24,10 +24,10 @@ describe( 'Testing the adding of document elements: ', function() {
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } );
+    } ) as IPost<'expanded'>;
 
-    document = post.document as IDocument<'client'>;
-    curDraft = document.currentDraft as IDraft<'client'>;
+    document = post.document;
+    curDraft = document.currentDraft;
   } )
 
   after( async function() {

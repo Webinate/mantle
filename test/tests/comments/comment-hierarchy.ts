@@ -5,8 +5,8 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import header from '../header';
 import { randomString } from '../utils';
 
-let post: IPost<'client'>,
-  parent: IComment<'client'>, child1: IComment<'client'>, child2: IComment<'client'>;
+let post: IPost<'expanded'>,
+  parent: IComment<'expanded'>, child1: IComment<'expanded'>, child2: IComment<'expanded'>;
 
 describe( 'Testing the parent child relationship of comments: ', function() {
 
@@ -16,7 +16,7 @@ describe( 'Testing the parent child relationship of comments: ', function() {
       slug: randomString(),
       title: 'Temp Post',
       public: true
-    } )
+    } ) as IPost<'expanded'>
   } )
 
   after( async function() {
@@ -29,7 +29,7 @@ describe( 'Testing the parent child relationship of comments: ', function() {
       content: "Parent", public: true
     } );
     assert.deepEqual( resp.status, 200 );
-    parent = await resp.json<IComment<'client'>>();
+    parent = await resp.json<IComment<'expanded'>>();
   } );
 
   it( 'did create 2 children comments', async function() {
@@ -38,14 +38,14 @@ describe( 'Testing the parent child relationship of comments: ', function() {
     } );
 
     assert.deepEqual( resp.status, 200 );
-    child1 = await resp.json<IComment<'client'>>();
+    child1 = await resp.json<IComment<'expanded'>>();
 
     resp = await header.user1.post( `/api/posts/${post._id}/comments/${parent._id}`, {
       content: "Child 2", public: true
     } );
 
     assert.deepEqual( resp.status, 200 );
-    child2 = await resp.json<IComment<'client'>>();
+    child2 = await resp.json<IComment<'expanded'>>();
   } );
 
   it( 'did add 2 children to the parent', async function() {
