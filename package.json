@@ -1,6 +1,6 @@
 {
   "name": "modepress",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "types": "./src/index",
   "description": "The modepress server & API",
   "main": "./src/index",
