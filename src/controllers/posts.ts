@@ -252,7 +252,7 @@ export class PostsController extends Controller {
 
     const updatedPost = await this._postsModel.update( { _id: new mongodb.ObjectID( id ) }, token, {
       verbose: true,
-      expandForeignKeys: false,
+      expandForeignKeys: true,
       expandMaxDepth: 2,
       expandSchemaBlacklist: [ /document\.author/ ]
     } );

@@ -378,7 +378,7 @@ export class FilesController extends Controller {
 
     const proimises: Promise<IFileEntry<'client' | 'expanded'>>[] = [];
     for ( const f of response.files )
-      proimises.push( this.uploadFileToRemote( f, volumeSchema.dbEntry, false, file as Schema<IFileEntry<'server'>, IFileEntry<'client'>> | null ) );
+      proimises.push( this.uploadFileToRemote( f, volumeSchema.dbEntry, true, file as Schema<IFileEntry<'server'>, IFileEntry<'client'>> | null ) );
 
     const fileEntries = await Promise.all( proimises );
     return fileEntries;

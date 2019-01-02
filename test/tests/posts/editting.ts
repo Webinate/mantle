@@ -78,9 +78,14 @@ describe( 'Testing editing of posts', function() {
   it( 'can edit a post with valid details', async function() {
     const resp = await header.admin.put( `/api/posts/${post._id}`, { brief: 'Updated' } as Partial<IPost<'client'>> );
     assert.deepEqual( resp.status, 200 );
-    const json: IPost<'client'> = await resp.json();
+    const json: IPost<'expanded'> = await resp.json();
     assert.deepEqual( json._id, post._id );
     assert.deepEqual( json.brief, 'Updated' );
+
+    // Ensure the doc and draft are returned
+    assert( typeof json.document._id === 'string' );
+    assert( typeof json.document.currentDraft._id === 'string' );
+    assert( json.document.currentDraft.elements.length > 0 );
   } )
 
   it( 'did update the posts modified property', async function() {
