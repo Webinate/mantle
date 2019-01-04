@@ -100,6 +100,7 @@ require( './tests/posts/documents-elms-html-validation' );
 require( './tests/posts/documents-elms-order' );
 require( './tests/posts/documents-elms-image-html' );
 require( './tests/posts/documents-elms-add-remove-multiple' );
+require( './tests/posts/documents-elms-generic-html' );
 
 require( './tests/templates/get-default-templates' );
 

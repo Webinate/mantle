@@ -17,6 +17,7 @@ import { DraftElements } from '../types/models/i-draft-elements';
 import { ElmParagraph } from '../models/draft-elements/elm-paragraph';
 import { ElmHeader } from '../models/draft-elements/elm-header';
 import { ElmImg } from '../models/draft-elements/elm-img';
+import { ElmHtml } from '../models/draft-elements/elm-html';
 import { ElmList } from '../models/draft-elements/elm-list';
 import { ElmCode } from '../models/draft-elements/elm-code';
 
@@ -62,6 +63,7 @@ export class ModelFactory {
       this.create( 'elm-header-6' ),
       this.create( 'elm-list' ),
       this.create( 'elm-image' ),
+      this.create( 'elm-html' ),
       this.create( 'elm-code' )
     ] );
   }
@@ -134,6 +136,7 @@ export class ModelFactory {
   get( type: 'elm-header-6' ): ElmHeader
   get( type: 'elm-list' ): ElmList
   get( type: 'elm-image' ): ElmImg
+  get( type: 'elm-html' ): ElmHtml
   get( type: 'elm-code' ): ElmCode
   get( type: string ): Model<IModelEntry<'server'>, IModelEntry<'client'>>
   get( type: string ): Model<IModelEntry<'server'>, IModelEntry<'client'>> {
@@ -211,6 +214,9 @@ export class ModelFactory {
         break;
       case 'elm-image':
         newModel = new ElmImg();
+        break;
+      case 'elm-html':
+        newModel = new ElmHtml();
         break;
       case 'elm-list':
         newModel = new ElmList();

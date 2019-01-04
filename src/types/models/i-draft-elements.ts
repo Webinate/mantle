@@ -3,7 +3,7 @@ import { IDraft } from './i-draft';
 import { IFileEntry } from './i-file-entry';
 
 export type DraftElements = 'elm-paragraph' | 'elm-list' | 'elm-image' | 'elm-code' |
-  'elm-header-1' | 'elm-header-2' | 'elm-header-3' | 'elm-header-4' | 'elm-header-5' | 'elm-header-6';
+  'elm-header-1' | 'elm-header-2' | 'elm-header-3' | 'elm-header-4' | 'elm-header-5' | 'elm-header-6' | 'elm-html';
 
 export interface IDraftElement<T extends 'expanded' | 'server' | 'client'> {
   _id: T extends 'client' | 'expanded' ? string : ObjectID;
