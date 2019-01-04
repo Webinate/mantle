@@ -75,6 +75,6 @@ describe( 'Testing the adding of multiple elements: ', function() {
     assert.equal( resp.status, 200 );
     docJson = await resp.json<IDocument<'expanded'>>();
 
-    assert.deepEqual( docJson.currentDraft.elements, undefined );
+    assert.deepEqual( docJson.currentDraft.elements.length, 0 );
   } )
 } )

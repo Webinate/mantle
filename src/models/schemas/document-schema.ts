@@ -49,10 +49,12 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
     const elementsFromDb = await this._elementsCollection.find(
       { parent: new ObjectID( draft._id ) } as IDraftElement<'server'> ).toArray();
 
-    if ( !elementsFromDb || elementsFromDb.length === 0 )
+    if ( !elementsFromDb || elementsFromDb.length === 0 ) {
+      draft.elements = [];
       return;
+    }
 
-    const elements = draft.elementsOrder.map( elmId => elementsFromDb.find( elm => elm._id.toString() === elmId )! );
+    const elements = draft.elementsOrder.map( elmId => elementsFromDb.find( elm => elm._id.toString() === elmId )! ) || [];
 
     const jsons = await Promise.all(
 
@@ -73,7 +75,7 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
     );
 
     const htmlMap: { [ zone: string ]: string } = {};
-    draft.elements = jsons;
+    draft.elements = jsons || [];
 
     for ( const elm of draft.elements ) {
       elm.html = this.buildHtml( elm );
