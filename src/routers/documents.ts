@@ -9,6 +9,7 @@ import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
 import { admin, identify, authorize } from '../decorators/permissions';
+import { blocking } from '../decorators/blocking-route';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { Error400 } from '../utils/errors';
@@ -70,6 +71,7 @@ export class DocumentsRouter extends Router {
   }
 
   @j200()
+  @blocking()
   @validId( 'id', 'ID' )
   @authorize()
   private async addElement( req: IAuthReq, res: express.Response ) {
@@ -86,6 +88,7 @@ export class DocumentsRouter extends Router {
   }
 
   @j200( 204 )
+  @blocking()
   @validId( 'id', 'ID' )
   @validId( 'elementId', 'element ID' )
   @authorize()
