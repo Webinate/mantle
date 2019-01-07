@@ -9,7 +9,7 @@ export interface IDocument<T extends 'expanded' | 'server' | 'client'> {
   author: T extends 'expanded' ? IUserEntry<T> : T extends 'client' ? IUserEntry<T> | string | null : ObjectID | null;
   template: T extends 'expanded' ? ITemplate<T> : T extends 'client' ? ITemplate<T> | string : ObjectID;
   currentDraft: T extends 'expanded' ? IDraft<T> : T extends 'client' ? IDraft<T> | null | string : ObjectID | null;
-  publishedDraft: T extends 'expanded' ? IDraft<T> : T extends 'client' ? IDraft<T> | string | null : ObjectID | null;
+  publishedDraft: T extends 'expanded' ? IDraft<T> | null : T extends 'client' ? IDraft<T> | string | null : ObjectID | null;
   lastUpdated: number;
   createdOn: number;
   elementsOrder: string[];

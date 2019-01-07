@@ -80,9 +80,10 @@ describe( 'Testing creation of posts', function() {
     assert.deepEqual( typeof doc.currentDraft, 'object' );
     assert.deepEqual( typeof doc.author, 'string' );
     assert( doc.createdOn > 0 );
-    assert( doc.lastUpdated > 0 );
+    assert( doc.currentDraft.createdOn > 0 );
+    assert.deepEqual( doc.currentDraft.published, false );
 
-    // Check the elements
+    // Check the elements & draft
     assert.deepEqual( doc.elements.length, 1 );
     assert.deepEqual( doc.elements[ 0 ].html, '<p></p>' );
     assert.deepEqual( doc.elements[ 0 ].parent, doc._id );
