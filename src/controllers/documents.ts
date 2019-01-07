@@ -274,7 +274,6 @@ export class DocumentsController extends Controller {
     // Now create the draft
     const draft = await this._drafts.createInstance( {
       createdOn: Date.now(),
-      lastUpdated: Date.now(),
       published: false,
       parent: schema.dbEntry._id.toString()
     } );
