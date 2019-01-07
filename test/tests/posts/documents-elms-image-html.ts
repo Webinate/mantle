@@ -73,9 +73,9 @@ describe( 'Testing the rendered html of elements: ', function() {
   it( 'did get the image html from a doc request', async function() {
     const resp = await header.admin.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IDraft<'client'>;
+
     assert.equal( resp.status, 200 );
-    assert.equal( draft.elements[ 1 ].html, `<figure><img src="${file.publicURL}" /></figure>` );
+    assert.equal( doc.elements[ 1 ].html, `<figure><img src="${file.publicURL}" /></figure>` );
   } )
 
   it( 'did remove the file from the server', async function() {
@@ -86,9 +86,9 @@ describe( 'Testing the rendered html of elements: ', function() {
   it( 'did get the render missing image html after image removed', async function() {
     const resp = await header.admin.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'expanded'>>();
-    const draft = doc.currentDraft;
+
     assert.equal( resp.status, 200 );
-    assert.equal( draft.elements[ 1 ].html, `<figure>Image not found</figure>` );
+    assert.equal( doc.elements[ 1 ].html, `<figure>Image not found</figure>` );
   } )
 
   it( 'did upload a another file', async function() {

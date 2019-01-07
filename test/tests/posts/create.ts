@@ -82,14 +82,13 @@ describe( 'Testing creation of posts', function() {
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
 
-    // Check the current draft
-    const draft = doc.currentDraft;
-    assert.deepEqual( draft.elements.length, 1 );
-    assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
-    assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
-    assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
-    assert( Array.isArray( draft.elementsOrder ) );
-    assert.deepEqual( draft.elementsOrder[ 0 ], draft.elements[ 0 ]._id );
+    // Check the elements
+    assert.deepEqual( doc.elements.length, 1 );
+    assert.deepEqual( doc.elements[ 0 ].html, '<p></p>' );
+    assert.deepEqual( doc.elements[ 0 ].parent, doc._id );
+    assert.deepEqual( doc.elements[ 0 ].type, 'elm-paragraph' );
+    assert( Array.isArray( doc.elementsOrder ) );
+    assert.deepEqual( doc.elementsOrder[ 0 ], doc.elements[ 0 ]._id );
   } )
 
   it( 'can get the document associated with the post', async function() {

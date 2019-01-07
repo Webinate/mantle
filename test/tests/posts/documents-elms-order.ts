@@ -54,10 +54,10 @@ describe( 'Testing the order of document elements: ', function() {
 
     resp = await header.user1.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'expanded'>>();
-    const draft = doc.currentDraft as IDraft<'expanded'>;
+
     assert.equal( resp.status, 200 );
-    assert.equal( draft.elementsOrder[ 1 ], firstElm._id );
-    assert.equal( draft.elementsOrder[ 2 ], secondElm._id );
+    assert.equal( doc.elementsOrder[ 1 ], firstElm._id );
+    assert.equal( doc.elementsOrder[ 2 ], secondElm._id );
   } )
 
   it( 'did remove an element and the element id was removed from the order array', async function() {
@@ -66,10 +66,10 @@ describe( 'Testing the order of document elements: ', function() {
 
     resp = await header.user1.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IDraft<'client'>;
+
     assert.equal( resp.status, 200 );
-    assert.equal( draft.elementsOrder[ 1 ], secondElm._id );
-    assert.equal( draft.elementsOrder.length, 2 );
+    assert.equal( doc.elementsOrder[ 1 ], secondElm._id );
+    assert.equal( doc.elementsOrder.length, 2 );
   } )
 
   it( 'did add a new element at an index and the order array was correct', async function() {
@@ -82,11 +82,11 @@ describe( 'Testing the order of document elements: ', function() {
 
     resp = await header.user1.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IDraft<'client'>;
+
     assert.equal( resp.status, 200 );
-    assert.equal( draft.elementsOrder[ 1 ], newElement._id );
-    assert.equal( draft.elementsOrder[ 2 ], secondElm._id );
-    assert.equal( draft.elementsOrder.length, 3 );
+    assert.equal( doc.elementsOrder[ 1 ], newElement._id );
+    assert.equal( doc.elementsOrder[ 2 ], secondElm._id );
+    assert.equal( doc.elementsOrder.length, 3 );
   } )
 
   it( 'did add an element at an index -1 to the end of the order array', async function() {
@@ -99,9 +99,9 @@ describe( 'Testing the order of document elements: ', function() {
 
     resp = await header.user1.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IDraft<'client'>;
+
     assert.equal( resp.status, 200 );
-    assert.equal( draft.elementsOrder[ 3 ], newElement._id );
+    assert.equal( doc.elementsOrder[ 3 ], newElement._id );
   } )
 
   it( 'did add an element at an index 100 to the end of the order array', async function() {
@@ -114,8 +114,8 @@ describe( 'Testing the order of document elements: ', function() {
 
     resp = await header.user1.get( `/api/documents/${document._id}` );
     const doc = await resp.json<IDocument<'client'>>();
-    const draft = doc.currentDraft as IDraft<'client'>;
+
     assert.equal( resp.status, 200 );
-    assert.equal( draft.elementsOrder[ 4 ], newElement._id );
+    assert.equal( doc.elementsOrder[ 4 ], newElement._id );
   } )
 } )

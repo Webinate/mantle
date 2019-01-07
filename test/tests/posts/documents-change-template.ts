@@ -74,9 +74,7 @@ describe( 'Testing the changing of a document template: ', function() {
     const oldDraft = document.currentDraft;
 
     assert.notDeepEqual( newTemplate._id, prevTemplate );
-    assert.notDeepEqual( newDraft.template, oldDraft.template );
     assert.deepEqual( newTemplate._id, templates[ 1 ]._id );
-    assert.deepEqual( newDraft.template, templates[ 1 ]._id );
   } )
 
   it( 'did update the document template asan admin', async function() {

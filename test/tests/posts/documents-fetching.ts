@@ -48,13 +48,12 @@ describe( 'Testing the fetching of documents: ', function() {
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
 
-    // Check the current draft
-    const draft = doc.currentDraft as IDraft<'client'>;
-    assert.deepEqual( draft.elements.length, 1 );
-    assert.deepEqual( draft.elements[ 0 ].zone, 'main' );
-    assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
-    assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
-    assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
+    // Check the elements
+    assert.deepEqual( doc.elements.length, 1 );
+    assert.deepEqual( doc.elements[ 0 ].zone, 'main' );
+    assert.deepEqual( doc.elements[ 0 ].html, '<p></p>' );
+    assert.deepEqual( doc.elements[ 0 ].parent, doc._id );
+    assert.deepEqual( doc.elements[ 0 ].type, 'elm-paragraph' );
   } )
 
   it( 'did get a document for a post the author', async function() {

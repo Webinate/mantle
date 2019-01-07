@@ -12,7 +12,7 @@ export class ElmImg extends Model<IDraftElement<'server'>, IDraftElement<'client
     const type: DraftElements = 'elm-image';
 
     this.schema.addItems( [
-      new foreignKey( 'parent', 'drafts', { keyCanBeNull: false } ),
+      new foreignKey( 'parent', 'documents', { keyCanBeNull: false } ),
       new text( 'type', type ),
       new text( 'zone', 'unassigned' ),
       new foreignKey( 'image', 'files', { keyCanBeNull: true } )

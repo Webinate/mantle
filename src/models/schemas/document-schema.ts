@@ -15,7 +15,7 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
     const toRet = await super.downloadToken( options );
 
     if ( toRet.currentDraft && typeof ( toRet.currentDraft ) !== 'string' )
-      await this.populateDraft( toRet.currentDraft as IDraft<'client'> );
+      await this.populate( toRet, toRet.currentDraft as IDraft<'client'> );
 
     return toRet;
   }
@@ -30,7 +30,7 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
     return copy;
   }
 
-  buildHtml( elm: IDraftElement<'client' | 'server'> ) {
+  buildHtml( elm: IDraftElement<'client' | 'expanded'> ) {
     if ( elm.type === 'elm-image' ) {
       const image = ( elm as IImageElement<'client'> ).image;
       if ( image )
@@ -45,16 +45,16 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
   /**
    * Populates a draft json with its elements
    */
-  async populateDraft( draft: IDraft<'client' | 'server'> ) {
+  async populate( doc: IDocument<'client' | 'expanded'>, draft: IDraft<'client' | 'server'> ) {
     const elementsFromDb = await this._elementsCollection.find(
-      { parent: new ObjectID( draft._id ) } as IDraftElement<'server'> ).toArray();
+      { parent: new ObjectID( doc._id ) } as IDraftElement<'server'> ).toArray();
 
     if ( !elementsFromDb || elementsFromDb.length === 0 ) {
-      draft.elements = [];
+      doc.elements = [];
       return;
     }
 
-    const elements = draft.elementsOrder.map( elmId => elementsFromDb.find( elm => elm._id.toString() === elmId )! ) || [];
+    const elements = doc.elementsOrder.map( elmId => elementsFromDb.find( elm => elm._id.toString() === elmId )! ) || [];
 
     const jsons = await Promise.all(
 
@@ -75,9 +75,9 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
     );
 
     const htmlMap: { [ zone: string ]: string } = {};
-    draft.elements = jsons || [];
+    doc.elements = jsons || [];
 
-    for ( const elm of draft.elements ) {
+    for ( const elm of doc.elements ) {
       elm.html = this.buildHtml( elm );
 
       if ( !htmlMap[ elm.zone ] )

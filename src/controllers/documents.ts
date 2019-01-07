@@ -54,7 +54,6 @@ export class DocumentsController extends Controller {
   async changeTemplate( findDocOptions: GetOptions, templateId: string ) {
     const docsModel = this._docs;
     const templates = this._templates;
-    const drafts = this._drafts;
 
     const doc = await docsModel.findOne( { _id: new ObjectId( findDocOptions.id ) } as IDocument<'server'> );
     if ( !doc )
@@ -74,7 +73,6 @@ export class DocumentsController extends Controller {
       expandMaxDepth: 1
     }
 
-    await drafts.update( { _id: doc.dbEntry.currentDraft! } as IDraft<'server'>, { template: templateId } );
     const toRet = await docsModel.update( { _id: doc.dbEntry._id } as IDocument<'server'>, { template: templateId }, options );
     return toRet;
   }
@@ -111,16 +109,10 @@ export class DocumentsController extends Controller {
 
   async addElement( findOptions: GetOptions, token: Partial<IDraftElement<'client'>>, index?: number ) {
     const docsModel = this._docs;
-    const draftsModel = this._drafts;
     const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
 
     if ( !doc )
       throw new Error404( 'Document not found' );
-
-    const curDraft = await draftsModel.findOne( { _id: doc.dbEntry.currentDraft! } as IDocument<'server'> );
-
-    if ( !curDraft )
-      throw new Error404( 'Could not find active draft' );
 
     if ( findOptions.checkPermissions )
       if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
@@ -129,18 +121,18 @@ export class DocumentsController extends Controller {
     if ( !token.type )
       throw new Error400( 'You must specify an element type' );
 
-    token.parent = doc.dbEntry.currentDraft!.toString();
+    token.parent = doc.dbEntry._id!.toString();
 
-    let model: Model<IDraftElement<'server'>, IDraftElement<'client'>>;
+    let draftModel: Model<IDraftElement<'server'>, IDraftElement<'client'>>;
     try {
-      model = ModelFactory.get( token.type ) as Model<IDraftElement<'server'>, IDraftElement<'client'>>;
+      draftModel = ModelFactory.get( token.type ) as Model<IDraftElement<'server'>, IDraftElement<'client'>>;
     }
     catch ( err ) {
       throw new Error400( 'Type not recognised' );
     }
 
-    const schema = await model.createInstance( token );
-    const elementsOrder = curDraft.dbEntry.elementsOrder;
+    const schema = await draftModel.createInstance( token );
+    const elementsOrder = doc.dbEntry.elementsOrder;
 
     if ( index === undefined )
       index = elementsOrder.length;
@@ -149,9 +141,9 @@ export class DocumentsController extends Controller {
     else if ( index > elementsOrder.length )
       index = elementsOrder.length;
 
-    curDraft.dbEntry.elementsOrder.splice( index, 0, schema.dbEntry._id.toString() );
-    await draftsModel.update( { _id: curDraft.dbEntry._id } as IDraftElement<'server'>, {
-      elementsOrder: curDraft.dbEntry.elementsOrder
+    doc.dbEntry.elementsOrder.splice( index, 0, schema.dbEntry._id.toString() );
+    await docsModel.update( { _id: doc.dbEntry._id } as IDocument<'server'>, {
+      elementsOrder: doc.dbEntry.elementsOrder
     } );
 
     const toRet = await schema.downloadToken( {
@@ -166,15 +158,10 @@ export class DocumentsController extends Controller {
 
   async removeElement( findOptions: GetOptions, elementId: string ) {
     const docsModel = this._docs;
-    const draftsModel = this._drafts;
 
     const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
     if ( !doc )
       throw new Error404( 'Document not found' );
-
-    const curDraft = await draftsModel.findOne( { _id: doc.dbEntry.currentDraft! } as IDocument<'server'> );
-    if ( !curDraft )
-      throw new Error404( 'Could not find active draft' );
 
     if ( findOptions.checkPermissions )
       if ( doc.dbEntry.author && !doc.dbEntry.author.equals( findOptions.checkPermissions.userId ) )
@@ -186,8 +173,8 @@ export class DocumentsController extends Controller {
       throw new Error404();
 
     await this._elementsCollection.remove( { _id: new ObjectID( elementId ) } as IDraftElement<'server'> );
-    await draftsModel.collection.update(
-      { _id: curDraft.dbEntry._id } as IDraftElement<'server'>,
+    await docsModel.collection.update(
+      { _id: doc.dbEntry._id } as IDocument<'server'>,
       { $pull: { elementsOrder: { $in: [ elementId ] } } },
       { multi: true }
     )
@@ -254,6 +241,7 @@ export class DocumentsController extends Controller {
     // Get the templates
     const templates = await this._templates.findMany( {} );
     const firstTemplate = templates[ 0 ].dbEntry._id.toString();
+    const pModel = ModelFactory.get( 'elm-paragraph' );
 
     // Create the doc token
     const token: Partial<IDocument<'client'>> = {
@@ -266,19 +254,10 @@ export class DocumentsController extends Controller {
     // Create the doc
     const schema = await this._docs.createInstance( token );
 
-    // Now create the draft
-    const draft = await this._drafts.createInstance( {
-      createdOn: Date.now(),
-      lastUpdated: Date.now(),
-      published: false,
-      parent: schema.dbEntry._id.toString(),
-      template: firstTemplate
-    } );
-
-    const pModel = ModelFactory.get( 'elm-paragraph' );
+    // Create the first element
     const firstElm = await pModel.createInstance( {
       html: '<p></p>',
-      parent: draft.dbEntry._id.toString(),
+      parent: schema.dbEntry._id.toString(),
       type: 'elm-paragraph',
       zone: templates[ 0 ].dbEntry.defaultZone
     } );
@@ -287,10 +266,18 @@ export class DocumentsController extends Controller {
     const firstElmId = firstElm.dbEntry._id.toString();
 
     // Update the draft with the element in the template map
-    await this._drafts.update(
-      { _id: draft.dbEntry._id } as IDraft<'server'>, {
+    await this._docs.update(
+      { _id: schema.dbEntry._id } as IDocument<'server'>, {
         elementsOrder: [ firstElmId ]
       } );
+
+    // Now create the draft
+    const draft = await this._drafts.createInstance( {
+      createdOn: Date.now(),
+      lastUpdated: Date.now(),
+      published: false,
+      parent: schema.dbEntry._id.toString()
+    } );
 
     // Update the doc to point to the draft
     await this._docs.update(
@@ -300,10 +287,6 @@ export class DocumentsController extends Controller {
 
     if ( options ) {
       const document = await schema.downloadToken( options );
-
-      // if ( document.currentDraft && typeof document.currentDraft !== 'string' )
-      //   await this.populateDraft( document.currentDraft );
-
       return document;
     }
     else

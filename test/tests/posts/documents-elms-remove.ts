@@ -27,7 +27,6 @@ describe( 'Testing the deletion of document elements: ', function() {
     } ) as IPost<'expanded'>;
 
     document = post.document;
-    curDraft = document.currentDraft;
   } )
 
   after( async function() {
@@ -56,17 +55,17 @@ describe( 'Testing the deletion of document elements: ', function() {
   } )
 
   it( 'did not allow a guest to remove an element', async function() {
-    const resp = await header.guest.delete( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}` );
+    const resp = await header.guest.delete( `/api/documents/${document._id}/elements/${document.elements[ 0 ]._id}` );
     assert.equal( resp.status, 401 );
   } )
 
   it( 'did not allow another user to remove an element', async function() {
-    const resp = await header.user2.delete( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}` );
+    const resp = await header.user2.delete( `/api/documents/${document._id}/elements/${document.elements[ 0 ]._id}` );
     assert.equal( resp.status, 403 );
   } )
 
   it( 'did allow a regular user to delete the unit', async function() {
-    const resp = await header.user1.delete( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}` );
+    const resp = await header.user1.delete( `/api/documents/${document._id}/elements/${document.elements[ 0 ]._id}` );
     assert.equal( resp.status, 204 );
   } )
 

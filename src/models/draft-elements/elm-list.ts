@@ -13,7 +13,7 @@ export class ElmList extends Model<IDraftElement<'server'>, IDraftElement<'clien
     const type: DraftElements = 'elm-list';
 
     this.schema.addItems( [
-      new foreignKey( 'parent', 'drafts', { keyCanBeNull: false } ),
+      new foreignKey( 'parent', 'documents', { keyCanBeNull: false } ),
       new text( 'type', type ),
       new text( 'zone', 'unassigned' ),
       new html( 'html', '<ul></ul>', {

@@ -53,7 +53,7 @@ describe( 'Testing the adding of multiple elements: ', function() {
     const docJson = await resp.json<IDocument<'expanded'>>();
 
     // Its plus 1 because we have an element created by default for the post
-    assert.deepEqual( docJson.currentDraft.elements.length, htmls.length + 1 );
+    assert.deepEqual( docJson.elements.length, htmls.length + 1 );
   } )
 
   it( `did remove ${htmls.length} elements in fast succession`, async function() {
@@ -62,9 +62,9 @@ describe( 'Testing the adding of multiple elements: ', function() {
     let docJson = await resp.json<IDocument<'expanded'>>();
 
     // Its plus 1 because we have an element created by default for the post
-    assert.deepEqual( docJson.currentDraft.elements.length, htmls.length + 1 );
+    assert.deepEqual( docJson.elements.length, htmls.length + 1 );
 
-    let deleteResponses = await Promise.all( docJson.currentDraft.elements.map( elm => {
+    let deleteResponses = await Promise.all( docJson.elements.map( elm => {
       return header.admin.delete( `/api/documents/${post.document._id}/elements/${elm._id}` );
     } ) );
 
@@ -75,6 +75,6 @@ describe( 'Testing the adding of multiple elements: ', function() {
     assert.equal( resp.status, 200 );
     docJson = await resp.json<IDocument<'expanded'>>();
 
-    assert.deepEqual( docJson.currentDraft.elements.length, 0 );
+    assert.deepEqual( docJson.elements.length, 0 );
   } )
 } )

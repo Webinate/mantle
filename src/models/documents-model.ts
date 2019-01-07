@@ -1,5 +1,5 @@
 ﻿import { Model } from './model';
-import { foreignKey, date } from './schema-items/schema-item-factory';
+import { foreignKey, date, textArray } from './schema-items/schema-item-factory';
 import { IDocument } from '../types/models/i-document';
 import { DocumentSchema } from './schemas/document-schema';
 import { Collection, Db } from 'mongodb';
@@ -13,9 +13,10 @@ export class DocumentsModel extends Model<IDocument<'server'>, IDocument<'client
 
     this.schema.addItems( [
       new foreignKey( 'author', 'users', { keyCanBeNull: true } ),
-      new foreignKey( 'template', 'templates', { keyCanBeNull: false } ),
       new foreignKey( 'currentDraft', 'drafts', { keyCanBeNull: true } ),
       new foreignKey( 'publishedDraft', 'drafts', { keyCanBeNull: true } ),
+      new textArray( 'elementsOrder', [] ),
+      new foreignKey( 'template', 'templates', { keyCanBeNull: false } ),
       new date( 'createdOn' ).setIndexable( true ),
       new date( 'lastUpdated', { useNow: true } ).setIndexable( true )
     ] );

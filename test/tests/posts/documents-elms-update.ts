@@ -27,7 +27,6 @@ describe( 'Testing the editting of document elements: ', function() {
     } ) as IPost<'expanded'>;
 
     document = post.document;
-    curDraft = document.currentDraft;
   } )
 
   after( async function() {
@@ -56,24 +55,24 @@ describe( 'Testing the editting of document elements: ', function() {
   } )
 
   it( 'did not allow a guest to edit an element', async function() {
-    const resp = await header.guest.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { html: '' } as IDraftElement<'client'> );
+    const resp = await header.guest.put( `/api/documents/${document._id}/elements/${document.elements[ 0 ]._id}`, { html: '' } as IDraftElement<'client'> );
     assert.equal( resp.status, 401 );
   } )
 
   it( 'did not allow another user to edit an element', async function() {
-    const resp = await header.user2.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, {} as IDraftElement<'client'> );
+    const resp = await header.user2.put( `/api/documents/${document._id}/elements/${document.elements[ 0 ]._id}`, {} as IDraftElement<'client'> );
     assert.equal( resp.status, 403 );
   } )
 
   it( 'did not allow an element type to be changed', async function() {
-    const resp = await header.user1.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { type: 'elm-header-1' } as IDraftElement<'client'> );
+    const resp = await header.user1.put( `/api/documents/${document._id}/elements/${document.elements[ 0 ]._id}`, { type: 'elm-header-1' } as IDraftElement<'client'> );
     assert.equal( resp.status, 400 );
     assert.equal( decodeURIComponent( resp.statusText ), 'You cannot change an element type' );
   } )
 
   it( 'did allow a regular edit opertion', async function() {
     const updatedHTML = '<p>This is something <strong>new</strong> and <u>exciting</u></p>';
-    const resp = await header.user1.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { html: updatedHTML, zone: 'zone-a' } as IDraftElement<'client'> );
+    const resp = await header.user1.put( `/api/documents/${document._id}/elements/${document.elements[ 0 ]._id}`, { html: updatedHTML, zone: 'zone-a' } as IDraftElement<'client'> );
     assert.equal( resp.status, 200 );
     const updated = await resp.json<IDraftElement<'client'>>();
     assert.deepEqual( updated.html, updatedHTML );
@@ -82,7 +81,7 @@ describe( 'Testing the editting of document elements: ', function() {
 
   it( 'did allow an admin to edit', async function() {
     const updatedHTML = '<p>This is something else</p>';
-    const resp = await header.admin.put( `/api/documents/${document._id}/elements/${curDraft.elements[ 0 ]._id}`, { html: updatedHTML, zone: 'zone-a' } as IDraftElement<'client'> );
+    const resp = await header.admin.put( `/api/documents/${document._id}/elements/${document.elements[ 0 ]._id}`, { html: updatedHTML, zone: 'zone-a' } as IDraftElement<'client'> );
     assert.equal( resp.status, 200 );
     const updated = await resp.json<IDraftElement<'client'>>();
     assert.deepEqual( updated.html, updatedHTML );

@@ -89,15 +89,14 @@ describe( 'Testing fetching of posts', function() {
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
 
-    // Check the current draft
-    const draft = doc.currentDraft as IDraft<'client'>;
-    assert.deepEqual( draft.elements.length, 1 );
-    assert.deepEqual( draft.elements[ 0 ].zone, 'main' );
-    assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
-    assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
-    assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
-    assert( Array.isArray( draft.elementsOrder ) );
-    assert.deepEqual( draft.elementsOrder[ 0 ], draft.elements[ 0 ]._id );
+    // Check elements
+    assert.deepEqual( doc.elements.length, 1 );
+    assert.deepEqual( doc.elements[ 0 ].zone, 'main' );
+    assert.deepEqual( doc.elements[ 0 ].html, '<p></p>' );
+    assert.deepEqual( doc.elements[ 0 ].parent, doc._id );
+    assert.deepEqual( doc.elements[ 0 ].type, 'elm-paragraph' );
+    assert( Array.isArray( doc.elementsOrder ) );
+    assert.deepEqual( doc.elementsOrder[ 0 ], doc.elements[ 0 ]._id );
   } )
 
   it( 'can fetch posts and impose a limit off 1 on them', async function() {
@@ -199,15 +198,14 @@ describe( 'Testing fetching of posts', function() {
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
 
-    // Check the current draft
-    const draft = doc.currentDraft as IDraft<'client'>;
-    assert.deepEqual( draft.elements.length, 1 );
-    assert.deepEqual( draft.elements[ 0 ].html, '<p></p>' );
-    assert.deepEqual( draft.elements[ 0 ].zone, 'main' );
-    assert.deepEqual( draft.elements[ 0 ].parent, draft._id );
-    assert.deepEqual( draft.elements[ 0 ].type, 'elm-paragraph' );
-    assert( Array.isArray( draft.elementsOrder ) );
-    assert.deepEqual( draft.elementsOrder[ 0 ], draft.elements[ 0 ]._id );
+    // Check the elements
+    assert.deepEqual( doc.elements.length, 1 );
+    assert.deepEqual( doc.elements[ 0 ].html, '<p></p>' );
+    assert.deepEqual( doc.elements[ 0 ].zone, 'main' );
+    assert.deepEqual( doc.elements[ 0 ].parent, doc._id );
+    assert.deepEqual( doc.elements[ 0 ].type, 'elm-paragraph' );
+    assert( Array.isArray( doc.elementsOrder ) );
+    assert.deepEqual( doc.elementsOrder[ 0 ], doc.elements[ 0 ]._id );
   } )
 
   it( 'cannot fetch a private post by slug when not logged in', async function() {

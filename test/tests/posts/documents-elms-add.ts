@@ -92,10 +92,8 @@ describe( 'Testing the adding of document elements: ', function() {
   it( 'did update the draft html', async function() {
     const resp = await header.user1.get( `/api/documents/${document._id}` );
     assert.equal( resp.status, 200 );
-    const docJson = await resp.json<IDocument<'client'>>();
-    const draftJson = docJson.currentDraft as IDraft<'client'>;
-
-    assert.deepEqual( draftJson.html[ 'main' ], '<p></p>' );
-    assert.deepEqual( draftJson.html[ 'zone-a' ], '<p>Hello world</p><p>Hello world 2</p>' );
+    const docJson = await resp.json<IDocument<'expanded'>>();
+    assert.deepEqual( docJson.currentDraft.html[ 'main' ], '<p></p>' );
+    assert.deepEqual( docJson.currentDraft.html[ 'zone-a' ], '<p>Hello world</p><p>Hello world 2</p>' );
   } )
 } )
