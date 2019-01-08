@@ -42,9 +42,7 @@ describe( 'Testing the fetching of documents: ', function() {
     assert.deepEqual( doc._id, document._id );
     assert.deepEqual( ( doc.author as IUserEntry<'client'> )._id, user1._id );
     assert.notDeepEqual( doc.template, null );
-    assert.notDeepEqual( doc.currentDraft, null );
     assert.deepEqual( typeof doc.template, 'object' );
-    assert.deepEqual( typeof doc.currentDraft, 'object' );
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
 

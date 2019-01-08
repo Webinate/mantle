@@ -13,6 +13,7 @@ import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
 import { Error404 } from '../utils/errors';
 import { Schema } from '../models/schema';
+import { IDraft } from '../types/models/i-draft';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 
@@ -255,7 +256,10 @@ export class PostsController extends Controller {
       expandForeignKeys: true,
       expandMaxDepth: 2,
       expandSchemaBlacklist: [ /document\.author/ ]
-    } );
+    } ) as IPost<'expanded'>;
+
+    const newDraft = await this._documents.publishDraft( updatedPost.document );
+    updatedPost.document.currentDraft = newDraft as IDraft<'expanded'>;
 
     return updatedPost;
   }
@@ -284,6 +288,32 @@ export class PostsController extends Controller {
     } );
 
     return post;
+  }
+
+  /**
+   * Retrieves the last rendered post draft
+   * @param options Options for getting the post resource
+   */
+  async getPostRender( options: PostsGetOneOptions = { verbose: true } ) {
+    const posts = this._postsModel;
+    const docs = this._documents;
+    let findToken: Partial<IPost<'server'>>;
+
+    if ( options.id )
+      findToken = { _id: new mongodb.ObjectID( options.id ) };
+    else if ( options.slug )
+      findToken = { slug: options.slug };
+    else
+      throw new Error( `You must specify either an id or slug when fetching a post` );
+
+    if ( options.public !== undefined )
+      findToken.public = options.public;
+
+    const post = await posts!.findOne( findToken );
+    if ( !post )
+      throw new Error404( 'Could not find post' );
+
+    return await docs.getCurrentDraft( post.dbEntry.document.toString() );
   }
 
   /**

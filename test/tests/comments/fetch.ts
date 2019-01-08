@@ -178,11 +178,9 @@ describe( 'Testing fetching of comments', function() {
     const json: IComment<'client'> = await resp.json();
     const post = json.post as IPost<'client'>;
     const doc = post.document as IDocument<'client'>;
-    const draft = doc.currentDraft as IDraft<'client'>;
     const template = doc.template as ITemplate<'client'>;
-
     assert.deepEqual( post._id, postId );
-    assert.deepEqual( draft.html[ template.defaultZone ], '<p></p>' );
+    assert.deepEqual( doc.html[ template.defaultZone ], '<p></p>' );
   } )
 
   it( 'should prevent guests from getting sensitive data (expanded)', async function() {

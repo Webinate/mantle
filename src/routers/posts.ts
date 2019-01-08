@@ -14,6 +14,7 @@ import { IPost } from '../types/models/i-post';
 import Factory from '../core/model-factory';
 import ControllerFactory from '../core/controller-factory';
 import { PostsController, PostVisibility } from '../controllers/posts';
+import { Error403 } from '../utils/errors';
 
 /**
  * A controller that deals with the management of posts
@@ -138,7 +139,7 @@ export class PostsRouter extends Router {
 
     // Only admins are allowed to see private posts
     if ( !post.public && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
-      throw new Error( 'That post is marked private' );
+      throw new Error403( 'That post is marked private' );
 
     return post;
   }

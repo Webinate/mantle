@@ -77,6 +77,43 @@ export class DocumentsController extends Controller {
     return toRet;
   }
 
+  async getCurrentDraft( documentId: string ) {
+    const draftsModel = this._drafts;
+    const docsModel = this._docs;
+
+    const docSchema = await docsModel.findOne( { _id: new ObjectID( documentId ) } as IDocument<'server'> );
+
+    if ( !docSchema )
+      throw new Error404( 'Document does not exist' );
+
+    if ( !docSchema.dbEntry.currentDraft )
+      throw new Error404( 'There are no published drafts for this document' );
+
+    const draft = await draftsModel.downloadOne( {
+      _id: docSchema.dbEntry.currentDraft
+    } as IDraft<'server'>, {
+        expandForeignKeys: true,
+        expandMaxDepth: 1,
+        verbose: true
+      } ) as IDraft<'expanded'>;
+
+    return draft;
+  }
+
+  async publishDraft( document: IDocument<'expanded'> ) {
+    const docsModel = this._docs;
+    const draftsModel = this._drafts;
+    const draftSchema = await draftsModel.createInstance( {
+      createdOn: Date.now(),
+      html: document.html,
+      parent: document._id
+    } );
+
+    const draft = await draftSchema.downloadToken( { expandForeignKeys: false, verbose: true } );
+    await docsModel.update( { _id: new ObjectID( document._id ) } as IDocument<'server'>, { currentDraft: draft._id } );
+    return draft;
+  }
+
   /**
    * Fetches all documents
    */
@@ -262,27 +299,20 @@ export class DocumentsController extends Controller {
       zone: templates[ 0 ].dbEntry.defaultZone
     } );
 
-    // Update the draft with the default element
+    // Update the doc with the default element
     const firstElmId = firstElm.dbEntry._id.toString();
 
-    // Update the draft with the element in the template map
+    // Update the doc with the element in the template map
     await this._docs.update(
       { _id: schema.dbEntry._id } as IDocument<'server'>, {
         elementsOrder: [ firstElmId ]
       } );
 
     // Now create the draft
-    const draft = await this._drafts.createInstance( {
+    await this._drafts.createInstance( {
       createdOn: Date.now(),
-      published: false,
       parent: schema.dbEntry._id.toString()
     } );
-
-    // Update the doc to point to the draft
-    await this._docs.update(
-      { _id: schema.dbEntry._id } as IDocument<'server'>, {
-        currentDraft: draft.dbEntry._id.toString()
-      } )
 
     if ( options ) {
       const document = await schema.downloadToken( options );

@@ -14,7 +14,6 @@ export class DocumentsModel extends Model<IDocument<'server'>, IDocument<'client
     this.schema.addItems( [
       new foreignKey( 'author', 'users', { keyCanBeNull: true } ),
       new foreignKey( 'currentDraft', 'drafts', { keyCanBeNull: true } ),
-      new foreignKey( 'publishedDraft', 'drafts', { keyCanBeNull: true } ),
       new textArray( 'elementsOrder', [] ),
       new foreignKey( 'template', 'templates', { keyCanBeNull: false } ),
       new date( 'createdOn' ).setIndexable( true ),

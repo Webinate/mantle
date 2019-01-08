@@ -1,7 +1,6 @@
 import { Schema } from '../schema';
 import { IDocument } from '../../types/models/i-document';
 import { ISchemaOptions } from '../../types/misc/i-schema-options';
-import { IDraft } from '../../types/models/i-draft';
 import { IDraftElement, IImageElement } from '../../types/models/i-draft-elements';
 import { ObjectID, Collection } from 'mongodb';
 import ModelFactory from '../../core/model-factory';
@@ -13,10 +12,7 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
 
   public async downloadToken( options?: ISchemaOptions ) {
     const toRet = await super.downloadToken( options );
-
-    if ( toRet.currentDraft && typeof ( toRet.currentDraft ) !== 'string' )
-      await this.populate( toRet, toRet.currentDraft as IDraft<'client'> );
-
+    await this.populate( toRet );
     return toRet;
   }
 
@@ -45,7 +41,7 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
   /**
    * Populates a draft json with its elements
    */
-  async populate( doc: IDocument<'client' | 'expanded'>, draft: IDraft<'client' | 'server'> ) {
+  async populate( doc: IDocument<'client' | 'expanded'> ) {
     const elementsFromDb = await this._elementsCollection.find(
       { parent: new ObjectID( doc._id ) } as IDraftElement<'server'> ).toArray();
 
@@ -86,6 +82,6 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
         htmlMap[ elm.zone ] += elm.html;
     }
 
-    draft.html = htmlMap;
+    doc.html = htmlMap;
   }
 }

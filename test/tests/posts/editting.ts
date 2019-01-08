@@ -84,8 +84,8 @@ describe( 'Testing editing of posts', function() {
 
     // Ensure the doc and draft are returned
     assert( typeof json.document._id === 'string' );
-    assert( typeof json.document.currentDraft._id === 'string' );
     assert( json.document.elements.length > 0 );
+    assert.deepEqual( typeof json.document.currentDraft._id, 'string' );
   } )
 
   it( 'did update the posts modified property', async function() {

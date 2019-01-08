@@ -8,7 +8,6 @@ import { IDraft } from '../../../src/types/models/i-draft';
 
 let post: IPost<'expanded'>,
   document: IDocument<'expanded'>,
-  curDraft: IDraft<'expanded'>,
   user1: IUserEntry<'expanded'>;
 
 describe( 'Testing the adding of document elements: ', function() {
@@ -27,7 +26,6 @@ describe( 'Testing the adding of document elements: ', function() {
     } ) as IPost<'expanded'>;
 
     document = post.document;
-    curDraft = document.currentDraft;
   } )
 
   after( async function() {
@@ -93,7 +91,7 @@ describe( 'Testing the adding of document elements: ', function() {
     const resp = await header.user1.get( `/api/documents/${document._id}` );
     assert.equal( resp.status, 200 );
     const docJson = await resp.json<IDocument<'expanded'>>();
-    assert.deepEqual( docJson.currentDraft.html[ 'main' ], '<p></p>' );
-    assert.deepEqual( docJson.currentDraft.html[ 'zone-a' ], '<p>Hello world</p><p>Hello world 2</p>' );
+    assert.deepEqual( docJson.html[ 'main' ], '<p></p>' );
+    assert.deepEqual( docJson.html[ 'zone-a' ], '<p>Hello world</p><p>Hello world 2</p>' );
   } )
 } )

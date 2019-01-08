@@ -73,7 +73,6 @@ describe( 'Testing the deletion of document elements: ', function() {
     const resp = await header.user1.get( `/api/documents/${document._id}` );
     assert.equal( resp.status, 200 );
     const docJson = await resp.json<IDocument<'client'>>();
-    const draftJson = docJson.currentDraft as IDraft<'client'>;
-    assert.deepEqual( draftJson.html.main, undefined );
+    assert.deepEqual( docJson.html, undefined );
   } )
 } )

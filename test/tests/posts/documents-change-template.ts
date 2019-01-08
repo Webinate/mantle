@@ -70,9 +70,6 @@ describe( 'Testing the changing of a document template: ', function() {
     const updatedDoc = await resp.json<IDocument<'expanded'>>();
     const newTemplate = updatedDoc.template;
     const prevTemplate = document.template;
-    const newDraft = updatedDoc.currentDraft;
-    const oldDraft = document.currentDraft;
-
     assert.notDeepEqual( newTemplate._id, prevTemplate );
     assert.deepEqual( newTemplate._id, templates[ 1 ]._id );
   } )

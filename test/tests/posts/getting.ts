@@ -82,9 +82,7 @@ describe( 'Testing fetching of posts', function() {
     // Check that we get the doc
     const doc = post.document as IDocument<'client'>;
     assert.notDeepEqual( doc.template, null );
-    assert.notDeepEqual( doc.currentDraft, null );
     assert.deepEqual( typeof doc.template, 'object' );
-    assert.deepEqual( typeof doc.currentDraft, 'object' );
     assert.deepEqual( typeof doc.author, 'string' );
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
@@ -191,9 +189,7 @@ describe( 'Testing fetching of posts', function() {
     // Check that we get the doc
     const doc = post.document as IDocument<'client'>;
     assert.notDeepEqual( doc.template, null );
-    assert.notDeepEqual( doc.currentDraft, null );
     assert.deepEqual( typeof doc.template, 'object' );
-    assert.deepEqual( typeof doc.currentDraft, 'object' );
     assert.deepEqual( typeof doc.author, 'string' );
     assert( doc.createdOn > 0 );
     assert( doc.lastUpdated > 0 );
@@ -210,7 +206,7 @@ describe( 'Testing fetching of posts', function() {
 
   it( 'cannot fetch a private post by slug when not logged in', async function() {
     const resp = await header.guest.get( `/api/posts/slug/${privateSlug}` );
-    assert.deepEqual( resp.status, 500 );
+    assert.deepEqual( resp.status, 403 );
     const json = await resp.json();
     assert.deepEqual( json.message, "That post is marked private" );
   } )

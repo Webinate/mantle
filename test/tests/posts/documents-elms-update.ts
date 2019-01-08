@@ -92,8 +92,6 @@ describe( 'Testing the editting of document elements: ', function() {
     const resp = await header.user1.get( `/api/documents/${document._id}` );
     assert.equal( resp.status, 200 );
     const docJson = await resp.json<IDocument<'client'>>();
-    const draftJson = docJson.currentDraft as IDraft<'client'>;
-
-    assert.deepEqual( draftJson.html[ 'zone-a' ], '<p>This is something else</p>' );
+    assert.deepEqual( docJson.html[ 'zone-a' ], '<p>This is something else</p>' );
   } )
 } )
