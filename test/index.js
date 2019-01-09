@@ -87,6 +87,7 @@ require( './tests/posts/create' );
 require( './tests/posts/delete' );
 require( './tests/posts/editting' );
 require( './tests/posts/getting' );
+require( './tests/posts/get-post-draft' );
 require( './tests/posts/get-filters' );
 require( './tests/posts/delete-post-delete-comments' );
 require( './tests/posts/delete-user-nullifys-post-author' );

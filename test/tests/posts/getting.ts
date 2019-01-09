@@ -12,6 +12,7 @@ const privateSlug = generateRandString( 10 );
 const randomCategory = generateRandString( 10 );
 const randomTag = generateRandString( 10 );
 const randomTag2 = generateRandString( 10 );
+let volume: IVolume<'expanded'>;
 let numPosts: number, publicPostId: string, privatePostId: string, file: IFileEntry<'expanded'>;
 
 describe( 'Testing fetching of posts', function() {
@@ -21,8 +22,13 @@ describe( 'Testing fetching of posts', function() {
     const user = await users.getUser( { username: header.admin.username } );
 
     const volumes = ControllerFactory.get( 'volumes' );
-    const volume = await volumes.create( { name: 'test', user: user._id } ) as IVolume<'expanded'>;
+    volume = await volumes.create( { name: 'test', user: user._id } ) as IVolume<'expanded'>;
     file = await uploadFileToVolume( 'img-a.png', volume, 'File A' ) as IFileEntry<'expanded'>;
+  } )
+
+  after( async function() {
+    const volumes = ControllerFactory.get( 'volumes' );
+    await volumes.remove( { _id: volume._id } );
   } )
 
   it( 'fetched all posts', async function() {

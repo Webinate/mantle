@@ -121,6 +121,7 @@ export class DocumentsController extends Controller {
 
   async addElement( findOptions: GetOptions, token: Partial<IDraftElement<'client'>>, index?: number ) {
     const docsModel = this._docs;
+    const templatesModel = this._templates;
     const doc = await docsModel.findOne( { _id: new ObjectId( findOptions.id ) } as IDocument<'server'> );
 
     if ( !doc )
@@ -141,6 +142,12 @@ export class DocumentsController extends Controller {
     }
     catch ( err ) {
       throw new Error400( 'Type not recognised' );
+    }
+
+    if ( !token.zone ) {
+      const templateSchema = await templatesModel.findOne( { _id: doc.dbEntry.template } as ITemplate<'server'> );
+      if ( templateSchema )
+        token.zone = templateSchema.dbEntry.defaultZone;
     }
 
     const schema = await draftModel.createInstance( token );
