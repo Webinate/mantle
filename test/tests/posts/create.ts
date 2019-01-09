@@ -86,7 +86,7 @@ describe( 'Testing creation of posts', function() {
     assert.deepEqual( doc.elements[ 0 ].type, 'elm-paragraph' );
     assert( Array.isArray( doc.elementsOrder ) );
     assert.deepEqual( doc.elementsOrder[ 0 ], doc.elements[ 0 ]._id );
-    assert.deepEqual( doc.currentDraft, null );
+    assert.deepEqual( json.latestDraft, null );
   } )
 
   it( 'can get the document associated with the post', async function() {

@@ -16,6 +16,7 @@ export class PostsModel extends Model<IPost<'server'>, IPost<'client' | 'expande
       new text( 'brief', '' ),
       new foreignKey( 'featuredImage', 'files', { keyCanBeNull: true } ),
       new foreignKey( 'document', 'documents', { keyCanBeNull: true } ),
+      new foreignKey( 'latestDraft', 'drafts', { keyCanBeNull: true } ),
       new bool( 'public', true ),
       new textArray( 'categories', [] ),
       new textArray( 'tags', [] ),

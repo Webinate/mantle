@@ -11,9 +11,10 @@ import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
-import { Error404 } from '../utils/errors';
+import { Error404, Error400 } from '../utils/errors';
 import { Schema } from '../models/schema';
 import { IDraft } from '../types/models/i-draft';
+import { DraftsModel } from '../models/drafts-model';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 
@@ -47,6 +48,7 @@ export class PostsController extends Controller {
   private _postsModel: PostsModel;
   private _users: UsersController;
   private _documents: DocumentsController;
+  private _drafts: DraftsModel;
 
   /**
 	 * Creates a new instance of the controller
@@ -60,6 +62,7 @@ export class PostsController extends Controller {
    */
   async initialize( db: mongodb.Db ) {
     this._postsModel = Factory.get( 'posts' );
+    this._drafts = Factory.get( 'drafts' );
     this._users = ControllerFactory.get( 'users' );
     this._documents = ControllerFactory.get( 'documents' );
     return this;
@@ -259,7 +262,10 @@ export class PostsController extends Controller {
     } ) as IPost<'expanded'>;
 
     const newDraft = await this._documents.publishDraft( updatedPost.document );
-    updatedPost.document.currentDraft = newDraft as IDraft<'expanded'>;
+
+    await this._postsModel.update( { _id: new mongodb.ObjectID( updatedPost._id ) } as IPost<'server'>, { latestDraft: newDraft._id } );
+
+    updatedPost.latestDraft = newDraft as IDraft<'expanded'>;
 
     return updatedPost;
   }
@@ -296,7 +302,7 @@ export class PostsController extends Controller {
    */
   async getPostRender( options: PostsGetOneOptions = { verbose: true } ) {
     const posts = this._postsModel;
-    const docs = this._documents;
+    const drafts = this._drafts;
     let findToken: Partial<IPost<'server'>>;
 
     if ( options.id )
@@ -312,8 +318,16 @@ export class PostsController extends Controller {
     const post = await posts!.findOne( findToken );
     if ( !post )
       throw new Error404( 'Could not find post' );
+    if ( !post.dbEntry.latestDraft )
+      throw new Error400( 'Draft has not been published' );
 
-    return await docs.getCurrentDraft( post.dbEntry.document.toString() );
+    const draftSchema = await drafts.findOne( { _id: post.dbEntry.latestDraft } as IDraft<'server'> );
+
+    if ( !draftSchema )
+      throw new Error404( 'Could not find draft' );
+
+    const draft = await draftSchema.downloadToken( { expandForeignKeys: false, verbose: true } );
+    return draft;
   }
 
   /**

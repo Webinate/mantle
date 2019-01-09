@@ -77,31 +77,7 @@ export class DocumentsController extends Controller {
     return toRet;
   }
 
-  async getCurrentDraft( documentId: string ) {
-    const draftsModel = this._drafts;
-    const docsModel = this._docs;
-
-    const docSchema = await docsModel.findOne( { _id: new ObjectID( documentId ) } as IDocument<'server'> );
-
-    if ( !docSchema )
-      throw new Error404( 'Document does not exist' );
-
-    if ( !docSchema.dbEntry.currentDraft )
-      throw new Error404( 'There are no published drafts for this document' );
-
-    const draft = await draftsModel.downloadOne( {
-      _id: docSchema.dbEntry.currentDraft
-    } as IDraft<'server'>, {
-        expandForeignKeys: true,
-        expandMaxDepth: 1,
-        verbose: true
-      } ) as IDraft<'expanded'>;
-
-    return draft;
-  }
-
   async publishDraft( document: IDocument<'expanded'> ) {
-    const docsModel = this._docs;
     const draftsModel = this._drafts;
     const draftSchema = await draftsModel.createInstance( {
       createdOn: Date.now(),
@@ -110,7 +86,6 @@ export class DocumentsController extends Controller {
     } );
 
     const draft = await draftSchema.downloadToken( { expandForeignKeys: false, verbose: true } );
-    await docsModel.update( { _id: new ObjectID( document._id ) } as IDocument<'server'>, { currentDraft: draft._id } );
     return draft;
   }
 
