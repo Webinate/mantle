@@ -10,13 +10,13 @@ export async function getAll( options: Partial<PostsGetAllOptions> ) {
   return page;
 }
 
-export async function getOne( options: { id: string; verbose?: boolean; } ) {
-  const page: IPost<'client' | 'expanded'> = await getJson<IPost<'client' | 'expanded'>>( `${rootPath}/${options.id}${options.verbose ? makeQueryString( { verbose: true } ) : ''}` );
+export async function getOne( options: { id: string; verbose?: boolean; includeDocument?: boolean; } ) {
+  const page: IPost<'client' | 'expanded'> = await getJson<IPost<'client' | 'expanded'>>( `${rootPath}/${options.id}${makeQueryString( { verbose: options.verbose, document: options.includeDocument } )}` );
   return page;
 }
 
-export async function getBySlug( options: { slug: string; verbose?: boolean; } ) {
-  const page: IPost<'client' | 'expanded'> = await getJson<IPost<'client' | 'expanded'>>( `${rootPath}/s/${options.slug}${options.verbose ? makeQueryString( { verbose: true } ) : ''}` );
+export async function getBySlug( options: { slug: string; verbose?: boolean; includeDocument?: boolean; } ) {
+  const page: IPost<'client' | 'expanded'> = await getJson<IPost<'client' | 'expanded'>>( `${rootPath}/s/${options.slug}${makeQueryString( { verbose: options.verbose, document: options.includeDocument } )}` );
   return page;
 }
 

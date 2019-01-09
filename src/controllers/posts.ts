@@ -11,10 +11,9 @@ import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
-import { Error404, Error400 } from '../utils/errors';
+import { Error404 } from '../utils/errors';
 import { Schema } from '../models/schema';
 import { IDraft } from '../types/models/i-draft';
-import { DraftsModel } from '../models/drafts-model';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 
@@ -35,10 +34,11 @@ export type PostsGetAllOptions = {
 }
 
 export type PostsGetOneOptions = {
-  id?: string;
-  slug?: string;
-  verbose?: boolean;
-  public?: boolean;
+  id: string;
+  slug: string;
+  verbose: boolean;
+  public: boolean;
+  includeDocument: boolean;
 }
 
 /**
@@ -48,7 +48,6 @@ export class PostsController extends Controller {
   private _postsModel: PostsModel;
   private _users: UsersController;
   private _documents: DocumentsController;
-  private _drafts: DraftsModel;
 
   /**
 	 * Creates a new instance of the controller
@@ -62,7 +61,6 @@ export class PostsController extends Controller {
    */
   async initialize( db: mongodb.Db ) {
     this._postsModel = Factory.get( 'posts' );
-    this._drafts = Factory.get( 'drafts' );
     this._users = ControllerFactory.get( 'users' );
     this._documents = ControllerFactory.get( 'documents' );
     return this;
@@ -297,44 +295,10 @@ export class PostsController extends Controller {
   }
 
   /**
-   * Retrieves the last rendered post draft
-   * @param options Options for getting the post resource
-   */
-  async getPostRender( options: PostsGetOneOptions = { verbose: true } ) {
-    const posts = this._postsModel;
-    const drafts = this._drafts;
-    let findToken: Partial<IPost<'server'>>;
-
-    if ( options.id )
-      findToken = { _id: new mongodb.ObjectID( options.id ) };
-    else if ( options.slug )
-      findToken = { slug: options.slug };
-    else
-      throw new Error( `You must specify either an id or slug when fetching a post` );
-
-    if ( options.public !== undefined )
-      findToken.public = options.public;
-
-    const post = await posts!.findOne( findToken );
-    if ( !post )
-      throw new Error404( 'Could not find post' );
-    if ( !post.dbEntry.latestDraft )
-      throw new Error400( 'Draft has not been published' );
-
-    const draftSchema = await drafts.findOne( { _id: post.dbEntry.latestDraft } as IDraft<'server'> );
-
-    if ( !draftSchema )
-      throw new Error404( 'Could not find draft' );
-
-    const draft = await draftSchema.downloadToken( { expandForeignKeys: false, verbose: true } );
-    return draft;
-  }
-
-  /**
    * Gets a single post resource
    * @param options Options for getting the post resource
    */
-  async getPost( options: PostsGetOneOptions = { verbose: true } ) {
+  async getPost( options: Partial<PostsGetOneOptions> = { verbose: true, includeDocument: true } ) {
     const posts = this._postsModel;
     let findToken: Partial<IPost<'server'>>;
 
@@ -347,12 +311,16 @@ export class PostsController extends Controller {
 
     if ( options.public !== undefined )
       findToken.public = options.public;
+
+    const blacklist: RegExp[] = [ /document\.author/ ];
+    if ( options.includeDocument === false )
+      blacklist.push( /document/ )
 
     const post = await posts!.downloadOne( findToken, {
       verbose: options.verbose !== undefined ? options.verbose : true,
       expandForeignKeys: true,
       expandMaxDepth: 2,
-      expandSchemaBlacklist: [ /document\.author/ ]
+      expandSchemaBlacklist: blacklist
     } );
 
     if ( !post )

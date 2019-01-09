@@ -176,18 +176,19 @@ describe( 'Testing fetching of posts', function() {
 
   it( 'can fetch single post by slug', async function() {
     const resp = await header.admin.get( `/api/posts/s/${randomSlug}` );
-    const post = await resp.json<IPost<'client'>>();
+    const post = await resp.json<IPost<'expanded'>>();
 
-    assert.deepEqual( ( post.author as IUserEntry<'client'> ).username, header.admin.username );
+    assert.deepEqual( post.author.username, header.admin.username );
     assert.deepEqual( post.title, 'Simple Test' );
     assert.deepEqual( post.slug, randomSlug );
     assert.deepEqual( post.public, true );
     assert.deepEqual( post.categories.length, 1 );
     assert.deepEqual( post.tags.length, 2 );
-    assert.deepEqual( ( post.featuredImage as IFileEntry<'client'> )._id, file._id.toString() );
+    assert.deepEqual( post.featuredImage._id, file._id.toString() );
+    assert.deepEqual( post.latestDraft, null );
 
     // Check that we get the doc
-    const doc = post.document as IDocument<'client'>;
+    const doc = post.document;
     assert.notDeepEqual( doc.template, null );
     assert.deepEqual( typeof doc.template, 'object' );
     assert.deepEqual( typeof doc.author, 'string' );
@@ -202,6 +203,14 @@ describe( 'Testing fetching of posts', function() {
     assert.deepEqual( doc.elements[ 0 ].type, 'elm-paragraph' );
     assert( Array.isArray( doc.elementsOrder ) );
     assert.deepEqual( doc.elementsOrder[ 0 ], doc.elements[ 0 ]._id );
+  } )
+
+  it( 'can fetch single post by slug & not include the document', async function() {
+    const resp = await header.admin.get( `/api/posts/s/${randomSlug}?document=false` );
+    const post = await resp.json<IPost<'client'>>();
+    assert.deepEqual( post.title, 'Simple Test' );
+    assert.deepEqual( post.latestDraft, null );
+    assert.deepEqual( typeof post.document, 'string' );
   } )
 
   it( 'cannot fetch a private post by slug when not logged in', async function() {

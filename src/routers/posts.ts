@@ -134,6 +134,7 @@ export class PostsRouter extends Router {
     const post = await this._controller.getPost( {
       id: req.params.id,
       slug: req.params.slug,
+      includeDocument: req.query.document && req.query.document === 'false' ? false : true,
       verbose: req.query.verbose !== undefined ? req.query.verbose === 'true' : false
     } )!;
 

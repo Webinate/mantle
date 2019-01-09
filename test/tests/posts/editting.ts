@@ -86,6 +86,7 @@ describe( 'Testing editing of posts', function() {
     assert( typeof json.document._id === 'string' );
     assert( json.document.elements.length > 0 );
     assert.deepEqual( typeof json.latestDraft._id, 'string' );
+    assert.deepEqual( json.latestDraft.html.main, '<p></p>' );
   } )
 
   it( 'did update the posts modified property', async function() {
