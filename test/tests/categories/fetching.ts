@@ -45,7 +45,7 @@ describe( 'Testing fetching of categories: ', function() {
   } )
 
   it( 'did fetch a single category by slug', async function() {
-    const resp = await header.user1.getJson<ICategory<'client'>>( `/api/categories/slug/${slug}` );
+    const resp = await header.user1.getJson<ICategory<'client'>>( `/api/categories/s/${slug}` );
     assert.equal( resp.slug, slug );
   } )
 

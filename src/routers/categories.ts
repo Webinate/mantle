@@ -44,7 +44,7 @@ export class CategoriesRouter extends Router {
 
     router.get( '/', this.getMany.bind( this ) );
     router.get( '/:id', this.getOne.bind( this ) );
-    router.get( '/slug/:slug', this.getBySlug.bind( this ) );
+    router.get( '/s/:slug', this.getBySlug.bind( this ) );
     router.put( '/:id', this.update.bind( this ) );
     router.post( '/', this.create.bind( this ) );
     router.delete( '/:id', this.remove.bind( this ) );

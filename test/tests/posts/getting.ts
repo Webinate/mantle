@@ -58,7 +58,7 @@ describe( 'Testing fetching of posts', function() {
   } )
 
   it( 'cannot get a post that doesnt exist', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/--simple--test--2--` );
+    const resp = await header.admin.get( `/api/posts/s/--simple--test--2--` );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, 'Could not find post' );
@@ -168,14 +168,14 @@ describe( 'Testing fetching of posts', function() {
   } )
 
   it( 'cannot fetch single post by invalid slug', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/WRONGWRONGWRONG` );
+    const resp = await header.admin.get( `/api/posts/s/WRONGWRONGWRONG` );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "Could not find post" );
   } )
 
   it( 'can fetch single post by slug', async function() {
-    const resp = await header.admin.get( `/api/posts/slug/${randomSlug}` );
+    const resp = await header.admin.get( `/api/posts/s/${randomSlug}` );
     const post = await resp.json<IPost<'client'>>();
 
     assert.deepEqual( ( post.author as IUserEntry<'client'> ).username, header.admin.username );
@@ -205,14 +205,14 @@ describe( 'Testing fetching of posts', function() {
   } )
 
   it( 'cannot fetch a private post by slug when not logged in', async function() {
-    const resp = await header.guest.get( `/api/posts/slug/${privateSlug}` );
+    const resp = await header.guest.get( `/api/posts/s/${privateSlug}` );
     assert.deepEqual( resp.status, 403 );
     const json = await resp.json();
     assert.deepEqual( json.message, "That post is marked private" );
   } )
 
   it( 'can fetch a public post by slug when not logged in', async function() {
-    const resp = await header.guest.get( `/api/posts/slug/${randomSlug}` );
+    const resp = await header.guest.get( `/api/posts/s/${randomSlug}` );
     assert.deepEqual( resp.status, 200 );
     const json: IPost<'client'> = await resp.json();
     assert( json.hasOwnProperty( "_id" ) );

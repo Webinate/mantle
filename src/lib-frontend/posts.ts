@@ -16,7 +16,7 @@ export async function getOne( options: { id: string; verbose?: boolean; } ) {
 }
 
 export async function getBySlug( options: { slug: string; verbose?: boolean; } ) {
-  const page: IPost<'client' | 'expanded'> = await getJson<IPost<'client' | 'expanded'>>( `${rootPath}/slug/${options.slug}${options.verbose ? makeQueryString( { verbose: true } ) : ''}` );
+  const page: IPost<'client' | 'expanded'> = await getJson<IPost<'client' | 'expanded'>>( `${rootPath}/s/${options.slug}${options.verbose ? makeQueryString( { verbose: true } ) : ''}` );
   return page;
 }
 

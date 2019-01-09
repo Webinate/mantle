@@ -45,7 +45,7 @@ export class PostsRouter extends Router {
     router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
 
     router.get( '/', this.getPosts.bind( this ) );
-    router.get( '/slug/:slug', this.getPostBySlug.bind( this ) );
+    router.get( '/s/:slug', this.getPostBySlug.bind( this ) );
     router.get( '/:id', this.getPost.bind( this ) );
     router.delete( '/:id', this.removePost.bind( this ) );
     router.put( '/:id', this.updatePost.bind( this ) );

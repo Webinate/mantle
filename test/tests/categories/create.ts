@@ -44,7 +44,7 @@ describe( 'Testing creation of categories', function() {
 
   it( 'did create category called _test with no html', async function() {
 
-    category = await header.admin.getJson<ICategory<'client'>>( `/api/categories/slug/_test` );
+    category = await header.admin.getJson<ICategory<'client'>>( `/api/categories/s/_test` );
     if ( category )
       await header.admin.delete( `/api/categories/${category._id}` )
 
