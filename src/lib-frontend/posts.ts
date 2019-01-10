@@ -2,12 +2,22 @@ import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http
 import { IPost } from '../types/models/i-post';
 import { Page } from '../types/tokens/standard-tokens';
 import { PostsGetAllOptions } from '../controllers/posts';
+import { IDraft } from '../types/models/i-draft';
 
 const rootPath = `${apiUrl}/posts`;
 
 export async function getAll( options: Partial<PostsGetAllOptions> ) {
   const page = await getJson<Page<IPost<'client' | 'expanded'>>>( rootPath + makeQueryString( options ) );
   return page;
+}
+
+export async function getDrafts( postId: string ) {
+  const drafts = await getJson<IDraft<'expanded'>[]>( `${rootPath}/${postId}/drafts` );
+  return drafts;
+}
+
+export function removeDraft( postId: string, draftId: string ) {
+  return del( `${rootPath}/${postId}/drafts/${draftId}` );
 }
 
 export async function getOne( options: { id: string; verbose?: boolean; includeDocument?: boolean; } ) {
