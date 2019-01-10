@@ -84,23 +84,7 @@ describe( 'Testing fetching of posts', function() {
     assert.deepEqual( post.categories.length, 1 );
     assert.deepEqual( post.tags.length, 2 );
     assert.deepEqual( ( post.featuredImage as IFileEntry<'client'> )._id, file._id.toString() );
-
-    // Check that we get the doc
-    const doc = post.document as IDocument<'client'>;
-    assert.notDeepEqual( doc.template, null );
-    assert.deepEqual( typeof doc.template, 'object' );
-    assert.deepEqual( typeof doc.author, 'string' );
-    assert( doc.createdOn > 0 );
-    assert( doc.lastUpdated > 0 );
-
-    // Check elements
-    assert.deepEqual( doc.elements.length, 1 );
-    assert.deepEqual( doc.elements[ 0 ].zone, 'main' );
-    assert.deepEqual( doc.elements[ 0 ].html, '<p></p>' );
-    assert.deepEqual( doc.elements[ 0 ].parent, doc._id );
-    assert.deepEqual( doc.elements[ 0 ].type, 'elm-paragraph' );
-    assert( Array.isArray( doc.elementsOrder ) );
-    assert.deepEqual( doc.elementsOrder[ 0 ], doc.elements[ 0 ]._id );
+    assert.deepEqual( typeof post.document, 'string' );
   } )
 
   it( 'can fetch posts and impose a limit off 1 on them', async function() {

@@ -7,7 +7,7 @@ import * as compression from 'compression';
 import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
-import { admin, identify } from '../decorators/permissions';
+import { admin, identify, authorize } from '../decorators/permissions';
 import { UserPrivileges } from '../core/user-privileges';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IPost } from '../types/models/i-post';
@@ -47,7 +47,9 @@ export class PostsRouter extends Router {
     router.get( '/', this.getPosts.bind( this ) );
     router.get( '/s/:slug', this.getPostBySlug.bind( this ) );
     router.get( '/:id', this.getPost.bind( this ) );
+    router.get( '/:id/drafts', this.getPostDrafts.bind( this ) );
     router.delete( '/:id', this.removePost.bind( this ) );
+    router.delete( '/:postId/drafts/:draftId', this.removeDraft.bind( this ) );
     router.put( '/:id', this.updatePost.bind( this ) );
     router.post( '/', this.createPost.bind( this ) );
 
@@ -128,6 +130,29 @@ export class PostsRouter extends Router {
   private async getPostBySlug( req: IAuthReq, res: express.Response ) {
     return this._getPost( req, res );
   }
+
+  @j200()
+  @validId( 'id', 'ID' )
+  @authorize()
+  private async getPostDrafts( req: IAuthReq, res: express.Response ) {
+    const user: IUserEntry<'server'> = req._user!;
+    const response = await this._controller.getDrafts( req.params.id );
+    if ( req._isAdmin || user._id.toString() === response.post.author )
+      return response.drafts;
+
+    throw new Error403();
+  }
+
+  @j200( 204 )
+  @validId( 'postId', 'Post ID' )
+  @validId( 'draftId', 'Draft ID' )
+  @admin()
+  private async removeDraft( req: IAuthReq, res: express.Response ) {
+    await this._controller.removeDraft( req.params.postId, req.params.draftId );
+    return;
+  }
+
+
 
   private async _getPost( req: IAuthReq, res: express.Response ) {
     const user: IUserEntry<'server'> = req._user!;

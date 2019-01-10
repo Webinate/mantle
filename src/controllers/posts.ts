@@ -1,7 +1,7 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
 import { IPost } from '../types/models/i-post';
-import * as mongodb from 'mongodb';
+import { Db, ObjectID, Collection } from 'mongodb';
 import Factory from '../core/model-factory';
 import ControllerFactory from '../core/controller-factory';
 import { PostsModel } from '../models/posts-model';
@@ -14,6 +14,7 @@ import { DocumentsController } from './documents';
 import { Error404 } from '../utils/errors';
 import { Schema } from '../models/schema';
 import { IDraft } from '../types/models/i-draft';
+import { DraftsModel } from '../models/drafts-model';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 
@@ -46,6 +47,7 @@ export type PostsGetOneOptions = {
  */
 export class PostsController extends Controller {
   private _postsModel: PostsModel;
+  private _draftsModel: DraftsModel;
   private _users: UsersController;
   private _documents: DocumentsController;
 
@@ -59,8 +61,9 @@ export class PostsController extends Controller {
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize( db: mongodb.Db ) {
+  async initialize( db: Db ) {
     this._postsModel = Factory.get( 'posts' );
+    this._draftsModel = Factory.get( 'drafts' );
     this._users = ControllerFactory.get( 'users' );
     this._documents = ControllerFactory.get( 'documents' );
     return this;
@@ -76,7 +79,7 @@ export class PostsController extends Controller {
     if ( options.author ) {
       const user = await this._users.getUsers( undefined, undefined, new RegExp( `^${options.author!}$`, 'i' ) );
       if ( user && user.data.length > 0 )
-        findToken.author = new mongodb.ObjectID( user.data[ 0 ]._id );
+        findToken.author = new ObjectID( user.data[ 0 ]._id );
       else {
         return {
           count: 0,
@@ -163,7 +166,7 @@ export class PostsController extends Controller {
         expandForeignKeys: true,
         verbose: verbose,
         expandMaxDepth: 2,
-        expandSchemaBlacklist: [ /document\.author/ ]
+        expandSchemaBlacklist: [ /document/ ]
       } );
 
     const response: Page<IPost<'client' | 'expanded'>> = {
@@ -174,6 +177,57 @@ export class PostsController extends Controller {
     };
 
     return response;
+  }
+
+  /**
+   * Gets all drafts associated with a post
+   */
+  async getDrafts( id: string ) {
+    const posts = this._postsModel;
+    const drafts = this._draftsModel;
+    const findToken: Partial<IPost<'server'>> = { _id: new ObjectID( id ) };
+    const postSchema = await posts.findOne( findToken );
+
+    if ( !postSchema )
+      throw new Error404( 'Post does not exist' );
+
+    const postJson = await postSchema.downloadToken( { verbose: true, expandForeignKeys: false } ) as IPost<'client'>;
+
+    const draftJsons = await drafts.downloadMany( {
+      selector: { parent: postSchema.dbEntry.document } as IDraft<'server'>,
+      sort: { createdOn: 1 },
+      limit: -1
+    }, {
+        expandForeignKeys: false,
+        verbose: true
+      } );
+
+    return {
+      post: postJson,
+      drafts: draftJsons
+    };
+  }
+
+  /**
+   * Removes a draft from a post
+   */
+  async removeDraft( postId: string, draftId: string ) {
+    const posts = this._postsModel;
+    const drafts = this._draftsModel;
+    const findPostToken: Partial<IPost<'server'>> = { _id: new ObjectID( postId ) };
+    const findDraftToken: Partial<IDraft<'server'>> = { _id: new ObjectID( draftId ) };
+    const postSchema = await posts.findOne( findPostToken );
+
+    if ( !postSchema )
+      throw new Error404( 'Post does not exist' );
+
+    const draftSchema = await drafts.findOne( findDraftToken );
+    if ( !draftSchema )
+      throw new Error404( 'Draft does not exist' );
+
+    await drafts.deleteInstances( { _id: draftSchema.dbEntry._id } as IDraft<'server'> );
+    if ( postSchema.dbEntry.latestDraft && postSchema.dbEntry.latestDraft.equals( draftSchema.dbEntry._id ) )
+      await posts.update( { _id: postSchema.dbEntry._id } as IPost<'server'>, { latestDraft: null } );
   }
 
   /**
@@ -190,7 +244,7 @@ export class PostsController extends Controller {
    * Nullifys the featured image if its deleted
    */
   async onFileRemoved( file: IFileEntry<'server'> ) {
-    const collection = this._postsModel.collection as mongodb.Collection<IPost<'server'>>;
+    const collection = this._postsModel.collection as Collection<IPost<'server'>>;
     await collection.updateMany(
       { featuredImage: file._id } as IPost<'server'>,
       { $set: { featuredImage: null } as IPost<'server'> }
@@ -218,7 +272,7 @@ export class PostsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const post = await this._postsModel.findOne( { _id: new mongodb.ObjectID( id ) } as IPost<'server'> );
+    const post = await this._postsModel.findOne( { _id: new ObjectID( id ) } as IPost<'server'> );
 
     if ( !post )
       throw new Error404( `Could not find post` )
@@ -234,7 +288,7 @@ export class PostsController extends Controller {
     await this._documents.remove( post.dbEntry.document!.toString() );
 
     // Attempt to delete the instances
-    const numRemoved = await this._postsModel.deleteInstances( { _id: new mongodb.ObjectID( id ) } );
+    const numRemoved = await this._postsModel.deleteInstances( { _id: new ObjectID( id ) } );
 
     if ( numRemoved === 0 )
       throw new Error( 'Could not find a post with that ID' );
@@ -252,7 +306,7 @@ export class PostsController extends Controller {
     if ( !isValidObjectID( id ) )
       throw new Error( `Please use a valid object id` );
 
-    const updatedPost = await this._postsModel.update( { _id: new mongodb.ObjectID( id ) }, token, {
+    const updatedPost = await this._postsModel.update( { _id: new ObjectID( id ) }, token, {
       verbose: true,
       expandForeignKeys: true,
       expandMaxDepth: 2,
@@ -261,7 +315,7 @@ export class PostsController extends Controller {
 
     const newDraft = await this._documents.publishDraft( updatedPost.document );
 
-    await this._postsModel.update( { _id: new mongodb.ObjectID( updatedPost._id ) } as IPost<'server'>, { latestDraft: newDraft._id } );
+    await this._postsModel.update( { _id: new ObjectID( updatedPost._id ) } as IPost<'server'>, { latestDraft: newDraft._id } );
 
     updatedPost.latestDraft = newDraft as IDraft<'expanded'>;
 
@@ -303,7 +357,7 @@ export class PostsController extends Controller {
     let findToken: Partial<IPost<'server'>>;
 
     if ( options.id )
-      findToken = { _id: new mongodb.ObjectID( options.id ) };
+      findToken = { _id: new ObjectID( options.id ) };
     else if ( options.slug )
       findToken = { slug: options.slug };
     else
