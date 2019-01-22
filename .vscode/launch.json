@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Modepress Debug",
+      "name": "Mantle Debug",
       "type": "node",
       "protocol": "auto",
       "request": "launch",
@@ -29,7 +29,7 @@
       "outFiles": []
     },
     {
-      "name": "Modepress Production",
+      "name": "Mantle Production",
       "type": "node",
       "protocol": "auto",
       "request": "launch",
@@ -56,7 +56,7 @@
       "outFiles": []
     },
     {
-      "name": "Modepress Tests",
+      "name": "Mantle Tests",
       "type": "node",
       "protocol": "auto",
       "request": "launch",

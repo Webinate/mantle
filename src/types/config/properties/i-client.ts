@@ -46,8 +46,8 @@ export interface IServer {
 }
 
 /**
- * This interface represents a json file that describes how modepress should load a client.
- * Clients are plugins that are loaded dynamically by modepress on startup.
+ * This interface represents a json file that describes how mantle should load a client.
+ * Clients are plugins that are loaded dynamically by mantle on startup.
  */
 export interface IClient {
 

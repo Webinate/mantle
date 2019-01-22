@@ -175,12 +175,9 @@ describe( 'Testing fetching of comments', function() {
   it( 'can get a comment with post, draft & html if depth is -1', async function() {
     const resp = await header.admin.get( `/api/comments/${publicCommentId}?expanded=true&depth=-1` );
     assert.deepEqual( resp.status, 200 );
-    const json: IComment<'client'> = await resp.json();
-    const post = json.post as IPost<'client'>;
-    const doc = post.document as IDocument<'client'>;
-    const template = doc.template as ITemplate<'client'>;
-    assert.deepEqual( post._id, postId );
-    assert.deepEqual( doc.html[ template.defaultZone ], '<p></p>' );
+    const json: IComment<'expanded'> = await resp.json();
+    assert.deepEqual( json.post._id, postId );
+    assert.deepEqual( json.post.document.html[ json.post.document.template.defaultZone ], '<p></p>' );
   } )
 
   it( 'should prevent guests from getting sensitive data (expanded)', async function() {

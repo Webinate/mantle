@@ -29,13 +29,13 @@ sudo su
 If you want the latest stable version:
 
 ```
-curl -o- https://raw.githubusercontent.com/Webinate/modepress/master/install-script.sh | bash
+curl -o- https://raw.githubusercontent.com/Webinate/mantle/master/install-script.sh | bash
 ```
 
 OR if you want the dev build
 
 ```
-curl -o- https://raw.githubusercontent.com/Webinate/modepress/dev/install-script-dev.sh | bash
+curl -o- https://raw.githubusercontent.com/Webinate/mantle/dev/install-script-dev.sh | bash
 ```
 
 This downloads the latest mantle project into the current folder.
@@ -73,5 +73,5 @@ node main.js --config="config.json" --numThreads="4"
 
 Without configuring mantle, you're not likely to see much. The best way to get started would be
 to download some example projects into your clients directory. This directory attempts to discover
-all client projects for mantle. Its done by checking all immediate sub folders for a modepress.json.
-The json file describes to modepress how it should load the client and what to do with its contents.
+all client projects for mantle. Its done by checking all immediate sub folders for a mantle.json.
+The json file describes to mantle how it should load the client and what to do with its contents.

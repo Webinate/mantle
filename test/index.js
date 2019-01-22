@@ -12,12 +12,12 @@ require( "ts-node" ).register( {
 } );
 
 if ( !args.config || !fs.existsSync( args.config ) ) {
-  console.log( "Please specify a modepress --config file to use in the command line" );
+  console.log( "Please specify a mantle --config file to use in the command line" );
   process.exit();
 }
 
 if ( args.server === undefined || isNaN( parseInt( args.server ) ) ) {
-  console.log( "Please specify a --server index in the cmd arguments to test. This index refers to the array item in the modepress config.servers array" );
+  console.log( "Please specify a --server index in the cmd arguments to test. This index refers to the array item in the mantle config.servers array" );
   process.exit();
 }
 

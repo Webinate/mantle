@@ -8,7 +8,7 @@ class Server extends mp.Controller {
 
   /**
    * Renders an html page showing the number of users in
-   * this modepress instance
+   * this mantle instance
    */
   async onRender( req, res, next ) {
     const users = await mp.UserManager.get.getUsers();
@@ -22,7 +22,7 @@ class Server extends mp.Controller {
         <div class="container">
           <h1>Welcome to Mantle</h1>
           <p>This example demonstrates a basic express site</p>
-          <p>There appears to be [${users ? users.length : 0}] users registered on this instance of modepress</p>
+          <p>There appears to be [${users ? users.length : 0}] users registered on this instance of mantle</p>
           <p><img src="./mantle-logo-textured.png" alt="Mantle Logo"></p>
         </div>
       </body>
@@ -33,7 +33,7 @@ class Server extends mp.Controller {
   }
 
   /**
-   * Called by modepress once the server is initialized
+   * Called by mantle once the server is initialized
    * @param {express.Express} app The Express app
    * @param {mongoDb.Db} db The mongo database instance
    */

@@ -9,7 +9,7 @@
         "isDefault": true
       },
       "problemMatcher": "$tsc",
-      "command": "npm run build --dir=../modepress/dist/plugins/app-engine"
+      "command": "npm run build --dir=../mantle/dist/plugins/app-engine"
     }
   ]
 }

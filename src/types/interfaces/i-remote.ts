@@ -22,7 +22,7 @@ export type IUploadToken = {
 
 /**
  * This interface describes a remote destination that is used to upload
- * files sent from modepress. Remote's can be thought of as drives on a
+ * files sent from mantle. Remote's can be thought of as drives on a
  * computer or volumes in a cloud.
  */
 export interface IRemote {

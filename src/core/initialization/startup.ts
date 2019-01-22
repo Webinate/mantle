@@ -48,7 +48,7 @@ function loadConfig(): IConfig | null {
 
   // Make sure the config path argument is there
   if ( !args.config || args.config.trim() === '' ) {
-    error( 'No config file specified. Please start modepress with the config path in the argument list. Eg: node main.js --config="./config.js"' );
+    error( 'No config file specified. Please start mantle with the config path in the argument list. Eg: node main.js --config="./config.js"' );
     process.exit();
   }
 
@@ -83,7 +83,7 @@ function loadConfig(): IConfig | null {
 }
 
 /**
- * Traverses a directory and each of its folders to find any modepress.json config files
+ * Traverses a directory and each of its folders to find any mantle.json config files
  */
 export async function discoverClients( config: IConfig ) {
   if ( !config.clientsFolder )
@@ -96,14 +96,14 @@ export async function discoverClients( config: IConfig ) {
   const clientDefinitions: ( IClient & { path: string } )[] = [];
   for ( const dir of directories ) {
     let localDir = ( config.clientsFolder + dir ).replace( /\/\//, '/' );
-    if ( existsSync( `${localDir}/modepress.json` ) ) {
+    if ( existsSync( `${localDir}/mantle.json` ) ) {
       try {
-        const client = JSON.parse( readFileSync( `${localDir}/modepress.json` ).toString() );
+        const client = JSON.parse( readFileSync( `${localDir}/mantle.json` ).toString() );
         client.path = resolve( localDir );
         clientDefinitions.push( client );
       }
       catch ( err ) {
-        throw new Error( `Could not parse modepress JSON in '${localDir}'` );
+        throw new Error( `Could not parse mantle JSON in '${localDir}'` );
       }
     }
   }

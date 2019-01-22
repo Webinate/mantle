@@ -25,7 +25,7 @@ export class Server {
   }
 
   /**
-   * Goes through each client json discovered in the modepress client folder
+   * Goes through each client json discovered in the mantle client folder
    * and attempts to load it
    * @param client The client we are loading
    */

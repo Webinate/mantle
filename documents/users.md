@@ -1,7 +1,7 @@
 Users & Authentication
 ===============
-Modepress is built with a set of endpoints for dealing with users, authentication and user media. This was originally treated
-as a separate project but was later moved back into Modepress because of its integral nature to the project.
+Mantle is built with a set of endpoints for dealing with users, authentication and user media. This was originally treated
+as a separate project but was later moved back into Mantle because of its integral nature to the project.
 
 
 ## Installation

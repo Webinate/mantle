@@ -8,20 +8,20 @@
 # Ignore static site example
 !/static-site/
 !/static-site/*
-!static-site/modepress.json
+!static-site/mantle.json
 !/static-site/html/
 !/static-site/html/*
 
 # Ignore Express site example
 !/express-site/
 !/express-site/*
-!express-site/modepress.json
+!express-site/mantle.json
 !/express-site/media/
 !/express-site/media/*
 
 # Ignore bucket example
 !/bucket/
 !/bucket/*
-!bucket/modepress.json
+!bucket/mantle.json
 !/bucket/media/
 !/bucket/media/*
