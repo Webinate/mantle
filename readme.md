@@ -61,7 +61,9 @@ Now edit the config.json to suite your needs.
 7) To run the mantle server
 
 ```
-node main.js --config="config.json" --logFile="logs.log" --logging="true" --numThreads="max"
+npm run dev-server
+--- or ---
+npm run start-server
 ```
 
 By default mantle will run using all threads available to your application. If however memory is in short supply you can set the number of threads in the command line

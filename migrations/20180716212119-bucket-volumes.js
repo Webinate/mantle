@@ -4,7 +4,9 @@ module.exports = {
 
   up: async function( db, next ) {
     try {
-      await db.collection( 'buckets' ).rename('volumes');
+      const collection = await db.collection( 'buckets' );
+      if ( collection )
+        collection.rename( 'volumes' );
     }
     catch ( err ) {
       console.error( `An error ocurred. Error Stack: ${err.stack}` )
@@ -16,7 +18,10 @@ module.exports = {
 
   down: async function( db, next ) {
     try {
-      await db.collection( 'volumes' ).rename('buckets');
+      const collection = await db.collection( 'volumes' );
+
+      if ( collection )
+        collection.rename( 'buckets' );
     }
     catch ( err ) {
       console.error( `An error ocurred. Error Stack: ${err.stack}` )
