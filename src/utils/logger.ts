@@ -44,11 +44,11 @@ export function initializeLogger() {
     showLogs = true;
 
   winston.remove( winston.transports.Console );
-  winston.add( winston.transports.Console, <any>{ level: 'debug', colorize: true } );
+  winston.add( new winston.transports.Console() );
 
   // Saves logs to file
   if ( args.logFile && args.logFile.trim() !== '' )
-    winston.add( winston.transports.File, <winston.TransportOptions>{ filename: args.logFile, maxsize: 50000000, maxFiles: 1, tailable: true } );
+    winston.add( new winston.transports.File( { filename: args.logFile, maxsize: 50000000, maxFiles: 1, tailable: true } ) );
 
   fixVSCodeOutput();
 }

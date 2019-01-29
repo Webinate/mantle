@@ -44,7 +44,6 @@
     "@types/rimraf": "^2.0.2",
     "@types/sanitize-html": "~1.13.31",
     "@types/validator": "^6.2.3",
-    "@types/winston": "^2.3.9",
     "@types/ws": "0.0.42",
     "@types/yargs": "~6.6.0",
     "bcrypt": "~3.0.3",
@@ -71,7 +70,7 @@
     "typescript": "3.2.2",
     "unit.js": "~2.0.0",
     "validator": "~3.43.0",
-    "winston": "~2.3.1",
+    "winston": "~3.2.1",
     "ws": "~2.2.3",
     "yargs": "~3.12.0"
   }
