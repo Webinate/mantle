@@ -2,10 +2,7 @@
   "database": "./keys/database.json",
   "remotes": {
     "google": "./keys/google-remote.json",
-    "local": {
-      "path": "clients/bucket/media",
-      "url": "http://localhost:7002"
-    }
+    "local": "./keys/local.json"
   },
   "collections": {
     "userCollection": "users",

@@ -26,7 +26,7 @@ export class LocalVolume implements IRemote {
     if ( !existsSync( resolve( options.path ) ) )
       throw new Error( `The path '${resolve( options.path )}' specified in the local remote does not resolve to a folder` );
 
-    if ( !options.url )
+    if ( options.url === undefined )
       throw new Error( `Please specify the 'url' variable to your local remote options` );
 
     this._path = resolve( options.path );
@@ -119,7 +119,7 @@ export class LocalVolume implements IRemote {
     await this.handleStreamsEvents( source, writeStream );
     return {
       id: filename,
-      url: `${this._url}/${volume.identifier}/${filename}`
+      url: `${this._url}${volume.identifier}/${filename}`
     };
   }
 
