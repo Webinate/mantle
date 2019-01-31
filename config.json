@@ -4,15 +4,6 @@
     "google": "./keys/google-remote.json",
     "local": "./keys/local.json"
   },
-  "collections": {
-    "userCollection": "users",
-    "sessionCollection": "sessions",
-    "volumesCollection": "volumes",
-    "filesCollection": "files",
-    "statsCollection": "storage-stats",
-    "foreignKeys": "_foreignKeys"
-  },
-  "clientsFolder": "./clients/",
   "debug": false,
   "adminUser": "./keys/admin-user.json",
   "sessionSettings": {

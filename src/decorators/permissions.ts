@@ -2,7 +2,7 @@ import Factory from '../core/controller-factory';
 import * as express from 'express';
 import { Error401, Error403 } from '../utils/errors';
 import { IAuthReq } from '../types/tokens/i-auth-request';
-import { UserPrivileges } from '../core/user-privileges';
+import { UserPrivileges } from '../core/enums';
 
 /**
  * Checks if the request is a logged in user. If not then a 400 error is thrown

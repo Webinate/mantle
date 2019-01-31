@@ -8,7 +8,7 @@ import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
 import { admin, identify, authorize } from '../decorators/permissions';
-import { UserPrivileges } from '../core/user-privileges';
+import { UserPrivileges } from '../core/enums';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IPost } from '../types/models/i-post';
 import Factory from '../core/model-factory';

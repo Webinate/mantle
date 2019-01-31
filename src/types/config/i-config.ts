@@ -1,7 +1,6 @@
 import { ILocalVolume } from './properties/i-remote-options';
 import { IGoogleProperties } from './properties/i-google';
 import { IDatabase } from './properties/i-database';
-import { ICollectionProperties } from './properties/i-collection';
 import { IMailProperties } from './properties/i-mail';
 import { IAdminUser } from './properties/i-admin';
 import { ISession } from './properties/i-session';
@@ -11,13 +10,6 @@ import { IWebsocket } from './properties/i-socket';
  * A server configuration
  */
 export interface IConfig {
-
-  /**
-   * The folder where mantle will search for client projects to add to the runtime.
-   * This setting must represent a path string. Each folder in the path will be analyzed
-   * and any with a valid mantle.json will be added.
-   */
-  clientsFolder: string;
 
   /**
    * Describes each of the media volumes available to the
@@ -49,7 +41,6 @@ export interface IConfig {
    */
   ajaxRenderExpiration: number;
 
-
   /**
    * If the property is a string, it must point
    * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as IDatabase.
@@ -65,11 +56,6 @@ export interface IConfig {
    * Settings related to sending emails
    */
   mail: IMailProperties;
-
-  /**
-   * A list of collection names
-   */
-  collections: ICollectionProperties;
 
   /**
    * Describes the session settings

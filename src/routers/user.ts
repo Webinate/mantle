@@ -1,6 +1,6 @@
 ﻿import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserPrivileges } from '../core/user-privileges';
+import { UserPrivileges } from '../core/enums';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
 import { Router } from './router'

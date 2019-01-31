@@ -8,7 +8,7 @@ import { ServerResponse, IncomingMessage } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
 import { Request } from 'express';
-import { UserPrivileges } from '../core/user-privileges';
+import { UserPrivileges } from '../core/enums';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';

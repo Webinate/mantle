@@ -7,6 +7,7 @@ import { Request } from 'express';
 import { Collection, Db, ObjectID } from 'mongodb';
 import { Session } from '../core/session';
 import Controller from './controller';
+import { Collections } from '../core/enums';
 
 /**
 * A class that manages session data for active users
@@ -39,8 +40,8 @@ export class SessionsController extends Controller {
       secure: this._config.sessionSettings.secure || false
     };
 
-    this._sessions = await db.collection( this._config.collections.sessionCollection );
-    this._users = await db.collection( this._config.collections.userCollection );
+    this._sessions = await db.collection( Collections.sessions );
+    this._users = await db.collection( Collections.users );
     this._cleanupProxy = this.cleanup.bind( this );
     this._timeout = null;
     return this;

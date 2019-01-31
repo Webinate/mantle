@@ -86,16 +86,11 @@ function loadConfig(): IConfig | null {
  * Traverses a directory and each of its folders to find any mantle.json config files
  */
 export async function discoverClients( config: IConfig ) {
-  if ( !config.clientsFolder )
-    throw new Error( 'The property clientsFolder is not present in the config file' );
-
-  if ( !existsSync( config.clientsFolder ) )
-    throw new Error( 'Cannot resolve clientsFolder property. Make sure the folder exists and is accessible' );
-
-  const directories = readdirSync( config.clientsFolder, { encoding: 'utf8' } );
+  const clientsFolder = './clients/';
+  const directories = readdirSync( clientsFolder, { encoding: 'utf8' } );
   const clientDefinitions: ( IClient & { path: string } )[] = [];
   for ( const dir of directories ) {
-    let localDir = ( config.clientsFolder + dir ).replace( /\/\//, '/' );
+    let localDir = ( clientsFolder + dir ).replace( /\/\//, '/' );
     if ( existsSync( `${localDir}/mantle.json` ) ) {
       try {
         const client = JSON.parse( readFileSync( `${localDir}/mantle.json` ).toString() );
