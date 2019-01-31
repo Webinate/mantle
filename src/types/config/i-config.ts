@@ -12,6 +12,13 @@ import { IWebsocket } from './properties/i-socket';
 export interface IConfig {
 
   /**
+   * The folder where mantle will search for client projects to add to the runtime.
+   * This setting must represent a path string. Each folder in the path will be analyzed
+   * and any with a valid mantle.json will be added.
+   */
+  clientsFolder: string;
+
+  /**
    * Describes each of the media volumes available to the
    * mantle servers.
    */

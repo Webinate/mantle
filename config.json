@@ -4,6 +4,7 @@
     "google": "./keys/google-remote.json",
     "local": "./keys/local.json"
   },
+  "clientsFolder": "./clients/",
   "debug": false,
   "adminUser": "./keys/admin-user.json",
   "sessionSettings": {
