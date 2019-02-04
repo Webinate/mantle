@@ -91,7 +91,7 @@ export class UserRouter extends Router {
     if ( !req._isAdmin && user.username !== req._user!.username )
       throw new Error403();
 
-    return await this._userController.update( req.params.id, req.body as IUserEntry<'client'> );
+    return await this._userController.update( req.params.id, req.body as IUserEntry<'client'>, req._isAdmin ? false : true );
   }
 
   /**

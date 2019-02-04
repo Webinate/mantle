@@ -171,7 +171,7 @@ export abstract class Model<T extends IModelEntry<'server'>, Y extends IModelEnt
 
     // If we have data, then set the variables
     if ( data )
-      schema.setClient( data, false );
+      schema.setClient( data, options && options.allowReadOnly ? true : false );
 
     // Make sure the new updates are valid
     await schema.validate( false );

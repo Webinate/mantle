@@ -40,6 +40,11 @@ describe( 'Editting user data:', function() {
     assert.deepEqual( resp.status, 400 );
   } )
 
+  it( 'should allow an admin to change an email directly', async function() {
+    const resp = await header.admin.put( `/api/users/${user._id}`, { email: header.user1.email } as IUserEntry<'client'> );
+    assert.deepEqual( resp.status, 200 );
+  } )
+
   it( 'should not allow a user to change its password directly', async function() {
     const resp = await header.user1.put( `/api/users/${user._id}`, { password: 'BAD!' } as IUserEntry<'client'> );
     assert.deepEqual( decodeURIComponent( resp.statusText ), 'You cannot set a password directly' );

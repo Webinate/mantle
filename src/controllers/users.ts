@@ -202,19 +202,23 @@ export class UsersController extends Controller {
   /**
    * Updates the user details if they are valid
    */
-  async update( id: string, token: IUserEntry<'client'> ) {
+  async update( id: string, token: IUserEntry<'client'>, validate: boolean = true ) {
+
     if ( token.username )
       throw new Error400( `You cannot set a username directly` );
-    if ( token.password )
-      throw new Error400( `You cannot set a password directly` );
-    if ( token.email )
-      throw new Error400( `You cannot set an email directly` );
-    if ( token.registerKey !== undefined || token.sessionId !== undefined || token.passwordTag !== undefined || token.privileges !== undefined )
-      throw new Error400( `Invalid value` );
+
+    if ( validate ) {
+      if ( token.password )
+        throw new Error400( `You cannot set a password directly` );
+      if ( token.email )
+        throw new Error400( `You cannot set an email directly` );
+      if ( token.registerKey !== undefined || token.sessionId !== undefined || token.passwordTag !== undefined || token.privileges !== undefined )
+        throw new Error400( `Invalid value` );
+    }
 
     const resp = await this._users.update(
       { _id: new ObjectID( id ) } as IUserEntry<'server'>, token,
-      { expandForeignKeys: true, expandMaxDepth: 1, verbose: true } );
+      { expandForeignKeys: true, expandMaxDepth: 1, verbose: true, allowReadOnly: !validate } );
 
     return resp;
   }
