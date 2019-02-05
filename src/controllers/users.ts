@@ -202,7 +202,7 @@ export class UsersController extends Controller {
   /**
    * Updates the user details if they are valid
    */
-  async update( id: string, token: IUserEntry<'client'>, validate: boolean = true ) {
+  async update( id: string, token: Partial<IUserEntry<'client'>>, validate: boolean = true ) {
 
     if ( token.username )
       throw new Error400( `You cannot set a username directly` );
