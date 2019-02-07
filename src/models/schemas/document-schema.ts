@@ -1,11 +1,11 @@
 import { Schema } from '../schema';
 import { IDocument } from '../../types/models/i-document';
 import { ISchemaOptions } from '../../types/misc/i-schema-options';
-import { IDraftElement, IImageElement } from '../../types/models/i-draft-elements';
+import { IDraftElement } from '../../types/models/i-draft-elements';
 import { ObjectID, Collection } from 'mongodb';
 import ModelFactory from '../../core/model-factory';
 import { Model } from '../model';
-import { IFileEntry } from '../../types/models/i-file-entry';
+import { buildHtml } from '../../controllers/build-html';
 
 export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'client' | 'expanded'>> {
   private _elementsCollection: Collection<IDraftElement<'server'>>;
@@ -24,18 +24,6 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
     const copy = super.clone( new DocumentSchema() ) as DocumentSchema;
     copy._elementsCollection = this._elementsCollection;
     return copy;
-  }
-
-  buildHtml( elm: IDraftElement<'client' | 'expanded'> ) {
-    if ( elm.type === 'elm-image' ) {
-      const image = ( elm as IImageElement<'client'> ).image;
-      if ( image )
-        return `<figure><img src="${( image as IFileEntry<'client'> ).publicURL}" /></figure>`;
-      else
-        return '<figure>Image not found</figure>';
-    }
-
-    return elm.html;
   }
 
   /**
@@ -74,7 +62,7 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
     doc.elements = jsons || [];
 
     for ( const elm of doc.elements ) {
-      elm.html = this.buildHtml( elm );
+      elm.html = buildHtml( elm );
 
       if ( !htmlMap[ elm.zone ] )
         htmlMap[ elm.zone ] = elm.html;
