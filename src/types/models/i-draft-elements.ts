@@ -16,4 +16,5 @@ export interface IDraftElement<T extends 'expanded' | 'server' | 'client'> {
 
 export interface IImageElement<T extends 'server' | 'expanded' | 'client'> extends IDraftElement<T> {
   image: T extends 'expanded' ? IFileEntry<T> : T extends 'client' ? IFileEntry<T> | string | null : ObjectID | null;
+  style: any;
 }

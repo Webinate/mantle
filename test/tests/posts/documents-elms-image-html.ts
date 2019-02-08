@@ -15,7 +15,7 @@ let post: IPost<'expanded'>,
   user1: IUserEntry<'expanded'>,
   file: IFileEntry<'expanded'>;
 
-describe( 'Testing the rendered html of elements: ', function() {
+describe( 'Testing the rendered html of image elements: ', function() {
 
   before( async function() {
     const posts = ControllerFactory.get( 'posts' );
@@ -110,5 +110,33 @@ describe( 'Testing the rendered html of elements: ', function() {
 
     imageElm = await resp.json<IImageElement<'expanded'>>();
     assert.deepEqual( imageElm.html, `<figure><img src="${file.publicURL}" /></figure>` );
+  } )
+
+  it( 'did update the image element with style properties', async function() {
+    const resp = await header.admin.put( `/api/documents/${document._id}/elements/${imageElm._id}`, {
+      style: { width: '50%', float: 'left' }
+    } as IImageElement<'client'> );
+    assert.equal( resp.status, 200 );
+
+    imageElm = await resp.json<IImageElement<'expanded'>>();
+    assert.deepEqual( imageElm.style.width, '50%' );
+    assert.deepEqual( imageElm.style.float, 'left' );
+    assert.deepEqual( imageElm.html, `<figure style="width:50%;float:left"><img src="${file.publicURL}" /></figure>` );
+  } )
+
+  it( 'did add a new image element with style properties', async function() {
+    const resp = await header.admin.post( `/api/documents/${document._id}/elements`, {
+      type: 'elm-image',
+      image: file._id,
+      zone: 'zone-a',
+      style: { width: '50%', float: 'left' }
+    } as IImageElement<'client'> );
+
+    assert.equal( resp.status, 200 );
+
+    imageElm = await resp.json<IImageElement<'expanded'>>();
+    assert.deepEqual( imageElm.style.width, '50%' );
+    assert.deepEqual( imageElm.style.float, 'left' );
+    assert.deepEqual( imageElm.html, `<figure style="width:50%;float:left"><img src="${file.publicURL}" /></figure>` );
   } )
 } )
