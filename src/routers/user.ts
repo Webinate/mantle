@@ -14,7 +14,7 @@ import * as compression from 'compression';
 import * as mongodb from 'mongodb';
 import Factory from '../core/model-factory';
 import { IUserEntry } from '..';
-import { Error404, Error403 } from '../utils/errors';
+import { Error404, Error403, Error400 } from '../utils/errors';
 
 /**
  * Main class to use for managing user data
@@ -91,7 +91,11 @@ export class UserRouter extends Router {
     if ( !req._isAdmin && user.username !== req._user!.username )
       throw new Error403();
 
-    return await this._userController.update( req.params.id, req.body as IUserEntry<'client'>, req._isAdmin ? false : true );
+    const token = req.body as IUserEntry<'client'>;
+    if ( user.privileges === UserPrivileges.SuperAdmin && token.privileges > UserPrivileges.SuperAdmin )
+      throw new Error400( 'You cannot set a super admin level to less than super admin' );
+
+    return await this._userController.update( req.params.id, token, req._isAdmin ? false : true );
   }
 
   /**

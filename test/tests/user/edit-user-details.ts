@@ -4,13 +4,14 @@ import header from '../header';
 import { IUserEntry, IFileEntry } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
-let user: IUserEntry<'expanded'>, file: IFileEntry<'expanded'>;
+let user: IUserEntry<'expanded'>, admin: IUserEntry<'expanded'>, file: IFileEntry<'expanded'>;
 
 describe( 'Editting user data:', function() {
 
   before( async function() {
     const users = ControllerFactory.get( 'users' );
     user = await users.getUser( { username: header.user1.username } ) as IUserEntry<'expanded'>;
+    admin = await users.getUser( { username: header.admin.username } ) as IUserEntry<'expanded'>;
 
     const volumes = ControllerFactory.get( 'volumes' );
     const volume = await volumes.create( { name: 'test', user: user._id } );
@@ -133,5 +134,10 @@ describe( 'Editting user data:', function() {
     resp = await header.admin.get( `/api/users/${user.username}?verbose=true` );
     const data = await resp.json<IUserEntry<'client'>>()
     assert.deepEqual( data.avatarFile, null );
+  } )
+
+  it( 'should not allow an admin to set a priviledge of itself less than super admin', async function() {
+    let resp = await header.admin.put( `/api/users/${admin._id}`, { privileges: 2 } as IUserEntry<'client'> );
+    assert.deepEqual( resp.status, 400 );
   } )
 } )
