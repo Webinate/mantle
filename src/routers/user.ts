@@ -1,6 +1,5 @@
 ﻿import express = require( 'express' );
 import bodyParser = require( 'body-parser' );
-import { UserPrivileges } from '../core/enums';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
 import { Router } from './router'
@@ -92,7 +91,7 @@ export class UserRouter extends Router {
       throw new Error403();
 
     const token = req.body as IUserEntry<'client'>;
-    if ( user.privileges === UserPrivileges.SuperAdmin && token.privileges > UserPrivileges.SuperAdmin )
+    if ( user.privileges === 'super' && token.privileges !== 'super' )
       throw new Error400( 'You cannot set a super admin level to less than super admin' );
 
     return await this._userController.update( req.params.id, token, req._isAdmin ? false : true );
@@ -109,7 +108,7 @@ export class UserRouter extends Router {
     let verbose = req.query.verbose === undefined ? true : req.query.verbose === 'true';
 
     // Only admins are allowed to see sensitive data
-    if ( req._user && req._user.privileges === UserPrivileges.SuperAdmin && verbose )
+    if ( req._user && req._user.privileges === 'super' && verbose )
       verbose = true;
     else
       verbose = false;
@@ -197,10 +196,10 @@ export class UserRouter extends Router {
   @admin()
   private async createUser( req: express.Request, res: express.Response ) {
     const token: Partial<IUserEntry<'client'>> = req.body;
-    token.privileges = token.privileges ? token.privileges : UserPrivileges.Regular;
+    token.privileges = token.privileges ? token.privileges : 'regular';
 
     // Not allowed to create super users
-    if ( token.privileges === UserPrivileges.SuperAdmin )
+    if ( token.privileges === 'super' )
       throw new Error( 'You cannot create a user with super admin permissions' );
 
     const user = await this._userController.createUser( {

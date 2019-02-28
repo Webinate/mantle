@@ -2,7 +2,7 @@ import Factory from '../core/controller-factory';
 import * as express from 'express';
 import { Error401, Error403 } from '../utils/errors';
 import { IAuthReq } from '../types/tokens/i-auth-request';
-import { UserPrivileges } from '../core/enums';
+import { UserPrivilege } from '../core/enums';
 
 /**
  * Checks if the request is a logged in user. If not then a 400 error is thrown
@@ -24,9 +24,9 @@ export function admin() {
         await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
       req._user = session.user;
-      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+      req._isAdmin = session.user.privileges === 'admin' || session.user.privileges === 'super';
 
-      if ( session.user.privileges! > UserPrivileges.Admin )
+      if ( session.user.privileges! === 'regular' )
         throw new Error403( `You don't have permission to make this request` );
 
       const result = originalMethod.apply( this, arguments );
@@ -56,7 +56,7 @@ export function identify() {
 
       if ( session ) {
         req._user = session.user;
-        req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+        req._isAdmin = session.user.privileges === 'admin' || session.user.privileges === 'super';
       }
 
       const result = originalMethod.apply( this, arguments );
@@ -89,7 +89,7 @@ export function authorize() {
         await Factory.get( 'sessions' ).setSessionHeader( session, req, res );
 
       req._user = session.user;
-      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+      req._isAdmin = session.user.privileges === 'admin' || session.user.privileges === 'super';
 
       const result = originalMethod.apply( this, arguments );
       return result;
@@ -105,7 +105,7 @@ export function authorize() {
  * @param pathId The path parameter to check for. Usually 'user' or 'username'
  * @param permission The permission to check for
  */
-export function hasPermission( pathId?: string, permission: UserPrivileges = UserPrivileges.Admin ) {
+export function hasPermission( pathId?: string, permission: UserPrivilege = 'admin' ) {
   return function( target: any, propertyKey: string, descriptor: PropertyDescriptor ) {
     const originalMethod = descriptor.value;
 
@@ -122,19 +122,24 @@ export function hasPermission( pathId?: string, permission: UserPrivileges = Use
 
       const targetUser = pathId ? req.params[ pathId ] : undefined;
       const curUser = session.user;
+      const permissionScale: { [ key in UserPrivilege ]: number } = {
+        'super': 1,
+        'admin': 2,
+        'regular': 3
+      }
 
       if ( targetUser !== undefined ) {
         if ( (
           curUser.email !== targetUser &&
           curUser.username !== targetUser ) &&
-          curUser.privileges! > permission )
+          permissionScale[ curUser.privileges! ] > permissionScale[ permission ] )
           throw new Error403( 'You don\'t have permission to make this request' );
       }
-      else if ( session.user.privileges! > permission )
+      else if ( permissionScale[ session.user.privileges! ] > permissionScale[ permission ] )
         throw new Error403( 'You don\'t have permission to make this request' );
 
       req._user = session.user;
-      req._isAdmin = session.user.privileges <= UserPrivileges.Admin;
+      req._isAdmin = session.user.privileges === 'admin' || session.user.privileges === 'super';
 
       const result = originalMethod.apply( this, arguments );
       return result;

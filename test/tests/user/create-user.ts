@@ -55,21 +55,21 @@ describe( 'Testing creating a user', function() {
   } )
 
   it( 'did not create a new user with an existing username', async function() {
-    const resp = await header.admin.post( `/api/users`, { username: header.admin.username, password: "password", email: testUserEmail, privileges: 2 } );
+    const resp = await header.admin.post( `/api/users`, { username: header.admin.username, password: "password", email: testUserEmail, privileges: 'admin' } as Partial<IUserEntry<'client'>> );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "A user with that name or email already exists" );
   } )
 
   it( 'did not create a new user with an existing email', async function() {
-    const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: header.admin.email, privileges: 2 } )
+    const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: header.admin.email, privileges: 'admin' } as Partial<IUserEntry<'client'>> )
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "A user with that name or email already exists" )
   } )
 
   it( `did not create user ${testUserName} with super admin privileges`, async function() {
-    const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 1 } );
+    const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 'super' } as Partial<IUserEntry<'client'>> );
     assert.deepEqual( resp.status, 500 );
     const json = await resp.json();
     assert.deepEqual( json.message, "You cannot create a user with super admin permissions" )
@@ -83,7 +83,7 @@ describe( 'Testing creating a user', function() {
   } )
 
   it( `did create regular user ${testUserName} with valid details`, async function() {
-    const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } );
+    const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 'regular' } as Partial<IUserEntry<'client'>> );
     const data = await resp.json<IUserEntry<'client'>>();
     assert.deepEqual( resp.status, 200 );
     assert.deepEqual( data.username, testUserName );

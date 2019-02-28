@@ -14,7 +14,7 @@ describe( 'Testing deletion of user is nullified on posts: ', function() {
     const posts = ControllerFactory.get( 'posts' );
     const users = ControllerFactory.get( 'users' );
 
-    await header.createUser( 'user3', 'password', 'user3@test.com', 2 );
+    await header.createUser( 'user3', 'password', 'user3@test.com', 'admin' );
     newUser = await users.getUser( { username: 'user3' } ) as IUserEntry<'expanded'>;
 
     // Create post and comments

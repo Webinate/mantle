@@ -1,7 +1,7 @@
 import * as yargs from "yargs";
 import Agent from './agent';
 import loadConfig from './load-config';
-import { IAdminUser } from '../../src';
+import { IAdminUser, UserPrivilege } from '../../src';
 import { IConfig } from '../../src';
 let args = yargs.argv;
 
@@ -32,7 +32,7 @@ export class Header {
    * @param email The new user's email
    * @param priviledge The user's privilege type
    */
-  async createUser( username: string, password: string, email: string, priviledge: number = 3 ) {
+  async createUser( username: string, password: string, email: string, priviledge: UserPrivilege = 'regular' ) {
 
     // Remove the user if they already exist
     let response = await this.admin.delete( `/api/users/${username}` );
@@ -94,7 +94,7 @@ export class Header {
 
       await this.createUser( 'user1', 'password', 'user1@test.com' );
       await this.createUser( 'user2', 'password', 'user2@test.com' );
-      await this.createUser( 'user3', 'password', 'user3@test.com', 2 );
+      await this.createUser( 'user3', 'password', 'user3@test.com', 'admin' );
     }
     catch ( exp ) {
       console.log( exp.stack )

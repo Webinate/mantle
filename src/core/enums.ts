@@ -1,11 +1,7 @@
 ﻿/*
  * Describes what kind of privileges the user has
  */
-export enum UserPrivileges {
-  SuperAdmin = 1,
-  Admin = 2,
-  Regular = 3
-}
+export type UserPrivilege = 'super' | 'admin' | 'regular';
 
 export const Collections = {
   users: 'users',

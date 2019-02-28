@@ -17,7 +17,7 @@ describe( 'Testing deletion of a featured image nullifies it on the post: ', fun
     const posts = ControllerFactory.get( 'posts' );
     const users = ControllerFactory.get( 'users' );
 
-    await header.createUser( 'user3', 'password', 'user3@test.com', 2 );
+    await header.createUser( 'user3', 'password', 'user3@test.com', 'admin' );
     const user3 = await users.getUser( { username: 'user3' } );
 
     // Create post and comments

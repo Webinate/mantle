@@ -16,7 +16,7 @@ describe( 'Testing deletion of an avatar image nullifies it on the user: ', func
   before( async function() {
     const users = ControllerFactory.get( 'users' );
 
-    await header.createUser( 'user3', 'password', 'user3@test.com', 2 );
+    await header.createUser( 'user3', 'password', 'user3@test.com', 'admin' );
     user = await users.getUser( { username: 'user3' } ) as IUserEntry<'expanded'>;
 
     const resp = await header.user3.post( `/volumes`, { name: randomString() } );

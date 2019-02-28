@@ -84,6 +84,7 @@ export const routers = {
   user: UserRouter
 }
 
+export { UserPrivilege } from './core/enums';
 export { CategoriesGetManyOptions } from './controllers/categories';
 export { FilesGetOptions } from './controllers/files';
 export { UsersGetAllOptions } from './controllers/users';

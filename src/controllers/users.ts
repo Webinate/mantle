@@ -8,7 +8,7 @@ import { ServerResponse, IncomingMessage } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
 import { Request } from 'express';
-import { UserPrivileges } from '../core/enums';
+import { UserPrivilege } from '../core/enums';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
 import { ClientInstruction } from '../socket-api/client-instruction';
@@ -81,7 +81,7 @@ export class UsersController extends Controller {
         username: adminUser.username,
         email: adminUser.email,
         password: adminUser.password,
-        privileges: UserPrivileges.SuperAdmin,
+        privileges: 'super',
         meta: {}
       }, true, true );
 
@@ -134,7 +134,7 @@ export class UsersController extends Controller {
       username: username,
       email: email,
       password: pass,
-      privileges: UserPrivileges.Regular,
+      privileges: 'regular',
       meta: meta
     }, false );
 
@@ -472,9 +472,9 @@ export class UsersController extends Controller {
       throw new Error( 'Email must be valid' );
     if ( !options.password || trim( options.password ) === '' )
       throw new Error( 'Password cannot be empty' );
-    if ( options.privileges === undefined || options.privileges > 3 )
+    if ( options.privileges === undefined || !( [ 'super', 'regular', 'admin' ] as UserPrivilege[] ).includes( options.privileges ) )
       throw new Error( 'Privilege type is unrecognised' );
-    if ( options.privileges === UserPrivileges.SuperAdmin && allowAdmin === false )
+    if ( options.privileges === 'super' && allowAdmin === false )
       throw new Error( 'You cannot create a super user' );
 
     // Check if the user already exists
@@ -496,7 +496,7 @@ export class UsersController extends Controller {
       createdOn: Date.now(),
       lastLoggedIn: Date.now(),
       avatar: avatar,
-      registerKey: ( activateAccount || options.privileges === UserPrivileges.SuperAdmin ? '' : this.generateKey( 10 ) )
+      registerKey: ( activateAccount || options.privileges === 'super' ? '' : this.generateKey( 10 ) )
     }
 
     const schema = await this._users.createInstance( data );
@@ -527,7 +527,7 @@ export class UsersController extends Controller {
     if ( !user )
       throw new Error( 'Could not find any users with those credentials' );
 
-    if ( user.dbEntry.privileges === UserPrivileges.SuperAdmin )
+    if ( user.dbEntry.privileges === 'super' )
       throw new Error( 'You cannot remove a super user' );
 
     await ControllerFactory.get( 'comments' ).userRemoved( user.dbEntry );

@@ -47,7 +47,7 @@ http://localhost:8000/api/auth/authenticated
 		email: "test@test.net",
 		lastLoggedIn: 1432114922204,
 		username: "test",
-		privileges: 1
+		privileges: 'super'
 	}
 }
 ```
@@ -124,7 +124,7 @@ http://localhost:8000/api/users/test?verbose=true // Gets the user with the user
 		email: "test@test.net",
 		lastLoggedIn: 1432114922204,
 		username: "test",
-		privileges: 1
+		privileges: 'regular'
 	}
 }
 ```
@@ -165,7 +165,7 @@ http://localhost:8000/api/users?verbose=true // If verbose, sensitive data will 
 			email: "test@test.net",
 			lastLoggedIn: 1432114922204,
 			username: "test",
-			privileges: 1
+			privileges: 'regular'
 		}
 	]
 }
@@ -253,7 +253,7 @@ http://localhost:8000/api/create-user // Activates the account with the username
 		email: "test@test.net",
 		lastLoggedIn: 1432114922204,
 		username: "test",
-		privileges: 1
+		privileges: 'regular'
 	}
 }
 ```

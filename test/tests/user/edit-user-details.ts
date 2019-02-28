@@ -71,7 +71,7 @@ describe( 'Editting user data:', function() {
   } )
 
   it( 'should not allow a user to change its privileges', async function() {
-    const resp = await header.user1.put( `/api/users/${user._id}`, { privileges: 0 } as IUserEntry<'client'> );
+    const resp = await header.user1.put( `/api/users/${user._id}`, { privileges: 'Gobshite' } as Partial<IUserEntry<'client'>> );
     assert.deepEqual( decodeURIComponent( resp.statusText ), `Invalid value` );
     assert.deepEqual( resp.status, 400 );
   } )
@@ -137,7 +137,7 @@ describe( 'Editting user data:', function() {
   } )
 
   it( 'should not allow an admin to set a priviledge of itself less than super admin', async function() {
-    let resp = await header.admin.put( `/api/users/${admin._id}`, { privileges: 2 } as IUserEntry<'client'> );
+    let resp = await header.admin.put( `/api/users/${admin._id}`, { privileges: 'admin' } as IUserEntry<'client'> );
     assert.deepEqual( resp.status, 400 );
   } )
 } )

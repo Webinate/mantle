@@ -7,7 +7,6 @@ import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
 import { identify, authorize } from '../decorators/permissions';
-import { UserPrivileges } from '../core/enums';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { CommentsController, CommentVisibility } from '../controllers/comments';
@@ -89,7 +88,7 @@ export class CommentsRouter extends Router {
     if ( !user )
       visibility = 'public';
     // If an admin - we do not need visibility
-    else if ( user.privileges! < UserPrivileges.Admin )
+    else if ( user.privileges === 'admin' || user.privileges === 'super' )
       visibility = undefined;
     // Regular users only see public
     else
@@ -153,7 +152,7 @@ export class CommentsRouter extends Router {
     } );
 
     // Only admins are allowed to see private comments
-    if ( !comment.public && ( !user || user.privileges! >= UserPrivileges.Admin ) )
+    if ( !comment.public && ( !user || ( user.privileges === 'admin' || user.privileges === 'super' ) ) )
       throw new Error( 'That comment is marked private' );
 
     return comment;
@@ -170,7 +169,7 @@ export class CommentsRouter extends Router {
     const comment = await this._controller.getOne( req.params.id );
 
     // Only admins are allowed to see private comments
-    if ( user.privileges > UserPrivileges.Admin && user.username !== comment.author )
+    if ( ( user.privileges === 'admin' || user.privileges === 'super' ) && user.username !== comment.author )
       throw new Error( 'You do not have permission' );
 
     await this._controller.remove( req.params.id );
@@ -188,7 +187,7 @@ export class CommentsRouter extends Router {
     let comment = await this._controller.getOne( req.params.id );
 
     // Only admins are allowed to see private comments
-    if ( user.privileges > UserPrivileges.Admin && user.username !== comment.author )
+    if ( ( user.privileges === 'admin' || user.privileges === 'super' ) && user.username !== comment.author )
       throw new Error( 'You do not have permission' );
 
     comment = await this._controller.update( req.params.id, token );

@@ -42,7 +42,7 @@ describe( 'Testing fetching users', function() {
     assert( json.avatar !== '' );
     assert.deepEqual( json.avatarFile, null );
     assert.deepEqual( json.username, header.user1.username );
-    assert.deepEqual( json.privileges, 3 );
+    assert.deepEqual( json.privileges, 'regular' );
   } )
 
   it( 'did get user page information', async function() {

@@ -21,7 +21,7 @@ describe( 'When user deleted, comments must be nullified or removed: ', function
     const posts = ControllerFactory.get( 'posts' );
 
     // Create new user
-    newUserAgent = await header.createUser( 'user3', 'password', 'user3@test.com', 3 );
+    newUserAgent = await header.createUser( 'user3', 'password', 'user3@test.com', 'regular' );
     newUser = await users.getUser( { username: 'user3' } ) as IUserEntry<'expanded'>;
 
     post = await posts.create( {

@@ -1,6 +1,7 @@
 ﻿import { Model } from './model';
 import { IUserEntry } from '../types/models/i-user-entry';
-import { foreignKey, text, num, date, json } from './schema-items/schema-item-factory';
+import { foreignKey, text, enums, date, json } from './schema-items/schema-item-factory';
+import { UserPrivilege } from '../core/enums';
 
 /**
  * A model for describing comments
@@ -8,6 +9,9 @@ import { foreignKey, text, num, date, json } from './schema-items/schema-item-fa
 export class UsersModel extends Model<IUserEntry<'server'>, IUserEntry<'client' | 'expanded'>> {
   constructor() {
     super( 'users' );
+
+    const defaultPriviledge: UserPrivilege = 'regular';
+    const enumValues: UserPrivilege[] = [ 'admin', 'regular', 'super' ];
 
     this.schema.addItems( [
       new text( 'username', '' ).setRequired( true ).setUnique( true ).setReadOnly( true ),
@@ -18,7 +22,7 @@ export class UsersModel extends Model<IUserEntry<'server'>, IUserEntry<'client' 
       new text( 'passwordTag', '' ).setSensitive( true ),
       new text( 'avatar', '' ),
       new foreignKey( 'avatarFile', 'files', { keyCanBeNull: true } ),
-      new num( 'privileges', 0 ),
+      new enums( 'privileges', defaultPriviledge, enumValues, { canBeEmpty: false } ),
       new json( 'meta', {} ).setSensitive( true ),
       new date( 'createdOn' ).setIndexable( true ).setReadOnly( true ),
       new date( 'lastLoggedIn', { useNow: true } ).setIndexable( true ).setReadOnly( true )

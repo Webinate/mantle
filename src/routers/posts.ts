@@ -8,7 +8,6 @@ import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
 import { admin, identify, authorize } from '../decorators/permissions';
-import { UserPrivileges } from '../core/enums';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IPost } from '../types/models/i-post';
 import Factory from '../core/model-factory';
@@ -77,7 +76,7 @@ export class PostsRouter extends Router {
     if ( !user )
       visibility = 'public';
     // If an admin - we do not need visibility
-    else if ( user.privileges! > UserPrivileges.Admin )
+    else if ( user.privileges === 'regular' )
       visibility = 'public';
     // Regular users only see public
     else {
@@ -164,7 +163,7 @@ export class PostsRouter extends Router {
     } )!;
 
     // Only admins are allowed to see private posts
-    if ( !post.public && ( !user || ( user && user.privileges! > UserPrivileges.Admin ) ) )
+    if ( !post.public && ( !user || ( user && user.privileges === 'regular' ) ) )
       throw new Error403( 'That post is marked private' );
 
     return post;

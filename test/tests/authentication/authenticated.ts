@@ -28,7 +28,7 @@ describe( 'Checking basic authentication', function() {
     assert( json.user.registerKey === undefined );
     assert( json.user.sessionId === undefined );
     assert.deepEqual( json.user.username, ( header.config.adminUser as IAdminUser ).username );
-    assert.deepEqual( json.user.privileges, 1 );
+    assert.deepEqual( json.user.privileges, 'super' );
     assert( json.user.passwordTag === undefined );
   } )
 
@@ -47,7 +47,7 @@ describe( 'Checking basic authentication', function() {
     assert.deepEqual( json.user.registerKey, '' );
     assert( json.user.sessionId );
     assert.deepEqual( json.user.username, ( header.config.adminUser as IAdminUser ).username );
-    assert.deepEqual( json.user.privileges, 1 );
+    assert.deepEqual( json.user.privileges, 'super' );
     assert( json.user.passwordTag === '' );
   } )
 } )

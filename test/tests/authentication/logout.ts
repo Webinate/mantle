@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import { } from 'mocha';
 import Agent from '../agent';
 import header from '../header';
+import { IUserEntry } from '../../../src';
 
 let agent: Agent,
   testUserName = 'fancyUser123',
@@ -14,7 +15,7 @@ describe( 'Testing users logout', function() {
   } )
 
   it( `did create & login regular user ${testUserName} with valid details`, async function() {
-    const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 3 } );
+    const resp = await header.admin.post( `/api/users`, { username: testUserName, password: "password", email: testUserEmail, privileges: 'regular' } as Partial<IUserEntry<'client'>> );
     assert.deepEqual( resp.status, 200 );
     const json = await resp.json();
     const newAgent = await header.createUser( testUserName, 'password', testUserEmail );

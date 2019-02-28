@@ -16,7 +16,7 @@ describe( 'Getting user data', function() {
     assert( json.registerKey === undefined )
     assert( json.sessionId === undefined )
     assert.deepEqual( json.username, ( header.config.adminUser as IAdminUser ).username )
-    assert.deepEqual( json.privileges, 1 )
+    assert.deepEqual( json.privileges, 'super' )
     assert( json.passwordTag === undefined )
   } )
 
@@ -31,7 +31,7 @@ describe( 'Getting user data', function() {
     assert( json.registerKey === '' )
     assert( json.sessionId )
     assert.deepEqual( json.username, ( header.config.adminUser as IAdminUser ).username )
-    assert.deepEqual( json.privileges, 1 )
+    assert.deepEqual( json.privileges, 'super' )
     assert( json.passwordTag === '' )
   } )
 
@@ -46,7 +46,7 @@ describe( 'Getting user data', function() {
     assert( json.registerKey === undefined )
     assert( json.sessionId === undefined )
     assert.deepEqual( json.username, ( header.config.adminUser as IAdminUser ).username )
-    assert.deepEqual( json.privileges, 1 )
+    assert.deepEqual( json.privileges, 'super' )
     assert( json.passwordTag === undefined )
   } )
 
@@ -62,7 +62,7 @@ describe( 'Getting user data', function() {
     assert( json.sessionId )
     assert( json.passwordTag === '' )
     assert.deepEqual( json.username, ( header.config.adminUser as IAdminUser ).username )
-    assert.deepEqual( json.privileges, 1 )
+    assert.deepEqual( json.privileges, 'super' )
   } )
 
   it( 'should not allow a guest to get user data with username', async function() {
