@@ -10,6 +10,7 @@ import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
 import { Router } from '../routers/router'
 import { ErrorRouter } from '../routers/error';
+import * as graphqlHTTP from 'express-graphql';
 
 export class Server {
   server: IServer;
@@ -57,11 +58,19 @@ export class Server {
     const server = this.server;
     const app = express();
 
+
+    // bind express with graphql
+    app.use('/graphql', graphqlHTTP({
+      schema,
+      graphiql: true
+    }));
+
     // Create the controllers
     const controllers: Router[] = [ ...this._controllers, new ErrorRouter() ];
 
     // Enable GZIPPING
     app.use( compression() );
+
 
     // User defined static folders
     if ( server.staticAssets ) {
