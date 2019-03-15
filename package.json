@@ -76,6 +76,7 @@
     "ws": "~2.2.3",
     "yargs": "~3.12.0",
     "graphql": "^14.1.1",
-    "express-graphql": "^0.7.1"
+    "express-graphql": "^0.7.1",
+    "prettier": "^1.16.4"
   }
 }

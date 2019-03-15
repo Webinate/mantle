@@ -1,0 +1,5 @@
+bin
+static
+*.d.ts
+package-lock.json
+package.json

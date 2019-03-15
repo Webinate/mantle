@@ -1,11 +1,10 @@
 {
   "name": "express-site",
+  "enabled": false,
   "server": {
     "port": 7001,
     "host": "localhost",
-    "staticAssets": [
-      "media"
-    ]
+    "staticAssets": ["media"]
   },
   "controllers": [
     {

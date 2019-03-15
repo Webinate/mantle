@@ -5,7 +5,6 @@ export interface IControllerOptions {
 }
 
 export interface IServer {
-
   /**
    * The port number of the host
    */
@@ -50,13 +49,13 @@ export interface IServer {
  * Clients are plugins that are loaded dynamically by mantle on startup.
  */
 export interface IClient {
-
   server: string | IServer;
 
   name: string;
+  enabled: boolean;
 
   /**
    * An array of controllers associated with this server
    */
-  controllers: IControllerOptions[]
+  controllers: IControllerOptions[];
 }
