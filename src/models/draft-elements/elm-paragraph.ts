@@ -8,18 +8,18 @@ import { SchemaHtml } from '../schema-items/schema-html';
  */
 export class ElmParagraph extends Model<IDraftElement<'server'>, IDraftElement<'client' | 'expanded'>> {
   constructor() {
-    super( 'elements' );
+    super('elements');
 
     const type: DraftElements = 'elm-paragraph';
 
-    this.schema.addItems( [
-      new foreignKey( 'parent', 'documents', { keyCanBeNull: false } ),
-      new text( 'type', type ),
-      new text( 'zone', 'unassigned' ),
-      new html( 'html', '<p></p>', {
-        allowedTags: SchemaHtml.inlineTags.concat( 'p' ),
+    this.schema.addItems([
+      new foreignKey('parent', 'documents', { keyCanBeNull: false }),
+      new text('type', type),
+      new text('zone', 'unassigned'),
+      new html('html', '<p></p>', {
+        allowedTags: SchemaHtml.inlineTags.concat('p'),
         errorBadHTML: false
-      } )
-    ] );
+      })
+    ]);
   }
 }

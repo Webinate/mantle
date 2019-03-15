@@ -1,5 +1,4 @@
 export interface ISSL {
-
   /**
    * The port number to use for SSL. Only applicable if ssl is true.
    */

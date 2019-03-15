@@ -7,22 +7,22 @@ import { IFileEntry } from '../types/models/i-file-entry';
  */
 export class FileModel extends Model<IFileEntry<'server'>, IFileEntry<'client' | 'expanded'>> {
   constructor() {
-    super( 'files' );
+    super('files');
 
-    this.schema.addItems( [
-      new text( 'name', '', { minCharacters: 3 } ),
-      new foreignKey( 'user', 'users', { keyCanBeNull: true } ),
-      new text( 'identifier', '', { minCharacters: 6 } ),
-      new id( 'volumeId' ).setReadOnly( true ),
-      new text( 'volumeName', '' ).setReadOnly( true ),
-      new text( 'publicURL', '' ),
-      new text( 'mimeType', '' ),
-      new foreignKey( 'parentFile', 'files', { keyCanBeNull: true } ),
-      new num( 'size', 0, { min: 1 } ),
-      new num( 'numDownloads', 0 ),
-      new bool( 'isPublic', true ),
-      new json( 'meta', {} ),
-      new date( 'created' ).setIndexable( true )
-    ] );
+    this.schema.addItems([
+      new text('name', '', { minCharacters: 3 }),
+      new foreignKey('user', 'users', { keyCanBeNull: true }),
+      new text('identifier', '', { minCharacters: 6 }),
+      new id('volumeId').setReadOnly(true),
+      new text('volumeName', '').setReadOnly(true),
+      new text('publicURL', ''),
+      new text('mimeType', ''),
+      new foreignKey('parentFile', 'files', { keyCanBeNull: true }),
+      new num('size', 0, { min: 1 }),
+      new num('numDownloads', 0),
+      new bool('isPublic', true),
+      new json('meta', {}),
+      new date('created').setIndexable(true)
+    ]);
   }
 }

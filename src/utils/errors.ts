@@ -1,7 +1,7 @@
 export class StatusError extends Error {
   public status: number;
-  constructor( message: string, code: number ) {
-    super( message );
+  constructor(message: string, code: number) {
+    super(message);
     this.status = code;
   }
 }
@@ -10,8 +10,8 @@ export class StatusError extends Error {
  * Basic 400 error
  */
 export class Error400 extends StatusError {
-  constructor( message: string = 'You do not have permission', code = 400 ) {
-    super( message, code )
+  constructor(message: string = 'You do not have permission', code = 400) {
+    super(message, code);
   }
 }
 
@@ -20,8 +20,8 @@ export class Error400 extends StatusError {
  * The user might not have the necessary permissions for a resource, or may need an account of some sort.
  */
 export class Error403 extends StatusError {
-  constructor( message: string = 'You do not have permission' ) {
-    super( message, 403 )
+  constructor(message: string = 'You do not have permission') {
+    super(message, 403);
   }
 }
 
@@ -30,8 +30,8 @@ export class Error403 extends StatusError {
  * is required and has failed or has not yet been provided.
  */
 export class Error401 extends StatusError {
-  constructor( message: string ) {
-    super( message, 401 )
+  constructor(message: string) {
+    super(message, 401);
   }
 }
 
@@ -40,8 +40,8 @@ export class Error401 extends StatusError {
  * found but may be available in the future. Subsequent requests by the client are permissible.
  */
 export class Error404 extends StatusError {
-  constructor( message: string = 'Could not find resource' ) {
-    super( message, 404 )
+  constructor(message: string = 'Could not find resource') {
+    super(message, 404);
   }
 }
 
@@ -50,7 +50,7 @@ export class Error404 extends StatusError {
  * encountered and no more specific message is suitable.
  */
 export class Error500 extends StatusError {
-  constructor( message: string ) {
-    super( message, 500 )
+  constructor(message: string) {
+    super(message, 500);
   }
 }

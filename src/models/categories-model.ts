@@ -7,14 +7,14 @@ import { ICategory } from '../types/models/i-category';
  */
 export class CategoriesModel extends Model<ICategory<'server'>, ICategory<'client' | 'expanded'>> {
   constructor() {
-    super( 'categories' );
+    super('categories');
 
-    this.schema.addItems( [
-      new text( 'title', '', { minCharacters: 1 } ),
-      new text( 'slug', '', { maxCharacters: 20, minCharacters: 1 } ).setUnique( true ),
-      new text( 'description', '' ),
-      new foreignKey( 'parent', 'categories', { keyCanBeNull: true } ),
-      new idArray( 'children', 'categories' )
-    ] );
+    this.schema.addItems([
+      new text('title', '', { minCharacters: 1 }),
+      new text('slug', '', { maxCharacters: 20, minCharacters: 1 }).setUnique(true),
+      new text('description', ''),
+      new foreignKey('parent', 'categories', { keyCanBeNull: true }),
+      new idArray('children', 'categories')
+    ]);
   }
 }

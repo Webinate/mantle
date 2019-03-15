@@ -1,5 +1,4 @@
-
-export interface IMailOptions { }
+export interface IMailOptions {}
 
 export interface IMailer {
   /**
@@ -7,7 +6,7 @@ export interface IMailer {
    * @param {IMailOptions} options
    * @returns {Promise<boolean>}
    */
-  initialize( options: IMailOptions ): Promise<boolean>
+  initialize(options: IMailOptions): Promise<boolean>;
 
   /**
    * Sends an email
@@ -17,7 +16,7 @@ export interface IMailer {
    * @param {stirng} msg The message to be sent
    * @returns {Promise<boolean>}
    */
-  sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>
+  sendMail(to: string, from: string, subject: string, msg: string): Promise<boolean>;
 }
 
 /**

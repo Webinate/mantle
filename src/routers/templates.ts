@@ -1,6 +1,6 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
-import express = require( 'express' );
-import bodyParser = require( 'body-parser' );
+import express = require('express');
+import bodyParser = require('body-parser');
 import * as mongodb from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import { TemplatesController } from '../controllers/templates';
@@ -20,48 +20,47 @@ export class TemplatesRouter extends Router {
   private _templatesController: TemplatesController;
 
   /**
-	 * Creates an instance of the user manager
-	 */
-  constructor( options: IBaseControler ) {
-    super( [ Factory.get( 'templates' ) ] );
+   * Creates an instance of the user manager
+   */
+  constructor(options: IBaseControler) {
+    super([Factory.get('templates')]);
     this._options = options;
   }
 
   /**
- * Called to initialize this controller and its related database objects
- */
-  async initialize( e: express.Express, db: mongodb.Db ) {
-    this._templatesController = ControllerFactory.get( 'templates' );
+   * Called to initialize this controller and its related database objects
+   */
+  async initialize(e: express.Express, db: mongodb.Db) {
+    this._templatesController = ControllerFactory.get('templates');
 
     // Setup the rest calls
     const router = express.Router();
-    router.use( compression() );
-    router.use( bodyParser.urlencoded( { 'extended': true } ) );
-    router.use( bodyParser.json() );
-    router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
+    router.use(compression());
+    router.use(bodyParser.urlencoded({ extended: true }));
+    router.use(bodyParser.json());
+    router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-    router.get( '/', this.getMany.bind( this ) );
-    router.get( '/:id', this.getOne.bind( this ) );
+    router.get('/', this.getMany.bind(this));
+    router.get('/:id', this.getOne.bind(this));
 
     // Register the path
-    e.use( ( this._options.rootPath || '' ) + `/templates`, router );
-    await super.initialize( e, db );
+    e.use((this._options.rootPath || '') + `/templates`, router);
+    await super.initialize(e, db);
     return this;
   }
 
   @j200()
-  @validId( 'id', 'ID' )
-  private async getOne( req: IAuthReq, res: express.Response ) {
-    const template = await this._templatesController.get( req.params.id );
+  @validId('id', 'ID')
+  private async getOne(req: IAuthReq, res: express.Response) {
+    const template = await this._templatesController.get(req.params.id);
 
-    if ( !template )
-      throw new Error400( 'Template does not exist', 404 );
+    if (!template) throw new Error400('Template does not exist', 404);
 
     return template;
   }
 
   @j200()
-  private async getMany( req: IAuthReq, res: express.Response ) {
+  private async getMany(req: IAuthReq, res: express.Response) {
     const manager = this._templatesController;
     const toRet = await manager.getMany();
     return toRet;

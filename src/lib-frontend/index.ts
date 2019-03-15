@@ -5,11 +5,4 @@ import * as comments from './comments';
 import * as categories from './categories';
 import * as auth from './auth';
 
-export {
-  http,
-  posts,
-  categories,
-  users,
-  auth,
-  comments
-}
+export { http, posts, categories, users, auth, comments };

@@ -8,5 +8,5 @@ export interface IUploadToken {
   error: boolean;
   errorMsg: string;
   url: string;
-  extension: string
+  extension: string;
 }

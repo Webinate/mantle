@@ -1,10 +1,8 @@
-
 /**
  * A list of optional parameters that can be passed to schema items that determines how they are
  * serialized
  */
 export interface ISchemaOptions {
-
   /**
    * If true, foreign keys will serialize their values
    */
@@ -14,7 +12,7 @@ export interface ISchemaOptions {
    * When fetching schema data, we need to define if the query is verbose or not.
    * If true, then all data is returned and is not stripped of sensitive items
    */
-  verbose: boolean
+  verbose: boolean;
 
   /**
    * Defines how many levels deep foreign key traversal iterates. If 1, then only the immediate foreign keys

@@ -11,5 +11,5 @@ export interface IDocument<T extends 'expanded' | 'server' | 'client'> {
   createdOn: number;
   elementsOrder: string[];
   elements: IDraftElement<T>[];
-  html: { [ zone: string ]: string };
+  html: { [zone: string]: string };
 }

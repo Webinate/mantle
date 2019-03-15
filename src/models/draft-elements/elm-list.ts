@@ -8,18 +8,18 @@ import { SchemaHtml } from '../schema-items/schema-html';
  */
 export class ElmList extends Model<IDraftElement<'server'>, IDraftElement<'client' | 'expanded'>> {
   constructor() {
-    super( 'elements' );
+    super('elements');
 
     const type: DraftElements = 'elm-list';
 
-    this.schema.addItems( [
-      new foreignKey( 'parent', 'documents', { keyCanBeNull: false } ),
-      new text( 'type', type ),
-      new text( 'zone', 'unassigned' ),
-      new html( 'html', '<ul></ul>', {
-        allowedTags: SchemaHtml.inlineTags.concat( [ 'ul', 'ol', 'li' ] ),
+    this.schema.addItems([
+      new foreignKey('parent', 'documents', { keyCanBeNull: false }),
+      new text('type', type),
+      new text('zone', 'unassigned'),
+      new html('html', '<ul></ul>', {
+        allowedTags: SchemaHtml.inlineTags.concat(['ul', 'ol', 'li']),
         errorBadHTML: false
-      } )
-    ] );
+      })
+    ]);
   }
 }

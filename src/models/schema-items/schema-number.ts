@@ -16,8 +16,8 @@ export class SchemaNumber extends SchemaItem<number, number> {
    * @param name The name of this item
    * @param val The default value of this item
    */
-  constructor( name: string, val: number, options?: INumOptions ) {
-    super( name, val );
+  constructor(name: string, val: number, options?: INumOptions) {
+    super(name, val);
     options = {
       min: -Infinity,
       max: Infinity,
@@ -30,8 +30,7 @@ export class SchemaNumber extends SchemaItem<number, number> {
     this.max = options.max!;
     this.type = options.type!;
 
-    if ( options.decimalPlaces! > 20 )
-      throw new Error( `Decimal palces for ${name} cannot be more than 20` );
+    if (options.decimalPlaces! > 20) throw new Error(`Decimal palces for ${name} cannot be more than 20`);
 
     this.decimalPlaces = options.decimalPlaces!;
   }
@@ -40,9 +39,9 @@ export class SchemaNumber extends SchemaItem<number, number> {
    * Creates a clone of this item
    * @returns copy A sub class of the copy
    */
-  public clone( copy?: SchemaNumber ): SchemaNumber {
-    copy = copy === undefined ? new SchemaNumber( this.name, this.getDbValue() ) : copy;
-    super.clone( copy );
+  public clone(copy?: SchemaNumber): SchemaNumber {
+    copy = copy === undefined ? new SchemaNumber(this.name, this.getDbValue()) : copy;
+    super.clone(copy);
 
     copy.min = this.min;
     copy.max = this.max;
@@ -54,26 +53,22 @@ export class SchemaNumber extends SchemaItem<number, number> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public async validate( val: number ) {
+  public async validate(val: number) {
     const type = this.type;
     const decimalPlaces = this.decimalPlaces;
     let transformedValue: number = val;
 
-    if ( type === 'Int' )
-      transformedValue = parseInt( transformedValue.toString() );
-    else
-      transformedValue = parseFloat( ( parseFloat( transformedValue.toString() ).toFixed( decimalPlaces ) ) );
+    if (type === 'Int') transformedValue = parseInt(transformedValue.toString());
+    else transformedValue = parseFloat(parseFloat(transformedValue.toString()).toFixed(decimalPlaces));
 
-    if ( transformedValue <= this.max && transformedValue >= this.min )
-      return transformedValue;
-    else
-      throw new Error( `The value of ${this.name} is not within the range of  ${this.min} and ${this.max}` );
+    if (transformedValue <= this.max && transformedValue >= this.min) return transformedValue;
+    else throw new Error(`The value of ${this.name} is not within the range of  ${this.min} and ${this.max}`);
   }
 
   /**
    * Gets the value of this item
    */
-  public async getValue( options?: ISchemaOptions ) {
+  public async getValue(options?: ISchemaOptions) {
     return this.getDbValue();
   }
 }

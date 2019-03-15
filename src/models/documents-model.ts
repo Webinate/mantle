@@ -9,20 +9,20 @@ import { Collection, Db } from 'mongodb';
  */
 export class DocumentsModel extends Model<IDocument<'server'>, IDocument<'client' | 'expanded'>> {
   constructor() {
-    super( 'documents', new DocumentSchema() );
+    super('documents', new DocumentSchema());
 
-    this.schema.addItems( [
-      new foreignKey( 'author', 'users', { keyCanBeNull: true } ),
-      new textArray( 'elementsOrder', [] ),
-      new foreignKey( 'template', 'templates', { keyCanBeNull: false } ),
-      new date( 'createdOn' ).setIndexable( true ),
-      new date( 'lastUpdated', { useNow: true } ).setIndexable( true )
-    ] );
+    this.schema.addItems([
+      new foreignKey('author', 'users', { keyCanBeNull: true }),
+      new textArray('elementsOrder', []),
+      new foreignKey('template', 'templates', { keyCanBeNull: false }),
+      new date('createdOn').setIndexable(true),
+      new date('lastUpdated', { useNow: true }).setIndexable(true)
+    ]);
   }
 
-  async initialize( collection: Collection, db: Db ) {
-    const elmCollection = await db.collection( 'elements' );
-    ( this.schema as DocumentSchema ).setElementCollection( elmCollection );
-    return super.initialize( collection, db );
+  async initialize(collection: Collection, db: Db) {
+    const elmCollection = await db.collection('elements');
+    (this.schema as DocumentSchema).setElementCollection(elmCollection);
+    return super.initialize(collection, db);
   }
 }

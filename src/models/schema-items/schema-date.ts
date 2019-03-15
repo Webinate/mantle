@@ -12,12 +12,11 @@ export class SchemaDate extends SchemaItem<number, number> {
    * @param name The name of this item
    * @param val The date of this item. If none is specified the Date.now() number is used.
    */
-  constructor( name: string, options?: IDateOptions ) {
-    super( name, 0 );
+  constructor(name: string, options?: IDateOptions) {
+    super(name, 0);
     options = { useNow: false, ...options };
     this.useNow = options.useNow!;
-    if ( options.useNow )
-      this.autoValidate = true;
+    if (options.useNow) this.autoValidate = true;
   }
 
   /**
@@ -25,23 +24,20 @@ export class SchemaDate extends SchemaItem<number, number> {
    * @returns copy A sub class of the copy
    * @returns
    */
-  public clone( copy?: SchemaDate ): SchemaDate {
-    copy = !copy ? new SchemaDate( this.name ) : copy;
+  public clone(copy?: SchemaDate): SchemaDate {
+    copy = !copy ? new SchemaDate(this.name) : copy;
     copy.useNow = this.useNow;
-    super.clone( copy );
+    super.clone(copy);
     return copy;
   }
 
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public async validate( val: number ) {
-    if ( this.useNow )
-      return Date.now();
-    else if ( val )
-      return val;
-    else
-      return this.getDbValue();
+  public async validate(val: number) {
+    if (this.useNow) return Date.now();
+    else if (val) return val;
+    else return this.getDbValue();
   }
 
   /**

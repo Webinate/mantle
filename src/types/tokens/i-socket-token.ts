@@ -5,21 +5,18 @@ import { IFileEntry } from '../models/i-file-entry';
  * Describes the different types of event interfaces we can use to interact with the system via web sockets
  */
 export namespace SocketTokens {
-  export type ClientInstructionType = (
-    'Login' |
-    'Logout' |
-    'Activated' |
-    'Removed' |
-    'FileUploaded' |
-    'FileRemoved' |
-    'VolumeUploaded' |
-    'VolumeRemoved' |
-    'MetaRequest'
-  );
+  export type ClientInstructionType =
+    | 'Login'
+    | 'Logout'
+    | 'Activated'
+    | 'Removed'
+    | 'FileUploaded'
+    | 'FileRemoved'
+    | 'VolumeUploaded'
+    | 'VolumeRemoved'
+    | 'MetaRequest';
 
-  export type ServerInstructionType = (
-    'MetaRequest'
-  );
+  export type ServerInstructionType = 'MetaRequest';
 
   /**
    * The base interface for all data that is serialized & sent to clients or server.
@@ -61,6 +58,6 @@ export namespace SocketTokens {
    */
   export interface IVolumeToken extends IToken {
     username: string;
-    volume: IVolume<'client'>
+    volume: IVolume<'client'>;
   }
 }

@@ -24,9 +24,9 @@ export class CommsController extends events.EventEmitter {
   private _cfg: IConfig;
 
   /**
- * Creates an instance of the Communication server
- */
-  constructor( cfg: IConfig ) {
+   * Creates an instance of the Communication server
+   */
+  constructor(cfg: IConfig) {
     super();
 
     CommsController.singleton = this;
@@ -37,118 +37,120 @@ export class CommsController extends events.EventEmitter {
   /**
    * Checks the header api key against the hash generated from the config
    */
-  checkApiKey( key: string ): Promise<boolean> {
-    return new Promise<boolean>( ( resolve, reject ) => {
-      bcrypt.compare( key, this._hashedApiKey, function( err, same: boolean ) {
-        if ( err )
-          return reject( err );
-        else
-          return resolve( same );
-      } );
-    } );
+  checkApiKey(key: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      bcrypt.compare(key, this._hashedApiKey, function(err, same: boolean) {
+        if (err) return reject(err);
+        else return resolve(same);
+      });
+    });
   }
 
   /**
- * Sends an instruction to the relevant client connections
+   * Sends an instruction to the relevant client connections
    * @param instruction The instruction from the server
- */
-  processClientInstruction( instruction: ClientInstruction<any> ) {
+   */
+  processClientInstruction(instruction: ClientInstruction<any>) {
     let recipients: ClientConnection[];
 
-    if ( !instruction.recipients )
-      recipients = this._connections;
-    else
-      recipients = instruction.recipients;
+    if (!instruction.recipients) recipients = this._connections;
+    else recipients = instruction.recipients;
 
     let username = instruction.username;
 
-    if ( !username ) {
-      for ( let recipient of recipients )
-        this.sendToken( recipient, instruction.token );
-    }
-    else {
-      for ( let recipient of recipients )
-        if ( recipient.authorizedThirdParty || ( recipient.user && recipient.user.username === username ) )
-          this.sendToken( recipient, instruction.token );
+    if (!username) {
+      for (let recipient of recipients) this.sendToken(recipient, instruction.token);
+    } else {
+      for (let recipient of recipients)
+        if (recipient.authorizedThirdParty || (recipient.user && recipient.user.username === username))
+          this.sendToken(recipient, instruction.token);
     }
   }
 
   /**
- * Processes an instruction sent from a client. Any listeners of the comms controller will listen & react to the
+   * Processes an instruction sent from a client. Any listeners of the comms controller will listen & react to the
    * instruction - and in some cases might resond to the client with a ClientInstruction.
    * @param instruction The instruction from the client
- */
-  processServerInstruction( instruction: ServerInstruction<any> ) {
-    if ( !instruction.token )
-      return logError( `Websocket error: An instruction was sent from '${instruction.from.domain}' without a token` );
+   */
+  processServerInstruction(instruction: ServerInstruction<any>) {
+    if (!instruction.token)
+      return logError(`Websocket error: An instruction was sent from '${instruction.from.domain}' without a token`);
 
-    if ( !ServerInstructionType[ instruction.token.type ] )
-      return logError( `Websocket error: An instruction was sent from '${instruction.from.domain}' with a type that is not recognised` );
+    if (!ServerInstructionType[instruction.token.type])
+      return logError(
+        `Websocket error: An instruction was sent from '${instruction.from.domain}' with a type that is not recognised`
+      );
 
-
-    this.emit( instruction.token.type, instruction );
+    this.emit(instruction.token.type, instruction);
   }
 
   /**
    * Attempts to send a token to a specific client
    */
-  private sendToken( connection: ClientConnection, token: any ): Promise<void> {
-    return new Promise<void>( function( resolve, reject ) {
+  private sendToken(connection: ClientConnection, token: any): Promise<void> {
+    return new Promise<void>(function(resolve, reject) {
       let serializedData: string;
 
       try {
-        serializedData = JSON.stringify( token )
-      }
-      catch ( err ) {
-        return reject( err );
+        serializedData = JSON.stringify(token);
+      } catch (err) {
+        return reject(err);
       }
 
-      connection.ws.send( serializedData, {}, function( error: Error ) {
-        if ( error ) {
-          logError( `Websocket broadcase error: '${error}'` );
-          reject( error );
+      connection.ws.send(serializedData, {}, function(error: Error) {
+        if (error) {
+          logError(`Websocket broadcase error: '${error}'`);
+          reject(error);
         }
 
         return resolve();
-      } );
-    } )
+      });
+    });
   }
 
   /**
    * Called whenever a new client connection is made to the WS server
    */
-  async onWsConnection( ws: ws ): Promise<void> {
+  async onWsConnection(ws: ws): Promise<void> {
     let headers = ws.upgradeReq.headers;
 
-    if ( this._cfg.debug )
-      info( `Websocket client connected: ${headers.origin}` )
+    if (this._cfg.debug) info(`Websocket client connected: ${headers.origin}`);
 
     let clientApproved = false;
-    for ( let domain of this._cfg.websocket.approvedSocketDomains ) {
+    for (let domain of this._cfg.websocket.approvedSocketDomains) {
       // Check if the connecting client is an authorized third party (more privileges)
       let authorizedThirdParty = false;
-      if ( headers[ 'users-api-key' ] && this._hashedApiKey ) {
-        info( 'Checking socket API key' );
-        authorizedThirdParty = await this.checkApiKey( headers[ 'users-api-key' ] as string );
+      if (headers['users-api-key'] && this._hashedApiKey) {
+        info('Checking socket API key');
+        authorizedThirdParty = await this.checkApiKey(headers['users-api-key'] as string);
       }
 
-      if ( authorizedThirdParty || ( headers.origin && ( headers.origin as string ).match( new RegExp( domain ) ) ) ) {
-        let clientConnection = new ClientConnection( ws, headers.origin as string || 'AUTHORIZED-ACCESS', this, authorizedThirdParty );
+      if (authorizedThirdParty || (headers.origin && (headers.origin as string).match(new RegExp(domain)))) {
+        let clientConnection = new ClientConnection(
+          ws,
+          (headers.origin as string) || 'AUTHORIZED-ACCESS',
+          this,
+          authorizedThirdParty
+        );
 
         // Remove the client when its disconnected
-        clientConnection.onDisconnected = ( connection: ClientConnection ) => {
-          this._connections.splice( this._connections.indexOf( connection ), 1 );
-        }
+        clientConnection.onDisconnected = (connection: ClientConnection) => {
+          this._connections.splice(this._connections.indexOf(connection), 1);
+        };
 
-        this._connections.push( clientConnection );
+        this._connections.push(clientConnection);
         clientApproved = true;
         break;
       }
     }
 
     // The client was not approved - so kill the connection
-    if ( !clientApproved ) {
-      logError( `A connection was made by ${headers.origin} but it is not on the approved domain list. Make sure the host is on the approvedSocketDomains parameter in the config file.` );
+    if (!clientApproved) {
+      logError(
+        `A connection was made by ${
+          headers.origin
+        } but it is not on the approved domain list. Make sure the host is on the approvedSocketDomains parameter in the config file.`
+      );
       ws.terminate();
       ws.close();
     }
@@ -157,54 +159,55 @@ export class CommsController extends events.EventEmitter {
   /**
    * Initializes the comms controller
    */
-  async initialize( db: mongodb.Db ): Promise<void> {
+  async initialize(db: mongodb.Db): Promise<void> {
     let cfg = this._cfg;
 
     // Throw error if no socket api key
-    if ( !cfg.websocket.socketApiKey )
-      throw new Error( 'The socketApiKey was not set in the config file' );
+    if (!cfg.websocket.socketApiKey) throw new Error('The socketApiKey was not set in the config file');
 
-    this._hashedApiKey = bcrypt.hashSync( cfg.websocket.socketApiKey, 10 );
+    this._hashedApiKey = bcrypt.hashSync(cfg.websocket.socketApiKey, 10);
 
     // dummy request processing - this is not actually called as its handed off to the socket api
-    const processRequest = function( req: any, res: any ) {
+    const processRequest = function(req: any, res: any) {
       req; // Suppress compiler warning
-      res.writeHead( 200 );
-      res.end( 'All glory to WebSockets!\n' );
+      res.writeHead(200);
+      res.end('All glory to WebSockets!\n');
     };
 
     // Create the web socket server
-    if ( cfg.websocket.ssl ) {
-      info( 'Creating secure socket connection' );
+    if (cfg.websocket.ssl) {
+      info('Creating secure socket connection');
       let httpsServer: https.Server;
-      const caChain = [ fs.readFileSync( cfg.websocket.ssl.intermediate ), fs.readFileSync( cfg.websocket.ssl.root ) ];
-      const privkey = cfg.websocket.ssl.key ? fs.readFileSync( cfg.websocket.ssl.key ) : null;
-      const theCert = cfg.websocket.ssl.cert ? fs.readFileSync( cfg.websocket.ssl.cert ) : null;
+      const caChain = [fs.readFileSync(cfg.websocket.ssl.intermediate), fs.readFileSync(cfg.websocket.ssl.root)];
+      const privkey = cfg.websocket.ssl.key ? fs.readFileSync(cfg.websocket.ssl.key) : null;
+      const theCert = cfg.websocket.ssl.cert ? fs.readFileSync(cfg.websocket.ssl.cert) : null;
 
-      info( `Attempting to start Websocket server with SSL...` );
-      httpsServer = https.createServer( { key: privkey!, cert: theCert!, passphrase: cfg.websocket.ssl.passPhrase, ca: caChain }, processRequest );
-      httpsServer.listen( cfg.websocket.port );
-      this._server = new ws.Server( { host: cfg.websocket.host, server: httpsServer } );
-    }
-    else {
-      info( 'Creating regular socket connection' );
-      this._server = new ws.Server( { host: cfg.websocket.host, port: cfg.websocket.port } );
+      info(`Attempting to start Websocket server with SSL...`);
+      httpsServer = https.createServer(
+        { key: privkey!, cert: theCert!, passphrase: cfg.websocket.ssl.passPhrase, ca: caChain },
+        processRequest
+      );
+      httpsServer.listen(cfg.websocket.port);
+      this._server = new ws.Server({ host: cfg.websocket.host, server: httpsServer });
+    } else {
+      info('Creating regular socket connection');
+      this._server = new ws.Server({ host: cfg.websocket.host, port: cfg.websocket.port });
     }
 
-    info( 'Websockets attempting to listen on HTTP port ' + this._cfg.websocket.port );
+    info('Websockets attempting to listen on HTTP port ' + this._cfg.websocket.port);
 
     // Handle errors
-    this._server.on( 'error', ( err ) => {
-      logError( 'Websocket error: ' + err.toString() );
+    this._server.on('error', err => {
+      logError('Websocket error: ' + err.toString());
       this._server.close();
-    } );
+    });
 
     // A client has connected to the server
-    this._server.on( 'connection', ( ws: ws ) => {
-      this.onWsConnection( ws );
-    } );
+    this._server.on('connection', (ws: ws) => {
+      this.onWsConnection(ws);
+    });
 
     // Setup the socket API
-    new SocketAPI( this );
+    new SocketAPI(this);
   }
 }

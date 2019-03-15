@@ -1,7 +1,6 @@
 import { IBaseControler } from './i-base-controller';
 
 export interface IAuthOptions extends IBaseControler {
-
   /**
    * The URL to redirect to after the user attempts to activate their account.
    * User's can activate their account via the '/activate-account' URL, and after its validation the server will redirect to this URL

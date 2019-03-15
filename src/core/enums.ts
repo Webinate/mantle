@@ -10,4 +10,4 @@ export const Collections = {
   files: 'files',
   stats: 'storage-stats',
   foreignKeys: '_foreignKeys'
-}
+};

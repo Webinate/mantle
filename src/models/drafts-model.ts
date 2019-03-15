@@ -7,13 +7,13 @@ import { IDraft } from '../types/models/i-draft';
  */
 export class DraftsModel extends Model<IDraft<'server'>, IDraft<'client' | 'expanded'>> {
   constructor() {
-    super( 'drafts' );
+    super('drafts');
 
-    this.schema.addItems( [
-      new foreignKey( 'parent', 'documents', { keyCanBeNull: false } ),
-      new json( 'html', {} ),
-      new bool( 'published', false ).setIndexable( true ),
-      new date( 'createdOn' ).setIndexable( true )
-    ] );
+    this.schema.addItems([
+      new foreignKey('parent', 'documents', { keyCanBeNull: false }),
+      new json('html', {}),
+      new bool('published', false).setIndexable(true),
+      new date('createdOn').setIndexable(true)
+    ]);
   }
 }

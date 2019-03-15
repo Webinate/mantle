@@ -19,16 +19,16 @@ export type GetOptions = {
 export class TemplatesController extends Controller {
   private _templates: TemplatesModel;
 
-  constructor( config: IConfig ) {
-    super( config );
+  constructor(config: IConfig) {
+    super(config);
   }
 
   /**
    * Initializes the controller
    * @param db The mongo db
    */
-  async initialize( db: Db ) {
-    this._templates = ModelFactory.get( 'templates' );
+  async initialize(db: Db) {
+    this._templates = ModelFactory.get('templates');
     return this;
   }
 
@@ -39,16 +39,16 @@ export class TemplatesController extends Controller {
     const templatesModel = this._templates;
 
     // Save the new entry into the database
-    const responses = await Promise.all( [
-      templatesModel.count( {} ),
-      templatesModel.findMany( { selector: {}, index: 0, limit: - 1 } )
-    ] );
-    const schemas = responses[ 1 ];
-    const templates = await Promise.all( schemas.map( s => s.downloadToken() ) );
+    const responses = await Promise.all([
+      templatesModel.count({}),
+      templatesModel.findMany({ selector: {}, index: 0, limit: -1 })
+    ]);
+    const schemas = responses[1];
+    const templates = await Promise.all(schemas.map(s => s.downloadToken()));
 
     const toRet: Page<ITemplate<'client'>> = {
       limit: -1,
-      count: responses[ 0 ],
+      count: responses[0],
       index: 0,
       data: templates
     };
@@ -59,15 +59,14 @@ export class TemplatesController extends Controller {
   /**
    * Gets a template by its name or ID
    */
-  async get( id: string ) {
+  async get(id: string) {
     const templateModel = this._templates;
     const searchQuery: Partial<ITemplate<'server'>> = {
-      _id: new ObjectID( id )
+      _id: new ObjectID(id)
     };
-    const result = await templateModel.findOne( searchQuery );
+    const result = await templateModel.findOne(searchQuery);
 
-    if ( !result )
-      return null;
+    if (!result) return null;
     else {
       const template = await result.downloadToken();
       return template;

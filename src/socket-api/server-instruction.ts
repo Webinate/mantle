@@ -16,7 +16,7 @@ export class ServerInstruction<T> {
    */
   token: T;
 
-  constructor( event: T, from: ClientConnection ) {
+  constructor(event: T, from: ClientConnection) {
     this.from = from;
     this.token = event;
   }

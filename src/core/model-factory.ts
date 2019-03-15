@@ -21,19 +21,28 @@ import { ElmHtml } from '../models/draft-elements/elm-html';
 import { ElmList } from '../models/draft-elements/elm-list';
 import { ElmCode } from '../models/draft-elements/elm-code';
 
-export type CommonModelType = 'volumes' | 'categories' |
-  'comments' | 'files' | 'posts' | 'renders' | 'sessions' |
-  'users' | 'documents' | 'drafts' | 'templates' |
-  DraftElements;
+export type CommonModelType =
+  | 'volumes'
+  | 'categories'
+  | 'comments'
+  | 'files'
+  | 'posts'
+  | 'renders'
+  | 'sessions'
+  | 'users'
+  | 'documents'
+  | 'drafts'
+  | 'templates'
+  | DraftElements;
 
 /**
  * Factory classs for creating & getting models
  */
 export class ModelFactory {
   private _db: Db;
-  private _models: { [ name: string ]: Model<IModelEntry<'server'>, IModelEntry<'client'>> };
+  private _models: { [name: string]: Model<IModelEntry<'server'>, IModelEntry<'client'>> };
 
-  initialize( config: IConfig, database: Db ) {
+  initialize(config: IConfig, database: Db) {
     this._db = database;
     this._models = {};
   }
@@ -42,107 +51,104 @@ export class ModelFactory {
    * Adds the default models to the system
    */
   async addBaseModelFactories() {
-    await Promise.all( [
-      this.create( 'volumes' ),
-      this.create( 'categories' ),
-      this.create( 'comments' ),
-      this.create( 'files' ),
-      this.create( 'posts' ),
-      this.create( 'renders' ),
-      this.create( 'sessions' ),
-      this.create( 'users' ),
-      this.create( 'documents' ),
-      this.create( 'drafts' ),
-      this.create( 'templates' ),
-      this.create( 'elm-paragraph' ),
-      this.create( 'elm-header-1' ),
-      this.create( 'elm-header-2' ),
-      this.create( 'elm-header-3' ),
-      this.create( 'elm-header-4' ),
-      this.create( 'elm-header-5' ),
-      this.create( 'elm-header-6' ),
-      this.create( 'elm-list' ),
-      this.create( 'elm-image' ),
-      this.create( 'elm-html' ),
-      this.create( 'elm-code' )
-    ] );
+    await Promise.all([
+      this.create('volumes'),
+      this.create('categories'),
+      this.create('comments'),
+      this.create('files'),
+      this.create('posts'),
+      this.create('renders'),
+      this.create('sessions'),
+      this.create('users'),
+      this.create('documents'),
+      this.create('drafts'),
+      this.create('templates'),
+      this.create('elm-paragraph'),
+      this.create('elm-header-1'),
+      this.create('elm-header-2'),
+      this.create('elm-header-3'),
+      this.create('elm-header-4'),
+      this.create('elm-header-5'),
+      this.create('elm-header-6'),
+      this.create('elm-list'),
+      this.create('elm-image'),
+      this.create('elm-html'),
+      this.create('elm-code')
+    ]);
   }
 
   /**
    * Sets up a model's indices
    * @param model The model to setup
    */
-  async setupIndices( model: Model<IModelEntry<'server'>, IModelEntry<'client'>> ) {
-
+  async setupIndices(model: Model<IModelEntry<'server'>, IModelEntry<'client'>>) {
     // The collection does not exist - so create it
-    let collection: Collection = await this._db.createCollection( model.collectionName );
+    let collection: Collection = await this._db.createCollection(model.collectionName);
 
-    const indexInfo = await collection.indexInformation( { full: true } );
+    const indexInfo = await collection.indexInformation({ full: true });
     indexInfo;
 
     // Now re-create the models who need index supports
     let promises: Array<Promise<string>> = [];
     const items = model.schema.getItems();
     const indices = await collection.indexInformation();
-    const activeIndices = Object.keys( indices );
+    const activeIndices = Object.keys(indices);
 
     // Remove any unused indexes
-    for ( const key of activeIndices ) {
+    for (const key of activeIndices) {
       let indexNeeded = false;
-      for ( const item of items ) {
-        if ( item.getIndexable() && item.name === indices[ key ][ 0 ][ 0 ] ) {
+      for (const item of items) {
+        if (item.getIndexable() && item.name === indices[key][0][0]) {
           indexNeeded = true;
           break;
         }
       }
 
-      if ( !indexNeeded && key !== '_id_' )
-        promises.push( collection.dropIndex( key ) );
+      if (!indexNeeded && key !== '_id_') promises.push(collection.dropIndex(key));
     }
 
-    await Promise.all( promises );
+    await Promise.all(promises);
 
     promises = [];
 
     // Now add the indices we do need
-    for ( const item of items )
-      if ( item.getIndexable() && !activeIndices.find( key => indices[ key ][ 0 ][ 0 ] === item.name ) ) {
+    for (const item of items)
+      if (item.getIndexable() && !activeIndices.find(key => indices[key][0][0] === item.name)) {
         const index: any = {};
-        index[ item.name ] = 1;
-        promises.push( collection.createIndex( index ) );
+        index[item.name] = 1;
+        promises.push(collection.createIndex(index));
       }
 
-    await Promise.all( promises );
+    await Promise.all(promises);
     return collection;
   }
 
-  get( type: 'volumes' ): VolumeModel
-  get( type: 'categories' ): CategoriesModel
-  get( type: 'comments' ): CommentsModel
-  get( type: 'files' ): FileModel
-  get( type: 'posts' ): PostsModel
-  get( type: 'renders' ): RendersModel
-  get( type: 'sessions' ): SessionModel
-  get( type: 'users' ): UsersModel
-  get( type: 'templates' ): TemplatesModel
-  get( type: 'drafts' ): DraftsModel
-  get( type: 'documents' ): DocumentsModel
-  get( type: 'elm-paragraph' ): ElmParagraph
-  get( type: 'elm-header-1' ): ElmHeader
-  get( type: 'elm-header-2' ): ElmHeader
-  get( type: 'elm-header-3' ): ElmHeader
-  get( type: 'elm-header-4' ): ElmHeader
-  get( type: 'elm-header-5' ): ElmHeader
-  get( type: 'elm-header-6' ): ElmHeader
-  get( type: 'elm-list' ): ElmList
-  get( type: 'elm-image' ): ElmImg
-  get( type: 'elm-html' ): ElmHtml
-  get( type: 'elm-code' ): ElmCode
-  get( type: string ): Model<IModelEntry<'server'>, IModelEntry<'client'>>
-  get( type: string ): Model<IModelEntry<'server'>, IModelEntry<'client'>> {
-    const toRet = this._models[ type ];
-    if ( !toRet )
-      throw new Error( `Cannot find model '${type}'` );
+  get(type: 'volumes'): VolumeModel;
+  get(type: 'categories'): CategoriesModel;
+  get(type: 'comments'): CommentsModel;
+  get(type: 'files'): FileModel;
+  get(type: 'posts'): PostsModel;
+  get(type: 'renders'): RendersModel;
+  get(type: 'sessions'): SessionModel;
+  get(type: 'users'): UsersModel;
+  get(type: 'templates'): TemplatesModel;
+  get(type: 'drafts'): DraftsModel;
+  get(type: 'documents'): DocumentsModel;
+  get(type: 'elm-paragraph'): ElmParagraph;
+  get(type: 'elm-header-1'): ElmHeader;
+  get(type: 'elm-header-2'): ElmHeader;
+  get(type: 'elm-header-3'): ElmHeader;
+  get(type: 'elm-header-4'): ElmHeader;
+  get(type: 'elm-header-5'): ElmHeader;
+  get(type: 'elm-header-6'): ElmHeader;
+  get(type: 'elm-list'): ElmList;
+  get(type: 'elm-image'): ElmImg;
+  get(type: 'elm-html'): ElmHtml;
+  get(type: 'elm-code'): ElmCode;
+  get(type: string): Model<IModelEntry<'server'>, IModelEntry<'client'>>;
+  get(type: string): Model<IModelEntry<'server'>, IModelEntry<'client'>> {
+    const toRet = this._models[type];
+    if (!toRet) throw new Error(`Cannot find model '${type}'`);
 
     return toRet;
   }
@@ -151,13 +157,12 @@ export class ModelFactory {
    * A factory method for creating models
    * @param type The type of model to create
    */
-  private async create( type: CommonModelType ): Promise<Model<IModelEntry<'server'>, IModelEntry<'client'>>> {
+  private async create(type: CommonModelType): Promise<Model<IModelEntry<'server'>, IModelEntry<'client'>>> {
     let newModel: Model<IModelEntry<'server'>, IModelEntry<'client'>>;
 
-    if ( this._models[ type ] )
-      return this._models[ type ];
+    if (this._models[type]) return this._models[type];
 
-    switch ( type ) {
+    switch (type) {
       case 'volumes':
         newModel = new VolumeModel();
         break;
@@ -195,22 +200,22 @@ export class ModelFactory {
         newModel = new ElmParagraph();
         break;
       case 'elm-header-1':
-        newModel = new ElmHeader( 'elm-header-1' );
+        newModel = new ElmHeader('elm-header-1');
         break;
       case 'elm-header-2':
-        newModel = new ElmHeader( 'elm-header-2' );
+        newModel = new ElmHeader('elm-header-2');
         break;
       case 'elm-header-3':
-        newModel = new ElmHeader( 'elm-header-3' );
+        newModel = new ElmHeader('elm-header-3');
         break;
       case 'elm-header-4':
-        newModel = new ElmHeader( 'elm-header-4' );
+        newModel = new ElmHeader('elm-header-4');
         break;
       case 'elm-header-5':
-        newModel = new ElmHeader( 'elm-header-5' );
+        newModel = new ElmHeader('elm-header-5');
         break;
       case 'elm-header-6':
-        newModel = new ElmHeader( 'elm-header-6' );
+        newModel = new ElmHeader('elm-header-6');
         break;
       case 'elm-image':
         newModel = new ElmImg();
@@ -225,16 +230,15 @@ export class ModelFactory {
         newModel = new ElmCode();
         break;
       default:
-        throw new Error( `Controller '${type}' cannot be created` );
+        throw new Error(`Controller '${type}' cannot be created`);
     }
 
-    const collection = await this.setupIndices( newModel );
-    await newModel.initialize( collection, this._db );
-    this._models[ type ] = newModel;
+    const collection = await this.setupIndices(newModel);
+    await newModel.initialize(collection, this._db);
+    this._models[type] = newModel;
 
     return newModel;
   }
 }
-
 
 export default new ModelFactory();

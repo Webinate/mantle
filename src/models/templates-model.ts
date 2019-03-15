@@ -7,13 +7,13 @@ import { ITemplate } from '../types/models/i-template';
  */
 export class TemplatesModel extends Model<ITemplate<'server'>, ITemplate<'client' | 'expanded'>> {
   constructor() {
-    super( 'templates' );
+    super('templates');
 
-    this.schema.addItems( [
-      new text( 'name', '' ),
-      new text( 'description', '' ),
-      new text( 'defaultZone', '' ),
-      new textArray( 'zones', [] )
-    ] );
+    this.schema.addItems([
+      new text('name', ''),
+      new text('description', ''),
+      new text('defaultZone', ''),
+      new textArray('zones', [])
+    ]);
   }
 }

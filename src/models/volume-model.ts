@@ -7,18 +7,18 @@ import { IVolume } from '../types/models/i-volume-entry';
  */
 export class VolumeModel extends Model<IVolume<'server'>, IVolume<'client' | 'expanded'>> {
   constructor() {
-    super( 'volumes' );
+    super('volumes');
 
-    this.schema.addItems( [
-      new text( 'name', '', { minCharacters: 1 } ).setIndexable( true ),
-      new enums( 'type', 'local', [ 'local', 'google' ] ),
-      new text( 'identifier', '' ),
-      new foreignKey( 'user', 'users', { keyCanBeNull: true } ),
-      new num( 'memoryUsed', 0 ).setIndexable( true ),
-      new num( 'memoryAllocated', 0 ),
-      new json( 'meta', {} ),
-      new date( 'created' ).setIndexable( true ),
-      new date( 'lastLoggedIn', { useNow: true } ).setIndexable( true )
-    ] );
+    this.schema.addItems([
+      new text('name', '', { minCharacters: 1 }).setIndexable(true),
+      new enums('type', 'local', ['local', 'google']),
+      new text('identifier', ''),
+      new foreignKey('user', 'users', { keyCanBeNull: true }),
+      new num('memoryUsed', 0).setIndexable(true),
+      new num('memoryAllocated', 0),
+      new json('meta', {}),
+      new date('created').setIndexable(true),
+      new date('lastLoggedIn', { useNow: true }).setIndexable(true)
+    ]);
   }
 }

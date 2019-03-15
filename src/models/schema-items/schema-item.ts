@@ -1,5 +1,4 @@
-﻿
-import { ISchemaOptions } from '../../types/misc/i-schema-options';
+﻿import { ISchemaOptions } from '../../types/misc/i-schema-options';
 
 /**
  * A definition of each item in the model
@@ -18,7 +17,7 @@ export abstract class SchemaItem<TServer, TClient> {
   private _modified: boolean;
   protected _clientVal: TClient;
 
-  constructor( name: string, value: TClient ) {
+  constructor(name: string, value: TClient) {
     this.name = name;
     this.defaultValue = value;
     this._sensitive = false;
@@ -35,7 +34,7 @@ export abstract class SchemaItem<TServer, TClient> {
    * Creates a clone of this item
    * @returns copy A sub class of the copy
    */
-  public clone( copy?: SchemaItem<TServer, TClient> ) {
+  public clone(copy?: SchemaItem<TServer, TClient>) {
     const clone = copy!;
     clone.name = this.name;
     clone.value = this.value;
@@ -52,12 +51,14 @@ export abstract class SchemaItem<TServer, TClient> {
   /**
    * Gets if this item is indexable by mongodb
    */
-  public getIndexable(): boolean { return this._indexable; }
+  public getIndexable(): boolean {
+    return this._indexable;
+  }
 
   /**
    * Sets if this item is indexable by mongodb
    */
-  public setIndexable( val: boolean ): SchemaItem<TServer, TClient> {
+  public setIndexable(val: boolean): SchemaItem<TServer, TClient> {
     this._indexable = val;
     return this;
   }
@@ -65,12 +66,14 @@ export abstract class SchemaItem<TServer, TClient> {
   /**
    * Gets if this item is required. If true, then validations will fail if they are not specified
    */
-  public getRequired(): boolean { return this._required; }
+  public getRequired(): boolean {
+    return this._required;
+  }
 
   /**
    * Sets if this item is required. If true, then validations will fail if they are not specified
    */
-  public setRequired( val: boolean ): SchemaItem<TServer, TClient> {
+  public setRequired(val: boolean): SchemaItem<TServer, TClient> {
     this._required = val;
     return this;
   }
@@ -79,26 +82,30 @@ export abstract class SchemaItem<TServer, TClient> {
    * Gets if this item is read only. If true, then the value can only be set when the item is created
    * and any future updates are ignored
    */
-  public getReadOnly(): boolean { return this._readOnly; }
+  public getReadOnly(): boolean {
+    return this._readOnly;
+  }
 
   /**
    * Sets if this item is required. If true, then the value can only be set when the item is created
    * and any future updates are ignored
    */
-  public setReadOnly( val: boolean ) {
+  public setReadOnly(val: boolean) {
     this._readOnly = val;
     return this;
   }
 
   /**
- * Gets if this item represents a unique value in the database. An example might be a username
- */
-  public getUnique(): boolean { return this._unique; }
+   * Gets if this item represents a unique value in the database. An example might be a username
+   */
+  public getUnique(): boolean {
+    return this._unique;
+  }
 
   /**
- * Sets if this item represents a unique value in the database. An example might be a username
- */
-  public setUnique( val: boolean ) {
+   * Sets if this item represents a unique value in the database. An example might be a username
+   */
+  public setUnique(val: boolean) {
     this._unique = val;
     return this;
   }
@@ -108,14 +115,16 @@ export abstract class SchemaItem<TServer, TClient> {
    * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
    * a given project. In this case the project item is set as a uniqueIndexer
    */
-  public getUniqueIndexer(): boolean { return this._uniqueIndexer; }
+  public getUniqueIndexer(): boolean {
+    return this._uniqueIndexer;
+  }
 
   /**
- * Sets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
+   * Sets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
    * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
    * a given project. In this case the project item is set as a uniqueIndexer
- */
-  public setUniqueIndexer( val: boolean ) {
+   */
+  public setUniqueIndexer(val: boolean) {
     this._uniqueIndexer = val;
     return this;
   }
@@ -137,7 +146,7 @@ export abstract class SchemaItem<TServer, TClient> {
   /**
    * Sets if this item is sensitive
    */
-  public setSensitive( val: boolean ) {
+  public setSensitive(val: boolean) {
     this._sensitive = val;
     return this;
   }
@@ -145,7 +154,7 @@ export abstract class SchemaItem<TServer, TClient> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public abstract validate( val: TClient ): Promise<TServer>;
+  public abstract validate(val: TClient): Promise<TServer>;
 
   // /**
   //  * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
@@ -181,7 +190,7 @@ export abstract class SchemaItem<TServer, TClient> {
   /**
    * Sets the database value
    */
-  public setDbValue( val: TServer ) {
+  public setDbValue(val: TServer) {
     this.value = val;
   }
 
@@ -196,13 +205,13 @@ export abstract class SchemaItem<TServer, TClient> {
    * Gets the value of this item
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public abstract async getValue( options?: ISchemaOptions ): Promise<TClient>;
+  public abstract async getValue(options?: ISchemaOptions): Promise<TClient>;
 
   /**
    * Sets the value of this item
    * @param val The value to set
    */
-  public setValue( val: TClient ): TClient {
+  public setValue(val: TClient): TClient {
     this._clientVal = val;
     this._modified = true;
     return this._clientVal;

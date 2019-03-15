@@ -7,19 +7,19 @@ import { IDraftElement, DraftElements } from '../../types/models/i-draft-element
  */
 export class ElmHtml extends Model<IDraftElement<'server'>, IDraftElement<'client' | 'expanded'>> {
   constructor() {
-    super( 'elements' );
+    super('elements');
 
     const type: DraftElements = 'elm-html';
 
-    this.schema.addItems( [
-      new foreignKey( 'parent', 'documents', { keyCanBeNull: false } ),
-      new text( 'type', type ),
-      new text( 'zone', 'unassigned' ),
-      new html( 'html', '<div></div>', {
+    this.schema.addItems([
+      new foreignKey('parent', 'documents', { keyCanBeNull: false }),
+      new text('type', type),
+      new text('zone', 'unassigned'),
+      new html('html', '<div></div>', {
         allowedTags: false,
         allowedAttributes: false,
         errorBadHTML: false
-      } )
-    ] );
+      })
+    ]);
   }
 }

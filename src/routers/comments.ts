@@ -20,37 +20,37 @@ export class CommentsRouter extends Router {
   private _controller: CommentsController;
 
   /**
-	 * Creates a new instance of the controller
-	 */
-  constructor( options: IBaseControler ) {
-    super( [ Factory.get( 'comments' ) ] );
+   * Creates a new instance of the controller
+   */
+  constructor(options: IBaseControler) {
+    super([Factory.get('comments')]);
     this._options = options;
   }
 
   /**
- * Called to initialize this controller and its related database objects
- */
-  async initialize( e: express.Express, db: mongodb.Db ) {
-    this._controller = ControllerFactory.get( 'comments' );
+   * Called to initialize this controller and its related database objects
+   */
+  async initialize(e: express.Express, db: mongodb.Db) {
+    this._controller = ControllerFactory.get('comments');
     const router = express.Router();
 
-    router.use( compression() );
-    router.use( bodyParser.urlencoded( { 'extended': true } ) );
-    router.use( bodyParser.json() );
-    router.use( bodyParser.json( { type: 'application/vnd.api+json' } ) );
+    router.use(compression());
+    router.use(bodyParser.urlencoded({ extended: true }));
+    router.use(bodyParser.json());
+    router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-    router.get( '/comments', this.getComments.bind( this ) );
-    router.get( '/comments/:id', this.getComment.bind( this ) );
-    router.get( '/nested-comments/:parentId', this.getCommentsByParent.bind( this ) );
-    router.get( '/users/:user/comments', this.getComments.bind( this ) );
-    router.delete( '/comments/:id', this.remove.bind( this ) );
-    router.put( '/comments/:id', this.update.bind( this ) );
-    router.post( '/posts/:postId/comments/:parent?', this.create.bind( this ) );
+    router.get('/comments', this.getComments.bind(this));
+    router.get('/comments/:id', this.getComment.bind(this));
+    router.get('/nested-comments/:parentId', this.getCommentsByParent.bind(this));
+    router.get('/users/:user/comments', this.getComments.bind(this));
+    router.delete('/comments/:id', this.remove.bind(this));
+    router.put('/comments/:id', this.update.bind(this));
+    router.post('/posts/:postId/comments/:parent?', this.create.bind(this));
 
     // Register the path
-    e.use( ( this._options.rootPath || '' ) + '/', router );
+    e.use((this._options.rootPath || '') + '/', router);
 
-    await super.initialize( e, db );
+    await super.initialize(e, db);
     return this;
   }
 
@@ -59,56 +59,46 @@ export class CommentsRouter extends Router {
    */
   @j200()
   @identify()
-  private async getComments( req: IAuthReq, res: express.Response ) {
-    return this._getAll( req );
+  private async getComments(req: IAuthReq, res: express.Response) {
+    return this._getAll(req);
   }
 
   @j200()
-  @validId( 'parentId', 'parent ID' )
+  @validId('parentId', 'parent ID')
   @identify()
-  private async getCommentsByParent( req: IAuthReq, res: express.Response ) {
-    return this._getAll( req );
+  private async getCommentsByParent(req: IAuthReq, res: express.Response) {
+    return this._getAll(req);
   }
 
-  private async _getAll( req: IAuthReq ) {
+  private async _getAll(req: IAuthReq) {
     const user = req._user!;
     let visibility: string | undefined;
 
     // Check for visibility
-    if ( req.query.visibility ) {
-      if ( ( <string>req.query.visibility ).toLowerCase() === 'all' )
-        visibility = 'all';
-      else if ( ( <string>req.query.visibility ).toLowerCase() === 'private' )
-        visibility = 'private';
-      else
-        visibility = 'public';
+    if (req.query.visibility) {
+      if ((<string>req.query.visibility).toLowerCase() === 'all') visibility = 'all';
+      else if ((<string>req.query.visibility).toLowerCase() === 'private') visibility = 'private';
+      else visibility = 'public';
     }
 
     // If no user we only allow public
-    if ( !user )
-      visibility = 'public';
+    if (!user) visibility = 'public';
     // If an admin - we do not need visibility
-    else if ( user.privileges === 'admin' || user.privileges === 'super' )
-      visibility = undefined;
+    else if (user.privileges === 'admin' || user.privileges === 'super') visibility = undefined;
     // Regular users only see public
-    else
-      visibility = 'public';
+    else visibility = 'public';
 
-    let depth: number | undefined = parseInt( req.query.depth );
-    let index: number | undefined = parseInt( req.query.index );
-    let limit: number | undefined = parseInt( req.query.limit );
-    if ( isNaN( depth ) )
-      depth = undefined;
-    if ( isNaN( index ) )
-      index = undefined;
-    if ( isNaN( limit ) )
-      limit = undefined;
+    let depth: number | undefined = parseInt(req.query.depth);
+    let index: number | undefined = parseInt(req.query.index);
+    let limit: number | undefined = parseInt(req.query.limit);
+    if (isNaN(depth)) depth = undefined;
+    if (isNaN(index)) index = undefined;
+    if (isNaN(limit)) limit = undefined;
 
     let verbose = false;
-    if ( req._isAdmin )
-      verbose = true;
+    if (req._isAdmin) verbose = true;
 
-    const response = await this._controller.getAll( {
+    const response = await this._controller.getAll({
       depth: depth,
       index: index,
       limit: limit,
@@ -122,7 +112,7 @@ export class CommentsRouter extends Router {
       sortOrder: req.query.sortOrder,
       sortType: req.query.sortType,
       user: req.params.user || req.query.user
-    } );
+    });
 
     return response;
   }
@@ -131,29 +121,26 @@ export class CommentsRouter extends Router {
    * Returns a single comment
    */
   @j200()
-  @validId( 'id', 'ID' )
+  @validId('id', 'ID')
   @identify()
-  private async getComment( req: IAuthReq, res: express.Response ) {
-
+  private async getComment(req: IAuthReq, res: express.Response) {
     const user = req._user;
 
-    let depth: number | undefined = parseInt( req.query.depth );
-    if ( isNaN( depth ) )
-      depth = undefined;
+    let depth: number | undefined = parseInt(req.query.depth);
+    if (isNaN(depth)) depth = undefined;
 
     let verbose = false;
-    if ( req._isAdmin )
-      verbose = true;
+    if (req._isAdmin) verbose = true;
 
-    const comment = await this._controller.getOne( req.params.id, {
+    const comment = await this._controller.getOne(req.params.id, {
       depth: depth,
       expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
-      verbose,
-    } );
+      verbose
+    });
 
     // Only admins are allowed to see private comments
-    if ( !comment.public && ( !user || ( user.privileges === 'admin' || user.privileges === 'super' ) ) )
-      throw new Error( 'That comment is marked private' );
+    if (!comment.public && (!user || (user.privileges === 'admin' || user.privileges === 'super')))
+      throw new Error('That comment is marked private');
 
     return comment;
   }
@@ -161,36 +148,36 @@ export class CommentsRouter extends Router {
   /**
    * Attempts to remove a comment by ID
    */
-  @j200( 204 )
-  @validId( 'id', 'ID' )
+  @j200(204)
+  @validId('id', 'ID')
   @authorize()
-  private async remove( req: IAuthReq, res: express.Response ) {
+  private async remove(req: IAuthReq, res: express.Response) {
     const user = req._user!;
-    const comment = await this._controller.getOne( req.params.id );
+    const comment = await this._controller.getOne(req.params.id);
 
     // Only admins are allowed to see private comments
-    if ( ( user.privileges === 'admin' || user.privileges === 'super' ) && user.username !== comment.author )
-      throw new Error( 'You do not have permission' );
+    if ((user.privileges === 'admin' || user.privileges === 'super') && user.username !== comment.author)
+      throw new Error('You do not have permission');
 
-    await this._controller.remove( req.params.id );
+    await this._controller.remove(req.params.id);
   }
 
   /**
    * Attempts to update a comment by ID
    */
   @j200()
-  @validId( 'id', 'ID' )
+  @validId('id', 'ID')
   @authorize()
-  private async update( req: IAuthReq, res: express.Response ) {
+  private async update(req: IAuthReq, res: express.Response) {
     const token: Partial<IComment<'client'>> = req.body;
     const user = req._user!;
-    let comment = await this._controller.getOne( req.params.id );
+    let comment = await this._controller.getOne(req.params.id);
 
     // Only admins are allowed to see private comments
-    if ( ( user.privileges === 'admin' || user.privileges === 'super' ) && user.username !== comment.author )
-      throw new Error( 'You do not have permission' );
+    if ((user.privileges === 'admin' || user.privileges === 'super') && user.username !== comment.author)
+      throw new Error('You do not have permission');
 
-    comment = await this._controller.update( req.params.id, token );
+    comment = await this._controller.update(req.params.id, token);
     return comment;
   }
 
@@ -198,10 +185,10 @@ export class CommentsRouter extends Router {
    * Attempts to create a new comment
    */
   @j200()
-  @validId( 'postId', 'parent ID' )
-  @validId( 'parent', 'parent ID', true )
+  @validId('postId', 'parent ID')
+  @validId('parent', 'parent ID', true)
   @authorize()
-  private async create( req: IAuthReq, res: express.Response ) {
+  private async create(req: IAuthReq, res: express.Response) {
     const token: Partial<IComment<'client'>> = req.body;
 
     // User is passed from the authentication function
@@ -210,7 +197,7 @@ export class CommentsRouter extends Router {
     token.post = req.params.postId as string;
     token.parent = req.params.parent;
 
-    const response = await this._controller.create( token );
+    const response = await this._controller.create(token);
     return response;
   }
 }

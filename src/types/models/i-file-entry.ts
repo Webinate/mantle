@@ -17,6 +17,6 @@ export interface IFileEntry<T extends 'expanded' | 'client' | 'server'> extends 
   mimeType: string;
   isPublic: boolean;
   numDownloads: number;
-  parentFile: T extends 'expanded' ? ( IFileEntry<T> | null ) : T extends 'client' ? ( string | null ) : ( ObjectID | null );
+  parentFile: T extends 'expanded' ? (IFileEntry<T> | null) : T extends 'client' ? (string | null) : (ObjectID | null);
   meta: any;
 }

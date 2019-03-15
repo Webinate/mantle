@@ -40,15 +40,15 @@ export const isValidID = isValidObjectID;
 export const decorators = { validId, blocking, j200, admin, hasPermission, authorize, identify };
 
 export const controllers = {
-  users: ControllerFactory.get( 'users' ) as UsersController,
-  volumes: ControllerFactory.get( 'volumes' ) as VolumesController,
-  posts: ControllerFactory.get( 'posts' ) as PostsController,
-  categories: ControllerFactory.get( 'categories' ) as CategoriesController,
-  comments: ControllerFactory.get( 'comments' ) as CommentsController,
-  files: ControllerFactory.get( 'files' ) as FilesController,
-  sessions: ControllerFactory.get( 'sessions' ) as SessionsController,
-  templates: ControllerFactory.get( 'templates' ) as TemplatesController,
-  documents: ControllerFactory.get( 'documents' ) as DocumentsController
+  users: ControllerFactory.get('users') as UsersController,
+  volumes: ControllerFactory.get('volumes') as VolumesController,
+  posts: ControllerFactory.get('posts') as PostsController,
+  categories: ControllerFactory.get('categories') as CategoriesController,
+  comments: ControllerFactory.get('comments') as CommentsController,
+  files: ControllerFactory.get('files') as FilesController,
+  sessions: ControllerFactory.get('sessions') as SessionsController,
+  templates: ControllerFactory.get('templates') as TemplatesController,
+  documents: ControllerFactory.get('documents') as DocumentsController
 };
 
 export const routers = {
@@ -82,7 +82,7 @@ export const routers = {
   session: SessionRouter,
   /** Endpoints for managing users */
   user: UserRouter
-}
+};
 
 export { UserPrivilege } from './core/enums';
 export { CategoriesGetManyOptions } from './controllers/categories';
@@ -109,8 +109,11 @@ export { IUploadResponse } from './types/tokens/i-file-tokens';
 export { DraftElements } from './types/models/i-draft-elements';
 
 export {
-  IAuthenticationResponse, EmailTokens,
-  IRemoveResponse, IResponse, ISimpleResponse,
+  IAuthenticationResponse,
+  EmailTokens,
+  IRemoveResponse,
+  IResponse,
+  ISimpleResponse,
   Page
 } from './types/tokens/standard-tokens';
 export { IAuthReq } from './types/tokens/i-auth-request';

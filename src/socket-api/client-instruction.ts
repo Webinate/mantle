@@ -22,7 +22,7 @@ export class ClientInstruction<T> {
    */
   token: T;
 
-  constructor( event: T, client: ClientConnection[] | null = null, username: string | null = null ) {
+  constructor(event: T, client: ClientConnection[] | null = null, username: string | null = null) {
     this.recipients = client;
     this.token = event;
     this.username = username;

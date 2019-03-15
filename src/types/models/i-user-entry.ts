@@ -14,10 +14,10 @@ export interface IUserEntry<T extends 'expanded' | 'server' | 'client'> {
   sessionId: string;
   avatar: string;
   avatarFile: T extends 'expanded'
-  ? IFileEntry<T>
-  : T extends 'client'
-  ? string | IFileEntry<'client'> | null
-  : ObjectID | null;
+    ? IFileEntry<T>
+    : T extends 'client'
+    ? string | IFileEntry<'client'> | null
+    : ObjectID | null;
   createdOn: number;
   lastLoggedIn: number;
   privileges: UserPrivilege;

@@ -7,16 +7,16 @@ import { IDraftElement, DraftElements } from '../../types/models/i-draft-element
  */
 export class ElmImg extends Model<IDraftElement<'server'>, IDraftElement<'client' | 'expanded'>> {
   constructor() {
-    super( 'elements' );
+    super('elements');
 
     const type: DraftElements = 'elm-image';
 
-    this.schema.addItems( [
-      new foreignKey( 'parent', 'documents', { keyCanBeNull: false } ),
-      new text( 'type', type ),
-      new text( 'zone', 'unassigned' ),
-      new foreignKey( 'image', 'files', { keyCanBeNull: true } ),
-      new json( 'style', {} )
-    ] );
+    this.schema.addItems([
+      new foreignKey('parent', 'documents', { keyCanBeNull: false }),
+      new text('type', type),
+      new text('zone', 'unassigned'),
+      new foreignKey('image', 'files', { keyCanBeNull: true }),
+      new json('style', {})
+    ]);
   }
 }

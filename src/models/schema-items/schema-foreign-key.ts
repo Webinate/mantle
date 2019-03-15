@@ -26,16 +26,15 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
    * @param name The name of this item
    * @param targetCollection The name of the collection to which the target exists
    */
-  constructor( name: string, targetCollection: string, options?: Partial<IForeignKeyOptions> ) {
-    super( name, null );
+  constructor(name: string, targetCollection: string, options?: Partial<IForeignKeyOptions>) {
+    super(name, null);
 
     options = {
       keyCanBeNull: true,
       ...options
     };
 
-    if ( !targetCollection )
-      throw new Error( `You must specify a targetCollection property for model option '${name}'` );
+    if (!targetCollection) throw new Error(`You must specify a targetCollection property for model option '${name}'`);
 
     this.targetCollection = targetCollection;
     this.curLevel = 1;
@@ -46,9 +45,9 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
   /**
    * Creates a clone of this item
    */
-  public clone( copy?: SchemaForeignKey ): SchemaForeignKey {
-    copy = copy === undefined ? new SchemaForeignKey( this.name, this.targetCollection ) : copy;
-    super.clone( copy );
+  public clone(copy?: SchemaForeignKey): SchemaForeignKey {
+    copy = copy === undefined ? new SchemaForeignKey(this.name, this.targetCollection) : copy;
+    super.clone(copy);
     copy.targetCollection = this.targetCollection;
     copy.keyCanBeNull = this.keyCanBeNull;
     return copy;
@@ -57,44 +56,36 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public async validate( val: Client ) {
+  public async validate(val: Client) {
     let toRet: ObjectID | null = null;
 
     // If they key is required then it must exist
-    const model = Factory.get( this.targetCollection );
+    const model = Factory.get(this.targetCollection);
 
-    if ( !model )
-      throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
+    if (!model)
+      throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
 
-    if ( typeof val === 'string' ) {
-      if ( isValidObjectID( val ) )
-        toRet = new ObjectID( val );
-      else if ( val.trim() !== '' )
-        throw new Error( `Please use a valid ID for '${this.name}'` );
-      else
-        toRet = null;
-    }
-    else if ( val && ( val as IModelEntry<'client'> )._id ) {
-      if ( !ObjectID.isValid( ( val as IModelEntry<'client'> )._id ) )
-        throw new Error( `${this.name} object._id must be a valid ID string, ObjectId or IModelEntry` );
+    if (typeof val === 'string') {
+      if (isValidObjectID(val)) toRet = new ObjectID(val);
+      else if (val.trim() !== '') throw new Error(`Please use a valid ID for '${this.name}'`);
+      else toRet = null;
+    } else if (val && (val as IModelEntry<'client'>)._id) {
+      if (!ObjectID.isValid((val as IModelEntry<'client'>)._id))
+        throw new Error(`${this.name} object._id must be a valid ID string, ObjectId or IModelEntry`);
 
-      toRet = new ObjectID( ( val as IModelEntry<'client'> )._id );
-    }
-    else if ( val && !ObjectID.isValid( val as any ) ) {
-      throw new Error( `${this.name} must be a valid ID string, ObjectId or IModelEntry` );
+      toRet = new ObjectID((val as IModelEntry<'client'>)._id);
+    } else if (val && !ObjectID.isValid(val as any)) {
+      throw new Error(`${this.name} must be a valid ID string, ObjectId or IModelEntry`);
     }
 
-    if ( !toRet )
-      toRet = null;
+    if (!toRet) toRet = null;
 
-    if ( !this.keyCanBeNull && !toRet )
-      throw new Error( `${this.name} does not exist` );
+    if (!this.keyCanBeNull && !toRet) throw new Error(`${this.name} does not exist`);
 
     // We can assume the value is object id by this point
-    const result = await model.findOne( { _id: toRet } );
+    const result = await model.findOne({ _id: toRet });
 
-    if ( !this.keyCanBeNull && !result )
-      throw new Error( `${this.name} does not exist` );
+    if (!this.keyCanBeNull && !result) throw new Error(`${this.name} does not exist`);
 
     return toRet;
   }
@@ -103,52 +94,49 @@ export class SchemaForeignKey extends SchemaItem<ObjectID | null, Client> {
    * Gets the value of this item
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async getValue( options: ISchemaOptions ) {
-
-    if ( options.expandForeignKeys && options.expandMaxDepth === undefined )
-      throw new Error( 'You cannot set expandForeignKeys and not specify the expandMaxDepth' );
+  public async getValue(options: ISchemaOptions) {
+    if (options.expandForeignKeys && options.expandMaxDepth === undefined)
+      throw new Error('You cannot set expandForeignKeys and not specify the expandMaxDepth');
 
     const val = this.getDbValue();
 
-    if ( val && !options.expandForeignKeys )
-      return val.toString();
+    if (val && !options.expandForeignKeys) return val.toString();
 
-    if ( val && options.expandSchemaBlacklist )
-      for ( const r of options.expandSchemaBlacklist )
-        if ( this.namespace.match( r ) )
-          return val.toString();
+    if (val && options.expandSchemaBlacklist)
+      for (const r of options.expandSchemaBlacklist) if (this.namespace.match(r)) return val.toString();
 
-    const model = Factory.get( this.targetCollection );
-    if ( !model )
-      throw new Error( `${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist` );
+    const model = Factory.get(this.targetCollection);
+    if (!model)
+      throw new Error(`${this.name} references a foreign key '${this.targetCollection}' which doesn't seem to exist`);
 
-    if ( !val )
-      return null;
+    if (!val) return null;
 
     // Make sure the current level is not beyond the max depth
-    if ( options.expandMaxDepth !== undefined && options.expandMaxDepth !== -1 ) {
-      if ( this.curLevel > options.expandMaxDepth )
-        return val.toString();
+    if (options.expandMaxDepth !== undefined && options.expandMaxDepth !== -1) {
+      if (this.curLevel > options.expandMaxDepth) return val.toString();
     }
 
-    const result = await model.findOne( { _id: val } );
+    const result = await model.findOne({ _id: val });
 
-    if ( !result && !this.keyCanBeNull )
-      throw new Error( `Could not find an instance for ${this.name}'s in the collection '${this.targetCollection}' with value '${val.toString()}'` );
-    else if ( !result && this.keyCanBeNull )
-      return null;
+    if (!result && !this.keyCanBeNull)
+      throw new Error(
+        `Could not find an instance for ${this.name}'s in the collection '${
+          this.targetCollection
+        }' with value '${val.toString()}'`
+      );
+    else if (!result && this.keyCanBeNull) return null;
 
     // Get the models items are increase their level - this ensures we dont go too deep
     const items = result!.getItems()!;
     const nextLevel = this.curLevel + 1;
 
-    for ( let i = 0, l = items.length; i < l; i++ )
-      if ( items[ i ] instanceof SchemaForeignKey || items[ i ] instanceof SchemaIdArray ) {
-        const item = items[ i ] as ( SchemaForeignKey | SchemaIdArray );
+    for (let i = 0, l = items.length; i < l; i++)
+      if (items[i] instanceof SchemaForeignKey || items[i] instanceof SchemaIdArray) {
+        const item = items[i] as (SchemaForeignKey | SchemaIdArray);
         item.curLevel = nextLevel;
         item.namespace = `${this.namespace}.${item.namespace}`;
       }
 
-    return await result!.downloadToken( options ) as Client;
+    return (await result!.downloadToken(options)) as Client;
   }
 }

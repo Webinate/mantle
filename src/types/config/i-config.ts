@@ -10,7 +10,6 @@ import { IWebsocket } from './properties/i-socket';
  * A server configuration
  */
 export interface IConfig {
-
   /**
    * The folder where mantle will search for client projects to add to the runtime.
    * This setting must represent a path string. Each folder in the path will be analyzed
@@ -23,7 +22,6 @@ export interface IConfig {
    * mantle servers.
    */
   remotes: {
-
     /**
      * Specify the max file size allowed in bytes
      */
@@ -33,14 +31,14 @@ export interface IConfig {
      * If the property is a string, it must point
      * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as IGoogleProperties.
      */
-    'google': string | IGoogleProperties;
+    google: string | IGoogleProperties;
 
     /**
      * If the property is a string, it must point
      * to a json file that will be loaded dynamically at startup. The JSON should have the same structure as ILocalVolume.
      */
-    'local': string | ILocalVolume;
-  }
+    local: string | ILocalVolume;
+  };
 
   /**
    * The length of time a render is kept in the DB before being updated. Stored in seconds.
@@ -87,5 +85,5 @@ export interface IConfig {
    */
   websocket: IWebsocket;
 
-  [ key: string ]: any;
+  [key: string]: any;
 }

@@ -8,6 +8,6 @@ export interface ICategory<T extends 'expanded' | 'client' | 'server'> extends I
   title: string;
   slug: string;
   parent: T extends 'client' | 'expanded' ? string : ObjectID | null;
-  children: T extends 'expanded' ? ICategory<T>[] : T extends 'client' ? ( string | ICategory<T> )[] : ObjectID[];
+  children: T extends 'expanded' ? ICategory<T>[] : T extends 'client' ? (string | ICategory<T>)[] : ObjectID[];
   description: string;
 }

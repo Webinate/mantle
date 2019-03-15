@@ -10,18 +10,18 @@ import { buildHtml } from '../../controllers/build-html';
 export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'client' | 'expanded'>> {
   private _elementsCollection: Collection<IDraftElement<'server'>>;
 
-  public async downloadToken( options?: ISchemaOptions ) {
-    const toRet = await super.downloadToken( options );
-    await this.populate( toRet );
+  public async downloadToken(options?: ISchemaOptions) {
+    const toRet = await super.downloadToken(options);
+    await this.populate(toRet);
     return toRet;
   }
 
-  setElementCollection( collection: Collection<IDraftElement<'server'>> ) {
+  setElementCollection(collection: Collection<IDraftElement<'server'>>) {
     this._elementsCollection = collection;
   }
 
   clone() {
-    const copy = super.clone( new DocumentSchema() ) as DocumentSchema;
+    const copy = super.clone(new DocumentSchema()) as DocumentSchema;
     copy._elementsCollection = this._elementsCollection;
     return copy;
   }
@@ -29,45 +29,42 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
   /**
    * Populates a draft json with its elements
    */
-  async populate( doc: IDocument<'client' | 'expanded'> ) {
-    const elementsFromDb = await this._elementsCollection.find(
-      { parent: new ObjectID( doc._id ) } as IDraftElement<'server'> ).toArray();
+  async populate(doc: IDocument<'client' | 'expanded'>) {
+    const elementsFromDb = await this._elementsCollection
+      .find({ parent: new ObjectID(doc._id) } as IDraftElement<'server'>)
+      .toArray();
 
-    if ( !elementsFromDb || elementsFromDb.length === 0 ) {
+    if (!elementsFromDb || elementsFromDb.length === 0) {
       doc.elements = [];
       return;
     }
 
-    const elements = doc.elementsOrder.map( elmId => elementsFromDb.find( elm => elm._id.toString() === elmId )! ) || [];
+    const elements = doc.elementsOrder.map(elmId => elementsFromDb.find(elm => elm._id.toString() === elmId)!) || [];
 
     const jsons = await Promise.all(
-
-      elements.map( elm => {
-        const model = ModelFactory.get( elm.type ) as Model<IDraftElement<'server'>, IDraftElement<'client'>>;
+      elements.map(elm => {
+        const model = ModelFactory.get(elm.type) as Model<IDraftElement<'server'>, IDraftElement<'client'>>;
         const schema = model.schema.clone();
 
-        schema.setServer( elm as IDraftElement<'server'>, true );
+        schema.setServer(elm as IDraftElement<'server'>, true);
 
-        return schema.downloadToken( {
+        return schema.downloadToken({
           expandMaxDepth: 1,
           expandForeignKeys: true,
           verbose: true,
-          expandSchemaBlacklist: [ /parent/ ]
-        } );
-      } )
-
+          expandSchemaBlacklist: [/parent/]
+        });
+      })
     );
 
-    const htmlMap: { [ zone: string ]: string } = {};
+    const htmlMap: { [zone: string]: string } = {};
     doc.elements = jsons || [];
 
-    for ( const elm of doc.elements ) {
-      elm.html = buildHtml( elm );
+    for (const elm of doc.elements) {
+      elm.html = buildHtml(elm);
 
-      if ( !htmlMap[ elm.zone ] )
-        htmlMap[ elm.zone ] = elm.html;
-      else
-        htmlMap[ elm.zone ] += elm.html;
+      if (!htmlMap[elm.zone]) htmlMap[elm.zone] = elm.html;
+      else htmlMap[elm.zone] += elm.html;
     }
 
     doc.html = htmlMap;

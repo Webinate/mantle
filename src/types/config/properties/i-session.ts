@@ -1,12 +1,11 @@
-
 /*
-* Describes the options for the session
-*/
+ * Describes the options for the session
+ */
 export interface ISession {
   /*
-  * If set, the session will be restricted to URLs underneath the given path.
-  * By default the path is '/', which means that the same sessions will be shared across the entire domain.
-  */
+   * If set, the session will be restricted to URLs underneath the given path.
+   * By default the path is '/', which means that the same sessions will be shared across the entire domain.
+   */
   path: string;
 
   /**

@@ -1,5 +1,4 @@
 export interface IMailProperties {
-
   /**
    * Specify the type of mailer to use.
    * Currently we support 'mailgun'
@@ -13,7 +12,6 @@ export interface IMailProperties {
 }
 
 export interface IMailOptions {
-
   /**
    * The from field sent to recipients
    */
@@ -26,7 +24,7 @@ export interface IMailer {
    * @param {IMailOptions} options
    * @returns {Promise<boolean>}
    */
-  initialize( options: IMailOptions ): Promise<boolean>
+  initialize(options: IMailOptions): Promise<boolean>;
 
   /**
    * Sends an email
@@ -36,7 +34,7 @@ export interface IMailer {
    * @param {stirng} msg The message to be sent
    * @returns {Promise<boolean>}
    */
-  sendMail( to: string, from: string, subject: string, msg: string ): Promise<boolean>
+  sendMail(to: string, from: string, subject: string, msg: string): Promise<boolean>;
 }
 
 /**

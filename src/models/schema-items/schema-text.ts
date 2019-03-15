@@ -17,8 +17,8 @@ export class SchemaText extends SchemaItem<string, string> {
    * @param val The text of this item
    * @param options Optional params
    */
-  constructor( name: string, val: string, options?: ITextOptions ) {
-    super( name, val );
+  constructor(name: string, val: string, options?: ITextOptions) {
+    super(name, val);
     options = { htmlClean: true, maxCharacters: 10000, minCharacters: 0, ...options };
     this.maxCharacters = options.maxCharacters!;
     this.minCharacters = options.minCharacters!;
@@ -30,9 +30,9 @@ export class SchemaText extends SchemaItem<string, string> {
    * @returns copy A sub class of the copy
    * @returns
    */
-  public clone( copy?: SchemaText ): SchemaText {
-    copy = copy === undefined ? new SchemaText( this.name, this.getDbValue() ) : copy;
-    super.clone( copy );
+  public clone(copy?: SchemaText): SchemaText {
+    copy = copy === undefined ? new SchemaText(this.name, this.getDbValue()) : copy;
+    super.clone(copy);
 
     copy.maxCharacters = this.maxCharacters;
     copy.minCharacters = this.minCharacters;
@@ -43,31 +43,27 @@ export class SchemaText extends SchemaItem<string, string> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public async validate( val: string | undefined ) {
+  public async validate(val: string | undefined) {
     const maxCharacters = this.maxCharacters;
     const minCharacters = this.minCharacters;
     val = val || '';
     let transformedValue = '';
 
-    if ( this.htmlClean )
-      transformedValue = sanitizeHtml( val.trim(), { allowedTags: [] } );
-    else
-      transformedValue = val.trim();
+    if (this.htmlClean) transformedValue = sanitizeHtml(val.trim(), { allowedTags: [] });
+    else transformedValue = val.trim();
 
-    if ( transformedValue.length < minCharacters && minCharacters === 1 )
-      throw new Error( `${this.name} cannot be empty` );
-    if ( transformedValue.length > maxCharacters )
-      throw new Error( `The character length of ${this.name} is too long, please keep it below ${maxCharacters}` );
-    else if ( transformedValue.length < minCharacters )
-      throw new Error( `The character length of ${this.name} is too short, please keep it above ${minCharacters}` );
-    else
-      return transformedValue;
+    if (transformedValue.length < minCharacters && minCharacters === 1) throw new Error(`${this.name} cannot be empty`);
+    if (transformedValue.length > maxCharacters)
+      throw new Error(`The character length of ${this.name} is too long, please keep it below ${maxCharacters}`);
+    else if (transformedValue.length < minCharacters)
+      throw new Error(`The character length of ${this.name} is too short, please keep it above ${minCharacters}`);
+    else return transformedValue;
   }
 
   /**
    * Gets the value of this item
    */
-  public async getValue( options?: ISchemaOptions ) {
+  public async getValue(options?: ISchemaOptions) {
     return this.getDbValue();
   }
 }

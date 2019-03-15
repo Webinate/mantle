@@ -18,8 +18,8 @@ export class SchemaNumArray extends SchemaItem<number[], number[]> {
    * @param name The name of this item
    * @param val The number array of this schema item
    */
-  constructor( name: string, val: Array<number>, options?: INumArrOptions ) {
-    super( name, val );
+  constructor(name: string, val: Array<number>, options?: INumArrOptions) {
+    super(name, val);
     options = {
       minItems: 0,
       maxItems: Infinity,
@@ -36,20 +36,18 @@ export class SchemaNumArray extends SchemaItem<number[], number[]> {
     this.minItems = options.minItems!;
     this.type = options.type!;
 
-    if ( options.decimalPlaces! > 20 )
-      throw new Error( `Decimal palces for ${name} cannot be more than 20` );
+    if (options.decimalPlaces! > 20) throw new Error(`Decimal palces for ${name} cannot be more than 20`);
 
     this.decimalPlaces = options.decimalPlaces!;
-
   }
 
   /**
    * Creates a clone of this item
    * @returns copy A sub class of the copy
    */
-  public clone( copy?: SchemaNumArray ): SchemaNumArray {
-    copy = copy === undefined ? new SchemaNumArray( this.name, this.getDbValue() ) : copy;
-    super.clone( copy );
+  public clone(copy?: SchemaNumArray): SchemaNumArray {
+    copy = copy === undefined ? new SchemaNumArray(this.name, this.getDbValue()) : copy;
+    super.clone(copy);
 
     copy.max = this.max;
     copy.min = this.min;
@@ -63,7 +61,7 @@ export class SchemaNumArray extends SchemaItem<number[], number[]> {
   /**
    * Checks the value stored to see if its correct in its current form
    */
-  public async validate( val: number[] ) {
+  public async validate(val: number[]) {
     const transformedValue = val;
     const max = this.max;
     const min = this.min;
@@ -71,22 +69,22 @@ export class SchemaNumArray extends SchemaItem<number[], number[]> {
     let temp: number;
     const decimalPlaces = this.decimalPlaces;
 
-    for ( let i = 0, l = transformedValue.length; i < l; i++ ) {
-      if ( type === 'Int' )
-        temp = parseInt( transformedValue.toString() );
-      else
-        temp = parseFloat( ( parseFloat( transformedValue.toString() ).toFixed( decimalPlaces ) ) );
+    for (let i = 0, l = transformedValue.length; i < l; i++) {
+      if (type === 'Int') temp = parseInt(transformedValue.toString());
+      else temp = parseFloat(parseFloat(transformedValue.toString()).toFixed(decimalPlaces));
 
-      if ( temp < min || temp > max )
-        throw new Error( `The value of ${this.name} is not within the range of ${this.min} and ${this.max}` );
+      if (temp < min || temp > max)
+        throw new Error(`The value of ${this.name} is not within the range of ${this.min} and ${this.max}`);
 
-      transformedValue[ i ] = temp;
+      transformedValue[i] = temp;
     }
 
-    if ( transformedValue.length < this.minItems )
-      throw new Error( `You must select at least ${this.minItems} item${( this.minItems === 1 ? '' : 's' )} for ${this.name}` );
-    if ( transformedValue.length > this.maxItems )
-      throw new Error( `You have selected too many items for ${this.name}, please only use up to ${this.maxItems}` );
+    if (transformedValue.length < this.minItems)
+      throw new Error(
+        `You must select at least ${this.minItems} item${this.minItems === 1 ? '' : 's'} for ${this.name}`
+      );
+    if (transformedValue.length > this.maxItems)
+      throw new Error(`You have selected too many items for ${this.name}, please only use up to ${this.maxItems}`);
 
     return transformedValue;
   }
@@ -94,7 +92,7 @@ export class SchemaNumArray extends SchemaItem<number[], number[]> {
   /**
    * Gets the value of this item
    */
-  public async getValue( options?: ISchemaOptions ) {
+  public async getValue(options?: ISchemaOptions) {
     return this.getDbValue();
   }
 }

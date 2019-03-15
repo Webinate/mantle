@@ -18,37 +18,33 @@ export class LocalVolume implements IRemote {
     this._zipper = createGzip();
   }
 
-  async initialize( options: ILocalVolume ) {
+  async initialize(options: ILocalVolume) {
+    if (!options.path) throw new Error(`Please specify the 'path' variable to your local remote options`);
 
-    if ( !options.path )
-      throw new Error( `Please specify the 'path' variable to your local remote options` );
+    if (!existsSync(resolve(options.path)))
+      throw new Error(`The path '${resolve(options.path)}' specified in the local remote does not resolve to a folder`);
 
-    if ( !existsSync( resolve( options.path ) ) )
-      throw new Error( `The path '${resolve( options.path )}' specified in the local remote does not resolve to a folder` );
+    if (options.url === undefined) throw new Error(`Please specify the 'url' variable to your local remote options`);
 
-    if ( options.url === undefined )
-      throw new Error( `Please specify the 'url' variable to your local remote options` );
-
-    this._path = resolve( options.path );
+    this._path = resolve(options.path);
     this._url = options.url;
   }
 
-  async createVolume( volume: IVolume<'server'>, options?: any ) {
+  async createVolume(volume: IVolume<'server'>, options?: any) {
     const path = `${this._path}/${volume.identifier}`;
-    const exists = await this.exists( path );
-    if ( exists )
-      throw new Error( `The folder '${path}' already exists` );
+    const exists = await this.exists(path);
+    if (exists) throw new Error(`The folder '${path}' already exists`);
 
-    await mkdirSync( path );
+    await mkdirSync(path);
     return volume.identifier;
   }
 
-  private exists( path: string ) {
-    return new Promise<boolean>( function( resolve, reject ) {
-      exists( path, function( e ) {
-        resolve( e );
-      } )
-    } )
+  private exists(path: string) {
+    return new Promise<boolean>(function(resolve, reject) {
+      exists(path, function(e) {
+        resolve(e);
+      });
+    });
   }
 
   // generateUrl( volume: IVolume<'server'>, identifier: string ) {
@@ -59,97 +55,89 @@ export class LocalVolume implements IRemote {
    * Wraps a source and destination stream in a promise that catches error
    * and completion events
    */
-  private handleStreamsEvents( source: Readable, dest: Writable ) {
-    return new Promise( function( resolve, reject ) {
+  private handleStreamsEvents(source: Readable, dest: Writable) {
+    return new Promise(function(resolve, reject) {
       let earlyExit = false;
 
-      source.on( 'error', function( err: Error ) {
-        if ( earlyExit )
-          return;
+      source.on('error', function(err: Error) {
+        if (earlyExit) return;
 
         earlyExit = true;
-        reject( new Error( `Error reading source stream for upload: '${err.message}'` ) );
-      } );
+        reject(new Error(`Error reading source stream for upload: '${err.message}'`));
+      });
 
-      dest.on( 'error', function( err: Error ) {
-        if ( earlyExit )
-          return;
+      dest.on('error', function(err: Error) {
+        if (earlyExit) return;
 
         earlyExit = true;
-        return reject( new Error( `Error in upload stream to volume: '${err.message}'` ) )
-      } );
+        return reject(new Error(`Error in upload stream to volume: '${err.message}'`));
+      });
 
-      dest.on( 'finish', () => {
-        if ( earlyExit )
-          return;
+      dest.on('finish', () => {
+        if (earlyExit) return;
 
         resolve();
-      } );
-    } );
+      });
+    });
   }
 
-  async uploadFile( volume: IVolume<'server'>, file: IUpload ): Promise<IUploadToken> {
-    let ext = extname( file.name );
-    let base = basename( file.name, ext )
-    let filename = base + ( ext ? ext : '' );
-    let fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}` );
+  async uploadFile(volume: IVolume<'server'>, file: IUpload): Promise<IUploadToken> {
+    let ext = extname(file.name);
+    let base = basename(file.name, ext);
+    let filename = base + (ext ? ext : '');
+    let fileExists = await this.exists(`${this._path}/${volume.identifier}/${filename}`);
     let counter = 1;
 
-    while ( fileExists ) {
-      ext = extname( file.name );
-      base = basename( file.name, ext )
+    while (fileExists) {
+      ext = extname(file.name);
+      base = basename(file.name, ext);
       base += counter.toString();
       counter++;
 
-      filename = base + ( ext ? ext : '' );
-      fileExists = await this.exists( `${this._path}/${volume.identifier}/${filename}` );
+      filename = base + (ext ? ext : '');
+      fileExists = await this.exists(`${this._path}/${volume.identifier}/${filename}`);
     }
 
-    const writeStream = createWriteStream( `${this._path}/${volume.identifier}/${filename}` );
-    const source = createReadStream( file.path );
+    const writeStream = createWriteStream(`${this._path}/${volume.identifier}/${filename}`);
+    const source = createReadStream(file.path);
 
     // Check if the stream content type is something that can be compressed
     // if so, then compress it before sending it to
     // Google and set the content encoding
-    if ( compressible( file.type ) )
-      source.pipe( this._zipper ).pipe( writeStream );
-    else
-      source.pipe( writeStream );
+    if (compressible(file.type)) source.pipe(this._zipper).pipe(writeStream);
+    else source.pipe(writeStream);
 
-    await this.handleStreamsEvents( source, writeStream );
+    await this.handleStreamsEvents(source, writeStream);
     return {
       id: filename,
       url: `${this._url}${volume.identifier}/${filename}`
     };
   }
 
-  async removeFile( volume: IVolume<'server'>, file: IFileEntry<'server'> ) {
+  async removeFile(volume: IVolume<'server'>, file: IFileEntry<'server'>) {
     const filePath = `${this._path}/${volume.identifier}/${file.identifier}`;
-    const exists = await this.exists( filePath );
-    if ( !exists )
-      return;
+    const exists = await this.exists(filePath);
+    if (!exists) return;
 
-    await this.deletePath( filePath );
+    await this.deletePath(filePath);
   }
 
-  private async deletePath( path: string ) {
-    return new Promise( function( resolve, reject ) {
-      rimraf( path, function( err ) {
-        if ( err )
-          return reject( err );
+  private async deletePath(path: string) {
+    return new Promise(function(resolve, reject) {
+      rimraf(path, function(err) {
+        if (err) return reject(err);
 
         return resolve();
-      } );
-    } );
+      });
+    });
   }
 
-  async removeVolume( volume: IVolume<'server'> ) {
+  async removeVolume(volume: IVolume<'server'>) {
     const path = `${this._path}/${volume.identifier}`;
-    const exists = await this.exists( path );
-    if ( !exists )
-      return;
+    const exists = await this.exists(path);
+    if (!exists) return;
 
-    await this.deletePath( `${path}` );
+    await this.deletePath(`${path}`);
   }
 }
 

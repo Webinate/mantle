@@ -3,7 +3,6 @@ import * as yargs from 'yargs';
 
 let showLogs: boolean = false;
 
-
 /**
  * Initializes the logger
  */
@@ -11,17 +10,18 @@ export function initializeLogger() {
   const args = yargs.argv;
 
   // Add the console colours
-  winston.addColors( { debug: 'green', info: 'cyan', silly: 'magenta', warn: 'yellow', error: 'red' } );
+  winston.addColors({ debug: 'green', info: 'cyan', silly: 'magenta', warn: 'yellow', error: 'red' });
 
-  if ( args.logging === undefined || args.logging === 'true' )
-    showLogs = true;
+  if (args.logging === undefined || args.logging === 'true') showLogs = true;
 
-  winston.remove( winston.transports.Console );
-  winston.add( new winston.transports.Console() );
+  winston.remove(winston.transports.Console);
+  winston.add(new winston.transports.Console());
 
   // Saves logs to file
-  if ( args.logFile && args.logFile.trim() !== '' )
-    winston.add( new winston.transports.File( { filename: args.logFile, maxsize: 50000000, maxFiles: 1, tailable: true } ) );
+  if (args.logFile && args.logFile.trim() !== '')
+    winston.add(
+      new winston.transports.File({ filename: args.logFile, maxsize: 50000000, maxFiles: 1, tailable: true })
+    );
 }
 
 /**
@@ -29,18 +29,15 @@ export function initializeLogger() {
  * @param message The message to log
  * @param meta Optional meta information to store with the message
  */
-export function warn( message: string, meta?: any ) {
-  return new Promise( function( resolve, reject ) {
-    if ( !showLogs )
-      return resolve();
+export function warn(message: string, meta?: any) {
+  return new Promise(function(resolve, reject) {
+    if (!showLogs) return resolve();
 
-    winston.warn( message, meta, function( err ) {
-      if ( err )
-        reject( err )
-      else
-        resolve();
-    } )
-  } );
+    winston.warn(message, meta, function(err) {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
 }
 
 /**
@@ -55,18 +52,15 @@ export function enabled() {
  * @param message The message to log
  * @param meta Optional meta information to store with the message
  */
-export function info( message: string, meta?: any ) {
-  return new Promise( function( resolve, reject ) {
-    if ( !showLogs )
-      return resolve();
+export function info(message: string, meta?: any) {
+  return new Promise(function(resolve, reject) {
+    if (!showLogs) return resolve();
 
-    winston.info( message, meta, function( err ) {
-      if ( err )
-        reject( err )
-      else
-        resolve();
-    } )
-  } );
+    winston.info(message, meta, function(err) {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
 }
 
 /**
@@ -74,18 +68,15 @@ export function info( message: string, meta?: any ) {
  * @param message The message to log
  * @param meta Optional meta information to store with the message
  */
-export function error( message: string, meta?: any ) {
-  return new Promise( function( resolve, reject ) {
-    if ( !showLogs )
-      return resolve();
+export function error(message: string, meta?: any) {
+  return new Promise(function(resolve, reject) {
+    if (!showLogs) return resolve();
 
-    winston.error( message, meta, function( err ) {
-      if ( err )
-        reject( err )
-      else
-        resolve();
-    } )
-  } );
+    winston.error(message, meta, function(err) {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
 }
 
 /**

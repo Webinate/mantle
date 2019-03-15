@@ -10,28 +10,26 @@ export class SchemaBool extends SchemaItem<boolean, boolean | undefined | null> 
    * @param name The name of this item
    * @param val The value of this item
    */
-  constructor( name: string, val: boolean ) {
-    super( name, val );
+  constructor(name: string, val: boolean) {
+    super(name, val);
   }
 
   /**
    * Creates a clone of this item
    * @returns copy A sub class of the copy
-    */
-  public clone( copy?: SchemaBool ): SchemaBool {
-    copy = copy === undefined ? new SchemaBool( this.name, this.getDbValue() ) : copy;
-    super.clone( copy );
+   */
+  public clone(copy?: SchemaBool): SchemaBool {
+    copy = copy === undefined ? new SchemaBool(this.name, this.getDbValue()) : copy;
+    super.clone(copy);
     return copy;
   }
 
   /**
    * Always true
    */
-  public async validate( val: boolean | undefined | null ) {
-    if ( val === undefined )
-      throw new Error( `${this.name} cannot be undefined` );
-    if ( val === null )
-      throw new Error( `${this.name} cannot be null` );
+  public async validate(val: boolean | undefined | null) {
+    if (val === undefined) throw new Error(`${this.name} cannot be undefined`);
+    if (val === null) throw new Error(`${this.name} cannot be null`);
 
     return val;
   }
@@ -39,7 +37,7 @@ export class SchemaBool extends SchemaItem<boolean, boolean | undefined | null> 
   /**
    * Gets the value of this item
    */
-  public async getValue( options?: ISchemaOptions ) {
+  public async getValue(options?: ISchemaOptions) {
     return this.getDbValue();
   }
 }

@@ -1,5 +1,4 @@
 export interface ICollectionProperties {
-
   /**
    * The name of the mongodb collection for storing user details
    * eg: 'users'
