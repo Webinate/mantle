@@ -18,10 +18,31 @@
       "cwd": "${workspaceRoot}",
       "preLaunchTask": null,
       "runtimeExecutable": null,
-      "runtimeArgs": [
-        "-r",
-        "ts-node/register"
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": []
+    },
+    {
+      "name": "Mantle Debug - Watch",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "stopOnEntry": false,
+      "program": "${workspaceRoot}/node_modules/nodemon/bin/nodemon.js",
+      "args": [
+        "${workspaceRoot}/src/main.ts",
+        "--config=${workspaceRoot}/config.json",
+        "--numThreads=1",
+        "--logging=true",
+        "--inspect=true"
       ],
+      "outputCapture": "std",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
       "env": {
         "NODE_ENV": "development"
       },
@@ -46,10 +67,7 @@
       "cwd": "${workspaceRoot}",
       "preLaunchTask": null,
       "runtimeExecutable": null,
-      "runtimeArgs": [
-        "-r",
-        "ts-node/register"
-      ],
+      "runtimeArgs": ["-r", "ts-node/register"],
       "env": {
         "NODE_ENV": "production"
       },
@@ -84,9 +102,7 @@
       "cwd": "${workspaceRoot}",
       "preLaunchTask": null,
       "runtimeExecutable": null,
-      "runtimeArgs": [
-        "--nolazy"
-      ],
+      "runtimeArgs": ["--nolazy"],
       "env": {
         "NODE_ENV": "development"
       },

@@ -6,93 +6,10 @@ import {
   // GraphQLInt,
   GraphQLList,
   // GraphQLBoolean,
-  GraphQLInt,
-  Kind,
-  GraphQLScalarType,
-  GraphQLEnumType
+  GraphQLInt
   // GraphQLNonNull
 } from 'graphql';
-import ControllerFactory from '../core/controller-factory';
-
-const LongType = new GraphQLScalarType({
-  name: 'Long',
-  description: '64-bit integral numbers',
-  // TODO: Number is only 52-bit
-  serialize: Number,
-  parseValue: Number,
-  parseLiteral: function parseLiteral(ast) {
-    if (ast.kind === Kind.INT) {
-      const num = parseInt(ast.value, 10);
-      return num;
-    }
-    return null;
-  }
-});
-
-const UserType = new GraphQLObjectType({
-  name: 'User',
-  fields: () => ({
-    _id: { type: GraphQLID },
-    username: {
-      type: GraphQLString,
-
-      args: {
-        case: {
-          type: new GraphQLEnumType({
-            name: 'Text_Transform',
-            values: {
-              UPPERCASE: { value: 'UPPERCASE' },
-              LOWERCASE: { value: 'LOWERCASE' }
-            }
-          })
-        }
-      },
-      resolve(parent, args) {
-        return args.case === 'UPPERCASE' ? parent.username.toString().toUpperCase() : parent.username.toString();
-      }
-    },
-    email: { type: GraphQLString },
-    password: { type: GraphQLString },
-    passwordTag: { type: GraphQLString },
-    registerKey: { type: GraphQLString },
-    avatar: { type: GraphQLString },
-    // avatarFile: {
-    //     type: UserType,
-    //     resolve(parent, args){
-    //         return Author.findById(parent.authorId);
-    //     }
-    // },
-    privileges: {
-      type: new GraphQLEnumType({
-        name: 'User_Priviledges',
-        values: {
-          super: { value: 'super' },
-          admin: { value: 'admin' },
-          regular: { value: 'regular' }
-        }
-      })
-    },
-    sessionId: { type: GraphQLString },
-    createdOn: { type: LongType },
-    lastLoggedIn: { type: LongType }
-    // author: {
-    //     type: UserType,
-    //     resolve(parent, args){
-    //         return Author.findById(parent.authorId);
-    //     }
-    // }
-  })
-});
-
-const UserPageType = new GraphQLObjectType({
-  name: 'UserPageType',
-  fields: {
-    data: { type: new GraphQLList(UserType) },
-    limit: { type: GraphQLInt },
-    index: { type: GraphQLInt },
-    count: { type: GraphQLInt }
-  }
-});
+import { userQuery } from '../graphql/queries/users';
 
 // // const BookType = new GraphQLObjectType<IPost<'client'>>({
 // //     name: 'Post',
@@ -264,28 +181,7 @@ const AuthorType: GraphQLObjectType = new GraphQLObjectType({
 const RootQuery: GraphQLObjectType = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
-    user: {
-      type: UserType,
-      args: { username: { type: GraphQLString } },
-      resolve(parent, args) {
-        // code to get data from db / other source
-        return ControllerFactory.get('users').getUser({
-          username: args.username
-        });
-      }
-    },
-    users: {
-      type: UserPageType,
-      args: {
-        index: { type: GraphQLInt },
-        limit: { type: GraphQLInt },
-        search: { type: GraphQLString }
-      },
-      resolve(parent, args) {
-        // code to get data from db / other source
-        return ControllerFactory.get('users').getUsers(args.index, args.limit, args.search, true);
-      }
-    },
+    ...userQuery,
     book: {
       type: BookType,
       args: { id: { type: GraphQLID } },
