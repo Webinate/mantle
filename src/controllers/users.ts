@@ -576,12 +576,12 @@ export class UsersController extends Controller {
   /**
    * Gets a user by a username or email
    */
-  async getUser(options: { username?: string; id?: string; email?: string; verbose?: boolean }) {
+  async getUser(options: { username?: string; id?: string; email?: string } & Partial<ISchemaOptions>) {
     const schemaOptions: ISchemaOptions = {
-      expandForeignKeys: true,
-      expandMaxDepth: 2,
+      expandForeignKeys: options.expandForeignKeys !== undefined ? options.expandForeignKeys : true,
+      expandMaxDepth: options.expandMaxDepth || 2,
       verbose: options.verbose !== undefined ? options.verbose : true,
-      expandSchemaBlacklist: [/user/]
+      expandSchemaBlacklist: options.expandSchemaBlacklist || [/user/]
     };
 
     // If id - then leave early
@@ -754,16 +754,23 @@ export class UsersController extends Controller {
    * @param searchPhrases Search phrases
    * @param verbose True if you want to show all user information
    */
-  async getUsers(index: number = 0, limit: number = 10, searchPhrases?: RegExp, verbose: boolean = true) {
+  async getUsers(options?: { index?: number; limit?: number; search?: RegExp } & Partial<ISchemaOptions>) {
     const findToken: { $or?: Partial<IUserEntry<'server'>>[] } = {};
+    const index = options && options.index !== undefined ? options.index : 0;
+    const limit = options && options.limit !== undefined ? options.limit : 10;
+    const searchPhrases = options && options.search !== undefined ? options.search : undefined;
+
+    const schemaOptions: ISchemaOptions = {
+      expandForeignKeys: options && options.expandForeignKeys !== undefined ? options.expandForeignKeys : true,
+      expandMaxDepth: (options && options.expandMaxDepth) || 1,
+      verbose: options && options.verbose !== undefined ? options.verbose : true,
+      expandSchemaBlacklist: (options && options.expandSchemaBlacklist) || [/user/]
+    };
 
     if (searchPhrases) findToken.$or = [{ username: searchPhrases }, { email: searchPhrases }];
 
     const count = await this._users.count(findToken);
-    const data = await this._users.downloadMany(
-      { index: index, limit: limit, selector: findToken },
-      { expandForeignKeys: true, expandMaxDepth: 1, verbose: verbose, expandSchemaBlacklist: [/user/] }
-    );
+    const data = await this._users.downloadMany({ index: index, limit: limit, selector: findToken }, schemaOptions);
 
     const toRet: Page<IUserEntry<'client' | 'expanded'>> = {
       count: count,

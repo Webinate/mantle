@@ -21,7 +21,7 @@ export const userQuery: GraphQLFieldConfigMap<any, any> = {
       // code to get data from db / other source
       return ControllerFactory.get('users').getUser({
         username: args.username,
-        depth: 0
+        expandForeignKeys: false
       });
     }
   },
@@ -34,7 +34,13 @@ export const userQuery: GraphQLFieldConfigMap<any, any> = {
     },
     resolve(parent, args) {
       // code to get data from db / other source
-      return ControllerFactory.get('users').getUsers(args.index, args.limit, args.search, true);
+      return ControllerFactory.get('users').getUsers({
+        index: args.index,
+        limit: args.limit,
+        search: args.search,
+        verbose: true,
+        expandForeignKeys: false
+      });
     }
   }
 };

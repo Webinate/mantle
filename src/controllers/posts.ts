@@ -77,7 +77,7 @@ export class PostsController extends Controller {
     const findToken: Partial<IPost<'server'>> & { $or: IPost<'server'>[] } = { $or: [] };
 
     if (options.author) {
-      const user = await this._users.getUsers(undefined, undefined, new RegExp(`^${options.author!}$`, 'i'));
+      const user = await this._users.getUsers({ search: new RegExp(`^${options.author!}$`, 'i') });
       if (user && user.data.length > 0) findToken.author = new ObjectID(user.data[0]._id);
       else {
         return {

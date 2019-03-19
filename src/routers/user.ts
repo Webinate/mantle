@@ -113,12 +113,12 @@ export class UserRouter extends Router {
     index = isNaN(index) ? undefined : index;
     limit = isNaN(limit) ? undefined : limit;
 
-    const response: Page<IUserEntry<'client' | 'expanded'>> = await this._userController.getUsers(
+    const response: Page<IUserEntry<'client' | 'expanded'>> = await this._userController.getUsers({
       index,
       limit,
-      query,
+      search: query,
       verbose
-    );
+    });
     return response;
   }
 

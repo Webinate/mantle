@@ -74,22 +74,11 @@ export class FilesController extends Controller {
 
   /**
    * Fetches a file by its ID
-   * @param fileID The file ID of the file on the volume
-   * @param user Optionally specify the user of the file
-   * @param searchTerm Specify a search term
+   * @param fileID The file ID
    */
-  async getFile(fileID: string, user?: string, searchTerm?: RegExp) {
+  async getFile(fileID: string) {
     const files = this._files;
-    const searchQuery: Partial<IFileEntry<'server'>> = { identifier: fileID };
-
-    if (user) {
-      const u = await this._users.getUser({ username: user });
-      if (!u) throw new Error404(`User not found`);
-
-      searchQuery.user = new ObjectID(u._id);
-    }
-
-    if (searchTerm) searchQuery.name = searchTerm as any;
+    const searchQuery: Partial<IFileEntry<'server'>> = { _id: new ObjectID(fileID) };
 
     const file = await files.downloadOne(searchQuery, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true });
 
