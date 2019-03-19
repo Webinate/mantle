@@ -151,7 +151,7 @@ export async function initialize() {
   // Now go through the add on clients and add the controllers
   // to any existing servers defined in the client
   for (const client of clients) {
-    if (!client.enabled) break;
+    if (!client.enabled) continue;
 
     let server: Server | undefined;
     let clientServer = client.server;
