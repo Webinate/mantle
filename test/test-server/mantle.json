@@ -1,5 +1,6 @@
 {
   "name": "test",
+  "enabled": true,
   "server": {
     "port": 8000,
     "host": "localhost",
