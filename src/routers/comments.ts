@@ -139,7 +139,7 @@ export class CommentsRouter extends Router {
     });
 
     // Only admins are allowed to see private comments
-    if (!comment.public && (!user || (user.privileges === 'admin' || user.privileges === 'super')))
+    if (!comment.public && (!user || user.privileges === 'regular'))
       throw new Error('That comment is marked private');
 
     return comment;
@@ -155,8 +155,8 @@ export class CommentsRouter extends Router {
     const user = req._user!;
     const comment = await this._controller.getOne(req.params.id);
 
-    // Only admins are allowed to see private comments
-    if ((user.privileges === 'admin' || user.privileges === 'super') && user.username !== comment.author)
+    // Only admins & owners are allowed
+    if (user.privileges === 'regular' && user.username !== comment.author)
       throw new Error('You do not have permission');
 
     await this._controller.remove(req.params.id);
@@ -173,8 +173,8 @@ export class CommentsRouter extends Router {
     const user = req._user!;
     let comment = await this._controller.getOne(req.params.id);
 
-    // Only admins are allowed to see private comments
-    if ((user.privileges === 'admin' || user.privileges === 'super') && user.username !== comment.author)
+    // Only admins & owners are allowed
+    if ( user.privileges === 'regular' && user.username !== comment.author)
       throw new Error('You do not have permission');
 
     comment = await this._controller.update(req.params.id, token);
