@@ -19,6 +19,7 @@ import { Error404, Error500, Error400 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUploadToken } from '../types/interfaces/i-remote';
 import { Schema } from '../models/schema';
+import { ISchemaOptions } from '../types/misc/i-schema-options';
 
 export type FilesGetOptions = {
   volumeId?: string | ObjectID;
@@ -26,10 +27,9 @@ export type FilesGetOptions = {
   index?: number;
   limit?: number;
   search?: string | RegExp;
-  verbose?: boolean;
   sort?: 'created' | 'name' | 'memory';
   sortOrder?: 'asc' | 'desc';
-};
+} & Partial<ISchemaOptions>;
 
 export type DeleteOptions = {
   volumeId?: string | ObjectID;
@@ -76,11 +76,14 @@ export class FilesController extends Controller {
    * Fetches a file by its ID
    * @param fileID The file ID
    */
-  async getFile(fileID: string) {
+  async getFile(
+    fileID: string,
+    options: Partial<ISchemaOptions> = { verbose: true, expandMaxDepth: 1, expandForeignKeys: true }
+  ) {
     const files = this._files;
     const searchQuery: Partial<IFileEntry<'server'>> = { _id: new ObjectID(fileID) };
 
-    const file = await files.downloadOne(searchQuery, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true });
+    const file = await files.downloadOne(searchQuery, options);
 
     if (!file) throw new Error(`File '${fileID}' does not exist`);
 
@@ -151,7 +154,11 @@ export class FilesController extends Controller {
         index: index,
         limit: limit
       },
-      { verbose, expandForeignKeys: true, expandMaxDepth: 1 }
+      {
+        verbose,
+        expandForeignKeys: options.expandForeignKeys !== undefined ? options.expandForeignKeys : true,
+        expandMaxDepth: options.expandMaxDepth !== undefined ? options.expandMaxDepth : 1
+      }
     );
 
     const toRet: Page<IFileEntry<'client' | 'expanded'>> = {

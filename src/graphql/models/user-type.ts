@@ -4,6 +4,15 @@ import { FileType } from './file-type';
 import Controllers from '../../core/controller-factory';
 import { IUserEntry } from '../../types/models/i-user-entry';
 
+export const UserPriviledgesType = new GraphQLEnumType({
+  name: 'UserPriviledges',
+  values: {
+    super: { value: 'super' },
+    admin: { value: 'admin' },
+    regular: { value: 'regular' }
+  }
+});
+
 export const UserType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
@@ -16,21 +25,13 @@ export const UserType = new GraphQLObjectType({
     avatar: { type: GraphQLString },
     avatarFile: {
       type: FileType,
-
       resolve(parent: IUserEntry<'client'>, args) {
         if (parent.avatarFile) return Controllers.get('files').getFile(parent.avatarFile as string);
         return null;
       }
     },
     privileges: {
-      type: new GraphQLEnumType({
-        name: 'User_Priviledges',
-        values: {
-          super: { value: 'super' },
-          admin: { value: 'admin' },
-          regular: { value: 'regular' }
-        }
-      })
+      type: UserPriviledgesType
     },
     sessionId: { type: GraphQLString },
     createdOn: { type: LongType },

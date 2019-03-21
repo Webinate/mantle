@@ -87,7 +87,7 @@ export class UserRouter extends Router {
     if (!req._isAdmin && user.username !== req._user!.username) throw new Error403();
 
     const token = req.body as IUserEntry<'client'>;
-    if (user.privileges === 'super' && token.privileges !== 'super')
+    if (user.privileges === 'super' && (token.privileges !== undefined && token.privileges !== 'super'))
       throw new Error400('You cannot set a super admin level to less than super admin');
 
     return await this._userController.update(req.params.id, token, req._isAdmin ? false : true);

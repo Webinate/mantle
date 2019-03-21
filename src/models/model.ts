@@ -100,7 +100,7 @@ export abstract class Model<T extends IModelEntry<'server'>, Y extends IModelEnt
    * Downloads a client json of the model
    * @param selector The mongodb selector object
    */
-  async downloadOne(selector: any, options: ISchemaOptions) {
+  async downloadOne(selector: any, options: Partial<ISchemaOptions>) {
     const schema = await this.findOne(selector);
     if (!schema) return null;
 

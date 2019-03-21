@@ -17,12 +17,14 @@ export const userQuery: GraphQLFieldConfigMap<any, any> = {
     description: 'Use this to get all users',
     type: UserType,
     args: { username: { type: GraphQLString } },
-    resolve(parent, args) {
+    async resolve(parent, args) {
       // code to get data from db / other source
-      return ControllerFactory.get('users').getUser({
+      const user = await ControllerFactory.get('users').getUser({
         username: args.username,
         expandForeignKeys: false
       });
+
+      return user;
     }
   },
   users: {

@@ -69,7 +69,7 @@ export class Schema<T extends IModelEntry<'server'>, Y extends IModelEntry<'clie
    * Serializes the schema items into a JSON
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public async downloadToken(options?: ISchemaOptions): Promise<Y> {
+  public async downloadToken(options?: Partial<ISchemaOptions>): Promise<Y> {
     options = options ? options : { expandForeignKeys: true, expandMaxDepth: -1, verbose: true };
     const toReturn: Y = ({ _id: this.dbEntry._id!.toString() } as IModelEntry<'client'>) as Y;
     const items = this._items;

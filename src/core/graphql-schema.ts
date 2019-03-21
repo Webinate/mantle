@@ -10,6 +10,7 @@ import {
   // GraphQLNonNull
 } from 'graphql';
 import { userQuery } from '../graphql/queries/users';
+import { fileQuery } from '../graphql/queries/files';
 
 // // const BookType = new GraphQLObjectType<IPost<'client'>>({
 // //     name: 'Post',
@@ -182,6 +183,7 @@ const RootQuery: GraphQLObjectType = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     ...userQuery,
+    ...fileQuery,
     book: {
       type: BookType,
       args: { id: { type: GraphQLID } },

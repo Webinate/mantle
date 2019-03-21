@@ -1,12 +1,22 @@
 import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLBoolean } from 'graphql';
 import { LongType } from '../scalars/long';
 import { UserType } from './user-type';
+import { IFileEntry } from '../../types/models/i-file-entry';
+import Controllers from '../../core/controller-factory';
 
 export const FileType: GraphQLObjectType = new GraphQLObjectType({
   name: 'File',
   fields: () => ({
     _id: { type: GraphQLID },
-    user: { type: UserType },
+    name: { type: GraphQLString },
+    user: {
+      type: UserType,
+      resolve: (parent: IFileEntry<'client'>) => {
+        if (typeof parent.user === 'string')
+          return Controllers.get('users').getUser({ id: parent.user as string, expandForeignKeys: false });
+        else return parent.user;
+      }
+    },
     identifier: { type: GraphQLString },
     volumeId: { type: GraphQLString },
     volumeName: { type: GraphQLString },
@@ -16,12 +26,14 @@ export const FileType: GraphQLObjectType = new GraphQLObjectType({
     created: { type: LongType },
     size: { type: LongType },
     numDownloads: { type: LongType },
-    parentFile: { type: FileType }
-    // author: {
-    //     type: UserType,
-    //     resolve(parent, args){
-    //         return Author.findById(parent.authorId);
-    //     }
-    // }
+    parentFile: {
+      type: FileType,
+      resolve: (parent: IFileEntry<'client'>) => {
+        return Controllers.get('files').getFile(parent.parentFile as string, {
+          verbose: true,
+          expandForeignKeys: false
+        });
+      }
+    }
   })
 });
