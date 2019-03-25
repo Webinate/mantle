@@ -19,7 +19,7 @@ import { buildHtml } from './build-html';
 export type GetOptions = {
   id: string;
   checkPermissions?: { userId: ObjectID };
-};
+} & Partial<ISchemaOptions>;
 
 /**
  * Class responsible for managing documents
@@ -173,6 +173,15 @@ export class DocumentsController extends Controller {
     return toRet;
   }
 
+  async getDraft(id: string, options?: Partial<ISchemaOptions>) {
+    const draftsModel = this._drafts;
+
+    const draft = await draftsModel.findOne({ _id: new ObjectId(id) } as IDraft<'server'>);
+    if (!draft) throw new Error404('Draft not found');
+
+    return draft.downloadToken(options);
+  }
+
   async removeElement(findOptions: GetOptions, elementId: string) {
     const docsModel = this._docs;
 
@@ -309,10 +318,10 @@ export class DocumentsController extends Controller {
       }
 
       const document = await result.downloadToken({
-        verbose: true,
-        expandForeignKeys: true,
-        expandMaxDepth: 1,
-        expandSchemaBlacklist: [/parent/]
+        verbose: options.verbose !== undefined ? options.verbose : true,
+        expandForeignKeys: options.expandForeignKeys !== undefined ? options.expandForeignKeys : true,
+        expandMaxDepth: options.expandMaxDepth !== undefined ? options.expandMaxDepth : 1,
+        expandSchemaBlacklist: options.expandSchemaBlacklist !== undefined ? options.expandSchemaBlacklist : [/parent/]
       });
 
       return document;

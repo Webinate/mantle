@@ -25,9 +25,11 @@ export const UserType = new GraphQLObjectType({
     avatar: { type: GraphQLString },
     avatarFile: {
       type: FileType,
+
       resolve(parent: IUserEntry<'client'>, args) {
-        if (parent.avatarFile) return Controllers.get('files').getFile(parent.avatarFile as string);
-        return null;
+        if (!parent.avatarFile) return null;
+        if (typeof parent.avatarFile === 'string') return Controllers.get('files').getFile(parent.avatarFile);
+        return parent.avatarFile;
       }
     },
     privileges: {

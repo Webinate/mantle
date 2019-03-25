@@ -1,16 +1,9 @@
-import {
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLSchema,
-  GraphQLID,
-  // GraphQLInt,
-  GraphQLList,
-  // GraphQLBoolean,
-  GraphQLInt
-  // GraphQLNonNull
-} from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLID, GraphQLList, GraphQLInt } from 'graphql';
 import { userQuery } from '../graphql/queries/users';
 import { fileQuery } from '../graphql/queries/files';
+import { templateQuery } from '../graphql/queries/templates';
+import { postsQuery } from '../graphql/queries/posts';
+import { authMutation } from '../graphql/mutations/auth';
 
 // // const BookType = new GraphQLObjectType<IPost<'client'>>({
 // //     name: 'Post',
@@ -184,6 +177,8 @@ const RootQuery: GraphQLObjectType = new GraphQLObjectType({
   fields: {
     ...userQuery,
     ...fileQuery,
+    ...templateQuery,
+    ...postsQuery,
     book: {
       type: BookType,
       args: { id: { type: GraphQLID } },
@@ -215,8 +210,16 @@ const RootQuery: GraphQLObjectType = new GraphQLObjectType({
   }
 });
 
+const RootMutationType: GraphQLObjectType = new GraphQLObjectType({
+  name: 'RootMutationType',
+  fields: {
+    ...authMutation
+  }
+});
+
 const schema = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation: RootMutationType
 });
 
 export default schema;

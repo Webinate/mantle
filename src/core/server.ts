@@ -61,13 +61,13 @@ export class Server {
     const app = express();
 
     // bind express with graphql
-    app.use(
-      '/graphql',
-      graphqlHTTP({
+    app.use('/graphql', (req, res) => {
+      return graphqlHTTP({
         schema: GraphQlSchema,
-        graphiql: true
-      })
-    );
+        graphiql: true,
+        context: { res, req }
+      })(req, res);
+    });
 
     // Create the controllers
     const controllers: Router[] = [...this._controllers, new ErrorRouter()];

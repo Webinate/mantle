@@ -17,13 +17,14 @@ import { IDraft } from '../types/models/i-draft';
 import { DraftsModel } from '../models/drafts-model';
 
 export type PostVisibility = 'all' | 'public' | 'private';
+export type PostSortType = 'title' | 'created' | 'modified';
 
 export type PostsGetAllOptions = {
   visibility: PostVisibility;
   categories: string[];
   tags: string[];
   rtags: string[];
-  sort: 'title' | 'created' | 'modified';
+  sort: PostSortType;
   requiredTags?: string[];
   index: number;
   limit: number;
