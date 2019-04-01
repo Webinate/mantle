@@ -4,30 +4,14 @@ import {
   GraphQLObjectType,
   GraphQLInt,
   GraphQLString,
-  GraphQLEnumType
+  GraphQLEnumType,
+  GraphQLID
 } from 'graphql';
 import ControllerFactory from '../../core/controller-factory';
 import { PostSortType, PostVisibility } from '../../controllers/posts';
 import { SortOrderEnumType } from '../scalars/sort-order';
 import { PostType } from '../models/post-type';
-import { IAuthReq } from '../../types/tokens/i-auth-request';
-
-import Factory from '../../core/controller-factory';
-import { ServerResponse } from 'http';
-import { IUserEntry } from '../../types/models/i-user-entry';
-
-async function getAuthUser(req: IAuthReq, res: ServerResponse) {
-  const session = await Factory.get('sessions').getSession(req);
-  const toRet: { user?: IUserEntry<'server'>; isAdmin?: boolean } = { isAdmin: false };
-
-  if (session) {
-    await Factory.get('sessions').setSessionHeader(session, req, res);
-    toRet.user = session.user;
-    toRet.isAdmin = session.user.privileges === 'admin' || session.user.privileges === 'super';
-  }
-
-  return toRet;
-}
+import { getAuthUser } from '../helpers';
 
 const values: { [key in PostSortType]: { value: PostSortType } } = {
   created: { value: 'created' },
@@ -104,6 +88,24 @@ export const postsQuery: GraphQLFieldConfigMap<any, any> = {
         tags: args.tags,
         requiredTags: args.requiredTags
       });
+    }
+  },
+  post: {
+    type: PostType,
+    args: { id: { type: GraphQLID }, slug: { type: GraphQLString } },
+    resolve: async (parent, args, context) => {
+      const auth = await getAuthUser(context.req, context.res);
+      const post = await ControllerFactory.get('posts').getPost({
+        id: args.id,
+        slug: args.slug,
+        verbose: true
+      })!;
+
+      // Only admins are allowed to see private posts
+      if (!post.public && (!auth.user || (auth.user && auth.user.privileges === 'regular')))
+        throw new Error('That post is marked private');
+
+      return post;
     }
   }
 };

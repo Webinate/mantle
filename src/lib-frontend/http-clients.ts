@@ -124,3 +124,21 @@ export async function put(url: string, data?: any) {
 
   return resp;
 }
+
+export async function graphql(query: string, variables: any, headers?: any) {
+  const resp = await fetch('/graphql', {
+    method: 'post',
+    body: JSON.stringify({
+      query,
+      variables
+    }),
+    credentials: 'include',
+    headers: new Headers({
+      'content-type': 'application/json',
+      accept: 'application/json',
+      ...headers
+    })
+  });
+
+  return resp;
+}
