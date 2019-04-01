@@ -126,9 +126,9 @@ export function hasPermission(pathId?: string, permission: UserPrivilege = 'admi
           curUser.username !== targetUser &&
           permissionScale[curUser.privileges!] > permissionScale[permission]
         )
-          throw new Error403("You don't have permission to make this request");
+          throw new Error403(`You don't have permission to make this request`);
       } else if (permissionScale[session.user.privileges!] > permissionScale[permission])
-        throw new Error403("You don't have permission to make this request");
+        throw new Error403(`You don't have permission to make this request`);
 
       req._user = session.user;
       req._isAdmin = session.user.privileges === 'admin' || session.user.privileges === 'super';

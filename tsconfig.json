@@ -8,11 +8,7 @@
     "preserveConstEnums": true,
     "noImplicitAny": true,
     "target": "es2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "es7"
-    ],
+    "lib": ["dom", "dom.iterable", "es7"],
     "experimentalDecorators": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -20,10 +16,9 @@
     "noUnusedParameters": false,
     "noUnusedLocals": true,
     "strictNullChecks": true,
-    "jsx": "react"
+    "jsx": "react",
+    "skipLibCheck": true
   },
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": []
 }

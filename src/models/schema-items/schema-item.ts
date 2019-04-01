@@ -205,7 +205,7 @@ export abstract class SchemaItem<TServer, TClient> {
    * Gets the value of this item
    * @param options [Optional] A set of options that can be passed to control how the data must be returned
    */
-  public abstract async getValue(options?: ISchemaOptions): Promise<TClient>;
+  public abstract async getValue(options?: Partial<ISchemaOptions>): Promise<TClient>;
 
   /**
    * Sets the value of this item

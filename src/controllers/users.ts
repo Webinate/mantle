@@ -427,7 +427,7 @@ export class UsersController extends Controller {
       throw new Error('Password codes do not match. Please try resetting your password again');
 
     // Make sure password is valid
-    if (newPassword === undefined || newPassword === '' || blacklist(newPassword, "@''{}") !== newPassword)
+    if (newPassword === undefined || newPassword === '' || blacklist(newPassword, `@'{}`) !== newPassword)
       throw new Error('Please enter a valid password');
 
     const hashed = await this.hashPassword(newPassword);

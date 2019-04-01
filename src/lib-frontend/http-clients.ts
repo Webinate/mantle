@@ -125,7 +125,7 @@ export async function put(url: string, data?: any) {
   return resp;
 }
 
-export async function graphql(query: string, variables: any, headers?: any) {
+export async function graphql<T>(query: string, variables: any, headers?: any) {
   const resp = await fetch('/graphql', {
     method: 'post',
     body: JSON.stringify({
@@ -140,5 +140,5 @@ export async function graphql(query: string, variables: any, headers?: any) {
     })
   });
 
-  return resp;
+  return (await resp.json()).data as T;
 }
