@@ -52,6 +52,7 @@ export interface IClient {
   server: string | IServer;
 
   name: string;
+  enableGraphQl: string;
   enabled: boolean;
 
   /**

@@ -13,16 +13,16 @@ import * as graphqlHTTP from 'express-graphql';
 import GraphQlSchema from './graphql-schema';
 
 export class Server {
-  server: IServer;
+  public server: IServer;
   private _controllers: Router[];
   private _path: string;
-  public name: string;
+  public client: IClient;
 
-  constructor(server: IServer, path: string, name: string) {
-    this.server = server;
+  constructor(client: IClient, path: string) {
+    this.server = client.server as IServer;
     this._controllers = [];
     this._path = path;
-    this.name = name;
+    this.client = client;
   }
 
   /**
@@ -61,13 +61,15 @@ export class Server {
     const app = express();
 
     // bind express with graphql
-    app.use('/graphql', (req, res) => {
-      return graphqlHTTP({
-        schema: GraphQlSchema,
-        graphiql: true,
-        context: { res, req }
-      })(req, res);
-    });
+    if (this.client.enableGraphQl) {
+      app.use('/graphql', (req, res) => {
+        return graphqlHTTP({
+          schema: GraphQlSchema,
+          graphiql: true,
+          context: { res, req }
+        })(req, res);
+      });
+    }
 
     // Create the controllers
     const controllers: Router[] = [...this._controllers, new ErrorRouter()];
@@ -159,7 +161,9 @@ export class Server {
       return this;
     } catch (e) {
       throw new Error(
-        `ERROR An error has occurred while setting up the controllers for ${this.name}: '${e.message}' \r\n'${e.stack}'`
+        `ERROR An error has occurred while setting up the controllers for ${this.client.name}: '${e.message}' \r\n'${
+          e.stack
+        }'`
       );
     }
   }

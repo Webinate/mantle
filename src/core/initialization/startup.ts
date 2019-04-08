@@ -144,8 +144,9 @@ export async function initialize() {
 
   // First create the servers
   for (const client of clients) {
-    if (typeof client.server !== 'string' && client.enabled === true)
-      servers.push(new Server(client.server, client.path, client.name));
+    if (typeof client.server !== 'string' && client.enabled === true) {
+      servers.push(new Server(client, client.path));
+    }
   }
 
   // Now go through the add on clients and add the controllers
@@ -156,8 +157,8 @@ export async function initialize() {
     let server: Server | undefined;
     let clientServer = client.server;
 
-    if (typeof clientServer === 'string') server = servers.find(s => s.name === clientServer);
-    else server = servers.find(s => s.name === client.name);
+    if (typeof clientServer === 'string') server = servers.find(s => s.client.name === clientServer);
+    else server = servers.find(s => s.client.name === client.name);
 
     if (!server) {
       error(`Could not find an existing server with the name ${client.server}`);
