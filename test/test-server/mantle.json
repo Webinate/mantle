@@ -1,12 +1,11 @@
 {
   "name": "test",
   "enabled": true,
+  "enableGraphQl": true,
   "server": {
     "port": 8000,
     "host": "localhost",
-    "staticAssets": [
-      "media"
-    ]
+    "staticAssets": ["media"]
   },
   "controllers": [
     {

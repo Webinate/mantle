@@ -34,7 +34,11 @@ export default class Agent {
     });
   }
 
-  async graphql(query: string, variables?: any, headers = {}) {
+  async graphql<T>(
+    query: string,
+    variables?: any,
+    headers = {}
+  ): Promise<{ data?: T; errors?: { message: string }[] }> {
     const head: Headers = {
       cookie: this.cookie,
       'content-type': 'application/json',
@@ -42,14 +46,17 @@ export default class Agent {
       ...headers
     };
 
-    return (await fetch(`${this.host}/graphql`, {
+    const resp = await fetch(`${this.host}/graphql`, {
       method: 'POST',
       headers: head,
       body: JSON.stringify({
         query,
         variables
       })
-    })).json();
+    });
+
+    const json = await resp.json();
+    return { data: json.data, errors: json.errors };
   }
 
   async put(url: string, data?: any, options: Headers = {}) {
