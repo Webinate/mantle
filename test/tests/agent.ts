@@ -38,7 +38,7 @@ export default class Agent {
     query: string,
     variables?: any,
     headers = {}
-  ): Promise<{ data?: T; errors?: { message: string }[] }> {
+  ): Promise<{ data?: T; errors?: { message: string }[]; response: Response }> {
     const head: Headers = {
       cookie: this.cookie,
       'content-type': 'application/json',
@@ -56,7 +56,7 @@ export default class Agent {
     });
 
     const json = await resp.json();
-    return { data: json.data, errors: json.errors };
+    return { data: json.data, errors: json.errors, response: resp };
   }
 
   async put(url: string, data?: any, options: Headers = {}) {

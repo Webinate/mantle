@@ -4,7 +4,7 @@ import { IAdminUser, IAuthenticationResponse } from '../../../../src';
 import { userFragment } from '../fragments';
 
 describe('[GQL] Checking basic authentication', function() {
-  it('guest should not be logged in', async function() {
+  it('[GQL] guest should not be logged in', async function() {
     const resp = await header.guest.graphql<{ authenticated: IAuthenticationResponse }>(
       `{ authenticated { authenticated, message } }`
     );
@@ -14,7 +14,7 @@ describe('[GQL] Checking basic authentication', function() {
     assert.deepEqual(auth.message, 'User is not authenticated');
   });
 
-  it('admin should be logged in', async function() {
+  it('[GQL] admin should be logged in', async function() {
     const resp = await header.admin.graphql<{ authenticated: IAuthenticationResponse }>(
       `{ authenticated { authenticated, message, user { ...UserFields } } } ${userFragment}`
     );
@@ -34,7 +34,7 @@ describe('[GQL] Checking basic authentication', function() {
     assert(auth.user.passwordTag === null);
   });
 
-  it('admin should be authenticated and pass verbose details', async function() {
+  it('[GQL] admin should be authenticated and pass verbose details', async function() {
     const resp = await header.admin.graphql<{ authenticated: IAuthenticationResponse }>(
       `{ authenticated(verbose: true) { authenticated, message, user { ...UserFields } } } ${userFragment}`
     );
