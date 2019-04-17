@@ -7,7 +7,20 @@ describe('[GQL] Testing user logging in', function() {
     const resp = await header.guest.graphql<{ login: IAuthenticationResponse }>(
       `mutation { login { authenticated, message } }`
     );
-    assert.deepEqual(resp.errors[0].message, 'Please enter a valid username');
+    assert.deepEqual(
+      resp.errors[0].message,
+      'Field "login" argument "username" of type "String!" is required but not provided.'
+    );
+  });
+
+  it('[GQL] did not log in with empty password', async function() {
+    const resp = await header.guest.graphql<{ login: IAuthenticationResponse }>(
+      `mutation { login(username: "!%^") { authenticated, message } }`
+    );
+    assert.deepEqual(
+      resp.errors[0].message,
+      'Field "login" argument "password" of type "String!" is required but not provided.'
+    );
   });
 
   it('[GQL] did not log in with bad credentials', async function() {

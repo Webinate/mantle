@@ -1,4 +1,4 @@
-import { GraphQLFieldConfigMap, GraphQLString, GraphQLBoolean } from 'graphql';
+import { GraphQLFieldConfigMap, GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
 import ControllerFactory from '../../core/controller-factory';
 import { ILoginToken } from '../../types/tokens/i-login-token';
 import { AuthType } from '../models/auth-type';
@@ -7,11 +7,10 @@ import { IAuthenticationResponse } from '../../types/tokens/standard-tokens';
 
 export const authMutation: GraphQLFieldConfigMap<any, any> = {
   login: {
-    description: 'Login using your mantle credentials',
     type: AuthType,
     args: {
-      username: { type: GraphQLString },
-      password: { type: GraphQLString },
+      username: { type: new GraphQLNonNull(GraphQLString) },
+      password: { type: new GraphQLNonNull(GraphQLString) },
       rememberMe: { type: GraphQLBoolean, defaultValue: true }
     },
     async resolve(parent, args: ILoginToken, context) {
@@ -39,6 +38,13 @@ export const authMutation: GraphQLFieldConfigMap<any, any> = {
       };
 
       return response;
+    }
+  },
+  logout: {
+    type: GraphQLBoolean,
+    async resolve(parent, args, context) {
+      await ControllerFactory.get('users').logOut(context.req, context.res);
+      return true;
     }
   }
 };

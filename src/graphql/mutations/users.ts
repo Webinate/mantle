@@ -1,14 +1,17 @@
-import { GraphQLFieldConfigMap, GraphQLString, GraphQLBoolean } from 'graphql';
+import { GraphQLFieldConfigMap, GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
 import ControllerFactory from '../../core/controller-factory';
 import { getAuthUser } from '../helpers';
 import { UserType } from '../models/user-type';
 import { IUserEntry } from '../../types/models/i-user-entry';
+import { JsonType } from '../scalars/json';
+import { UserPriviledgeEnumType } from '../scalars/user-priviledge';
+import { UserPrivilege } from '../../core/enums';
 
 export const userMutation: GraphQLFieldConfigMap<any, any> = {
   removeUser: {
     type: GraphQLBoolean,
     args: {
-      username: { type: GraphQLString }
+      username: { type: new GraphQLNonNull(GraphQLString) }
     },
     async resolve(parent, args, context) {
       const auth = await getAuthUser(context.req, context.res);
@@ -27,25 +30,24 @@ export const userMutation: GraphQLFieldConfigMap<any, any> = {
   createUser: {
     type: UserType,
     args: {
-      username: { type: GraphQLString }
+      username: { type: new GraphQLNonNull(GraphQLString) },
+      email: { type: new GraphQLNonNull(GraphQLString) },
+      password: { type: new GraphQLNonNull(GraphQLString) },
+      privileges: { type: UserPriviledgeEnumType, defaultValue: 'regular' as UserPrivilege },
+      meta: { type: JsonType }
     },
     async resolve(parent, args: IUserEntry<'client'>, context) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth) throw Error('Authentication error');
-
-      if (auth.user!.privileges === 'regular') throw Error('You do not have permission');
-
-      args.privileges = args.privileges ? args.privileges : 'regular';
-
-      // Not allowed to create super users
+      if (!auth.user) throw Error('Authentication error');
+      if (auth.user.privileges === 'regular') throw Error('You do not have permission');
       if (args.privileges === 'super') throw new Error('You cannot create a user with super admin permissions');
 
-      const user = await this._userController.createUser(
+      const user = await ControllerFactory.get('users').createUser(
         {
-          username: args.username!,
-          email: args.email!,
-          password: args.password!,
-          privileges: args.privileges!,
+          username: args.username,
+          email: args.email,
+          password: args.password,
+          privileges: args.privileges,
           meta: args.meta
         },
         true,
