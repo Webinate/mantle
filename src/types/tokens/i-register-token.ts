@@ -7,4 +7,5 @@ export interface IRegisterToken {
   email: string;
   meta?: any;
   privileges?: number;
+  activationLink?: string;
 }

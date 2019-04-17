@@ -9,6 +9,7 @@ import {
 import { UserType } from '../models/user-type';
 import ControllerFactory from '../../core/controller-factory';
 import { getAuthUser } from '../helpers';
+import { IGQLContext } from '../../types/interfaces/i-gql-context';
 
 export const UserPageType = new GraphQLObjectType({
   name: 'UserPageType',
@@ -25,7 +26,7 @@ export const userQuery: GraphQLFieldConfigMap<any, any> = {
     description: 'Use this to get all users',
     type: UserType,
     args: { username: { type: GraphQLString }, verbose: { type: GraphQLBoolean, defaultValue: false } },
-    async resolve(parent, args, context) {
+    async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
 
       // code to get data from db / other source
@@ -46,7 +47,7 @@ export const userQuery: GraphQLFieldConfigMap<any, any> = {
       search: { type: GraphQLString },
       verbose: { type: GraphQLBoolean, defaultValue: false }
     },
-    async resolve(parent, args, context) {
+    async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
 
       // code to get data from db / other source

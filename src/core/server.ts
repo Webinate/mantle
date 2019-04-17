@@ -11,6 +11,7 @@ import { Router } from '../routers/router';
 import { ErrorRouter } from '../routers/error';
 import * as graphqlHTTP from 'express-graphql';
 import GraphQlSchema from './graphql-schema';
+import { IGQLContext } from '../types/interfaces/i-gql-context';
 
 export class Server {
   public server: IServer;
@@ -58,6 +59,7 @@ export class Server {
   async initialize(db: Db): Promise<Server> {
     const controllerPromises: Array<Promise<any>> = [];
     const server = this.server;
+    const client = this.client;
     const app = express();
 
     // bind express with graphql
@@ -66,7 +68,7 @@ export class Server {
         return graphqlHTTP({
           schema: GraphQlSchema,
           graphiql: true,
-          context: { res, req }
+          context: { res, req, server, client } as IGQLContext
         })(req, res);
       });
     }

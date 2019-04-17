@@ -1,6 +1,7 @@
 import { GraphQLFieldConfigMap, GraphQLList, GraphQLObjectType, GraphQLInt } from 'graphql';
 import ControllerFactory from '../../core/controller-factory';
 import { TemplateType } from '../models/template-type';
+import { IGQLContext } from '../../types/interfaces/i-gql-context';
 
 export const templateQuery: GraphQLFieldConfigMap<any, any> = {
   templates: {
@@ -13,6 +14,6 @@ export const templateQuery: GraphQLFieldConfigMap<any, any> = {
         count: { type: GraphQLInt }
       }
     }),
-    resolve: (parent, args) => ControllerFactory.get('templates').getMany()
+    resolve: (parent, args, context: IGQLContext) => ControllerFactory.get('templates').getMany()
   }
 };

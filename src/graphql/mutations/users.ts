@@ -6,6 +6,7 @@ import { IUserEntry } from '../../types/models/i-user-entry';
 import { JsonType } from '../scalars/json';
 import { UserPriviledgeEnumType } from '../scalars/user-priviledge';
 import { UserPrivilege } from '../../core/enums';
+import { IGQLContext } from '../../types/interfaces/i-gql-context';
 
 export const userMutation: GraphQLFieldConfigMap<any, any> = {
   removeUser: {
@@ -13,7 +14,7 @@ export const userMutation: GraphQLFieldConfigMap<any, any> = {
     args: {
       username: { type: new GraphQLNonNull(GraphQLString) }
     },
-    async resolve(parent, args, context) {
+    async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
       if (!auth) throw Error('Authentication error');
 
@@ -36,7 +37,7 @@ export const userMutation: GraphQLFieldConfigMap<any, any> = {
       privileges: { type: UserPriviledgeEnumType, defaultValue: 'regular' as UserPrivilege },
       meta: { type: JsonType }
     },
-    async resolve(parent, args: IUserEntry<'client'>, context) {
+    async resolve(parent, args: IUserEntry<'client'>, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
       if (!auth.user) throw Error('Authentication error');
       if (auth.user.privileges === 'regular') throw Error('You do not have permission');

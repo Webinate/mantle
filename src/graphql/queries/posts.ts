@@ -12,6 +12,7 @@ import { PostSortType, PostVisibility } from '../../controllers/posts';
 import { SortOrderEnumType } from '../scalars/sort-order';
 import { PostType } from '../models/post-type';
 import { getAuthUser } from '../helpers';
+import { IGQLContext } from '../../types/interfaces/i-gql-context';
 
 const values: { [key in PostSortType]: { value: PostSortType } } = {
   created: { value: 'created' },
@@ -60,7 +61,7 @@ export const postsQuery: GraphQLFieldConfigMap<any, any> = {
         type: SortOrderEnumType
       }
     },
-    resolve: async (parent, args, context) => {
+    resolve: async (parent, args, context: IGQLContext) => {
       const auth = await getAuthUser(context.req, context.res);
       let visibility: PostVisibility | undefined;
       const user = auth.user;
@@ -93,7 +94,7 @@ export const postsQuery: GraphQLFieldConfigMap<any, any> = {
   post: {
     type: PostType,
     args: { id: { type: GraphQLID }, slug: { type: GraphQLString } },
-    resolve: async (parent, args, context) => {
+    resolve: async (parent, args, context: IGQLContext) => {
       const auth = await getAuthUser(context.req, context.res);
       const post = await ControllerFactory.get('posts').getPost({
         id: args.id,
