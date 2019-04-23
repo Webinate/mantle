@@ -9,13 +9,13 @@ let agent: Agent,
 
 describe('[GQL] Testing user logging in', function() {
   before(async function() {
-    await header.guest.graphql<{ removeUser: boolean }>(
+    await header.guest.graphql<boolean>(
       `mutation { removeUser(username: "${testUserName}") { authenticated, message } }`
     );
   });
 
   after(async function() {
-    await header.guest.graphql<{ removeUser: boolean }>(
+    await header.guest.graphql<boolean>(
       `mutation { removeUser(username: "${testUserName}") { authenticated, message } }`
     );
   });
@@ -26,21 +26,17 @@ describe('[GQL] Testing user logging in', function() {
   });
 
   it('[GQL] user should be logged in', async function() {
-    const resp = await agent.graphql<{ authenticated: { authenticated: boolean } }>(
-      `{ authenticated { authenticated } }`
-    );
-    assert.deepEqual(resp.data.authenticated.authenticated, true);
+    const resp = await agent.graphql<{ authenticated: boolean }>(`{ authenticated { authenticated } }`);
+    assert.deepEqual(resp.data.authenticated, true);
   });
 
   it('[GQL] should log out', async function() {
-    const resp = await agent.graphql<{ logout: boolean }>(`mutation { logout }`);
-    assert.deepEqual(resp.data.logout, true);
+    const resp = await agent.graphql<boolean>(`mutation { logout }`);
+    assert.deepEqual(resp.data, true);
   });
 
   it('[GQL] user should be logged out', async function() {
-    const resp = await agent.graphql<{ authenticated: { authenticated: boolean } }>(
-      `{ authenticated { authenticated } }`
-    );
-    assert.deepEqual(resp.data.authenticated.authenticated, false);
+    const resp = await agent.graphql<{ authenticated: boolean }>(`{ authenticated { authenticated } }`);
+    assert.deepEqual(resp.data.authenticated, false);
   });
 });

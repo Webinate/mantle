@@ -110,7 +110,7 @@ export abstract class Model<T extends IModelEntry<'server'>, Y extends IModelEnt
   /**
    * Downloads multiple client jsons based on a query and download options
    */
-  async downloadMany(query: ISearchOptions<T> = {}, options: ISchemaOptions) {
+  async downloadMany(query: ISearchOptions<T> = {}, options: Partial<ISchemaOptions>) {
     const schemas = await this.findMany(query);
     const jsons: Promise<Y>[] = [];
     for (let i = 0, l = schemas.length; i < l; i++) jsons.push(schemas[i].downloadToken(options));

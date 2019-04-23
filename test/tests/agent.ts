@@ -37,7 +37,8 @@ export default class Agent {
   async graphql<T>(
     query: string,
     variables?: any,
-    headers = {}
+    headers = {},
+    flatten = true
   ): Promise<{ data?: T; errors?: { message: string }[]; response: Response }> {
     const head: Headers = {
       cookie: this.cookie,
@@ -56,7 +57,12 @@ export default class Agent {
     });
 
     const json = await resp.json();
-    return { data: json.data, errors: json.errors, response: resp };
+
+    if (flatten && json.data) {
+      return { data: json.data[Object.keys(json.data)[0]], errors: json.errors, response: resp };
+    } else {
+      return { data: json.data, errors: json.errors, response: resp };
+    }
   }
 
   async put(url: string, data?: any, options: Headers = {}) {

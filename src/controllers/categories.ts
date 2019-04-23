@@ -16,6 +16,7 @@ export type CategoriesGetManyOptions = {
   root: boolean;
   expanded: boolean;
   depth: number;
+  parent: string;
 };
 
 export type GetOneOptions = {
@@ -47,7 +48,7 @@ export class CategoriesController extends Controller {
   /**
    * Returns an array of category entries
    */
-  async getAll(options: Partial<CategoriesGetManyOptions> = {}) {
+  async getAll(options: Partial<CategoriesGetManyOptions> = {}, schemaOptions?: Partial<ISchemaOptions>) {
     const categories = this._categoriesModel;
     const index: number = options.index || 0;
     const limit: number = options.limit || -1;
@@ -59,9 +60,13 @@ export class CategoriesController extends Controller {
       {
         index: index,
         limit: limit,
-        selector: root ? ({ parent: null } as ICategory<'server'>) : undefined
+        selector: root
+          ? ({ parent: null } as ICategory<'server'>)
+          : options.parent
+          ? ({ parent: new ObjectID(options.parent) } as ICategory<'server'>)
+          : undefined
       },
-      {
+      schemaOptions || {
         verbose: true,
         expandMaxDepth: depth,
         expandForeignKeys: expanded,
@@ -79,11 +84,11 @@ export class CategoriesController extends Controller {
     return response;
   }
 
-  getDefaultsOptions(options: Partial<GetOneOptions>): ISchemaOptions {
+  getDefaultsOptions(options: Partial<ISchemaOptions>): ISchemaOptions {
     return {
       verbose: true,
-      expandForeignKeys: options.expanded || false,
-      expandMaxDepth: options.depth || 1,
+      expandForeignKeys: options.expandForeignKeys || false,
+      expandMaxDepth: options.expandMaxDepth || 1,
       expandSchemaBlacklist: [/parent/]
     };
   }
@@ -93,7 +98,7 @@ export class CategoriesController extends Controller {
    * @param id The id of the category to fetch
    * @param options Options for getting the resource
    */
-  async getOne(id: string, options: Partial<GetOneOptions> = {}) {
+  async getOne(id: string, options: Partial<ISchemaOptions> = {}) {
     if (!isValidObjectID(id)) throw new Error(`Please use a valid object id`);
 
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(id) };
@@ -109,7 +114,7 @@ export class CategoriesController extends Controller {
    * @param slug The slug of the category to fetch
    * @param options Options for getting the resource
    */
-  async getBySlug(slug: string, options: Partial<GetOneOptions> = {}) {
+  async getBySlug(slug: string, options: Partial<ISchemaOptions> = {}) {
     const findToken: Partial<ICategory<'server'>> = { slug: slug };
     const category = await this._categoriesModel.downloadOne(findToken, this.getDefaultsOptions(options));
 
@@ -223,7 +228,7 @@ export class CategoriesController extends Controller {
     }
 
     const instance = await categorys.createInstance(token);
-    const json = await instance.downloadToken({ verbose: true });
+    const json = await instance.downloadToken({ verbose: true, expandForeignKeys: false });
 
     // Assign this comment as a child to its parent comment if it exists
     if (parent) {

@@ -94,8 +94,8 @@ export class CategoriesRouter extends Router {
   @identify()
   private async getOne(req: IAuthReq, res: express.Response) {
     return await this._controller.getOne(req.params.id, {
-      expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
-      depth: req.query.depth !== undefined ? parseInt(req.query.depth) : undefined
+      expandForeignKeys: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
+      expandMaxDepth: req.query.depth !== undefined ? parseInt(req.query.depth) : undefined
     });
   }
 
@@ -106,8 +106,8 @@ export class CategoriesRouter extends Router {
   @identify()
   private async getBySlug(req: IAuthReq, res: express.Response) {
     return await this._controller.getBySlug(req.params.slug, {
-      expanded: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
-      depth: req.query.depth !== undefined ? parseInt(req.query.depth) : undefined
+      expandForeignKeys: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
+      expandMaxDepth: req.query.depth !== undefined ? parseInt(req.query.depth) : undefined
     });
   }
 

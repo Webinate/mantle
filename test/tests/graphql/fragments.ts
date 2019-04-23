@@ -12,3 +12,12 @@ fragment UserFields on User {
   passwordTag
 }
 `;
+
+export const categoryFragment = `
+fragment CategoryFields on Category {
+  _id
+  title
+  description
+  slug
+}
+`;
