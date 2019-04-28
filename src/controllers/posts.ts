@@ -15,6 +15,7 @@ import { Error404 } from '../utils/errors';
 import { Schema } from '../models/schema';
 import { IDraft } from '../types/models/i-draft';
 import { DraftsModel } from '../models/drafts-model';
+import { ISchemaOptions } from '../types/misc/i-schema-options';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 export type PostSortType = 'title' | 'created' | 'modified';
@@ -39,6 +40,7 @@ export type PostsGetOneOptions = {
   id: string;
   slug: string;
   verbose: boolean;
+  expanded: boolean;
   public: boolean;
   includeDocument: boolean;
 };
@@ -347,12 +349,15 @@ export class PostsController extends Controller {
     const blacklist: RegExp[] = [/document\.author/];
     if (options.includeDocument === false) blacklist.push(/document/);
 
-    const post = await posts!.downloadOne(findToken, {
-      verbose: options.verbose !== undefined ? options.verbose : true,
-      expandForeignKeys: true,
-      expandMaxDepth: 2,
-      expandSchemaBlacklist: blacklist
-    });
+    const post = await posts!.downloadOne(
+      findToken,
+      schemaOptions || {
+        verbose: options.verbose !== undefined ? options.verbose : true,
+        expandForeignKeys: options.expanded ? options.expanded : true,
+        expandMaxDepth: 2,
+        expandSchemaBlacklist: blacklist
+      }
+    );
 
     if (!post) throw new Error('Could not find post');
 

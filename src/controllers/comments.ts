@@ -9,8 +9,10 @@ import { ObjectID } from 'mongodb';
 import { isValidObjectID } from '../utils/utils';
 import { Schema } from '../models/schema';
 import { IUserEntry } from '../types/models/i-user-entry';
+import { ISchemaOptions } from '../types/misc/i-schema-options';
 
 export type CommentVisibility = 'all' | 'public' | 'private';
+export type CommentSortType = 'updated' | 'created';
 
 export type CommentGetAllOptions = {
   visibility: CommentVisibility;
@@ -23,7 +25,7 @@ export type CommentGetAllOptions = {
   root: boolean;
   parentId: string | null;
   postId: string;
-  sortType: 'updated' | 'created';
+  sortType: CommentSortType;
   sortOrder: 'asc' | 'desc';
   verbose: boolean;
 };
