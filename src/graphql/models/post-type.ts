@@ -1,4 +1,12 @@
-import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList, GraphQLBoolean } from 'graphql';
+import {
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLID,
+  GraphQLList,
+  GraphQLBoolean,
+  GraphQLInputObjectType,
+  GraphQLNonNull
+} from 'graphql';
 import { LongType } from '../scalars/long';
 import { UserType } from './user-type';
 import Controllers from '../../core/controller-factory';
@@ -6,6 +14,7 @@ import { IPost } from '../../types/models/i-post';
 import { FileType } from '../models/file-type';
 import { DraftType } from './draft-type';
 import { DocumentType } from './document-type';
+import { GraphQLObjectId } from '../scalars/object-id';
 
 export const PostType: GraphQLObjectType = new GraphQLObjectType({
   name: 'Post',
@@ -50,6 +59,38 @@ export const PostType: GraphQLObjectType = new GraphQLObjectType({
           return Controllers.get('documents').getDraft(parent.latestDraft as string, { expandForeignKeys: false });
         else return parent.latestDraft;
       }
+    }
+  })
+});
+
+export const PostInputType = new GraphQLInputObjectType({
+  name: 'PostInput',
+  description: 'Input post payload',
+  fields: () => ({
+    title: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    slug: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    author: {
+      type: GraphQLObjectId
+    },
+    brief: {
+      type: GraphQLString
+    },
+    public: {
+      type: GraphQLBoolean,
+      defaultValue: false
+    },
+    featuredImage: {
+      type: GraphQLObjectId
+    },
+    categories: {
+      type: new GraphQLList(GraphQLString)
+    },
+    tags: {
+      type: new GraphQLList(GraphQLString)
     }
   })
 });

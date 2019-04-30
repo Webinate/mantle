@@ -1,61 +1,52 @@
-import { GraphQLFieldConfigMap, GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
+import { GraphQLFieldConfigMap, GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLID } from 'graphql';
 import ControllerFactory from '../../core/controller-factory';
 import { getAuthUser } from '../helpers';
-import { UserType } from '../models/user-type';
-import { IUserEntry } from '../../types/models/i-user-entry';
-import { JsonType } from '../scalars/json';
-import { UserPriviledgeEnumType } from '../scalars/user-priviledge';
-import { UserPrivilege } from '../../core/enums';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { CommentType } from '../models/comment-type';
+import { IComment } from '../../types/models/i-comment';
+import { GraphQLObjectId } from '../scalars/object-id';
 
-export const userMutation: GraphQLFieldConfigMap<any, any> = {
-  removeUser: {
+export const commentsMutation: GraphQLFieldConfigMap<any, any> = {
+  removeComment: {
     type: GraphQLBoolean,
     args: {
-      username: { type: new GraphQLNonNull(GraphQLString) }
+      id: { type: new GraphQLNonNull(GraphQLID) }
     },
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth) throw Error('Authentication error');
+      if (!auth.user) throw Error('Authentication error');
 
-      if (auth.user!.username !== args.username && auth.user!.privileges === 'regular')
-        throw Error('You do not have permission');
+      const comment = await ControllerFactory.get('comments').getOne(args.id);
 
-      const toRemove = args.username;
-      if (!toRemove) throw new Error('Please specify username');
+      // Only admins & owners are allowed
+      if (auth.user!.privileges === 'regular' && auth.user!.username !== comment.author)
+        throw new Error('You do not have permission');
 
-      await ControllerFactory.get('users').removeUser(toRemove);
+      await ControllerFactory.get('comments').remove(args.id);
       return true;
     }
   },
-  createUser: {
-    type: UserType,
+  createComment: {
+    type: CommentType,
     args: {
-      username: { type: new GraphQLNonNull(GraphQLString) },
-      email: { type: new GraphQLNonNull(GraphQLString) },
-      password: { type: new GraphQLNonNull(GraphQLString) },
-      privileges: { type: UserPriviledgeEnumType, defaultValue: 'regular' as UserPrivilege },
-      meta: { type: JsonType }
+      post: { type: GraphQLObjectId },
+      parent: { type: GraphQLObjectId },
+      content: { type: new GraphQLNonNull(GraphQLString) },
+      public: { type: GraphQLBoolean }
     },
-    async resolve(parent, args: IUserEntry<'client'>, context: IGQLContext) {
+    async resolve(parent, args: Partial<IComment<'client'>>, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
       if (!auth.user) throw Error('Authentication error');
-      if (auth.user.privileges === 'regular') throw Error('You do not have permission');
-      if (args.privileges === 'super') throw new Error('You cannot create a user with super admin permissions');
 
-      const user = await ControllerFactory.get('users').createUser(
-        {
-          username: args.username,
-          email: args.email,
-          password: args.password,
-          privileges: args.privileges,
-          meta: args.meta
-        },
-        true,
-        true
-      );
+      // User is passed from the authentication function
+      args.user = auth.user._id.toString();
+      args.author = auth.user.username as string;
 
-      return user;
+      const response = await ControllerFactory.get('comments').create(args, {
+        verbose: true,
+        expandForeignKeys: false
+      });
+      return response;
     }
   }
 };

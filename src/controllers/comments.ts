@@ -227,7 +227,7 @@ export class CommentsController extends Controller {
    * Creates a new comment
    * @param token The data of the comment to create
    */
-  async create(token: Partial<IComment<'client'>>) {
+  async create(token: Partial<IComment<'client'>>, schemaOptions?: Partial<ISchemaOptions>) {
     const comments = this._commentsModel;
     let parent: Schema<IComment<'server'>, IComment<'client' | 'expanded'>> | null = null;
 
@@ -240,7 +240,7 @@ export class CommentsController extends Controller {
     token.createdOn = Date.now();
 
     const instance = await comments.createInstance(token);
-    const json = await instance.downloadToken({ verbose: true });
+    const json = await instance.downloadToken(schemaOptions || { verbose: true });
 
     // Assign this comment as a child to its parent comment if it exists
     if (parent) {
