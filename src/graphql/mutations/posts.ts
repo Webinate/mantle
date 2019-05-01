@@ -18,6 +18,7 @@ export const postsMutation: GraphQLFieldConfigMap<any, any> = {
       if (auth.user.privileges === 'regular') throw Error('You do not have permission');
 
       await ControllerFactory.get('posts').removePost(args.id);
+      return true;
     }
   },
   createPost: {
@@ -30,7 +31,7 @@ export const postsMutation: GraphQLFieldConfigMap<any, any> = {
       if (!auth.user) throw Error('Authentication error');
       if (auth.user.privileges === 'regular') throw Error('You do not have permission');
 
-      const token: Partial<IPost<'client'>> = args;
+      const token: Partial<IPost<'client'>> = args.token;
 
       // User is passed from the authentication function
       if (!token.author) token.author = auth.user!._id.toString();

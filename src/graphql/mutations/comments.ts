@@ -1,10 +1,9 @@
-import { GraphQLFieldConfigMap, GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLID } from 'graphql';
+import { GraphQLFieldConfigMap, GraphQLBoolean, GraphQLNonNull, GraphQLID } from 'graphql';
 import ControllerFactory from '../../core/controller-factory';
 import { getAuthUser } from '../helpers';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { CommentType } from '../models/comment-type';
+import { CommentType, CommentInputType } from '../models/comment-type';
 import { IComment } from '../../types/models/i-comment';
-import { GraphQLObjectId } from '../scalars/object-id';
 
 export const commentsMutation: GraphQLFieldConfigMap<any, any> = {
   removeComment: {
@@ -29,20 +28,18 @@ export const commentsMutation: GraphQLFieldConfigMap<any, any> = {
   createComment: {
     type: CommentType,
     args: {
-      post: { type: GraphQLObjectId },
-      parent: { type: GraphQLObjectId },
-      content: { type: new GraphQLNonNull(GraphQLString) },
-      public: { type: GraphQLBoolean }
+      token: { type: new GraphQLNonNull(CommentInputType) }
     },
-    async resolve(parent, args: Partial<IComment<'client'>>, context: IGQLContext) {
+    async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
       if (!auth.user) throw Error('Authentication error');
 
       // User is passed from the authentication function
-      args.user = auth.user._id.toString();
-      args.author = auth.user.username as string;
+      const token = args.token as Partial<IComment<'client'>>;
+      token.user = auth.user._id.toString();
+      token.author = auth.user.username as string;
 
-      const response = await ControllerFactory.get('comments').create(args, {
+      const response = await ControllerFactory.get('comments').create(token, {
         verbose: true,
         expandForeignKeys: false
       });

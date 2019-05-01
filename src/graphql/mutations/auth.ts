@@ -3,7 +3,7 @@ import ControllerFactory from '../../core/controller-factory';
 import { ILoginToken } from '../../types/tokens/i-login-token';
 import { AuthType } from '../models/auth-type';
 import { IUserEntry } from '../../types/models/i-user-entry';
-import { IAuthenticationResponse, ISimpleResponse } from '../../types/tokens/standard-tokens';
+import { IAuthenticationResponse } from '../../types/tokens/standard-tokens';
 import { IRegisterToken } from '../../types/tokens/i-register-token';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { getAuthUser } from '../helpers';

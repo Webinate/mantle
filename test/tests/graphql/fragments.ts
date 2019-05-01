@@ -21,3 +21,14 @@ fragment CategoryFields on Category {
   slug
 }
 `;
+
+export const commentFragment = `
+fragment CommentFields on Comment {
+  _id
+  author
+  content
+  public
+  createdOn
+  lastUpdated
+}
+`;
