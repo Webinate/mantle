@@ -3,8 +3,8 @@ import { ICategory, Page } from '../../../../src';
 import header from '../../header';
 import { categoryFragment } from '../fragments';
 
-let category: Partial<ICategory<'client'>>,
-  category2: Partial<ICategory<'client'>>,
+let category: ICategory<'expanded'>,
+  category2: ICategory<'expanded'>,
   slug: string = '',
   numCategories = 0;
 
@@ -12,10 +12,10 @@ describe('Testing fetching of categories: ', function() {
   before(async function() {
     slug = header.makeid();
 
-    const resp1 = await header.admin.graphql<Partial<ICategory<'client'>>>(
+    const resp1 = await header.admin.graphql<ICategory<'expanded'>>(
       `mutation { createCategory( title: "Test", slug: "${slug}", description: "This is a test" ) { ...CategoryFields } } ${categoryFragment}`
     );
-    const resp2 = await header.admin.graphql<Partial<ICategory<'client'>>>(
+    const resp2 = await header.admin.graphql<ICategory<'expanded'>>(
       `mutation { createCategory( title: "Test 2", slug: "${header.makeid()}" ) { ...CategoryFields } } ${categoryFragment}`
     );
 
@@ -24,19 +24,19 @@ describe('Testing fetching of categories: ', function() {
   });
 
   after(async function() {
-    const resp = await header.admin.graphql<Partial<ICategory<'client'>>>(
+    const resp = await header.admin.graphql<ICategory<'expanded'>>(
       `mutation { removeCategory( id: "${category._id}" ) }`
     );
     assert(resp.data);
 
-    const resp2 = await header.admin.graphql<Partial<ICategory<'client'>>>(
+    const resp2 = await header.admin.graphql<ICategory<'expanded'>>(
       `mutation { removeCategory( id: "${category2._id}" ) }`
     );
     assert(resp2.data);
   });
 
   it('did fetch a single category when no logged in', async function() {
-    const { data } = await header.guest.graphql<Partial<ICategory<'client'>>>(
+    const { data } = await header.guest.graphql<ICategory<'expanded'>>(
       `{ getCategory( id: "${category._id}" ) { ...CategoryFields } } ${categoryFragment}`
     );
 
@@ -46,7 +46,7 @@ describe('Testing fetching of categories: ', function() {
   });
 
   it('did fetch a single category when logged in', async function() {
-    const { data } = await header.user1.graphql<Partial<ICategory<'client'>>>(
+    const { data } = await header.user1.graphql<ICategory<'expanded'>>(
       `{ getCategory( id: "${category._id}" ) { ...CategoryFields } } ${categoryFragment}`
     );
 
@@ -54,7 +54,7 @@ describe('Testing fetching of categories: ', function() {
   });
 
   it('did fetch a single category by slug', async function() {
-    const { data } = await header.user1.graphql<Partial<ICategory<'client'>>>(
+    const { data } = await header.user1.graphql<ICategory<'expanded'>>(
       `{ getCategory( slug: "${category.slug}" ) { ...CategoryFields } } ${categoryFragment}`
     );
 
@@ -64,7 +64,7 @@ describe('Testing fetching of categories: ', function() {
   it('did fetch many categories as a guest', async function() {
     const {
       data: { data }
-    } = await header.guest.graphql<Page<Partial<ICategory<'client'>>>>(
+    } = await header.guest.graphql<Page<ICategory<'expanded'>>>(
       `{ getCategories { data { ...CategoryFields } } } ${categoryFragment}`
     );
 
@@ -74,7 +74,7 @@ describe('Testing fetching of categories: ', function() {
   it('did save the second category last', async function() {
     const {
       data: { data }
-    } = await header.guest.graphql<Page<Partial<ICategory<'client'>>>>(
+    } = await header.guest.graphql<Page<ICategory<'expanded'>>>(
       `{ getCategories { data { ...CategoryFields } } } ${categoryFragment}`
     );
 
@@ -85,7 +85,7 @@ describe('Testing fetching of categories: ', function() {
   it('did get the last category using limits and indices', async function() {
     const {
       data: { data }
-    } = await header.guest.graphql<Page<Partial<ICategory<'client'>>>>(
+    } = await header.guest.graphql<Page<ICategory<'expanded'>>>(
       `{ getCategories(limit:1, index:${numCategories - 1}) { data { ...CategoryFields } } } ${categoryFragment}`
     );
 

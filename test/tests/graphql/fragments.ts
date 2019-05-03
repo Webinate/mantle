@@ -22,6 +22,20 @@ fragment CategoryFields on Category {
 }
 `;
 
+export const postFragment = `
+fragment PostFields on Post {
+  _id
+  slug
+  title
+  brief
+  public
+  categories
+  tags
+  createdOn
+  lastUpdated
+}
+`;
+
 export const commentFragment = `
 fragment CommentFields on Comment {
   _id

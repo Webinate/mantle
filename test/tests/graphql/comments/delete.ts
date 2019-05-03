@@ -22,7 +22,7 @@ describe('Testing deletion of comments', function() {
   it('can create a temp post', async function() {
     const {
       data: { _id, public: isPublic }
-    } = await header.admin.graphql<Partial<IPost<'expanded'>>>(`mutation { createPost( token: {
+    } = await header.admin.graphql<IPost<'expanded'>>(`mutation { createPost( token: {
       title: "Simple Test",
       slug: "${generateRandString(10)}",
       brief: "This is brief",
@@ -36,7 +36,7 @@ describe('Testing deletion of comments', function() {
   it('did create a test comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<Partial<IPost<'expanded'>>>(`mutation { createComment( token: {
+    } = await header.admin.graphql<IPost<'expanded'>>(`mutation { createComment( token: {
       post: "${postId}",
       content: "Hello world!",
       public: false
@@ -55,7 +55,7 @@ describe('Testing deletion of comments', function() {
   it('can create a another comment which will be a parent comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<Partial<IPost<'expanded'>>>(`mutation { createComment( token: {
+    } = await header.admin.graphql<IPost<'expanded'>>(`mutation { createComment( token: {
       post: "${postId}",
       content: "Parent Comment",
       public: true
@@ -74,7 +74,7 @@ describe('Testing deletion of comments', function() {
   it('can create a nested comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<Partial<IPost<'expanded'>>>(`mutation { createComment( token: {
+    } = await header.admin.graphql<IPost<'expanded'>>(`mutation { createComment( token: {
       post: "${postId}",
       parent: "${parentCommentId}",
       content: "Parent Comment",

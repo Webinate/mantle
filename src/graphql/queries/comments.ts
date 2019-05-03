@@ -107,12 +107,12 @@ export const commentsQuery: GraphQLFieldConfigMap<any, any> = {
     },
     resolve: async (parent, args, context: IGQLContext) => {
       const auth = await getAuthUser(context.req, context.res);
-      let verbose = false;
-      if (auth.isAdmin) verbose = true;
+      context.verbose = false;
+      if (auth.isAdmin) context.verbose = true;
 
       const comment = await ControllerFactory.get('comments').getOne(args.id, {
         expanded: false,
-        verbose
+        verbose: context.verbose
       });
 
       // Only admins are allowed to see private comments

@@ -3,7 +3,7 @@ import { ICategory } from '../../../../src';
 import header from '../../header';
 import { randomString } from '../../utils';
 
-let category: Partial<ICategory<'client'>>;
+let category: ICategory<'expanded'>;
 
 describe('Testing creation of categories', function() {
   it('did not create a category when not logged in', async function() {
@@ -35,16 +35,12 @@ describe('Testing creation of categories', function() {
   });
 
   it('did create category with no html', async function() {
-    const existing = await header.admin.graphql<Partial<ICategory<'client'>>>(
-      `{ getCategory( slug: "_test" ) { _id } }`
-    );
+    const existing = await header.admin.graphql<ICategory<'expanded'>>(`{ getCategory( slug: "_test" ) { _id } }`);
 
     if (existing.data && existing.data._id)
-      await header.admin.graphql<Partial<ICategory<'client'>>>(
-        `mutation { removeCategory( id: "${existing.data._id}" ) }`
-      );
+      await header.admin.graphql<ICategory<'expanded'>>(`mutation { removeCategory( id: "${existing.data._id}" ) }`);
 
-    const resp = await header.admin.graphql<Partial<ICategory<'client'>>>(
+    const resp = await header.admin.graphql<ICategory<'expanded'>>(
       `mutation { createCategory( title: "<b>_Test</b>", slug: "_test", description: "<b>This is a test</b>" ) { _id, slug, title, description } }`
     );
     category = resp.data;
@@ -55,7 +51,7 @@ describe('Testing creation of categories', function() {
   });
 
   it('did not create category called _test when one already exist', async function() {
-    const resp = await header.admin.graphql<Partial<ICategory<'client'>>>(
+    const resp = await header.admin.graphql<ICategory<'expanded'>>(
       `mutation { createCategory( title: "Test", slug: "_test" ) { _id } }`
     );
 

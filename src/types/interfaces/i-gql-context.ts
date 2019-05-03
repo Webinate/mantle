@@ -7,4 +7,5 @@ export interface IGQLContext {
   client: IClient;
   req: Request;
   res: ServerResponse;
+  verbose?: boolean;
 }

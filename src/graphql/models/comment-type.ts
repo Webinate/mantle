@@ -13,6 +13,7 @@ import Controllers from '../../core/controller-factory';
 import { IComment } from '../../types/models/i-comment';
 import { PostType } from './post-type';
 import { GraphQLObjectId } from '../scalars/object-id';
+import { IGQLContext } from '../../types/interfaces/i-gql-context';
 
 export const CommentType: GraphQLObjectType = new GraphQLObjectType({
   name: 'Comment',
@@ -23,9 +24,13 @@ export const CommentType: GraphQLObjectType = new GraphQLObjectType({
     },
     user: {
       type: UserType,
-      resolve: (parent: IComment<'client'>) => {
+      resolve: (parent: IComment<'client'>, args, context: IGQLContext) => {
         if (typeof parent.user === 'string')
-          return Controllers.get('users').getUser({ id: parent.user as string, expandForeignKeys: false });
+          return Controllers.get('users').getUser({
+            id: parent.user as string,
+            verbose: context.verbose,
+            expandForeignKeys: false
+          });
         else return parent.user;
       }
     },

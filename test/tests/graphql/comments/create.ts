@@ -98,9 +98,7 @@ describe('Testing creation of comments', function() {
   });
 
   it('can create a comment on a valid post', async function() {
-    const { data: newComment } = await header.admin.graphql<
-      Partial<IComment<'expanded'>>
-    >(`mutation { createComment( token: {
+    const { data: newComment } = await header.admin.graphql<IComment<'expanded'>>(`mutation { createComment( token: {
       post: "${postId}"
       content: "Hello world! __filter__"
       public: false
