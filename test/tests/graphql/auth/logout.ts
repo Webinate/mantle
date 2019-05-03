@@ -1,7 +1,6 @@
 import * as assert from 'assert';
 import header from '../../header';
 import Agent from '../../agent';
-import { IUserEntry } from '../../../../src';
 
 let agent: Agent,
   testUserName = 'fancyUser123',

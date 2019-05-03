@@ -91,5 +91,19 @@ export const authMutation: GraphQLFieldConfigMap<any, any> = {
       await ControllerFactory.get('users').approveActivation(args.username);
       return true;
     }
+  },
+  resendActivation: {
+    type: GraphQLBoolean,
+    args: {
+      username: { type: new GraphQLNonNull(GraphQLString) },
+      accountRedirectURL: { type: GraphQLString, defaultValue: '/' }
+    },
+    async resolve(parent, args: any, context: IGQLContext) {
+      const origin = encodeURIComponent(
+        (context.req.headers['origin'] as string) || (context.req.headers['referer'] as string)
+      );
+      await ControllerFactory.get('users').resendActivation(args.username, args.accountRedirectURL, origin);
+      return true;
+    }
   }
 };
