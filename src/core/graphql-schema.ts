@@ -5,6 +5,7 @@ import { commentsQuery } from '../graphql/queries/comments';
 import { categoriesQuery } from '../graphql/queries/categories';
 import { fileQuery } from '../graphql/queries/files';
 import { templateQuery } from '../graphql/queries/templates';
+import { documentQuery } from '../graphql/queries/documents';
 import { postsQuery } from '../graphql/queries/posts';
 import { authMutation } from '../graphql/mutations/auth';
 import { userMutation } from '../graphql/mutations/users';
@@ -21,7 +22,8 @@ const RootQuery: GraphQLObjectType = new GraphQLObjectType({
     ...templateQuery,
     ...postsQuery,
     ...authQuery,
-    ...commentsQuery
+    ...commentsQuery,
+    ...documentQuery
   }
 });
 
