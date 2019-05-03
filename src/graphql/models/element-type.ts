@@ -34,7 +34,7 @@ export const ElementType: GraphQLObjectType = new GraphQLObjectType({
         else return parent.parent;
       }
     },
-    type: { type: ElementTypeEnum },
+    type: { type: GraphQLString },
     html: { type: GraphQLString },
     zone: { type: GraphQLString }
   })
