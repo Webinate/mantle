@@ -8,6 +8,7 @@ let args = yargs.argv;
 export class Header {
   public config: IConfig;
   public users: { [name: string]: Agent };
+  public host = 'http://localhost:8000';
 
   get guest() {
     return this.users['guest'];
@@ -57,7 +58,7 @@ export class Header {
     if (response.status !== 200) throw new Error(response.body.toString());
 
     // User created, but not logged in
-    const newAgent = new Agent('http://localhost:8000', null, username, password, email);
+    const newAgent = new Agent(this.host, null, username, password, email);
     response = await newAgent.post(`/api/auth/login`, { username: username, password: password });
 
     if (response.status !== 200) throw new Error(response.body.toString());
@@ -84,7 +85,7 @@ export class Header {
   async initialize() {
     try {
       const config = loadConfig(args.config);
-      const host = 'http://localhost:8000';
+      const host = this.host;
       const initAgent = new Agent(host);
 
       // const serverConfig = config.servers[ parseInt( args.server ) ];
@@ -98,9 +99,9 @@ export class Header {
       this.config = config;
 
       this.users = {
-        guest: new Agent('http://localhost:8000'),
+        guest: new Agent(host),
         admin: new Agent(
-          'http://localhost:8000',
+          host,
           adminCookie,
           (config.adminUser as IAdminUser).username,
           (config.adminUser as IAdminUser).password,

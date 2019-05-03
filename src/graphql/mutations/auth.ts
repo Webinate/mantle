@@ -7,6 +7,8 @@ import { IAuthenticationResponse } from '../../types/tokens/standard-tokens';
 import { IRegisterToken } from '../../types/tokens/i-register-token';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { getAuthUser } from '../helpers';
+import * as express from 'express';
+import { error as logError } from '../../utils/logger';
 
 export const authMutation: GraphQLFieldConfigMap<any, any> = {
   login: {
@@ -78,6 +80,41 @@ export const authMutation: GraphQLFieldConfigMap<any, any> = {
       return response;
     }
   },
+  // activateAccount: {
+  //   type: GraphQLBoolean,
+  //   args: {
+  //     user: { type: new GraphQLNonNull(GraphQLString) },
+  //     key: { type: new GraphQLNonNull(GraphQLString) },
+  //     accountRedirectURL: { type: GraphQLString }
+  //   },
+  //   async resolve(parent, args: any, context: IGQLContext) {
+  //     const res = context.res as express.Response;
+  //     const req = context.req as express.Request;
+  //     const redirectURL = encodeURIComponent(args.accountRedirectURL);
+
+  //     try {
+  //       // Check the user's activation and forward them onto the admin message page
+  //       await ControllerFactory.get('users').checkActivation(args.user, args.key);
+  //       res.setHeader('Content-Type', 'application/json');
+  //       res.redirect(
+  //         `${redirectURL}?message=${encodeURIComponent(
+  //           'Your account has been activated!'
+  //         )}&status=success&origin=${encodeURIComponent(req.query.origin)}`
+  //       );
+  //     } catch (error) {
+  //       logError(error.toString());
+  //       res.setHeader('Content-Type', 'application/json');
+  //       res.status(302);
+  //       res.redirect(
+  //         `${redirectURL}?message=${encodeURIComponent(error.message)}&status=error&origin=${encodeURIComponent(
+  //           req.query.origin
+  //         )}`
+  //       );
+  //     }
+
+  //     return true;
+  //   }
+  // },
   approveActivation: {
     type: GraphQLBoolean,
     args: {
@@ -103,6 +140,32 @@ export const authMutation: GraphQLFieldConfigMap<any, any> = {
         (context.req.headers['origin'] as string) || (context.req.headers['referer'] as string)
       );
       await ControllerFactory.get('users').resendActivation(args.username, args.accountRedirectURL, origin);
+      return true;
+    }
+  },
+  requestPasswordReset: {
+    type: GraphQLBoolean,
+    args: {
+      user: { type: new GraphQLNonNull(GraphQLString) },
+      accountRedirectURL: { type: GraphQLString, defaultValue: '/' }
+    },
+    async resolve(parent, args: any, context: IGQLContext) {
+      const origin = encodeURIComponent(
+        (context.req.headers['origin'] as string) || (context.req.headers['referer'] as string)
+      );
+      await ControllerFactory.get('users').requestPasswordReset(args.user, args.accountRedirectURL, origin);
+      return true;
+    }
+  },
+  passwordReset: {
+    type: GraphQLBoolean,
+    args: {
+      user: { type: new GraphQLNonNull(GraphQLString) },
+      key: { type: new GraphQLNonNull(GraphQLString) },
+      password: { type: new GraphQLNonNull(GraphQLString) }
+    },
+    async resolve(parent, args: any, context: IGQLContext) {
+      await ControllerFactory.get('users').resetPassword(args.user, args.key, args.password);
       return true;
     }
   }

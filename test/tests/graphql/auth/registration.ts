@@ -74,7 +74,7 @@ describe('[GQL] Testing registering a user', function() {
 
   it(`[GQL] did create an activation key for ${testUserName}`, async function() {
     const resp = await header.admin.graphql<{ registerKey: string }>(
-      `{ user(username:"${testUserName}", verbose:true) { registerKey } }`
+      `{ getUser(username:"${testUserName}", verbose:true) { registerKey } }`
     );
     assert(resp.data.registerKey !== '');
   });
@@ -96,7 +96,7 @@ describe('[GQL] Testing registering a user', function() {
 
   it(`[GQL] did approve ${testUserName}'s register key`, async function() {
     const resp = await header.admin.graphql<{ registerKey: string }>(
-      `{ user(username:"${testUserName}", verbose:true) { registerKey } }`
+      `{ getUser(username:"${testUserName}", verbose:true) { registerKey } }`
     );
     assert(resp.data.registerKey === '');
   });

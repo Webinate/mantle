@@ -22,7 +22,7 @@ export const UserPageType = new GraphQLObjectType({
 });
 
 export const userQuery: GraphQLFieldConfigMap<any, any> = {
-  user: {
+  getUser: {
     description: 'Use this to get all users',
     type: UserType,
     args: { username: { type: GraphQLString }, verbose: { type: GraphQLBoolean, defaultValue: false } },
@@ -39,7 +39,7 @@ export const userQuery: GraphQLFieldConfigMap<any, any> = {
       return user;
     }
   },
-  users: {
+  getUsers: {
     type: UserPageType,
     args: {
       index: { type: GraphQLInt },

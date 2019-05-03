@@ -23,7 +23,7 @@ describe('Testing fetching of comments', function() {
       data: { count: commentCount }
     } = await header.admin.graphql<{ count: number }>(`{ getComments { count } }`);
 
-    const { data: user } = await header.admin.graphql<IUserEntry<'expanded'>>(`{ user( username: "${
+    const { data: user } = await header.admin.graphql<IUserEntry<'expanded'>>(`{ getUser( username: "${
       (header.config.adminUser as IAdminUser).username
     }" ) {
       ...UserFields
