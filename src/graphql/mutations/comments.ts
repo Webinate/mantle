@@ -4,6 +4,7 @@ import { getAuthUser } from '../helpers';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { CommentType, CommentInputType } from '../models/comment-type';
 import { IComment } from '../../types/models/i-comment';
+import { Error401, Error403 } from '../../utils/errors';
 
 export const commentsMutation: GraphQLFieldConfigMap<any, any> = {
   removeComment: {
@@ -13,13 +14,12 @@ export const commentsMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) throw Error('Authentication error');
+      if (!auth.user) throw new Error401();
 
       const comment = await ControllerFactory.get('comments').getOne(args.id);
 
       // Only admins & owners are allowed
-      if (auth.user!.privileges === 'regular' && auth.user!.username !== comment.author)
-        throw new Error('You do not have permission');
+      if (auth.user!.privileges === 'regular' && auth.user!.username !== comment.author) throw new Error403();
 
       await ControllerFactory.get('comments').remove(args.id);
       return true;
@@ -32,7 +32,7 @@ export const commentsMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) throw Error('Authentication error');
+      if (!auth.user) throw new Error401();
 
       // User is passed from the authentication function
       const token = args.token as Partial<IComment<'client'>>;

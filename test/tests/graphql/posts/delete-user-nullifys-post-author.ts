@@ -31,7 +31,7 @@ describe('Testing deletion of user is nullified on posts: ', function() {
   it('can get a post with the created user', async function() {
     const {
       data: { author }
-    } = await header.user1.graphql<IPost<'expanded'>>(`{ post(id: "${post._id}") { author { _id } } }`);
+    } = await header.user1.graphql<IPost<'expanded'>>(`{ getPost(id: "${post._id}") { author { _id } } }`);
 
     assert.deepEqual(author._id, newUser._id);
   });
@@ -47,7 +47,7 @@ describe('Testing deletion of user is nullified on posts: ', function() {
   it('did nullify the user from the post', async function() {
     const {
       data: { author }
-    } = await header.user1.graphql<IPost<'expanded'>>(`{ post(id: "${post._id}") { author { _id } } }`);
+    } = await header.user1.graphql<IPost<'expanded'>>(`{ getPost(id: "${post._id}") { author { _id } } }`);
 
     assert.deepEqual(author, null);
   });

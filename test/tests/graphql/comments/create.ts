@@ -9,7 +9,7 @@ describe('Testing creation of comments', function() {
   before(async function() {
     const {
       data: { count: postCount }
-    } = await header.admin.graphql<{ count: number }>(`{ posts { count } }`);
+    } = await header.admin.graphql<{ count: number }>(`{ getPosts { count } }`);
 
     const {
       data: { count: commentCount }
@@ -22,7 +22,7 @@ describe('Testing creation of comments', function() {
   after(async function() {
     const {
       data: { count: postCount }
-    } = await header.admin.graphql<{ count: number }>(`{ posts { count } }`);
+    } = await header.admin.graphql<{ count: number }>(`{ getPosts { count } }`);
 
     const {
       data: { count: commentCount }
@@ -50,7 +50,7 @@ describe('Testing creation of comments', function() {
       post: "123456789012345678901234"
      } ) { _id } }`);
 
-    assert.deepEqual(resp.errors[0].message, 'Authentication error');
+    assert.deepEqual(resp.errors[0].message, 'Authentication Error');
   });
 
   it('cannot create a comment with a badly formatted post id', async function() {

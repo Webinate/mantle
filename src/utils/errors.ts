@@ -30,7 +30,7 @@ export class Error403 extends StatusError {
  * is required and has failed or has not yet been provided.
  */
 export class Error401 extends StatusError {
-  constructor(message: string) {
+  constructor(message: string = 'Authentication Error') {
     super(message, 401);
   }
 }

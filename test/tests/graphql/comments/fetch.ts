@@ -17,7 +17,7 @@ describe('Testing fetching of comments', function() {
   before(async function() {
     const {
       data: { count: postCount }
-    } = await header.admin.graphql<{ count: number }>(`{ posts { count } }`);
+    } = await header.admin.graphql<{ count: number }>(`{ getPosts { count } }`);
 
     const {
       data: { count: commentCount }
@@ -234,7 +234,7 @@ describe('Testing fetching of comments', function() {
   it('should have the same number of posts and comments as before', async function() {
     const {
       data: { count: postCount }
-    } = await header.admin.graphql<{ count: number }>(`{ posts { count } }`);
+    } = await header.admin.graphql<{ count: number }>(`{ getPosts { count } }`);
 
     const {
       data: { count: commentCount }

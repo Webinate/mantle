@@ -5,6 +5,7 @@ import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { PostType, PostInputType } from '../models/post-type';
 import { IPost } from '../../types/models/i-post';
 import { GraphQLObjectId } from '../scalars/object-id';
+import { Error401, Error403 } from '../../utils/errors';
 
 export const postsMutation: GraphQLFieldConfigMap<any, any> = {
   removePost: {
@@ -14,8 +15,8 @@ export const postsMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) throw Error('Authentication error');
-      if (auth.user.privileges === 'regular') throw Error('You do not have permission');
+      if (!auth.user) throw new Error401();
+      if (auth.user.privileges === 'regular') throw new Error403();
 
       await ControllerFactory.get('posts').removePost(args.id);
       return true;
@@ -28,8 +29,8 @@ export const postsMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) throw Error('Authentication error');
-      if (auth.user.privileges === 'regular') throw Error('You do not have permission');
+      if (!auth.user) throw new Error401();
+      if (auth.user.privileges === 'regular') throw new Error403();
 
       const token: Partial<IPost<'client'>> = args.token;
 

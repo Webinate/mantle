@@ -12,7 +12,7 @@ describe('Testing creation of posts', function() {
     const { errors } = await header.guest.graphql<IPost<'expanded'>>(
       `mutation { createPost(token: { title: "", slug: "" }) { _id } }`
     );
-    assert.deepEqual(errors[0].message, 'Authentication error');
+    assert.deepEqual(errors[0].message, 'Authentication Error');
   });
 
   it('cannot create a post as a regular user', async function() {

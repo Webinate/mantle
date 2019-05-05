@@ -81,12 +81,12 @@ describe('[GQL] Testing registering a user', function() {
 
   it('[GQL] did not approve activation as a guest', async function() {
     const resp = await header.guest.graphql<boolean>(`mutation { approveActivation(username:"${testUserName}") }`);
-    assert.deepEqual(resp.errors[0].message, 'Authentication error');
+    assert.deepEqual(resp.errors[0].message, 'Authentication Error');
   });
 
   it('[GQL] did not approve activation as a regular user', async function() {
     const resp = await header.user1.graphql<boolean>(`mutation { approveActivation(username:"${testUserName}") }`);
-    assert.deepEqual(resp.errors[0].message, 'Permission error');
+    assert.deepEqual(resp.errors[0].message, 'You do not have permission');
   });
 
   it('[GQL] did allow an admin to activate ${testUserName}', async function() {

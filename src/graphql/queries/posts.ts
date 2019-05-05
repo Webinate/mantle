@@ -13,6 +13,8 @@ import { SortOrderEnumType } from '../scalars/sort-order';
 import { PostType } from '../models/post-type';
 import { getAuthUser } from '../helpers';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { GraphQLObjectId } from '../scalars/object-id';
+import { Error401, Error403 } from '../../utils/errors';
 
 const values: { [key in PostSortType]: { value: PostSortType } } = {
   created: { value: 'created' },
@@ -37,7 +39,7 @@ export const PostVisibilityTypeEnum = new GraphQLEnumType({
 });
 
 export const postsQuery: GraphQLFieldConfigMap<any, any> = {
-  posts: {
+  getPosts: {
     type: new GraphQLObjectType({
       name: 'PostsPage',
       fields: {
@@ -91,7 +93,7 @@ export const postsQuery: GraphQLFieldConfigMap<any, any> = {
       });
     }
   },
-  post: {
+  getPost: {
     type: PostType,
     args: { id: { type: GraphQLID }, slug: { type: GraphQLString } },
     resolve: async (parent, args, context: IGQLContext) => {
@@ -107,6 +109,18 @@ export const postsQuery: GraphQLFieldConfigMap<any, any> = {
         throw new Error('That post is marked private');
 
       return post;
+    }
+  },
+  getPostDrafts: {
+    type: PostType,
+    args: { id: { type: GraphQLObjectId } },
+    resolve: async (parent, args, context: IGQLContext) => {
+      const auth = await getAuthUser(context.req, context.res);
+      if (!auth.user) throw new Error401();
+
+      const response = await ControllerFactory.get('posts').getDrafts(args.id);
+      if (auth.isAdmin || auth.user._id.toString() === response.post.author) return response.drafts;
+      else throw new Error403();
     }
   }
 };

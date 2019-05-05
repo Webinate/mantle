@@ -7,8 +7,7 @@ import { IAuthenticationResponse } from '../../types/tokens/standard-tokens';
 import { IRegisterToken } from '../../types/tokens/i-register-token';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { getAuthUser } from '../helpers';
-import * as express from 'express';
-import { error as logError } from '../../utils/logger';
+import { Error401, Error403 } from '../../utils/errors';
 
 export const authMutation: GraphQLFieldConfigMap<any, any> = {
   login: {
@@ -122,8 +121,8 @@ export const authMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args: any, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) throw Error('Authentication error');
-      if (auth.user.privileges === 'regular' && auth.user.username !== args.username) throw Error('Permission error');
+      if (!auth.user) throw new Error401();
+      if (auth.user.privileges === 'regular' && auth.user.username !== args.username) throw new Error403();
 
       await ControllerFactory.get('users').approveActivation(args.username);
       return true;

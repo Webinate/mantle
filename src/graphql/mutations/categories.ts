@@ -4,6 +4,7 @@ import { getAuthUser } from '../helpers';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { ICategory } from '../../types/models/i-category';
 import { CategoryType } from '../models/category-type';
+import { Error401, Error403 } from '../../utils/errors';
 
 export const categoriesMutation: GraphQLFieldConfigMap<any, any> = {
   removeCategory: {
@@ -13,8 +14,8 @@ export const categoriesMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) throw Error('Authentication error');
-      if (auth.user.privileges === 'regular') throw Error('You do not have permission');
+      if (!auth.user) throw new Error401();
+      if (auth.user.privileges === 'regular') throw new Error403();
 
       await ControllerFactory.get('categories').remove(args.id);
       return true;
@@ -30,8 +31,8 @@ export const categoriesMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args: ICategory<'client'>, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) throw Error('Authentication error');
-      if (auth.user.privileges === 'regular') throw Error('You do not have permission');
+      if (!auth.user) throw new Error401();
+      if (auth.user.privileges === 'regular') throw new Error403();
 
       const category = await ControllerFactory.get('categories').create(args);
       return category;

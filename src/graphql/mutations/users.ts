@@ -7,6 +7,7 @@ import { JsonType } from '../scalars/json';
 import { UserPriviledgeEnumType } from '../scalars/user-priviledge';
 import { UserPrivilege } from '../../core/enums';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { Error401, Error403 } from '../../utils/errors';
 
 export const userMutation: GraphQLFieldConfigMap<any, any> = {
   removeUser: {
@@ -16,10 +17,9 @@ export const userMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth) throw Error('Authentication error');
+      if (!auth) throw new Error401();
 
-      if (auth.user!.username !== args.username && auth.user!.privileges === 'regular')
-        throw Error('You do not have permission');
+      if (auth.user!.username !== args.username && auth.user!.privileges === 'regular') throw new Error403();
 
       const toRemove = args.username;
       if (!toRemove) throw new Error('Please specify username');
@@ -39,8 +39,8 @@ export const userMutation: GraphQLFieldConfigMap<any, any> = {
     },
     async resolve(parent, args: IUserEntry<'client'>, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) throw Error('Authentication error');
-      if (auth.user.privileges === 'regular') throw Error('You do not have permission');
+      if (!auth.user) throw new Error401();
+      if (auth.user.privileges === 'regular') throw new Error403();
       if (args.privileges === 'super') throw new Error('You cannot create a user with super admin permissions');
 
       const user = await ControllerFactory.get('users').createUser(

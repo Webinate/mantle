@@ -4,6 +4,7 @@ import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { getAuthUser } from '../helpers';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { DocumentType } from '../models/document-type';
+import { Error401, Error403 } from '../../utils/errors';
 
 export const documentQuery: GraphQLFieldConfigMap<any, any> = {
   getDocument: {
@@ -12,7 +13,7 @@ export const documentQuery: GraphQLFieldConfigMap<any, any> = {
     args: { id: { type: GraphQLObjectId } },
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) new Error('Authorization error');
+      if (!auth.user) new Error401();
       const checkPermissions = auth.isAdmin ? undefined : { userId: auth.user!._id };
 
       const user = await ControllerFactory.get('documents').get({
@@ -39,8 +40,8 @@ export const documentQuery: GraphQLFieldConfigMap<any, any> = {
     args: {},
     async resolve(parent, args, context: IGQLContext) {
       const auth = await getAuthUser(context.req, context.res);
-      if (!auth.user) new Error('Authorization error');
-      if (!auth.isAdmin) new Error('Permission error');
+      if (!auth.user) new Error401();
+      if (!auth.isAdmin) new Error403();
       const toRet = await ControllerFactory.get('documents').getMany();
       return toRet;
     }

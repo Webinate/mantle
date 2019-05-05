@@ -9,7 +9,7 @@ describe('Testing deletion of comments', function() {
   it('fetched all posts', async function() {
     const {
       data: { count: postCount }
-    } = await header.admin.graphql<{ count: number }>(`{ posts { count } }`);
+    } = await header.admin.graphql<{ count: number }>(`{ getPosts { count } }`);
 
     const {
       data: { count: commentCount }
@@ -130,7 +130,7 @@ describe('Testing deletion of comments', function() {
   it('has cleaned up the posts successfully', async function() {
     const {
       data: { count }
-    } = await header.admin.graphql<{ count: number }>(`{ posts { count } }`);
+    } = await header.admin.graphql<{ count: number }>(`{ getPosts { count } }`);
     assert(count === numPosts);
   });
 

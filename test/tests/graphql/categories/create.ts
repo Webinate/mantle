@@ -10,7 +10,7 @@ describe('Testing creation of categories', function() {
     const resp = await header.guest.graphql<{ title: string }>(
       `mutation { createCategory( title: "Test", slug: "Test" ) { title } }`
     );
-    assert.deepEqual(resp.errors[0].message, 'Authentication error');
+    assert.deepEqual(resp.errors[0].message, 'Authentication Error');
   });
 
   it('did not create a category for a regular user', async function() {
