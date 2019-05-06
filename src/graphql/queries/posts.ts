@@ -15,6 +15,7 @@ import { getAuthUser } from '../helpers';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { Error401, Error403 } from '../../utils/errors';
+import { DraftType } from '../models/draft-type';
 
 const values: { [key in PostSortType]: { value: PostSortType } } = {
   created: { value: 'created' },
@@ -111,8 +112,20 @@ export const postsQuery: GraphQLFieldConfigMap<any, any> = {
       return post;
     }
   },
+  getDraft: {
+    type: DraftType,
+    args: { id: { type: GraphQLObjectId } },
+    resolve: async (parent, args, context: IGQLContext) => {
+      const auth = await getAuthUser(context.req, context.res);
+      if (!auth.user) throw new Error401();
+      if (auth.user.privileges !== 'regular') throw new Error403();
+
+      const draft = await ControllerFactory.get('posts').getDraft(args.id);
+      return draft;
+    }
+  },
   getPostDrafts: {
-    type: PostType,
+    type: new GraphQLList(DraftType),
     args: { id: { type: GraphQLObjectId } },
     resolve: async (parent, args, context: IGQLContext) => {
       const auth = await getAuthUser(context.req, context.res);

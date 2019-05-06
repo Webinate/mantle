@@ -173,10 +173,10 @@ export class PostsController extends Controller {
   /**
    * Gets all drafts associated with a post
    */
-  async getDrafts(id: string) {
+  async getDrafts(postId: string) {
     const posts = this._postsModel;
     const drafts = this._draftsModel;
-    const findToken: Partial<IPost<'server'>> = { _id: new ObjectID(id) };
+    const findToken: Partial<IPost<'server'>> = { _id: new ObjectID(postId) };
     const postSchema = await posts.findOne(findToken);
 
     if (!postSchema) throw new Error404('Post does not exist');
@@ -199,6 +199,20 @@ export class PostsController extends Controller {
       post: postJson,
       drafts: draftJsons
     };
+  }
+
+  /**
+   * Gets a single draft by its ID
+   */
+  async getDraft(id: string) {
+    const drafts = this._draftsModel;
+    const findToken: Partial<IDraft<'server'>> = { _id: new ObjectID(id) };
+    const schema = await drafts.findOne(findToken);
+
+    if (!schema) return null;
+
+    const json = (await schema.downloadToken({ verbose: true, expandForeignKeys: false })) as IDraft<'client'>;
+    return json;
   }
 
   /**
