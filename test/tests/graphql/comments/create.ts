@@ -5,7 +5,7 @@ import { commentFragment } from '../fragments';
 
 let numPosts: number, numComments: number, postId: string, commentId: string;
 
-describe('Testing creation of comments', function() {
+describe('[GQL] Testing creation of comments', function() {
   before(async function() {
     const {
       data: { count: postCount }

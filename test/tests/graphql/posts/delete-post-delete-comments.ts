@@ -6,7 +6,7 @@ import header from '../../header';
 
 let post: IPost<'expanded'>, comment1: IComment<'expanded'>, comment2: IComment<'expanded'>;
 
-describe('Testing deletion of comments when a post is deleted', function() {
+describe('[GQL] Testing deletion of comments when a post is deleted', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const comments = ControllerFactory.get('comments');

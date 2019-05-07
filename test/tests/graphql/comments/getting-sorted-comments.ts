@@ -9,7 +9,7 @@ let post: IPost<'expanded'>,
   comment2: IComment<'expanded'>,
   admin: IUserEntry<'expanded'>;
 
-describe('Testing of fetching sorted comments:', function() {
+describe('[GQL] Testing of fetching sorted comments:', function() {
   before(async function() {
     const users = ControllerFactory.get('users');
     const comments = ControllerFactory.get('comments');

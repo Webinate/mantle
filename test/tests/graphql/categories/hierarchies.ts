@@ -10,7 +10,7 @@ let category: ICategory<'expanded'>,
   childDeep1: ICategory<'expanded'>,
   numCategoriesBeforeTests = 0;
 
-describe('Testing category hierarchies: ', function() {
+describe('[GQL] Testing category hierarchies: ', function() {
   before(async function() {
     const page = await header.admin.getJson<Page<ICategory<'expanded'>>>(`/api/categories`);
     numCategoriesBeforeTests = page.count;

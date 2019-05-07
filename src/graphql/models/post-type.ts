@@ -67,6 +67,9 @@ export const PostInputType = new GraphQLInputObjectType({
   name: 'PostInput',
   description: 'Input post payload',
   fields: () => ({
+    _id: {
+      type: GraphQLObjectId
+    },
     title: {
       type: new GraphQLNonNull(GraphQLString)
     },
@@ -91,6 +94,23 @@ export const PostInputType = new GraphQLInputObjectType({
     },
     tags: {
       type: new GraphQLList(GraphQLString)
+    }
+  })
+});
+
+export const PostUpdateType = new GraphQLInputObjectType({
+  name: 'PostUpdate',
+  description: 'Post update payload',
+  fields: () => ({
+    ...PostInputType.getFields(),
+    _id: {
+      type: new GraphQLNonNull(GraphQLObjectId)
+    },
+    title: {
+      type: GraphQLString
+    },
+    slug: {
+      type: GraphQLString
     }
   })
 });

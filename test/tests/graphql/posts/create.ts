@@ -1,13 +1,11 @@
 import * as assert from 'assert';
-import { IPost, IAdminUser, IUserEntry, IDocument, ITemplate } from '../../../../src';
+import { IPost, IAdminUser, IDocument } from '../../../../src';
 import header from '../../header';
 import { generateRandString } from '../../../../src/utils/utils';
-import { IDraft } from '../../../../src/types/models/i-draft';
 import { postFragment } from '../fragments';
 let lastPost: IPost<'expanded'>, lastPost2: string;
-let numPosts = 0;
 
-describe('Testing creation of posts', function() {
+describe('[GQL] Testing creation of posts', function() {
   it('cannot create post when not logged in', async function() {
     const { errors } = await header.guest.graphql<IPost<'expanded'>>(
       `mutation { createPost(token: { title: "", slug: "" }) { _id } }`

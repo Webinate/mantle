@@ -153,8 +153,8 @@ export abstract class Model<T extends IModelEntry<'server'>, Y extends IModelEnt
    * @param data The data to update the model with
    */
   async update(selector: any, data: Partial<Y>): Promise<Schema<T, Y>>;
-  async update(selector: any, data: Partial<Y>, options: ISchemaOptions): Promise<Y>;
-  async update(selector: any, data: Partial<Y>, options?: ISchemaOptions): Promise<any> {
+  async update(selector: any, data: Partial<Y>, options: Partial<ISchemaOptions>): Promise<Y>;
+  async update(selector: any, data: Partial<Y>, options?: Partial<ISchemaOptions>): Promise<any> {
     const schema = await this.findOne(selector);
 
     if (!schema) throw new Error(`Resource does not exist`);

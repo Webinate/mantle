@@ -5,10 +5,11 @@ import { randomString } from '../../utils';
 import header from '../../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
+import { postFragment } from '../fragments';
 
 let post: IPost<'expanded'>, volume: IVolume<'expanded'>, file: IFileEntry<'expanded'>;
 
-describe('Testing deletion of a featured image nullifies it on the post: ', function() {
+describe('[GQL] Testing deletion of a featured image nullifies it on the post: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');
@@ -42,38 +43,56 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
     const form = new FormData();
     const filePath = './test/media/file.png';
     form.append('good-file', fs.createReadStream(filePath));
-    form.append('query', `mutation { uploadFile( volumeId: "${volume._id}") { _id }`);
-
-    const resp = await header.user3.post(`/graphql`, form, form.getHeaders());
+    const resp = await header.user3.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.equal(resp.status, 200);
     const files = await resp.json<IFileEntry<'expanded'>[]>();
     assert.equal(files.length, 1);
     file = files[0];
   });
 
+  it('did does throw an error when updating a post with an invalid featured img id', async function() {
+    const { errors } = await header.user3.graphql<IPost<'expanded'>>(`mutation { updatePost(token: {
+      _id: "${post._id}"
+      featuredImage: "BAD"
+    }) { ...PostFields, featuredImage { _id } } } ${postFragment}`);
+
+    assert.deepEqual(
+      errors[0].message,
+      'Expected type ObjectId, found "BAD"; ObjectId must be a single String of 24 hex characters'
+    );
+  });
+
+  it('did does throw an error when updating a post when featured img does not exist', async function() {
+    const { errors } = await header.user3.graphql<IPost<'expanded'>>(`mutation { updatePost(token: {
+      _id: "${post._id}"
+      featuredImage: "123456789012345678901234"
+    }) { ...PostFields, featuredImage { _id } } } ${postFragment}`);
+
+    assert.deepEqual(errors[0].message, `File '123456789012345678901234' does not exist`);
+  });
+
   it('did update the post with the file as a featured image', async function() {
-    const resp = await header.user3.put(`/api/posts/${post._id}`, { featuredImage: file._id } as IPost<'client'>);
-    assert.equal(resp.status, 200);
-    const updatedPost = await resp.json<IPost<'expanded'>>();
+    const { data: updatedPost } = await header.user3.graphql<IPost<'expanded'>>(`mutation { updatePost(token: {
+      _id: "${post._id}"
+      featuredImage: "${file._id}"
+    }) { ...PostFields, featuredImage { _id } } } ${postFragment}`);
     assert.equal(updatedPost.featuredImage._id, file._id);
   });
 
   it('did get the featured image when we get the post resource', async function() {
-    const resp = await header.user3.get(`/api/posts/${post._id}`);
-    assert.equal(resp.status, 200);
-    const postResponse = await resp.json<IPost<'expanded'>>();
+    const { data: postResponse } = await header.user3.graphql<IPost<'expanded'>>(`{ getPost( id: "${post._id}") {
+      ...PostFields, featuredImage { _id } } } ${postFragment}`);
     assert.deepEqual(postResponse.featuredImage._id, file._id);
   });
 
   it('did delete the uploaded file', async function() {
-    const resp = await header.user3.delete(`/files/${file._id}`);
-    assert.equal(resp.status, 204);
+    const { data: postRemoved } = await header.user3.graphql<boolean>(`mutation { removeFile(id: "${file._id}") }`);
+    assert(postRemoved);
   });
 
   it('did nullify the featured image on the post', async function() {
-    const resp = await header.user3.get(`/api/posts/${post._id}`);
-    assert.equal(resp.status, 200);
-    const postResponse = await resp.json<IPost<'expanded'>>();
+    const { data: postResponse } = await header.user3.graphql<IPost<'expanded'>>(`{ getPost( id: "${post._id}") {
+      ...PostFields, featuredImage { _id } } } ${postFragment}`);
     assert.deepEqual(postResponse.featuredImage, null);
   });
 });

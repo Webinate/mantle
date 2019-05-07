@@ -46,3 +46,13 @@ fragment CommentFields on Comment {
   lastUpdated
 }
 `;
+
+export const documentFragment = `
+fragment DocumentFields on Document {
+  _id
+  lastUpdated
+  createdOn
+  elementsOrder
+  html
+}
+`;

@@ -15,6 +15,7 @@ import { Error404 } from '../utils/errors';
 import { Schema } from '../models/schema';
 import { IDraft } from '../types/models/i-draft';
 import { DraftsModel } from '../models/drafts-model';
+import { ISchemaOptions } from '../types/misc/i-schema-options';
 
 export type PostVisibility = 'all' | 'public' | 'private';
 export type PostSortType = 'title' | 'created' | 'modified';
@@ -298,7 +299,7 @@ export class PostsController extends Controller {
    * @param id The id of the post to edit
    * @param token The edit token
    */
-  async update(id: string, token: Partial<IPost<'client'>>) {
+  async update(id: string, token: Partial<IPost<'client'>>, schemaOptions?: Partial<ISchemaOptions>) {
     if (!isValidObjectID(id)) throw new Error(`Please use a valid object id`);
 
     const updatedPost = (await this._postsModel.update({ _id: new ObjectID(id) }, token, {
@@ -307,16 +308,14 @@ export class PostsController extends Controller {
       expandMaxDepth: 2,
       expandSchemaBlacklist: [/document\.author/]
     })) as IPost<'expanded'>;
-
     const newDraft = await this._documents.publishDraft(updatedPost.document);
-
-    await this._postsModel.update({ _id: new ObjectID(updatedPost._id) } as IPost<'server'>, {
+    const toRetSchema = await this._postsModel.update({ _id: new ObjectID(updatedPost._id) } as IPost<'server'>, {
       latestDraft: newDraft._id
     });
 
-    updatedPost.latestDraft = newDraft as IDraft<'expanded'>;
-
-    return updatedPost;
+    const json = await toRetSchema.downloadToken(schemaOptions);
+    json.latestDraft = newDraft as IDraft<'expanded'>;
+    return json;
   }
 
   /**

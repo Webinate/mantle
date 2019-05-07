@@ -13,7 +13,7 @@ let numPosts: number,
   childCommentId: string,
   admin: Partial<IUserEntry<'expanded'>>;
 
-describe('Testing fetching of comments', function() {
+describe('[GQL] Testing fetching of comments', function() {
   before(async function() {
     const {
       data: { count: postCount }

@@ -8,7 +8,7 @@ let category: ICategory<'expanded'>,
   slug: string = '',
   numCategories = 0;
 
-describe('Testing fetching of categories: ', function() {
+describe('[GQL] Testing fetching of categories: ', function() {
   before(async function() {
     slug = header.makeid();
 

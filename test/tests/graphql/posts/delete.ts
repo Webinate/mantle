@@ -5,7 +5,7 @@ import { generateRandString } from '../../../../src/utils/utils';
 import { postFragment } from '../fragments';
 let numPosts: number, post: IPost<'expanded'>;
 
-describe('Testing deletion of posts', function() {
+describe('[GQL] Testing deletion of posts', function() {
   it('fetched all posts', async function() {
     const {
       data: { count }

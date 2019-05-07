@@ -5,7 +5,7 @@ import { generateRandString } from '../../../../src/utils/utils';
 
 let numPosts, numComments, postId, commentId, parentCommentId;
 
-describe('Testing deletion of comments', function() {
+describe('[GQL] Testing deletion of comments', function() {
   it('fetched all posts', async function() {
     const {
       data: { count: postCount }

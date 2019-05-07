@@ -51,7 +51,7 @@ export class DocumentsController extends Controller {
    * @param options The options for finding the resource
    * @param templateId The id of the template to change to
    */
-  async changeTemplate(findDocOptions: GetOptions, templateId: string) {
+  async changeTemplate(findDocOptions: GetOptions, templateId: string, schemaOptions?: Partial<ISchemaOptions>) {
     const docsModel = this._docs;
     const templates = this._templates;
 
@@ -65,7 +65,7 @@ export class DocumentsController extends Controller {
     const template = await templates.findOne({ _id: new ObjectId(templateId) } as ITemplate<'server'>);
     if (!template) throw new Error404('Template not found');
 
-    const options: ISchemaOptions = {
+    const options: Partial<ISchemaOptions> = schemaOptions || {
       expandForeignKeys: true,
       verbose: true,
       expandMaxDepth: 1

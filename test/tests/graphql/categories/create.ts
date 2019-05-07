@@ -5,7 +5,7 @@ import { randomString } from '../../utils';
 
 let category: ICategory<'expanded'>;
 
-describe('Testing creation of categories', function() {
+describe('[GQL] Testing creation of categories', function() {
   it('did not create a category when not logged in', async function() {
     const resp = await header.guest.graphql<{ title: string }>(
       `mutation { createCategory( title: "Test", slug: "Test" ) { title } }`

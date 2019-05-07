@@ -6,7 +6,7 @@ import { postFragment, commentFragment } from '../fragments';
 
 let post: IPost<'expanded'>, parent: IComment<'expanded'>, child1: IComment<'expanded'>, child2: IComment<'expanded'>;
 
-describe('Testing the parent child relationship of comments: ', function() {
+describe('[GQL] Testing the parent child relationship of comments: ', function() {
   before(async function() {
     const { data: newPost } = await header.admin.graphql<IPost<'expanded'>>(`mutation { createPost( token: {
       slug: "${randomString()}",

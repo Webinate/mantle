@@ -6,7 +6,7 @@ import header from '../../header';
 
 let post: IPost<'expanded'>, newUser: IUserEntry<'expanded'>;
 
-describe('Testing deletion of user is nullified on posts: ', function() {
+describe('[GQL] Testing deletion of user is nullified on posts: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

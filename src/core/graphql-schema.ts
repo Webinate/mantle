@@ -13,6 +13,7 @@ import { postsMutation } from '../graphql/mutations/posts';
 import { commentsMutation } from '../graphql/mutations/comments';
 import { categoriesMutation } from '../graphql/mutations/categories';
 import { filesMutation } from '../graphql/mutations/files';
+import { documentsMutation } from '../graphql/mutations/documents';
 
 const RootQuery: GraphQLObjectType = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -36,7 +37,8 @@ const RootMutationType: GraphQLObjectType = new GraphQLObjectType({
     ...commentsMutation,
     ...postsMutation,
     ...categoriesMutation,
-    ...filesMutation
+    ...filesMutation,
+    ...documentsMutation
   }
 });
 
