@@ -125,7 +125,12 @@ export class DocumentsController extends Controller {
     return toRet;
   }
 
-  async addElement(findOptions: GetOptions, token: Partial<IDraftElement<'client'>>, index?: number) {
+  async addElement(
+    findOptions: GetOptions,
+    token: Partial<IDraftElement<'client'>>,
+    index?: number,
+    schemaOptions?: Partial<ISchemaOptions>
+  ) {
     const docsModel = this._docs;
     const templatesModel = this._templates;
     const doc = await docsModel.findOne({ _id: new ObjectId(findOptions.id) } as IDocument<'server'>);
@@ -163,12 +168,14 @@ export class DocumentsController extends Controller {
       elementsOrder: doc.dbEntry.elementsOrder
     });
 
-    const toRet = await schema.downloadToken({
-      expandForeignKeys: true,
-      verbose: true,
-      expandMaxDepth: 1,
-      expandSchemaBlacklist: [/parent/]
-    });
+    const toRet = await schema.downloadToken(
+      schemaOptions || {
+        expandForeignKeys: true,
+        verbose: true,
+        expandMaxDepth: 1,
+        expandSchemaBlacklist: [/parent/]
+      }
+    );
     toRet.html = buildHtml(toRet);
     return toRet;
   }
