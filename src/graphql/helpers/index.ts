@@ -15,3 +15,7 @@ export async function getAuthUser(req: Request, res: ServerResponse) {
 
   return toRet;
 }
+
+export function sleep(delay: number) {
+  return new Promise(resolve => setTimeout(resolve, delay));
+}

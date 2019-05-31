@@ -176,7 +176,7 @@ export class DocumentsController extends Controller {
         expandSchemaBlacklist: [/parent/]
       }
     );
-    toRet.html = buildHtml(toRet);
+    toRet.html = await buildHtml(toRet);
     return toRet;
   }
 
@@ -236,7 +236,7 @@ export class DocumentsController extends Controller {
       expandSchemaBlacklist: [/parent/]
     });
 
-    updatedJson.html = buildHtml(updatedJson);
+    updatedJson.html = await buildHtml(updatedJson);
     return updatedJson;
   }
 

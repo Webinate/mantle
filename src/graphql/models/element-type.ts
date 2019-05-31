@@ -1,7 +1,8 @@
-import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLEnumType } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLEnumType, GraphQLInputObjectType } from 'graphql';
 import Controllers from '../../core/controller-factory';
 import { DocumentType } from './document-type';
-import { IDraftElement, DraftElements } from '../../types/models/i-draft-elements';
+import { IDraftElement, DraftElements, IImageElement } from '../../types/models/i-draft-elements';
+import { FileType } from './file-type';
 
 const values: { [type: string]: { value: DraftElements } } = {
   ElmParagraph: { value: 'elm-paragraph' },
@@ -22,7 +23,7 @@ export const ElementTypeEnum = new GraphQLEnumType({
   values: values
 });
 
-export const ElementType: GraphQLObjectType = new GraphQLObjectType({
+export const ElementType = new GraphQLObjectType({
   name: 'Element',
   fields: () => ({
     _id: { type: GraphQLID },
@@ -36,6 +37,25 @@ export const ElementType: GraphQLObjectType = new GraphQLObjectType({
     },
     type: { type: GraphQLString },
     html: { type: GraphQLString },
-    zone: { type: GraphQLString }
+    zone: { type: GraphQLString },
+    image: {
+      type: FileType,
+      resolve(parent: IImageElement<'client'>, args) {
+        if (!parent.image) return null;
+        if (typeof parent.image === 'string') return Controllers.get('files').getFile(parent.image);
+        return parent.image;
+      }
+    }
+  })
+});
+
+export const ElementInputType = new GraphQLInputObjectType({
+  name: 'ElementInput',
+  fields: () => ({
+    _id: { type: GraphQLID },
+    type: { type: ElementTypeEnum },
+    html: { type: GraphQLString },
+    zone: { type: GraphQLString },
+    image: { type: GraphQLID }
   })
 });

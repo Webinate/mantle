@@ -60,8 +60,11 @@ export class DocumentSchema extends Schema<IDocument<'server'>, IDocument<'clien
     const htmlMap: { [zone: string]: string } = {};
     doc.elements = jsons || [];
 
-    for (const elm of doc.elements) {
-      elm.html = buildHtml(elm);
+    const htmlElements = await Promise.all(doc.elements.map(elm => buildHtml(elm)));
+
+    for (let i = 0; i < doc.elements.length; i++) {
+      let elm = doc.elements[i];
+      elm.html = htmlElements[i];
 
       if (!htmlMap[elm.zone]) htmlMap[elm.zone] = elm.html;
       else htmlMap[elm.zone] += elm.html;
