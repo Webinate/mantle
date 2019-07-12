@@ -3,6 +3,7 @@ import Controllers from '../../core/controller-factory';
 import { DocumentType } from './document-type';
 import { IDraftElement, DraftElements, IImageElement } from '../../types/models/i-draft-elements';
 import { FileType } from './file-type';
+import { JsonType } from '../scalars/json';
 
 const values: { [type: string]: { value: DraftElements } } = {
   ElmParagraph: { value: 'elm-paragraph' },
@@ -38,6 +39,7 @@ export const ElementType = new GraphQLObjectType({
     type: { type: GraphQLString },
     html: { type: GraphQLString },
     zone: { type: GraphQLString },
+    style: { type: JsonType },
     image: {
       type: FileType,
       resolve(parent: IImageElement<'client'>, args) {
@@ -56,6 +58,7 @@ export const ElementInputType = new GraphQLInputObjectType({
     type: { type: ElementTypeEnum },
     html: { type: GraphQLString },
     zone: { type: GraphQLString },
-    image: { type: GraphQLID }
+    image: { type: GraphQLID },
+    style: { type: JsonType }
   })
 });

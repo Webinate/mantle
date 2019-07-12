@@ -70,6 +70,32 @@ export const documentsMutation: GraphQLFieldConfigMap<any, any> = {
       }
     }
   },
+  updateDocElement: {
+    type: ElementType,
+    args: {
+      id: { type: new GraphQLNonNull(GraphQLObjectId) },
+      elementId: { type: new GraphQLNonNull(GraphQLObjectId) },
+      index: { type: GraphQLInt },
+      token: { type: new GraphQLNonNull(ElementInputType) }
+    },
+    async resolve(parent, args, context: IGQLContext) {
+      const auth = await getAuthUser(context.req, context.res);
+      if (!auth.user) throw new Error401();
+
+      const element = await ControllerFactory.get('documents').updateElement(
+        {
+          id: args.id,
+          checkPermissions: auth.isAdmin ? undefined : { userId: auth.user._id },
+          verbose: true,
+          expandForeignKeys: false
+        },
+        args.elementId,
+        args.token
+      );
+
+      return element;
+    }
+  },
   removeDocElement: {
     type: GraphQLBoolean,
     args: {
