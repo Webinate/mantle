@@ -22,6 +22,21 @@ export const postsMutation: GraphQLFieldConfigMap<any, any> = {
       return true;
     }
   },
+  removePostDraft: {
+    type: GraphQLBoolean,
+    args: {
+      postId: { type: new GraphQLNonNull(GraphQLObjectId) },
+      draftId: { type: new GraphQLNonNull(GraphQLObjectId) }
+    },
+    async resolve(parent, args, context: IGQLContext) {
+      const auth = await getAuthUser(context.req, context.res);
+      if (!auth.user) throw new Error401();
+      if (auth.user.privileges === 'regular') throw new Error403();
+
+      await ControllerFactory.get('posts').removeDraft(args.postId, args.draftId);
+      return true;
+    }
+  },
   createPost: {
     type: PostType,
     args: {

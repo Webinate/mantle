@@ -84,6 +84,7 @@ export const postsQuery: GraphQLFieldConfigMap<any, any> = {
       return ControllerFactory.get('posts').getPosts({
         index: args.index,
         limit: args.limit,
+        sortOrder: args.sortOrder,
         author: args.author,
         visibility: visibility,
         sort: args.sort,
