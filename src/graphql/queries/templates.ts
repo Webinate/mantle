@@ -2,6 +2,7 @@ import { GraphQLFieldConfigMap, GraphQLList, GraphQLObjectType, GraphQLInt } fro
 import ControllerFactory from '../../core/controller-factory';
 import { TemplateType } from '../models/template-type';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { GraphQLObjectId } from '../scalars/object-id';
 
 export const templateQuery: GraphQLFieldConfigMap<any, any> = {
   templates: {
@@ -15,5 +16,10 @@ export const templateQuery: GraphQLFieldConfigMap<any, any> = {
       }
     }),
     resolve: (parent, args, context: IGQLContext) => ControllerFactory.get('templates').getMany()
+  },
+  getTemplate: {
+    type: TemplateType,
+    args: { id: { type: GraphQLObjectId } },
+    resolve: (parent, args, context: IGQLContext) => ControllerFactory.get('templates').get(args.id)
   }
 };

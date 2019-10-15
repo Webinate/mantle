@@ -20,7 +20,8 @@
     "dev-server-cached": "ts-node --cache-directory .tscache ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
     "dev-server": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
     "dev-server-watch": "nodemon ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
-    "start-server": "cross-env NODE_ENV=production ts-node ./src/main.ts --config=./config.json --logging=true"
+    "start-server": "cross-env NODE_ENV=production ts-node ./src/main.ts --config=./config.json --logging=true",
+    "generate-schema": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true --writeSchema=true"
   },
   "nodemonConfig": {
     "ext": "ts, tsx",
@@ -67,6 +68,7 @@
     "gulp-tslint": "^8.1.3",
     "gulp-typescript": "^3.2.4",
     "jsdom": "~8.5.0",
+    "graphql-tag": "2.10.1",
     "mailgun-js": "~0.7.15",
     "migrate-mongo": "2.2.1",
     "mongodb": "~2.2.35",

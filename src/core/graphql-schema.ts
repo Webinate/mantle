@@ -14,6 +14,8 @@ import { commentsMutation } from '../graphql/mutations/comments';
 import { categoriesMutation } from '../graphql/mutations/categories';
 import { filesMutation } from '../graphql/mutations/files';
 import { documentsMutation } from '../graphql/mutations/documents';
+import { printSchema } from 'graphql';
+import { writeFileSync } from 'fs';
 
 const RootQuery: GraphQLObjectType = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -46,5 +48,9 @@ const schema = new GraphQLSchema({
   query: RootQuery,
   mutation: RootMutationType
 });
+
+export function writeSchemaToFile(file: string) {
+  writeFileSync(file, printSchema(schema), 'utf8');
+}
 
 export default schema;

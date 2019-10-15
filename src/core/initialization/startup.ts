@@ -13,6 +13,7 @@ import ModelFactory from '../model-factory';
 import ControllerFactory from '../controller-factory';
 import * as merge from 'deepmerge';
 import RemoteFactory from '../remotes/remote-factory';
+import { writeSchemaToFile } from '../graphql-schema';
 
 const args: any = yargs.argv;
 
@@ -177,6 +178,11 @@ export async function initialize() {
 
   // Create the console manager
   if (!args.runningTests) new ConsoleManager().initialize();
+}
+
+if (args.writeSchema) {
+  writeSchemaToFile('./schema.graphql');
+  process.exit();
 }
 
 if (!args.runningTests) {

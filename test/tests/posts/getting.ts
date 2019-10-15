@@ -1,10 +1,9 @@
 import * as assert from 'assert';
-import { IPost, Page, IFileEntry, IUserEntry, IDocument, ITemplate, IVolume } from '../../../src';
+import { IPost, Page, IFileEntry, IUserEntry, IVolume } from '../../../src';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { generateRandString } from '../../../src/utils/utils';
-import { IDraft } from '../../../src/types/models/i-draft';
 
 const randomSlug = generateRandString(10);
 const privateSlug = generateRandString(10);
