@@ -1,8 +1,9 @@
-import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLEnumType } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLEnumType, GraphQLInputObjectType } from 'graphql';
 import { LongType } from '../scalars/long';
 import { FileType } from './file-type';
 import Controllers from '../../core/controller-factory';
 import { IUserEntry } from '../../types/models/i-user-entry';
+import { GraphQLObjectId } from '../scalars/object-id';
 
 export const UserPriviledgesType = new GraphQLEnumType({
   name: 'UserPriviledges',
@@ -16,7 +17,7 @@ export const UserPriviledgesType = new GraphQLEnumType({
 export const UserType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
-    _id: { type: GraphQLID },
+    _id: { type: GraphQLObjectId },
     username: { type: GraphQLString },
     email: { type: GraphQLString },
     password: { type: GraphQLString },
@@ -39,5 +40,33 @@ export const UserType = new GraphQLObjectType({
     createdOn: { type: LongType },
     lastLoggedIn: { type: LongType },
     author: { type: FileType }
+  })
+});
+
+export const UserInputType = new GraphQLInputObjectType({
+  name: 'UserInput',
+  description: 'Input model for user data',
+  fields: () => ({
+    _id: {
+      type: GraphQLObjectId
+    },
+    email: {
+      type: GraphQLString
+    },
+    password: {
+      type: GraphQLString
+    },
+    registerKey: {
+      type: GraphQLObjectId
+    },
+    avatar: {
+      type: GraphQLString
+    },
+    avatarFile: {
+      type: GraphQLObjectId
+    },
+    privileges: {
+      type: UserPriviledgesType
+    }
   })
 });

@@ -92,3 +92,25 @@ export const documentFragment = gql`
     html
   }
 `;
+
+export const fileFragment = gql`
+  fragment FileFields on File {
+    _id
+    created
+    identifier
+    isPublic
+    mimeType
+    name
+    numDownloads
+    parentFile {
+      _id
+    }
+    publicURL
+    size
+    user {
+      _id
+    }
+    volumeId
+    volumeName
+  }
+`;

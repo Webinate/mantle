@@ -1,13 +1,13 @@
 import { GraphQLFieldConfigMap, GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
 import ControllerFactory from '../../core/controller-factory';
 import { getAuthUser } from '../helpers';
-import { UserType } from '../models/user-type';
+import { UserType, UserInputType } from '../models/user-type';
 import { IUserEntry } from '../../types/models/i-user-entry';
 import { JsonType } from '../scalars/json';
 import { UserPriviledgeEnumType } from '../scalars/user-priviledge';
 import { UserPrivilege } from '../../core/enums';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { Error401, Error403 } from '../../utils/errors';
+import { Error401, Error403, Error404, Error400 } from '../../utils/errors';
 
 export const userMutation: GraphQLFieldConfigMap<any, any> = {
   removeUser: {
@@ -56,6 +56,29 @@ export const userMutation: GraphQLFieldConfigMap<any, any> = {
       );
 
       return user;
+    }
+  },
+  editUser: {
+    type: UserType,
+    args: {
+      id: { type: new GraphQLNonNull(GraphQLString) },
+      token: { type: new GraphQLNonNull(UserInputType) }
+    },
+    async resolve(parent, args, context: IGQLContext) {
+      const auth = await getAuthUser(context.req, context.res);
+      if (!auth.user) throw new Error401();
+      if (!auth.isAdmin && auth.user.username !== auth.user.username) throw new Error403();
+
+      const user = await ControllerFactory.get('users').getUser({ id: args.id });
+
+      if (!user) throw new Error404(`User does not exist`);
+      if (!auth.isAdmin && user.username !== auth.user.username) throw new Error403();
+
+      const token = args.token as IUserEntry<'client'>;
+      if (user.privileges === 'super' && (token.privileges !== undefined && token.privileges !== 'super'))
+        throw new Error400('You cannot set a super admin level to less than super admin');
+
+      return await ControllerFactory.get('users').update(args.id, token, auth.isAdmin ? false : true);
     }
   }
 };

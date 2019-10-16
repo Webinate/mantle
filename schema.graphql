@@ -227,6 +227,7 @@ type RootMutationType {
   passwordReset(user: String!, key: String!, password: String!): Boolean
   removeUser(username: String!): Boolean
   createUser(username: String!, email: String!, password: String!, privileges: UserPriviledgeEnumType = regular, meta: JSON): User
+  editUser(id: String!, token: UserInput!): User
   removeComment(id: ID!): Boolean
   createComment(token: CommentInput!): Comment
   removePost(id: ObjectId!): Boolean
@@ -292,7 +293,7 @@ type TemplatesPage {
 }
 
 type User {
-  _id: ID
+  _id: ObjectId
   username: String
   email: String
   password: String
@@ -305,6 +306,17 @@ type User {
   createdOn: Long
   lastLoggedIn: Long
   author: File
+}
+
+"""Input model for user data"""
+input UserInput {
+  _id: ObjectId
+  email: String
+  password: String
+  registerKey: ObjectId
+  avatar: String
+  avatarFile: ObjectId
+  privileges: UserPriviledges
 }
 
 type UserPageType {
