@@ -6,6 +6,7 @@ import header from '../../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
 import { EDIT_USER, GET_USER } from '../queries/users';
+import { DELETE_FILE } from '../queries/file';
 
 let user: IUserEntry<'expanded'>, volume: IVolume<'expanded'>, file: IFileEntry<'expanded'>;
 
@@ -60,8 +61,11 @@ describe('[GQL] Testing deletion of an avatar image nullifies it on the user: ',
   });
 
   it('did delete the uploaded file', async function() {
-    const resp = await header.user3.delete(`/files/${file._id}`);
-    assert.equal(resp.status, 204);
+    const { data: fileDeleted } = await header.user3.graphql<boolean>(DELETE_FILE, {
+      id: file._id
+    });
+
+    assert(fileDeleted);
   });
 
   it('did nullify the image for the users avatar', async function() {

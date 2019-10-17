@@ -306,6 +306,7 @@ type User {
   createdOn: Long
   lastLoggedIn: Long
   author: File
+  meta: JSON
 }
 
 """Input model for user data"""
@@ -313,10 +314,12 @@ input UserInput {
   _id: ObjectId
   email: String
   password: String
-  registerKey: ObjectId
+  passwordTag: String
+  registerKey: String
   avatar: String
   avatarFile: ObjectId
   privileges: UserPriviledges
+  meta: JSON
 }
 
 type UserPageType {

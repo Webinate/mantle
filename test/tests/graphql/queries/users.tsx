@@ -2,8 +2,8 @@ import gql from '../../../../src/utils/gql';
 import { userFragment, fileFragment } from '../fragments';
 
 export const GET_USER = gql`
-  query getUser($username: String) {
-    getUser(username: $username) {
+  query getUser($username: String, $verbose: Boolean) {
+    getUser(username: $username, verbose: $verbose) {
       ...UserFields
       avatarFile {
         ...FileFields
@@ -16,10 +16,11 @@ export const GET_USER = gql`
 `;
 
 export const GET_USERS = gql`
-  query getUsers($search: String, $index: Int, $limit: Int) {
-    getUsers(search: $search, index: $index, limit: $limit) {
+  query getUsers($search: String, $index: Int, $limit: Int, $verbose: Boolean) {
+    getUsers(search: $search, index: $index, limit: $limit, verbose: $verbose) {
       count
       index
+      limit
       data {
         ...UserFields
       }

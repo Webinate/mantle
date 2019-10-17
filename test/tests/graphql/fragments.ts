@@ -10,8 +10,10 @@ export const userFragment = gql`
     registerKey
     sessionId
     username
+    avatar
     privileges
     passwordTag
+    meta
   }
 `;
 

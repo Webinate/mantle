@@ -29,6 +29,8 @@ export const FileType: GraphQLObjectType = new GraphQLObjectType({
     parentFile: {
       type: FileType,
       resolve: (parent: IFileEntry<'client'>) => {
+        if (!parent.parentFile) return null;
+
         return Controllers.get('files').getFile(parent.parentFile as string, {
           verbose: true,
           expandForeignKeys: false

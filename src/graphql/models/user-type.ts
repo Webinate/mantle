@@ -4,6 +4,7 @@ import { FileType } from './file-type';
 import Controllers from '../../core/controller-factory';
 import { IUserEntry } from '../../types/models/i-user-entry';
 import { GraphQLObjectId } from '../scalars/object-id';
+import { JsonType } from '../scalars/json';
 
 export const UserPriviledgesType = new GraphQLEnumType({
   name: 'UserPriviledges',
@@ -39,7 +40,10 @@ export const UserType = new GraphQLObjectType({
     sessionId: { type: GraphQLString },
     createdOn: { type: LongType },
     lastLoggedIn: { type: LongType },
-    author: { type: FileType }
+    author: { type: FileType },
+    meta: {
+      type: JsonType
+    }
   })
 });
 
@@ -56,8 +60,11 @@ export const UserInputType = new GraphQLInputObjectType({
     password: {
       type: GraphQLString
     },
+    passwordTag: {
+      type: GraphQLString
+    },
     registerKey: {
-      type: GraphQLObjectId
+      type: GraphQLString
     },
     avatar: {
       type: GraphQLString
@@ -67,6 +74,9 @@ export const UserInputType = new GraphQLInputObjectType({
     },
     privileges: {
       type: UserPriviledgesType
+    },
+    meta: {
+      type: JsonType
     }
   })
 });

@@ -28,7 +28,7 @@ export class UsersModel extends Model<IUserEntry<'server'>, IUserEntry<'client' 
       new text('passwordTag', '').setSensitive(true),
       new text('avatar', ''),
       new foreignKey('avatarFile', 'files', { keyCanBeNull: true }),
-      new enums('privileges', defaultPriviledge, enumValues, { canBeEmpty: false }),
+      new enums('privileges', defaultPriviledge, enumValues, { canBeEmpty: false }).setSensitive(true),
       new json('meta', {}).setSensitive(true),
       new date('createdOn').setIndexable(true).setReadOnly(true),
       new date('lastLoggedIn', { useNow: true }).setIndexable(true).setReadOnly(true)
