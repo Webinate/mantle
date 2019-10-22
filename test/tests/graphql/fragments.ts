@@ -116,3 +116,20 @@ export const fileFragment = gql`
     volumeName
   }
 `;
+
+export const volumeFragment = gql`
+  fragment VolumeFields on Volume {
+    _id
+    created
+    identifier
+    memoryAllocated
+    memoryUsed
+    name
+    type
+    user {
+      _id
+      username
+    }
+    meta
+  }
+`;

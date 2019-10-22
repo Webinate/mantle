@@ -25,7 +25,6 @@ import { FilesController } from './controllers/files';
 import { CommentsController } from './controllers/comments';
 import { SessionsController } from './controllers/sessions';
 import { CategoriesController } from './controllers/categories';
-
 import { validId } from './decorators/path-sanity';
 import { blocking } from './decorators/blocking-route';
 import { j200 } from './decorators/responses';

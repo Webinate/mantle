@@ -13,12 +13,14 @@ import { Error500, Error404 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
 
+export type VolumeSortType = 'created' | 'name' | 'memory';
+
 export type VolumesGetOptions = {
   user: string | IUserEntry<'client' | 'server'>;
   search: RegExp | string;
   index: number;
   limit: number;
-  sort: 'created' | 'name' | 'memory';
+  sort: VolumeSortType;
   sortOrder: 'asc' | 'desc';
 };
 

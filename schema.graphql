@@ -228,6 +228,9 @@ type RootMutationType {
   removeUser(username: String!): Boolean
   createUser(username: String!, email: String!, password: String!, privileges: UserPriviledgeEnumType = regular, meta: JSON): User
   editUser(id: String!, token: UserInput!): User
+  createVolume(token: VolumeUpdate): Volume
+  updateVolume(id: ObjectId!, token: VolumeUpdate): Volume
+  removeVolume(id: ObjectId!): Boolean
   removeComment(id: ID!): Boolean
   createComment(token: CommentInput!): Comment
   removePost(id: ObjectId!): Boolean
@@ -270,6 +273,12 @@ type RootQueryType {
 
   """Get a multiple document"""
   getDocuments: DocumentsPage
+
+  """Get a volume"""
+  getVolume(id: ObjectId): Volume
+
+  """Gets a list of volumes"""
+  getVolumes(user: String, search: String, index: Int, limit: Int, sortOrder: SortOrderEnumType, sort: VolumeSortTypeEnum): VolumePageType
 }
 
 enum SortOrderEnumType {
@@ -339,4 +348,47 @@ enum UserPriviledges {
   super
   admin
   regular
+}
+
+type Volume {
+  _id: ID
+  name: String
+  user: User
+  type: VolumeType
+  identifier: String
+  created: Long
+  memoryUsed: Long
+  memoryAllocated: Long
+  meta: JSON
+}
+
+type VolumePageType {
+  data: [Volume]
+  limit: Int
+  index: Int
+  count: Int
+}
+
+enum VolumeSortTypeEnum {
+  created
+  memory
+  name
+}
+
+enum VolumeType {
+  google
+  local
+}
+
+"""Volume update payload"""
+input VolumeUpdate {
+  _id: ObjectId
+  name: String
+  user: String
+  type: VolumeType
+  identifier: String
+  created: Long
+  memoryUsed: Long
+  memoryAllocated: Long
+  meta: JSON
 }

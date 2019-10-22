@@ -1,6 +1,7 @@
 import { GraphQLObjectType, GraphQLSchema } from 'graphql';
 import { authQuery } from '../graphql/queries/auth';
 import { userQuery } from '../graphql/queries/users';
+import { volumeQuery } from '../graphql/queries/volumes';
 import { commentsQuery } from '../graphql/queries/comments';
 import { categoriesQuery } from '../graphql/queries/categories';
 import { fileQuery } from '../graphql/queries/files';
@@ -9,6 +10,7 @@ import { documentQuery } from '../graphql/queries/documents';
 import { postsQuery } from '../graphql/queries/posts';
 import { authMutation } from '../graphql/mutations/auth';
 import { userMutation } from '../graphql/mutations/users';
+import { volumesMutation } from '../graphql/mutations/volumes';
 import { postsMutation } from '../graphql/mutations/posts';
 import { commentsMutation } from '../graphql/mutations/comments';
 import { categoriesMutation } from '../graphql/mutations/categories';
@@ -27,7 +29,8 @@ const RootQuery: GraphQLObjectType = new GraphQLObjectType({
     ...postsQuery,
     ...authQuery,
     ...commentsQuery,
-    ...documentQuery
+    ...documentQuery,
+    ...volumeQuery
   }
 });
 
@@ -36,6 +39,7 @@ const RootMutationType: GraphQLObjectType = new GraphQLObjectType({
   fields: {
     ...authMutation,
     ...userMutation,
+    ...volumesMutation,
     ...commentsMutation,
     ...postsMutation,
     ...categoriesMutation,

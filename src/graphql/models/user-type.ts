@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLEnumType, GraphQLInputObjectType } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLEnumType, GraphQLInputObjectType } from 'graphql';
 import { LongType } from '../scalars/long';
 import { FileType } from './file-type';
 import Controllers from '../../core/controller-factory';
