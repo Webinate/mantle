@@ -14,7 +14,7 @@ describe('Getting user data', function() {
     assert(json.registerKey === undefined);
     assert(json.sessionId === undefined);
     assert.deepEqual(json.username, (header.config.adminUser as IAdminUser).username);
-    assert.deepEqual(json.privileges, 'super');
+    assert.deepEqual(json.privileges, undefined);
     assert(json.passwordTag === undefined);
   });
 
@@ -44,7 +44,7 @@ describe('Getting user data', function() {
     assert(json.registerKey === undefined);
     assert(json.sessionId === undefined);
     assert.deepEqual(json.username, (header.config.adminUser as IAdminUser).username);
-    assert.deepEqual(json.privileges, 'super');
+    assert.deepEqual(json.privileges, undefined);
     assert(json.passwordTag === undefined);
   });
 

@@ -178,7 +178,7 @@ export class PostsRouter extends Router {
   @admin()
   private async updatePost(req: IAuthReq, res: express.Response) {
     const token: IPost<'client'> = req.body;
-    const post = await this._controller.update(req.params.id, token);
+    const post = await this._controller.update(req.params.id, token, { expandForeignKeys: true, expandMaxDepth: 1, verbose: true });
     return post;
   }
 

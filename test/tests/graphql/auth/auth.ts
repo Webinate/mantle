@@ -28,7 +28,7 @@ describe('[GQL] Checking basic authentication', function() {
     assert(auth.user.registerKey === null);
     assert(auth.user.sessionId === null);
     assert.deepEqual(auth.user.username, (header.config.adminUser as IAdminUser).username);
-    assert.deepEqual(auth.user.privileges, 'super');
+    assert.deepEqual(auth.user.privileges, null);
     assert(auth.user.passwordTag === null);
   });
 

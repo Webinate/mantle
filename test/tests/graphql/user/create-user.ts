@@ -140,6 +140,6 @@ describe('[GQL] Testing creating a user', function() {
       username: testUserName
     });
 
-    assert.deepEqual(newUser.registerKey, null);
+    assert.deepEqual(newUser.registerKey, '');
   });
 });

@@ -107,7 +107,7 @@ describe('[GQL] Testing user activation', function() {
   it('[GQL] did log in with valid details and an activated account', async function() {
     const {
       data: { authenticated }
-    } = await header.admin.graphql<IAuthenticationResponse>(
+    } = await header.guest.graphql<IAuthenticationResponse>(
       `mutation { login( username: "${testUserName}", password: "Password") { authenticated } }`
     );
     assert(authenticated);
