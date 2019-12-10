@@ -43,7 +43,7 @@ describe('Testing deletion of posts', function() {
     const resp = await header.guest.delete(`/api/posts/${post._id}`, null);
     assert.strictEqual(resp.status, 401);
     const json = await resp.json();
-    assert.strictEqual(json.message, 'You must be logged in to make this request');
+    assert.strictEqual(json.message, 'Authentication Error');
   });
 
   it('can delete a post with valid ID & admin permissions', async function() {

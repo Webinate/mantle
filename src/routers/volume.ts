@@ -7,7 +7,7 @@ import { VolumesController } from '../controllers/volumes';
 import { Router } from './router';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
-import { authorize } from '../decorators/permissions';
+import { isAuthorizedRest } from '../decorators/permissions';
 import { validId } from '../decorators/path-sanity';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
@@ -58,7 +58,7 @@ export class VolumeRouter extends Router {
 
   @j200()
   @validId('id', 'ID')
-  @authorize()
+  @isAuthorizedRest()
   private async getOne(req: IAuthReq, res: express.Response) {
     const volume = await this._volumeController.get({ id: req.params.id });
 
@@ -74,7 +74,7 @@ export class VolumeRouter extends Router {
    */
   @j200()
   @validId('id', 'ID')
-  @authorize()
+  @isAuthorizedRest()
   private async update(req: IAuthReq, res: express.Response) {
     const token: IVolume<'client'> = req.body;
 
@@ -98,7 +98,7 @@ export class VolumeRouter extends Router {
    * Removes volumes specified in the URL
    */
   @j200(204)
-  @authorize()
+  @isAuthorizedRest()
   private async removeVolumes(req: IAuthReq, res: express.Response) {
     await this._volumeController.remove({ _id: req.params.id as string });
     return;
@@ -108,7 +108,7 @@ export class VolumeRouter extends Router {
    * Fetches all volume entries from the database
    */
   @j200()
-  @authorize()
+  @isAuthorizedRest()
   private async getVolumes(req: IAuthReq, res: express.Response) {
     const authUser = req._user!;
     const manager = this._volumeController;
@@ -144,7 +144,7 @@ export class VolumeRouter extends Router {
    * Creates a new user volume based on the target provided
    */
   @j200()
-  @authorize()
+  @isAuthorizedRest()
   private async createVolume(req: IAuthReq, res: express.Response) {
     const token: IVolume<'client'> = req.body;
     const manager = this._volumeController;

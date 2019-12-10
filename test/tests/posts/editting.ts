@@ -54,7 +54,7 @@ describe('Testing editing of posts', function() {
     const resp = await header.guest.put(`/api/posts/${post._id}`, { title: 'Simple Test 3' });
     assert.deepEqual(resp.status, 401);
     const json = await resp.json();
-    assert.deepEqual(json.message, 'You must be logged in to make this request');
+    assert.deepEqual(json.message, 'Authentication Error');
   });
 
   it('cannot change an existing post with a slug already in use', async function() {

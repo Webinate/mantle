@@ -7,7 +7,7 @@ import * as compression from 'compression';
 import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
-import { admin, identify, authorize } from '../decorators/permissions';
+import { isAdminRest, isIdentifiedRest, isAuthorizedRest } from '../decorators/permissions';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IPost } from '../types/models/i-post';
 import Factory from '../core/model-factory';
@@ -62,7 +62,7 @@ export class PostsRouter extends Router {
    * Returns an array of IPost items
    */
   @j200()
-  @identify()
+  @isIdentifiedRest()
   private async getPosts(req: IAuthReq, res: express.Response) {
     let visibility: PostVisibility | undefined;
     const user = req._user;
@@ -109,7 +109,7 @@ export class PostsRouter extends Router {
    */
   @j200()
   @validId('id', 'ID')
-  @identify()
+  @isIdentifiedRest()
   private async getPost(req: IAuthReq, res: express.Response) {
     return this._getPost(req, res);
   }
@@ -118,14 +118,14 @@ export class PostsRouter extends Router {
    * Returns a single post
    */
   @j200()
-  @identify()
+  @isIdentifiedRest()
   private async getPostBySlug(req: IAuthReq, res: express.Response) {
     return this._getPost(req, res);
   }
 
   @j200()
   @validId('id', 'ID')
-  @authorize()
+  @isAuthorizedRest()
   private async getPostDrafts(req: IAuthReq, res: express.Response) {
     const user: IUserEntry<'server'> = req._user!;
     const response = await this._controller.getDrafts(req.params.id);
@@ -137,7 +137,7 @@ export class PostsRouter extends Router {
   @j200(204)
   @validId('postId', 'Post ID')
   @validId('draftId', 'Draft ID')
-  @admin()
+  @isAdminRest()
   private async removeDraft(req: IAuthReq, res: express.Response) {
     await this._controller.removeDraft(req.params.postId, req.params.draftId);
     return;
@@ -164,7 +164,7 @@ export class PostsRouter extends Router {
    */
   @j200(204)
   @validId('id', 'ID')
-  @admin()
+  @isAdminRest()
   private async removePost(req: IAuthReq, res: express.Response) {
     await this._controller.removePost(req.params.id);
     return;
@@ -175,7 +175,7 @@ export class PostsRouter extends Router {
    */
   @j200()
   @validId('id', 'ID')
-  @admin()
+  @isAdminRest()
   private async updatePost(req: IAuthReq, res: express.Response) {
     const token: IPost<'client'> = req.body;
     const post = await this._controller.update(req.params.id, token, { expandForeignKeys: true, expandMaxDepth: 1, verbose: true });
@@ -186,7 +186,7 @@ export class PostsRouter extends Router {
    * Attempts to create a new post
    */
   @j200()
-  @admin()
+  @isAdminRest()
   private async createPost(req: IAuthReq, res: express.Response) {
     const token: IPost<'client'> = req.body;
 

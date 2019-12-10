@@ -5,7 +5,7 @@ import { UsersController } from '../controllers/users';
 import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
-import { admin, identify, authorize, hasPermission } from '../decorators/permissions';
+import { isAdminRest, isIdentifiedRest, isAuthorizedRest, hasPermissionRest } from '../decorators/permissions';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import { IAuthReq } from '../types/tokens/i-auth-request';
 import { Page } from '../types/tokens/standard-tokens';
@@ -65,7 +65,7 @@ export class UserRouter extends Router {
    * is specified. Specify the verbose=true parameter in order to get all user data.
    */
   @j200()
-  @hasPermission('username')
+  @hasPermissionRest('username')
   private async getUser(req: IAuthReq, res: express.Response) {
     const user = await this._userController.getUser({
       username: req.params.username,
@@ -79,7 +79,7 @@ export class UserRouter extends Router {
 
   @j200()
   @validId('id', 'ID')
-  @authorize()
+  @isAuthorizedRest()
   private async edit(req: IAuthReq, res: express.Response) {
     const user = await this._userController.getUser({ id: req.params.id });
 
@@ -99,7 +99,7 @@ export class UserRouter extends Router {
    * search query
    */
   @j200()
-  @identify()
+  @isIdentifiedRest()
   private async getUsers(req: IAuthReq, res: express.Response) {
     let verbose = req.query.verbose === undefined ? true : req.query.verbose === 'true';
 
@@ -126,7 +126,7 @@ export class UserRouter extends Router {
    * Sets a user's meta data
    */
   @j200()
-  @admin()
+  @isAdminRest()
   private async setData(req: IAuthReq, res: express.Response) {
     const user = req._user!;
     let val = req.body && req.body.value;
@@ -140,7 +140,7 @@ export class UserRouter extends Router {
    * Sets a user's meta value
    */
   @j200()
-  @admin()
+  @isAdminRest()
   private async setVal(req: IAuthReq, res: express.Response) {
     const user = req._user!;
     const name = req.params.name;
@@ -153,7 +153,7 @@ export class UserRouter extends Router {
    * Gets a user's meta value
    */
   @j200()
-  @hasPermission('user')
+  @hasPermissionRest('user')
   private async getVal(req: IAuthReq, res: express.Response) {
     const user = req._user!;
     const name = req.params.name;
@@ -166,7 +166,7 @@ export class UserRouter extends Router {
    * Gets a user's meta data
    */
   @j200()
-  @hasPermission('user')
+  @hasPermissionRest('user')
   private async getData(req: IAuthReq, res: express.Response) {
     const user = req._user!;
     const response = await this._userController.getMetaData(user._id);
@@ -177,7 +177,7 @@ export class UserRouter extends Router {
    * Removes a user from the database
    */
   @j200(204)
-  @hasPermission('user')
+  @hasPermissionRest('user')
   private async removeUser(req: IAuthReq, res: express.Response) {
     const toRemove = req.params.user;
     if (!toRemove) throw new Error('No user found');
@@ -190,7 +190,7 @@ export class UserRouter extends Router {
    * Allows an admin to create a new user without registration
    */
   @j200()
-  @admin()
+  @isAdminRest()
   private async createUser(req: express.Request, res: express.Response) {
     const token: Partial<IUserEntry<'client'>> = req.body;
     token.privileges = token.privileges ? token.privileges : 'regular';

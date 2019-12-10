@@ -67,13 +67,13 @@ describe('Getting user data', function() {
     const resp = await header.guest.get(`/api/users/${(header.config.adminUser as IAdminUser).username}`);
     assert.deepEqual(resp.status, 401);
     const json = await resp.json();
-    assert.deepEqual(json.message, 'You must be logged in to make this request');
+    assert.deepEqual(json.message, 'Authentication Error');
   }).timeout(20000);
 
   it('should not allow a guest to get user data with email when verbose', async function() {
     const resp = await header.guest.get(`/api/users/${(header.config.adminUser as IAdminUser).email}?verbose=true`);
     assert.deepEqual(resp.status, 401);
     const json = await resp.json();
-    assert.deepEqual(json.message, 'You must be logged in to make this request');
+    assert.deepEqual(json.message, 'Authentication Error');
   }).timeout(20000);
 });

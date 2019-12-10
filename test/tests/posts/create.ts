@@ -11,7 +11,7 @@ describe('Testing creation of posts', function() {
     const resp = await header.guest.post(`/api/posts`, { name: '' });
     assert.strictEqual(resp.status, 401);
     const json = await resp.json();
-    assert.strictEqual(json.message, 'You must be logged in to make this request');
+    assert.strictEqual(json.message, 'Authentication Error');
   });
 
   it('cannot create a post as a regular user', async function() {

@@ -46,7 +46,7 @@ describe('Testing creation of comments', function() {
   it('cannot create a comment when not logged in', async function() {
     const resp = await header.guest.post(`/api/posts/123456789012345678901234/comments/123456789012345678901234`);
     const json = await resp.json();
-    assert.deepEqual(json.message, 'You must be logged in to make this request');
+    assert.deepEqual(json.message, 'Authentication Error');
     assert.deepEqual(resp.status, 401);
   });
 

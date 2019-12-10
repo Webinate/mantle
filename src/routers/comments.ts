@@ -6,7 +6,7 @@ import * as compression from 'compression';
 import { Router } from './router';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
-import { identify, authorize } from '../decorators/permissions';
+import { isIdentifiedRest, isAuthorizedRest } from '../decorators/permissions';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
 import { CommentsController, CommentVisibility } from '../controllers/comments';
@@ -58,14 +58,14 @@ export class CommentsRouter extends Router {
    * Returns an array of IComment items
    */
   @j200()
-  @identify()
+  @isIdentifiedRest()
   private async getComments(req: IAuthReq, res: express.Response) {
     return this._getAll(req);
   }
 
   @j200()
   @validId('parentId', 'parent ID')
-  @identify()
+  @isIdentifiedRest()
   private async getCommentsByParent(req: IAuthReq, res: express.Response) {
     return this._getAll(req);
   }
@@ -122,7 +122,7 @@ export class CommentsRouter extends Router {
    */
   @j200()
   @validId('id', 'ID')
-  @identify()
+  @isIdentifiedRest()
   private async getComment(req: IAuthReq, res: express.Response) {
     const user = req._user;
 
@@ -150,7 +150,7 @@ export class CommentsRouter extends Router {
    */
   @j200(204)
   @validId('id', 'ID')
-  @authorize()
+  @isAuthorizedRest()
   private async remove(req: IAuthReq, res: express.Response) {
     const user = req._user!;
     const comment = await this._controller.getOne(req.params.id);
@@ -167,7 +167,7 @@ export class CommentsRouter extends Router {
    */
   @j200()
   @validId('id', 'ID')
-  @authorize()
+  @isAuthorizedRest()
   private async update(req: IAuthReq, res: express.Response) {
     const token: Partial<IComment<'client'>> = req.body;
     const user = req._user!;
@@ -187,7 +187,7 @@ export class CommentsRouter extends Router {
   @j200()
   @validId('postId', 'parent ID')
   @validId('parent', 'parent ID', true)
-  @authorize()
+  @isAuthorizedRest()
   private async create(req: IAuthReq, res: express.Response) {
     const token: Partial<IComment<'client'>> = req.body;
 

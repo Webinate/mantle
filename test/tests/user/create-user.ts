@@ -101,7 +101,7 @@ describe('Testing creating a user', function() {
     const resp = await header.user1.post(`/api/users`);
     assert.deepEqual(resp.status, 403);
     const json = await resp.json();
-    assert.deepEqual(json.message, "You don't have permission to make this request");
+    assert.deepEqual(json.message, 'You do not have permission');
   });
 
   it(`did create regular user ${testUserName} with valid details`, async function() {

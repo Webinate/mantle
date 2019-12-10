@@ -7,7 +7,7 @@ import ControllerFactory from '../core/controller-factory';
 import { SessionsController } from '../controllers/sessions';
 import { Router } from './router';
 import { j200 } from '../decorators/responses';
-import { hasPermission } from '../decorators/permissions';
+import { hasPermissionRest } from '../decorators/permissions';
 import * as compression from 'compression';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import * as mongodb from 'mongodb';
@@ -55,7 +55,7 @@ export class SessionRouter extends Router {
    * Gets a list of active sessions. You can limit the haul by specifying the 'index' and 'limit' query parameters.
    */
   @j200()
-  @hasPermission()
+  @hasPermissionRest()
   private async getSessions(req: express.Request, res: express.Response) {
     const numSessions = await this._sessionController.numActiveSessions();
     const index = parseInt(req.query.index);
@@ -75,7 +75,7 @@ export class SessionRouter extends Router {
    * Resends the activation link to the user
    */
   @j200(204)
-  @hasPermission()
+  @hasPermissionRest()
   private async deleteSession(req: express.Request, res: express.Response) {
     await this._sessionController.clearSession(req.params.id, req, res);
     return;

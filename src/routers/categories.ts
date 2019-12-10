@@ -5,7 +5,7 @@ import * as mongodb from 'mongodb';
 import * as express from 'express';
 import * as compression from 'compression';
 import { Router } from './router';
-import { admin, identify } from '../decorators/permissions';
+import { isAdminRest, isIdentifiedRest } from '../decorators/permissions';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
 import { IBaseControler } from '../types/misc/i-base-controller';
@@ -79,7 +79,7 @@ export class CategoriesRouter extends Router {
    * Attempts to update a post by ID
    */
   @j200()
-  @admin()
+  @isAdminRest()
   private async update(req: IAuthReq, res: express.Response) {
     const token: Partial<ICategory<'client'>> = req.body;
     const post = await this._controller.update(req.params.id, token);
@@ -91,7 +91,7 @@ export class CategoriesRouter extends Router {
    */
   @j200()
   @validId('id', 'ID')
-  @identify()
+  @isIdentifiedRest()
   private async getOne(req: IAuthReq, res: express.Response) {
     return await this._controller.getOne(req.params.id, {
       expandForeignKeys: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
@@ -103,7 +103,7 @@ export class CategoriesRouter extends Router {
    * Returns a single category by its slug
    */
   @j200()
-  @identify()
+  @isIdentifiedRest()
   private async getBySlug(req: IAuthReq, res: express.Response) {
     return await this._controller.getBySlug(req.params.slug, {
       expandForeignKeys: req.query.expanded !== undefined ? req.query.expanded === 'true' : undefined,
@@ -116,7 +116,7 @@ export class CategoriesRouter extends Router {
    */
   @j200(204)
   @validId('id', 'ID')
-  @admin()
+  @isAdminRest()
   private async remove(req: IAuthReq, res: express.Response) {
     await this._controller.remove(req.params.id);
   }
@@ -125,7 +125,7 @@ export class CategoriesRouter extends Router {
    * Attempts to create a new category item
    */
   @j200()
-  @admin()
+  @isAdminRest()
   private async create(req: IAuthReq, res: express.Response) {
     const token: Partial<ICategory<'client'>> = req.body;
     return await this._controller.create(token);

@@ -9,7 +9,7 @@ import * as url from 'url';
 import { JSDOM } from 'jsdom';
 import { okJson, errJson } from '../utils/response-decorators';
 import { j200 } from '../decorators/responses';
-import { admin } from '../decorators/permissions';
+import { isAdminRest } from '../decorators/permissions';
 import { IRenderOptions } from '../types/misc/i-render-options';
 import Factory from '../core/model-factory';
 import { Model } from '../models/model';
@@ -327,7 +327,7 @@ export class PageRouter extends Router {
   /**
    * Attempts to remove a render by ID
    */
-  @admin()
+  @isAdminRest()
   private async removeRender(req: IAuthReq, res: express.Response) {
     const renders = this.getModel('renders');
 
@@ -347,7 +347,7 @@ export class PageRouter extends Router {
   /**
    * Returns an array of IPost items
    */
-  @admin()
+  @isAdminRest()
   private async getRenders(req: IAuthReq, res: express.Response) {
     const renders = this.getModel('renders') as Model<IRender<'server'>, IRender<'client'>>;
     let count = 0;
@@ -407,7 +407,7 @@ export class PageRouter extends Router {
    * Removes all cache items from the db
    */
   @j200(204)
-  @admin()
+  @isAdminRest()
   private async clearRenders(req: IAuthReq, res: express.Response) {
     const renders = this.getModel('renders');
     await renders!.deleteInstances({});

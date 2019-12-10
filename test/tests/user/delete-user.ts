@@ -24,7 +24,7 @@ describe('Testing deleting users', function() {
     const resp = await header.user1.delete(`/api/users/${header.user2.username}`);
     assert.deepEqual(resp.status, 403);
     const json = await resp.json();
-    assert.deepEqual(json.message, "You don't have permission to make this request");
+    assert.deepEqual(json.message, 'You do not have permission');
   });
 
   it(`did create & login regular user ${testUserName} with valid details`, async function() {

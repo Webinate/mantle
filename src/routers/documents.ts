@@ -8,7 +8,7 @@ import { Router } from './router';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
 import { validId } from '../decorators/path-sanity';
-import { admin, identify, authorize } from '../decorators/permissions';
+import { isAdminRest, isIdentifiedRest, isAuthorizedRest } from '../decorators/permissions';
 import { blocking } from '../decorators/blocking-route';
 import { IBaseControler } from '../types/misc/i-base-controller';
 import Factory from '../core/model-factory';
@@ -57,7 +57,7 @@ export class DocumentsRouter extends Router {
 
   @j200()
   @validId('id', 'ID')
-  @identify()
+  @isIdentifiedRest()
   private async getOne(req: IAuthReq, res: express.Response) {
     const document = await this._docsController.get({
       id: req.params.id,
@@ -72,7 +72,7 @@ export class DocumentsRouter extends Router {
   @j200()
   @blocking()
   @validId('id', 'ID')
-  @authorize()
+  @isAuthorizedRest()
   private async addElement(req: IAuthReq, res: express.Response) {
     let index: number | undefined = parseInt(req.query.index);
     if (isNaN(index)) index = undefined;
@@ -93,7 +93,7 @@ export class DocumentsRouter extends Router {
   @blocking()
   @validId('id', 'ID')
   @validId('elementId', 'element ID')
-  @authorize()
+  @isAuthorizedRest()
   private async removeElement(req: IAuthReq, res: express.Response) {
     const element = await this._docsController.removeElement(
       {
@@ -109,7 +109,7 @@ export class DocumentsRouter extends Router {
   @j200()
   @validId('id', 'ID')
   @validId('elementId', 'element ID')
-  @authorize()
+  @isAuthorizedRest()
   private async updateElement(req: IAuthReq, res: express.Response) {
     const element = await this._docsController.updateElement(
       {
@@ -126,7 +126,7 @@ export class DocumentsRouter extends Router {
   @j200()
   @validId('id', 'ID')
   @validId('templateId', 'template ID')
-  @identify()
+  @isIdentifiedRest()
   private async changeTemplate(req: IAuthReq, res: express.Response) {
     const updatedDoc = await this._docsController.changeTemplate(
       {
@@ -139,7 +139,7 @@ export class DocumentsRouter extends Router {
   }
 
   @j200()
-  @admin()
+  @isAdminRest()
   private async getMany(req: IAuthReq, res: express.Response) {
     const manager = this._docsController;
     const toRet = await manager.getMany();

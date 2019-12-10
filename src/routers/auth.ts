@@ -5,7 +5,7 @@ import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
 import { Router } from './router';
 import { j200 } from '../decorators/responses';
-import { hasPermission } from '../decorators/permissions';
+import { hasPermissionRest } from '../decorators/permissions';
 import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
 import { IAuthOptions } from '../types/misc/i-auth-options';
@@ -146,7 +146,7 @@ export class AuthRouter extends Router {
    * Approves a user's activation code so they can login without email validation
    */
   @j200()
-  @hasPermission('user')
+  @hasPermissionRest('user')
   private async approveActivation(req: express.Request, res: express.Response) {
     await this._userController.approveActivation(req.params.user);
     const response: ISimpleResponse = { message: 'Activation code has been approved' };

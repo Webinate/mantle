@@ -28,7 +28,7 @@ import { CategoriesController } from './controllers/categories';
 import { validId } from './decorators/path-sanity';
 import { blocking } from './decorators/blocking-route';
 import { j200 } from './decorators/responses';
-import { admin, hasPermission, authorize, identify } from './decorators/permissions';
+import { isAdminRest, hasPermissionRest, isAuthorizedRest, isIdentifiedRest } from './decorators/permissions';
 import { TemplatesController } from './controllers/templates';
 import { DocumentsController } from './controllers/documents';
 
@@ -36,7 +36,7 @@ export const Controller = _Controller.Router;
 export const Model = _Models.Model;
 export const SchemaFactory = _SchemaFactory;
 export const isValidID = isValidObjectID;
-export const decorators = { validId, blocking, j200, admin, hasPermission, authorize, identify };
+export const decorators = { validId, blocking, j200, admin: isAdminRest, hasPermission: hasPermissionRest, authorize: isAuthorizedRest, identify: isIdentifiedRest };
 
 export const controllers = {
   users: ControllerFactory.get('users') as UsersController,
