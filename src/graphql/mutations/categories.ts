@@ -4,6 +4,7 @@ import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { ICategory } from '../../types/models/i-category';
 import { CategoryType } from '../models/category-type';
 import { isAdminGql } from '../../decorators/permissions';
+import { schemaResolver } from '../../decorators/schema';
 
 class CategoriesMutator {
   @isAdminGql()
@@ -13,18 +14,10 @@ class CategoriesMutator {
   }
 
   @isAdminGql()
-  private async createCategoryResolver(parent: void, args: ICategory<'client'>, context: IGQLContext) {
+  async createCategoryResolver(parent: void, args: ICategory<'client'>, context: IGQLContext) {
     const category = await ControllerFactory.get('categories').create(args);
     return category;
   }
-
-  public removeCategory: GraphQLFieldConfig<void, IGQLContext> = {
-    type: GraphQLBoolean,
-    args: {
-      id: { type: new GraphQLNonNull(GraphQLID) }
-    },
-    resolve: this.removeCategoryResolver
-  };
 
   public createCategory: GraphQLFieldConfig<void, IGQLContext> = {
     type: CategoryType,
@@ -35,6 +28,14 @@ class CategoriesMutator {
       description: { type: GraphQLString }
     },
     resolve: this.createCategoryResolver
+  };
+
+  public removeCategory: GraphQLFieldConfig<void, IGQLContext> = {
+    type: GraphQLBoolean,
+    args: {
+      id: { type: new GraphQLNonNull(GraphQLID) }
+    },
+    resolve: this.removeCategoryResolver
   };
 }
 
