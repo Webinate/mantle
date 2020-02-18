@@ -11,6 +11,7 @@
     "lib": ["dom", "dom.iterable", "es7"],
     "experimentalDecorators": true,
     "allowUnreachableCode": false,
+    "emitDecoratorMetadata": true,
     "allowUnusedLabels": false,
     "outDir": "./dist",
     "noUnusedParameters": false,

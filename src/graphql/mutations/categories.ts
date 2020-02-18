@@ -4,7 +4,6 @@ import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { ICategory } from '../../types/models/i-category';
 import { CategoryType } from '../models/category-type';
 import { isAdminGql } from '../../decorators/permissions';
-import { schemaResolver } from '../../decorators/schema';
 
 class CategoriesMutator {
   @isAdminGql()

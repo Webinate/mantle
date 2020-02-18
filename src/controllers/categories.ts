@@ -29,6 +29,7 @@ export type GetOneOptions = {
  */
 export class CategoriesController extends Controller {
   private _categoriesModel: CategoriesModel;
+  private _collection: mongodb.Collection<ICategory<'server'>>;
 
   /**
    * Creates a new instance of the controller
@@ -41,6 +42,7 @@ export class CategoriesController extends Controller {
    * Called to initialize this controller and its related database objects
    */
   async initialize(db: mongodb.Db) {
+    this._collection = await db.collection('categories');
     this._categoriesModel = Factory.get('categories');
     return this;
   }
@@ -96,31 +98,19 @@ export class CategoriesController extends Controller {
   /**
    * Gets a single category resource
    * @param id The id of the category to fetch
-   * @param options Options for getting the resource
    */
-  async getOne(id: string, options: Partial<ISchemaOptions> = {}) {
-    if (!isValidObjectID(id)) throw new Error(`Please use a valid object id`);
-
+  async getOne(id: string) {
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(id) };
-    const category = await this._categoriesModel.downloadOne(findToken, this.getDefaultsOptions(options));
-
-    if (!category) throw new Error('Could not find category');
-
-    return category;
+    return await this._collection.findOne(findToken);
   }
 
   /**
    * Gets a single category resource by its slug
    * @param slug The slug of the category to fetch
-   * @param options Options for getting the resource
    */
-  async getBySlug(slug: string, options: Partial<ISchemaOptions> = {}) {
+  async getBySlug(slug: string) {
     const findToken: Partial<ICategory<'server'>> = { slug: slug };
-    const category = await this._categoriesModel.downloadOne(findToken, this.getDefaultsOptions(options));
-
-    if (!category) throw new Error('Could not find category');
-
-    return category;
+    return await this._collection.findOne(findToken);
   }
 
   /**
@@ -128,33 +118,26 @@ export class CategoriesController extends Controller {
    * @param id The id of the category
    */
   async remove(id: string) {
-    if (!isValidObjectID(id)) throw new Error(`Please use a valid object id`);
-
-    const categorys = this._categoriesModel;
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(id) };
-    const category = await categorys.findOne(findToken);
+    const category = await this._collection.findOne(findToken);
 
     if (!category) throw new Error('Could not find a comment with that ID');
 
-    const children = category.getByName('children');
     const promises: Promise<any>[] = [];
+    for (const child of category.children) promises.push(this.remove(child.toString()));
 
-    const childrenArr = children.getDbValue();
-    for (const child of childrenArr) promises.push(this.remove(child.toString()));
+    if (category.children.length > 0) await Promise.all(promises);
 
-    if (childrenArr.length > 0) await Promise.all(promises);
-
-    const p = category.getByName('parent').getDbValue();
+    const p = category.parent;
     if (p) {
       const findToken: Partial<ICategory<'server'>> = { _id: p };
-      const parent = await categorys.findOne(findToken);
-      let children = parent!.getByName('children').getDbValue();
-      children = children.filter(c => !c.equals(category.dbEntry._id));
-      await categorys.update({ _id: parent!.dbEntry._id }, { children: children.map(c => c.toString()) });
+      const parent = (await this._collection.findOne(findToken)) as ICategory<'server'>;
+      let children = parent.children.filter(c => !c.equals(category._id));
+      await this._collection.updateOne({ _id: parent._id }, { set: { children } as ICategory<'server'> });
     }
 
-    // Attempt to delete the instances
-    await categorys.deleteInstances(findToken);
+    // Attempt to delete the instance
+    await this._collection.deleteOne(findToken);
   }
 
   /**
@@ -163,49 +146,48 @@ export class CategoriesController extends Controller {
    * @param token The update token of the category
    */
   async update(id: string, token: Partial<ICategory<'client'>>) {
-    const categorys = this._categoriesModel;
-    let parent: Schema<ICategory<'server'>, ICategory<'client' | 'expanded'>> | null = null;
+    const collection = this._collection;
+    let parent: ICategory<'server'> | null = null;
 
     // Check if target parent exists
     if (token.parent) {
-      parent = await categorys.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
-
+      parent = await collection.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
     }
 
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(id) };
-    const curCategory = await categorys.downloadOne(findToken, { expandForeignKeys: false, verbose: true });
+    const curCategory = await collection.findOne(findToken);
 
     // If it has a parent - then remove it from the current parent
     if (curCategory && curCategory.parent && curCategory.parent.toString() !== token.parent) {
-      const curParent = await categorys.findOne({ _id: curCategory.parent });
-      const children = curParent!.dbEntry.children.map(id => id.toString());
+      const curParent = (await collection.findOne({ _id: curCategory.parent } as ICategory<'server'>)) as ICategory<
+        'server'
+      >;
+      const children = curParent.children;
       const tokenId = new mongodb.ObjectID(token._id);
-      const index = children.findIndex(it => tokenId.equals(new ObjectID(it)));
+      const index = children.findIndex(it => tokenId.equals(it));
       if (index !== -1) {
         children.splice(index, 1);
-        await categorys.update(
-          { _id: curParent!.dbEntry._id } as ICategory<'server'>,
-          { children: children } as ICategory<'client'>
+        await collection.updateOne(
+          { _id: curParent._id } as ICategory<'server'>,
+          { children: children } as ICategory<'server'>
         );
       }
     }
 
-    const updatedCategory = await categorys.update(findToken, token);
+    await collection.updateOne(findToken, token);
+    const updatedCategory = await collection.findOne(findToken);
 
     // Assign this comment as a child to its parent comment if it exists
-    if (parent) {
-      const children = parent
-        .getByName('children')!
-        .getDbValue()
-        .map(id => id.toString());
-      const newId = updatedCategory.dbEntry._id.toString();
+    if (parent && updatedCategory) {
+      const children = parent.children;
+      const newId = updatedCategory._id;
       const index = children.findIndex(it => newId === it);
       if (index === -1) {
         children.push(newId);
-        await categorys.update(
-          <ICategory<'server'>>{ _id: parent.dbEntry._id },
-          <ICategory<'client'>>{ children: children }
+        await collection.updateOne(
+          <ICategory<'server'>>{ _id: parent._id },
+          <ICategory<'server'>>{ children: children }
         );
       }
     }
@@ -218,16 +200,15 @@ export class CategoriesController extends Controller {
    * @param token The data of the category to create
    */
   async create(token: Partial<ICategory<'client'>>) {
-    const categorys = this._categoriesModel;
-    let parent: Schema<ICategory<'server'>, ICategory<'client' | 'expanded'>> | null = null;
+    const collection = this._collection;
+    let parent: ICategory<'server'> | null = null;
 
     if (token.parent) {
-      parent = await categorys.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
-
+      parent = await collection.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
     }
 
-    const instance = await categorys.createInstance(token);
+    const instance = await collection.createInstance(token);
     const json = await instance.downloadToken({ verbose: true, expandForeignKeys: false });
 
     // Assign this comment as a child to its parent comment if it exists

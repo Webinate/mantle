@@ -10,8 +10,7 @@ import * as compression from 'compression';
 import { Router } from '../routers/router';
 import { ErrorRouter } from '../routers/error';
 import * as graphqlHTTP from 'express-graphql';
-import GraphQlSchema from './graphql-schema';
-import { IGQLContext } from '../types/interfaces/i-gql-context';
+import { generateSchema } from './graphql-schema';
 
 export class Server {
   public server: IServer;
@@ -61,14 +60,15 @@ export class Server {
     const server = this.server;
     const client = this.client;
     const app = express();
+    const schema = await generateSchema();
 
     // bind express with graphql
     if (this.client.enableGraphQl) {
       app.use('/graphql', (req, res) => {
         return graphqlHTTP({
-          schema: GraphQlSchema,
+          schema,
           graphiql: true,
-          context: { res, req, server, client } as IGQLContext
+          context: { res, req, server, client }
         })(req, res);
       });
     }

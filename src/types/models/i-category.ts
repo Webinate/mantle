@@ -7,7 +7,7 @@ import { ObjectID } from 'mongodb';
 export interface ICategory<T extends 'expanded' | 'client' | 'server'> extends IModelEntry<T> {
   title: string;
   slug: string;
-  parent: T extends 'client' | 'expanded' ? string : ObjectID | null;
+  parent: T extends 'expanded' ? ICategory<T> : T extends 'client' ? string : ObjectID | null;
   children: T extends 'expanded' ? ICategory<T>[] : T extends 'client' ? (string | ICategory<T>)[] : ObjectID[];
   description: string;
 }

@@ -1,12 +1,4 @@
-import {
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLID,
-  GraphQLEnumType,
-  GraphQLInputObjectType,
-  GraphQLNonNull,
-  GraphQLScalarType
-} from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLEnumType, GraphQLInputObjectType } from 'graphql';
 import { LongType } from '../scalars/long';
 import { UserType } from './user-type';
 import { IVolume } from '../../types/models/i-volume-entry';
