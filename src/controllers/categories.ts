@@ -50,39 +50,29 @@ export class CategoriesController extends Controller {
   /**
    * Returns an array of category entries
    */
-  async getAll(options: Partial<CategoriesGetManyOptions> = {}, schemaOptions?: Partial<ISchemaOptions>) {
-    const categories = this._categoriesModel;
+  async getAll(options: Partial<CategoriesGetManyOptions> = {}) {
+    const collection = this._collection;
     const index: number = options.index || 0;
     const limit: number = options.limit || -1;
-    const expanded = options.expanded || true;
-    const depth = options.depth || 1;
     const root = options.root || false;
 
-    const sanitizedData = await categories.downloadMany(
-      {
-        index: index,
-        limit: limit,
-        selector: root
-          ? ({ parent: null } as ICategory<'server'>)
-          : options.parent
-          ? ({ parent: new ObjectID(options.parent) } as ICategory<'server'>)
-          : undefined
-      },
-      schemaOptions || {
-        verbose: true,
-        expandMaxDepth: depth,
-        expandForeignKeys: expanded,
-        expandSchemaBlacklist: [/parent/]
-      }
-    );
+    const selector = root
+      ? ({ parent: null } as ICategory<'server'>)
+      : options.parent
+      ? ({ parent: new ObjectID(options.parent) } as ICategory<'server'>)
+      : undefined;
 
-    const count = await categories.count({});
-    const response: Page<ICategory<'client' | 'expanded'>> = {
+    const sanitizedData = await collection.find(selector || {}, undefined, index, limit);
+    const count = await collection.count({});
+    const data = await sanitizedData.toArray();
+
+    const response: Page<ICategory<'server'>> = {
       count: count,
-      data: sanitizedData,
+      data: data,
       index: index,
       limit: limit
     };
+
     return response;
   }
 
@@ -99,7 +89,7 @@ export class CategoriesController extends Controller {
    * Gets a single category resource
    * @param id The id of the category to fetch
    */
-  async getOne(id: string) {
+  async getOne(id: string | mongodb.ObjectID) {
     const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(id) };
     return await this._collection.findOne(findToken);
   }
@@ -208,19 +198,18 @@ export class CategoriesController extends Controller {
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
     }
 
-    const instance = await collection.createInstance(token);
-    const json = await instance.downloadToken({ verbose: true, expandForeignKeys: false });
+    const result = await collection.insertOne(token);
+    const instance = await collection.findOne({ _id: result.insertedId } as ICategory<'server'>);
 
     // Assign this comment as a child to its parent comment if it exists
-    if (parent) {
-      const children = parent
-        .getByName('children')!
-        .getDbValue()
-        .map(id => id.toString());
-      children.push(instance.dbEntry._id.toString());
-      await categorys.update(<ICategory<'server'>>{ _id: parent.dbEntry._id }, { children: children });
+    if (parent && instance) {
+      const children = parent.children;
+      children.push(instance._id);
+      await collection.updateOne(<ICategory<'server'>>{ _id: parent._id }, {
+        set: { children: children } as ICategory<'server'>
+      });
     }
 
-    return json;
+    return instance;
   }
 }

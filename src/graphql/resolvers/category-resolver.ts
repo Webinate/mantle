@@ -1,65 +1,51 @@
 import { Resolver, Query, FieldResolver, Arg, Root, ResolverInterface } from 'type-graphql';
-import { Category } from '../models/category-type';
+import { Category, PaginatedCategoryResponse } from '../models/category-type';
 import ControllerFactory from '../../core/controller-factory';
 
 @Resolver(of => Category)
 export class CategoryResolver implements ResolverInterface<Category> {
-  @Query(returns => [Category], {
+  @Query(returns => Category, {
     nullable: true,
     description: 'Gets a page of categories'
   })
   async category(@Arg('id', { nullable: true }) id: string, @Arg('slug', { nullable: true }) slug: string) {
     if (slug) {
-      return await ControllerFactory.get('categories').getBySlug(slug, { expandForeignKeys: false });
+      return await ControllerFactory.get('categories').getBySlug(slug);
     } else {
-      return await ControllerFactory.get('categories').getOne(id, { expandForeignKeys: false });
+      return await ControllerFactory.get('categories').getOne(id);
     }
   }
 
-  @Query(returns => [Category], {
-    nullable: true,
-    description: 'Gets a page of categories'
-  })
+  @Query(returns => PaginatedCategoryResponse, { description: 'Gets an array of all categories' })
   async categories(
     @Arg('index') index = 0,
     @Arg('limit') limit = 10,
     @Arg('expanded') expanded = false,
     @Arg('root') root = false
   ) {
-    const response = await ControllerFactory.get('categories').getAll(
-      {
-        index: index,
-        limit: limit,
-        expanded: expanded,
-        root: root
-      },
-      { expandForeignKeys: false }
-    );
+    const response = await ControllerFactory.get('categories').getAll({
+      index: index,
+      limit: limit,
+      expanded: expanded,
+      root: root
+    });
 
-    return response;
+    return PaginatedCategoryResponse.fromEntity(response);
   }
 
   @FieldResolver(type => Category, { nullable: true })
   async parent(@Root() root: Category) {
-    
-    const category = await ControllerFactory.get('categories').getOne(root._id, {
-        expandForeignKeys: false
-      });
+    const category = await ControllerFactory.get('categories').getOne(root._id);
+    if (!category || !category.parent) return null;
 
-      const parent = await ControllerFactory.get('categories').getOne(category.parent._id, {
-        expandForeignKeys: false
-      });
-
-    return parent.parent as Category;
+    const parent = await ControllerFactory.get('categories').getOne(category.parent);
+    return parent ? Category.fromEntity(parent) : null;
   }
 
-  @FieldResolver(type => [Category], { nullable: true })
+  @FieldResolver(type => [Category])
   async children(@Root() category: Category) {
-    const response = await ControllerFactory.get('categories').getAll(
-      { parent: category._id as string },
-      { expandForeignKeys: false }
-    );
-    return response.data as Category[];
+    const response = await ControllerFactory.get('categories').getAll({ parent: category._id as string });
+    return response.data.map(cat => Category.fromEntity(cat));
   }
 
   // @Query(returns => [Category], { description: 'Get all the recipes from around the world ' })

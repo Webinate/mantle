@@ -1,7 +1,9 @@
 // import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList } from 'graphql';
 // import { ICategory } from '../../types/models/i-category';
-import { ObjectType, Field, ID, Arg } from 'type-graphql';
+import { ObjectType, Field, ID } from 'type-graphql';
 import { PaginatedResponse } from './page-type';
+import { ICategory } from '../../types/models/i-category';
+import { Page } from '../../types/tokens/standard-tokens';
 
 // export const CategoryType: GraphQLObjectType = new GraphQLObjectType({
 //   name: 'Category',
@@ -46,11 +48,28 @@ export class Category {
   slug: string;
 
   @Field(type => Category, { nullable: true })
-  parent: Category;
+  parent: Category | null;
 
   @Field(type => [Category])
   children: Category[];
+
+  static fromEntity(category: ICategory<'server'>) {
+    const toReturn = new Category();
+    toReturn._id = category._id.toString();
+    toReturn.slug = category.slug;
+    category.title = category.title;
+    return toReturn;
+  }
 }
 
 @ObjectType({ description: 'A page of wrapper of categories' })
-export class PaginatedCategoryResponse extends PaginatedResponse(Category) {}
+export class PaginatedCategoryResponse extends PaginatedResponse(Category) {
+  static fromEntity(page: Page<ICategory<'server'>>) {
+    const toReturn = new PaginatedCategoryResponse();
+    toReturn.count = page.count;
+    toReturn.index = page.index;
+    toReturn.limit = page.limit;
+    toReturn.data = page.data.map(cat => Category.fromEntity(cat));
+    return toReturn;
+  }
+}
