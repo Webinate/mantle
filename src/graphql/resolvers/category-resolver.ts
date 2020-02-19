@@ -1,6 +1,7 @@
-import { Resolver, Query, FieldResolver, Arg, Root, ResolverInterface } from 'type-graphql';
-import { Category, PaginatedCategoryResponse } from '../models/category-type';
+import { Resolver, Query, FieldResolver, Arg, Root, ResolverInterface, Mutation } from 'type-graphql';
+import { Category, PaginatedCategoryResponse, AddCategoryInput } from '../models/category-type';
 import ControllerFactory from '../../core/controller-factory';
+import { ICategory } from '../../types/models/i-category';
 
 @Resolver(of => Category)
 export class CategoryResolver implements ResolverInterface<Category> {
@@ -18,10 +19,10 @@ export class CategoryResolver implements ResolverInterface<Category> {
 
   @Query(returns => PaginatedCategoryResponse, { description: 'Gets an array of all categories' })
   async categories(
-    @Arg('index') index = 0,
-    @Arg('limit') limit = 10,
-    @Arg('expanded') expanded = false,
-    @Arg('root') root = false
+    @Arg('index') index: number = 0,
+    @Arg('limit') limit: number = 10,
+    @Arg('expanded') expanded: boolean = false,
+    @Arg('root') root: boolean = false
   ) {
     const response = await ControllerFactory.get('categories').getAll({
       index: index,
@@ -48,83 +49,15 @@ export class CategoryResolver implements ResolverInterface<Category> {
     return response.data.map(cat => Category.fromEntity(cat));
   }
 
-  // @Query(returns => [Category], { description: 'Get all the recipes from around the world ' })
-  // async recipes(): Promise<Recipe[]> {
-  //   return await this.items;
-  // }
+  @Mutation(returns => Category)
+  async createCategory(@Arg('category') input: AddCategoryInput) {
+    const category = (await ControllerFactory.get('categories').create(input)) as ICategory<'server'>;
+    return Category.fromEntity(category);
+  }
 
-  // @Mutation(returns => Category)
-  // async addRecipe(@Arg('recipe') recipeInput: RecipeInput): Promise<Recipe> {
-  //   const recipe = plainToClass(Recipe, {
-  //     description: recipeInput.description,
-  //     title: recipeInput.title,
-  //     ratings: [],
-  //     creationDate: new Date()
-  //   });
-  //   await this.items.push(recipe);
-  //   return recipe;
-  // }
-
-  // @FieldResolver()
-  // async parent(@Root() category: Category) {
-
-  //     return ControllerFactory.get('categories').getOne(parent.parent as string, { expandForeignKeys: false });
-  //   else return parent.parent;
-  // }
+  @Mutation(returns => Boolean)
+  async removeCategory(@Arg('id') id: string) {
+    await ControllerFactory.get('categories').remove(id);
+    return true;
+  }
 }
-
-// @Field(type => Category, { nullable: true })
-//   async parent(@Arg('parent') parent: ICategory<'client'>) {
-//     if (typeof parent.parent === 'string')
-//       return Controllers.get('categories').getOne(parent.parent as string, { expandForeignKeys: false });
-//     else return parent.parent;
-//   }
-
-//   @Field(type => Category, { nullable: true })
-//   async children(@Arg('parent') parent: ICategory<'client'>) {
-//     const response = await Controllers.get('categories').getAll(
-//       { parent: parent._id as string },
-//       { expandForeignKeys: false }
-//     );
-
-// getCategories: {
-//   type: new GraphQLObjectType({
-//     name: 'CategoriesPage',
-//     fields: {
-//       data: { type: new GraphQLList(CategoryType) },
-//       limit: { type: GraphQLInt },
-//       index: { type: GraphQLInt },
-//       count: { type: GraphQLInt }
-//     }
-//   }),
-//   args: {
-//     index: { type: GraphQLInt, defaultValue: 0 },
-//     limit: { type: GraphQLInt, defaultValue: 10 },
-//     expanded: { type: GraphQLBoolean, defaultValue: false },
-//     root: { type: GraphQLBoolean, defaultValue: false }
-//   },
-//   resolve: async (parent, args, context: IGQLContext) => {
-//     const response = await ControllerFactory.get('categories').getAll(
-//       {
-//         index: args.index,
-//         limit: args.limit,
-//         expanded: args.expanded,
-//         root: args.root
-//       },
-//       { expandForeignKeys: false }
-//     );
-
-//     return response;
-//   }
-// },
-// getCategory: {
-//   type: CategoryType,
-//   args: { id: { type: GraphQLID }, slug: { type: GraphQLString } },
-//   resolve: async (parent, args, context: IGQLContext) => {
-//     if (args.slug) {
-//       return await ControllerFactory.get('categories').getBySlug(args.slug, { expandForeignKeys: false });
-//     } else {
-//       return await ControllerFactory.get('categories').getOne(args.id, { expandForeignKeys: false });
-//     }
-//   }
-// }

@@ -1,6 +1,6 @@
 // import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList } from 'graphql';
 // import { ICategory } from '../../types/models/i-category';
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, InputType } from 'type-graphql';
 import { PaginatedResponse } from './page-type';
 import { ICategory } from '../../types/models/i-category';
 import { Page } from '../../types/tokens/standard-tokens';
@@ -60,6 +60,30 @@ export class Category {
     category.title = category.title;
     return toReturn;
   }
+}
+
+@InputType()
+export class AddCategoryInput implements Partial<ICategory<'client'>> {
+  @Field()
+  title: string;
+
+  @Field()
+  description: string;
+
+  @Field()
+  slug: string;
+
+  @Field()
+  parent: string;
+
+  @Field(type => [String])
+  children: string[];
+}
+
+@InputType()
+export class UpdateCategoryInput extends AddCategoryInput {
+  @Field(type => ID)
+  _id: string;
 }
 
 @ObjectType({ description: 'A page of wrapper of categories' })

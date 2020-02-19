@@ -1,10 +1,11 @@
 import { printSchema } from 'graphql';
 import { writeFileSync } from 'fs';
 import { buildSchema } from 'type-graphql';
+import { CategoryResolver } from '../graphql/resolvers/category-resolver';
 
 export async function generateSchema() {
   const schema = await buildSchema({
-    resolvers: []
+    resolvers: [CategoryResolver]
   });
 
   return schema;

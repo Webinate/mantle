@@ -1,6 +1,7 @@
 ﻿import * as cluster from 'cluster';
 import * as os from 'os';
 import * as yargs from 'yargs';
+import 'reflect-metadata';
 
 const args = yargs.argv;
 let numCPUs = os.cpus().length;
