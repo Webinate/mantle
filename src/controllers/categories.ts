@@ -1,11 +1,7 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
 import * as mongodb from 'mongodb';
-import Factory from '../core/model-factory';
 import Controller from './controller';
-import { isValidObjectID } from '../utils/utils';
-import { Schema } from '../models/schema';
-import { CategoriesModel } from '../models/categories-model';
 import { ICategory } from '../types/models/i-category';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { ObjectID } from 'mongodb';
@@ -28,7 +24,6 @@ export type GetOneOptions = {
  * A controller that deals with the management of categories
  */
 export class CategoriesController extends Controller {
-  private _categoriesModel: CategoriesModel;
   private _collection: mongodb.Collection<ICategory<'server'>>;
 
   /**
@@ -43,7 +38,6 @@ export class CategoriesController extends Controller {
    */
   async initialize(db: mongodb.Db) {
     this._collection = await db.collection('categories');
-    this._categoriesModel = Factory.get('categories');
     return this;
   }
 

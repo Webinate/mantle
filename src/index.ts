@@ -15,7 +15,6 @@ import { ErrorRouter } from './routers/error';
 import { FileRouter } from './routers/file';
 import { PageRouter } from './routers/page';
 import { PostsRouter } from './routers/posts';
-import { CategoriesRouter } from './routers/categories';
 import { TemplatesRouter } from './routers/templates';
 import { DocumentsRouter } from './routers/documents';
 import { SessionRouter } from './routers/session';
@@ -36,7 +35,15 @@ export const Controller = _Controller.Router;
 export const Model = _Models.Model;
 export const SchemaFactory = _SchemaFactory;
 export const isValidID = isValidObjectID;
-export const decorators = { validId, blocking, j200, admin: isAdminRest, hasPermission: hasPermissionRest, authorize: isAuthorizedRest, identify: isIdentifiedRest };
+export const decorators = {
+  validId,
+  blocking,
+  j200,
+  admin: isAdminRest,
+  hasPermission: hasPermissionRest,
+  authorize: isAuthorizedRest,
+  identify: isIdentifiedRest
+};
 
 export const controllers = {
   users: ControllerFactory.get('users') as UsersController,
@@ -57,8 +64,6 @@ export const routers = {
   auth: AuthRouter,
   /** Endpoints for managing posts */
   posts: PostsRouter,
-  /** Endpoints for managing categories */
-  categories: CategoriesRouter,
   /** Endpoints for managing templates */
   templates: TemplatesRouter,
   /** Endpoints for managing documents */

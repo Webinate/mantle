@@ -76,8 +76,6 @@ function loadConfig(): IConfig | null {
     error(`Could not parse the config file - make sure its valid JSON: ${err}`);
     process.exit();
   }
-
-  return null;
 }
 
 /**

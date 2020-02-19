@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as yargs from 'yargs';
+import 'reflect-metadata';
 import {} from 'mocha';
 
 var args = yargs.argv;
