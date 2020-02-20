@@ -1,7 +1,8 @@
-import { Resolver, Query, FieldResolver, Arg, Root, ResolverInterface, Mutation } from 'type-graphql';
+import { Resolver, Query, FieldResolver, Arg, Root, ResolverInterface, Mutation, Authorized } from 'type-graphql';
 import { Category, PaginatedCategoryResponse, AddCategoryInput } from '../models/category-type';
 import ControllerFactory from '../../core/controller-factory';
 import { ICategory } from '../../types/models/i-category';
+import { UserPrivilege } from '../../core/enums';
 
 @Resolver(of => Category)
 export class CategoryResolver implements ResolverInterface<Category> {
@@ -49,12 +50,14 @@ export class CategoryResolver implements ResolverInterface<Category> {
     return response.data.map(cat => Category.fromEntity(cat));
   }
 
+  @Authorized<UserPrivilege>(['admin'])
   @Mutation(returns => Category)
   async createCategory(@Arg('category') input: AddCategoryInput) {
     const category = (await ControllerFactory.get('categories').create(input)) as ICategory<'server'>;
     return Category.fromEntity(category);
   }
 
+  @Authorized<UserPrivilege>(['admin'])
   @Mutation(returns => Boolean)
   async removeCategory(@Arg('id') id: string) {
     await ControllerFactory.get('categories').remove(id);
