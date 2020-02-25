@@ -179,8 +179,14 @@ export async function initialize() {
 }
 
 if (args.writeSchema) {
-  writeSchemaToFile('./schema.graphql');
-  process.exit();
+  console.log('Writing schema file to schema.graphql');
+  writeSchemaToFile('./schema.graphql')
+    .then(() => {
+      process.exit();
+    })
+    .catch((err: Error) => {
+      error(err.message).then(() => process.exit());
+    });
 }
 
 if (!args.runningTests) {

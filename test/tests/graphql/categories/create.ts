@@ -1,5 +1,7 @@
 import * as assert from 'assert';
 import { ICategory } from '../../../../src';
+import { AddCategoryInput } from '../../../../src/graphql/models/category-type';
+import { ADD_CATEGORY } from '../../../../src/graphql/client/requests/category';
 import header from '../../header';
 import { randomString } from '../../utils';
 
@@ -7,10 +9,10 @@ let category: ICategory<'expanded'>;
 
 describe('[GQL] Testing creation of categories', function() {
   it('did not create a category when not logged in', async function() {
-    const resp = await header.guest.graphql<{ title: string }>(
-      `mutation { createCategory( title: "Test", slug: "Test" ) { title } }`
-    );
-    assert.deepEqual(resp.errors[0].message, 'Authentication Error');
+    const resp = await header.guest.graphql<{ title: string }>(ADD_CATEGORY, {
+      token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
+    });
+    assert.deepEqual(resp.errors[0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('did not create a category for a regular user', async function() {

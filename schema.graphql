@@ -1,394 +1,48 @@
-schema {
-  query: RootQueryType
-  mutation: RootMutationType
-}
-
-type Auth {
-  message: String
-  authenticated: Boolean
-  user: User
-}
-
-type CategoriesPage {
-  data: [Category]
-  limit: Int
-  index: Int
-  count: Int
-}
-
-type Category {
-  _id: ID
-  parent: Category
-  children: [Category]
-  title: String
-  slug: String
-  description: String
-}
-
-type Comment {
-  _id: ID
-  author: String
-  user: User
-  post: Post
-  parent: Post
-  public: Boolean
-  content: String
-  children: [Comment]
-  lastUpdated: Long
-  createdOn: Long
-}
-
-enum COMMENT_VISIBILITY {
-  ALL
-  PRIVATE
-  PUBLIC
-}
-
-"""Input comment payload"""
-input CommentInput {
-  post: ObjectId!
-  parent: ObjectId
-  public: Boolean
-  content: String
-}
-
-enum CommentSortTypeEnum {
-  created
-  updated
-}
-
-type CommentsPage {
-  data: [Comment]
-  limit: Int
-  index: Int
-  count: Int
-}
-
-type Document {
-  _id: ID
-  author: User
-  template: Template
-  lastUpdated: Long
-  createdOn: Long
-  elementsOrder: [String]
-  elements: [Element]
-  html: JSON
-}
-
-type DocumentsPage {
-  data: [Document]
-  limit: Int
-  index: Int
-  count: Int
-}
-
-type Draft {
-  _id: ID
-  html: JSON
-  createdOn: Long
-  parent: Document
-}
-
-type Element {
-  _id: ID
-  parent: Document
-  type: String
-  html: String
-  zone: String
-  style: JSON
-  image: File
-}
-
-input ElementInput {
-  _id: ID
-  type: ElementTypeEnum
-  html: String
-  zone: String
-  image: ID
-  style: JSON
-}
-
-enum ElementTypeEnum {
-  ElmParagraph
-  ElmList
-  ElmImage
-  ElmCode
-  ElmHeader1
-  ElmHeader2
-  ElmHeader3
-  ElmHeader4
-  ElmHeader5
-  ElmHeader6
-  ElmHtml
-}
-
-type File {
-  _id: ID
-  name: String
-  user: User
-  identifier: String
-  volumeId: String
-  volumeName: String
-  publicURL: String
-  mimeType: String
-  isPublic: Boolean
-  created: Long
-  size: Long
-  numDownloads: Long
-  parentFile: File
-}
-
-type FilesPage {
-  data: [File]
-  limit: Int
-  index: Int
-  count: Int
-}
-
-"""
-The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
-
-"""64-bit integral numbers"""
-scalar Long
-
-"""The `ObjectId` scalar type represents a mongodb unique ID"""
-scalar ObjectId
-
-type Post {
-  _id: ID
-  author: User
-  title: String
-  slug: String
-  brief: String
-  public: Boolean
-  categories: [String]
-  tags: [String]
-  lastUpdated: Long
-  createdOn: Long
-  featuredImage: File
-  document: Document
-  latestDraft: Draft
-}
-
-enum POST_VISIBILITY {
-  ALL
-  PRIVATE
-  PUBLIC
-}
-
-"""Input post payload"""
-input PostInput {
-  _id: ObjectId
+input AddCategoryInput {
   title: String!
+  description: String!
   slug: String!
-  author: ObjectId
-  brief: String
-  public: Boolean = false
-  featuredImage: ObjectId
-  categories: [String]
-  tags: [String]
+  parent: String!
+  children: [String!]!
 }
 
-enum PostSortTypeEnum {
-  created
-  modified
-  title
+"""Object representing a Category"""
+type Category {
+  _id: ID!
+  title: String!
+  description: String!
+  slug: String!
+  parent: Category
+  children: [Category!]!
 }
 
-type PostsPage {
-  data: [Post]
-  limit: Int
-  index: Int
-  count: Int
+type Mutation {
+  createCategory(token: AddCategoryInput!): Category!
+  updateCategory(token: UpdateCategoryInput!): Category!
+  removeCategory(id: String!): Boolean!
 }
 
-"""Post update payload"""
-input PostUpdate {
-  _id: ObjectId!
-  title: String
-  slug: String
-  author: ObjectId
-  brief: String
-  public: Boolean = false
-  featuredImage: ObjectId
-  categories: [String]
-  tags: [String]
+"""A page of wrapper of categories"""
+type PaginatedCategoryResponse {
+  data: [Category!]!
+  count: Int!
+  limit: Int!
+  index: Int!
 }
 
-type RootMutationType {
-  login(username: String!, password: String!, rememberMe: Boolean = true): Auth
-  logout: Boolean
-  registerUser(username: String!, email: String!, password: String!, activationLink: String = "/"): Auth
-  approveActivation(username: String!): Boolean
-  resendActivation(username: String!, accountRedirectURL: String = "/"): Boolean
-  requestPasswordReset(user: String!, accountRedirectURL: String = "/"): Boolean
-  passwordReset(user: String!, key: String!, password: String!): Boolean
-  removeUser(username: String!): Boolean
-  createUser(username: String!, email: String!, password: String!, privileges: UserPriviledgeEnumType = regular, meta: JSON): User
-  editUser(id: String!, token: UserInput!): User
-  createVolume(token: VolumeUpdate): Volume
-  updateVolume(id: ObjectId!, token: VolumeUpdate): Volume
-  removeVolume(id: ObjectId!): Boolean
-  removeComment(id: ID!): Boolean
-  createComment(token: CommentInput!): Comment
-  removePost(id: ObjectId!): Boolean
-  removePostDraft(postId: ObjectId!, draftId: ObjectId!): Boolean
-  createPost(token: PostInput): Post
-  updatePost(token: PostUpdate): Post
-  removeCategory(id: ID!): Boolean
-  createCategory(title: String!, slug: String!, parent: String, description: String): Category
-  removeFile(id: ObjectId, volume: ObjectId, username: String): Boolean
-  changeDocTemplate(id: ObjectId!, template: ObjectId!): Document
-  addDocElement(id: ObjectId!, index: Int, token: ElementInput!): Element
-  updateDocElement(id: ObjectId!, elementId: ObjectId!, index: Int, token: ElementInput!): Element
-  removeDocElement(docId: ObjectId!, elementId: ObjectId!): Boolean
+type Query {
+  """Gets a page of categories"""
+  category(slug: String, id: String): Category
+
+  """Gets an array of all categories"""
+  categories(root: Boolean = false, index: Int = 0, limit: Int = 10): PaginatedCategoryResponse!
 }
 
-type RootQueryType {
-  """Use this to get all users"""
-  getUser(username: String, verbose: Boolean = false): User
-  getUsers(index: Int, limit: Int, search: String, verbose: Boolean = false): UserPageType
-
-  """Get a single file"""
-  file(id: ID): File
-  files(index: Int, limit: Int, search: String): FilesPage
-  getCategories(index: Int = 0, limit: Int = 10, expanded: Boolean = false, root: Boolean = false): CategoriesPage
-  getCategory(id: ID, slug: String): Category
-  templates: TemplatesPage
-  getTemplate(id: ObjectId): Template
-  getPosts(index: Int = 0, limit: Int = 10, author: String, keyword: String, sort: PostSortTypeEnum, visibility: POST_VISIBILITY = null, categories: [String], tags: [String], requiredTags: [String], sortOrder: SortOrderEnumType): PostsPage
-  getPost(id: ID, slug: String): Post
-  getDraft(id: ObjectId): Draft
-  getPostDrafts(id: ObjectId): [Draft]
-
-  """Retrieves the active user"""
-  authenticated(verbose: Boolean = false): Auth
-  getComments(index: Int = 0, limit: Int = 10, visibility: COMMENT_VISIBILITY = null, keyword: String, root: Boolean, parentId: String, postId: String, sortOrder: SortOrderEnumType, sortType: CommentSortTypeEnum, user: String): CommentsPage
-  getComment(id: ID, slug: String): Comment
-
-  """Get a single document"""
-  getDocument(id: ObjectId): Document
-
-  """Get a multiple document"""
-  getDocuments: DocumentsPage
-
-  """Get a volume"""
-  getVolume(id: ObjectId): Volume
-
-  """Gets a list of volumes"""
-  getVolumes(user: String, search: String, index: Int, limit: Int, sortOrder: SortOrderEnumType, sort: VolumeSortTypeEnum): VolumePageType
-}
-
-enum SortOrderEnumType {
-  asc
-  desc
-}
-
-type Template {
-  _id: ID
-  name: String
-  description: String
-  defaultZone: String
-  zones: [String]
-}
-
-type TemplatesPage {
-  data: [Template]
-  limit: Int
-  index: Int
-  count: Int
-}
-
-type User {
-  _id: ObjectId
-  username: String
-  email: String
-  password: String
-  passwordTag: String
-  registerKey: String
-  avatar: String
-  avatarFile: File
-  privileges: UserPriviledges
-  sessionId: String
-  createdOn: Long
-  lastLoggedIn: Long
-  author: File
-  meta: JSON
-}
-
-"""Input model for user data"""
-input UserInput {
-  _id: ObjectId
-  email: String
-  password: String
-  passwordTag: String
-  registerKey: String
-  avatar: String
-  avatarFile: ObjectId
-  privileges: UserPriviledges
-  meta: JSON
-}
-
-type UserPageType {
-  data: [User]
-  limit: Int
-  index: Int
-  count: Int
-}
-
-enum UserPriviledgeEnumType {
-  admin
-  regular
-  super
-}
-
-enum UserPriviledges {
-  super
-  admin
-  regular
-}
-
-type Volume {
-  _id: ID
-  name: String
-  user: User
-  type: VolumeType
-  identifier: String
-  created: Long
-  memoryUsed: Long
-  memoryAllocated: Long
-  meta: JSON
-}
-
-type VolumePageType {
-  data: [Volume]
-  limit: Int
-  index: Int
-  count: Int
-}
-
-enum VolumeSortTypeEnum {
-  created
-  memory
-  name
-}
-
-enum VolumeType {
-  google
-  local
-}
-
-"""Volume update payload"""
-input VolumeUpdate {
-  _id: ObjectId
-  name: String
-  user: String
-  type: VolumeType
-  identifier: String
-  created: Long
-  memoryUsed: Long
-  memoryAllocated: Long
-  meta: JSON
+input UpdateCategoryInput {
+  title: String!
+  description: String!
+  slug: String!
+  parent: String!
+  children: [String!]!
+  _id: ID!
 }

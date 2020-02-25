@@ -5,6 +5,7 @@ import { CategoryResolver } from '../graphql/resolvers/category-resolver';
 import ControllerFactory from './controller-factory';
 import { UserPrivilege } from './enums';
 import { IGQLContext } from '../types/interfaces/i-gql-context';
+import { error, info } from '../utils/logger';
 
 export async function generateSchema() {
   const schema = await buildSchema({
@@ -24,14 +25,24 @@ export const customAuthChecker: AuthChecker<IGQLContext> = async ({ root, args, 
   const session = await ControllerFactory.get('sessions').getSession(context.req);
 
   if (!session) return false;
-  if (session) await ControllerFactory.get('sessions').setSessionHeader(session, context.req, context.res);
-  if (session.user.privileges === 'super') return true;
-  if (session.user.privileges === 'admin' && selectedRoles.includes('admin')) return true;
 
-  return false; // or false if access is denied
+  // Set the response header session
+  await ControllerFactory.get('sessions').setSessionHeader(session, context.req, context.res);
+
+  if (session.user.privileges === 'super') return true;
+  if (selectedRoles.includes(session.user.privileges)) return true;
+  else return false;
 };
 
 export async function writeSchemaToFile(file: string) {
-  const schema = await generateSchema();
-  writeFileSync(file, printSchema(schema), 'utf8');
+  try {
+    info('Starting Schema generatation...');
+    const schema = await generateSchema();
+    info('Schema generated...');
+    writeFileSync(file, printSchema(schema), 'utf8');
+    info(`Schema written to ["${file}"]...`);
+  } catch (err) {
+    error(`Something went wrong`);
+    error(`Could not generate schema ["${err.message} ${err.stack}"]`);
+  }
 }

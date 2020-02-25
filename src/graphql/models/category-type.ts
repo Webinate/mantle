@@ -1,37 +1,7 @@
-// import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList } from 'graphql';
-// import { ICategory } from '../../types/models/i-category';
-import { ObjectType, Field, ID, InputType } from 'type-graphql';
-import { PaginatedResponse } from './page-type';
+import { ObjectType, Field, ID, InputType, ArgsType, Int } from 'type-graphql';
+import { PaginatedResponse } from './paginated-response';
 import { ICategory } from '../../types/models/i-category';
 import { Page } from '../../types/tokens/standard-tokens';
-
-// export const CategoryType: GraphQLObjectType = new GraphQLObjectType({
-//   name: 'Category',
-//   fields: () => ({
-//     _id: { type: GraphQLID },
-//     parent: {
-//       type: CategoryType,
-//       resolve: (parent: ICategory<'client'>) => {
-//         if (typeof parent.parent === 'string')
-//           return Controllers.get('categories').getOne(parent.parent as string, { expandForeignKeys: false });
-//         else return parent.parent;
-//       }
-//     },
-//     children: {
-//       type: new GraphQLList(CategoryType),
-//       resolve: async (parent: ICategory<'client'>) => {
-//         const response = await Controllers.get('categories').getAll(
-//           { parent: parent._id as string },
-//           { expandForeignKeys: false }
-//         );
-//         return response.data;
-//       }
-//     },
-//     title: { type: GraphQLString },
-//     slug: { type: GraphQLString },
-//     description: { type: GraphQLString }
-//   })
-// });
 
 @ObjectType({ description: 'Object representing a Category' })
 export class Category {
@@ -67,23 +37,43 @@ export class AddCategoryInput implements Partial<ICategory<'client'>> {
   @Field()
   title: string;
 
-  @Field()
+  @Field({ nullable: true })
   description: string;
 
   @Field()
   slug: string;
 
-  @Field()
+  @Field({ nullable: true })
   parent: string;
 
-  @Field(type => [String])
+  @Field(type => [String], { nullable: true })
   children: string[];
+
+  constructor(initialization?: Partial<AddCategoryInput>) {
+    if (initialization) Object.assign(this, initialization);
+  }
 }
 
 @InputType()
 export class UpdateCategoryInput extends AddCategoryInput {
   @Field(type => ID)
   _id: string;
+
+  constructor(initialization?: Partial<UpdateCategoryInput>) {
+    super(initialization);
+  }
+}
+
+@ArgsType()
+export class GetCategoriesArgs {
+  @Field(type => Boolean)
+  root = false;
+
+  @Field(type => Int, { defaultValue: 0 })
+  index: number = 0;
+
+  @Field(type => Int, { defaultValue: 10 })
+  limit = 10;
 }
 
 @ObjectType({ description: 'A page of wrapper of categories' })

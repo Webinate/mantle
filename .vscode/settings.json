@@ -18,7 +18,6 @@
   "javascript.format.insertSpaceAfterCommaDelimiter": true,
   "javascript.format.insertSpaceBeforeFunctionParenthesis": false,
   "editor.detectIndentation": false,
-  "window.zoomLevel": 0,
   "editor.minimap.enabled": true,
   "editor.minimap.renderCharacters": false,
   "editor.codeLens": true,

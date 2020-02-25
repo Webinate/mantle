@@ -1,7 +1,12 @@
-import { Resolver, Query, FieldResolver, Arg, Root, ResolverInterface, Mutation, Authorized } from 'type-graphql';
-import { Category, PaginatedCategoryResponse, AddCategoryInput } from '../models/category-type';
+import { Resolver, Query, FieldResolver, Arg, Root, ResolverInterface, Mutation, Authorized, Args } from 'type-graphql';
+import {
+  Category,
+  PaginatedCategoryResponse,
+  AddCategoryInput,
+  UpdateCategoryInput,
+  GetCategoriesArgs
+} from '../models/category-type';
 import ControllerFactory from '../../core/controller-factory';
-import { ICategory } from '../../types/models/i-category';
 import { UserPrivilege } from '../../core/enums';
 
 @Resolver(of => Category)
@@ -19,16 +24,10 @@ export class CategoryResolver implements ResolverInterface<Category> {
   }
 
   @Query(returns => PaginatedCategoryResponse, { description: 'Gets an array of all categories' })
-  async categories(
-    @Arg('index') index: number = 0,
-    @Arg('limit') limit: number = 10,
-    @Arg('expanded') expanded: boolean = false,
-    @Arg('root') root: boolean = false
-  ) {
+  async categories(@Args() { index, limit, root }: GetCategoriesArgs) {
     const response = await ControllerFactory.get('categories').getAll({
       index: index,
       limit: limit,
-      expanded: expanded,
       root: root
     });
 
@@ -52,8 +51,15 @@ export class CategoryResolver implements ResolverInterface<Category> {
 
   @Authorized<UserPrivilege>(['admin'])
   @Mutation(returns => Category)
-  async createCategory(@Arg('category') input: AddCategoryInput) {
-    const category = (await ControllerFactory.get('categories').create(input)) as ICategory<'server'>;
+  async createCategory(@Arg('token') token: AddCategoryInput) {
+    const category = await ControllerFactory.get('categories').create(token);
+    return Category.fromEntity(category);
+  }
+
+  @Authorized<UserPrivilege>(['admin'])
+  @Mutation(returns => Category)
+  async updateCategory(@Arg('token') token: UpdateCategoryInput) {
+    const category = await ControllerFactory.get('categories').update(token);
     return Category.fromEntity(category);
   }
 

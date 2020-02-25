@@ -10,7 +10,6 @@ export type CategoriesGetManyOptions = {
   index: number;
   limit: number;
   root: boolean;
-  expanded: boolean;
   depth: number;
   parent: string;
 };
@@ -126,10 +125,9 @@ export class CategoriesController extends Controller {
 
   /**
    * Updates a category by id
-   * @param id The id of the category
    * @param token The update token of the category
    */
-  async update(id: string, token: Partial<ICategory<'client'>>) {
+  async update(token: Partial<ICategory<'client'>>) {
     const collection = this._collection;
     let parent: ICategory<'server'> | null = null;
 
@@ -139,11 +137,13 @@ export class CategoriesController extends Controller {
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
     }
 
-    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(id) };
+    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(token._id) };
     const curCategory = await collection.findOne(findToken);
 
+    if (!curCategory) throw new Error(`No category exists with the id ${token._id}`);
+
     // If it has a parent - then remove it from the current parent
-    if (curCategory && curCategory.parent && curCategory.parent.toString() !== token.parent) {
+    if (curCategory.parent && curCategory.parent.toString() !== token.parent) {
       const curParent = (await collection.findOne({ _id: curCategory.parent } as ICategory<'server'>)) as ICategory<
         'server'
       >;
@@ -176,7 +176,7 @@ export class CategoriesController extends Controller {
       }
     }
 
-    return updatedCategory;
+    return updatedCategory!;
   }
 
   /**
@@ -194,6 +194,8 @@ export class CategoriesController extends Controller {
 
     const result = await collection.insertOne(token);
     const instance = await collection.findOne({ _id: result.insertedId } as ICategory<'server'>);
+
+    if (!instance) throw new Error(`Could not create category`);
 
     // Assign this comment as a child to its parent comment if it exists
     if (parent && instance) {
