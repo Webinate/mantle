@@ -2,6 +2,7 @@ import { ObjectType, Field, ID, InputType, ArgsType, Int } from 'type-graphql';
 import { PaginatedResponse } from './paginated-response';
 import { ICategory } from '../../types/models/i-category';
 import { Page } from '../../types/tokens/standard-tokens';
+import { IsSafeText } from '../../decorators/isSafeText';
 
 @ObjectType({ description: 'Object representing a Category' })
 export class Category {
@@ -11,7 +12,7 @@ export class Category {
   @Field()
   title: string;
 
-  @Field()
+  @Field({ nullable: true })
   description: string;
 
   @Field()
@@ -27,7 +28,8 @@ export class Category {
     const toReturn = new Category();
     toReturn._id = category._id.toString();
     toReturn.slug = category.slug;
-    category.title = category.title;
+    toReturn.title = category.title;
+    toReturn.description = category.description;
     return toReturn;
   }
 }
@@ -35,10 +37,12 @@ export class Category {
 @InputType()
 export class AddCategoryInput implements Partial<ICategory<'client'>> {
   @Field()
+  @IsSafeText()
   title: string;
 
-  @Field({ nullable: true })
-  description: string;
+  @Field({ nullable: true, defaultValue: '' })
+  @IsSafeText()
+  description: string = '';
 
   @Field()
   slug: string;
@@ -47,7 +51,7 @@ export class AddCategoryInput implements Partial<ICategory<'client'>> {
   parent: string;
 
   @Field(type => [String], { nullable: true })
-  children: string[];
+  children: string[] = [];
 
   constructor(initialization?: Partial<AddCategoryInput>) {
     if (initialization) Object.assign(this, initialization);

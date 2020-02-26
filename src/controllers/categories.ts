@@ -107,15 +107,16 @@ export class CategoriesController extends Controller {
     if (!category) throw new Error('Could not find a comment with that ID');
 
     const promises: Promise<any>[] = [];
-    for (const child of category.children) promises.push(this.remove(child.toString()));
+    const children = category.children || [];
+    for (const child of children) promises.push(this.remove(child.toString()));
 
-    if (category.children.length > 0) await Promise.all(promises);
+    if (children.length > 0) await Promise.all(promises);
 
     const p = category.parent;
     if (p) {
       const findToken: Partial<ICategory<'server'>> = { _id: p };
       const parent = (await this._collection.findOne(findToken)) as ICategory<'server'>;
-      let children = parent.children.filter(c => !c.equals(category._id));
+      let children = parent.children ? parent.children.filter(c => !c.equals(category._id)) : [];
       await this._collection.updateOne({ _id: parent._id }, { set: { children } as ICategory<'server'> });
     }
 
@@ -130,6 +131,11 @@ export class CategoriesController extends Controller {
   async update(token: Partial<ICategory<'client'>>) {
     const collection = this._collection;
     let parent: ICategory<'server'> | null = null;
+
+    if (token.slug) {
+      const exists = await collection.findOne({ slug: token.slug } as ICategory<'server'>);
+      if (exists) throw new Error(`Category with the slug '${token.slug}' already exists`);
+    }
 
     // Check if target parent exists
     if (token.parent) {
@@ -148,14 +154,16 @@ export class CategoriesController extends Controller {
         'server'
       >;
       const children = curParent.children;
-      const tokenId = new mongodb.ObjectID(token._id);
-      const index = children.findIndex(it => tokenId.equals(it));
-      if (index !== -1) {
-        children.splice(index, 1);
-        await collection.updateOne(
-          { _id: curParent._id } as ICategory<'server'>,
-          { children: children } as ICategory<'server'>
-        );
+      if (children) {
+        const tokenId = new mongodb.ObjectID(token._id);
+        const index = children.findIndex(it => tokenId.equals(it));
+        if (index !== -1) {
+          children.splice(index, 1);
+          await collection.updateOne(
+            { _id: curParent._id } as ICategory<'server'>,
+            { children: children } as ICategory<'server'>
+          );
+        }
       }
     }
 
@@ -165,14 +173,16 @@ export class CategoriesController extends Controller {
     // Assign this comment as a child to its parent comment if it exists
     if (parent && updatedCategory) {
       const children = parent.children;
-      const newId = updatedCategory._id;
-      const index = children.findIndex(it => newId === it);
-      if (index === -1) {
-        children.push(newId);
-        await collection.updateOne(
-          <ICategory<'server'>>{ _id: parent._id },
-          <ICategory<'server'>>{ children: children }
-        );
+      if (children) {
+        const newId = updatedCategory._id;
+        const index = children.findIndex(it => newId === it);
+        if (index === -1) {
+          children.push(newId);
+          await collection.updateOne(
+            <ICategory<'server'>>{ _id: parent._id },
+            <ICategory<'server'>>{ children: children }
+          );
+        }
       }
     }
 
@@ -187,6 +197,11 @@ export class CategoriesController extends Controller {
     const collection = this._collection;
     let parent: ICategory<'server'> | null = null;
 
+    if (token.slug) {
+      const exists = await collection.findOne({ slug: token.slug } as ICategory<'server'>);
+      if (exists) throw new Error(`Category with the slug '${token.slug}' already exists`);
+    }
+
     if (token.parent) {
       parent = await collection.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
@@ -198,7 +213,7 @@ export class CategoriesController extends Controller {
     if (!instance) throw new Error(`Could not create category`);
 
     // Assign this comment as a child to its parent comment if it exists
-    if (parent && instance) {
+    if (parent && instance && parent.children) {
       const children = parent.children;
       children.push(instance._id);
       await collection.updateOne(<ICategory<'server'>>{ _id: parent._id }, {

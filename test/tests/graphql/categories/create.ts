@@ -1,13 +1,21 @@
 import * as assert from 'assert';
 import { ICategory } from '../../../../src';
 import { AddCategoryInput } from '../../../../src/graphql/models/category-type';
-import { ADD_CATEGORY } from '../../../../src/graphql/client/requests/category';
+import { ADD_CATEGORY, GET_CATEGORY, REMOVE_CATEGORY } from '../../../../src/graphql/client/requests/category';
 import header from '../../header';
 import { randomString } from '../../utils';
 
 let category: ICategory<'expanded'>;
 
 describe('[GQL] Testing creation of categories', function() {
+  it('does require a title and slug when creating a category', async function() {
+    const resp = await header.guest.graphql<{ title: string }>(ADD_CATEGORY, {
+      token: new AddCategoryInput({})
+    });
+    assert.ok(resp.errors[0].message.includes(`Field title of required type String! was not provided.`));
+    assert.ok(resp.errors[1].message.includes(`Field slug of required type String! was not provided.`));
+  });
+
   it('did not create a category when not logged in', async function() {
     const resp = await header.guest.graphql<{ title: string }>(ADD_CATEGORY, {
       token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
@@ -16,35 +24,35 @@ describe('[GQL] Testing creation of categories', function() {
   });
 
   it('did not create a category for a regular user', async function() {
-    const resp = await header.user1.graphql<{ title: string }>(
-      `mutation { createCategory( title: "Test", slug: "Test" ) { title } }`
-    );
-    assert.deepEqual(resp.errors[0].message, 'You do not have permission');
+    const resp = await header.user1.graphql<{ title: string }>(ADD_CATEGORY, {
+      token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
+    });
+    assert.deepEqual(resp.errors[0].message, `Access denied! You don't have permission for this action!`);
   });
 
-  it('did not create a category without a slug', async function() {
-    const resp = await header.admin.graphql<{ title: string }>(
-      `mutation { createCategory( title: "Test", slug: "" ) { title } }`
-    );
-    assert.deepEqual(resp.errors[0].message, 'slug cannot be empty');
-  });
-
-  it('did not create a category without a title', async function() {
-    const resp = await header.admin.graphql<{ title: string }>(
-      `mutation { createCategory( title: "", slug: "${randomString()}" ) { title } }`
-    );
-    assert.deepEqual(resp.errors[0].message, 'title cannot be empty');
+  it('did not create a category with dangerous html in description', async function() {
+    const resp = await header.user1.graphql<{ title: string }>(ADD_CATEGORY, {
+      token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
+    });
+    assert.deepEqual(resp.errors[0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('did create category with no html', async function() {
-    const existing = await header.admin.graphql<ICategory<'expanded'>>(`{ getCategory( slug: "_test" ) { _id } }`);
+    const existing = await header.admin.graphql<ICategory<'expanded'>>(GET_CATEGORY, {
+      slug: '_test'
+    });
 
-    if (existing.data && existing.data._id)
-      await header.admin.graphql<ICategory<'expanded'>>(`mutation { removeCategory( id: "${existing.data._id}" ) }`);
+    if (existing.data && existing.data._id) {
+      const deletion = await header.admin.graphql<boolean>(REMOVE_CATEGORY, {
+        id: existing.data._id
+      });
+      assert.ok(deletion.data);
+    }
 
-    const resp = await header.admin.graphql<ICategory<'expanded'>>(
-      `mutation { createCategory( title: "<b>_Test</b>", slug: "_test", description: "<b>This is a test</b>" ) { _id, slug, title, description } }`
-    );
+    const resp = await header.admin.graphql<ICategory<'expanded'>>(ADD_CATEGORY, {
+      token: new AddCategoryInput({ title: '<b>_Test</b>', slug: '_test', description: '<b>This is a test</b>' })
+    });
+
     category = resp.data;
     assert.deepEqual(typeof category._id, 'string');
     assert.deepEqual(category.slug, '_test');
@@ -53,16 +61,15 @@ describe('[GQL] Testing creation of categories', function() {
   });
 
   it('did not create category called _test when one already exist', async function() {
-    const resp = await header.admin.graphql<ICategory<'expanded'>>(
-      `mutation { createCategory( title: "Test", slug: "_test" ) { _id } }`
-    );
+    const resp = await header.admin.graphql<ICategory<'expanded'>>(ADD_CATEGORY, {
+      token: new AddCategoryInput({ title: 'Test', slug: '_test' })
+    });
 
-    assert.deepEqual(resp.errors[0].message, `'slug' must be unique`);
+    assert.deepEqual(resp.errors[0].message, `Category with the slug '_test' already exists`);
   });
 
   it('did delete the category from the create test', async function() {
-    const resp = await header.admin.graphql<boolean>(`mutation { removeCategory( id: "${category._id}" ) }`);
-
+    const resp = await header.admin.graphql<boolean>(REMOVE_CATEGORY, { id: category._id });
     assert(resp.data);
   });
 });

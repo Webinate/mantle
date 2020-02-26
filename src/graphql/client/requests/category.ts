@@ -12,6 +12,12 @@ export const ADD_CATEGORY = gql`
   }
 `;
 
+export const REMOVE_CATEGORY = gql`
+  mutation REMOVE_CATEGORY($id: String!) {
+    removeCategory(id: $id)
+  }
+`;
+
 export const UPDATE_CATEGORY = gql`
   mutation UPDATE_CATEGORY($token: UpdateCategoryInput!) {
     updateCategory(token: $token) {
