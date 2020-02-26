@@ -3,6 +3,8 @@ import { PaginatedResponse } from './paginated-response';
 import { ICategory } from '../../types/models/i-category';
 import { Page } from '../../types/tokens/standard-tokens';
 import { IsSafeText } from '../../decorators/isSafeText';
+import { ObjectId } from 'mongodb';
+import { GraphQLObjectId } from '../scalars/object-id';
 
 @ObjectType({ description: 'Object representing a Category' })
 export class Category {
@@ -35,7 +37,7 @@ export class Category {
 }
 
 @InputType()
-export class AddCategoryInput implements Partial<ICategory<'client'>> {
+export class AddCategoryInput {
   @Field()
   @IsSafeText()
   title: string;
@@ -47,11 +49,11 @@ export class AddCategoryInput implements Partial<ICategory<'client'>> {
   @Field()
   slug: string;
 
-  @Field({ nullable: true })
-  parent: string;
+  @Field(type => GraphQLObjectId, { nullable: true })
+  parent: ObjectId | string;
 
-  @Field(type => [String], { nullable: true })
-  children: string[] = [];
+  @Field(type => [GraphQLObjectId], { nullable: true })
+  children: (ObjectId | string)[] = [];
 
   constructor(initialization?: Partial<AddCategoryInput>) {
     if (initialization) Object.assign(this, initialization);
@@ -60,8 +62,8 @@ export class AddCategoryInput implements Partial<ICategory<'client'>> {
 
 @InputType()
 export class UpdateCategoryInput extends AddCategoryInput {
-  @Field(type => ID)
-  _id: string;
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId | string;
 
   constructor(initialization?: Partial<UpdateCategoryInput>) {
     super(initialization);

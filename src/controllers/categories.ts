@@ -5,6 +5,7 @@ import Controller from './controller';
 import { ICategory } from '../types/models/i-category';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { ObjectID } from 'mongodb';
+import { blocking } from '../decorators/blocking-route';
 
 export type CategoriesGetManyOptions = {
   index: number;
@@ -46,7 +47,7 @@ export class CategoriesController extends Controller {
   async getAll(options: Partial<CategoriesGetManyOptions> = {}) {
     const collection = this._collection;
     const index: number = options.index || 0;
-    const limit: number = options.limit || -1;
+    const limit = options.limit || undefined;
     const root = options.root || false;
 
     const selector = root
@@ -63,7 +64,7 @@ export class CategoriesController extends Controller {
       count: count,
       data: data,
       index: index,
-      limit: limit
+      limit: limit ?? -1
     };
 
     return response;
@@ -117,7 +118,7 @@ export class CategoriesController extends Controller {
       const findToken: Partial<ICategory<'server'>> = { _id: p };
       const parent = (await this._collection.findOne(findToken)) as ICategory<'server'>;
       let children = parent.children ? parent.children.filter(c => !c.equals(category._id)) : [];
-      await this._collection.updateOne({ _id: parent._id }, { set: { children } as ICategory<'server'> });
+      await this._collection.updateOne({ _id: parent._id }, { $set: { children } as ICategory<'server'> });
     }
 
     // Attempt to delete the instance
@@ -128,7 +129,7 @@ export class CategoriesController extends Controller {
    * Updates a category by id
    * @param token The update token of the category
    */
-  async update(token: Partial<ICategory<'client'>>) {
+  async update(token: Partial<ICategory<'server'>>) {
     const collection = this._collection;
     let parent: ICategory<'server'> | null = null;
 
@@ -193,7 +194,8 @@ export class CategoriesController extends Controller {
    * Creates a new category
    * @param token The data of the category to create
    */
-  async create(token: Partial<ICategory<'client'>>) {
+  @blocking()
+  async create(token: Partial<ICategory<'server'>>) {
     const collection = this._collection;
     let parent: ICategory<'server'> | null = null;
 
@@ -213,11 +215,11 @@ export class CategoriesController extends Controller {
     if (!instance) throw new Error(`Could not create category`);
 
     // Assign this comment as a child to its parent comment if it exists
-    if (parent && instance && parent.children) {
-      const children = parent.children;
+    if (parent) {
+      const children = parent.children || [];
       children.push(instance._id);
       await collection.updateOne(<ICategory<'server'>>{ _id: parent._id }, {
-        set: { children: children } as ICategory<'server'>
+        $set: { children: children } as ICategory<'server'>
       });
     }
 

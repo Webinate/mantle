@@ -39,6 +39,37 @@ export const GET_CATEGORY = gql`
   ${CATEGORY_FIELDS}
 `;
 
+export function getCategoryWithChildren(depth = 1) {
+  return `
+  query GET_CATEGORY($id: String, $slug: String) {
+    category(id: $id, slug: $slug) {
+      ${renderChildrenCategories(depth)}
+    }
+  }
+
+  ${CATEGORY_FIELDS}
+`;
+}
+
+export function renderChildrenCategories(depth = 1) {
+  function renderCategory(curDepth: number): string {
+    return `
+      ...CategoryFields
+      ${
+        curDepth > 0
+          ? `
+        children {
+          ${renderCategory(curDepth - 1)}
+        }
+      `
+          : ''
+      }
+    `;
+  }
+
+  return renderCategory(depth);
+}
+
 export const GET_CATEGORIES = gql`
   query GET_CATEGORIES($root: Boolean, $limit: Int, $index: Int) {
     categories(root: $root, limit: $limit, index: $index) {

@@ -8,6 +8,7 @@ import {
 } from '../models/category-type';
 import ControllerFactory from '../../core/controller-factory';
 import { UserPrivilege } from '../../core/enums';
+import { ICategory } from '../../types/models/i-category';
 
 @Resolver(of => Category)
 export class CategoryResolver implements ResolverInterface<Category> {
@@ -52,14 +53,14 @@ export class CategoryResolver implements ResolverInterface<Category> {
   @Authorized<UserPrivilege>(['admin'])
   @Mutation(returns => Category)
   async createCategory(@Arg('token') token: AddCategoryInput) {
-    const category = await ControllerFactory.get('categories').create(token);
+    const category = await ControllerFactory.get('categories').create(token as ICategory<'server'>);
     return Category.fromEntity(category);
   }
 
   @Authorized<UserPrivilege>(['admin'])
   @Mutation(returns => Category)
   async updateCategory(@Arg('token') token: UpdateCategoryInput) {
-    const category = await ControllerFactory.get('categories').update(token);
+    const category = await ControllerFactory.get('categories').update(token as ICategory<'server'>);
     return Category.fromEntity(category);
   }
 
