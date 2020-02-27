@@ -46,7 +46,7 @@ export class CategoryResolver implements ResolverInterface<Category> {
 
   @FieldResolver(type => [Category])
   async children(@Root() category: Category) {
-    const response = await ControllerFactory.get('categories').getAll({ parent: category._id as string });
+    const response = await ControllerFactory.get('categories').getAll({ parent: category._id });
     return response.data.map(cat => Category.fromEntity(cat));
   }
 

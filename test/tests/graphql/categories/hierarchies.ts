@@ -6,6 +6,7 @@ import {
   REMOVE_CATEGORY,
   GET_CATEGORY,
   GET_CATEGORIES,
+  GET_CATEGORY_WITH_PARENT,
   getCategoryWithChildren
 } from '../../../../src/graphql/client/requests/category';
 import { AddCategoryInput } from '../../../../src/graphql/models/category-type';
@@ -18,8 +19,6 @@ let category: ICategory<'expanded'>,
   numCategoriesBeforeTests = 0;
 
 describe('[GQL] Testing category hierarchies: ', function() {
-  this.timeout(20000);
-
   before(async function() {
     const page = await header.admin.graphql<Page<ICategory<'expanded'>>>(GET_CATEGORIES);
     numCategoriesBeforeTests = page.data.count;
@@ -85,6 +84,14 @@ describe('[GQL] Testing category hierarchies: ', function() {
 
     assert.equal(resp.children[0]._id, child1._id);
     assert.equal(resp.children[1]._id, child2._id);
+  });
+
+  it('did get a category parent', async function() {
+    const { data: resp } = await header.admin.graphql<ICategory<'expanded'>>(GET_CATEGORY_WITH_PARENT, {
+      id: child1._id
+    });
+
+    assert.equal(resp.parent._id, category._id);
   });
 
   it('did get a category with 2nd level children expanded', async function() {

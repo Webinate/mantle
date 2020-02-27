@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, InputType, ArgsType, Int } from 'type-graphql';
+import { ObjectType, Field, InputType, ArgsType, Int } from 'type-graphql';
 import { PaginatedResponse } from './paginated-response';
 import { ICategory } from '../../types/models/i-category';
 import { Page } from '../../types/tokens/standard-tokens';
@@ -8,8 +8,8 @@ import { GraphQLObjectId } from '../scalars/object-id';
 
 @ObjectType({ description: 'Object representing a Category' })
 export class Category {
-  @Field(type => ID)
-  _id: string;
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId;
 
   @Field()
   title: string;
@@ -23,15 +23,12 @@ export class Category {
   @Field(type => Category, { nullable: true })
   parent: Category | null;
 
-  @Field(type => [Category])
+  @Field(type => [Category], { nullable: true })
   children: Category[];
 
   static fromEntity(category: ICategory<'server'>) {
     const toReturn = new Category();
-    toReturn._id = category._id.toString();
-    toReturn.slug = category.slug;
-    toReturn.title = category.title;
-    toReturn.description = category.description;
+    Object.assign(toReturn, category);
     return toReturn;
   }
 }
@@ -51,9 +48,6 @@ export class AddCategoryInput {
 
   @Field(type => GraphQLObjectId, { nullable: true })
   parent: ObjectId | string;
-
-  @Field(type => [GraphQLObjectId], { nullable: true })
-  children: (ObjectId | string)[] = [];
 
   constructor(initialization?: Partial<AddCategoryInput>) {
     if (initialization) Object.assign(this, initialization);

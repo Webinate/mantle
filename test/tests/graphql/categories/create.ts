@@ -3,7 +3,6 @@ import { ICategory } from '../../../../src';
 import { AddCategoryInput } from '../../../../src/graphql/models/category-type';
 import { ADD_CATEGORY, GET_CATEGORY, REMOVE_CATEGORY } from '../../../../src/graphql/client/requests/category';
 import header from '../../header';
-import { randomString } from '../../utils';
 
 let category: ICategory<'expanded'>;
 

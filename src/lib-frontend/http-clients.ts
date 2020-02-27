@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb';
+
 export const apiUrl = `${process.env.root || '/api'}`;
 
 export class ClientError extends Error {
@@ -11,7 +13,9 @@ export class ClientError extends Error {
   }
 }
 
-export function makeQueryString(options: Partial<{ [name: string]: boolean | string | number | Array<any> | null }>) {
+export function makeQueryString(
+  options: Partial<{ [name: string]: boolean | ObjectId | string | number | Array<any> | null }>
+) {
   let toRet = '?';
   for (const i in options) {
     switch (typeof options[i]) {
