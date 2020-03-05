@@ -9,7 +9,7 @@ export interface IFileEntry<T extends 'expanded' | 'client' | 'server'> extends 
   name: T extends 'client' | 'expanded' ? string : RegExp | string;
   user: T extends 'expanded' ? IUserEntry<T> : T extends 'client' ? IUserEntry<T> | string : ObjectID;
   identifier?: string;
-  volumeId: T extends 'expanded' | 'client' ? string : string | ObjectID;
+  volumeId: T extends 'expanded' | 'client' ? string : ObjectID;
   volumeName: string;
   publicURL?: string;
   created: number;

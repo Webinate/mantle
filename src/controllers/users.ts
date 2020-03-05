@@ -17,7 +17,6 @@ import ControllerFactory from '../core/controller-factory';
 import { Mailguner } from '../mailers/mailgun';
 import { Session } from '../core/session';
 import Controller from './controller';
-import { UsersModel } from '../models/users-model';
 import ModelFactory from '../core/model-factory';
 import { Error400 } from '../utils/errors';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
@@ -41,7 +40,7 @@ export type UserEvent<T extends UserEvents> = {
  * Main class to use for managing users
  */
 export class UsersController extends Controller {
-  private _users: UsersModel;
+  private _users: Collection<IUserEntry<'server'>>;
   private _mailer: IMailer;
 
   /**
@@ -58,7 +57,7 @@ export class UsersController extends Controller {
   async initialize(db: Db) {
     ControllerFactory.get('sessions').on('sessionRemoved', this.onSessionRemoved.bind(this));
 
-    this._users = ModelFactory.get('users');
+    this._users = ModelFactory.get('users').collection;
 
     if (this._config.mail) {
       if (this._config.mail.type === 'mailgun') {
@@ -84,7 +83,7 @@ export class UsersController extends Controller {
           username: adminUser.username,
           email: adminUser.email,
           password: adminUser.password,
-          privileges: 'super',
+          privileges: UserPrivilege.Super,
           meta: {}
         },
         true,
@@ -104,13 +103,15 @@ export class UsersController extends Controller {
     if (user) {
       // Send logged out event to socket
       const token = {
-        username: user.dbEntry.username as string,
+        username: user.username as string,
         type: ClientInstructionType[ClientInstructionType.Logout]
       };
+
       await CommsController.singleton.processClientInstruction(
-        new ClientInstruction(token, null, user.dbEntry.username as string)
+        new ClientInstruction(token, null, user.username as string)
       );
-      info(`User '${user.dbEntry.username}' has logged out`);
+
+      info(`User '${user.username}' has logged out`);
     }
 
     return;
@@ -151,7 +152,7 @@ export class UsersController extends Controller {
         username: username,
         email: email,
         password: pass,
-        privileges: 'regular',
+        privileges: UserPrivilege.Regular,
         meta: meta
       },
       false
@@ -184,11 +185,7 @@ export class UsersController extends Controller {
    * @param resetUrl The url of where the activation link should go
    * @param origin The origin of where the activation link came from
    */
-  private createActivationLink(
-    user: IUserEntry<'client' | 'server' | 'expanded'>,
-    resetUrl: string,
-    origin: string
-  ): string {
+  private createActivationLink(user: IUserEntry<'server'>, resetUrl: string, origin: string): string {
     return `${resetUrl}?key=${user.registerKey}&user=${user.username}&origin=${origin}`;
   }
 
@@ -212,10 +209,9 @@ export class UsersController extends Controller {
 
     if (!user) throw new Error('No user exists with the specified details');
 
-    await this._users.update(
-      { _id: user.dbEntry._id } as IUserEntry<'server'>,
-      { registerKey: '' } as Partial<IUserEntry<'client'>>
-    );
+    await this._users.updateOne({ _id: user._id } as IUserEntry<'server'>, {
+      $set: { registerKey: '' } as Partial<IUserEntry<'server'>>
+    });
 
     info(`User '${username}' has been activated`);
     return;
@@ -224,7 +220,7 @@ export class UsersController extends Controller {
   /**
    * Updates the user details if they are valid
    */
-  async update(id: string, token: Partial<IUserEntry<'client'>>, validate: boolean = true) {
+  async update(id: string | ObjectID, token: Partial<IUserEntry<'server'>>, validate: boolean = true) {
     if (token.username) throw new Error400(`You cannot set a username directly`);
 
     if (validate) {
@@ -239,12 +235,7 @@ export class UsersController extends Controller {
         throw new Error400(`Invalid value`);
     }
 
-    const resp = await this._users.update({ _id: new ObjectID(id) } as IUserEntry<'server'>, token, {
-      expandForeignKeys: true,
-      expandMaxDepth: 1,
-      verbose: true,
-      allowReadOnly: !validate
-    });
+    const resp = await this._users.updateOne({ _id: new ObjectID(id) } as IUserEntry<'server'>, token);
 
     return resp;
   }
@@ -285,21 +276,20 @@ export class UsersController extends Controller {
 
     if (!user) throw new Error('No user exists with the specified details');
 
-    if (user.dbEntry.registerKey === '') throw new Error('Account has already been activated');
+    if (user.registerKey === '') throw new Error('Account has already been activated');
 
     const newKey = this.generateKey();
-    user.dbEntry.registerKey = newKey;
+    user.registerKey = newKey;
 
     // Update the collection with a new key
-    await this._users.update(
-      { _id: user.dbEntry._id } as IUserEntry<'server'>,
-      { registerKey: newKey } as Partial<IUserEntry<'client'>>
-    );
+    await this._users.updateOne({ _id: user._id } as IUserEntry<'server'>, {
+      $set: { registerKey: newKey } as Partial<IUserEntry<'server'>>
+    });
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string =
       'Thank you for registering with Webinate!\nTo activate your account please click the link below:' +
-      this.createActivationLink(user.dbEntry, resetUrl, origin) +
+      this.createActivationLink(user, resetUrl, origin) +
       'Thanks\n\n' +
       'The Webinate Team';
 
@@ -309,7 +299,7 @@ export class UsersController extends Controller {
     try {
       // Send mail using the mailer
       await this._mailer.sendMail(
-        user.dbEntry.email! as string,
+        user.email as string,
         (this._config.mail.options as IMailOptions).from,
         'Activate your account',
         message
@@ -349,18 +339,17 @@ export class UsersController extends Controller {
     const newKey = this.generateKey();
 
     // Password token
-    user.dbEntry.passwordTag = newKey;
+    user.passwordTag = newKey;
 
     // Update the collection with a new key
-    await this._users.update(
-      { _id: user.dbEntry._id } as IUserEntry<'server'>,
-      { passwordTag: newKey } as Partial<IUserEntry<'client'>>
-    );
+    await this._users.updateOne({ _id: user._id } as IUserEntry<'server'>, {
+      $set: { passwordTag: newKey } as Partial<IUserEntry<'server'>>
+    });
 
     // Send a message to the user to say they are registered but need to activate their account
     const message: string =
       'A request has been made to reset your password. To change your password please click the link below:\n\n' +
-      this.createResetLink(user.dbEntry, origin, resetUrl) +
+      this.createResetLink(user, origin, resetUrl) +
       'Thanks\n\n' +
       'The Webinate Team';
 
@@ -370,7 +359,7 @@ export class UsersController extends Controller {
     // Send mail using the mailer
     try {
       await this._mailer.sendMail(
-        user.dbEntry.email! as string,
+        user.email as string,
         (this._config.mail.options as IMailOptions).from,
         'Reset Password',
         message
@@ -423,7 +412,7 @@ export class UsersController extends Controller {
     if (!user) throw new Error('No user exists with those credentials');
 
     // If key is the same
-    if (user.dbEntry.passwordTag !== code)
+    if (user.passwordTag !== code)
       throw new Error('Password codes do not match. Please try resetting your password again');
 
     // Make sure password is valid
@@ -433,10 +422,9 @@ export class UsersController extends Controller {
     const hashed = await this.hashPassword(newPassword);
 
     // Update the key to be blank
-    await this._users.update(
-      { _id: user.dbEntry._id } as IUserEntry<'server'>,
-      { passwordTag: '', password: hashed } as Partial<IUserEntry<'client'>>
-    );
+    await this._users.updateOne({ _id: user._id } as IUserEntry<'server'>, {
+      $set: { passwordTag: '', password: hashed } as Partial<IUserEntry<'client'>>
+    });
 
     // All done :)
     return true;
@@ -454,16 +442,15 @@ export class UsersController extends Controller {
     if (!user) throw new Error('No user exists with those credentials');
 
     // If key is already blank - then its good to go
-    if (user.dbEntry.registerKey === '') return true;
+    if (user.registerKey === '') return true;
 
     // Check key
-    if (user.dbEntry.registerKey !== code) throw new Error('Activation key is not valid. Please try send another.');
+    if (user.registerKey !== code) throw new Error('Activation key is not valid. Please try send another.');
 
     // Update the key to be blank
-    await this._users.update(
-      { _id: user.dbEntry._id } as IUserEntry<'server'>,
-      { registerKey: '' } as Partial<IUserEntry<'client'>>
-    );
+    await this._users.updateOne({ _id: user._id } as IUserEntry<'server'>, {
+      $set: { registerKey: '' } as Partial<IUserEntry<'server'>>
+    });
 
     // Send activated event
     const token = { username: username, type: ClientInstructionType[ClientInstructionType.Activated] };
@@ -515,7 +502,7 @@ export class UsersController extends Controller {
 
     const randNum = Math.floor(Math.random() * 20);
     const avatar = options.avatar && options.avatar !== '' ? options.avatar : randNum.toString();
-    const data: Partial<IUserEntry<'client'>> = {
+    const data: Partial<IUserEntry<'server'>> = {
       username: options.username,
       password: hashedPsw,
       email: options.email,
@@ -528,17 +515,18 @@ export class UsersController extends Controller {
       registerKey: activateAccount || options.privileges === 'super' ? '' : this.generateKey(10)
     };
 
-    const schema = await this._users.createInstance(data);
+    const insert = await this._users.insertOne(data);
+    const response = await this._users.findOne({ _id: insert.insertedId } as IUserEntry<'server'>);
 
     // return newUser;
-    return await schema.downloadToken({ verbose: true, expandMaxDepth: 1, expandForeignKeys: true });
+    return response!;
   }
 
   /**
    * Nullifys the avatar image if its deleted
    */
   async onFileRemoved(file: IFileEntry<'server'>) {
-    const collection = this._users.collection as Collection<IUserEntry<'server'>>;
+    const collection = this._users;
     await collection.updateMany({ avatarFile: file._id } as IUserEntry<'server'>, {
       $set: { avatarFile: null } as IUserEntry<'server'>
     });
@@ -554,15 +542,15 @@ export class UsersController extends Controller {
 
     if (!user) throw new Error('Could not find any users with those credentials');
 
-    if (user.dbEntry.privileges === 'super') throw new Error('You cannot remove a super user');
+    if (user.privileges === 'super') throw new Error('You cannot remove a super user');
 
-    await ControllerFactory.get('comments').userRemoved(user.dbEntry);
-    await ControllerFactory.get('posts').userRemoved(user.dbEntry);
-    await ControllerFactory.get('volumes').removeUser(user.dbEntry.username as string);
+    await ControllerFactory.get('comments').userRemoved(user);
+    await ControllerFactory.get('posts').userRemoved(user);
+    await ControllerFactory.get('volumes').removeUser(user.username as string);
 
-    const result = await this._users.deleteInstances({ _id: user.dbEntry._id! } as IUserEntry<'server'>);
+    const result = await this._users.remove({ _id: user._id } as IUserEntry<'server'>);
 
-    if (result === 0) throw new Error('Could not remove the user from the database');
+    if (result.result.nRemoved === 0) throw new Error('Could not remove the user from the database');
 
     // Send event to sockets
     const token = { username: username, type: ClientInstructionType[ClientInstructionType.Removed] };
@@ -576,19 +564,12 @@ export class UsersController extends Controller {
   /**
    * Gets a user by a username or email
    */
-  async getUser(options: { username?: string; id?: string; email?: string } & Partial<ISchemaOptions>) {
-    const schemaOptions: ISchemaOptions = {
-      expandForeignKeys: options.expandForeignKeys !== undefined ? options.expandForeignKeys : true,
-      expandMaxDepth: options.expandMaxDepth || 2,
-      verbose: options.verbose !== undefined ? options.verbose : true,
-      expandSchemaBlacklist: options.expandSchemaBlacklist || [/user/]
-    };
-
+  async getUser(options: { username?: string; id?: string | ObjectID; email?: string }) {
     // If id - then leave early
     if (options.id) {
       const resp = await this._users.findOne({ _id: new ObjectID(options.id) } as IUserEntry<'server'>);
       if (!resp) return null;
-      else return resp.downloadToken(schemaOptions);
+      else return resp;
     }
 
     options.email = options.email !== undefined ? options.email : options.username;
@@ -606,7 +587,7 @@ export class UsersController extends Controller {
 
     const resp = await this._users.findOne({ $or: target });
     if (!resp) return null;
-    else return resp.downloadToken(schemaOptions);
+    else return resp;
   }
 
   /**
@@ -671,8 +652,8 @@ export class UsersController extends Controller {
     if (!user) return false;
 
     // Remove the user from the DB
-    const numDeleted = await this._users.deleteInstances({ _id: user.dbEntry._id } as IUserEntry<'server'>);
-    if (numDeleted === 0) return false;
+    const result = await this._users.remove({ _id: user._id } as IUserEntry<'server'>);
+    if (result.result.nRemoved === 0) return false;
     else return true;
   }
 
@@ -683,10 +664,9 @@ export class UsersController extends Controller {
    * @returns Returns the data set
    */
   async setMeta(id: ObjectID, data?: any) {
-    await this._users.update(
-      { _id: new ObjectID(id) } as IUserEntry<'server'>,
-      { meta: data ? data : {} } as Partial<IUserEntry<'client'>>
-    );
+    await this._users.updateOne({ _id: new ObjectID(id) } as IUserEntry<'server'>, {
+      $set: { meta: data ? data : {} } as Partial<IUserEntry<'client'>>
+    });
 
     return data;
   }
@@ -703,7 +683,7 @@ export class UsersController extends Controller {
     meta[name] = val;
 
     // Remove the user from the DB
-    await this._users.update({ _id: id } as IUserEntry<'server'>, { meta } as IUserEntry<'client'>);
+    await this._users.updateOne({ _id: id } as IUserEntry<'server'>, { $set: { meta } as IUserEntry<'client'> });
     return val;
   }
 
@@ -729,7 +709,7 @@ export class UsersController extends Controller {
     const result = await this._users.findOne({ _id: id } as IUserEntry<'server'>);
     if (!result) return null;
 
-    return result.dbEntry.meta;
+    return result.meta;
   }
 
   /**
@@ -760,19 +740,16 @@ export class UsersController extends Controller {
     const limit = options && options.limit !== undefined ? options.limit : 10;
     const searchPhrases = options && options.search !== undefined ? options.search : undefined;
 
-    const schemaOptions: ISchemaOptions = {
-      expandForeignKeys: options && options.expandForeignKeys !== undefined ? options.expandForeignKeys : true,
-      expandMaxDepth: (options && options.expandMaxDepth) || 1,
-      verbose: options && options.verbose !== undefined ? options.verbose : true,
-      expandSchemaBlacklist: (options && options.expandSchemaBlacklist) || [/user/]
-    };
-
     if (searchPhrases) findToken.$or = [{ username: searchPhrases }, { email: searchPhrases }];
 
     const count = await this._users.count(findToken);
-    const data = await this._users.downloadMany({ index: index, limit: limit, selector: findToken }, schemaOptions);
+    const data = await this._users
+      .find(findToken)
+      .skip(index)
+      .limit(limit)
+      .toArray();
 
-    const toRet: Page<IUserEntry<'client' | 'expanded'>> = {
+    const toRet: Page<IUserEntry<'server'>> = {
       count: count,
       data: data,
       index: index,

@@ -12,10 +12,7 @@ import { ICategory } from '../../types/models/i-category';
 
 @Resolver(of => Category)
 export class CategoryResolver implements ResolverInterface<Category> {
-  @Query(returns => Category, {
-    nullable: true,
-    description: 'Gets a page of categories'
-  })
+  @Query(returns => Category, { nullable: true })
   async category(@Arg('id', { nullable: true }) id: string, @Arg('slug', { nullable: true }) slug: string) {
     if (slug) {
       return await ControllerFactory.get('categories').getBySlug(slug);
@@ -50,21 +47,21 @@ export class CategoryResolver implements ResolverInterface<Category> {
     return response.data.map(cat => Category.fromEntity(cat));
   }
 
-  @Authorized<UserPrivilege>(['admin'])
+  @Authorized<UserPrivilege>([UserPrivilege.Admin])
   @Mutation(returns => Category)
   async createCategory(@Arg('token') token: AddCategoryInput) {
     const category = await ControllerFactory.get('categories').create(token as ICategory<'server'>);
     return Category.fromEntity(category);
   }
 
-  @Authorized<UserPrivilege>(['admin'])
+  @Authorized<UserPrivilege>([UserPrivilege.Admin])
   @Mutation(returns => Category)
   async updateCategory(@Arg('token') token: UpdateCategoryInput) {
     const category = await ControllerFactory.get('categories').update(token as ICategory<'server'>);
     return Category.fromEntity(category);
   }
 
-  @Authorized<UserPrivilege>(['admin'])
+  @Authorized<UserPrivilege>([UserPrivilege.Admin])
   @Mutation(returns => Boolean)
   async removeCategory(@Arg('id') id: string) {
     await ControllerFactory.get('categories').remove(id);

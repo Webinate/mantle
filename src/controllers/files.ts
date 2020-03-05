@@ -2,7 +2,7 @@
 import { Page } from '../types/tokens/standard-tokens';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { IVolume } from '../types/models/i-volume-entry';
-import { Db, ObjectID } from 'mongodb';
+import { Db, ObjectID, Collection } from 'mongodb';
 import RemoteFactory from '../core/remotes/remote-factory';
 import Controller from './controller';
 import { FileModel } from '../models/file-model';
@@ -41,8 +41,8 @@ export type DeleteOptions = {
  * Class responsible for managing files
  */
 export class FilesController extends Controller {
-  private _files: FileModel;
-  private _volumes: VolumeModel;
+  private _files: Collection<IFileEntry<'server'>>;
+  private _volumes: Collection<IVolume<'server'>>;
   private _allowedFileTypes: Array<string>;
   private _users: UsersController;
 
@@ -55,8 +55,8 @@ export class FilesController extends Controller {
    * @param db The mongo db
    */
   async initialize(db: Db) {
-    this._files = ModelFactory.get('files');
-    this._volumes = ModelFactory.get('volumes');
+    this._files = ModelFactory.get('files').collection;
+    this._volumes = ModelFactory.get('volumes').collection;
     this._users = ControllerFactory.get('users');
     this._allowedFileTypes = [
       'image/bmp',
@@ -76,17 +76,12 @@ export class FilesController extends Controller {
    * Fetches a file by its ID
    * @param fileID The file ID
    */
-  async getFile(
-    fileID: string,
-    options: Partial<ISchemaOptions> = { verbose: true, expandMaxDepth: 1, expandForeignKeys: true }
-  ) {
+  async getFile(fileID: string | ObjectID) {
     const files = this._files;
     const searchQuery: Partial<IFileEntry<'server'>> = { _id: new ObjectID(fileID) };
 
-    const file = await files.downloadOne(searchQuery, options);
-
+    const file = await files.findOne(searchQuery);
     if (!file) throw new Error(`File '${fileID}' does not exist`);
-
     return file;
   }
 
@@ -106,24 +101,23 @@ export class FilesController extends Controller {
       const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectID(options.volumeId) };
       if (options.user) {
         const user = await this._users.getUser({ username: options.user });
-        if (user) volumeQuery.user = new ObjectID(user._id);
+        if (user) volumeQuery.user = user._id;
         else throw new Error404(`User not found`);
       }
 
       const volume = await volumes.findOne(volumeQuery);
-
       if (!volume) throw new Error(`Could not find the volume resource`);
 
-      searchQuery.volumeId = volume.dbEntry._id;
+      searchQuery.volumeId = volume._id;
     }
 
-    if (options.search) searchQuery.name = new RegExp(options.search) as any;
+    if (options.search) searchQuery.name = new RegExp(options.search);
 
     if (options.user) {
       const u = await this._users.getUser({ username: options.user });
       if (!u) throw new Error404(`User not found`);
 
-      searchQuery.user = new ObjectID(u._id);
+      searchQuery.user = u._id;
     }
 
     // Set the default sort order to ascending
@@ -145,23 +139,13 @@ export class FilesController extends Controller {
     const count = await files.count(searchQuery);
     const index: number = options.index || 0;
     const limit: number = options.limit || 10;
-    const verbose = options.verbose !== undefined ? options.verbose : true;
 
-    const sanitizedData = await files.downloadMany(
-      {
-        selector: searchQuery,
-        sort: sort,
-        index: index,
-        limit: limit
-      },
-      {
-        verbose,
-        expandForeignKeys: options.expandForeignKeys !== undefined ? options.expandForeignKeys : true,
-        expandMaxDepth: options.expandMaxDepth !== undefined ? options.expandMaxDepth : 1
-      }
-    );
+    const sanitizedData = await files
+      .find(searchQuery, undefined, index, limit)
+      .sort(sort || [])
+      .toArray();
 
-    const toRet: Page<IFileEntry<'client' | 'expanded'>> = {
+    const toRet: Page<IFileEntry<'server'>> = {
       count: count,
       data: sanitizedData,
       index: index,
@@ -235,9 +219,9 @@ export class FilesController extends Controller {
 
   async uploadFileToRemote(
     file: File,
-    volume: IVolume<'client' | 'server'>,
+    volume: IVolume<'server'>,
     removeFile: boolean = true,
-    existinFile: Schema<IFileEntry<'server'>, IFileEntry<'client'>> | null = null
+    existinFile: IFileEntry<'server'> | null = null
   ) {
     const filesModel = this._files;
     const volumesModel = this._volumes;
@@ -256,36 +240,40 @@ export class FilesController extends Controller {
     }
 
     // Create the file entry
-    const fileData: Partial<IFileEntry<'client'>> = {
+    const fileData: Partial<IFileEntry<'server'>> = {
       identifier: uploadToken!.id,
       publicURL: uploadToken!.url,
       name: file.name,
       created: Date.now(),
       size: file.size,
       mimeType: file.type,
-      user: volume.user.toString(),
-      volumeId: volume._id.toString(),
+      user: volume.user,
+      volumeId: volume._id,
       volumeName: volume.name
     };
 
-    let newFile: Schema<IFileEntry<'server'>, IFileEntry<'client' | 'expanded'>> | null = existinFile;
+    let newFile: IFileEntry<'server'> | null = existinFile;
     let newVolumeSize = volume.memoryUsed;
 
     if (!newFile) {
       newVolumeSize = newVolumeSize + fileData.size!;
-      newFile = await filesModel.createInstance(fileData);
+      const response = await filesModel.insertOne(fileData);
+      newFile = await filesModel.findOne({ _id: response.insertedId } as IFileEntry<'server'>);
     } else {
-      newVolumeSize = newVolumeSize - newFile.dbEntry.size + fileData.size!;
-      newFile = await filesModel.update({ _id: newFile.dbEntry._id } as IFileEntry<'server'>, fileData);
+      newVolumeSize = newVolumeSize - newFile.size + fileData.size!;
+      await filesModel.updateOne({ _id: newFile._id } as IFileEntry<'server'>, { $set: fileData });
+      newFile = await filesModel.findOne({ _id: newFile._id } as IFileEntry<'server'>);
     }
 
-    await volumesModel.update({ identifier: volume.identifier } as IVolume<'server'>, { memoryUsed: newVolumeSize });
+    await volumesModel.updateOne({ identifier: volume.identifier } as IVolume<'server'>, {
+      $set: { memoryUsed: newVolumeSize }
+    });
 
     // Remove temp file
     if (removeFile) await this.removeTempFiles([file]);
 
     // Return the new file
-    return newFile!.downloadToken({ verbose: true, expandMaxDepth: 1, expandForeignKeys: true });
+    return newFile!;
   }
 
   /**
@@ -294,7 +282,7 @@ export class FilesController extends Controller {
    * @param volumeId The id of the volume to upload to
    * @param username The username of the uploader
    */
-  async uploadFilesToVolume(req: IAuthReq, volumeId: string, userId: string) {
+  async uploadFilesToVolume(req: IAuthReq, volumeId: string, userId: string | ObjectID) {
     if (!volumeId || volumeId.trim() === '') throw new Error(`Please specify a volume for the upload`);
 
     const volumeSchema = await this._volumes.findOne({
@@ -309,13 +297,13 @@ export class FilesController extends Controller {
     let memory = 0;
     for (const f of response.files) memory += f.size;
 
-    if (memory + volumeSchema.dbEntry.memoryUsed > volumeSchema.dbEntry.memoryAllocated) {
+    if (memory + volumeSchema.memoryUsed > volumeSchema.memoryAllocated) {
       await this.removeTempFiles(response.files);
       throw new Error(`You dont have sufficient memory in the volume`);
     }
 
-    const proimises: Promise<IFileEntry<'client' | 'expanded'>>[] = [];
-    for (const file of response.files) proimises.push(this.uploadFileToRemote(file, volumeSchema.dbEntry));
+    const proimises: Promise<IFileEntry<'server'>>[] = [];
+    for (const file of response.files) proimises.push(this.uploadFileToRemote(file, volumeSchema));
 
     const fileEntries = await Promise.all(proimises);
     return fileEntries;
@@ -327,7 +315,7 @@ export class FilesController extends Controller {
    * @param fileId The id of the file to replace
    * @param username The username of the uploader
    */
-  async replaceFileContent(req: IAuthReq, fileId: string, userId: string) {
+  async replaceFileContent(req: IAuthReq, fileId: string, userId: string | ObjectID) {
     if (!fileId || fileId.trim() === '') throw new Error(`Please specify a volume for the upload`);
 
     const file = await this._files.findOne({ _id: new ObjectID(fileId) } as IFileEntry<'server'>);
@@ -335,7 +323,7 @@ export class FilesController extends Controller {
     if (!file) throw new Error404('File not found');
 
     const volumeSchema = await this._volumes.findOne({
-      _id: file.dbEntry.volumeId,
+      _id: file.volumeId,
       user: new ObjectID(userId)
     } as Partial<IVolume<'server'>>);
 
@@ -351,21 +339,15 @@ export class FilesController extends Controller {
       throw new Error400(`You must only upload 1 file when replacing`, 400);
     }
 
-    if (memory + volumeSchema.dbEntry.memoryUsed > volumeSchema.dbEntry.memoryAllocated) {
+    if (memory + volumeSchema.memoryUsed > volumeSchema.memoryAllocated) {
       await this.removeTempFiles(response.files);
       throw new Error(`You dont have sufficient memory in the volume`);
     }
 
-    await this.deleteFile(file.dbEntry, false);
+    await this.deleteFile(file, false);
 
-    const proimises: Promise<IFileEntry<'client' | 'expanded'>>[] = [];
-    for (const f of response.files)
-      proimises.push(
-        this.uploadFileToRemote(f, volumeSchema.dbEntry, true, file as Schema<
-          IFileEntry<'server'>,
-          IFileEntry<'client'>
-        > | null)
-      );
+    const proimises: Promise<IFileEntry<'server'>>[] = [];
+    for (const f of response.files) proimises.push(this.uploadFileToRemote(f, volumeSchema, true, file));
 
     const fileEntries = await Promise.all(proimises);
     return fileEntries;
@@ -386,18 +368,19 @@ export class FilesController extends Controller {
    * @param fileId The id of the file to rename
    * @param name The new name of the file
    */
-  async update(fileId: string | ObjectID, token: Partial<IFileEntry<'client'>>) {
+  async update(fileId: string | ObjectID, token: Partial<IFileEntry<'server'>>) {
     const files = this._files;
 
     if (typeof fileId === 'string' && !isValidObjectID(fileId)) throw new Error('Invalid ID format');
 
     const query = typeof fileId === 'string' ? { _id: new ObjectID(fileId) } : { _id: fileId };
-    const file = await this._files.findOne(query);
+    let file = await this._files.findOne(query);
 
     if (!file) throw new Error('Resource not found');
 
-    const toRet = await files.update(query, token, { verbose: true, expandMaxDepth: 1, expandForeignKeys: true });
-    return toRet;
+    await files.updateOne(query, { $set: token });
+    file = await this._files.findOne(query);
+    return file;
   }
 
   /**
@@ -409,8 +392,8 @@ export class FilesController extends Controller {
     const promises: Promise<any>[] = [];
 
     // First remove any files that have this as their parent
-    const children = await files.findMany({ selector: { parentFile: fileEntry._id } as Partial<IFileEntry<'server'>> });
-    for (const child of children) promises.push(this.deleteFile(child.dbEntry));
+    const children = await files.find({ parentFile: fileEntry._id } as Partial<IFileEntry<'server'>>).toArray();
+    for (const child of children) promises.push(this.deleteFile(child));
 
     await Promise.all(promises);
 
@@ -419,17 +402,17 @@ export class FilesController extends Controller {
 
     if (volume) {
       // Get the volume and delete the file
-      await RemoteFactory.get(volume.dbEntry.type).removeFile(volume.dbEntry, fileEntry);
+      await RemoteFactory.get(volume.type).removeFile(volume, fileEntry);
 
       // Update the volume data usage
       await volumes.update(
-        { identifier: volume.dbEntry.identifier } as IVolume<'server'>,
-        { memoryUsed: volume.dbEntry.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>>
+        { identifier: volume.identifier } as IVolume<'server'>,
+        { memoryUsed: volume.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>>
       );
     }
 
     if (removeFileEntry) {
-      await files.deleteInstances({ _id: fileEntry._id } as IFileEntry<'server'>);
+      await files.remove({ _id: fileEntry._id } as IFileEntry<'server'>);
       await ControllerFactory.get('users').onFileRemoved(fileEntry);
       await ControllerFactory.get('posts').onFileRemoved(fileEntry);
     }
@@ -452,7 +435,7 @@ export class FilesController extends Controller {
         throw new Error('Invalid volume ID format');
 
       const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectID(options.volumeId) };
-      const volume = await volumes.collection.findOne(volumeQuery);
+      const volume = await volumes.findOne(volumeQuery);
 
       if (!volume) throw new Error('Volume resource does not exist');
 
@@ -473,7 +456,7 @@ export class FilesController extends Controller {
       query.user = new ObjectID(u._id);
     }
 
-    const fileEntries = await files.collection.find(query).toArray();
+    const fileEntries = await files.find(query).toArray();
     for (let i = 0, l = fileEntries.length; i < l; i++) await this.deleteFile(fileEntries[i] as IFileEntry<'server'>);
 
     return;

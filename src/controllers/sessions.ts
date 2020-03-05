@@ -159,7 +159,7 @@ export class SessionsController extends Controller {
   /**
    * Attempts to create a session from the request object of the client
    */
-  async createSession(request: IncomingMessage, response: ServerResponse, userId: string) {
+  async createSession(request: IncomingMessage, response: ServerResponse, userId: string | ObjectID) {
     const sessionId = this.createID();
     const userEntry = await this._users.findOne({ _id: new ObjectID(userId) } as IUserEntry<'server'>);
 
