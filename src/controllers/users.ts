@@ -235,9 +235,8 @@ export class UsersController extends Controller {
         throw new Error400(`Invalid value`);
     }
 
-    const resp = await this._users.updateOne({ _id: new ObjectID(id) } as IUserEntry<'server'>, token);
-
-    return resp;
+    await this._users.updateOne({ _id: new ObjectID(id) } as IUserEntry<'server'>, token);
+    return this._users.findOne({ _id: new ObjectID(id) } as IUserEntry<'server'>);
   }
 
   /**
@@ -477,15 +476,15 @@ export class UsersController extends Controller {
    * @param allowAdmin Should this be allowed to create a super user
    */
   async createUser(
-    options: Partial<IUserEntry<'client'>>,
+    options: Partial<IUserEntry<'server'>>,
     activateAccount: boolean = false,
     allowAdmin: boolean = false
   ) {
     // Basic checks
-    if (!options.username || trim(options.username) === '') throw new Error('Username cannot be empty');
-    if (!isAlphanumeric(options.username)) throw new Error('Username must be alphanumeric');
-    if (!options.email || trim(options.email) === '') throw new Error('Email cannot be empty');
-    if (!isEmail(options.email)) throw new Error('Email must be valid');
+    if (!options.username || trim(options.username as string) === '') throw new Error('Username cannot be empty');
+    if (!isAlphanumeric(options.username as string)) throw new Error('Username must be alphanumeric');
+    if (!options.email || trim(options.email as string) === '') throw new Error('Email cannot be empty');
+    if (!isEmail(options.email as string)) throw new Error('Email must be valid');
     if (!options.password || trim(options.password) === '') throw new Error('Password cannot be empty');
     if (
       options.privileges === undefined ||
@@ -496,7 +495,7 @@ export class UsersController extends Controller {
 
     // Check if the user already exists
     const hashedPsw: string = await this.hashPassword(options.password);
-    const existingUser = await this.getUser({ username: options.username, email: options.email });
+    const existingUser = await this.getUser({ username: options.username as string, email: options.email as string });
 
     if (existingUser) throw new Error(`A user with that name or email already exists`);
 
@@ -731,10 +730,9 @@ export class UsersController extends Controller {
    * Prints user objects from the database
    * @param limit The number of users to fetch
    * @param index The starting index from where we are fetching users from
-   * @param searchPhrases Search phrases
-   * @param verbose True if you want to show all user information
+   * @param search Search phrases
    */
-  async getUsers(options?: { index?: number; limit?: number; search?: RegExp } & Partial<ISchemaOptions>) {
+  async getUsers(options?: { index?: number; limit?: number; search?: RegExp }) {
     const findToken: { $or?: Partial<IUserEntry<'server'>>[] } = {};
     const index = options && options.index !== undefined ? options.index : 0;
     const limit = options && options.limit !== undefined ? options.limit : 10;
@@ -743,11 +741,7 @@ export class UsersController extends Controller {
     if (searchPhrases) findToken.$or = [{ username: searchPhrases }, { email: searchPhrases }];
 
     const count = await this._users.count(findToken);
-    const data = await this._users
-      .find(findToken)
-      .skip(index)
-      .limit(limit)
-      .toArray();
+    const data = await this._users.find(findToken, undefined, index, limit).toArray();
 
     const toRet: Page<IUserEntry<'server'>> = {
       count: count,

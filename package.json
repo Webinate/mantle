@@ -71,7 +71,7 @@
     "mongodb": "~2.2.35",
     "morgan": "~1.8.2",
     "nodemon": "2.0.2",
-    "prettier": "^1.16.4",
+    "prettier": "1.19.1",
     "reflect-metadata": "^0.1.13",
     "request": "~2.69.0",
     "rimraf": "^2.6.2",

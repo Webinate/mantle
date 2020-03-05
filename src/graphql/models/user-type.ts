@@ -30,8 +30,8 @@ export class User {
   @Field()
   avatar: string;
 
-  @Field()
-  avatarFile: File;
+  @Field(type => File, { nullable: true })
+  avatarFile: File | null;
 
   @Field(type => Int)
   createdOn: number;
@@ -45,9 +45,9 @@ export class User {
   @Field(type => JsonType)
   meta: any;
 
-  static fromEntity(category: IUserEntry<'server'>) {
+  static fromEntity(user: IUserEntry<'server'>) {
     const toReturn = new User();
-    Object.assign(toReturn, category);
+    Object.assign(toReturn, user);
     return toReturn;
   }
 }
@@ -58,14 +58,17 @@ export class AddUserInput {
   username: string;
 
   @Field()
+  password: string;
+
+  @Field()
   @IsEmail()
   email: string;
 
   @Field({ nullable: true })
   avatar: string;
 
-  @Field(type => File, { nullable: true })
-  avatarFile: File;
+  @Field(type => GraphQLObjectId, { nullable: true })
+  avatarFile: ObjectId | null;
 
   @Field(type => UserPrivilege, { nullable: true })
   privileges: UserPrivilege;
@@ -95,9 +98,12 @@ export class GetUsersArgs {
 
   @Field(type => Int, { defaultValue: 10 })
   limit = 10;
+
+  @Field(type => String, { defaultValue: '' })
+  search = '';
 }
 
-@ObjectType({ description: 'A page of wrapper of categories' })
+@ObjectType({ description: 'A page of wrapper of users' })
 export class PaginatedUserResponse extends PaginatedResponse(User) {
   static fromEntity(page: Page<IUserEntry<'server'>>) {
     const toReturn = new PaginatedUserResponse();

@@ -63,6 +63,13 @@ export function info(message: string, meta?: any) {
   });
 }
 
+function waitForLogger(logger: winston.Logger) {
+  return new Promise(resolve => {
+    logger.on('close', resolve);
+    logger.close();
+  });
+}
+
 /**
  * Logs an error message
  * @param message The message to log
@@ -72,10 +79,9 @@ export function error(message: string, meta?: any) {
   return new Promise(function(resolve, reject) {
     if (!showLogs) return resolve();
 
-    winston.error(message, meta, function(err) {
-      if (err) reject(err);
-      else resolve();
-    });
+    waitForLogger(winston.error(message, meta))
+      .then(() => resolve())
+      .catch(err => reject(err));
   });
 }
 
