@@ -12,6 +12,13 @@
 !/static-site/html/
 !/static-site/html/*
 
+# Ignore graphiql site
+!/graphiql/
+!/graphiql/*
+!graphiql/mantle.json
+!/graphiql/src/
+!/graphiql/src/*
+
 # Ignore Express site example
 !/express-site/
 !/express-site/*

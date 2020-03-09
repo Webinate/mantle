@@ -1,8 +1,10 @@
 import * as yargs from 'yargs';
 import Agent from './agent';
 import loadConfig from './load-config';
-import { IAdminUser, UserPrivilege } from '../../src';
+import { IAdminUser, UserPrivilege, IUserEntry, IAuthReq } from '../../src';
 import { IConfig } from '../../src';
+import { REMOVE_USER, ADD_USER } from '../../src/graphql/client/requests/users';
+import { LOGIN } from '../../src/graphql/client/requests/auth';
 let args = yargs.argv;
 
 export class Header {
@@ -43,27 +45,39 @@ export class Header {
    * @param email The new user's email
    * @param priviledge The user's privilege type
    */
-  async createUser(username: string, password: string, email: string, priviledge: UserPrivilege = 'regular') {
+  async createUser(
+    username: string,
+    password: string,
+    email: string,
+    priviledge: UserPrivilege = UserPrivilege.regular
+  ) {
     // Remove the user if they already exist
-    let response = await this.admin.delete(`/api/users/${username}`);
+    let response = await this.admin.graphql<boolean>(REMOVE_USER, { username });
+    if (
+      response.errors &&
+      response.errors.find(err => err.message !== 'Could not find any users with those credentials')
+    )
+      throw new Error(response.errors[0].message);
 
     // Now create the user using the admin account
-    response = await this.admin.post(`/api/users`, {
-      username: username,
-      password: password,
-      email: email,
-      privileges: priviledge
+    let addUserResponse = await this.admin.graphql<IUserEntry<'expanded'>>(ADD_USER, {
+      token: {
+        username: username,
+        password: password,
+        email: email,
+        privileges: priviledge
+      }
     });
 
-    if (response.status !== 200) throw new Error(response.body.toString());
+    if (addUserResponse.errors) throw new Error(addUserResponse.errors[0].message);
 
     // User created, but not logged in
     const newAgent = new Agent(this.host, null, username, password, email);
-    response = await newAgent.post(`/api/auth/login`, { username: username, password: password });
+    let loginResponse = await newAgent.graphql(LOGIN, { token: { username: username, password: password } });
 
-    if (response.status !== 200) throw new Error(response.body.toString());
+    if (loginResponse.errors) throw new Error(loginResponse.errors[0].message);
 
-    newAgent.updateCookie(response);
+    newAgent.updateCookie(loginResponse.response);
     this.users[username] = newAgent;
     return newAgent;
   }
@@ -74,9 +88,8 @@ export class Header {
    */
   async removeUser(username: string) {
     // Remove the user if they already exist
-    let response = await this.admin.delete(`/api/users/${username}`);
-
-    if (response.status > 300) throw new Error(response.statusText);
+    let response = await this.admin.graphql(REMOVE_USER, { username });
+    if (response.errors) throw new Error(response.errors[0].message);
   }
 
   /**
@@ -89,11 +102,14 @@ export class Header {
       const initAgent = new Agent(host);
 
       // const serverConfig = config.servers[ parseInt( args.server ) ];
-      const resp = await initAgent.post('/api/auth/login', {
-        username: (config.adminUser as IAdminUser).username,
-        password: (config.adminUser as IAdminUser).password
+      const resp = await initAgent.graphql<IAuthReq>(LOGIN, {
+        token: {
+          username: (config.adminUser as IAdminUser).username,
+          password: (config.adminUser as IAdminUser).password
+        }
       });
-      const adminCookie = resp.headers.get('set-cookie').split(';')[0];
+      if (resp.errors) throw new Error(resp.errors[0].message);
+      const adminCookie = resp.response.headers.get('set-cookie').split(';')[0];
 
       // Set the functions we want to expose
       this.config = config;
@@ -114,7 +130,7 @@ export class Header {
 
       await this.createUser('user1', 'password', 'user1@test.com');
       await this.createUser('user2', 'password', 'user2@test.com');
-      await this.createUser('user3', 'password', 'user3@test.com', 'admin');
+      await this.createUser('user3', 'password', 'user3@test.com', UserPrivilege.admin);
     } catch (exp) {
       console.log(exp.stack);
       process.exit();

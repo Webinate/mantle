@@ -47,21 +47,21 @@ export class CategoryResolver implements ResolverInterface<Category> {
     return response.data.map(cat => Category.fromEntity(cat));
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.Admin])
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Mutation(returns => Category)
   async createCategory(@Arg('token') token: AddCategoryInput) {
     const category = await ControllerFactory.get('categories').create(token as ICategory<'server'>);
     return Category.fromEntity(category);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.Admin])
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Mutation(returns => Category)
   async updateCategory(@Arg('token') token: UpdateCategoryInput) {
     const category = await ControllerFactory.get('categories').update(token as ICategory<'server'>);
     return Category.fromEntity(category);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.Admin])
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Mutation(returns => Boolean)
   async removeCategory(@Arg('id') id: string) {
     await ControllerFactory.get('categories').remove(id);

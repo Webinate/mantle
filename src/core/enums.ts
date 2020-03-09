@@ -2,9 +2,9 @@
  * Describes what kind of privileges the user has
  */
 export enum UserPrivilege {
-  Super = 'super',
-  Admin = 'admin',
-  Regular = 'regular'
+  super = 'super',
+  admin = 'admin',
+  regular = 'regular'
 }
 
 /*

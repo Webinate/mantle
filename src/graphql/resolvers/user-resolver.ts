@@ -10,10 +10,10 @@ import { IUserEntry } from '../../types/models/i-user-entry';
 @Resolver(of => User)
 export class UserResolver implements ResolverInterface<User> {
 
-  @Authorized<UserPrivilege>([UserPrivilege.Regular])
+  @Authorized<UserPrivilege>([UserPrivilege.regular])
   @Query(returns => User, { nullable: true })
   async user(@Arg('user') user: string, @Ctx() ctx: IGQLContext) {
-    if (ctx.user!.privileges === UserPrivilege.Regular && ctx.user!.username !== user) {
+    if (ctx.user!.privileges === UserPrivilege.regular && ctx.user!.username !== user) {
       throw new Error403();
     }
 
@@ -23,7 +23,7 @@ export class UserResolver implements ResolverInterface<User> {
   }
 
   @Query(returns => PaginatedUserResponse)
-  @Authorized<UserPrivilege>([UserPrivilege.Regular])
+  @Authorized<UserPrivilege>([UserPrivilege.regular])
   async users(@Args() { index, limit, search }: GetUsersArgs ) {
     const response = await ControllerFactory.get('users').getUsers({
       index: index,
@@ -34,36 +34,38 @@ export class UserResolver implements ResolverInterface<User> {
     return PaginatedUserResponse.fromEntity(response);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.Regular])
   @FieldResolver(type => File, { nullable: true })
   async avatarFile(@Root() root: User) {
     const user = await ControllerFactory.get('users').getUser({ id: root._id });
-    const file = await ControllerFactory.get('files').getFile(user?.avatarFile!);
+    if (!user?.avatarFile)
+      return null;
+
+    const file = await ControllerFactory.get('files').getFile(user?.avatarFile);
     if (!file) return null;
 
     return File.fromEntity(file);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.Admin])
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Mutation(returns => User)
   async addUser(@Arg('token') token: AddUserInput) {
 
-    if (token.privileges === UserPrivilege.Super)
+    if (token.privileges === UserPrivilege.super)
       throw new Error('You cannot create a user with super admin permissions');
 
     const user = await ControllerFactory.get('users').createUser(token, true, true );
     return User.fromEntity( user );
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.Admin])
-  @Mutation(returns => User)
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Mutation(returns => Boolean)
   async removeUser(@Arg('username') username: string, @Ctx() ctx: IGQLContext) {
       if (ctx.user!.username !== username && ctx.user!.privileges === 'regular') throw new Error403();
       await ControllerFactory.get('users').removeUser(username);
       return true;
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.Regular])
+  @Authorized<UserPrivilege>([UserPrivilege.regular])
   @Mutation(returns => User)
   async updateUser(@Arg('token') token: UpdateUserInput, @Ctx() ctx: IGQLContext) {
       const user = await ControllerFactory.get('users').getUser({ id: token._id });
@@ -71,13 +73,13 @@ export class UserResolver implements ResolverInterface<User> {
       if (!user)
         return null;
 
-      if (ctx.user!.privileges === UserPrivilege.Regular &&
+      if (ctx.user!.privileges === UserPrivilege.regular &&
         ctx.user!.username !== user.username) throw new Error403();
 
-      if (user.privileges === 'super' && (token.privileges !== undefined && token.privileges !== UserPrivilege.Super ))
+      if (user.privileges === 'super' && (token.privileges !== undefined && token.privileges !== UserPrivilege.super ))
         throw new Error400('You cannot set a super admin level to less than super admin');
 
-      const response = await ControllerFactory.get('users').update(token._id, token as IUserEntry<'server'>, ctx.user!.privileges === UserPrivilege.Regular ? true : false);
+      const response = await ControllerFactory.get('users').update(token._id, token as IUserEntry<'server'>, ctx.user!.privileges === UserPrivilege.regular ? true : false);
       return response ? User.fromEntity(response) : null;
   }
 }

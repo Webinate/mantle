@@ -3,6 +3,7 @@ import { writeFileSync } from 'fs';
 import { buildSchema, AuthChecker } from 'type-graphql';
 import { CategoryResolver } from '../graphql/resolvers/category-resolver';
 import { UserResolver } from '../graphql/resolvers/user-resolver';
+import { AuthResolver } from '../graphql/resolvers/auth-resolver';
 import ControllerFactory from './controller-factory';
 import { UserPrivilege } from './enums';
 import { IGQLContext } from '../types/interfaces/i-gql-context';
@@ -10,7 +11,7 @@ import { error, info } from '../utils/logger';
 
 export async function generateSchema() {
   const schema = await buildSchema({
-    resolvers: [CategoryResolver, UserResolver],
+    resolvers: [CategoryResolver, UserResolver, AuthResolver],
     authChecker: customAuthChecker
   });
 

@@ -20,16 +20,16 @@ import { DocumentsRouter } from './routers/documents';
 import { SessionRouter } from './routers/session';
 import { UserRouter } from './routers/user';
 import { AuthRouter } from './routers/auth';
-import { FilesController } from './controllers/files';
-import { CommentsController } from './controllers/comments';
-import { SessionsController } from './controllers/sessions';
-import { CategoriesController } from './controllers/categories';
+// import { FilesController } from './controllers/files';
+// import { CommentsController } from './controllers/comments';
+// import { SessionsController } from './controllers/sessions';
+// import { CategoriesController } from './controllers/categories';
 import { validId } from './decorators/path-sanity';
 import { blocking } from './decorators/blocking-route';
 import { j200 } from './decorators/responses';
 import { isAdminRest, hasPermissionRest, isAuthorizedRest, isIdentifiedRest } from './decorators/permissions';
-import { TemplatesController } from './controllers/templates';
-import { DocumentsController } from './controllers/documents';
+// import { TemplatesController } from './controllers/templates';
+// import { DocumentsController } from './controllers/documents';
 
 export const Controller = _Controller.Router;
 export const Model = _Models.Model;
@@ -45,17 +45,17 @@ export const decorators = {
   identify: isIdentifiedRest
 };
 
-export const controllers = {
-  users: ControllerFactory.get('users') as UsersController,
-  volumes: ControllerFactory.get('volumes') as VolumesController,
-  posts: ControllerFactory.get('posts') as PostsController,
-  categories: ControllerFactory.get('categories') as CategoriesController,
-  comments: ControllerFactory.get('comments') as CommentsController,
-  files: ControllerFactory.get('files') as FilesController,
-  sessions: ControllerFactory.get('sessions') as SessionsController,
-  templates: ControllerFactory.get('templates') as TemplatesController,
-  documents: ControllerFactory.get('documents') as DocumentsController
-};
+// export const controllers = {
+//   users: ControllerFactory.get('users') as UsersController,
+//   volumes: ControllerFactory.get('volumes') as VolumesController,
+//   posts: ControllerFactory.get('posts') as PostsController,
+//   categories: ControllerFactory.get('categories') as CategoriesController,
+//   comments: ControllerFactory.get('comments') as CommentsController,
+//   files: ControllerFactory.get('files') as FilesController,
+//   sessions: ControllerFactory.get('sessions') as SessionsController,
+//   templates: ControllerFactory.get('templates') as TemplatesController,
+//   documents: ControllerFactory.get('documents') as DocumentsController
+// };
 
 export const routers = {
   /** Endpoints for administritive tasks */

@@ -1,8 +1,9 @@
-import { ObjectType, Field, InputType, ArgsType, Int } from 'type-graphql';
+import { ObjectType, Field, InputType, ArgsType, Int, Authorized } from 'type-graphql';
 import { PaginatedResponse } from './paginated-response';
 import { Page } from '../../types/tokens/standard-tokens';
 import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
+import { LongType } from '../scalars/long';
 import { JsonType } from '../scalars/json';
 import { IUserEntry } from '../../types/models/i-user-entry';
 import { UserPrivilege } from '../../core/enums';
@@ -33,12 +34,13 @@ export class User {
   @Field(type => File, { nullable: true })
   avatarFile: File | null;
 
-  @Field(type => Int)
+  @Field(type => LongType)
   createdOn: number;
 
-  @Field(type => Int)
+  @Field(type => LongType)
   lastLoggedIn: number;
 
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field(type => UserPrivilege)
   privileges: UserPrivilege;
 
@@ -70,6 +72,7 @@ export class AddUserInput {
   @Field(type => GraphQLObjectId, { nullable: true })
   avatarFile: ObjectId | null;
 
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field(type => UserPrivilege, { nullable: true })
   privileges: UserPrivilege;
 

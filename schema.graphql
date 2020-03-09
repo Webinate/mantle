@@ -1,26 +1,86 @@
 input AddCategoryInput {
   title: String!
-  description: String!
+  description: String = ""
   slug: String!
-  parent: String!
-  children: [String!]!
+  parent: ObjectId
+}
+
+input AddUserInput {
+  username: String!
+  password: String!
+  email: String!
+  avatar: String
+  avatarFile: ObjectId
+  privileges: UserPrivilege
+  meta: JSON
+}
+
+"""Object representing a Authentication response"""
+type AuthResponse {
+  message: String!
+  authenticated: Boolean!
+  user: User
 }
 
 """Object representing a Category"""
 type Category {
-  _id: ID!
+  _id: ObjectId!
   title: String!
-  description: String!
+  description: String
   slug: String!
   parent: Category
-  children: [Category!]!
+  children: [Category!]
 }
+
+"""Object representing a File"""
+type File {
+  _id: ObjectId!
+  name: String!
+  identifier: String!
+  publicURL: String!
+  mimeType: String!
+  created: Int!
+  size: Long!
+  numDownloads: Int!
+  isPublic: Boolean!
+  user: User!
+  volume: Volume!
+  parentFile: File!
+  meta: JSON!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input LoginInput {
+  username: String!
+  password: String!
+  remember: Boolean = true
+}
+
+"""64-bit integral numbers"""
+scalar Long
 
 type Mutation {
   createCategory(token: AddCategoryInput!): Category!
   updateCategory(token: UpdateCategoryInput!): Category!
   removeCategory(id: String!): Boolean!
+  addUser(token: AddUserInput!): User!
+  removeUser(username: String!): Boolean!
+  updateUser(token: UpdateUserInput!): User!
+  login(token: LoginInput!): AuthResponse!
+  register(token: RegisterInput!): AuthResponse!
+  approveActivation(username: String!): Boolean!
+  resendActivation(accountRedirectURL: String!, username: String!): Boolean!
+  requestPasswordReset(accountRedirectURL: String = "/", username: String!): Boolean!
+  passwordReset(password: String!, key: String!, username: String!): Boolean!
+  logout: Boolean!
 }
+
+"""Mongo object id scalar type"""
+scalar ObjectId
 
 """A page of wrapper of categories"""
 type PaginatedCategoryResponse {
@@ -30,19 +90,78 @@ type PaginatedCategoryResponse {
   index: Int!
 }
 
+"""A page of wrapper of users"""
+type PaginatedUserResponse {
+  data: [User!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
 type Query {
-  """Gets a page of categories"""
   category(slug: String, id: String): Category
 
   """Gets an array of all categories"""
   categories(root: Boolean = false, index: Int = 0, limit: Int = 10): PaginatedCategoryResponse!
+  user(user: String!): User
+  users(index: Int = 0, limit: Int = 10, search: String = ""): PaginatedUserResponse!
+  authenticated: AuthResponse!
+}
+
+input RegisterInput {
+  username: String!
+  password: String!
+  email: String!
+  activationUrl: String!
 }
 
 input UpdateCategoryInput {
   title: String!
-  description: String!
+  description: String = ""
   slug: String!
-  parent: String!
-  children: [String!]!
-  _id: ID!
+  parent: ObjectId
+  _id: ObjectId!
+}
+
+input UpdateUserInput {
+  username: String!
+  password: String!
+  email: String!
+  avatar: String
+  avatarFile: ObjectId
+  privileges: UserPrivilege
+  meta: JSON
+  _id: ObjectId!
+}
+
+"""Object representing a User"""
+type User {
+  _id: ObjectId!
+  username: String!
+  email: String!
+  avatar: String!
+  avatarFile: File
+  createdOn: Long!
+  lastLoggedIn: Long!
+  privileges: UserPrivilege!
+  meta: JSON!
+}
+
+"""The core type of user privilege"""
+enum UserPrivilege {
+  super
+  admin
+  regular
+}
+
+"""Object representing a Volume"""
+type Volume {
+  _id: ObjectId!
+  name: String!
+  identifier: String!
+  created: Int!
+  memoryUsed: Long!
+  memoryAllocated: Long!
+  user: User!
+  meta: JSON!
 }

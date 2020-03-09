@@ -18,7 +18,7 @@ import { Mailguner } from '../mailers/mailgun';
 import { Session } from '../core/session';
 import Controller from './controller';
 import ModelFactory from '../core/model-factory';
-import { Error400 } from '../utils/errors';
+import { Error400, Error404 } from '../utils/errors';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { IFileEntry } from '../types/models/i-file-entry';
 
@@ -83,7 +83,7 @@ export class UsersController extends Controller {
           username: adminUser.username,
           email: adminUser.email,
           password: adminUser.password,
-          privileges: UserPrivilege.Super,
+          privileges: UserPrivilege.super,
           meta: {}
         },
         true,
@@ -152,7 +152,7 @@ export class UsersController extends Controller {
         username: username,
         email: email,
         password: pass,
-        privileges: UserPrivilege.Regular,
+        privileges: UserPrivilege.regular,
         meta: meta
       },
       false
@@ -539,7 +539,7 @@ export class UsersController extends Controller {
     const selector = [{ email: username }, { username: username }];
     const user = await this._users.findOne({ $or: selector });
 
-    if (!user) throw new Error('Could not find any users with those credentials');
+    if (!user) throw new Error404('Could not find any users with those credentials');
 
     if (user.privileges === 'super') throw new Error('You cannot remove a super user');
 
@@ -625,9 +625,9 @@ export class UsersController extends Controller {
     user.lastLoggedIn = Date.now();
 
     // Update the collection
-    await this._users.update(
+    await this._users.updateOne(
       { _id: new ObjectID(user._id) } as IUserEntry<'server'>,
-      { lastLoggedIn: user.lastLoggedIn } as Partial<IUserEntry<'client'>>
+      { $set: { lastLoggedIn: user.lastLoggedIn } } as Partial<IUserEntry<'client'>>
     );
 
     const session = await ControllerFactory.get('sessions').createSession(request, response, user._id);
