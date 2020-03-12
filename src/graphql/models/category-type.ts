@@ -9,7 +9,7 @@ import { GraphQLObjectId } from '../scalars/object-id';
 @ObjectType({ description: 'Object representing a Category' })
 export class Category {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field()
   title: string;

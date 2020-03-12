@@ -19,7 +19,7 @@ registerEnumType(UserPrivilege, {
 @ObjectType({ description: 'Object representing a User' })
 export class User {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field()
   username: string;
@@ -74,7 +74,7 @@ export class AddUserInput {
   avatar: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  avatarFile: ObjectId | null;
+  avatarFile: ObjectId | string | null;
 
   @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field(type => UserPrivilege, { nullable: true })
