@@ -34,3 +34,23 @@ export const LOGOUT = gql`
     logout
   }
 `;
+
+export const APPROVE_ACTIVATION = gql`
+  mutation APPROVE_ACTIVATION($user: String!) {
+    approveActivation(username: $user)
+  }
+`;
+
+export const REGISTER = gql`
+  mutation REGISTER($token: RegisterInput!) {
+    register(token: $token) {
+      authenticated
+      message
+      user {
+        ...UserFields
+      }
+    }
+  }
+
+  ${USER_FIELDS}
+`;

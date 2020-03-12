@@ -12,5 +12,6 @@ export const USER_FIELDS = gql`
     lastLoggedIn
     meta
     username
+    isActivated
   }
 `;

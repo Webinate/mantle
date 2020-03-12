@@ -40,6 +40,9 @@ export class User {
   @Field(type => LongType)
   lastLoggedIn: number;
 
+  @Field(type => Boolean)
+  isActivated: boolean;
+
   @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field(type => UserPrivilege)
   privileges: UserPrivilege;
@@ -50,6 +53,7 @@ export class User {
   static fromEntity(user: IUserEntry<'server'>) {
     const toReturn = new User();
     Object.assign(toReturn, user);
+    toReturn.isActivated = !user.registerKey;
     return toReturn;
   }
 }

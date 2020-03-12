@@ -112,7 +112,7 @@ input RegisterInput {
   username: String!
   password: String!
   email: String!
-  activationUrl: String!
+  activationUrl: String
 }
 
 input UpdateCategoryInput {
@@ -143,6 +143,7 @@ type User {
   avatarFile: File
   createdOn: Long!
   lastLoggedIn: Long!
+  isActivated: Boolean!
   privileges: UserPrivilege!
   meta: JSON!
 }
