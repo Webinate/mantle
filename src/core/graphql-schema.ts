@@ -8,10 +8,11 @@ import ControllerFactory from './controller-factory';
 import { UserPrivilege } from './enums';
 import { IGQLContext } from '../types/interfaces/i-gql-context';
 import { error, info } from '../utils/logger';
+import { TemplateResolver } from '../graphql/resolvers/template-resolver';
 
 export async function generateSchema() {
   const schema = await buildSchema({
-    resolvers: [CategoryResolver, UserResolver, AuthResolver],
+    resolvers: [CategoryResolver, UserResolver, AuthResolver, TemplateResolver],
     authChecker: customAuthChecker
   });
 

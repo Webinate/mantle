@@ -1,13 +1,13 @@
 import * as assert from 'assert';
-import { ITemplate, Page } from '../../../../src';
 import header from '../../header';
-import { GET_TEMPLATES, GET_TEMPLATE } from '../queries/templates';
+import { GET_TEMPLATES, GET_TEMPLATE } from '../../../../src/graphql/client/requests/templates';
+import { Template, PaginatedTemplateResponse } from '../../../../src/graphql/models/template-type';
 
-let templates: ITemplate<'expanded'>[];
+let templates: Template[];
 
 describe('[GQL] Testing fetching of templates: ', function() {
   it('did fetch all default templates', async function() {
-    const { data } = await header.guest.graphql<Page<ITemplate<'expanded'>>>(GET_TEMPLATES);
+    const { data } = await header.guest.graphql<PaginatedTemplateResponse>(GET_TEMPLATES);
     assert(data.count > 0);
     assert(data.limit === -1);
     templates = data.data;
@@ -29,7 +29,7 @@ describe('[GQL] Testing fetching of templates: ', function() {
   });
 
   it('did fetch a single template', async function() {
-    const { data } = await header.guest.graphql<ITemplate<'client'>>(GET_TEMPLATE, { id: templates[0]._id });
+    const { data } = await header.guest.graphql<Template>(GET_TEMPLATE, { id: templates[0]._id });
     assert.deepEqual(data.name, templates[0].name);
     assert.deepEqual(data.description, templates[0].description);
     assert.deepEqual(data.defaultZone, templates[0].defaultZone);

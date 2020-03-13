@@ -1,9 +1,8 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
-import { Db, ObjectID } from 'mongodb';
+import { Db, ObjectID, Collection } from 'mongodb';
 import Controller from './controller';
 import ModelFactory from '../core/model-factory';
-import { TemplatesModel } from '../models/templates-model';
 import { ITemplate } from '../types/models/i-template';
 
 export type GetOptions = {
@@ -17,7 +16,7 @@ export type GetOptions = {
  * Class responsible for managing templates
  */
 export class TemplatesController extends Controller {
-  private _templates: TemplatesModel;
+  private _templates: Collection<ITemplate<'server'>>;
 
   constructor(config: IConfig) {
     super(config);
@@ -28,7 +27,7 @@ export class TemplatesController extends Controller {
    * @param db The mongo db
    */
   async initialize(db: Db) {
-    this._templates = ModelFactory.get('templates');
+    this._templates = ModelFactory.get('templates').collection;
     return this;
   }
 
@@ -39,16 +38,12 @@ export class TemplatesController extends Controller {
     const templatesModel = this._templates;
 
     // Save the new entry into the database
-    const responses = await Promise.all([
-      templatesModel.count({}),
-      templatesModel.findMany({ selector: {}, index: 0, limit: -1 })
-    ]);
-    const schemas = responses[1];
-    const templates = await Promise.all(schemas.map(s => s.downloadToken()));
+    const responses = await Promise.all([templatesModel.count({}), templatesModel.find({}, undefined, 0).toArray()]);
+    const [count, templates] = responses;
 
-    const toRet: Page<ITemplate<'client'>> = {
+    const toRet: Page<ITemplate<'server'>> = {
       limit: -1,
-      count: responses[0],
+      count: count,
       index: 0,
       data: templates
     };
@@ -59,7 +54,7 @@ export class TemplatesController extends Controller {
   /**
    * Gets a template by its name or ID
    */
-  async get(id: string) {
+  async get(id: string | ObjectID) {
     const templateModel = this._templates;
     const searchQuery: Partial<ITemplate<'server'>> = {
       _id: new ObjectID(id)
@@ -67,9 +62,6 @@ export class TemplatesController extends Controller {
     const result = await templateModel.findOne(searchQuery);
 
     if (!result) return null;
-    else {
-      const template = await result.downloadToken();
-      return template;
-    }
+    else return result;
   }
 }

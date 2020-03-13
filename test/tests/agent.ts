@@ -39,7 +39,7 @@ export default class Agent {
     variables?: any,
     headers = {},
     flatten = true
-  ): Promise<{ data?: T; errors?: { message: string }[]; response: Response }> {
+  ): Promise<{ data: T; errors?: { message: string }[]; response: Response }> {
     const head: Headers = {
       cookie: this.cookie,
       'content-type': 'application/json',

@@ -90,6 +90,14 @@ type PaginatedCategoryResponse {
   index: Int!
 }
 
+"""A page of wrapper of templates"""
+type PaginatedTemplateResponse {
+  data: [Template!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
 """A page of wrapper of users"""
 type PaginatedUserResponse {
   data: [User!]!
@@ -106,6 +114,10 @@ type Query {
   user(user: String!): User
   users(index: Int = 0, limit: Int = 10, search: String = ""): PaginatedUserResponse!
   authenticated: AuthResponse!
+  template(id: ObjectId): Template
+
+  """Gets an array of all templates"""
+  templates: PaginatedTemplateResponse!
 }
 
 input RegisterInput {
@@ -113,6 +125,15 @@ input RegisterInput {
   password: String!
   email: String!
   activationUrl: String
+}
+
+"""Object representing a Template"""
+type Template {
+  _id: ObjectId!
+  name: String!
+  description: String!
+  defaultZone: String!
+  zones: [String!]!
 }
 
 input UpdateCategoryInput {
