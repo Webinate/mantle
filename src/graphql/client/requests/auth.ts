@@ -41,6 +41,12 @@ export const APPROVE_ACTIVATION = gql`
   }
 `;
 
+export const RESEND_ACTIVATION = gql`
+  mutation RESEND_ACTIVATION($activationPath: String, $username: String!) {
+    resendActivation(activationPath: $activationPath, username: $username)
+  }
+`;
+
 export const REGISTER = gql`
   mutation REGISTER($token: RegisterInput!) {
     register(token: $token) {

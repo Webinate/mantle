@@ -183,7 +183,7 @@ export function isAuthorizedGql() {
  * @param pathId The path parameter to check for. Usually 'user' or 'username'
  * @param permission The permission to check for
  */
-export function hasPermissionRest(pathId?: string, permission: UserPrivilege = 'admin') {
+export function hasPermissionRest(pathId?: string, permission: UserPrivilege = UserPrivilege.admin) {
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 

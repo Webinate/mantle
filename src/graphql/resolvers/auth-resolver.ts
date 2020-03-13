@@ -49,11 +49,11 @@ export class AuthResolver {
   @Mutation(returns => Boolean)
   async resendActivation(
     @Arg('username') username: string,
-    @Arg('accountRedirectURL') accountRedirectURL: string,
+    @Arg('activationPath', { defaultValue: '/activate' }) activationPath: string,
     @Ctx() ctx: IGQLContext
   ) {
     const origin = encodeURIComponent((ctx.req.headers['origin'] as string) || (ctx.req.headers['referer'] as string));
-    await ControllerFactory.get('users').resendActivation(username, accountRedirectURL, origin);
+    await ControllerFactory.get('users').resendActivation(username, activationPath, origin);
     return true;
   }
 

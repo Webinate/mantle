@@ -5,10 +5,8 @@ import { IVolume } from '../types/models/i-volume-entry';
 import { Db, ObjectID, Collection } from 'mongodb';
 import RemoteFactory from '../core/remotes/remote-factory';
 import Controller from './controller';
-import { FileModel } from '../models/file-model';
 import ModelFactory from '../core/model-factory';
 import { isValidObjectID } from '../utils/utils';
-import { VolumeModel } from '../models/volume-model';
 import ControllerFactory from '../core/controller-factory';
 import { IAuthReq } from '../types/tokens/i-auth-request';
 import { unlink, exists } from 'fs';
@@ -18,7 +16,6 @@ import * as winston from 'winston';
 import { Error404, Error500, Error400 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUploadToken } from '../types/interfaces/i-remote';
-import { Schema } from '../models/schema';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 
 export type FilesGetOptions = {

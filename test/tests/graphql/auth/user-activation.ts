@@ -1,6 +1,9 @@
 import * as assert from 'assert';
 import header from '../../header';
-import { IAuthenticationResponse, IUserEntry } from '../../../../src';
+import { REMOVE_USER, GET_USER } from '../../../../src/graphql/client/requests/users';
+import { REGISTER, LOGIN, RESEND_ACTIVATION } from '../../../../src/graphql/client/requests/auth';
+import { RegisterInput, AuthResponse, LoginInput } from '../../../../src/graphql/models/auth-type';
+import { User } from '../../../../src/graphql/models/user-type';
 
 let testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com',
@@ -8,31 +11,33 @@ let testUserName = 'fancyUser123',
 
 describe('[GQL] Testing user activation', function() {
   before(async function() {
-    await header.admin.graphql<{ removeUser: boolean }>(`mutation { removeUser(username: "${testUserName}") }`);
+    await header.admin.graphql<{ removeUser: boolean }>(REMOVE_USER, {
+      username: testUserName
+    });
   });
 
   after(async function() {
-    await header.admin.graphql<{ removeUser: boolean }>(`mutation { removeUser(username: "${testUserName}") }`);
+    await header.admin.graphql<{ removeUser: boolean }>(REMOVE_USER, {
+      username: testUserName
+    });
   });
 
   it('[GQL] should register with valid information', async function() {
-    const resp = await header.guest.graphql<{ message: string }>(
-      `mutation { registerUser( username: "${testUserName}", password: "Password", email: "${testUserEmail}" ) { message } }`
-    );
+    const resp = await header.guest.graphql<AuthResponse>(REGISTER, {
+      token: new RegisterInput({ username: testUserName, password: 'Password', email: testUserEmail })
+    });
     assert.deepEqual(resp.data.message, 'Please activate your account with the link sent to your email address');
   });
 
-  it(`[GQL] did create an activation key for ${testUserName}`, async function() {
-    const resp = await header.admin.graphql<{ registerKey: string }>(
-      `{ getUser(username:"${testUserName}", verbose:true) { registerKey } }`
-    );
-    assert(resp.data.registerKey !== '');
+  it(`[GQL] user is not activated`, async function() {
+    const resp = await header.admin.graphql<User>(GET_USER, { user: testUserName });
+    assert.deepEqual(resp.data.isActivated, false);
   });
 
   it('[GQL] did not log in with an activation code present', async function() {
-    const resp = await header.guest.graphql<IAuthenticationResponse>(
-      `mutation { login(username: "${testUserName}", password: "Password") { authenticated, message } }`
-    );
+    const resp = await header.guest.graphql<AuthResponse>(LOGIN, {
+      token: new LoginInput({ username: testUserName, password: 'Password' })
+    });
 
     assert.deepEqual(
       resp.errors[0].message,
@@ -41,13 +46,17 @@ describe('[GQL] Testing user activation', function() {
   });
 
   it('[GQL] did not resend an activation with an invalid user', async function() {
-    const resp = await header.guest.graphql<boolean>(`mutation { resendActivation(username: "NONUSER5") }`);
+    const resp = await header.guest.graphql<boolean>(RESEND_ACTIVATION, {
+      username: 'NONUSER5'
+    });
 
     assert.deepEqual(resp.errors[0].message, 'No user exists with the specified details');
   });
 
   it('[GQL] did resend an activation email with a valid user', async function() {
-    const resp = await header.guest.graphql<boolean>(`mutation { resendActivation(username: "${testUserName}") }`);
+    const resp = await header.guest.graphql<boolean>(RESEND_ACTIVATION, {
+      username: testUserName
+    });
     assert.deepEqual(resp.data, true);
   });
 
@@ -60,14 +69,20 @@ describe('[GQL] Testing user activation', function() {
     assert(resp.headers.get('location').indexOf('error') !== -1);
   });
 
-  it(`[GQL] did get the renewed activation key for ${testUserName}`, async function() {
-    const {
-      data: { registerKey }
-    } = await header.admin.graphql<IUserEntry<'expanded'>>(
-      `{ getUser( username: "${testUserName}", verbose: true ) { registerKey } }`
-    );
-    activationKey = registerKey;
-    assert(registerKey);
+  it(`[GQL] did not get the activation key for ${testUserName} as a guest`, async function() {
+    let response = await header.guest.graphql<User>(GET_USER, { user: testUserName });
+    assert.deepEqual(response.data.registerKey, null);
+  });
+
+  it(`[GQL] did not get the activation key for ${testUserName} as a registered user`, async function() {
+    let response = await header.user1.graphql<User>(GET_USER, { user: testUserName });
+    assert.deepEqual(response.data.registerKey, null);
+  });
+
+  it(`[GQL] did get the renewed activation key for ${testUserName} as an admin`, async function() {
+    const response = await header.admin.graphql<User>(GET_USER, { user: testUserName });
+    activationKey = response.data.registerKey;
+    assert(activationKey);
   });
 
   it('[GQL] did not activate with an invalid username', async function() {
@@ -107,9 +122,12 @@ describe('[GQL] Testing user activation', function() {
   it('[GQL] did log in with valid details and an activated account', async function() {
     const {
       data: { authenticated }
-    } = await header.guest.graphql<IAuthenticationResponse>(
-      `mutation { login( username: "${testUserName}", password: "Password") { authenticated } }`
-    );
+    } = await header.guest.graphql<AuthResponse>(LOGIN, {
+      token: new LoginInput({
+        username: testUserName,
+        password: 'Password'
+      })
+    });
     assert(authenticated);
   });
 });

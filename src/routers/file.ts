@@ -72,7 +72,7 @@ export class FileRouter extends Router {
   @j200()
   @isAuthorizedRest()
   private async update(req: IAuthReq, res: express.Response) {
-    const file = req.body as IFileEntry<'client'>;
+    const file = req.body as IFileEntry<'server' | 'client'>;
 
     if (!req._isAdmin && file.user) throw new Error403('Permission denied - cannot set user as non-admin');
 
@@ -82,7 +82,7 @@ export class FileRouter extends Router {
     delete file.publicURL;
     delete file.identifier;
 
-    return await this._files.update(req.params.file, file);
+    return await this._files.update(req.params.file, file as IFileEntry<'server'>);
   }
 
   /**

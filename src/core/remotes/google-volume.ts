@@ -1,3 +1,4 @@
+import '../../types/stubs';
 import { Readable, Writable } from 'stream';
 import { createGzip, Gzip } from 'zlib';
 import { createReadStream } from 'fs';
@@ -102,13 +103,11 @@ export class GoogleVolume implements IRemote {
     // if so, then compress it before sending it to
     // Google and set the content encoding
     if (compressible(file.type))
-      dest = source
-        .pipe(this._zipper)
-        .pipe(
-          rawFile.createWriteStream(<any>{
-            metadata: { contentEncoding: 'gzip', contentType: file.type, metadata: { encoded: true } }
-          })
-        );
+      dest = source.pipe(this._zipper).pipe(
+        rawFile.createWriteStream(<any>{
+          metadata: { contentEncoding: 'gzip', contentType: file.type, metadata: { encoded: true } }
+        })
+      );
     else dest = source.pipe(rawFile.createWriteStream(<any>{ metadata: { contentType: file.type } }));
 
     try {

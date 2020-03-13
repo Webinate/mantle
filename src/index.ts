@@ -1,8 +1,4 @@
 ﻿import * as _Controller from './routers/router';
-import ControllerFactory from './core/controller-factory';
-import { UsersController } from './controllers/users';
-import { VolumesController } from './controllers/volumes';
-import { PostsController } from './controllers/posts';
 import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
@@ -18,7 +14,7 @@ import { PostsRouter } from './routers/posts';
 import { TemplatesRouter } from './routers/templates';
 import { DocumentsRouter } from './routers/documents';
 import { SessionRouter } from './routers/session';
-import { UserRouter } from './routers/user';
+// import { UserRouter } from './routers/user';
 import { AuthRouter } from './routers/auth';
 // import { FilesController } from './controllers/files';
 // import { CommentsController } from './controllers/comments';
@@ -83,9 +79,9 @@ export const routers = {
   /** Endpoints for managing page renders */
   renderer: PageRouter,
   /** Endpoints for managing active sessions */
-  session: SessionRouter,
+  session: SessionRouter
   /** Endpoints for managing users */
-  user: UserRouter
+  // user: UserRouter
 };
 
 export { UserPrivilege } from './core/enums';

@@ -1,6 +1,6 @@
 import * as express from 'express';
 import { Controller } from '../../../src';
-import { IClient } from '../../../src';
+import { IAuthReq, IClient } from '../../../src';
 import { Db } from 'mongodb';
 
 export default class Server extends Controller {
@@ -12,7 +12,7 @@ export default class Server extends Controller {
    * Renders an html page showing the number of users in
    * this mantle instance
    */
-  async onRender(req, res, next) {
+  async onRender(req: IAuthReq, res: express.Response, next: Function) {
     const html = `
     <html>
       <header>

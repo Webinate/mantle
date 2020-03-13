@@ -1,5 +1,4 @@
-'use strict';
-
+import { Mailgun } from 'mailgun-js';
 import { IMailer, IMailgun } from '../types/config/properties/i-mail';
 import { error as logError, info } from '../utils/logger';
 
@@ -8,7 +7,7 @@ import { error as logError, info } from '../utils/logger';
  */
 export class Mailguner implements IMailer {
   private _debugMode: boolean;
-  private mailgun: MailGun.Instance;
+  private mailgun: Mailgun;
 
   /**
    * Creates an instance of the mailer

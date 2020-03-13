@@ -10,8 +10,8 @@ export class UsersModel extends Model<IUserEntry<'server'>, IUserEntry<'client' 
   constructor() {
     super('users');
 
-    const defaultPriviledge: UserPrivilege = 'regular';
-    const enumValues: UserPrivilege[] = ['admin', 'regular', 'super'];
+    const defaultPriviledge: UserPrivilege = UserPrivilege.regular;
+    const enumValues: UserPrivilege[] = [UserPrivilege.admin, UserPrivilege.regular, UserPrivilege.super];
 
     this.schema.addItems([
       new text('username', '')

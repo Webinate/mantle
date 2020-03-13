@@ -73,7 +73,7 @@ type Mutation {
   login(token: LoginInput!): AuthResponse!
   register(token: RegisterInput!): AuthResponse!
   approveActivation(username: String!): Boolean!
-  resendActivation(accountRedirectURL: String!, username: String!): Boolean!
+  resendActivation(activationPath: String = "/activate", username: String!): Boolean!
   requestPasswordReset(accountRedirectURL: String = "/", username: String!): Boolean!
   passwordReset(password: String!, key: String!, username: String!): Boolean!
   logout: Boolean!
@@ -138,6 +138,7 @@ input UpdateUserInput {
 type User {
   _id: ObjectId!
   username: String!
+  registerKey: String!
   email: String!
   avatar: String!
   avatarFile: File

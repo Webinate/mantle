@@ -5,7 +5,7 @@ import * as fs from 'fs';
  * Loads any of the sensitive props in the config json
  */
 function loadSensitiveProps(config: IConfig) {
-  function loadProp(parentProp, prop, path) {
+  function loadProp(parentProp: any, prop: any, path: any) {
     if (typeof path === 'string') {
       if (!fs.existsSync(path)) throw new Error(`Property file '${path}' cannot be found`);
       else parentProp[prop] = JSON.parse(fs.readFileSync(path, 'utf8'));

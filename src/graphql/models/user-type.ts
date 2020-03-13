@@ -24,6 +24,10 @@ export class User {
   @Field()
   username: string;
 
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Field()
+  registerKey: string;
+
   @Field()
   @IsEmail()
   email: string;

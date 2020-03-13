@@ -19,7 +19,6 @@ import { Session } from '../core/session';
 import Controller from './controller';
 import ModelFactory from '../core/model-factory';
 import { Error400, Error404 } from '../utils/errors';
-import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { IFileEntry } from '../types/models/i-file-entry';
 
 export type UsersGetAllOptions = {
