@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../../header';
-import { REMOVE_USER, GET_USER } from '../../../../src/graphql/client/requests/users';
+import { REMOVE_USER, GET_USER, GET_USER_AS_ADMIN } from '../../../../src/graphql/client/requests/users';
 import { REGISTER, LOGIN, RESEND_ACTIVATION } from '../../../../src/graphql/client/requests/auth';
 import { RegisterInput, AuthResponse, LoginInput } from '../../../../src/graphql/models/auth-type';
 import { User } from '../../../../src/graphql/models/user-type';
@@ -70,17 +70,17 @@ describe('[GQL] Testing user activation', function() {
   });
 
   it(`[GQL] did not get the activation key for ${testUserName} as a guest`, async function() {
-    let response = await header.guest.graphql<User>(GET_USER, { user: testUserName });
-    assert.deepEqual(response.data.registerKey, null);
+    let response = await header.guest.graphql<User>(GET_USER_AS_ADMIN, { user: testUserName });
+    assert.deepEqual(response.errors[0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it(`[GQL] did not get the activation key for ${testUserName} as a registered user`, async function() {
-    let response = await header.user1.graphql<User>(GET_USER, { user: testUserName });
-    assert.deepEqual(response.data.registerKey, null);
+    let response = await header.user1.graphql<User>(GET_USER_AS_ADMIN, { user: testUserName });
+    assert.deepEqual(response.errors[0].message, `You do not have permission`);
   });
 
   it(`[GQL] did get the renewed activation key for ${testUserName} as an admin`, async function() {
-    const response = await header.admin.graphql<User>(GET_USER, { user: testUserName });
+    const response = await header.admin.graphql<User>(GET_USER_AS_ADMIN, { user: testUserName });
     activationKey = response.data.registerKey;
     assert(activationKey);
   });

@@ -21,10 +21,6 @@ export default class MainController extends Controller {
         passwordResetURL: '/reset-password'
       }).initialize(app, db),
 
-      new routers.user({
-        rootPath: api
-      }).initialize(app, db),
-
       new routers.comments({
         rootPath: api
       }).initialize(app, db),
@@ -32,10 +28,6 @@ export default class MainController extends Controller {
       new routers.posts({
         rootPath: api
       }).initialize(app, db),
-
-      // new serializers.stats( {
-      //   rootPath: ''
-      // } ).initialize( app, db ),
 
       new routers.file({
         rootPath: '',
@@ -45,10 +37,6 @@ export default class MainController extends Controller {
       new routers.volume({
         rootPath: ''
       }).initialize(app, db),
-
-      // new routers.categories( {
-      //   rootPath: api
-      // } ).initialize( app, db ),
 
       new routers.templates({
         rootPath: api

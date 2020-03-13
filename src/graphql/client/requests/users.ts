@@ -24,3 +24,13 @@ export const GET_USER = gql`
   }
   ${USER_FIELDS}
 `;
+
+export const GET_USER_AS_ADMIN = gql`
+  query GET_USER_AS_ADMIN($user: String!) {
+    user(user: $user) {
+      ...UserFields
+      registerKey
+    }
+  }
+  ${USER_FIELDS}
+`;
