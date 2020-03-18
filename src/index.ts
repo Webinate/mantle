@@ -3,7 +3,6 @@ import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
 import { AdminRouter } from './routers/admin';
-import { VolumeRouter } from './routers/volume';
 import { CommentsRouter } from './routers/comments';
 import { CORSRouter } from './routers/cors';
 import { EmailsRouter } from './routers/emails';
@@ -14,18 +13,11 @@ import { PostsRouter } from './routers/posts';
 import { TemplatesRouter } from './routers/templates';
 import { DocumentsRouter } from './routers/documents';
 import { SessionRouter } from './routers/session';
-// import { UserRouter } from './routers/user';
 import { AuthRouter } from './routers/auth';
-// import { FilesController } from './controllers/files';
-// import { CommentsController } from './controllers/comments';
-// import { SessionsController } from './controllers/sessions';
-// import { CategoriesController } from './controllers/categories';
 import { validId } from './decorators/path-sanity';
 import { blocking } from './decorators/blocking-route';
 import { j200 } from './decorators/responses';
 import { isAdminRest, hasPermissionRest, isAuthorizedRest, isIdentifiedRest } from './decorators/permissions';
-// import { TemplatesController } from './controllers/templates';
-// import { DocumentsController } from './controllers/documents';
 
 export const Controller = _Controller.Router;
 export const Model = _Models.Model;
@@ -40,18 +32,6 @@ export const decorators = {
   authorize: isAuthorizedRest,
   identify: isIdentifiedRest
 };
-
-// export const controllers = {
-//   users: ControllerFactory.get('users') as UsersController,
-//   volumes: ControllerFactory.get('volumes') as VolumesController,
-//   posts: ControllerFactory.get('posts') as PostsController,
-//   categories: ControllerFactory.get('categories') as CategoriesController,
-//   comments: ControllerFactory.get('comments') as CommentsController,
-//   files: ControllerFactory.get('files') as FilesController,
-//   sessions: ControllerFactory.get('sessions') as SessionsController,
-//   templates: ControllerFactory.get('templates') as TemplatesController,
-//   documents: ControllerFactory.get('documents') as DocumentsController
-// };
 
 export const routers = {
   /** Endpoints for administritive tasks */
@@ -74,14 +54,10 @@ export const routers = {
   error: ErrorRouter,
   /** Endpoints for managing user files */
   file: FileRouter,
-  /** Endpoints for managing user volumes */
-  volume: VolumeRouter,
   /** Endpoints for managing page renders */
   renderer: PageRouter,
   /** Endpoints for managing active sessions */
   session: SessionRouter
-  /** Endpoints for managing users */
-  // user: UserRouter
 };
 
 export { UserPrivilege } from './core/enums';

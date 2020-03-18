@@ -1,12 +1,11 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
 import { IVolume } from '../types/models/i-volume-entry';
-import { Db, ObjectID } from 'mongodb';
+import { Db, ObjectID, Collection } from 'mongodb';
 import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
 import { FilesController } from './files';
 import ControllerFactory from '../core/controller-factory';
-import { VolumeModel } from '../models/volume-model';
 import ModelFactory from '../core/model-factory';
 import RemoteFactory from '../core/remotes/remote-factory';
 import { Error500, Error404 } from '../utils/errors';
@@ -42,7 +41,7 @@ export type DeleteOptions = {
 export class VolumesController extends Controller {
   private static MEMORY_ALLOCATED: number = 5e8; // 500mb
 
-  private _volumes: VolumeModel;
+  private _volumes: Collection<IVolume<'server'>>;
   private _filesController: FilesController;
   private _users: UsersController;
 
@@ -55,7 +54,7 @@ export class VolumesController extends Controller {
    * @param db The mongo db
    */
   async initialize(db: Db) {
-    this._volumes = ModelFactory.get('volumes');
+    this._volumes = ModelFactory.get('volumes').collection;
     this._filesController = ControllerFactory.get('files');
     this._users = ControllerFactory.get('users');
     return this;
@@ -66,7 +65,7 @@ export class VolumesController extends Controller {
    * @param options Options for defining which volumes to return
    */
   async getMany(options: Partial<VolumesGetOptions> = { index: 0, limit: 10 }) {
-    const volumeModel = this._volumes;
+    const volumeCollection = this._volumes;
     const search: Partial<IVolume<'server'>> = {};
 
     if (options.user) {
@@ -107,24 +106,12 @@ export class VolumesController extends Controller {
     else if (options.sort === 'memory') sort = { memoryUsed: sortOrder };
 
     // Save the new entry into the database
-    const count = await volumeModel.count(search);
-    const schemas = await volumeModel.findMany({
-      selector: search,
-      index,
-      limit,
-      sort
-    });
-    const volumes = await Promise.all(
-      schemas.map(s =>
-        s.downloadToken({
-          verbose: true,
-          expandMaxDepth: 2,
-          expandForeignKeys: true
-        })
-      )
-    );
-
-    const toRet: Page<IVolume<'client' | 'expanded'>> = {
+    const count = await volumeCollection.count(search);
+    const volumes = await volumeCollection
+      .find(search, undefined, index, limit)
+      .sort(sort || [])
+      .toArray();
+    const toRet: Page<IVolume<'server'>> = {
       limit: limit,
       count: count,
       index: index,
@@ -137,7 +124,7 @@ export class VolumesController extends Controller {
    * Gets a volume by its name or ID
    */
   async get(options: Partial<GetOptions> = {}) {
-    const volumeModel = this._volumes;
+    const volumeCollection = this._volumes;
     const searchQuery: Partial<IVolume<'server'>> = {};
 
     if (options.user) {
@@ -152,13 +139,10 @@ export class VolumesController extends Controller {
 
     if (options.id) searchQuery._id = new ObjectID(options.id);
 
-    const result = await volumeModel.findOne(searchQuery);
+    const result = await volumeCollection.findOne(searchQuery);
 
     if (!result) return null;
-    else {
-      const volume = await result.downloadToken({ verbose: true, expandForeignKeys: true, expandMaxDepth: 1 });
-      return volume;
-    }
+    else return result;
   }
 
   /**
@@ -169,11 +153,8 @@ export class VolumesController extends Controller {
   async update(id: string, token: IVolume<'client'>) {
     if (!isValidObjectID(id)) throw new Error(`Please use a valid object id`);
 
-    const updatedVolume = await this._volumes.update({ _id: new ObjectID(id) }, token, {
-      verbose: true,
-      expandMaxDepth: 1,
-      expandForeignKeys: true
-    });
+    await this._volumes.updateOne({ _id: new ObjectID(id) } as IVolume<'server'>, { $set: token });
+    const updatedVolume = this._volumes.findOne({ _id: new ObjectID(id) } as IVolume<'server'>);
     return updatedVolume;
   }
 
@@ -191,12 +172,12 @@ export class VolumesController extends Controller {
    * Attempts to create a new user volume by first creating the storage on the cloud and then updating the internal DB
    * @param token The volume token to save
    */
-  async create(token: Partial<IVolume<'client'>>) {
+  async create(token: Partial<IVolume<'server'>>) {
     const identifier = `webinate-volume-${generateRandString(8).toLowerCase()}`;
-    const volumeModel = this._volumes;
+    const volumeCollection = this._volumes;
 
     // Create the new volume
-    const volume: Partial<IVolume<'client'>> = {
+    const volume: Partial<IVolume<'server'>> = {
       name: 'New Volume',
       identifier: identifier,
       created: Date.now(),
@@ -209,17 +190,20 @@ export class VolumesController extends Controller {
       throw new Error500(`memoryUsed cannot be greater than memoryAllocated`);
 
     // Save the new entry into the database
-    const schema = await volumeModel.createInstance(volume);
+    const result = await volumeCollection.insert(volume);
+    const addedVolume = (await volumeCollection.findOne({ _id: result.insertedId } as IVolume<'server'>)) as IVolume<
+      'server'
+    >;
 
     // Attempt to create a new Google volume
     try {
-      await RemoteFactory.get(schema.dbEntry.type).createVolume(schema.dbEntry);
+      await RemoteFactory.get(addedVolume.type).createVolume(addedVolume);
     } catch (err) {
-      await volumeModel.deleteInstances({ _id: schema.dbEntry._id } as IVolume<'server'>);
+      await volumeCollection.remove({ _id: addedVolume._id } as IVolume<'server'>);
       throw new Error(`Could not create remote: ${err.message}`);
     }
 
-    return schema.downloadToken({ verbose: true, expandForeignKeys: true, expandMaxDepth: 1 });
+    return addedVolume;
   }
 
   /**
@@ -228,7 +212,7 @@ export class VolumesController extends Controller {
    * @returns An array of ID's of the volumes removed
    */
   async remove(options: Partial<DeleteOptions>) {
-    const volumesModel = this._volumes;
+    const volumeCollection = this._volumes;
     const toRemove: string[] = [];
     const searchQuery: Partial<IVolume<'server'>> = {};
 
@@ -247,14 +231,13 @@ export class VolumesController extends Controller {
     }
 
     // Get all the volumes
-    const schemas = await volumesModel.findMany({ selector: searchQuery, limit: -1 });
+    const volumes = await volumeCollection.find(searchQuery).toArray();
 
-    if (options._id && schemas.length === 0) throw new Error('A volume with that ID does not exist');
+    if (options._id && volumes.length === 0) throw new Error('A volume with that ID does not exist');
 
     // Now delete each one
     const promises: Promise<IVolume<'server'>>[] = [];
-    for (let i = 0, l = schemas.length; i < l; i++)
-      promises.push(this.deleteVolume(schemas[i].dbEntry) as Promise<IVolume<'server'>>);
+    for (let i = 0, l = volumes.length; i < l; i++) promises.push(this.deleteVolume(volumes[i]));
 
     await Promise.all(promises);
     return toRemove;
@@ -263,8 +246,8 @@ export class VolumesController extends Controller {
   /**
    * Deletes the volume from storage and updates the databases
    */
-  private async deleteVolume(volume: IVolume<'server' | 'client'>) {
-    const volumesModel = this._volumes;
+  private async deleteVolume(volume: IVolume<'server'>) {
+    const volumeCollection = this._volumes;
 
     try {
       // First remove all volume files
@@ -276,7 +259,7 @@ export class VolumesController extends Controller {
     await RemoteFactory.get(volume.type).removeVolume(volume);
 
     // Remove the volume entry
-    await volumesModel.deleteInstances({ _id: volume._id } as IVolume<'server'>);
+    await volumeCollection.remove({ _id: volume._id } as IVolume<'server'>);
     return volume;
   }
 }

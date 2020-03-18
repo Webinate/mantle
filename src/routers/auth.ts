@@ -52,15 +52,8 @@ export class AuthRouter extends Router {
     router.use(bodyParser.json());
     router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-    // router.get('/authenticated', this.authenticated.bind(this));
-    // router.get('/logout', this.logout.bind(this));
     router.get('/activate-account', this.activateAccount.bind(this));
-    // router.post('/login', this.login.bind(this));
-    // router.post('/register', this.register.bind(this));
     router.put('/password-reset', this.passwordReset.bind(this));
-    // router.get('/:user/resend-activation', this.resendActivation.bind(this));
-    // router.get('/:user/request-password-reset', this.requestPasswordReset.bind(this));
-    // router.put('/:user/approve-activation', this.approveActivation.bind(this));
 
     // Register the path
     e.use((this._options.rootPath || '') + '/auth', router);
@@ -96,33 +89,6 @@ export class AuthRouter extends Router {
     }
   }
 
-  // /**
-  //  * Resends the activation link to the user
-  //  */
-  // @j200()
-  // private async resendActivation(req: express.Request, res: express.Response) {
-  //   const origin = encodeURIComponent((req.headers['origin'] as string) || (req.headers['referer'] as string));
-
-  //   await this._userController.resendActivation(req.params.user, this._options.accountRedirectURL, origin);
-  //   const response: ISimpleResponse = {
-  //     message: 'An activation link has been sent, please check your email for further instructions'
-  //   };
-  //   return response;
-  // }
-
-  // /**
-  //  * Resends the activation link to the user
-  //  */
-  // @j200()
-  // private async requestPasswordReset(req: express.Request, res: express.Response) {
-  //   const origin = encodeURIComponent((req.headers['origin'] as string) || (req.headers['referer'] as string));
-  //   await this._userController.requestPasswordReset(req.params.user, this._options.passwordResetURL, origin);
-  //   const response: ISimpleResponse = {
-  //     message: 'Instructions have been sent to your email on how to change your password'
-  //   };
-  //   return response;
-  // }
-
   /**
    * resets the password if the user has a valid password token
    */
@@ -138,96 +104,4 @@ export class AuthRouter extends Router {
     const response: ISimpleResponse = { message: 'Your password has been reset' };
     return response;
   }
-
-  // /**
-  //  * Approves a user's activation code so they can login without email validation
-  //  */
-  // @j200()
-  // @hasPermissionRest('user')
-  // private async approveActivation(req: express.Request, res: express.Response) {
-  //   await this._userController.approveActivation(req.params.user);
-  //   const response: ISimpleResponse = { message: 'Activation code has been approved' };
-  //   return response;
-  // }
-
-  // /**
-  //  * Attempts to log the user in. Expects the username, password and rememberMe parameters be set.
-  //  */
-  // @j200()
-  // private async login(req: express.Request, res: express.Response) {
-  //   const token: ILoginToken = req.body;
-  //   const session = await this._userController.logIn(token.username, token.password, token.rememberMe, req, res);
-  //   let user: IUserEntry<'client' | 'server'> | null = null;
-
-  //   if (session) {
-  //     await ControllerFactory.get('sessions').setSessionHeader(session, req, res);
-  //     user = await this._userController.getUser({ username: session.user.username as string });
-  //   }
-
-  //   const response: IAuthenticationResponse = {
-  //     message: session ? 'User is authenticated' : 'User is not authenticated',
-  //     authenticated: session ? true : false,
-  //     user: session ? (user as IUserEntry<'client'>) : null
-  //   };
-  //   return response;
-  // }
-
-  // /**
-  //  * Attempts to log the user out
-  //  */
-  // @j200()
-  // private async logout(req: express.Request, res: express.Response) {
-  //   await this._userController.logOut(req, res);
-  //   return;
-  // }
-
-  // /**
-  //  * Attempts to register a new user
-  //  */
-  // @j200()
-  // private async register(req: express.Request, res: express.Response) {
-  //   const token: IRegisterToken = req.body;
-  //   const activationLink = this._options.activateAccountUrl;
-  //   const user = await this._userController.register(
-  //     token.username!,
-  //     token.password!,
-  //     token.email!,
-  //     activationLink,
-  //     {},
-  //     req
-  //   );
-
-  //   const response: IAuthenticationResponse = {
-  //     message: user
-  //       ? 'Please activate your account with the link sent to your email address'
-  //       : 'User is not authenticated',
-  //     authenticated: user ? true : false,
-  //     user: user ? user : null
-  //   };
-  //   return response;
-  // }
-
-  // /**
-  //  * Checks to see if the current session is logged in. If the user is, it will be returned redacted. You can specify the 'verbose' query parameter
-  //  */
-  // @j200()
-  // private async authenticated(req: express.Request, res: express.Response) {
-  //   const session = await ControllerFactory.get('sessions').getSession(req);
-  //   let user: IUserEntry<'client' | 'server'> | null = null;
-
-  //   if (session) {
-  //     await ControllerFactory.get('sessions').setSessionHeader(session, req, res);
-  //     user = await this._userController.getUser({
-  //       username: session.user.username as string
-  //     });
-  //   }
-
-  //   const response: IAuthenticationResponse = {
-  //     message: session ? 'User is authenticated' : 'User is not authenticated',
-  //     authenticated: session ? true : false,
-  //     user: session ? (user as IUserEntry<'client'>) : null
-  //   };
-
-  //   return response;
-  // }
 }

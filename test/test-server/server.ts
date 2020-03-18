@@ -36,10 +36,6 @@ export default class MainController extends Controller {
         cacheLifetime: 60000
       }).initialize(app, db),
 
-      new routers.volume({
-        rootPath: ''
-      }).initialize(app, db),
-
       new routers.templates({
         rootPath: api
       }).initialize(app, db),
