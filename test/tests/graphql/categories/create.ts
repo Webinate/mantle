@@ -10,29 +10,29 @@ describe('[GQL] Testing creation of categories', function() {
     const resp = await header.guest.graphql<Category>(ADD_CATEGORY, {
       token: new AddCategoryInput({})
     });
-    assert.ok(resp.errors[0].message.includes(`Field title of required type String! was not provided.`));
-    assert.ok(resp.errors[1].message.includes(`Field slug of required type String! was not provided.`));
+    assert.ok(resp.errors![0].message.includes(`Field title of required type String! was not provided.`));
+    assert.ok(resp.errors![1].message.includes(`Field slug of required type String! was not provided.`));
   });
 
   it('did not create a category when not logged in', async function() {
     const resp = await header.guest.graphql<Category>(ADD_CATEGORY, {
       token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
     });
-    assert.deepEqual(resp.errors[0].message, `Access denied! You don't have permission for this action!`);
+    assert.deepEqual(resp.errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('did not create a category for a regular user', async function() {
     const resp = await header.user1.graphql<Category>(ADD_CATEGORY, {
       token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
     });
-    assert.deepEqual(resp.errors[0].message, `Access denied! You don't have permission for this action!`);
+    assert.deepEqual(resp.errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('did not create a category with dangerous html in description', async function() {
     const resp = await header.user1.graphql<Category>(ADD_CATEGORY, {
       token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
     });
-    assert.deepEqual(resp.errors[0].message, `Access denied! You don't have permission for this action!`);
+    assert.deepEqual(resp.errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('did create category with no html', async function() {
@@ -63,7 +63,7 @@ describe('[GQL] Testing creation of categories', function() {
       token: new AddCategoryInput({ title: 'Test', slug: '_test' })
     });
 
-    assert.deepEqual(resp.errors[0].message, `Category with the slug '_test' already exists`);
+    assert.deepEqual(resp.errors![0].message, `Category with the slug '_test' already exists`);
   });
 
   it('did delete the category from the create test', async function() {

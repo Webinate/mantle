@@ -3,7 +3,7 @@ import * as yargs from 'yargs';
 import 'reflect-metadata';
 import {} from 'mocha';
 
-var args = yargs.argv;
+const args = yargs.argv;
 
 if (!args.config || !fs.existsSync(args.config)) {
   console.log('Please specify a mantle --config file to use in the command line');

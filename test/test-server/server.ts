@@ -1,14 +1,16 @@
 import { Controller, routers } from '../../src/index';
+import * as mongodb from 'mongodb';
+import * as express from 'express';
 
 /**
  * Create a basic controller
  */
 export default class MainController extends Controller {
-  constructor(client) {
+  constructor() {
     super(null);
   }
 
-  async initialize(app, db) {
+  async initialize(app: express.Express, db: mongodb.Db) {
     const api = '/api';
 
     await Promise.all([

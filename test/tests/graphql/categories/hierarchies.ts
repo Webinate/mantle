@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { ICategory, Page } from '../../../../src';
+import { Page } from '../../../../src';
 import header from '../../header';
 import {
   ADD_CATEGORY,
@@ -91,7 +91,7 @@ describe('[GQL] Testing category hierarchies: ', function() {
       id: child1._id
     });
 
-    assert.equal(resp.parent._id, category._id);
+    assert.equal(resp.parent!._id, category._id);
   });
 
   it('did get a category with 2nd level children expanded', async function() {

@@ -40,7 +40,7 @@ describe('[GQL] Testing user activation', function() {
     });
 
     assert.deepEqual(
-      resp.errors[0].message,
+      resp.errors![0].message,
       'Please authorise your account by clicking on the link that was sent to your email'
     );
   });
@@ -50,7 +50,7 @@ describe('[GQL] Testing user activation', function() {
       username: 'NONUSER5'
     });
 
-    assert.deepEqual(resp.errors[0].message, 'No user exists with the specified details');
+    assert.deepEqual(resp.errors![0].message, 'No user exists with the specified details');
   });
 
   it('[GQL] did resend an activation email with a valid user', async function() {
@@ -61,9 +61,13 @@ describe('[GQL] Testing user activation', function() {
   });
 
   it('[GQL] did not activate the account now that the activation key has changed', async function() {
-    const resp = await header.guest.get(`/api/auth/activate-account?user=${testUserName}&key=${activationKey}`, null, {
-      redirect: 'manual'
-    });
+    const resp = await header.guest.get(
+      `/api/auth/activate-account?user=${testUserName}&key=${activationKey}`,
+      undefined,
+      {
+        redirect: 'manual'
+      }
+    );
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
     assert(resp.headers.get('location').indexOf('error') !== -1);
@@ -71,12 +75,12 @@ describe('[GQL] Testing user activation', function() {
 
   it(`[GQL] did not get the activation key for ${testUserName} as a guest`, async function() {
     let response = await header.guest.graphql<User>(GET_USER_AS_ADMIN, { user: testUserName });
-    assert.deepEqual(response.errors[0].message, `Access denied! You don't have permission for this action!`);
+    assert.deepEqual(response.errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it(`[GQL] did not get the activation key for ${testUserName} as a registered user`, async function() {
     let response = await header.user1.graphql<User>(GET_USER_AS_ADMIN, { user: testUserName });
-    assert.deepEqual(response.errors[0].message, `You do not have permission`);
+    assert.deepEqual(response.errors![0].message, `You do not have permission`);
   });
 
   it(`[GQL] did get the renewed activation key for ${testUserName} as an admin`, async function() {
@@ -86,14 +90,14 @@ describe('[GQL] Testing user activation', function() {
   });
 
   it('[GQL] did not activate with an invalid username', async function() {
-    const resp = await header.guest.get(`/api/auth/activate-account?user=NONUSER`, null, { redirect: 'manual' });
+    const resp = await header.guest.get(`/api/auth/activate-account?user=NONUSER`, undefined, { redirect: 'manual' });
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
     assert(resp.headers.get('location').indexOf('error') !== -1);
   });
 
   it('[GQL] did not activate with an valid username and no key', async function() {
-    const resp = await header.guest.get(`/api/auth/activate-account?user=${testUserName}`, null, {
+    const resp = await header.guest.get(`/api/auth/activate-account?user=${testUserName}`, undefined, {
       redirect: 'manual'
     });
     assert.deepEqual(resp.status, 302);
@@ -102,7 +106,7 @@ describe('[GQL] Testing user activation', function() {
   });
 
   it('[GQL] did not activate with an valid username and invalid key', async function() {
-    const resp = await header.guest.get(`/api/auth/activate-account?user=${testUserName}&key=123`, null, {
+    const resp = await header.guest.get(`/api/auth/activate-account?user=${testUserName}&key=123`, undefined, {
       redirect: 'manual'
     });
     assert.deepEqual(resp.status, 302);
@@ -111,9 +115,13 @@ describe('[GQL] Testing user activation', function() {
   });
 
   it('[GQL] did activate with a valid username and key', async function() {
-    const resp = await header.guest.get(`/api/auth/activate-account?user=${testUserName}&key=${activationKey}`, null, {
-      redirect: 'manual'
-    });
+    const resp = await header.guest.get(
+      `/api/auth/activate-account?user=${testUserName}&key=${activationKey}`,
+      undefined,
+      {
+        redirect: 'manual'
+      }
+    );
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
     assert(resp.headers.get('location').indexOf('success') !== -1);

@@ -3,7 +3,7 @@
     "module": "commonjs",
     "removeComments": false,
     "noEmitOnError": true,
-    "declaration": true,
+    "declaration": false,
     "sourceMap": true,
     "preserveConstEnums": true,
     "noImplicitAny": true,
@@ -13,13 +13,12 @@
     "allowUnreachableCode": false,
     "emitDecoratorMetadata": true,
     "allowUnusedLabels": false,
-    "outDir": "./dist",
     "noUnusedParameters": false,
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "jsx": "react",
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": []
 }

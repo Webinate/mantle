@@ -9,11 +9,11 @@ describe('[GQL] Testing user logging in', function() {
   it('[GQL] did not log in with empty credentials', async function() {
     const { errors } = await header.guest.graphql<AuthResponse>(LOGIN, { token: {} });
     assert.deepEqual(
-      errors[0].message,
+      errors![0].message,
       'Variable "$token" got invalid value {}; Field username of required type String! was not provided.'
     );
     assert.deepEqual(
-      errors[1].message,
+      errors![1].message,
       'Variable "$token" got invalid value {}; Field password of required type String! was not provided.'
     );
   });
@@ -26,7 +26,7 @@ describe('[GQL] Testing user logging in', function() {
       })
     });
 
-    assert.deepEqual(errors[0].message, 'Please only use alpha numeric characters for your username');
+    assert.deepEqual(errors![0].message, 'Please only use alpha numeric characters for your username');
   });
 
   it('[GQL] did not log in with false credentials', async function() {
@@ -37,7 +37,7 @@ describe('[GQL] Testing user logging in', function() {
       })
     });
 
-    assert.deepEqual(errors[0].message, 'The username or password is incorrect.');
+    assert.deepEqual(errors![0].message, 'The username or password is incorrect.');
   });
 
   it('[GQL] did not log in with a valid username but invalid password', async function() {
@@ -48,7 +48,7 @@ describe('[GQL] Testing user logging in', function() {
       })
     });
 
-    assert.deepEqual(errors[0].message, 'The username or password is incorrect.');
+    assert.deepEqual(errors![0].message, 'The username or password is incorrect.');
   });
 
   it('[GQL] did log in with a valid username & valid password', async function() {

@@ -1,91 +1,91 @@
-import * as assert from 'assert';
-import { IPost, IComment } from '../../../src';
-import ControllerFactory from '../../../src/core/controller-factory';
-import header from '../header';
-import { randomString } from '../utils';
+// import * as assert from 'assert';
+// import { IPost, IComment } from '../../../src';
+// import ControllerFactory from '../../../src/core/controller-factory';
+// import header from '../header';
+// import { randomString } from '../utils';
 
-let post: IPost<'expanded'>, parent: IComment<'expanded'>, child1: IComment<'expanded'>, child2: IComment<'expanded'>;
+// let post: IPost<'expanded'>, parent: IComment<'expanded'>, child1: IComment<'expanded'>, child2: IComment<'expanded'>;
 
-describe('Testing the parent child relationship of comments: ', function() {
-  before(async function() {
-    const posts = ControllerFactory.get('posts');
-    post = (await posts.create({
-      slug: randomString(),
-      title: 'Temp Post',
-      public: true
-    })) as IPost<'expanded'>;
-  });
+// describe('Testing the parent child relationship of comments: ', function() {
+//   before(async function() {
+//     const posts = ControllerFactory.get('posts');
+//     post = (await posts.create({
+//       slug: randomString(),
+//       title: 'Temp Post',
+//       public: true
+//     })) as IPost<'expanded'>;
+//   });
 
-  after(async function() {
-    const posts = ControllerFactory.get('posts');
-    await posts.removePost(post._id);
-  });
+//   after(async function() {
+//     const posts = ControllerFactory.get('posts');
+//     await posts.removePost(post._id);
+//   });
 
-  it('did create a parent comment', async function() {
-    const resp = await header.user1.post(`/api/posts/${post._id}/comments`, {
-      content: 'Parent',
-      public: true
-    });
-    assert.deepEqual(resp.status, 200);
-    parent = await resp.json<IComment<'expanded'>>();
-  });
+//   it('did create a parent comment', async function() {
+//     const resp = await header.user1.post(`/api/posts/${post._id}/comments`, {
+//       content: 'Parent',
+//       public: true
+//     });
+//     assert.deepEqual(resp.status, 200);
+//     parent = await resp.json<IComment<'expanded'>>();
+//   });
 
-  it('did create 2 children comments', async function() {
-    let resp = await header.user1.post(`/api/posts/${post._id}/comments/${parent._id}`, {
-      content: 'Child 1',
-      public: true
-    });
+//   it('did create 2 children comments', async function() {
+//     let resp = await header.user1.post(`/api/posts/${post._id}/comments/${parent._id}`, {
+//       content: 'Child 1',
+//       public: true
+//     });
 
-    assert.deepEqual(resp.status, 200);
-    child1 = await resp.json<IComment<'expanded'>>();
+//     assert.deepEqual(resp.status, 200);
+//     child1 = await resp.json<IComment<'expanded'>>();
 
-    resp = await header.user1.post(`/api/posts/${post._id}/comments/${parent._id}`, {
-      content: 'Child 2',
-      public: true
-    });
+//     resp = await header.user1.post(`/api/posts/${post._id}/comments/${parent._id}`, {
+//       content: 'Child 2',
+//       public: true
+//     });
 
-    assert.deepEqual(resp.status, 200);
-    child2 = await resp.json<IComment<'expanded'>>();
-  });
+//     assert.deepEqual(resp.status, 200);
+//     child2 = await resp.json<IComment<'expanded'>>();
+//   });
 
-  it('did add 2 children to the parent', async function() {
-    const resp = await header.user1.get(`/api/comments/${parent._id}`);
-    assert.deepEqual(resp.status, 200);
-    const comment = await resp.json<IComment<'client'>>();
-    assert.deepEqual(comment.children.length, 2);
-    assert.deepEqual(comment.children[0], child1._id);
-    assert.deepEqual(comment.children[1], child2._id);
-  });
+//   it('did add 2 children to the parent', async function() {
+//     const resp = await header.user1.get(`/api/comments/${parent._id}`);
+//     assert.deepEqual(resp.status, 200);
+//     const comment = await resp.json<IComment<'client'>>();
+//     assert.deepEqual(comment.children.length, 2);
+//     assert.deepEqual(comment.children[0], child1._id);
+//     assert.deepEqual(comment.children[1], child2._id);
+//   });
 
-  it('did set the parent of the 2 children', async function() {
-    let resp = await header.user1.get(`/api/comments/${child1._id}`);
-    assert.deepEqual(resp.status, 200);
-    let comment = await resp.json<IComment<'client'>>();
-    assert.deepEqual(comment.parent, parent._id);
+//   it('did set the parent of the 2 children', async function() {
+//     let resp = await header.user1.get(`/api/comments/${child1._id}`);
+//     assert.deepEqual(resp.status, 200);
+//     let comment = await resp.json<IComment<'client'>>();
+//     assert.deepEqual(comment.parent, parent._id);
 
-    resp = await header.user1.get(`/api/comments/${child2._id}`);
-    assert.deepEqual(resp.status, 200);
-    comment = await resp.json<IComment<'client'>>();
-    assert.deepEqual(comment.parent, parent._id);
-  });
+//     resp = await header.user1.get(`/api/comments/${child2._id}`);
+//     assert.deepEqual(resp.status, 200);
+//     comment = await resp.json<IComment<'client'>>();
+//     assert.deepEqual(comment.parent, parent._id);
+//   });
 
-  it('did remove a child from the parent array when child is deleted', async function() {
-    let resp = await header.user1.delete(`/api/comments/${child1._id}`);
-    assert.deepEqual(resp.status, 204);
+//   it('did remove a child from the parent array when child is deleted', async function() {
+//     let resp = await header.user1.delete(`/api/comments/${child1._id}`);
+//     assert.deepEqual(resp.status, 204);
 
-    resp = await header.user1.get(`/api/comments/${parent._id}`);
-    assert.deepEqual(resp.status, 200);
-    let parentComment = await resp.json<IComment<'client'>>();
-    assert.deepEqual(parentComment.children.length, 1);
-    assert.deepEqual((parentComment.children as string[]).includes(child1._id), false);
-  });
+//     resp = await header.user1.get(`/api/comments/${parent._id}`);
+//     assert.deepEqual(resp.status, 200);
+//     let parentComment = await resp.json<IComment<'client'>>();
+//     assert.deepEqual(parentComment.children.length, 1);
+//     assert.deepEqual((parentComment.children as string[]).includes(child1._id), false);
+//   });
 
-  it('did remove child comment when parent is deleted', async function() {
-    let resp = await header.user1.delete(`/api/comments/${parent._id}`);
-    assert.deepEqual(resp.status, 204);
+//   it('did remove child comment when parent is deleted', async function() {
+//     let resp = await header.user1.delete(`/api/comments/${parent._id}`);
+//     assert.deepEqual(resp.status, 204);
 
-    resp = await header.user1.get(`/api/comments/${child2._id}`);
-    assert.deepEqual(decodeURIComponent(resp.statusText), 'Could not find comment');
-    assert.deepEqual(resp.status, 500);
-  });
-});
+//     resp = await header.user1.get(`/api/comments/${child2._id}`);
+//     assert.deepEqual(decodeURIComponent(resp.statusText), 'Could not find comment');
+//     assert.deepEqual(resp.status, 500);
+//   });
+// });

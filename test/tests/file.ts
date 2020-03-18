@@ -1,5 +1,5 @@
 import {} from 'mocha';
-import { IVolume, IUserEntry } from '../../src';
+import { IVolume } from '../../src';
 import { resolve } from 'path';
 import { statSync } from 'fs';
 import ControllerFactory from '../../src/core/controller-factory';
@@ -21,13 +21,9 @@ export class File {
   }
 }
 
-export async function uploadFileToVolume(
-  file: string,
-  volume: IVolume<'client' | 'expanded'>,
-  name: string = 'test-file'
-) {
+export async function uploadFileToVolume(file: string, volume: IVolume<'server'>, name: string = 'test-file') {
   const files = ControllerFactory.get('files');
   const filePath = resolve(__dirname + '/../media/' + file);
   const f = new File(name, filePath, statSync(filePath).size, 'image/png');
-  return await files.uploadFileToRemote(f, { ...volume, user: (volume.user as IUserEntry<'client'>)._id }, false);
+  return await files.uploadFileToRemote(f, { ...volume, user: volume.user }, false);
 }

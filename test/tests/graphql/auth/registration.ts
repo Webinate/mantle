@@ -22,15 +22,15 @@ describe('[GQL] Testing registering a user', function() {
       token: new RegisterInput({})
     });
     assert.deepEqual(
-      response.errors[0].message,
+      response.errors![0].message,
       'Variable "$token" got invalid value {}; Field username of required type String! was not provided.'
     );
     assert.deepEqual(
-      response.errors[1].message,
+      response.errors![1].message,
       'Variable "$token" got invalid value {}; Field password of required type String! was not provided.'
     );
     assert.deepEqual(
-      response.errors[2].message,
+      response.errors![2].message,
       'Variable "$token" got invalid value {}; Field email of required type String! was not provided.'
     );
   });
@@ -43,7 +43,7 @@ describe('[GQL] Testing registering a user', function() {
         email: 'bademail'
       })
     });
-    assert.deepEqual(errors[0].message, 'Argument Validation Error');
+    assert.deepEqual(errors![0].message, 'Argument Validation Error');
   });
 
   it('[GQL] should not register with bad characters in the username', async function() {
@@ -54,7 +54,7 @@ describe('[GQL] Testing registering a user', function() {
         email: 'FakeEmail@test.com'
       })
     });
-    assert.deepEqual(errors[0].message, 'Please only use alpha numeric characters for your username');
+    assert.deepEqual(errors![0].message, 'Please only use alpha numeric characters for your username');
   });
 
   it('[GQL] should not register with existing username', async function() {
@@ -67,7 +67,7 @@ describe('[GQL] Testing registering a user', function() {
     });
 
     assert.deepEqual(
-      response.errors[0].message,
+      response.errors![0].message,
       'That username or email is already in use; please choose another or login.'
     );
   });
@@ -93,14 +93,14 @@ describe('[GQL] Testing registering a user', function() {
     const { errors } = await header.guest.graphql<boolean>(APPROVE_ACTIVATION, {
       user: testUserName
     });
-    assert.deepEqual(errors[0].message, `Access denied! You don't have permission for this action!`);
+    assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('[GQL] did not approve activation as a regular user', async function() {
     const { errors } = await header.user1.graphql<boolean>(APPROVE_ACTIVATION, {
       user: testUserName
     });
-    assert.deepEqual(errors[0].message, 'You do not have permission');
+    assert.deepEqual(errors![0].message, 'You do not have permission');
   });
 
   it('[GQL] did allow an admin to activate ${testUserName}', async function() {
