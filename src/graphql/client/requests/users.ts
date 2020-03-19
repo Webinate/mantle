@@ -7,6 +7,15 @@ export const REMOVE_USER = gql`
   }
 `;
 
+export const CREATE_USER = gql`
+  mutation CREATE_USER($token: AddUserInput!) {
+    addUser(token: $token) {
+      ...UserFields
+    }
+  }
+  ${USER_FIELDS}
+`;
+
 export const ADD_USER = gql`
   mutation ADD_USER($token: AddUserInput!) {
     addUser(token: $token) {
@@ -20,6 +29,20 @@ export const GET_USER = gql`
   query GET_USER($user: String!) {
     user(user: $user) {
       ...UserFields
+    }
+  }
+  ${USER_FIELDS}
+`;
+
+export const GET_USERS = gql`
+  query GET_USERS($index: Int, $limit: Int, $search: String) {
+    users(index: $index, limit: $limit, search: $search) {
+      count
+      index
+      limit
+      data {
+        ...UserFields
+      }
     }
   }
   ${USER_FIELDS}

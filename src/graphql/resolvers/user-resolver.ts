@@ -65,7 +65,7 @@ export class UserResolver implements ResolverInterface<User> {
     return User.fromEntity(user);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<UserPrivilege>([UserPrivilege.regular])
   @Mutation(returns => Boolean)
   async removeUser(@Arg('username') username: string, @Ctx() ctx: IGQLContext) {
     if (ctx.user!.username !== username && ctx.user!.privileges === 'regular') throw new Error403();
