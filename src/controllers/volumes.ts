@@ -178,6 +178,7 @@ export class VolumesController extends Controller {
     // Create the new volume
     const volume: Partial<IVolume<'server'>> = {
       name: 'New Volume',
+      type: 'local',
       identifier: identifier,
       created: Date.now(),
       memoryUsed: 0,

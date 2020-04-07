@@ -92,6 +92,15 @@ export class UpdateUserInput {
   _id: ObjectId | string;
 
   @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Field({ nullable: true })
+  username: string;
+
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @IsEmail()
+  @Field({ nullable: true })
+  email: string;
+
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field(type => UserPrivilege, { nullable: true })
   privileges: UserPrivilege;
 

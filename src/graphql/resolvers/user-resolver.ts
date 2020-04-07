@@ -13,7 +13,7 @@ import {
 import ControllerFactory from '../../core/controller-factory';
 import { User, PaginatedUserResponse, GetUsersArgs, AddUserInput, UpdateUserInput } from '../models/user-type';
 import { File } from '../models/file-type';
-import { Error403, Error400 } from '../../utils/errors';
+import { Error403, Error400, Error404 } from '../../utils/errors';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { UserPrivilege } from '../../core/enums';
 import { IUserEntry } from '../../types/models/i-user-entry';
@@ -78,7 +78,7 @@ export class UserResolver implements ResolverInterface<User> {
   async updateUser(@Arg('token') token: UpdateUserInput, @Ctx() ctx: IGQLContext) {
     const user = await ControllerFactory.get('users').getUser({ id: token._id });
 
-    if (!user) return null;
+    if (!user) throw new Error404('User does not exist');
 
     if (ctx.user!.privileges === UserPrivilege.regular && ctx.user!.username !== user.username) throw new Error403();
 
