@@ -11,6 +11,7 @@ export const CREATE_USER = gql`
   mutation CREATE_USER($token: AddUserInput!) {
     addUser(token: $token) {
       ...UserFields
+      email
     }
   }
   ${USER_FIELDS}
@@ -38,6 +39,7 @@ export const EDIT_USER = gql`
   mutation updateUser($token: UpdateUserInput!) {
     updateUser(token: $token) {
       ...UserFields
+      email
     }
   }
 
@@ -63,6 +65,7 @@ export const GET_USER_AS_ADMIN = gql`
     user(user: $user) {
       ...UserFields
       registerKey
+      email
     }
   }
   ${USER_FIELDS}

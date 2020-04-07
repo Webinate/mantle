@@ -36,6 +36,7 @@ export const customAuthChecker: AuthChecker<IGQLContext> = async ({ root, args, 
   await ControllerFactory.get('sessions').setSessionHeader(session, context.req, context.res);
 
   context.user = session.user;
+  context.isAdmin = session.user.privileges === UserPrivilege.admin || session.user.privileges === UserPrivilege.super;
 
   if (session.user.privileges === 'super' || session.user.privileges === 'admin') return true;
   if (selectedRoles.includes(session.user.privileges)) return true;

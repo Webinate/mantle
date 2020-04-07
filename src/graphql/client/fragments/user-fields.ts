@@ -8,7 +8,6 @@ export const USER_FIELDS = gql`
       _id
     }
     createdOn
-    email
     lastLoggedIn
     meta
     username

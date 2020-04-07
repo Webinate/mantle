@@ -29,6 +29,7 @@ export class UserResolver implements ResolverInterface<User> {
 
     const response = await ControllerFactory.get('users').getUser({ username: user });
     if (!response) return null;
+
     return User.fromEntity(response);
   }
 
@@ -42,6 +43,14 @@ export class UserResolver implements ResolverInterface<User> {
     });
 
     return PaginatedUserResponse.fromEntity(response);
+  }
+
+  @FieldResolver(type => String, { nullable: true })
+  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  email(@Root() root: User, @Ctx() ctx: IGQLContext) {
+    if (ctx.user!.username === root.username) return root.datebaseEmail;
+    if (ctx.isAdmin) return root.datebaseEmail;
+    return null;
   }
 
   @FieldResolver(type => File, { nullable: true })

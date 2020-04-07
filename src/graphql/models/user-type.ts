@@ -18,13 +18,15 @@ export class User {
   @Field()
   username: string;
 
+  @Field(type => String, { nullable: true })
+  @IsEmail()
+  email: string | null;
+
   @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field()
   registerKey: string;
 
-  @Field()
-  @IsEmail()
-  email: string;
+  datebaseEmail: string;
 
   @Field()
   avatar: string;
@@ -52,6 +54,7 @@ export class User {
     const toReturn = new User();
     Object.assign(toReturn, user);
     toReturn.isActivated = !user.registerKey;
+    toReturn.datebaseEmail = user.email as string;
     return toReturn;
   }
 }
