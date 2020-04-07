@@ -11,20 +11,19 @@ import RemoteFactory from '../core/remotes/remote-factory';
 import { Error500, Error404 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
-
-export type VolumeSortType = 'created' | 'name' | 'memory';
+import { SortOrder, VolumeSortType } from '../core/enums';
 
 export type VolumesGetOptions = {
   user: string | IUserEntry<'client' | 'server'>;
   search: RegExp | string;
   index: number;
   limit: number;
-  sort: VolumeSortType;
-  sortOrder: 'asc' | 'desc';
+  sortType: VolumeSortType;
+  sortOrder: SortOrder;
 };
 
 export type GetOptions = {
-  id: string;
+  id: string | ObjectID;
   user: string;
   identifier: string;
   name: string;
@@ -101,9 +100,9 @@ export class VolumesController extends Controller {
     let sort: { [key in keyof Partial<IVolume<'server'>>]: number } | undefined = undefined;
 
     // Optionally sort by the last updated
-    if (options.sort === 'created') sort = { created: sortOrder };
-    else if (options.sort === 'name') sort = { name: sortOrder };
-    else if (options.sort === 'memory') sort = { memoryUsed: sortOrder };
+    if (options.sortType === VolumeSortType.created) sort = { created: sortOrder };
+    else if (options.sortType === VolumeSortType.name) sort = { name: sortOrder };
+    else if (options.sortType === VolumeSortType.memory) sort = { memoryUsed: sortOrder };
 
     // Save the new entry into the database
     const count = await volumeCollection.count(search);
@@ -150,8 +149,8 @@ export class VolumesController extends Controller {
    * @param id The id of the volume to edit
    * @param token The edit token
    */
-  async update(id: string, token: IVolume<'client'>) {
-    if (!isValidObjectID(id)) throw new Error(`Please use a valid object id`);
+  async update(id: string | ObjectID, token: IVolume<'server'>) {
+    if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
 
     await this._volumes.updateOne({ _id: new ObjectID(id) } as IVolume<'server'>, { $set: token });
     const updatedVolume = this._volumes.findOne({ _id: new ObjectID(id) } as IVolume<'server'>);
@@ -190,7 +189,7 @@ export class VolumesController extends Controller {
       throw new Error500(`memoryUsed cannot be greater than memoryAllocated`);
 
     // Save the new entry into the database
-    const result = await volumeCollection.insert(volume);
+    const result = await volumeCollection.insertOne(volume);
     const addedVolume = (await volumeCollection.findOne({ _id: result.insertedId } as IVolume<'server'>)) as IVolume<
       'server'
     >;

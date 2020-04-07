@@ -1,9 +1,12 @@
+import '../graphql/scalars/enums';
 import { printSchema } from 'graphql';
 import { writeFileSync } from 'fs';
 import { buildSchema, AuthChecker } from 'type-graphql';
 import { CategoryResolver } from '../graphql/resolvers/category-resolver';
 import { UserResolver } from '../graphql/resolvers/user-resolver';
 import { AuthResolver } from '../graphql/resolvers/auth-resolver';
+import { VolumeResolver } from '../graphql/resolvers/volume-resolver';
+import { FileResolver } from '../graphql/resolvers/file-resolver';
 import ControllerFactory from './controller-factory';
 import { UserPrivilege } from './enums';
 import { IGQLContext } from '../types/interfaces/i-gql-context';
@@ -12,7 +15,7 @@ import { TemplateResolver } from '../graphql/resolvers/template-resolver';
 
 export async function generateSchema() {
   const schema = await buildSchema({
-    resolvers: [CategoryResolver, UserResolver, AuthResolver, TemplateResolver],
+    resolvers: [CategoryResolver, VolumeResolver, FileResolver, UserResolver, AuthResolver, TemplateResolver],
     authChecker: customAuthChecker
   });
 
@@ -34,7 +37,7 @@ export const customAuthChecker: AuthChecker<IGQLContext> = async ({ root, args, 
 
   context.user = session.user;
 
-  if (session.user.privileges === 'super') return true;
+  if (session.user.privileges === 'super' || session.user.privileges === 'admin') return true;
   if (selectedRoles.includes(session.user.privileges)) return true;
   else return false;
 };

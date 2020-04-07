@@ -7,12 +7,23 @@ export enum UserPrivilege {
   regular = 'regular'
 }
 
+export enum SortOrder {
+  asc = 'asc',
+  desc = 'desc'
+}
+
+export enum VolumeSortType {
+  created = 'created',
+  memory = 'memory',
+  name = 'name'
+}
+
 /*
  * Describes the types of volumes supported
  */
 export enum VolumeType {
-  Google = 'google',
-  Local = 'local'
+  google = 'google',
+  local = 'local'
 }
 
 export const Collections = {

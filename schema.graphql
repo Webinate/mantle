@@ -15,6 +15,15 @@ input AddUserInput {
   meta: JSON
 }
 
+input AddVolumeInput {
+  name: String!
+  user: ObjectId
+  type: VolumeType!
+  identifier: String!
+  memoryAllocated: Int!
+  meta: JSON
+}
+
 """Object representing a Authentication response"""
 type AuthResponse {
   message: String!
@@ -77,6 +86,10 @@ type Mutation {
   requestPasswordReset(accountRedirectURL: String = "/", username: String!): Boolean!
   passwordReset(password: String!, key: String!, username: String!): Boolean!
   logout: Boolean!
+  addVolume(token: AddVolumeInput!): Volume!
+  updateVolume(token: UpdateVolumeInput!): Volume!
+  removeVolume(id: ObjectId!): Boolean!
+  removeFile(volumeId: ObjectId, id: ObjectId!): Boolean!
 }
 
 """Mongo object id scalar type"""
@@ -106,6 +119,14 @@ type PaginatedUserResponse {
   index: Int!
 }
 
+"""A page of wrapper of volumes"""
+type PaginatedVolumeResponse {
+  data: [Volume!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
 type Query {
   category(slug: String, id: String): Category
 
@@ -114,6 +135,8 @@ type Query {
   user(user: String!): User
   users(index: Int = 0, limit: Int = 10, search: String = ""): PaginatedUserResponse!
   authenticated: AuthResponse!
+  volume(id: ObjectId!): Volume
+  volumes(index: Int = 0, limit: Int = 10, search: String = "", user: String = "", sortOrder: SortOrder = desc, sortType: VolumeSortType = name): PaginatedVolumeResponse!
   template(id: ObjectId): Template
 
   """Gets an array of all templates"""
@@ -125,6 +148,11 @@ input RegisterInput {
   password: String!
   email: String!
   activationUrl: String
+}
+
+enum SortOrder {
+  asc
+  desc
 }
 
 """Object representing a Template"""
@@ -155,6 +183,17 @@ input UpdateUserInput {
   _id: ObjectId!
 }
 
+input UpdateVolumeInput {
+  name: String!
+  user: ObjectId
+  type: VolumeType!
+  identifier: String!
+  memoryAllocated: Int!
+  meta: JSON
+  _id: ObjectId!
+  memoryUsed: Int!
+}
+
 """Object representing a User"""
 type User {
   _id: ObjectId!
@@ -182,9 +221,23 @@ type Volume {
   _id: ObjectId!
   name: String!
   identifier: String!
+  type: VolumeType!
   created: Int!
   memoryUsed: Long!
   memoryAllocated: Long!
   user: User!
   meta: JSON!
+}
+
+"""The type of sorting performed when fetching volumes"""
+enum VolumeSortType {
+  created
+  memory
+  name
+}
+
+"""The core type of volume type"""
+enum VolumeType {
+  Google
+  Local
 }

@@ -402,10 +402,9 @@ export class FilesController extends Controller {
       await RemoteFactory.get(volume.type).removeFile(volume, fileEntry);
 
       // Update the volume data usage
-      await volumes.update(
-        { identifier: volume.identifier } as IVolume<'server'>,
-        { memoryUsed: volume.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>>
-      );
+      await volumes.updateOne({ identifier: volume.identifier } as IVolume<'server'>, {
+        $set: { memoryUsed: volume.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>>
+      });
     }
 
     if (removeFileEntry) {

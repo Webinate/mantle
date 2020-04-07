@@ -13,10 +13,8 @@ let numUsers: number,
 
 describe('[GQL] Testing deleting users', function() {
   it('did get the number of users', async function() {
-    const {
-      data: { count }
-    } = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
-    numUsers = count;
+    const resp = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
+    numUsers = resp.data.count;
   });
 
   it('did not allow a regular user to remove another user', async function() {

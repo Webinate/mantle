@@ -234,7 +234,7 @@ export class UsersController extends Controller {
         throw new Error400(`Invalid value`);
     }
 
-    await this._users.updateOne({ _id: new ObjectID(id) } as IUserEntry<'server'>, token);
+    await this._users.updateOne({ _id: new ObjectID(id) } as IUserEntry<'server'>, { $set: token });
     return this._users.findOne({ _id: new ObjectID(id) } as IUserEntry<'server'>);
   }
 

@@ -7,14 +7,8 @@ import { LongType } from '../scalars/long';
 import { JsonType } from '../scalars/json';
 import { IUserEntry } from '../../types/models/i-user-entry';
 import { UserPrivilege } from '../../core/enums';
-import { registerEnumType } from 'type-graphql';
 import { IsEmail } from 'class-validator';
 import { File } from './file-type';
-
-registerEnumType(UserPrivilege, {
-  name: 'UserPrivilege',
-  description: 'The core type of user privilege'
-});
 
 @ObjectType({ description: 'Object representing a User' })
 export class User {
@@ -88,17 +82,30 @@ export class AddUserInput {
   meta: any;
 
   constructor(initialization?: Partial<AddUserInput>) {
-    if (initialization) Object.assign(this, initialization);
+    initialization && Object.assign(this, initialization);
   }
 }
 
 @InputType()
-export class UpdateUserInput extends AddUserInput {
+export class UpdateUserInput {
   @Field(type => GraphQLObjectId)
   _id: ObjectId | string;
 
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Field(type => UserPrivilege, { nullable: true })
+  privileges: UserPrivilege;
+
+  @Field(type => JsonType, { nullable: true })
+  meta: any;
+
+  @Field({ nullable: true })
+  avatar: string;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  avatarFile: ObjectId | string | null;
+
   constructor(initialization?: Partial<UpdateUserInput>) {
-    super(initialization);
+    initialization && Object.assign(this, initialization);
   }
 }
 

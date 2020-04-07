@@ -34,6 +34,16 @@ export const GET_USER = gql`
   ${USER_FIELDS}
 `;
 
+export const EDIT_USER = gql`
+  mutation updateUser($token: UpdateUserInput!) {
+    updateUser(token: $token) {
+      ...UserFields
+    }
+  }
+
+  ${USER_FIELDS}
+`;
+
 export const GET_USERS = gql`
   query GET_USERS($index: Int, $limit: Int, $search: String) {
     users(index: $index, limit: $limit, search: $search) {
