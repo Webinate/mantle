@@ -66,6 +66,7 @@ export const GET_USER_AS_ADMIN = gql`
       ...UserFields
       registerKey
       email
+      privileges
     }
   }
   ${USER_FIELDS}
