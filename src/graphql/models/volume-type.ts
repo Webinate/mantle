@@ -69,12 +69,12 @@ export class GetVolumesArgs {
   search = '';
 
   @Field(type => String, { nullable: true })
-  user = '';
+  user: string;
 
-  @Field(type => SortOrder, { defaultValue: SortOrder.desc })
+  @Field(type => SortOrder, { defaultValue: SortOrder.asc })
   sortOrder: SortOrder;
 
-  @Field(type => VolumeSortType, { defaultValue: VolumeSortType.name })
+  @Field(type => VolumeSortType, { defaultValue: VolumeSortType.created })
   sortType: VolumeSortType;
 }
 
@@ -86,11 +86,11 @@ export class AddVolumeInput {
   @Field(type => GraphQLObjectId, { nullable: true })
   user: ObjectID;
 
-  @Field(type => VolumeType)
+  @Field(type => VolumeType, { nullable: true, defaultValue: VolumeType.local })
   type: VolumeType;
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field(type => LongType, { nullable: true })
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
   memoryAllocated: number;
 
   @Field(type => JsonType, { nullable: true })
@@ -102,16 +102,28 @@ export class AddVolumeInput {
 }
 
 @InputType()
-export class UpdateVolumeInput extends AddVolumeInput {
+export class UpdateVolumeInput {
   @Field(type => GraphQLObjectId)
   _id: ObjectId | string;
 
   @Field(type => LongType, { nullable: true })
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
   memoryUsed: number;
 
+  @Field({ nullable: true })
+  name: string;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  user: ObjectID;
+
+  @Field(type => LongType, { nullable: true })
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  memoryAllocated: number;
+
+  @Field(type => JsonType, { nullable: true })
+  meta: any;
+
   constructor(initialization?: Partial<UpdateVolumeInput>) {
-    super(initialization);
+    if (initialization) Object.assign(this, initialization);
   }
 }
 

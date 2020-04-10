@@ -77,7 +77,6 @@ export class AddUserInput {
   @Field(type => GraphQLObjectId, { nullable: true })
   avatarFile: ObjectId | string | null;
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field(type => UserPrivilege, { nullable: true })
   privileges: UserPrivilege;
 
@@ -94,16 +93,13 @@ export class UpdateUserInput {
   @Field(type => GraphQLObjectId)
   _id: ObjectId | string;
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field({ nullable: true })
   username: string;
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @IsEmail()
   @Field({ nullable: true })
   email: string;
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Field(type => UserPrivilege, { nullable: true })
   privileges: UserPrivilege;
 
