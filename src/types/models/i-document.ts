@@ -9,7 +9,7 @@ export interface IDocument<T extends 'expanded' | 'server' | 'client'> {
   template: T extends 'expanded' ? ITemplate<T> : T extends 'client' ? ITemplate<T> | string : ObjectID;
   lastUpdated: number;
   createdOn: number;
-  elementsOrder: string[];
+  elementsOrder: T extends 'server' ? ObjectID[] : string[];
   elements: IDraftElement<T>[];
   html: { [zone: string]: string };
 }

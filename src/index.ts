@@ -3,15 +3,12 @@ import * as _Models from './models/model';
 import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
 import { AdminRouter } from './routers/admin';
-import { CommentsRouter } from './routers/comments';
 import { CORSRouter } from './routers/cors';
 import { EmailsRouter } from './routers/emails';
 import { ErrorRouter } from './routers/error';
 import { FileRouter } from './routers/file';
 import { PageRouter } from './routers/page';
-import { PostsRouter } from './routers/posts';
 import { TemplatesRouter } from './routers/templates';
-import { DocumentsRouter } from './routers/documents';
 import { SessionRouter } from './routers/session';
 import { AuthRouter } from './routers/auth';
 import { validId } from './decorators/path-sanity';
@@ -38,14 +35,8 @@ export const routers = {
   admin: AdminRouter,
   /** Endpoints for authenticating users */
   auth: AuthRouter,
-  /** Endpoints for managing posts */
-  posts: PostsRouter,
   /** Endpoints for managing templates */
   templates: TemplatesRouter,
-  /** Endpoints for managing documents */
-  documents: DocumentsRouter,
-  /** Endpoints for managing comments of posts */
-  comments: CommentsRouter,
   /** Endpoints for managing cross origin allowances */
   cors: CORSRouter,
   /** TODO: This must be removed in favour of the admin controller */
@@ -82,7 +73,6 @@ export { IRender } from './types/models/i-render';
 export { ISessionEntry } from './types/models/i-session-entry';
 export { IUserEntry } from './types/models/i-user-entry';
 export { IUploadResponse } from './types/tokens/i-file-tokens';
-export { DraftElements } from './types/models/i-draft-elements';
 
 export {
   IAuthenticationResponse,

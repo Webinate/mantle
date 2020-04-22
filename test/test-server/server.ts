@@ -23,24 +23,12 @@ export default class MainController extends Controller {
         passwordResetURL: '/reset-password'
       }).initialize(app, db),
 
-      new routers.comments({
-        rootPath: api
-      }).initialize(app, db),
-
-      new routers.posts({
-        rootPath: api
-      }).initialize(app, db),
-
       new routers.file({
         rootPath: '',
         cacheLifetime: 60000
       }).initialize(app, db),
 
       new routers.templates({
-        rootPath: api
-      }).initialize(app, db),
-
-      new routers.documents({
         rootPath: api
       }).initialize(app, db)
     ]);

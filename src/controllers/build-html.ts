@@ -1,6 +1,7 @@
 import { IDraftElement, IImageElement } from '../types/models/i-draft-elements';
 import { IFileEntry } from '../types/models/i-file-entry';
 import ControllerFactory from '../core/controller-factory';
+import { ElementType } from '../core/enums';
 
 function createStyleString(json: any | undefined) {
   if (!json) return '';
@@ -14,7 +15,7 @@ function createStyleString(json: any | undefined) {
 }
 
 export async function buildHtml(elm: IDraftElement<'client' | 'server' | 'expanded'>) {
-  if (elm.type === 'elm-image') {
+  if (elm.type === ElementType.image) {
     const imageElm = elm as IImageElement<'client'>;
     const image = imageElm.image;
 

@@ -1,3 +1,50 @@
+import { ObjectType, Field } from 'type-graphql';
+import { ObjectId } from 'mongodb';
+import { GraphQLObjectId } from '../scalars/object-id';
+import { User } from './user-type';
+import { LongType } from '../scalars/long';
+import { Post } from './post-type';
+import { IComment } from '../../types/models/i-comment';
+
+@ObjectType({ description: 'Object representing a Comment' })
+export class Comment {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId;
+
+  @Field(type => String)
+  author: string;
+
+  @Field(type => User)
+  user: User;
+
+  @Field(type => Post)
+  post: Post;
+
+  @Field(type => Comment, { nullable: true })
+  parent: Comment;
+
+  @Field(type => Boolean)
+  public: boolean;
+
+  @Field()
+  content: string;
+
+  @Field(type => [Comment])
+  children: Comment[];
+
+  @Field(type => LongType)
+  createdOn: number;
+
+  @Field(type => LongType)
+  lastUpdated: number;
+
+  static fromEntity(category: IComment<'server'>) {
+    const toReturn = new Comment();
+    Object.assign(toReturn, category);
+    return toReturn;
+  }
+}
+
 // import {
 //   GraphQLObjectType,
 //   GraphQLString,

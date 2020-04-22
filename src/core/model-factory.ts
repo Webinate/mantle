@@ -13,13 +13,13 @@ import { UsersModel } from '../models/users-model';
 import { DocumentsModel } from '../models/documents-model';
 import { DraftsModel } from '../models/drafts-model';
 import { TemplatesModel } from '../models/templates-model';
-import { DraftElements } from '../types/models/i-draft-elements';
-import { ElmParagraph } from '../models/draft-elements/elm-paragraph';
-import { ElmHeader } from '../models/draft-elements/elm-header';
-import { ElmImg } from '../models/draft-elements/elm-img';
-import { ElmHtml } from '../models/draft-elements/elm-html';
-import { ElmList } from '../models/draft-elements/elm-list';
-import { ElmCode } from '../models/draft-elements/elm-code';
+// import { ElmParagraph } from '../models/draft-elements/elm-paragraph';
+// import { ElmHeader } from '../models/draft-elements/elm-header';
+// import { ElmImg } from '../models/draft-elements/elm-img';
+// import { ElmHtml } from '../models/draft-elements/elm-html';
+// import { ElmList } from '../models/draft-elements/elm-list';
+// import { ElmCode } from '../models/draft-elements/elm-code';
+// import { ElementType } from './enums';
 
 export type CommonModelType =
   | 'volumes'
@@ -32,8 +32,8 @@ export type CommonModelType =
   | 'users'
   | 'documents'
   | 'drafts'
-  | 'templates'
-  | DraftElements;
+  | 'templates';
+//| ElementType;
 
 /**
  * Factory classs for creating & getting models
@@ -62,18 +62,18 @@ export class ModelFactory {
       this.create('users'),
       this.create('documents'),
       this.create('drafts'),
-      this.create('templates'),
-      this.create('elm-paragraph'),
-      this.create('elm-header-1'),
-      this.create('elm-header-2'),
-      this.create('elm-header-3'),
-      this.create('elm-header-4'),
-      this.create('elm-header-5'),
-      this.create('elm-header-6'),
-      this.create('elm-list'),
-      this.create('elm-image'),
-      this.create('elm-html'),
-      this.create('elm-code')
+      this.create('templates')
+      // this.create(ElementType['elm-paragraph']),
+      // this.create(ElementType['elm-header-1']),
+      // this.create(ElementType['elm-header-2']),
+      // this.create(ElementType['elm-header-3']),
+      // this.create(ElementType['elm-header-4']),
+      // this.create(ElementType['elm-header-5']),
+      // this.create(ElementType['elm-header-6']),
+      // this.create(ElementType['elm-list']),
+      // this.create(ElementType['elm-image']),
+      // this.create(ElementType['elm-html']),
+      // this.create(ElementType['elm-code'])
     ]);
   }
 
@@ -134,17 +134,17 @@ export class ModelFactory {
   get(type: 'templates'): TemplatesModel;
   get(type: 'drafts'): DraftsModel;
   get(type: 'documents'): DocumentsModel;
-  get(type: 'elm-paragraph'): ElmParagraph;
-  get(type: 'elm-header-1'): ElmHeader;
-  get(type: 'elm-header-2'): ElmHeader;
-  get(type: 'elm-header-3'): ElmHeader;
-  get(type: 'elm-header-4'): ElmHeader;
-  get(type: 'elm-header-5'): ElmHeader;
-  get(type: 'elm-header-6'): ElmHeader;
-  get(type: 'elm-list'): ElmList;
-  get(type: 'elm-image'): ElmImg;
-  get(type: 'elm-html'): ElmHtml;
-  get(type: 'elm-code'): ElmCode;
+  // get(type: 'elm-paragraph'): ElmParagraph;
+  // get(type: 'elm-header-1'): ElmHeader;
+  // get(type: 'elm-header-2'): ElmHeader;
+  // get(type: 'elm-header-3'): ElmHeader;
+  // get(type: 'elm-header-4'): ElmHeader;
+  // get(type: 'elm-header-5'): ElmHeader;
+  // get(type: 'elm-header-6'): ElmHeader;
+  // get(type: 'elm-list'): ElmList;
+  // get(type: 'elm-image'): ElmImg;
+  // get(type: 'elm-html'): ElmHtml;
+  // get(type: 'elm-code'): ElmCode;
   get(type: string): Model<IModelEntry<'server'>, IModelEntry<'client'>>;
   get(type: string): Model<IModelEntry<'server'>, IModelEntry<'client'>> {
     const toRet = this._models[type];
@@ -196,39 +196,39 @@ export class ModelFactory {
       case 'templates':
         newModel = new TemplatesModel();
         break;
-      case 'elm-paragraph':
-        newModel = new ElmParagraph();
-        break;
-      case 'elm-header-1':
-        newModel = new ElmHeader('elm-header-1');
-        break;
-      case 'elm-header-2':
-        newModel = new ElmHeader('elm-header-2');
-        break;
-      case 'elm-header-3':
-        newModel = new ElmHeader('elm-header-3');
-        break;
-      case 'elm-header-4':
-        newModel = new ElmHeader('elm-header-4');
-        break;
-      case 'elm-header-5':
-        newModel = new ElmHeader('elm-header-5');
-        break;
-      case 'elm-header-6':
-        newModel = new ElmHeader('elm-header-6');
-        break;
-      case 'elm-image':
-        newModel = new ElmImg();
-        break;
-      case 'elm-html':
-        newModel = new ElmHtml();
-        break;
-      case 'elm-list':
-        newModel = new ElmList();
-        break;
-      case 'elm-code':
-        newModel = new ElmCode();
-        break;
+      // case 'elm-paragraph':
+      //   newModel = new ElmParagraph();
+      //   break;
+      // case 'elm-header-1':
+      //   newModel = new ElmHeader('elm-header-1');
+      //   break;
+      // case 'elm-header-2':
+      //   newModel = new ElmHeader('elm-header-2');
+      //   break;
+      // case 'elm-header-3':
+      //   newModel = new ElmHeader('elm-header-3');
+      //   break;
+      // case 'elm-header-4':
+      //   newModel = new ElmHeader('elm-header-4');
+      //   break;
+      // case 'elm-header-5':
+      //   newModel = new ElmHeader('elm-header-5');
+      //   break;
+      // case 'elm-header-6':
+      //   newModel = new ElmHeader('elm-header-6');
+      //   break;
+      // case 'elm-image':
+      //   newModel = new ElmImg();
+      //   break;
+      // case 'elm-html':
+      //   newModel = new ElmHtml();
+      //   break;
+      // case 'elm-list':
+      //   newModel = new ElmList();
+      //   break;
+      // case 'elm-code':
+      //   newModel = new ElmCode();
+      //   break;
       default:
         throw new Error(`Controller '${type}' cannot be created`);
     }

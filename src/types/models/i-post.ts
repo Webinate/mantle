@@ -10,7 +10,7 @@ import { IDraft } from './i-draft';
  */
 export interface IPost<T extends 'expanded' | 'client' | 'server'> extends IModelEntry<T> {
   author: T extends 'expanded'
-    ? (IUserEntry<T> | null)
+    ? IUserEntry<T> | null
     : T extends 'client'
     ? IUserEntry<T> | string | null
     : ObjectID | null;
@@ -19,13 +19,13 @@ export interface IPost<T extends 'expanded' | 'client' | 'server'> extends IMode
   brief: string;
   public: boolean;
   featuredImage: T extends 'expanded'
-    ? (IFileEntry<T> | null)
+    ? IFileEntry<T> | null
     : T extends 'client'
     ? IFileEntry<T> | string | null
     : ObjectID | null;
   document: T extends 'expanded' ? IDocument<T> : T extends 'client' ? IDocument<T> | string : ObjectID;
   latestDraft: T extends 'expanded' ? IDraft<T> | null : T extends 'client' ? null | string : ObjectID | null;
-  categories: Array<string>;
+  categories: T extends 'server' ? Array<ObjectID> : Array<string>;
   tags: Array<string>;
   createdOn: number;
   lastUpdated: number;

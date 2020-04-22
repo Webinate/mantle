@@ -12,10 +12,19 @@ import { UserPrivilege } from './enums';
 import { IGQLContext } from '../types/interfaces/i-gql-context';
 import { error, info } from '../utils/logger';
 import { TemplateResolver } from '../graphql/resolvers/template-resolver';
+import { PostResolver } from '../graphql/resolvers/post-resolver';
 
 export async function generateSchema() {
   const schema = await buildSchema({
-    resolvers: [CategoryResolver, VolumeResolver, FileResolver, UserResolver, AuthResolver, TemplateResolver],
+    resolvers: [
+      CategoryResolver,
+      PostResolver,
+      VolumeResolver,
+      FileResolver,
+      UserResolver,
+      AuthResolver,
+      TemplateResolver
+    ],
     authChecker: customAuthChecker
   });
 

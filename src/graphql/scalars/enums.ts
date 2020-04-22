@@ -1,4 +1,14 @@
-import { UserPrivilege, VolumeType, VolumeSortType, SortOrder } from '../../core/enums';
+import {
+  UserPrivilege,
+  VolumeType,
+  VolumeSortType,
+  SortOrder,
+  ElementType,
+  CommentSortType,
+  CommentVisibility,
+  PostVisibility,
+  PostSortType
+} from '../../core/enums';
 import { registerEnumType } from 'type-graphql';
 
 registerEnumType(UserPrivilege, {
@@ -18,4 +28,25 @@ registerEnumType(VolumeType, {
 registerEnumType(VolumeSortType, {
   name: 'VolumeSortType',
   description: 'The type of sorting performed when fetching volumes'
+});
+
+registerEnumType(ElementType, {
+  name: 'ElementType',
+  description: 'Describes the different types of allowed elements'
+});
+
+registerEnumType(CommentVisibility, {
+  name: 'CommentVisibility'
+});
+
+registerEnumType(CommentSortType, {
+  name: 'CommentSortType'
+});
+
+registerEnumType(PostVisibility, {
+  name: 'PostVisibility'
+});
+
+registerEnumType(PostSortType, {
+  name: 'PostSortType'
 });

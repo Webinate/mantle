@@ -1,3 +1,104 @@
+import { ObjectType, Field, InputType } from 'type-graphql';
+import { ObjectId, ObjectID } from 'mongodb';
+import { GraphQLObjectId } from '../scalars/object-id';
+import { User } from './user-type';
+import { LongType } from '../scalars/long';
+import { Category } from './category-type';
+import { IPost } from '../../types/models/i-post';
+import { Draft } from './draft-type';
+import { File } from './file-type';
+import { Document } from './document-type';
+import { randomString } from '../../../test/tests/utils';
+
+@ObjectType({ description: 'Object representing a Post' })
+export class Post {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId;
+
+  @Field(type => User)
+  author: User;
+
+  @Field()
+  title: string;
+
+  @Field()
+  slug: string;
+
+  @Field()
+  brief: string;
+
+  @Field(type => Boolean)
+  public: boolean;
+
+  @Field(type => [Category])
+  categories: Category[];
+
+  @Field(type => [String])
+  tags: string[];
+
+  @Field(type => LongType)
+  createdOn: number;
+
+  @Field(type => LongType)
+  lastUpdated: number;
+
+  @Field(type => File)
+  featuredImage: File;
+
+  @Field(type => Document)
+  document: Document;
+
+  @Field(type => Draft)
+  latestDraft: Draft;
+
+  static fromEntity(category: IPost<'server'>) {
+    const toReturn = new Post();
+    Object.assign(toReturn, category);
+    return toReturn;
+  }
+}
+
+@InputType()
+export class AddPostInput {
+  @Field(type => GraphQLObjectId, { nullable: true })
+  author: ObjectID | null;
+
+  @Field({ nullable: true, defaultValue: '' })
+  title: string;
+
+  @Field({ nullable: true, defaultValue: randomString(10) })
+  slug: string;
+
+  @Field({ nullable: true, defaultValue: '' })
+  brief: string;
+
+  @Field(type => Boolean, { nullable: true, defaultValue: false })
+  public: boolean;
+
+  @Field(type => [GraphQLObjectId], { nullable: true, defaultValue: [] })
+  categories: ObjectID[];
+
+  @Field(type => [String], { nullable: true, defaultValue: [] })
+  tags: string[];
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  featuredImage: File | null;
+
+  constructor(initialization?: Partial<AddPostInput>) {
+    if (initialization) Object.assign(this, initialization);
+  }
+}
+
+@InputType()
+export class UpdatePostInput extends AddPostInput {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId | string;
+
+  constructor(initialization?: Partial<UpdatePostInput>) {
+    super(initialization);
+  }
+}
+
 // import {
 //   GraphQLObjectType,
 //   GraphQLString,

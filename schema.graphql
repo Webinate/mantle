@@ -5,6 +5,17 @@ input AddCategoryInput {
   parent: ObjectId
 }
 
+input AddPostInput {
+  author: ObjectId
+  title: String = ""
+  slug: String = "L5iFBnRD72"
+  brief: String = ""
+  public: Boolean = false
+  categories: [ObjectId!] = []
+  tags: [String!] = []
+  featuredImage: ObjectId
+}
+
 input AddUserInput {
   username: String!
   password: String!
@@ -18,9 +29,8 @@ input AddUserInput {
 input AddVolumeInput {
   name: String!
   user: ObjectId
-  type: VolumeType!
-  identifier: String!
-  memoryAllocated: Int!
+  type: VolumeType = local
+  memoryAllocated: Long
   meta: JSON
 }
 
@@ -39,6 +49,51 @@ type Category {
   slug: String!
   parent: Category
   children: [Category!]
+}
+
+"""Object representing a Document"""
+type Document {
+  _id: ObjectId!
+  author: User!
+  template: Template!
+  createdOn: Long!
+  lastUpdated: Long!
+  elementsOrder: [String!]!
+  elements: [Element!]!
+  html: JSON!
+}
+
+"""Object representing a Draft"""
+type Draft {
+  _id: ObjectId!
+  html: JSON!
+  createdOn: Long!
+  parent: Document!
+}
+
+"""Object representing a Element"""
+type Element {
+  _id: ObjectId!
+  type: ElementType!
+  html: String!
+  zone: String!
+  image: File!
+  style: JSON!
+}
+
+"""Describes the different types of allowed elements"""
+enum ElementType {
+  paragraph
+  list
+  image
+  code
+  header1
+  header2
+  header3
+  header4
+  header5
+  header6
+  html
 }
 
 """Object representing a File"""
@@ -90,6 +145,9 @@ type Mutation {
   updateVolume(token: UpdateVolumeInput!): Volume!
   removeVolume(id: ObjectId!): Boolean!
   removeFile(volumeId: ObjectId, id: ObjectId!): Boolean!
+  createPost(token: AddPostInput!): Post!
+  patchPost(token: UpdatePostInput!): Post!
+  removePost(id: ObjectId!): Boolean!
 }
 
 """Mongo object id scalar type"""
@@ -127,6 +185,23 @@ type PaginatedVolumeResponse {
   index: Int!
 }
 
+"""Object representing a Post"""
+type Post {
+  _id: ObjectId!
+  author: User!
+  title: String!
+  slug: String!
+  brief: String!
+  public: Boolean!
+  categories: [Category!]!
+  tags: [String!]!
+  createdOn: Long!
+  lastUpdated: Long!
+  featuredImage: File!
+  document: Document!
+  latestDraft: Draft!
+}
+
 type Query {
   category(slug: String, id: String): Category
 
@@ -136,7 +211,7 @@ type Query {
   users(index: Int = 0, limit: Int = 10, search: String = ""): PaginatedUserResponse!
   authenticated: AuthResponse!
   volume(id: ObjectId!): Volume
-  volumes(index: Int = 0, limit: Int = 10, search: String = "", user: String = "", sortOrder: SortOrder = desc, sortType: VolumeSortType = name): PaginatedVolumeResponse!
+  volumes(index: Int = 0, limit: Int = 10, search: String = "", user: String, sortOrder: SortOrder = asc, sortType: VolumeSortType = created): PaginatedVolumeResponse!
   template(id: ObjectId): Template
 
   """Gets an array of all templates"""
@@ -172,34 +247,43 @@ input UpdateCategoryInput {
   _id: ObjectId!
 }
 
-input UpdateUserInput {
-  username: String!
-  password: String!
-  email: String!
-  avatar: String
-  avatarFile: ObjectId
-  privileges: UserPrivilege
-  meta: JSON
+input UpdatePostInput {
+  author: ObjectId
+  title: String = ""
+  slug: String = "L5iFBnRD72"
+  brief: String = ""
+  public: Boolean = false
+  categories: [ObjectId!] = []
+  tags: [String!] = []
+  featuredImage: ObjectId
   _id: ObjectId!
 }
 
-input UpdateVolumeInput {
-  name: String!
-  user: ObjectId
-  type: VolumeType!
-  identifier: String!
-  memoryAllocated: Int!
-  meta: JSON
+input UpdateUserInput {
   _id: ObjectId!
-  memoryUsed: Int!
+  username: String
+  email: String
+  privileges: UserPrivilege
+  meta: JSON
+  avatar: String
+  avatarFile: ObjectId
+}
+
+input UpdateVolumeInput {
+  _id: ObjectId!
+  memoryUsed: Long
+  name: String
+  user: ObjectId
+  memoryAllocated: Long
+  meta: JSON
 }
 
 """Object representing a User"""
 type User {
   _id: ObjectId!
   username: String!
+  email: String
   registerKey: String!
-  email: String!
   avatar: String!
   avatarFile: File
   createdOn: Long!
@@ -222,11 +306,11 @@ type Volume {
   name: String!
   identifier: String!
   type: VolumeType!
-  created: Int!
+  created: Long!
   memoryUsed: Long!
   memoryAllocated: Long!
   user: User!
-  meta: JSON!
+  meta: JSON
 }
 
 """The type of sorting performed when fetching volumes"""
@@ -238,6 +322,6 @@ enum VolumeSortType {
 
 """The core type of volume type"""
 enum VolumeType {
-  Google
-  Local
+  google
+  local
 }

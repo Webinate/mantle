@@ -1,3 +1,32 @@
+import { ObjectType, Field } from 'type-graphql';
+import { ObjectId } from 'mongodb';
+import { GraphQLObjectId } from '../scalars/object-id';
+import { Document } from './document-type';
+import { LongType } from '../scalars/long';
+import { JsonType } from '../scalars/json';
+import { IDraft } from '../../types/models/i-draft';
+
+@ObjectType({ description: 'Object representing a Draft' })
+export class Draft {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId;
+
+  @Field(type => JsonType)
+  html: any;
+
+  @Field(type => LongType)
+  createdOn: number;
+
+  @Field(type => Document)
+  parent: Document;
+
+  static fromEntity(category: IDraft<'server'>) {
+    const toReturn = new Draft();
+    Object.assign(toReturn, category);
+    return toReturn;
+  }
+}
+
 // import { GraphQLObjectType, GraphQLID } from 'graphql';
 // import { LongType } from '../scalars/long';
 // import Controllers from '../../core/controller-factory';

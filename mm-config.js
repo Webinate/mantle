@@ -4,25 +4,24 @@
  **/
 
 // Register ts-node, so we can use ts files directly in node
-require( "ts-node" ).register( {
+require('ts-node').register({
   compilerOptions: {
-    module: "commonjs",
-    rootDir: './test',
+    module: 'commonjs',
     sourceMap: true,
-    target: "es2017",
+    target: 'es2017',
     isolatedModules: true
-  },
-} );
+  }
+});
 
-const loadConfig = require( './test/tests/load-config' ).default;
-const config = loadConfig( 'config.json' );
+const loadConfig = require('./test/tests/load-config').default;
+const config = loadConfig('config.json');
 
-console.log( `Running migrations for DB: mongodb://${config.database.host}:${config.database.port}` )
+console.log(`Running migrations for DB: mongodb://${config.database.host}:${config.database.port}`);
 
 module.exports = {
   mongodb: {
     // TODO You MUST edit this connection url to your MongoDB database:
-    url: `mongodb://${config.database.host}:${config.database.port}/${config.database.name}`,
+    url: `mongodb://${config.database.host}:${config.database.port}/${config.database.name}`
 
     // uncomment and edit to specify Mongo client connect options (eg. increase the timeouts)
     // see https://mongodb.github.io/node-mongodb-native/2.2/api/MongoClient.html
@@ -37,5 +36,5 @@ module.exports = {
   migrationsDir: 'migrations',
 
   // The mongodb collection where the applied changes are stored. Only edit this when really necessary.
-  changelogCollectionName: config.database.migrations,
-}
+  changelogCollectionName: config.database.migrations
+};

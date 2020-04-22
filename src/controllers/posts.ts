@@ -2,23 +2,15 @@
 import { Page } from '../types/tokens/standard-tokens';
 import { IPost } from '../types/models/i-post';
 import { Db, ObjectID, Collection } from 'mongodb';
-import Factory from '../core/model-factory';
 import ControllerFactory from '../core/controller-factory';
-import { PostsModel } from '../models/posts-model';
 import Controller from './controller';
-import { isValidObjectID } from '../utils/utils';
 import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
 import { Error404 } from '../utils/errors';
-import { Schema } from '../models/schema';
 import { IDraft } from '../types/models/i-draft';
-import { DraftsModel } from '../models/drafts-model';
-import { ISchemaOptions } from '../types/misc/i-schema-options';
-
-export type PostVisibility = 'all' | 'public' | 'private';
-export type PostSortType = 'title' | 'created' | 'modified';
+import { SortOrder, PostVisibility, PostSortType } from '../core/enums';
 
 export type PostsGetAllOptions = {
   visibility: PostVisibility;
@@ -31,9 +23,7 @@ export type PostsGetAllOptions = {
   limit: number;
   keyword: string;
   author: string;
-  sortOrder: 'asc' | 'desc';
-  minimal: boolean;
-  verbose: boolean;
+  sortOrder: SortOrder;
 };
 
 export type PostsGetOneOptions = {
@@ -42,15 +32,14 @@ export type PostsGetOneOptions = {
   verbose: boolean;
   expanded: boolean;
   public: boolean;
-  includeDocument: boolean;
 };
 
 /**
  * A controller that deals with the management of posts
  */
 export class PostsController extends Controller {
-  private _postsModel: PostsModel;
-  private _draftsModel: DraftsModel;
+  private _postsCollection: Collection<IPost<'server'>>;
+  private _draftsCollection: Collection<IDraft<'server'>>;
   private _users: UsersController;
   private _documents: DocumentsController;
 
@@ -65,8 +54,8 @@ export class PostsController extends Controller {
    * Called to initialize this controller and its related database objects
    */
   async initialize(db: Db) {
-    this._postsModel = Factory.get('posts');
-    this._draftsModel = Factory.get('drafts');
+    this._postsCollection = db.collection<IPost<'server'>>('posts');
+    this._draftsCollection = db.collection<IDraft<'server'>>('drafts');
     this._users = ControllerFactory.get('users');
     this._documents = ControllerFactory.get('documents');
     return this;
@@ -75,20 +64,20 @@ export class PostsController extends Controller {
   /**
    * Returns an array of IPost items
    */
-  async getPosts(options: Partial<PostsGetAllOptions> = { verbose: true }) {
-    const posts = this._postsModel;
+  async getPosts(options: Partial<PostsGetAllOptions> = {}) {
+    const posts = this._postsCollection;
     const findToken: Partial<IPost<'server'>> & { $or: IPost<'server'>[] } = { $or: [] };
 
     if (options.author) {
       const user = await this._users.getUsers({ search: new RegExp(`^${options.author!}$`, 'i') });
-      if (user && user.data.length > 0) findToken.author = new ObjectID(user.data[0]._id);
+      if (user && user.data.length > 0) findToken.author = user.data[0]._id;
       else {
         return {
           count: 0,
           data: [],
           index: options.index || 0,
           limit: options.limit || 10
-        } as Page<IPost<'client'>>;
+        } as Page<IPost<'server'>>;
       }
     }
 
@@ -121,7 +110,7 @@ export class PostsController extends Controller {
     let sortOrder = -1;
 
     if (options.sortOrder) {
-      if (options.sortOrder.toLowerCase() === 'asc') sortOrder = 1;
+      if (options.sortOrder === SortOrder.asc) sortOrder = 1;
       else sortOrder = -1;
     }
 
@@ -133,9 +122,6 @@ export class PostsController extends Controller {
     else if (options.sort === 'modified') sort = { lastUpdated: sortOrder };
     else if (options.sort === 'title') sort = { title: sortOrder };
 
-    let getContent: boolean = true;
-    if (options.minimal) getContent = false;
-
     // Stephen is lovely
     if (findToken.$or.length === 0) delete findToken.$or;
 
@@ -143,25 +129,13 @@ export class PostsController extends Controller {
     const count = await posts.count(findToken);
     const index: number = options.index || 0;
     const limit: number = options.limit || 10;
-    const verbose = options.verbose !== undefined ? options.verbose : true;
 
-    const sanitizedData = await posts.downloadMany(
-      {
-        selector: findToken,
-        sort: sort,
-        index: index,
-        limit: limit,
-        projection: getContent === false ? { content: 0 } : undefined
-      },
-      {
-        expandForeignKeys: true,
-        verbose: verbose,
-        expandMaxDepth: 2,
-        expandSchemaBlacklist: [/document/]
-      }
-    );
+    const sanitizedData = await posts
+      .find(findToken, {}, index, limit)
+      .sort(sort || {})
+      .toArray();
 
-    const response: Page<IPost<'client' | 'expanded'>> = {
+    const response: Page<IPost<'server'>> = {
       count: count,
       data: sanitizedData,
       index: index,
@@ -175,30 +149,21 @@ export class PostsController extends Controller {
    * Gets all drafts associated with a post
    */
   async getDrafts(postId: string) {
-    const posts = this._postsModel;
-    const drafts = this._draftsModel;
+    const postsCollection = this._postsCollection;
+    const draftsCollection = this._draftsCollection;
     const findToken: Partial<IPost<'server'>> = { _id: new ObjectID(postId) };
-    const postSchema = await posts.findOne(findToken);
+    const post = await postsCollection.findOne(findToken);
 
-    if (!postSchema) throw new Error404('Post does not exist');
+    if (!post) throw new Error404('Post does not exist');
 
-    const postJson = (await postSchema.downloadToken({ verbose: true, expandForeignKeys: false })) as IPost<'client'>;
-
-    const draftJsons = await drafts.downloadMany(
-      {
-        selector: { parent: postSchema.dbEntry.document } as IDraft<'server'>,
-        sort: { createdOn: 1 },
-        limit: -1
-      },
-      {
-        expandForeignKeys: false,
-        verbose: true
-      }
-    );
+    const drafts = await draftsCollection
+      .find({ parent: post.document } as IDraft<'server'>)
+      .sort({ createdOn: 1 } as IDraft<'server'>)
+      .toArray();
 
     return {
-      post: postJson,
-      drafts: draftJsons
+      post,
+      drafts
     };
   }
 
@@ -206,41 +171,39 @@ export class PostsController extends Controller {
    * Gets a single draft by its ID
    */
   async getDraft(id: string) {
-    const drafts = this._draftsModel;
+    const drafts = this._draftsCollection;
     const findToken: Partial<IDraft<'server'>> = { _id: new ObjectID(id) };
-    const schema = await drafts.findOne(findToken);
+    const draft = await drafts.findOne(findToken);
 
-    if (!schema) return null;
-
-    const json = (await schema.downloadToken({ verbose: true, expandForeignKeys: false })) as IDraft<'client'>;
-    return json;
+    if (!draft) return null;
+    return draft;
   }
 
   /**
    * Removes a draft from a post
    */
   async removeDraft(postId: string, draftId: string) {
-    const posts = this._postsModel;
-    const drafts = this._draftsModel;
+    const posts = this._postsCollection;
+    const drafts = this._draftsCollection;
     const findPostToken: Partial<IPost<'server'>> = { _id: new ObjectID(postId) };
     const findDraftToken: Partial<IDraft<'server'>> = { _id: new ObjectID(draftId) };
-    const postSchema = await posts.findOne(findPostToken);
+    const post = await posts.findOne(findPostToken);
 
-    if (!postSchema) throw new Error404('Post does not exist');
+    if (!post) throw new Error404('Post does not exist');
 
-    const draftSchema = await drafts.findOne(findDraftToken);
-    if (!draftSchema) throw new Error404('Draft does not exist');
+    const draft = await drafts.findOne(findDraftToken);
+    if (!draft) throw new Error404('Draft does not exist');
 
-    await drafts.deleteInstances({ _id: draftSchema.dbEntry._id } as IDraft<'server'>);
-    if (postSchema.dbEntry.latestDraft && postSchema.dbEntry.latestDraft.equals(draftSchema.dbEntry._id))
-      await posts.update({ _id: postSchema.dbEntry._id } as IPost<'server'>, { latestDraft: null });
+    await drafts.remove({ _id: draft._id } as IDraft<'server'>);
+    if (post.latestDraft && post.latestDraft.equals(draft._id))
+      await posts.updateOne({ _id: post._id } as IPost<'server'>, { $set: { latestDraft: null } });
   }
 
   /**
    * Nullifys the user on all relevant posts
    */
   async userRemoved(userId: IUserEntry<'server'>) {
-    await this._postsModel.collection.updateMany({ author: userId._id } as IPost<'server'>, {
+    await this._postsCollection.updateMany({ author: userId._id } as IPost<'server'>, {
       $set: { author: null } as IPost<'server'>
     });
   }
@@ -249,7 +212,7 @@ export class PostsController extends Controller {
    * Nullifys the featured image if its deleted
    */
   async onFileRemoved(file: IFileEntry<'server'>) {
-    const collection = this._postsModel.collection as Collection<IPost<'server'>>;
+    const collection = this._postsCollection;
     await collection.updateMany({ featuredImage: file._id } as IPost<'server'>, {
       $set: { featuredImage: null } as IPost<'server'>
     });
@@ -259,9 +222,9 @@ export class PostsController extends Controller {
    * Removes many posts by a selector
    */
   async removeBy(selector: Partial<IPost<'client'>>) {
-    const schemas = await this._postsModel.findMany({ selector });
+    const schemas = await this._postsCollection.find({ selector }).toArray();
     const promises: Promise<void>[] = [];
-    for (const schema of schemas) promises.push(this.removePost(schema.dbEntry._id.toString()));
+    for (const schema of schemas) promises.push(this.removePost(schema._id));
 
     return Promise.all(promises);
   }
@@ -270,26 +233,25 @@ export class PostsController extends Controller {
    * Removes a post by ID
    * @param id The id of the post we are removing
    */
-  async removePost(id: string) {
-    if (!isValidObjectID(id)) throw new Error(`Please use a valid object id`);
+  async removePost(id: string | ObjectID) {
+    if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
 
-    const post = await this._postsModel.findOne({ _id: new ObjectID(id) } as IPost<'server'>);
-
+    const post = await this._postsCollection.findOne({ _id: new ObjectID(id) });
     if (!post) throw new Error404(`Could not find post`);
 
     const commentsFactory = ControllerFactory.get('comments');
-    const comments = await commentsFactory.getAll({ postId: id, expanded: false, limit: -1 });
+    const comments = await commentsFactory.getAll({ postId: id, limit: -1 });
     const promises: Promise<any>[] = [];
 
     for (const comment of comments.data) promises.push(commentsFactory.remove(comment._id));
 
     await Promise.all(promises);
-    await this._documents.remove(post.dbEntry.document!.toString());
+    await this._documents.remove(post.document!.toString());
 
     // Attempt to delete the instances
-    const numRemoved = await this._postsModel.deleteInstances({ _id: new ObjectID(id) });
+    const numRemoved = await this._postsCollection.remove({ _id: new ObjectID(id) });
 
-    if (numRemoved === 0) throw new Error('Could not find a post with that ID');
+    if (numRemoved.result.n === 0) throw new Error('Could not find a post with that ID');
 
     return;
   }
@@ -299,57 +261,48 @@ export class PostsController extends Controller {
    * @param id The id of the post to edit
    * @param token The edit token
    */
-  async update(id: string, token: Partial<IPost<'client'>>, schemaOptions?: Partial<ISchemaOptions>) {
-    if (!isValidObjectID(id)) throw new Error(`Please use a valid object id`);
+  async update(id: string | ObjectID, token: Partial<IPost<'server'>>) {
+    if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
 
-    const updatedPost = (await this._postsModel.update({ _id: new ObjectID(id) }, token, {
-      verbose: true,
-      expandForeignKeys: true,
-      expandMaxDepth: 2,
-      expandSchemaBlacklist: [/document\.author/]
-    })) as IPost<'expanded'>;
-    const newDraft = await this._documents.publishDraft(updatedPost.document);
-    const toRetSchema = await this._postsModel.update({ _id: new ObjectID(updatedPost._id) } as IPost<'server'>, {
-      latestDraft: newDraft._id
+    await this._postsCollection.updateOne({ _id: new ObjectID(id) } as IPost<'server'>, { $set: token });
+    const updatedPost = await this._postsCollection.findOne({ _id: new ObjectID(id) } as IPost<'server'>);
+
+    const newDraft = await this._documents.publishDraft(updatedPost!.document);
+    await this._postsCollection.updateOne({ _id: updatedPost!._id } as IPost<'server'>, {
+      $set: { latestDraft: newDraft._id } as IPost<'server'>
     });
 
-    const json = await toRetSchema.downloadToken(schemaOptions);
-    json.latestDraft = newDraft as IDraft<'expanded'>;
-    return json;
+    const toRet = await this._postsCollection.findOne({ _id: updatedPost!._id } as IPost<'server'>);
+    toRet!.latestDraft = newDraft._id;
+    return toRet;
   }
 
   /**
    * Creates a new post
    * @param token The initial post data
    */
-  async create(token: Partial<IPost<'client'>>) {
+  async create(token: Partial<IPost<'server'>>) {
     token.createdOn = Date.now();
 
-    let schema = await this._postsModel.createInstance(token);
+    let insertionResult = await this._postsCollection.insertOne(token);
 
     // Create a new document for the post
-    const docId = await this._documents.create(token.author as string);
+    const doc = await this._documents.create(token.author);
 
-    schema = (await this._postsModel.update({ _id: schema.dbEntry._id } as IPost<'server'>, {
-      document: docId.toString()
-    })) as Schema<IPost<'server'>, IPost<'client'>>;
-
-    const post = await schema.downloadToken({
-      verbose: true,
-      expandForeignKeys: true,
-      expandMaxDepth: 2,
-      expandSchemaBlacklist: [/document\.author/]
+    await this._postsCollection.updateOne({ _id: insertionResult.insertedId } as IPost<'server'>, {
+      $set: { document: doc._id } as IPost<'server'>
     });
 
-    return post;
+    let newPost = await this._postsCollection.findOne({ _id: insertionResult.insertedId } as IPost<'server'>);
+    return newPost;
   }
 
   /**
    * Gets a single post resource
    * @param options Options for getting the post resource
    */
-  async getPost(options: Partial<PostsGetOneOptions> = { verbose: true, includeDocument: true }) {
-    const posts = this._postsModel;
+  async getPost(options: Partial<PostsGetOneOptions> = {}) {
+    const posts = this._postsCollection;
     let findToken: Partial<IPost<'server'>>;
 
     if (options.id) findToken = { _id: new ObjectID(options.id) };
@@ -358,16 +311,7 @@ export class PostsController extends Controller {
 
     if (options.public !== undefined) findToken.public = options.public;
 
-    const blacklist: RegExp[] = [/document\.author/];
-    if (options.includeDocument === false) blacklist.push(/document/);
-
-    const post = await posts!.downloadOne(findToken, {
-      verbose: options.verbose !== undefined ? options.verbose : true,
-      expandForeignKeys: options.expanded ? options.expanded : true,
-      expandMaxDepth: 2,
-      expandSchemaBlacklist: blacklist
-    });
-
+    const post = await posts!.findOne(findToken);
     if (!post) throw new Error('Could not find post');
 
     return post;

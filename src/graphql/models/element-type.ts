@@ -1,3 +1,38 @@
+import { ObjectType, Field } from 'type-graphql';
+import { ObjectId } from 'mongodb';
+import { GraphQLObjectId } from '../scalars/object-id';
+import { File } from './file-type';
+import { JsonType } from '../scalars/json';
+import { ElementType } from '../../core/enums';
+import { IDraftElement } from '../../types/models/i-draft-elements';
+
+@ObjectType({ description: 'Object representing a Element' })
+export class Element {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId;
+
+  @Field(type => ElementType)
+  type: ElementType;
+
+  @Field()
+  html: string;
+
+  @Field()
+  zone: string;
+
+  @Field(type => File)
+  image: File;
+
+  @Field(type => JsonType)
+  style: any;
+
+  static fromEntity(token: IDraftElement<'server'>) {
+    const toReturn = new Element();
+    Object.assign(toReturn, token);
+    return toReturn;
+  }
+}
+
 // import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLEnumType, GraphQLInputObjectType } from 'graphql';
 // import Controllers from '../../core/controller-factory';
 // import { DocumentType } from './document-type';

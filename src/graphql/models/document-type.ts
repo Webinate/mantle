@@ -1,3 +1,46 @@
+import { ObjectType, Field } from 'type-graphql';
+import { ObjectId } from 'mongodb';
+import { GraphQLObjectId } from '../scalars/object-id';
+import { User } from './user-type';
+import { Element } from './element-type';
+import { LongType } from '../scalars/long';
+import { Template } from './template-type';
+import { JsonType } from '../scalars/json';
+import { IDocument } from '../../types/models/i-document';
+
+@ObjectType({ description: 'Object representing a Document' })
+export class Document {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId;
+
+  @Field(type => User)
+  author: User;
+
+  @Field(type => Template)
+  template: Template;
+
+  @Field(type => LongType)
+  createdOn: number;
+
+  @Field(type => LongType)
+  lastUpdated: number;
+
+  @Field(type => [String])
+  elementsOrder: string[];
+
+  @Field(type => [Element])
+  elements: Element[];
+
+  @Field(type => JsonType)
+  html: any;
+
+  static fromEntity(category: IDocument<'server'>) {
+    const toReturn = new Document();
+    Object.assign(toReturn, category);
+    return toReturn;
+  }
+}
+
 // import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList } from 'graphql';
 // import { LongType } from '../scalars/long';
 // import { UserType } from './user-type';
