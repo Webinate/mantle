@@ -21,6 +21,9 @@ export const POST_FIELDS = gql`
     brief
     categories {
       _id
+      slug
+      title
+      description
     }
     author {
       _id

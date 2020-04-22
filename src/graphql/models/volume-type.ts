@@ -38,9 +38,10 @@ export class Volume {
   @Field(type => JsonType, { nullable: true })
   meta: any;
 
-  static fromEntity(category: IVolume<'server'>) {
+  static fromEntity(initialization: Partial<IVolume<'server'>>) {
     const toReturn = new Volume();
-    Object.assign(toReturn, category);
+    Object.assign(toReturn, initialization);
+    toReturn.user = User.fromEntity({ _id: initialization.user });
     return toReturn;
   }
 }

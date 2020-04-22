@@ -7,6 +7,7 @@ import { UserResolver } from '../graphql/resolvers/user-resolver';
 import { AuthResolver } from '../graphql/resolvers/auth-resolver';
 import { VolumeResolver } from '../graphql/resolvers/volume-resolver';
 import { FileResolver } from '../graphql/resolvers/file-resolver';
+import { DocumentResolver } from '../graphql/resolvers/document-resolver';
 import ControllerFactory from './controller-factory';
 import { UserPrivilege } from './enums';
 import { IGQLContext } from '../types/interfaces/i-gql-context';
@@ -23,7 +24,8 @@ export async function generateSchema() {
       FileResolver,
       UserResolver,
       AuthResolver,
-      TemplateResolver
+      TemplateResolver,
+      DocumentResolver
     ],
     authChecker: customAuthChecker
   });

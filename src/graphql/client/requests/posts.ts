@@ -1,4 +1,18 @@
 import gql from '../../../utils/gql';
-import { VOLUME_FIELDS } from '../fragments/volume';
+import { POST_FIELDS } from '../fragments/post';
 
-export const ADD_POST = gql``;
+export const ADD_POST = gql`
+  mutation ADD_POST($token: AddPostInput!) {
+    createPost(token: $token) {
+      ...PostFields
+    }
+  }
+
+  ${POST_FIELDS}
+`;
+
+export const REMOVE_POST = gql`
+  mutation REMOVE_POST($id: ObjectId!) {
+    removePost(id: $id)
+  }
+`;

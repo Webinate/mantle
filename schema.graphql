@@ -8,7 +8,7 @@ input AddCategoryInput {
 input AddPostInput {
   author: ObjectId
   title: String = ""
-  slug: String = "L5iFBnRD72"
+  slug: String!
   brief: String = ""
   public: Boolean = false
   categories: [ObjectId!] = []
@@ -212,6 +212,7 @@ type Query {
   authenticated: AuthResponse!
   volume(id: ObjectId!): Volume
   volumes(index: Int = 0, limit: Int = 10, search: String = "", user: String, sortOrder: SortOrder = asc, sortType: VolumeSortType = created): PaginatedVolumeResponse!
+  document(id: ObjectId!): Document!
   template(id: ObjectId): Template
 
   """Gets an array of all templates"""
@@ -250,7 +251,7 @@ input UpdateCategoryInput {
 input UpdatePostInput {
   author: ObjectId
   title: String = ""
-  slug: String = "L5iFBnRD72"
+  slug: String!
   brief: String = ""
   public: Boolean = false
   categories: [ObjectId!] = []

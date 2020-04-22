@@ -1,3 +1,35 @@
+import { Resolver, Authorized, Arg, Ctx, ResolverInterface, FieldResolver, Root, Query } from 'type-graphql';
+import { Document } from '../models/document-type';
+import { UserPrivilege } from '../../core/enums';
+import ControllerFactory from '../../core/controller-factory';
+import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { ObjectID } from 'mongodb';
+import { GraphQLObjectId } from '../scalars/object-id';
+import { User } from '../models/user-type';
+
+@Resolver(of => Document)
+export class DocumentResolver implements ResolverInterface<Document> {
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Query(returns => Document)
+  async document(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+    const checkPermissions = ctx.isAdmin ? undefined : { userId: ctx.user!._id };
+    const document = await ControllerFactory.get('documents').get({
+      id: id,
+      checkPermissions: checkPermissions
+    });
+
+    if (!document) return null;
+    return Document.fromEntity(document);
+  }
+
+  @FieldResolver(type => User, { nullable: true })
+  async author(@Root() root: Document) {
+    const document = await ControllerFactory.get('documents').get({ id: root._id });
+    const author = await ControllerFactory.get('users').getUser({ id: document!.author! });
+    return User.fromEntity(author!);
+  }
+}
+
 // import { Resolver, Authorized, Mutation, Arg, Ctx } from 'type-graphql';
 // import { Document } from '../models/document-type';
 // import { UserPrivilege } from '../../core/enums';

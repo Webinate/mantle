@@ -47,14 +47,14 @@ describe('[GQL] Testing volume update requests: ', function() {
     const { errors } = await header.user1.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: volumeJson._id, memoryUsed: 0 })
     });
-    assert.deepEqual(errors![0].message, "You don't have permission to set the memoryUsed");
+    assert.deepEqual(errors![0].message, `You don't have permission to set the memoryUsed`);
   });
 
   it('should disallow a regular user to update memoryAllocated', async function() {
     const { errors } = await header.user1.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: volumeJson._id, memoryAllocated: 5000 })
     });
-    assert.deepEqual(errors![0].message, "You don't have permission to set the memoryAllocated");
+    assert.deepEqual(errors![0].message, `You don't have permission to set the memoryAllocated`);
   });
 
   it('should allow an admin to update memoryAllocated & memoryUsed', async function() {

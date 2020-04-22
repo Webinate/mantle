@@ -48,9 +48,15 @@ export class File {
   @Field(type => JsonType)
   meta: any;
 
-  static fromEntity(category: IFileEntry<'server'>) {
+  static fromEntity(initialization: Partial<IFileEntry<'server'>>) {
     const toReturn = new File();
-    Object.assign(toReturn, category);
+    Object.assign(toReturn, initialization);
+    toReturn.user = User.fromEntity({ _id: initialization.user });
+    toReturn.volume = Volume.fromEntity({ _id: initialization.volumeId });
+    if (initialization.parentFile) {
+      toReturn.parentFile = File.fromEntity({ _id: initialization.parentFile! });
+    }
+
     return toReturn;
   }
 }

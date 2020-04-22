@@ -21,7 +21,7 @@ describe('[GQL] Testing volume creation', function() {
     const { errors } = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
       token: new AddVolumeInput({ memoryAllocated: 0, name: 'dinosaurs' })
     });
-    assert.deepEqual(errors![0].message, "You don't have permission to set the memoryAllocated");
+    assert.deepEqual(errors![0].message, `You don't have permission to set the memoryAllocated`);
   });
 
   it('regular user did create a new volume called dinosaurs', async function() {

@@ -50,11 +50,15 @@ export class User {
   @Field(type => JsonType)
   meta: any;
 
-  static fromEntity(user: IUserEntry<'server'>) {
+  static fromEntity(user: Partial<IUserEntry<'server'>>) {
     const toReturn = new User();
     Object.assign(toReturn, user);
     toReturn.isActivated = !user.registerKey;
     toReturn.datebaseEmail = user.email as string;
+    if (user.avatarFile) {
+      toReturn.avatarFile = File.fromEntity({ _id: user.avatarFile });
+    }
+
     return toReturn;
   }
 }

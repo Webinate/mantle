@@ -8,7 +8,6 @@ import { IPost } from '../../types/models/i-post';
 import { Draft } from './draft-type';
 import { File } from './file-type';
 import { Document } from './document-type';
-import { randomString } from '../../../test/tests/utils';
 
 @ObjectType({ description: 'Object representing a Post' })
 export class Post {
@@ -48,12 +47,13 @@ export class Post {
   @Field(type => Document)
   document: Document;
 
-  @Field(type => Draft)
-  latestDraft: Draft;
+  @Field(type => Draft, { nullable: true })
+  latestDraft: Draft | null;
 
-  static fromEntity(category: IPost<'server'>) {
+  static fromEntity(initialization: IPost<'server'>) {
     const toReturn = new Post();
-    Object.assign(toReturn, category);
+    Object.assign(toReturn, initialization);
+    toReturn.author = User.fromEntity({ _id: initialization.author! });
     return toReturn;
   }
 }
@@ -66,7 +66,7 @@ export class AddPostInput {
   @Field({ nullable: true, defaultValue: '' })
   title: string;
 
-  @Field({ nullable: true, defaultValue: randomString(10) })
+  @Field()
   slug: string;
 
   @Field({ nullable: true, defaultValue: '' })

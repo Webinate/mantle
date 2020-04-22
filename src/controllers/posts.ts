@@ -264,6 +264,8 @@ export class PostsController extends Controller {
   async update(id: string | ObjectID, token: Partial<IPost<'server'>>) {
     if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
 
+    token.lastUpdated = Date.now();
+
     await this._postsCollection.updateOne({ _id: new ObjectID(id) } as IPost<'server'>, { $set: token });
     const updatedPost = await this._postsCollection.findOne({ _id: new ObjectID(id) } as IPost<'server'>);
 
@@ -283,6 +285,7 @@ export class PostsController extends Controller {
    */
   async create(token: Partial<IPost<'server'>>) {
     token.createdOn = Date.now();
+    token.lastUpdated = Date.now();
 
     let insertionResult = await this._postsCollection.insertOne(token);
 

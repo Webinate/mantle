@@ -33,7 +33,7 @@ export type CommonModelType =
   | 'documents'
   | 'drafts'
   | 'templates';
-//| ElementType;
+// | ElementType;
 
 /**
  * Factory classs for creating & getting models

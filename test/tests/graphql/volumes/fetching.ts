@@ -41,7 +41,7 @@ describe('[GQL] Testing volume get requests', function() {
     assert.deepEqual(errors![0].message, 'Volume does not exist');
   });
 
-  it("prevents regular users from getting other users' volumes", async function() {
+  it('prevents regular users from getting other users volumes', async function() {
     const { errors } = await header.user2.graphql<IVolume<'expanded'>>(GET_VOLUME, { id: volumeJson._id });
     assert.deepEqual(errors![0].message, 'You do not have permission');
   });
