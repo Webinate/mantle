@@ -19,6 +19,10 @@ export const POST_FIELDS = gql`
   fragment PostFields on Post {
     _id
     brief
+    slug
+    title
+    public
+    tags
     categories {
       _id
       slug
@@ -33,6 +37,11 @@ export const POST_FIELDS = gql`
         publicURL
       }
       username
+    }
+    featuredImage {
+      _id
+      publicURL
+      name
     }
     createdOn
     lastUpdated

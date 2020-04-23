@@ -10,6 +10,6 @@ export interface IDocument<T extends 'expanded' | 'server' | 'client'> {
   lastUpdated: number;
   createdOn: number;
   elementsOrder: T extends 'server' ? ObjectID[] : string[];
-  elements: IDraftElement<T>[];
+  elements: T extends 'server' ? ObjectID[] : IDraftElement<T>[];
   html: { [zone: string]: string };
 }

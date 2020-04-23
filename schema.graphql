@@ -58,9 +58,9 @@ type Document {
   template: Template!
   createdOn: Long!
   lastUpdated: Long!
-  elementsOrder: [String!]!
-  elements: [Element!]!
-  html: JSON!
+  elementsOrder: [String!]
+  elements: [Element!]
+  html: JSON
 }
 
 """Object representing a Draft"""
@@ -74,11 +74,12 @@ type Draft {
 """Object representing a Element"""
 type Element {
   _id: ObjectId!
+  parent: ObjectId!
   type: ElementType!
   html: String!
   zone: String!
-  image: File!
-  style: JSON!
+  image: File
+  style: JSON
 }
 
 """Describes the different types of allowed elements"""
@@ -197,9 +198,9 @@ type Post {
   tags: [String!]!
   createdOn: Long!
   lastUpdated: Long!
-  featuredImage: File!
+  featuredImage: File
   document: Document!
-  latestDraft: Draft!
+  latestDraft: Draft
 }
 
 type Query {

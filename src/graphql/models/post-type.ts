@@ -8,6 +8,7 @@ import { IPost } from '../../types/models/i-post';
 import { Draft } from './draft-type';
 import { File } from './file-type';
 import { Document } from './document-type';
+import { IsSafeText } from '../../decorators/isSafeText';
 
 @ObjectType({ description: 'Object representing a Post' })
 export class Post {
@@ -41,8 +42,8 @@ export class Post {
   @Field(type => LongType)
   lastUpdated: number;
 
-  @Field(type => File)
-  featuredImage: File;
+  @Field(type => File, { nullable: true })
+  featuredImage: File | null;
 
   @Field(type => Document)
   document: Document;
@@ -54,6 +55,7 @@ export class Post {
     const toReturn = new Post();
     Object.assign(toReturn, initialization);
     toReturn.author = User.fromEntity({ _id: initialization.author! });
+    toReturn.document = Document.fromEntity({ _id: initialization.document! });
     return toReturn;
   }
 }
@@ -64,6 +66,7 @@ export class AddPostInput {
   author: ObjectID | null;
 
   @Field({ nullable: true, defaultValue: '' })
+  @IsSafeText()
   title: string;
 
   @Field()

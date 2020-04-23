@@ -25,18 +25,23 @@ export class Document {
   @Field(type => LongType)
   lastUpdated: number;
 
-  @Field(type => [String])
+  @Field(type => [String], { defaultValue: [] })
   elementsOrder: string[];
 
-  @Field(type => [Element])
+  @Field(type => [Element], { defaultValue: [] })
   elements: Element[];
 
-  @Field(type => JsonType)
+  @Field(type => JsonType, { defaultValue: {} })
   html: any;
 
-  static fromEntity(category: IDocument<'server'>) {
+  static fromEntity(initialization: Partial<IDocument<'server'>>) {
     const toReturn = new Document();
-    Object.assign(toReturn, category);
+    Object.assign(toReturn, initialization);
+    toReturn.author = User.fromEntity({ _id: initialization.author! });
+    if (initialization.elements) {
+      toReturn.elements = initialization.elements.map(e => Element.fromEntity({ _id: e }));
+    }
+
     return toReturn;
   }
 }

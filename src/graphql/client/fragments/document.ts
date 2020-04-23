@@ -7,6 +7,10 @@ export const DOCUMENT_FIELDS = gql`
     lastUpdated
     elementsOrder
     html
+    author {
+      _id
+      username
+    }
     template {
       _id
       defaultZone
@@ -20,6 +24,7 @@ export const DOCUMENT_FIELDS = gql`
       style
       type
       zone
+      parent
       image {
         _id
         publicURL

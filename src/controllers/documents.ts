@@ -289,4 +289,25 @@ export class DocumentsController extends Controller {
       return result;
     }
   }
+
+  async getElements(document: ObjectID) {
+    const searchQuery: Partial<IDraftElement<'server'>> = {
+      parent: new ObjectID(document)
+    };
+
+    const elementsCollection = this._elementsCollection;
+    const elements = await elementsCollection.find(searchQuery).toArray();
+    const promises: Promise<string>[] = [];
+    for (const elm of elements) {
+      promises.push(buildHtml(elm));
+    }
+
+    const html = await Promise.all(promises);
+
+    for (let i = 0; i < html.length; i++) {
+      elements[i].html = html[i];
+    }
+
+    return elements;
+  }
 }

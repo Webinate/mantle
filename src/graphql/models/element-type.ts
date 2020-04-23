@@ -4,12 +4,15 @@ import { GraphQLObjectId } from '../scalars/object-id';
 import { File } from './file-type';
 import { JsonType } from '../scalars/json';
 import { ElementType } from '../../core/enums';
-import { IDraftElement } from '../../types/models/i-draft-elements';
+import { IImageElement } from '../../types/models/i-draft-elements';
 
 @ObjectType({ description: 'Object representing a Element' })
 export class Element {
   @Field(type => GraphQLObjectId)
   _id: ObjectId;
+
+  @Field(type => GraphQLObjectId)
+  parent: ObjectId;
 
   @Field(type => ElementType)
   type: ElementType;
@@ -20,15 +23,19 @@ export class Element {
   @Field()
   zone: string;
 
-  @Field(type => File)
-  image: File;
+  @Field(type => File, { nullable: true })
+  image: File | null;
 
-  @Field(type => JsonType)
+  @Field(type => JsonType, { defaultValue: {} })
   style: any;
 
-  static fromEntity(token: IDraftElement<'server'>) {
+  static fromEntity(token: Partial<IImageElement<'server'>>) {
     const toReturn = new Element();
     Object.assign(toReturn, token);
+    if (token.image) {
+      toReturn.image = File.fromEntity({ _id: token.image });
+    }
+
     return toReturn;
   }
 }

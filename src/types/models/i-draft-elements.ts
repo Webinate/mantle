@@ -1,6 +1,5 @@
 import { ObjectID } from 'mongodb';
 import { IFileEntry } from './i-file-entry';
-import { IDocument } from './i-document';
 import { ElementType } from '../../core/enums';
 
 // export type DraftElements =
@@ -18,7 +17,7 @@ import { ElementType } from '../../core/enums';
 
 export interface IDraftElement<T extends 'expanded' | 'server' | 'client'> {
   _id: T extends 'client' | 'expanded' ? string : ObjectID;
-  parent: T extends 'expanded' ? IDocument<T> : T extends 'client' ? IDocument<T> | string : ObjectID;
+  parent: T extends 'client' ? string : ObjectID;
   type: ElementType;
   html: string;
   zone: string;

@@ -4,6 +4,7 @@ import header from '../../header';
 import { generateRandString } from '../../../../src/utils/utils';
 import { ADD_POST, REMOVE_POST } from '../../../../src/graphql/client/requests/posts';
 import { AddPostInput } from '../../../../src/graphql/models/post-type';
+import { GET_DOCUMENT } from '../../../../src/graphql/client/requests/documents';
 let lastPost: IPost<'expanded'>, lastPost2: string;
 
 describe('[GQL] Testing creation of posts', function() {
@@ -14,7 +15,7 @@ describe('[GQL] Testing creation of posts', function() {
         slug: 'slug'
       })
     });
-    assert.deepEqual(errors![0].message, "Access denied! You don't have permission for this action!");
+    assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('cannot create a post as a regular user', async function() {
@@ -24,7 +25,7 @@ describe('[GQL] Testing creation of posts', function() {
         slug: 'slug'
       })
     });
-    assert.deepEqual(errors![0].message, "Access denied! You don't have permission for this action!");
+    assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   // it('cannot create a post without title', async function() {
@@ -60,7 +61,7 @@ describe('[GQL] Testing creation of posts', function() {
     const response = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
       token: new AddPostInput({
         title: 'Simple Test',
-        slug: '${slug}',
+        slug: slug,
         brief: 'This is brief',
         public: false,
         tags: ['super-tags-1234', 'supert-tags-4321']
@@ -100,7 +101,7 @@ describe('[GQL] Testing creation of posts', function() {
     assert.strictEqual(post.slug, slug);
     assert.strictEqual(post.title, 'Simple Test');
     assert.strictEqual(post.featuredImage, null);
-    assert(post.categories.length === 1);
+    assert(post.categories.length === 0);
     assert.strictEqual(post.categories.length, 0);
     assert(post.tags.length === 2);
     assert.strictEqual(post.tags[0], 'super-tags-1234');
@@ -118,8 +119,8 @@ describe('[GQL] Testing creation of posts', function() {
     // Check the elements & draft
     assert.deepEqual(doc.elements.length, 1);
     assert.deepEqual(doc.elements[0].html, '<p></p>');
-    assert.deepEqual(doc.elements[0].parent._id, doc._id);
-    assert.deepEqual(doc.elements[0].type, 'elm-paragraph');
+    assert.deepEqual(doc.elements[0].parent, doc._id);
+    assert.deepEqual(doc.elements[0].type, 'paragraph');
     assert(Array.isArray(doc.elementsOrder));
     assert.deepEqual(doc.elementsOrder[0], doc.elements[0]._id);
     assert.deepEqual(post.latestDraft, null);
@@ -128,7 +129,7 @@ describe('[GQL] Testing creation of posts', function() {
   it('can get the document associated with the post', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<IDocument<'expanded'>>(`{ getDocument(id: "${lastPost.document._id}") { _id } }`);
+    } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: lastPost.document._id });
     assert(_id);
   });
 
@@ -138,7 +139,7 @@ describe('[GQL] Testing creation of posts', function() {
       {
         token: new AddPostInput({
           title: 'Simple Test <h2>NO</h2>',
-          slug: '${generateRandString(10)}',
+          slug: generateRandString(10),
           brief: 'This is brief'
         })
       }

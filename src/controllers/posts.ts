@@ -27,7 +27,7 @@ export type PostsGetAllOptions = {
 };
 
 export type PostsGetOneOptions = {
-  id: string;
+  id: string | ObjectID;
   slug: string;
   verbose: boolean;
   expanded: boolean;

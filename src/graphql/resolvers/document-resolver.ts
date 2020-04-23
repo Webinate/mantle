@@ -6,6 +6,8 @@ import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { ObjectID } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from '../models/user-type';
+import { Template } from '../models/template-type';
+import { Element } from '../models/element-type';
 
 @Resolver(of => Document)
 export class DocumentResolver implements ResolverInterface<Document> {
@@ -27,6 +29,19 @@ export class DocumentResolver implements ResolverInterface<Document> {
     const document = await ControllerFactory.get('documents').get({ id: root._id });
     const author = await ControllerFactory.get('users').getUser({ id: document!.author! });
     return User.fromEntity(author!);
+  }
+
+  @FieldResolver(type => Template)
+  async template(@Root() root: Document) {
+    const document = await ControllerFactory.get('documents').get({ id: root._id });
+    const template = await ControllerFactory.get('templates').get(document!.template);
+    return Template.fromEntity(template!);
+  }
+
+  @FieldResolver(type => [Element])
+  async elements(@Root() root: Document) {
+    const elements = await ControllerFactory.get('documents').getElements(root._id);
+    return elements.map(e => Element.fromEntity(e));
   }
 }
 
