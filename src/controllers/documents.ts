@@ -72,7 +72,7 @@ export class DocumentsController extends Controller {
     if (!document) throw new Error404();
 
     const draftsCollection = this._drafts;
-    const draftInsertResult = await draftsCollection.insert({
+    const draftInsertResult = await draftsCollection.insertOne({
       createdOn: Date.now(),
       html: document.html,
       parent: document._id
@@ -210,11 +210,13 @@ export class DocumentsController extends Controller {
     const doc = await this._docs.findOne({ _id: new ObjectID(id) } as IDocument<'server'>);
     if (!doc) throw new Error404(`Could not find document`);
 
-    // Remove all draft elements
-    const drafts = await this._drafts.find({ parent: doc._id } as IDraft<'server'>).toArray();
-    await Promise.all(
-      drafts.map(draft => this._elementsCollection.remove({ parent: draft._id } as IDraftElement<'server'>))
-    );
+    // // Remove all draft elements
+    // const drafts = await this._drafts.find({ parent: doc._id } as IDraft<'server'>).toArray();
+    // await Promise.all(
+    //   drafts.map(draft => this._elementsCollection.remove({ parent: draft._id } as IDraftElement<'server'>))
+    // );
+
+    await this._elementsCollection.remove({ parent: doc._id } as IDraftElement<'server'>);
 
     await this._drafts.remove({ parent: doc._id } as IDraft<'server'>);
     await this._docs.remove({ _id: doc._id } as IDocument<'server'>);

@@ -14,7 +14,7 @@ import { SortOrder, PostVisibility, PostSortType } from '../core/enums';
 
 export type PostsGetAllOptions = {
   visibility: PostVisibility;
-  categories: string[];
+  categories: ObjectID[];
   tags: string[];
   rtags: string[];
   sort: PostSortType;
@@ -240,7 +240,7 @@ export class PostsController extends Controller {
     if (!post) throw new Error404(`Could not find post`);
 
     const commentsFactory = ControllerFactory.get('comments');
-    const comments = await commentsFactory.getAll({ postId: id, limit: -1 });
+    const comments = await commentsFactory.getAll({ postId: id, limit: undefined });
     const promises: Promise<any>[] = [];
 
     for (const comment of comments.data) promises.push(commentsFactory.remove(comment._id));
@@ -266,7 +266,11 @@ export class PostsController extends Controller {
 
     token.lastUpdated = Date.now();
 
-    await this._postsCollection.updateOne({ _id: new ObjectID(id) } as IPost<'server'>, { $set: token });
+    const response = await this._postsCollection.updateOne({ _id: new ObjectID(id) } as IPost<'server'>, {
+      $set: token
+    });
+    if (response.matchedCount === 0) throw new Error404();
+
     const updatedPost = await this._postsCollection.findOne({ _id: new ObjectID(id) } as IPost<'server'>);
 
     const newDraft = await this._documents.publishDraft(updatedPost!.document);
@@ -286,6 +290,9 @@ export class PostsController extends Controller {
   async create(token: Partial<IPost<'server'>>) {
     token.createdOn = Date.now();
     token.lastUpdated = Date.now();
+    token.tags = token.tags ? token.tags : [];
+    token.brief = token.brief || '';
+    token.categories = token.categories ? token.categories : [];
 
     let insertionResult = await this._postsCollection.insertOne(token);
 

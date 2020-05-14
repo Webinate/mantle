@@ -20,7 +20,7 @@ export class Draft {
   @Field(type => Document)
   parent: Document;
 
-  static fromEntity(category: IDraft<'server'>) {
+  static fromEntity(category: Partial<IDraft<'server'>>) {
     const toReturn = new Draft();
     Object.assign(toReturn, category);
     return toReturn;

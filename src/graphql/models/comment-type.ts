@@ -1,10 +1,13 @@
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, ArgsType, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
 import { Post } from './post-type';
 import { IComment } from '../../types/models/i-comment';
+import { Page } from '../../types/tokens/standard-tokens';
+import { PaginatedResponse } from './paginated-response';
+import { SortOrder, CommentSortType, CommentVisibility } from '../../core/enums';
 
 @ObjectType({ description: 'Object representing a Comment' })
 export class Comment {
@@ -41,6 +44,55 @@ export class Comment {
   static fromEntity(category: IComment<'server'>) {
     const toReturn = new Comment();
     Object.assign(toReturn, category);
+    return toReturn;
+  }
+}
+
+@ArgsType()
+export class GetCommentsArgs {
+  @Field(type => Boolean, { nullable: true, defaultValue: false })
+  root: boolean;
+
+  @Field(type => Int, { defaultValue: 0 })
+  index: number = 0;
+
+  @Field(type => Int, { defaultValue: 10 })
+  limit: number;
+
+  @Field(type => String, { nullable: true })
+  keyword: string;
+
+  @Field(type => String, { nullable: true })
+  user: string;
+
+  @Field(type => CommentVisibility, { defaultValue: CommentVisibility.all })
+  visibility: CommentVisibility;
+
+  @Field(type => SortOrder, { defaultValue: SortOrder.desc })
+  sortOrder: SortOrder;
+
+  @Field(type => CommentSortType, { defaultValue: CommentSortType.created })
+  sortType: CommentSortType;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  parentId: ObjectId;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  postId: ObjectId;
+
+  constructor(initialization?: Partial<GetCommentsArgs>) {
+    initialization && Object.assign(this, initialization);
+  }
+}
+
+@ObjectType({ description: 'A page of wrapper of comments' })
+export class PaginatedCommentsResponse extends PaginatedResponse(Comment) {
+  static fromEntity(page: Page<IComment<'server'>>) {
+    const toReturn = new PaginatedCommentsResponse();
+    toReturn.count = page.count;
+    toReturn.index = page.index;
+    toReturn.limit = page.limit;
+    toReturn.data = page.data.map(cat => Comment.fromEntity(cat));
     return toReturn;
   }
 }

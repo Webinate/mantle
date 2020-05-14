@@ -12,7 +12,7 @@ import { Element } from '../models/element-type';
 @Resolver(of => Document)
 export class DocumentResolver implements ResolverInterface<Document> {
   @Authorized<UserPrivilege>([UserPrivilege.admin])
-  @Query(returns => Document)
+  @Query(returns => Document, { nullable: true })
   async document(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
     const checkPermissions = ctx.isAdmin ? undefined : { userId: ctx.user!._id };
     const document = await ControllerFactory.get('documents').get({
@@ -28,6 +28,9 @@ export class DocumentResolver implements ResolverInterface<Document> {
   async author(@Root() root: Document) {
     const document = await ControllerFactory.get('documents').get({ id: root._id });
     const author = await ControllerFactory.get('users').getUser({ id: document!.author! });
+
+    if (!author) return null;
+
     return User.fromEntity(author!);
   }
 

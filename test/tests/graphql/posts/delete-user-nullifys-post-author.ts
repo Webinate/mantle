@@ -1,54 +1,49 @@
-// import * as assert from 'assert';
-// import { IPost, IUserEntry } from '../../../../src';
-// import ControllerFactory from '../../../../src/core/controller-factory';
-// import { randomString } from '../../utils';
-// import header from '../../header';
+import * as assert from 'assert';
+import { IPost, IUserEntry, UserPrivilege } from '../../../../src';
+import ControllerFactory from '../../../../src/core/controller-factory';
+import { randomString } from '../../utils';
+import header from '../../header';
+import { GET_POST } from '../../../../src/graphql/client/requests/posts';
+import { REMOVE_USER } from '../../../../src/graphql/client/requests/users';
 
-// let post: IPost<'expanded'>, newUser: IUserEntry<'expanded'>;
+let post: IPost<'server'>, newUser: IUserEntry<'server'>;
 
-// describe('[GQL] Testing deletion of user is nullified on posts: ', function() {
-//   before(async function() {
-//     const posts = ControllerFactory.get('posts');
-//     const users = ControllerFactory.get('users');
+describe('[GQL] Testing deletion of user is nullified on posts: ', function() {
+  before(async function() {
+    const posts = ControllerFactory.get('posts');
+    const users = ControllerFactory.get('users');
 
-//     await header.createUser('user3', 'password', 'user3@test.com', 'admin');
-//     newUser = (await users.getUser({ username: 'user3' })) as IUserEntry<'expanded'>;
+    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.admin);
+    newUser = (await users.getUser({ username: 'user3' })) as IUserEntry<'server'>;
 
-//     // Create post and comments
-//     post = (await posts.create({
-//       author: newUser._id,
-//       slug: randomString(),
-//       title: 'Temp Post',
-//       public: true
-//     })) as IPost<'expanded'>;
-//   });
+    // Create post and comments
+    post = (await posts.create({
+      author: newUser._id,
+      slug: randomString(),
+      title: 'Temp Post',
+      public: true
+    })) as IPost<'server'>;
+  });
 
-//   after(async function() {
-//     const posts = ControllerFactory.get('posts');
-//     await posts.removePost(post._id);
-//   });
+  after(async function() {
+    const posts = ControllerFactory.get('posts');
+    await posts.removePost(post._id);
+  });
 
-//   it('can get a post with the created user', async function() {
-//     const {
-//       data: { author }
-//     } = await header.user1.graphql<IPost<'expanded'>>(`{ getPost(id: "${post._id}") { author { _id } } }`);
+  it('can get a post with the created user', async function() {
+    const resp = await header.user1.graphql<IPost<'expanded'>>(GET_POST, { id: post._id });
 
-//     assert.deepEqual(author._id, newUser._id);
-//   });
+    assert.deepEqual(resp.data.author!._id, newUser._id.toString());
+  });
 
-//   it('can delete the new user', async function() {
-//     const { data: userRemoved } = await header.admin.graphql<boolean>(
-//       `mutation { removeUser(username: "${newUser.username}") }`
-//     );
+  it('can delete the new user', async function() {
+    const { data: userRemoved } = await header.admin.graphql<boolean>(REMOVE_USER, { username: newUser.username });
+    assert(userRemoved);
+  });
 
-//     assert(userRemoved);
-//   });
+  it('did nullify the user from the post', async function() {
+    const resp = await header.user1.graphql<IPost<'expanded'>>(GET_POST, { id: post._id });
 
-//   it('did nullify the user from the post', async function() {
-//     const {
-//       data: { author }
-//     } = await header.user1.graphql<IPost<'expanded'>>(`{ getPost(id: "${post._id}") { author { _id } } }`);
-
-//     assert.deepEqual(author, null);
-//   });
-// });
+    assert.deepEqual(resp.data.author, null);
+  });
+});

@@ -1,4 +1,4 @@
-import { ObjectType, Field, InputType } from 'type-graphql';
+import { ObjectType, Field, InputType, ArgsType, Int } from 'type-graphql';
 import { ObjectId, ObjectID } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from './user-type';
@@ -9,14 +9,17 @@ import { Draft } from './draft-type';
 import { File } from './file-type';
 import { Document } from './document-type';
 import { IsSafeText } from '../../decorators/isSafeText';
+import { Page } from '../../types/tokens/standard-tokens';
+import { PaginatedResponse } from './paginated-response';
+import { PostVisibility, PostSortType, SortOrder } from '../../core/enums';
 
 @ObjectType({ description: 'Object representing a Post' })
 export class Post {
   @Field(type => GraphQLObjectId)
   _id: ObjectId;
 
-  @Field(type => User)
-  author: User;
+  @Field(type => User, { nullable: true })
+  author: User | null;
 
   @Field()
   title: string;
@@ -56,6 +59,10 @@ export class Post {
     Object.assign(toReturn, initialization);
     toReturn.author = User.fromEntity({ _id: initialization.author! });
     toReturn.document = Document.fromEntity({ _id: initialization.document! });
+    toReturn.featuredImage = initialization.featuredImage
+      ? File.fromEntity({ _id: initialization.featuredImage })
+      : null;
+    toReturn.latestDraft = initialization.latestDraft ? Draft.fromEntity({ _id: initialization.latestDraft }) : null;
     return toReturn;
   }
 }
@@ -85,7 +92,7 @@ export class AddPostInput {
   tags: string[];
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  featuredImage: File | null;
+  featuredImage: ObjectID | null | string;
 
   constructor(initialization?: Partial<AddPostInput>) {
     if (initialization) Object.assign(this, initialization);
@@ -93,12 +100,86 @@ export class AddPostInput {
 }
 
 @InputType()
-export class UpdatePostInput extends AddPostInput {
+export class UpdatePostInput {
   @Field(type => GraphQLObjectId)
   _id: ObjectId | string;
 
+  @Field(type => GraphQLObjectId, { nullable: true })
+  author: ObjectID | null;
+
+  @Field({ nullable: true })
+  @IsSafeText()
+  title: string;
+
+  @Field({ nullable: true })
+  slug: string;
+
+  @Field({ nullable: true })
+  brief: string;
+
+  @Field(type => Boolean, { nullable: true })
+  public: boolean;
+
+  @Field(type => [GraphQLObjectId], { nullable: true })
+  categories: ObjectID[];
+
+  @Field(type => [String], { nullable: true })
+  tags: string[];
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  featuredImage: ObjectID | null | string;
+
   constructor(initialization?: Partial<UpdatePostInput>) {
-    super(initialization);
+    if (initialization) Object.assign(this, initialization);
+  }
+}
+
+@ArgsType()
+export class GetPostsArgs {
+  constructor(initialization?: Partial<GetPostsArgs>) {
+    initialization && Object.assign(this, initialization);
+  }
+
+  @Field(type => Int, { defaultValue: 0 })
+  index: number = 0;
+
+  @Field(type => Int, { defaultValue: 10 })
+  limit: number;
+
+  @Field(type => String, { nullable: true })
+  author: string;
+
+  @Field(type => String, { nullable: true })
+  keyword: string;
+
+  @Field(type => PostVisibility, { defaultValue: PostVisibility.all })
+  visibility: PostVisibility;
+
+  @Field(type => SortOrder, { defaultValue: SortOrder.desc })
+  sortOrder: SortOrder;
+
+  @Field(type => PostSortType, { defaultValue: PostSortType.created })
+  sortType: PostSortType;
+
+  @Field(type => [GraphQLObjectId], { nullable: true })
+  categories: ObjectID[];
+
+  @Field(type => [String], { nullable: true })
+  tags: string[];
+
+  @Field(type => [String], { nullable: true })
+  requiredTags: string[];
+}
+
+@ObjectType({ description: 'A page of wrapper of posts' })
+export class PaginatedPostsResponse extends PaginatedResponse(Post) {
+  static fromEntity(page: Page<IPost<'server'>>) {
+    const toReturn = new PaginatedPostsResponse();
+    toReturn.count = page.count;
+    toReturn.index = page.index;
+    toReturn.limit = page.limit;
+    toReturn.data = page.data.map(post => Post.fromEntity(post));
+    return toReturn;
   }
 }
 

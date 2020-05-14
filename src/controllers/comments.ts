@@ -5,7 +5,6 @@ import * as mongodb from 'mongodb';
 import Controller from './controller';
 import { ObjectID } from 'mongodb';
 import { IUserEntry } from '../types/models/i-user-entry';
-import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { SortOrder, CommentSortType, CommentVisibility } from '../core/enums';
 
 export type CommentGetAllOptions = {
@@ -87,7 +86,7 @@ export class CommentsController extends Controller {
     // First get the count
     const count = await comments.count(findToken);
     const sanitizedData = await comments
-      .find(findToken, {}, options.index || 0, options.limit || 0)
+      .find(findToken, {}, options.index || 0, options.limit || undefined)
       .sort(sort || {})
       .toArray();
 
@@ -187,7 +186,7 @@ export class CommentsController extends Controller {
    * Creates a new comment
    * @param token The data of the comment to create
    */
-  async create(token: Partial<IComment<'server'>>, schemaOptions?: Partial<ISchemaOptions>) {
+  async create(token: Partial<IComment<'server'>>) {
     const comments = this._commentsCollection;
     let parent: IComment<'server'> | null = null;
 
@@ -198,8 +197,11 @@ export class CommentsController extends Controller {
     }
 
     token.createdOn = Date.now();
+    token.lastUpdated = token.createdOn;
+    token.author = token.author ? token.author : '';
+    token.children = token.children ? token.children : [];
 
-    const insertResult = await comments.insert(token);
+    const insertResult = await comments.insertOne(token);
     const instance = await comments.findOne({ _id: insertResult.insertedId } as IComment<'server'>);
 
     // Assign this comment as a child to its parent comment if it exists

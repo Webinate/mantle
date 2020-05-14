@@ -13,8 +13,8 @@ export class Document {
   @Field(type => GraphQLObjectId)
   _id: ObjectId;
 
-  @Field(type => User)
-  author: User;
+  @Field(type => User, { nullable: true })
+  author: User | null;
 
   @Field(type => Template)
   template: Template;

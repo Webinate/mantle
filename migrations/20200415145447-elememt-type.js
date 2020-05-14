@@ -46,7 +46,7 @@ module.exports = {
             break;
         }
 
-        if (newType === '') throw new Error('Element type is not recognized');
+        if (newType === '') throw new Error('Element type is not recognized: ' + newType);
 
         promises.push(elementsCollection.update({ _id: element._id }, { $set: { type: newType } }));
       }

@@ -51,6 +51,31 @@ type Category {
   children: [Category!]
 }
 
+"""Object representing a Comment"""
+type Comment {
+  _id: ObjectId!
+  author: String!
+  user: User!
+  post: Post!
+  parent: Comment
+  public: Boolean!
+  content: String!
+  children: [Comment!]!
+  createdOn: Long!
+  lastUpdated: Long!
+}
+
+enum CommentSortType {
+  updated
+  created
+}
+
+enum CommentVisibility {
+  all
+  public
+  private
+}
+
 """Object representing a Document"""
 type Document {
   _id: ObjectId!
@@ -135,6 +160,7 @@ type Mutation {
   addUser(token: AddUserInput!): User!
   removeUser(username: String!): Boolean!
   updateUser(token: UpdateUserInput!): User!
+  removeComment(id: ObjectId!): Boolean!
   login(token: LoginInput!): AuthResponse!
   register(token: RegisterInput!): AuthResponse!
   approveActivation(username: String!): Boolean!
@@ -157,6 +183,22 @@ scalar ObjectId
 """A page of wrapper of categories"""
 type PaginatedCategoryResponse {
   data: [Category!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of comments"""
+type PaginatedCommentsResponse {
+  data: [Comment!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of posts"""
+type PaginatedPostsResponse {
+  data: [Post!]!
   count: Int!
   limit: Int!
   index: Int!
@@ -203,6 +245,18 @@ type Post {
   latestDraft: Draft
 }
 
+enum PostSortType {
+  title
+  created
+  modified
+}
+
+enum PostVisibility {
+  all
+  public
+  private
+}
+
 type Query {
   category(slug: String, id: String): Category
 
@@ -210,6 +264,10 @@ type Query {
   categories(root: Boolean = false, index: Int = 0, limit: Int = 10): PaginatedCategoryResponse!
   user(user: String!): User
   users(index: Int = 0, limit: Int = 10, search: String = ""): PaginatedUserResponse!
+  comment(id: ObjectId!): Comment
+
+  """Gets a paginated list of comments"""
+  comments(root: Boolean = false, index: Int = 0, limit: Int = 10, keyword: String, user: String, visibility: CommentVisibility = all, sortOrder: SortOrder = desc, sortType: CommentSortType = created, parentId: ObjectId, postId: ObjectId): PaginatedCommentsResponse!
   authenticated: AuthResponse!
   volume(id: ObjectId!): Volume
   volumes(index: Int = 0, limit: Int = 10, search: String = "", user: String, sortOrder: SortOrder = asc, sortType: VolumeSortType = created): PaginatedVolumeResponse!
@@ -218,6 +276,10 @@ type Query {
 
   """Gets an array of all templates"""
   templates: PaginatedTemplateResponse!
+  post(slug: String, id: ObjectId): Post
+
+  """Gets a paginated list of posts"""
+  posts(index: Int = 0, limit: Int = 10, author: String, keyword: String, visibility: PostVisibility = all, sortOrder: SortOrder = desc, sortType: PostSortType = created, categories: [ObjectId!], tags: [String!], requiredTags: [String!]): PaginatedPostsResponse!
 }
 
 input RegisterInput {

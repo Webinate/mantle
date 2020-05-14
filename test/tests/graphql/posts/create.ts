@@ -49,13 +49,6 @@ describe('[GQL] Testing creation of posts', function() {
     );
   });
 
-  // it('cannot create a post without slug', async function() {
-  //   const { errors } = await header.admin.graphql<IPost<'expanded'>>(
-  //     `mutation { createPost(token: { title: "test", slug: "" }) { _id } }`
-  //   );
-  //   assert.deepEqual(errors[0].message, 'slug cannot be empty');
-  // });
-
   it('can create a post with valid data', async function() {
     const slug = generateRandString(10);
     const response = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
@@ -69,30 +62,6 @@ describe('[GQL] Testing creation of posts', function() {
     });
 
     const post = response.data;
-
-    // (
-    //   `mutation { createPost(token: {
-    //     title: "Simple Test",
-    //     slug: "${slug}",
-    //     brief: "This is brief",
-    //     public: false,
-    //     categories: ["super-tests"],
-    //     tags: ["super-tags-1234", "supert-tags-4321"]
-    //   }) {
-    //     ...PostFields,
-    //     latestDraft { _id }
-    //     author { username },
-    //     featuredImage { _id },
-    //     document {
-    //       _id
-    //       createdOn
-    //       elementsOrder
-    //       elements { _id, html, type, parent { _id } }
-    //       author { username },
-    //       template { name }
-    //     }
-    //   } } ${postFragment}`
-    // );
 
     lastPost = post;
     assert.strictEqual(post.public, false);
@@ -134,21 +103,13 @@ describe('[GQL] Testing creation of posts', function() {
   });
 
   it('should create a post & strip HTML from title', async function() {
-    const { data: post } = await header.admin.graphql<IPost<'expanded'>>(
-      ADD_POST,
-      {
-        token: new AddPostInput({
-          title: 'Simple Test <h2>NO</h2>',
-          slug: generateRandString(10),
-          brief: 'This is brief'
-        })
-      }
-      // `mutation { createPost(token: {
-      //   title: "Simple Test <h2>NO</h2>",
-      //   slug: "${generateRandString(10)}",
-      //   brief: "This is brief"
-      // }) { title, _id } }`
-    );
+    const { data: post } = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
+      token: new AddPostInput({
+        title: 'Simple Test <h2>NO</h2>',
+        slug: generateRandString(10),
+        brief: 'This is brief'
+      })
+    });
 
     assert.strictEqual(post.title, 'Simple Test NO');
     lastPost2 = post._id;

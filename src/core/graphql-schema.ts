@@ -4,6 +4,7 @@ import { writeFileSync } from 'fs';
 import { buildSchema, AuthChecker } from 'type-graphql';
 import { CategoryResolver } from '../graphql/resolvers/category-resolver';
 import { UserResolver } from '../graphql/resolvers/user-resolver';
+import { CommentResolver } from '../graphql/resolvers/comment-resolver';
 import { AuthResolver } from '../graphql/resolvers/auth-resolver';
 import { VolumeResolver } from '../graphql/resolvers/volume-resolver';
 import { FileResolver } from '../graphql/resolvers/file-resolver';
@@ -23,6 +24,7 @@ export async function generateSchema() {
       VolumeResolver,
       FileResolver,
       UserResolver,
+      CommentResolver,
       AuthResolver,
       TemplateResolver,
       DocumentResolver
