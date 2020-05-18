@@ -1,4 +1,15 @@
-import { Resolver, Authorized, Arg, Ctx, ResolverInterface, FieldResolver, Root, Query } from 'type-graphql';
+import {
+  Resolver,
+  Authorized,
+  Arg,
+  Ctx,
+  ResolverInterface,
+  FieldResolver,
+  Root,
+  Query,
+  Mutation,
+  Int
+} from 'type-graphql';
 import { Document } from '../models/document-type';
 import { UserPrivilege } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
@@ -7,7 +18,11 @@ import { ObjectID } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from '../models/user-type';
 import { Template } from '../models/template-type';
-import { Element } from '../models/element-type';
+import { Element, AddElementInput, UpdateElementInput } from '../models/element-type';
+import { Queue } from '../helpers/queue';
+
+const addElmQueue: Queue = new Queue();
+const removeElmQueue: Queue = new Queue();
 
 @Resolver(of => Document)
 export class DocumentResolver implements ResolverInterface<Document> {
@@ -16,7 +31,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
   async document(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
     const checkPermissions = ctx.isAdmin ? undefined : { userId: ctx.user!._id };
     const document = await ControllerFactory.get('documents').get({
-      id: id,
+      docId: id,
       checkPermissions: checkPermissions
     });
 
@@ -26,17 +41,16 @@ export class DocumentResolver implements ResolverInterface<Document> {
 
   @FieldResolver(type => User, { nullable: true })
   async author(@Root() root: Document) {
-    const document = await ControllerFactory.get('documents').get({ id: root._id });
+    const document = await ControllerFactory.get('documents').get({ docId: root._id });
     const author = await ControllerFactory.get('users').getUser({ id: document!.author! });
 
     if (!author) return null;
-
     return User.fromEntity(author!);
   }
 
   @FieldResolver(type => Template)
   async template(@Root() root: Document) {
-    const document = await ControllerFactory.get('documents').get({ id: root._id });
+    const document = await ControllerFactory.get('documents').get({ docId: root._id });
     const template = await ControllerFactory.get('templates').get(document!.template);
     return Template.fromEntity(template!);
   }
@@ -45,6 +59,99 @@ export class DocumentResolver implements ResolverInterface<Document> {
   async elements(@Root() root: Document) {
     const elements = await ControllerFactory.get('documents').getElements(root._id);
     return elements.map(e => Element.fromEntity(e));
+  }
+
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Mutation(returns => Boolean)
+  async changeDocTemplate(
+    @Arg('id', type => GraphQLObjectId) id: ObjectID,
+    @Arg('template', type => GraphQLObjectId) template: ObjectID,
+    @Ctx() ctx: IGQLContext
+  ) {
+    addElmQueue;
+    removeElmQueue;
+    return await ControllerFactory.get('documents').changeTemplate(
+      {
+        docId: id,
+        checkPermissions: ctx.isAdmin ? undefined : { userId: ctx.user!._id }
+      },
+      template
+    );
+  }
+
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Mutation(returns => Element)
+  async addDocElement(
+    @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
+    @Arg('token', type => AddElementInput) token: Element,
+    @Arg('index', type => Int, { defaultValue: 0 }) index: number,
+    @Ctx() ctx: IGQLContext
+  ) {
+    const ticket = addElmQueue.register();
+    await addElmQueue.waitForTurn(ticket);
+
+    try {
+      const elm = await ControllerFactory.get('documents').addElement(
+        {
+          docId: docId,
+          checkPermissions: ctx.isAdmin ? undefined : { userId: ctx.user!._id }
+        },
+        token,
+        index
+      );
+
+      addElmQueue.processNext();
+      return Element.fromEntity(elm);
+    } catch (err) {
+      addElmQueue.processNext();
+      throw err;
+    }
+  }
+
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Mutation(returns => Element)
+  async updateDocElement(
+    @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
+    @Arg('token', type => UpdateElementInput) token: Element,
+    @Arg('index', type => Int, { nullable: true }) index: number,
+    @Ctx() ctx: IGQLContext
+  ) {
+    const element = await ControllerFactory.get('documents').updateElement(
+      {
+        docId: docId,
+        checkPermissions: ctx.isAdmin ? undefined : { userId: ctx.user!._id }
+      },
+      token
+    );
+
+    return Element.fromEntity(element);
+  }
+
+  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Mutation(returns => Boolean)
+  async removeDocElement(
+    @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
+    @Arg('elementId', type => GraphQLObjectId) elementId: ObjectID,
+    @Ctx() ctx: IGQLContext
+  ) {
+    const ticket = removeElmQueue.register();
+    await removeElmQueue.waitForTurn(ticket);
+
+    try {
+      await ControllerFactory.get('documents').removeElement(
+        {
+          docId,
+          checkPermissions: ctx.isAdmin ? undefined : { userId: ctx.user!._id }
+        },
+        elementId
+      );
+
+      removeElmQueue.processNext();
+      return true;
+    } catch (err) {
+      removeElmQueue.processNext();
+      throw err;
+    }
   }
 }
 

@@ -304,7 +304,7 @@ export class PostsController extends Controller {
     });
 
     let newPost = await this._postsCollection.findOne({ _id: insertionResult.insertedId } as IPost<'server'>);
-    return newPost;
+    return newPost!;
   }
 
   /**

@@ -4,7 +4,6 @@ import { Db, ObjectID, ObjectId, Collection } from 'mongodb';
 import Controller from './controller';
 import { IDocument } from '../types/models/i-document';
 import { IDraft } from '../types/models/i-draft';
-import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { Error404, Error400, Error403 } from '../utils/errors';
 import { ITemplate } from '../types/models/i-template';
 import { IDraftElement } from '../types/models/i-draft-elements';
@@ -12,7 +11,7 @@ import { buildHtml } from './build-html';
 import { ElementType } from '../core/enums';
 
 export type GetOptions = {
-  id: string | ObjectID;
+  docId: string | ObjectID;
   checkPermissions?: { userId: ObjectID };
 };
 
@@ -47,23 +46,21 @@ export class DocumentsController extends Controller {
    * @param options The options for finding the resource
    * @param templateId The id of the template to change to
    */
-  async changeTemplate(findDocOptions: GetOptions, templateId: string, schemaOptions?: Partial<ISchemaOptions>) {
+  async changeTemplate(findDocOptions: GetOptions, templateId: ObjectID) {
     const docsCollection = this._docs;
     const templatesCollection = this._templates;
 
-    const doc = await docsCollection.findOne({ _id: new ObjectId(findDocOptions.id) } as IDocument<'server'>);
+    const doc = await docsCollection.findOne({ _id: new ObjectId(findDocOptions.docId) } as IDocument<'server'>);
     if (!doc) throw new Error404('Document not found');
 
     if (findDocOptions.checkPermissions)
       if (doc.author && !doc.author.equals(findDocOptions.checkPermissions.userId)) throw new Error403();
 
-    const template = await templatesCollection.findOne({ _id: new ObjectId(templateId) } as ITemplate<'server'>);
+    const template = await templatesCollection.findOne({ _id: templateId } as ITemplate<'server'>);
     if (!template) throw new Error404('Template not found');
 
     await docsCollection.updateOne({ _id: doc._id } as IDocument<'server'>, { $set: { template: templateId } });
-    const toRet = await docsCollection.findOne({ _id: doc._id } as IDocument<'server'>);
-
-    return toRet;
+    return true;
   }
 
   async publishDraft(documentId: ObjectID) {
@@ -108,7 +105,7 @@ export class DocumentsController extends Controller {
   async addElement(findOptions: GetOptions, token: Partial<IDraftElement<'server'>>, index?: number) {
     const docsCollection = this._docs;
     const templatesCollection = this._templates;
-    const doc = await docsCollection.findOne({ _id: new ObjectId(findOptions.id) } as IDocument<'server'>);
+    const doc = await docsCollection.findOne({ _id: new ObjectId(findOptions.docId) } as IDocument<'server'>);
 
     if (!doc) throw new Error404('Document not found');
 
@@ -159,19 +156,19 @@ export class DocumentsController extends Controller {
     return draft;
   }
 
-  async removeElement(findOptions: GetOptions, elementId: string) {
+  async removeElement(findOptions: GetOptions, elementId: ObjectID) {
     const docsCollection = this._docs;
 
-    const doc = await docsCollection.findOne({ _id: new ObjectId(findOptions.id) } as IDocument<'server'>);
+    const doc = await docsCollection.findOne({ _id: new ObjectId(findOptions.docId) } as IDocument<'server'>);
     if (!doc) throw new Error404('Document not found');
 
     if (findOptions.checkPermissions)
       if (doc.author && !doc.author.equals(findOptions.checkPermissions.userId)) throw new Error403();
 
-    const elm = await this._elementsCollection.findOne({ _id: new ObjectID(elementId) } as IDraftElement<'server'>);
+    const elm = await this._elementsCollection.findOne({ _id: elementId } as IDraftElement<'server'>);
     if (!elm) throw new Error404();
 
-    await this._elementsCollection.remove({ _id: new ObjectID(elementId) } as IDraftElement<'server'>);
+    await this._elementsCollection.remove({ _id: elementId } as IDraftElement<'server'>);
     await docsCollection.update(
       { _id: doc._id } as IDocument<'server'>,
       { $pull: { elementsOrder: { $in: [elementId] } } },
@@ -179,11 +176,11 @@ export class DocumentsController extends Controller {
     );
   }
 
-  async updateElement(findOptions: GetOptions, elmId: string, token: Partial<IDraftElement<'client'>>) {
+  async updateElement(findOptions: GetOptions, token: Partial<IDraftElement<'server'>>) {
     // Remove any attempt to change the parent
     delete token.parent;
 
-    const selector = { _id: new ObjectID(elmId) } as IDraftElement<'server'>;
+    const selector = { _id: token._id } as IDraftElement<'server'>;
     const json = await this._elementsCollection.findOne<IDraftElement<'server'>>(selector);
 
     if (!json) throw new Error404();
@@ -191,7 +188,7 @@ export class DocumentsController extends Controller {
     if (token.type && json.type !== token.type) throw new Error400('You cannot change an element type');
 
     const docsCollection = this._docs;
-    const doc = await docsCollection.findOne({ _id: new ObjectId(findOptions.id) } as IDocument<'server'>);
+    const doc = await docsCollection.findOne({ _id: new ObjectId(findOptions.docId) } as IDocument<'server'>);
     if (!doc) throw new Error404('Document not found');
 
     if (findOptions.checkPermissions)
@@ -277,7 +274,7 @@ export class DocumentsController extends Controller {
   async get(options: GetOptions) {
     const docModel = this._docs;
     const searchQuery: Partial<IDocument<'server'>> = {
-      _id: new ObjectID(options.id)
+      _id: new ObjectID(options.docId)
     };
 
     const result = await docModel.findOne(searchQuery);

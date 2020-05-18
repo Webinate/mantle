@@ -55,12 +55,26 @@ export class AddCategoryInput {
 }
 
 @InputType()
-export class UpdateCategoryInput extends AddCategoryInput {
+export class UpdateCategoryInput {
   @Field(type => GraphQLObjectId)
   _id: ObjectId | string;
 
+  @Field()
+  @IsSafeText()
+  title: string;
+
+  @Field({ nullable: true })
+  @IsSafeText()
+  description: string;
+
+  @Field()
+  slug: string;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  parent: ObjectId | string;
+
   constructor(initialization?: Partial<UpdateCategoryInput>) {
-    super(initialization);
+    if (initialization) Object.assign(this, initialization);
   }
 }
 

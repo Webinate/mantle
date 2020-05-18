@@ -5,6 +5,15 @@ input AddCategoryInput {
   parent: ObjectId
 }
 
+input AddElementInput {
+  parent: ObjectId!
+  type: ElementType!
+  html: String!
+  zone: String
+  image: ObjectId
+  style: JSON = ""
+}
+
 input AddPostInput {
   author: ObjectId
   title: String = ""
@@ -79,7 +88,7 @@ enum CommentVisibility {
 """Object representing a Document"""
 type Document {
   _id: ObjectId!
-  author: User!
+  author: User
   template: Template!
   createdOn: Long!
   lastUpdated: Long!
@@ -172,6 +181,10 @@ type Mutation {
   updateVolume(token: UpdateVolumeInput!): Volume!
   removeVolume(id: ObjectId!): Boolean!
   removeFile(volumeId: ObjectId, id: ObjectId!): Boolean!
+  changeDocTemplate(template: ObjectId!, id: ObjectId!): Boolean!
+  addDocElement(index: Int = 0, token: AddElementInput!, docId: ObjectId!): Element!
+  updateDocElement(index: Int, token: UpdateElementInput!, docId: ObjectId!): Element!
+  removeDocElement(elementId: ObjectId!, docId: ObjectId!): Boolean!
   createPost(token: AddPostInput!): Post!
   patchPost(token: UpdatePostInput!): Post!
   removePost(id: ObjectId!): Boolean!
@@ -231,7 +244,7 @@ type PaginatedVolumeResponse {
 """Object representing a Post"""
 type Post {
   _id: ObjectId!
-  author: User!
+  author: User
   title: String!
   slug: String!
   brief: String!
@@ -271,7 +284,7 @@ type Query {
   authenticated: AuthResponse!
   volume(id: ObjectId!): Volume
   volumes(index: Int = 0, limit: Int = 10, search: String = "", user: String, sortOrder: SortOrder = asc, sortType: VolumeSortType = created): PaginatedVolumeResponse!
-  document(id: ObjectId!): Document!
+  document(id: ObjectId!): Document
   template(id: ObjectId): Template
 
   """Gets an array of all templates"""
@@ -304,23 +317,33 @@ type Template {
 }
 
 input UpdateCategoryInput {
+  _id: ObjectId!
   title: String!
-  description: String = ""
+  description: String
   slug: String!
   parent: ObjectId
+}
+
+input UpdateElementInput {
   _id: ObjectId!
+  parent: ObjectId
+  type: ElementType
+  html: String
+  zone: String
+  image: ObjectId
+  style: JSON
 }
 
 input UpdatePostInput {
-  author: ObjectId
-  title: String = ""
-  slug: String!
-  brief: String = ""
-  public: Boolean = false
-  categories: [ObjectId!] = []
-  tags: [String!] = []
-  featuredImage: ObjectId
   _id: ObjectId!
+  author: ObjectId
+  title: String
+  slug: String
+  brief: String
+  public: Boolean
+  categories: [ObjectId!]
+  tags: [String!]
+  featuredImage: ObjectId
 }
 
 input UpdateUserInput {

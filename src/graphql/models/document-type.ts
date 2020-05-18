@@ -31,7 +31,7 @@ export class Document {
   @Field(type => [Element], { defaultValue: [] })
   elements: Element[];
 
-  @Field(type => JsonType, { defaultValue: {} })
+  @Field(type => JsonType, { defaultValue: '' })
   html: any;
 
   static fromEntity(initialization: Partial<IDocument<'server'>>) {

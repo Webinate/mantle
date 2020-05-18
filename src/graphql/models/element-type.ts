@@ -1,4 +1,4 @@
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, InputType } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { File } from './file-type';
@@ -26,7 +26,7 @@ export class Element {
   @Field(type => File, { nullable: true })
   image: File | null;
 
-  @Field(type => JsonType, { defaultValue: {} })
+  @Field(type => JsonType, { defaultValue: '' })
   style: any;
 
   static fromEntity(token: Partial<IImageElement<'server'>>) {
@@ -37,6 +37,59 @@ export class Element {
     }
 
     return toReturn;
+  }
+}
+
+@InputType()
+export class AddElementInput {
+  @Field(type => GraphQLObjectId, { nullable: true })
+  parent: ObjectId;
+
+  @Field(type => ElementType)
+  type: ElementType;
+
+  @Field({ defaultValue: '' })
+  html: string;
+
+  @Field({ nullable: true })
+  zone: string;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  image: ObjectId | null;
+
+  @Field(type => JsonType, { defaultValue: '' })
+  style: any;
+
+  constructor(initialization?: Partial<AddElementInput>) {
+    if (initialization) Object.assign(this, initialization);
+  }
+}
+
+@InputType()
+export class UpdateElementInput {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  parent: ObjectId;
+
+  @Field(type => ElementType, { nullable: true })
+  type: ElementType;
+
+  @Field({ nullable: true })
+  html: string;
+
+  @Field({ nullable: true })
+  zone: string;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  image: ObjectId | null;
+
+  @Field(type => JsonType, { nullable: true })
+  style: any;
+
+  constructor(initialization?: Partial<UpdateElementInput>) {
+    if (initialization) Object.assign(this, initialization);
   }
 }
 

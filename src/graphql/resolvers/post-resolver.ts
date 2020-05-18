@@ -135,7 +135,7 @@ export class PostResolver implements ResolverInterface<Post> {
   @FieldResolver(type => User, { nullable: true })
   async document(@Root() root: Post) {
     const post = await ControllerFactory.get('posts').getPost({ id: root._id });
-    const document = await ControllerFactory.get('documents').get({ id: post.document });
+    const document = await ControllerFactory.get('documents').get({ docId: post.document });
     return Document.fromEntity(document!);
   }
   @FieldResolver(type => User, { nullable: true })
