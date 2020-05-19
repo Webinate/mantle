@@ -20,6 +20,7 @@ import { User } from '../models/user-type';
 import { Template } from '../models/template-type';
 import { Element, AddElementInput, UpdateElementInput } from '../models/element-type';
 import { Queue } from '../helpers/queue';
+import { JsonType } from '../scalars/json';
 
 const addElmQueue: Queue = new Queue();
 const removeElmQueue: Queue = new Queue();
@@ -61,6 +62,11 @@ export class DocumentResolver implements ResolverInterface<Document> {
     return elements.map(e => Element.fromEntity(e));
   }
 
+  @FieldResolver(type => JsonType)
+  async html(@Root() root: Document) {
+    return await ControllerFactory.get('documents').getDocHtml(root._id);
+  }
+
   @Authorized<UserPrivilege>([UserPrivilege.admin])
   @Mutation(returns => Boolean)
   async changeDocTemplate(
@@ -84,7 +90,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
   async addDocElement(
     @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
     @Arg('token', type => AddElementInput) token: Element,
-    @Arg('index', type => Int, { defaultValue: 0 }) index: number,
+    @Arg('index', type => Int, { nullable: true }) index: number | undefined,
     @Ctx() ctx: IGQLContext
   ) {
     const ticket = addElmQueue.register();

@@ -10,7 +10,7 @@ import { PostsModel } from '../models/posts-model';
 import { RendersModel } from '../models/renders-model';
 import { SessionModel } from '../models/session-model';
 import { UsersModel } from '../models/users-model';
-import { DocumentsModel } from '../models/documents-model';
+// import { DocumentsModel } from '../models/documents-model';
 import { DraftsModel } from '../models/drafts-model';
 import { TemplatesModel } from '../models/templates-model';
 // import { ElmParagraph } from '../models/draft-elements/elm-paragraph';
@@ -60,7 +60,7 @@ export class ModelFactory {
       this.create('renders'),
       this.create('sessions'),
       this.create('users'),
-      this.create('documents'),
+      // this.create('documents'),
       this.create('drafts'),
       this.create('templates')
       // this.create(ElementType['elm-paragraph']),
@@ -133,7 +133,7 @@ export class ModelFactory {
   get(type: 'users'): UsersModel;
   get(type: 'templates'): TemplatesModel;
   get(type: 'drafts'): DraftsModel;
-  get(type: 'documents'): DocumentsModel;
+  // get(type: 'documents'): DocumentsModel;
   // get(type: 'elm-paragraph'): ElmParagraph;
   // get(type: 'elm-header-1'): ElmHeader;
   // get(type: 'elm-header-2'): ElmHeader;
@@ -190,9 +190,9 @@ export class ModelFactory {
       case 'drafts':
         newModel = new DraftsModel();
         break;
-      case 'documents':
-        newModel = new DocumentsModel();
-        break;
+      // case 'documents':
+      //   newModel = new DocumentsModel();
+      //   break;
       case 'templates':
         newModel = new TemplatesModel();
         break;

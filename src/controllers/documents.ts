@@ -7,7 +7,7 @@ import { IDraft } from '../types/models/i-draft';
 import { Error404, Error400, Error403 } from '../utils/errors';
 import { ITemplate } from '../types/models/i-template';
 import { IDraftElement } from '../types/models/i-draft-elements';
-import { buildHtml } from './build-html';
+import { buildHtml, transformElmHtml } from './build-html';
 import { ElementType } from '../core/enums';
 
 export type GetOptions = {
@@ -128,6 +128,8 @@ export class DocumentsController extends Controller {
       if (templateSchema) token.zone = templateSchema.defaultZone;
     }
 
+    token.html = transformElmHtml(token);
+
     const inertResult = await this._elementsCollection.insertOne(token);
     const insertedElm = await this._elementsCollection.findOne({ _id: inertResult.insertedId } as IDraftElement<
       'server'
@@ -193,6 +195,8 @@ export class DocumentsController extends Controller {
 
     if (findOptions.checkPermissions)
       if (doc.author && !doc.author.equals(findOptions.checkPermissions.userId)) throw new Error403();
+
+    token.html = transformElmHtml(token);
 
     await this._elementsCollection.updateOne(selector, { $set: token });
     const updatedJson = await this._elementsCollection.findOne(selector);
@@ -308,5 +312,32 @@ export class DocumentsController extends Controller {
     }
 
     return elements;
+  }
+
+  /**
+   * Populates a draft json with its elements
+   */
+  async getDocHtml(docId: ObjectID) {
+    const doc = await this._docs.findOne({ _id: docId } as IDocument<'server'>);
+    if (!doc) throw new Error404();
+
+    const elementsFromDb = await this._elementsCollection
+      .find({ parent: new ObjectID(docId) } as IDraftElement<'server'>)
+      .toArray();
+
+    const elements = doc.elementsOrder.map(elmId => elementsFromDb.find(elm => elmId.equals(elm._id))!) || [];
+    const htmlMap: { [zone: string]: string } = {};
+
+    const htmlElements = await Promise.all(elements.map(elm => buildHtml(elm)));
+
+    for (let i = 0; i < elements.length; i++) {
+      let elm = elements[i];
+      elm.html = htmlElements[i];
+
+      if (!htmlMap[elm.zone]) htmlMap[elm.zone] = elm.html;
+      else htmlMap[elm.zone] += elm.html;
+    }
+
+    return htmlMap;
   }
 }

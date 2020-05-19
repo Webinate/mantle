@@ -51,7 +51,7 @@ export class AddElementInput {
   @Field({ defaultValue: '' })
   html: string;
 
-  @Field({ nullable: true })
+  @Field({ nullable: true, defaultValue: 'unassigned' })
   zone: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
