@@ -78,7 +78,6 @@ export class FilesController extends Controller {
     const searchQuery: Partial<IFileEntry<'server'>> = { _id: new ObjectID(fileID) };
 
     const file = await files.findOne(searchQuery);
-    if (!file) throw new Error(`File '${fileID}' does not exist`);
     return file;
   }
 

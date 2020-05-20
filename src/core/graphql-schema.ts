@@ -15,6 +15,7 @@ import { IGQLContext } from '../types/interfaces/i-gql-context';
 import { error, info } from '../utils/logger';
 import { TemplateResolver } from '../graphql/resolvers/template-resolver';
 import { PostResolver } from '../graphql/resolvers/post-resolver';
+import { ElementResolver } from '../graphql/resolvers/element-resolver';
 
 export async function generateSchema() {
   const schema = await buildSchema({
@@ -26,6 +27,7 @@ export async function generateSchema() {
       UserResolver,
       CommentResolver,
       AuthResolver,
+      ElementResolver,
       TemplateResolver,
       DocumentResolver
     ],

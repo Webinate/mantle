@@ -1,5 +1,4 @@
 import { IDraftElement, IImageElement } from '../types/models/i-draft-elements';
-import { IFileEntry } from '../types/models/i-file-entry';
 import ControllerFactory from '../core/controller-factory';
 import { ElementType } from '../core/enums';
 // import { inlineTags, defaultAllowedAttributes } from '../decorators/isValidHtml';
@@ -87,7 +86,7 @@ export function transformElmHtml(token: Partial<IDraftElement<'server'>>) {
   let attributes = defaultAllowedAttributes;
 
   if (token.type === ElementType.code) tags = inlineTags.concat(['pre']);
-  else if (token.type === ElementType.paragraph) tags = inlineTags.concat(['p']);
+  else if (token.type === ElementType.paragraph) tags = inlineTags.concat([]);
   else if (token.type === ElementType.header1) tags = inlineTags.concat(['h1']);
   else if (token.type === ElementType.header2) tags = inlineTags.concat(['h2']);
   else if (token.type === ElementType.header3) tags = inlineTags.concat(['h3']);
@@ -102,21 +101,20 @@ export function transformElmHtml(token: Partial<IDraftElement<'server'>>) {
     allowedTags: tags
   }).trim();
 
+  if (token.type === ElementType.paragraph) return `<p>${sanitizedHTML}</p>`;
+
   return sanitizedHTML;
 }
 
-export async function buildHtml(elm: IDraftElement<'client' | 'server' | 'expanded'>) {
+export async function buildHtml(elm: IDraftElement<'server'>) {
   if (elm.type === ElementType.image) {
-    const imageElm = elm as IImageElement<'client'>;
+    const imageElm = elm as IImageElement<'server'>;
     const image = imageElm.image;
 
-    if (image && typeof image !== 'string')
-      return `<figure${createStyleString(imageElm.style)}><img src="${
-        (image as IFileEntry<'client'>).publicURL
-      }" /></figure>`;
-    else if (image) {
+    if (image) {
       const file = await ControllerFactory.get('files').getFile(image);
-      return `<figure${createStyleString(imageElm.style)}><img src="${file.publicURL}" /></figure>`;
+      if (file) return `<figure${createStyleString(imageElm.style)}><img src="${file.publicURL}" /></figure>`;
+      else return '<figure>Image not found</figure>';
     } else {
       return '<figure>Image not found</figure>';
     }

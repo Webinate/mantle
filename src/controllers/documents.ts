@@ -145,7 +145,6 @@ export class DocumentsController extends Controller {
       $set: { elementsOrder: doc.elementsOrder } as IDocument<'server'>
     });
 
-    insertedElm!.html = await buildHtml(insertedElm!);
     return insertedElm!;
   }
 
@@ -201,7 +200,6 @@ export class DocumentsController extends Controller {
     await this._elementsCollection.updateOne(selector, { $set: token });
     const updatedJson = await this._elementsCollection.findOne(selector);
 
-    updatedJson!.html = await buildHtml(updatedJson!);
     return updatedJson!;
   }
 
@@ -293,24 +291,21 @@ export class DocumentsController extends Controller {
     }
   }
 
+  async getElement(elmId: ObjectID) {
+    const searchQuery: Partial<IDraftElement<'server'>> = {
+      _id: elmId
+    };
+    const elementsCollection = this._elementsCollection;
+    const element = await elementsCollection.findOne(searchQuery);
+    return element;
+  }
+
   async getElements(document: ObjectID) {
     const searchQuery: Partial<IDraftElement<'server'>> = {
       parent: new ObjectID(document)
     };
-
     const elementsCollection = this._elementsCollection;
     const elements = await elementsCollection.find(searchQuery).toArray();
-    const promises: Promise<string>[] = [];
-    for (const elm of elements) {
-      promises.push(buildHtml(elm));
-    }
-
-    const html = await Promise.all(promises);
-
-    for (let i = 0; i < html.length; i++) {
-      elements[i].html = html[i];
-    }
-
     return elements;
   }
 

@@ -13,25 +13,25 @@ const blocks: {
   source: string;
   replacedWith: null | { [testType: string]: string };
 }[] = [
-  { source: '<ul><li></li></ul>', replacedWith: { paragraph: '<p></p><p></p>' } },
-  { source: '<ol><li></li></ol>', replacedWith: { paragraph: '<p></p><p></p>' } },
-  { source: '<figure><img src=\\"\\" /></figure>', replacedWith: { paragraph: '<p></p><p></p>' } },
+  { source: '<ul><li></li></ul>', replacedWith: null },
+  { source: '<ol><li></li></ol>', replacedWith: null },
+  { source: '<figure><img src=\\"\\" /></figure>', replacedWith: null },
   { source: '<img src=\\"\\" />', replacedWith: null },
-  { source: '<pre></pre>', replacedWith: { paragraph: '<p></p><p></p>' } },
-  { source: '<div></div>', replacedWith: { paragraph: '<p></p><p></p>' } },
+  { source: '<pre></pre>', replacedWith: null },
+  { source: '<div></div>', replacedWith: null },
   { source: '<script src=\\"bad\\" />', replacedWith: null },
   {
     source: '<table><thead><th></th></thead><tbody><tr><td></td></tr></tbody></table>',
-    replacedWith: { paragraph: '<p></p><p></p>' }
+    replacedWith: null
   },
   { source: '<caption></caption>', replacedWith: null },
   { source: '<video></video>', replacedWith: null },
   { source: '<iframe src></iframe>', replacedWith: null },
-  { source: '<h1></h1>', replacedWith: { paragraph: '<p></p><p></p>' } },
-  { source: '<h2></h2>', replacedWith: { paragraph: '<p></p><p></p>' } },
-  { source: '<h3></h3>', replacedWith: { paragraph: '<p></p><p></p>' } },
-  { source: '<h4></h4>', replacedWith: { paragraph: '<p></p><p></p>' } },
-  { source: '<h5></h5>', replacedWith: { paragraph: '<p></p><p></p>' } }
+  { source: '<h1></h1>', replacedWith: null },
+  { source: '<h2></h2>', replacedWith: null },
+  { source: '<h3></h3>', replacedWith: null },
+  { source: '<h4></h4>', replacedWith: null },
+  { source: '<h5></h5>', replacedWith: null }
 ];
 
 const inlines = [

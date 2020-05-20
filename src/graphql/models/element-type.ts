@@ -55,7 +55,7 @@ export class AddElementInput {
   zone: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  image: ObjectId | null;
+  image: ObjectId | null | string;
 
   @Field(type => JsonType, { defaultValue: '' })
   style: any;
@@ -68,7 +68,7 @@ export class AddElementInput {
 @InputType()
 export class UpdateElementInput {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
   parent: ObjectId;
@@ -83,7 +83,7 @@ export class UpdateElementInput {
   zone: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  image: ObjectId | null;
+  image: ObjectId | null | string;
 
   @Field(type => JsonType, { nullable: true })
   style: any;

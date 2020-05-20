@@ -129,6 +129,7 @@ export class PostResolver implements ResolverInterface<Post> {
     if (!post.featuredImage) return null;
 
     const file = await ControllerFactory.get('files').getFile(post.featuredImage);
+    if (!file) return null;
     return File.fromEntity(file);
   }
 

@@ -266,6 +266,12 @@ export class PostsController extends Controller {
 
     token.lastUpdated = Date.now();
 
+    // Check if the image exists
+    if (token.featuredImage) {
+      const file = await ControllerFactory.get('files').getFile(token.featuredImage);
+      if (!file) throw new Error404(`File '${token.featuredImage}' does not exist`);
+    }
+
     const response = await this._postsCollection.updateOne({ _id: new ObjectID(id) } as IPost<'server'>, {
       $set: token
     });
@@ -293,6 +299,12 @@ export class PostsController extends Controller {
     token.tags = token.tags ? token.tags : [];
     token.brief = token.brief || '';
     token.categories = token.categories ? token.categories : [];
+
+    // Check if the image exists
+    if (token.featuredImage) {
+      const file = await ControllerFactory.get('files').getFile(token.featuredImage);
+      if (!file) throw new Error404(`File '${token.featuredImage}' does not exist`);
+    }
 
     let insertionResult = await this._postsCollection.insertOne(token);
 
