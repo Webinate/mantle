@@ -10,7 +10,7 @@ import { VolumeResolver } from '../graphql/resolvers/volume-resolver';
 import { FileResolver } from '../graphql/resolvers/file-resolver';
 import { DocumentResolver } from '../graphql/resolvers/document-resolver';
 import ControllerFactory from './controller-factory';
-import { UserPrivilege } from './enums';
+import { UserPrivilege, AuthLevel } from './enums';
 import { IGQLContext } from '../types/interfaces/i-gql-context';
 import { error, info } from '../utils/logger';
 import { TemplateResolver } from '../graphql/resolvers/template-resolver';
@@ -38,7 +38,7 @@ export async function generateSchema() {
 }
 
 export const customAuthChecker: AuthChecker<IGQLContext> = async ({ root, args, context, info }, roles) => {
-  const selectedRoles: UserPrivilege[] = roles as UserPrivilege[];
+  const selectedRoles: AuthLevel[] = roles as AuthLevel[];
 
   // here we can read the user from context
   // and check his permission in the db against the `roles` argument
@@ -53,8 +53,10 @@ export const customAuthChecker: AuthChecker<IGQLContext> = async ({ root, args, 
   context.user = session.user;
   context.isAdmin = session.user.privileges === UserPrivilege.admin || session.user.privileges === UserPrivilege.super;
 
-  if (session.user.privileges === 'super' || session.user.privileges === 'admin') return true;
-  if (selectedRoles.includes(session.user.privileges)) return true;
+  if (selectedRoles.includes(AuthLevel.none)) return true;
+
+  if (session.user.privileges === UserPrivilege.super || session.user.privileges === UserPrivilege.admin) return true;
+  if (selectedRoles.includes((session.user.privileges as string) as AuthLevel)) return true;
   else return false;
 };
 

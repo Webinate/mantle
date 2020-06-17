@@ -12,7 +12,7 @@ import {
 } from 'type-graphql';
 import { Post, AddPostInput, UpdatePostInput, GetPostsArgs, PaginatedPostsResponse } from '../models/post-type';
 import { Document } from '../models/document-type';
-import { UserPrivilege, PostVisibility } from '../../core/enums';
+import { UserPrivilege, PostVisibility, AuthLevel } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectID } from 'mongodb';
@@ -24,6 +24,7 @@ import { Draft } from '../models/draft-type';
 
 @Resolver(of => Post)
 export class PostResolver implements ResolverInterface<Post> {
+  @Authorized<AuthLevel>([AuthLevel.none])
   @Query(returns => Post, { nullable: true })
   async post(
     @Arg('id', type => GraphQLObjectId, { nullable: true }) id: ObjectID,
@@ -42,6 +43,7 @@ export class PostResolver implements ResolverInterface<Post> {
     return Post.fromEntity(post);
   }
 
+  @Authorized<AuthLevel>([AuthLevel.none])
   @Query(returns => PaginatedPostsResponse, { description: 'Gets a paginated list of posts' })
   async posts(
     @Args(type => GetPostsArgs)
@@ -88,7 +90,7 @@ export class PostResolver implements ResolverInterface<Post> {
     return PaginatedPostsResponse.fromEntity(response);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Post)
   async createPost(@Arg('token') token: AddPostInput, @Ctx() ctx: IGQLContext) {
     // User is passed from the authentication function
@@ -98,7 +100,7 @@ export class PostResolver implements ResolverInterface<Post> {
     return Post.fromEntity(post!);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Post)
   async patchPost(@Arg('token') token: UpdatePostInput, @Ctx() ctx: IGQLContext) {
     const post = await ControllerFactory.get('posts').update(token._id, token as Partial<IPost<'server'>>);
@@ -107,7 +109,7 @@ export class PostResolver implements ResolverInterface<Post> {
     return Post.fromEntity(post);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Boolean)
   async removePost(@Arg('id', type => GraphQLObjectId) id: ObjectID) {
     await ControllerFactory.get('posts').removePost(id);
@@ -139,10 +141,13 @@ export class PostResolver implements ResolverInterface<Post> {
     const document = await ControllerFactory.get('documents').get({ docId: post.document });
     return Document.fromEntity(document!);
   }
+
   @FieldResolver(type => User, { nullable: true })
   async latestDraft(@Root() root: Post) {
     const post = await ControllerFactory.get('posts').getPost({ id: root._id });
-    const document = await ControllerFactory.get('documents').getDraft(post.document);
-    return Draft.fromEntity(document!);
+    if (!post.latestDraft) return null;
+
+    const draft = await ControllerFactory.get('documents').getDraft(post.latestDraft);
+    return Draft.fromEntity(draft!);
   }
 }

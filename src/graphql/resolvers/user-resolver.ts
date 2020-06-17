@@ -15,12 +15,12 @@ import { User, PaginatedUserResponse, GetUsersArgs, AddUserInput, UpdateUserInpu
 import { File } from '../models/file-type';
 import { Error403, Error400, Error404 } from '../../utils/errors';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { UserPrivilege } from '../../core/enums';
+import { UserPrivilege, AuthLevel } from '../../core/enums';
 import { IUserEntry } from '../../types/models/i-user-entry';
 
 @Resolver(of => User)
 export class UserResolver implements ResolverInterface<User> {
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Query(returns => User, { nullable: true })
   async user(@Arg('user') user: string, @Ctx() ctx: IGQLContext) {
     if (ctx.user!.privileges === UserPrivilege.regular && ctx.user!.username !== user) {
@@ -34,7 +34,7 @@ export class UserResolver implements ResolverInterface<User> {
   }
 
   @Query(returns => PaginatedUserResponse)
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   async users(@Args() { index, limit, search }: GetUsersArgs) {
     const response = await ControllerFactory.get('users').getUsers({
       index: index,
@@ -46,7 +46,7 @@ export class UserResolver implements ResolverInterface<User> {
   }
 
   @FieldResolver(type => String, { nullable: true })
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   email(@Root() root: User, @Ctx() ctx: IGQLContext) {
     if (ctx.user!.username === root.username) return root.datebaseEmail;
     if (ctx.isAdmin) return root.datebaseEmail;
@@ -64,7 +64,7 @@ export class UserResolver implements ResolverInterface<User> {
     return File.fromEntity(file);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => User)
   async addUser(@Arg('token') token: AddUserInput) {
     if (token.privileges === UserPrivilege.super)
@@ -74,7 +74,7 @@ export class UserResolver implements ResolverInterface<User> {
     return User.fromEntity(user);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Boolean)
   async removeUser(@Arg('username') username: string, @Ctx() ctx: IGQLContext) {
     if (ctx.user!.username !== username && ctx.user!.privileges === 'regular') throw new Error403();
@@ -82,7 +82,7 @@ export class UserResolver implements ResolverInterface<User> {
     return true;
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => User)
   async updateUser(@Arg('token') token: UpdateUserInput, @Ctx() ctx: IGQLContext) {
     const user = await ControllerFactory.get('users').getUser({ id: token._id });

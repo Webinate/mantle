@@ -73,9 +73,6 @@ export class UpdateElementInput {
   @Field(type => GraphQLObjectId, { nullable: true })
   parent: ObjectId;
 
-  @Field(type => ElementType, { nullable: true })
-  type: ElementType;
-
   @Field({ nullable: true })
   html: string;
 

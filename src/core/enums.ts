@@ -7,6 +7,13 @@ export enum UserPrivilege {
   regular = 'regular'
 }
 
+export enum AuthLevel {
+  super = 'super',
+  admin = 'admin',
+  regular = 'regular',
+  none = 'none'
+}
+
 export enum SortOrder {
   asc = 'asc',
   desc = 'desc'

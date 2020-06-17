@@ -1,161 +1,147 @@
-// import * as assert from 'assert';
-// import { IPost, Page } from '../../../../src';
-// import header from '../../header';
-// import { generateRandString } from '../../../../src/utils/utils';
-// import { postFragment } from '../fragments';
-// let numPosts: number, secondPostId: string;
-// let post: IPost<'expanded'>;
+import * as assert from 'assert';
+import { IPost } from '../../../../src';
+import header from '../../header';
+import { generateRandString } from '../../../../src/utils/utils';
+import ControllerFactory from '../../../../src/core/controller-factory';
+import { ADD_POST, UPDATE_POST, GET_POST, REMOVE_POST } from '../../../../src/graphql/client/requests/posts';
+import { AddPostInput, UpdatePostInput } from '../../../../src/graphql/models/post-type';
 
-// const randomSlug = generateRandString(10);
+let numPosts: number, secondPostId: string;
+let post: IPost<'expanded'>;
 
-// describe('[GQL] Testing editing of posts', function() {
-//   it('fetched all posts', async function() {
-//     const { data: page } = await header.admin.graphql<Page<IPost<'expanded'>>>(`{ getPosts { count } }`);
-//     numPosts = page.count;
-//   });
+const randomSlug = generateRandString(10);
 
-//   it('did create a post to test editting post data', async function() {
-//     const { data: newPost } = await header.admin.graphql<IPost<'expanded'>>(
-//       `mutation { createPost(token: {
-//         title: "Simple Test",
-//         slug: "${randomSlug}",
-//         public: true
-//       }) {
-//         ...PostFields
-//       } } ${postFragment}`
-//     );
-//     post = newPost;
-//     assert(newPost._id);
-//   });
+describe('[GQL] Testing editing of posts', function() {
+  it('fetched all posts', async function() {
+    const { count } = await ControllerFactory.get('posts').getPosts({});
+    // const { data: page } = await header.admin.graphql<Page<IPost<'expanded'>>>(`{ getPosts { count } }`);
+    numPosts = count;
+  });
 
-//   it('did create a second post to test editting post data', async function() {
-//     const { data: newPost } = await header.admin.graphql<IPost<'expanded'>>(
-//       `mutation { createPost(token: {
-//         title: "Simple Test",
-//         slug: "${generateRandString(10)}",
-//         public: true
-//       }) {
-//         ...PostFields
-//       } } ${postFragment}`
-//     );
-//     secondPostId = newPost._id;
-//     assert(secondPostId);
-//   });
+  it('did create a post to test editting post data', async function() {
+    const { data: newPost } = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
+      token: new AddPostInput({
+        title: 'Simple Test',
+        slug: randomSlug,
+        public: true
+      })
+    });
+    post = newPost;
+    assert(newPost._id);
+  });
 
-//   it('cannot edit a post with an invalid ID', async function() {
-//     const { errors } = await header.admin.graphql<IPost<'expanded'>>(
-//       `mutation { updatePost(token: {
-//         _id: "woohoo",
-//         title: "Simple Test 3"
-//       }) {
-//         ...PostFields
-//       } } ${postFragment}`
-//     );
+  it('did create a second post to test editting post data', async function() {
+    const { data: newPost } = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
+      token: new AddPostInput({
+        title: 'Simple Test',
+        slug: generateRandString(10),
+        public: true
+      })
+    });
+    secondPostId = newPost._id;
+    assert(secondPostId);
+  });
 
-//     assert.deepEqual(
-//       errors[0].message,
-//       'Expected type ObjectId!, found "woohoo"; ObjectId must be a single String of 24 hex characters'
-//     );
-//   });
+  it('cannot edit a post with an invalid ID', async function() {
+    const { errors } = await header.admin.graphql<IPost<'expanded'>>(UPDATE_POST, {
+      token: new UpdatePostInput({
+        _id: 'woohoo',
+        title: 'Simple Test 3'
+      })
+    });
 
-//   it('cannot edit a post with an valid ID but doesnt exist', async function() {
-//     const { errors } = await header.admin.graphql<IPost<'expanded'>>(
-//       `mutation { updatePost(token: {
-//         _id: "123456789012345678901234",
-//         title: "Simple Test 3"
-//       }) {
-//         ...PostFields
-//       } } ${postFragment}`
-//     );
+    assert.deepEqual(
+      errors![0].message,
+      'Variable "$token" got invalid value "woohoo" at "token._id"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+    );
+  });
 
-//     assert.deepEqual(errors[0].message, 'Resource does not exist');
-//   });
+  it('cannot edit a post with an valid ID but doesnt exist', async function() {
+    const { errors } = await header.admin.graphql<IPost<'expanded'>>(UPDATE_POST, {
+      token: new UpdatePostInput({
+        _id: '123456789012345678901234',
+        title: 'Simple Test 3'
+      })
+    });
 
-//   it('cannot edit a post without permission', async function() {
-//     const { errors } = await header.guest.graphql<IPost<'expanded'>>(
-//       `mutation { updatePost(token: {
-//         _id: "${post._id}",
-//         title: "Simple Test 3"
-//       }) {
-//         ...PostFields
-//       } } ${postFragment}`
-//     );
+    assert.deepEqual(errors![0].message, 'Could not find resource');
+  });
 
-//     assert.deepEqual(errors[0].message, 'Authentication Error');
-//   });
+  it('cannot edit a post without permission', async function() {
+    const { errors } = await header.guest.graphql<IPost<'expanded'>>(UPDATE_POST, {
+      token: new UpdatePostInput({
+        _id: post._id,
+        title: 'Simple Test 3'
+      })
+    });
 
-//   it('cannot change an existing post with a slug already in use', async function() {
-//     const { errors } = await header.admin.graphql<IPost<'expanded'>>(
-//       `mutation { updatePost(token: {
-//         _id: "${secondPostId}",
-//         slug: "${randomSlug}"
-//       }) {
-//         ...PostFields
-//       } } ${postFragment}`
-//     );
+    assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
+  });
 
-//     assert.deepEqual(errors[0].message, "'slug' must be unique");
-//   });
+  it('cannot change an existing post with a slug already in use', async function() {
+    const { errors } = await header.admin.graphql<IPost<'expanded'>>(UPDATE_POST, {
+      token: new UpdatePostInput({
+        _id: secondPostId,
+        slug: randomSlug
+      })
+    });
 
-//   it('can change a post slug with a slug already in use, if its the same post', async function() {
-//     const { data: updatedPost } = await header.admin.graphql<IPost<'expanded'>>(
-//       `mutation { updatePost(token: {
-//         _id: "${post._id}",
-//         slug: "${randomSlug}"
-//       }) {
-//         _id, slug, title
-//       } }`
-//     );
+    assert.deepEqual(errors![0].message, 'Slug must be unique');
+  });
 
-//     assert.deepEqual(updatedPost._id, post._id);
-//     assert.deepEqual(updatedPost.slug, randomSlug);
-//     assert.deepEqual(updatedPost.title, 'Simple Test');
-//   });
+  it('can change a post slug with a slug already in use, if its the same post', async function() {
+    const { data: updatedPost } = await header.admin.graphql<IPost<'expanded'>>(UPDATE_POST, {
+      token: new UpdatePostInput({
+        _id: post._id,
+        slug: randomSlug
+      })
+    });
 
-//   it('can edit a post with valid details', async function() {
-//     const { data: updatedPost } = await header.admin.graphql<IPost<'expanded'>>(
-//       `mutation { updatePost(token: {
-//         _id: "${post._id}",
-//         brief: "Updated"
-//       }) {
-//         _id, brief, document { _id, elements { _id } }, latestDraft { _id, html }
-//       } }`
-//     );
+    assert.deepEqual(updatedPost._id, post._id);
+    assert.deepEqual(updatedPost.slug, randomSlug);
+    assert.deepEqual(updatedPost.title, 'Simple Test');
+  });
 
-//     assert.deepEqual(updatedPost._id, post._id);
-//     assert.deepEqual(updatedPost.brief, 'Updated');
+  it('can edit a post with valid details', async function() {
+    const { data: updatedPost } = await header.admin.graphql<IPost<'expanded'>>(UPDATE_POST, {
+      token: new UpdatePostInput({
+        _id: post._id,
+        brief: 'Updated'
+      })
+    });
 
-//     // Ensure the doc and draft are returned
-//     assert(typeof updatedPost.document._id === 'string');
-//     assert(updatedPost.document.elements.length > 0);
-//     assert.deepEqual(typeof updatedPost.latestDraft._id, 'string');
-//     assert.deepEqual(updatedPost.latestDraft.html.main, '<p></p>');
-//   });
+    assert.deepEqual(updatedPost._id, post._id);
+    assert.deepEqual(updatedPost.brief, 'Updated');
 
-//   it('did update the posts modified property', async function() {
-//     const { data: json } = await header.admin.graphql<IPost<'expanded'>>(
-//       `{ getPost(id: "${post._id}") { createdOn, lastUpdated } }`
-//     );
+    // Ensure the doc and draft are returned
+    assert(typeof updatedPost.document._id === 'string');
+    assert(updatedPost.document.elements.length > 0);
+    assert.deepEqual(typeof updatedPost.latestDraft!._id, 'string');
+    assert.deepEqual(updatedPost.latestDraft!.html.main, '<p></p>');
+  });
 
-//     // Creation date should be the same
-//     assert.deepEqual(json.createdOn, post.createdOn);
+  it('did update the posts modified property', async function() {
+    const { data: json } = await header.admin.graphql<IPost<'expanded'>>(GET_POST, { id: post._id });
 
-//     // Modified date should be greater than creation
-//     assert(json.lastUpdated > json.createdOn);
-//   });
+    // Creation date should be the same
+    assert.deepEqual(json.createdOn, post.createdOn);
 
-//   it('did cleanup the test post', async function() {
-//     const { data: postRemoved } = await header.admin.graphql<boolean>(`mutation { removePost(id: "${post._id}") }`);
-//     assert.deepEqual(postRemoved, true);
-//   });
+    // Modified date should be greater than creation
+    assert(json.lastUpdated > json.createdOn);
+  });
 
-//   it('did cleanup the second test post', async function() {
-//     const { data: postRemoved } = await header.admin.graphql<boolean>(`mutation { removePost(id: "${secondPostId}") }`);
-//     assert.deepEqual(postRemoved, true);
-//   });
+  it('did cleanup the test post', async function() {
+    const { data: postRemoved } = await header.admin.graphql<boolean>(REMOVE_POST, { id: post._id });
+    assert.deepEqual(postRemoved, true);
+  });
 
-//   it('has cleaned up the posts successfully', async function() {
-//     const { data: page } = await header.admin.graphql<Page<IPost<'expanded'>>>(`{ getPosts { count } }`);
-//     assert(page.count === numPosts);
-//   });
-// });
+  it('did cleanup the second test post', async function() {
+    const { data: postRemoved } = await header.admin.graphql<boolean>(REMOVE_POST, { id: secondPostId });
+    assert.deepEqual(postRemoved, true);
+  });
+
+  it('has cleaned up the posts successfully', async function() {
+    const { count } = await ControllerFactory.get('posts').getPosts({});
+    assert(count === numPosts);
+  });
+});

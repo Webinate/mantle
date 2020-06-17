@@ -6,7 +6,7 @@ import { GraphQLObjectId } from '../scalars/object-id';
 import { LongType } from '../scalars/long';
 import { JsonType } from '../scalars/json';
 import { IUserEntry } from '../../types/models/i-user-entry';
-import { UserPrivilege } from '../../core/enums';
+import { UserPrivilege, AuthLevel } from '../../core/enums';
 import { IsEmail } from 'class-validator';
 import { File } from './file-type';
 
@@ -22,7 +22,7 @@ export class User {
   @IsEmail()
   email: string | null;
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Field()
   registerKey: string;
 
@@ -43,7 +43,7 @@ export class User {
   @Field(type => Boolean)
   isActivated: boolean;
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Field(type => UserPrivilege)
   privileges: UserPrivilege;
 

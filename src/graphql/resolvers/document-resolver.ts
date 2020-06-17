@@ -11,7 +11,7 @@ import {
   Int
 } from 'type-graphql';
 import { Document } from '../models/document-type';
-import { UserPrivilege } from '../../core/enums';
+import { AuthLevel } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { ObjectID } from 'mongodb';
@@ -27,7 +27,7 @@ const removeElmQueue: Queue = new Queue();
 
 @Resolver(of => Document)
 export class DocumentResolver implements ResolverInterface<Document> {
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Query(returns => Document, { nullable: true })
   async document(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
     const checkPermissions = ctx.isAdmin ? undefined : { userId: ctx.user!._id };
@@ -67,7 +67,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
     return await ControllerFactory.get('documents').getDocHtml(root._id);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Boolean)
   async changeDocTemplate(
     @Arg('id', type => GraphQLObjectId) id: ObjectID,
@@ -85,7 +85,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
     );
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Element)
   async addDocElement(
     @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
@@ -114,7 +114,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
     }
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Element)
   async updateDocElement(
     @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
@@ -133,7 +133,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
     return Element.fromEntity(element);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Boolean)
   async removeDocElement(
     @Arg('docId', type => GraphQLObjectId) docId: ObjectID,

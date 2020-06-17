@@ -1,6 +1,6 @@
 import { Resolver, Arg, Mutation, Authorized, Ctx, Query } from 'type-graphql';
 import ControllerFactory from '../../core/controller-factory';
-import { UserPrivilege } from '../../core/enums';
+import { AuthLevel } from '../../core/enums';
 import { AuthResponse, LoginInput, RegisterInput } from '../models/auth-type';
 import { User } from '../models/user-type';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
@@ -38,7 +38,7 @@ export class AuthResolver {
     });
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Boolean)
   async approveActivation(@Arg('username') username: string, @Ctx() ctx: IGQLContext) {
     if (ctx.user!.privileges === 'regular' && ctx.user!.username !== username) throw new Error403();

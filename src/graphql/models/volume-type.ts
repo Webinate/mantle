@@ -5,7 +5,7 @@ import { JsonType } from '../scalars/json';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
 import { IVolume } from '../../types/models/i-volume-entry';
-import { VolumeType, SortOrder, VolumeSortType, UserPrivilege } from '../../core/enums';
+import { VolumeType, SortOrder, VolumeSortType, AuthLevel } from '../../core/enums';
 import { PaginatedResponse } from './paginated-response';
 import { Page } from '../../types/tokens/standard-tokens';
 
@@ -91,7 +91,7 @@ export class AddVolumeInput {
   type: VolumeType;
 
   @Field(type => LongType, { nullable: true })
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   memoryAllocated: number;
 
   @Field(type => JsonType, { nullable: true })
@@ -117,7 +117,7 @@ export class UpdateVolumeInput {
   user: ObjectID;
 
   @Field(type => LongType, { nullable: true })
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   memoryAllocated: number;
 
   @Field(type => JsonType, { nullable: true })

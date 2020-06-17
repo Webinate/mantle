@@ -68,10 +68,12 @@ export class DocumentsController extends Controller {
 
     if (!document) throw new Error404();
 
+    const draftJson = await this.getDocHtml(documentId);
+
     const draftsCollection = this._drafts;
     const draftInsertResult = await draftsCollection.insertOne({
       createdOn: Date.now(),
-      html: document.html,
+      html: draftJson,
       parent: document._id
     } as IDraft<'server'>);
 
@@ -260,10 +262,13 @@ export class DocumentsController extends Controller {
       $set: { elementsOrder: [firstElmId] }
     });
 
+    const draftJson = await this.getDocHtml(newDocument!._id);
+
     // Now create the draft
     await this._drafts.insertOne({
       createdOn: Date.now(),
-      parent: newDocument!._id
+      parent: newDocument!._id,
+      html: draftJson
     } as IDraft<'server'>);
 
     newDocument = await this._docs.findOne({ _id: insertionResult.insertedId } as IDocument<'server'>);

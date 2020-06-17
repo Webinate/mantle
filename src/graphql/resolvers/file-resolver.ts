@@ -1,6 +1,6 @@
 import { Resolver, Authorized, Mutation, Arg, Ctx } from 'type-graphql';
 import { File } from '../models/file-type';
-import { UserPrivilege } from '../../core/enums';
+import { AuthLevel } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectID } from 'mongodb';
@@ -8,7 +8,7 @@ import { IGQLContext } from '../../types/interfaces/i-gql-context';
 
 @Resolver(of => File)
 export class FileResolver {
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Boolean)
   async removeFile(
     @Arg('id', type => GraphQLObjectId) id: ObjectID,

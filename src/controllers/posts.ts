@@ -8,7 +8,7 @@ import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
-import { Error404 } from '../utils/errors';
+import { Error404, Error400 } from '../utils/errors';
 import { IDraft } from '../types/models/i-draft';
 import { SortOrder, PostVisibility, PostSortType } from '../core/enums';
 
@@ -128,7 +128,9 @@ export class PostsController extends Controller {
     // First get the count
     const count = await posts.count(findToken);
     const index: number = options.index || 0;
-    const limit: number = options.limit || 10;
+    let limit: number | undefined = options.limit || 10;
+
+    if (limit === -1) limit = undefined;
 
     const sanitizedData = await posts
       .find(findToken, {}, index, limit)
@@ -139,7 +141,7 @@ export class PostsController extends Controller {
       count: count,
       data: sanitizedData,
       index: index,
-      limit: limit
+      limit: limit ? limit : -1
     };
 
     return response;
@@ -272,7 +274,17 @@ export class PostsController extends Controller {
       if (!file) throw new Error404(`File '${token.featuredImage}' does not exist`);
     }
 
-    const response = await this._postsCollection.updateOne({ _id: new ObjectID(id) } as IPost<'server'>, {
+    const postToUpdate = await this._postsCollection.findOne({ _id: new ObjectID(id) } as IPost<'server'>);
+
+    if (!postToUpdate) throw new Error404();
+
+    // Make sure the slug is unique
+    if (postToUpdate.slug !== token.slug && token.slug) {
+      const existingPost = await this._postsCollection.findOne({ slug: token.slug } as IPost<'server'>);
+      if (existingPost) throw new Error400(`Slug must be unique`);
+    }
+
+    const response = await this._postsCollection.updateOne({ _id: postToUpdate._id } as IPost<'server'>, {
       $set: token
     });
     if (response.matchedCount === 0) throw new Error404();

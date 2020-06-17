@@ -17,7 +17,7 @@ import {
   AddVolumeInput,
   UpdateVolumeInput
 } from '../models/volume-type';
-import { UserPrivilege } from '../../core/enums';
+import { AuthLevel } from '../../core/enums';
 import { GraphQLObjectId } from '../scalars/object-id';
 import ControllerFactory from '../../core/controller-factory';
 import { Error404, Error403 } from '../../utils/errors';
@@ -28,7 +28,7 @@ import { User } from '../models/user-type';
 
 @Resolver(of => Volume)
 export class VolumeResolver implements ResolverInterface<Volume> {
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Query(returns => Volume, { nullable: true })
   async volume(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
     const volume = await ControllerFactory.get('volumes').get({ id: id });
@@ -38,7 +38,7 @@ export class VolumeResolver implements ResolverInterface<Volume> {
   }
 
   @Query(returns => PaginatedVolumeResponse)
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   async volumes(@Args() { index, sortOrder, sortType, limit, user, search }: GetVolumesArgs, @Ctx() ctx: IGQLContext) {
     const authUser = ctx.user!;
     const manager = ControllerFactory.get('volumes');
@@ -62,7 +62,7 @@ export class VolumeResolver implements ResolverInterface<Volume> {
     return PaginatedVolumeResponse.fromEntity(response);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Volume)
   async addVolume(@Arg('token') token: AddVolumeInput, @Ctx() ctx: IGQLContext) {
     const manager = ControllerFactory.get('volumes');
@@ -77,7 +77,7 @@ export class VolumeResolver implements ResolverInterface<Volume> {
     return Volume.fromEntity(entry);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Volume)
   async updateVolume(@Arg('token') token: UpdateVolumeInput, @Ctx() ctx: IGQLContext) {
     if (token.memoryAllocated !== undefined && !ctx.isAdmin)
@@ -101,7 +101,7 @@ export class VolumeResolver implements ResolverInterface<Volume> {
     return User.fromEntity(user!);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Boolean)
   async removeVolume(@Arg('id', type => GraphQLObjectId) id: ObjectID) {
     await ControllerFactory.get('volumes').remove({ _id: id });

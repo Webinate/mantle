@@ -13,7 +13,7 @@ import {
 import { Comment, PaginatedCommentsResponse, GetCommentsArgs } from '../models/comment-type';
 import ControllerFactory from '../../core/controller-factory';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { CommentVisibility, UserPrivilege } from '../../core/enums';
+import { CommentVisibility, AuthLevel } from '../../core/enums';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectID } from 'mongodb';
 import { Error403 } from '../../utils/errors';
@@ -21,7 +21,7 @@ import { User } from '../models/user-type';
 
 @Resolver(of => Comment)
 export class CommentResolver implements ResolverInterface<Comment> {
-  @Authorized<UserPrivilege>([UserPrivilege.regular])
+  @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Boolean)
   async removeComment(@Arg('id', type => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
     const comment = await ControllerFactory.get('comments').getOne(id);

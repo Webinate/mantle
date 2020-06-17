@@ -7,7 +7,7 @@ import {
   GetCategoriesArgs
 } from '../models/category-type';
 import ControllerFactory from '../../core/controller-factory';
-import { UserPrivilege } from '../../core/enums';
+import { AuthLevel } from '../../core/enums';
 import { ICategory } from '../../types/models/i-category';
 
 @Resolver(of => Category)
@@ -47,21 +47,21 @@ export class CategoryResolver implements ResolverInterface<Category> {
     return response.data.map(cat => Category.fromEntity(cat));
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Category)
   async createCategory(@Arg('token') token: AddCategoryInput) {
     const category = await ControllerFactory.get('categories').create(token as ICategory<'server'>);
     return Category.fromEntity(category);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Category)
   async updateCategory(@Arg('token') token: UpdateCategoryInput) {
     const category = await ControllerFactory.get('categories').update(token as ICategory<'server'>);
     return Category.fromEntity(category);
   }
 
-  @Authorized<UserPrivilege>([UserPrivilege.admin])
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Boolean)
   async removeCategory(@Arg('id') id: string) {
     await ControllerFactory.get('categories').remove(id);
