@@ -45,19 +45,25 @@ export const customAuthChecker: AuthChecker<IGQLContext> = async ({ root, args, 
   // that comes from the `@Authorized` decorator, eg. ["ADMIN", "MODERATOR"]
   const session = await ControllerFactory.get('sessions').getSession(context.req);
 
-  if (!session) return false;
+  if (!session && !selectedRoles.includes(AuthLevel.none)) return false;
 
-  // Set the response header session
-  await ControllerFactory.get('sessions').setSessionHeader(session, context.req, context.res);
+  if (session) {
+    // Set the response header session
+    await ControllerFactory.get('sessions').setSessionHeader(session, context.req, context.res);
 
-  context.user = session.user;
-  context.isAdmin = session.user.privileges === UserPrivilege.admin || session.user.privileges === UserPrivilege.super;
+    context.user = session.user;
+    context.isAdmin =
+      session.user.privileges === UserPrivilege.admin || session.user.privileges === UserPrivilege.super;
 
-  if (selectedRoles.includes(AuthLevel.none)) return true;
+    if (selectedRoles.includes(AuthLevel.none)) return true;
 
-  if (session.user.privileges === UserPrivilege.super || session.user.privileges === UserPrivilege.admin) return true;
-  if (selectedRoles.includes((session.user.privileges as string) as AuthLevel)) return true;
-  else return false;
+    if (session.user.privileges === UserPrivilege.super || session.user.privileges === UserPrivilege.admin) return true;
+    if (selectedRoles.includes((session.user.privileges as string) as AuthLevel)) return true;
+    else return false;
+  } else {
+    if (selectedRoles.includes(AuthLevel.none)) return true;
+    else return false;
+  }
 };
 
 export async function writeSchemaToFile(file: string) {

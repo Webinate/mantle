@@ -21,6 +21,7 @@ import { IPost } from '../../types/models/i-post';
 import { User } from '../models/user-type';
 import { File } from '../models/file-type';
 import { Draft } from '../models/draft-type';
+import { Category } from '../models/category-type';
 
 @Resolver(of => Post)
 export class PostResolver implements ResolverInterface<Post> {
@@ -123,6 +124,13 @@ export class PostResolver implements ResolverInterface<Post> {
 
     const author = await ControllerFactory.get('users').getUser({ id: post.author });
     return User.fromEntity(author!);
+  }
+
+  @FieldResolver(type => User, { nullable: true })
+  async categories(@Root() root: Post) {
+    const post = await ControllerFactory.get('posts').getPost({ id: root._id });
+    const categories = await Promise.all(post.categories.map(cat => ControllerFactory.get('categories').getOne(cat)));
+    return categories.filter(cat => cat).map(cat => Category.fromEntity(cat!));
   }
 
   @FieldResolver(type => User, { nullable: true })

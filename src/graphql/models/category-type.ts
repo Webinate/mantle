@@ -26,7 +26,7 @@ export class Category {
   @Field(type => [Category], { nullable: true })
   children: Category[];
 
-  static fromEntity(category: ICategory<'server'>) {
+  static fromEntity(category: Partial<ICategory<'server'>>) {
     const toReturn = new Category();
     Object.assign(toReturn, category);
     return toReturn;

@@ -62,6 +62,7 @@ export class Post {
     toReturn.featuredImage = initialization.featuredImage
       ? File.fromEntity({ _id: initialization.featuredImage })
       : null;
+    toReturn.categories = initialization.categories.map(cat => Category.fromEntity({ _id: cat }));
     toReturn.latestDraft = initialization.latestDraft ? Draft.fromEntity({ _id: initialization.latestDraft }) : null;
     return toReturn;
   }
@@ -86,7 +87,7 @@ export class AddPostInput {
   public: boolean;
 
   @Field(type => [GraphQLObjectId], { nullable: true, defaultValue: [] })
-  categories: ObjectID[];
+  categories: (ObjectID | string)[];
 
   @Field(type => [String], { nullable: true, defaultValue: [] })
   tags: string[];
