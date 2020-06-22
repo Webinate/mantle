@@ -1,5 +1,5 @@
-import { ObjectType, Field, ArgsType, Int } from 'type-graphql';
-import { ObjectId } from 'mongodb';
+import { ObjectType, Field, ArgsType, Int, InputType } from 'type-graphql';
+import { ObjectId, ObjectID } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
@@ -41,10 +41,39 @@ export class Comment {
   @Field(type => LongType)
   lastUpdated: number;
 
-  static fromEntity(category: IComment<'server'>) {
+  static fromEntity(comment: Partial<IComment<'server'>>) {
     const toReturn = new Comment();
-    Object.assign(toReturn, category);
+    Object.assign(toReturn, comment);
+    if (comment.user) toReturn.user = User.fromEntity({ _id: comment.user! });
+    if (comment.children) toReturn.children = comment.children.map(child => Comment.fromEntity({ _id: child }));
+    if (comment.parent) toReturn.parent = Comment.fromEntity({ _id: comment.parent });
+    if (comment.post) toReturn.post = Post.fromEntity({ _id: comment.post });
     return toReturn;
+  }
+}
+
+@InputType()
+export class AddCommentInput {
+  @Field(type => GraphQLObjectId, { nullable: true })
+  user: ObjectID;
+
+  @Field(type => GraphQLObjectId)
+  post: ObjectID;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  parent: ObjectID;
+
+  @Field(type => Boolean, { defaultValue: true })
+  public: boolean;
+
+  @Field()
+  content: string;
+
+  @Field(type => [GraphQLObjectId], { nullable: true })
+  children: ObjectID[];
+
+  constructor(initialization?: Partial<AddCommentInput>) {
+    if (initialization) Object.assign(this, initialization);
   }
 }
 

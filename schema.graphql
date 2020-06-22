@@ -5,6 +5,15 @@ input AddCategoryInput {
   parent: ObjectId
 }
 
+input AddCommentInput {
+  user: ObjectId
+  post: ObjectId!
+  parent: ObjectId
+  public: Boolean = true
+  content: String!
+  children: [ObjectId!]
+}
+
 input AddElementInput {
   parent: ObjectId
   type: ElementType!
@@ -170,6 +179,7 @@ type Mutation {
   removeUser(username: String!): Boolean!
   updateUser(token: UpdateUserInput!): User!
   removeComment(id: ObjectId!): Boolean!
+  addComment(token: AddCommentInput!): Comment!
   login(token: LoginInput!): AuthResponse!
   register(token: RegisterInput!): AuthResponse!
   approveActivation(username: String!): Boolean!
@@ -330,7 +340,7 @@ input UpdateElementInput {
   _id: ObjectId!
   parent: ObjectId
   html: String
-  zone: String
+  zone: String = "unassigned"
   image: ObjectId
   style: JSON
 }

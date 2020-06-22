@@ -213,6 +213,6 @@ export class CommentsController extends Controller {
       });
     }
 
-    return instance;
+    return instance!;
   }
 }

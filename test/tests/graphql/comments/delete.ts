@@ -2,32 +2,32 @@
 // import { IPost, Page, IComment } from '../../../../src';
 // import header from '../../header';
 // import { generateRandString } from '../../../../src/utils/utils';
+// import ControllerFactory from '../../../../src/core/controller-factory';
+// import { ADD_POST } from '../../../../src/graphql/client/requests/posts';
+// import { AddPostInput } from '../../../../src/graphql/models/post-type';
 
-// let numPosts, numComments, postId, commentId, parentCommentId;
+// let numPosts: number, numComments: number, postId: string, commentId: string, parentCommentId: string;
 
 // describe('[GQL] Testing deletion of comments', function() {
 //   it('fetched all posts', async function() {
-//     const {
-//       data: { count: postCount }
-//     } = await header.admin.graphql<{ count: number }>(`{ getPosts { count } }`);
+//     const posts = await ControllerFactory.get('posts').getPosts({});
+//     const comments = await ControllerFactory.get('comments').getAll({});
 
-//     const {
-//       data: { count: commentCount }
-//     } = await header.admin.graphql<{ count: number }>(`{ getComments { count } }`);
-
-//     numPosts = postCount;
-//     numComments = commentCount;
+//     numPosts = posts.count;
+//     numComments = comments.count;
 //   });
 
 //   it('can create a temp post', async function() {
 //     const {
 //       data: { _id, public: isPublic }
-//     } = await header.admin.graphql<IPost<'expanded'>>(`mutation { createPost( token: {
-//       title: "Simple Test",
-//       slug: "${generateRandString(10)}",
-//       brief: "This is brief",
-//       public: false
-//      } ) { _id, public } }`);
+//     } = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
+//       token: new AddPostInput({
+//         title: 'Simple Test',
+//         slug: generateRandString(10),
+//         brief: 'This is brief',
+//         public: false
+//       })
+//     });
 
 //     postId = _id;
 //     assert(isPublic === false);
@@ -135,9 +135,7 @@
 //   });
 
 //   it('should have the same number of comments as before the tests started', async function() {
-//     const {
-//       data: { count }
-//     } = await header.admin.graphql<{ count: number }>(`{ getComments { count } }`);
-//     assert(count === numComments);
+//     const comments = await ControllerFactory.get('comments').getAll({});
+//     assert(numComments === comments.count);
 //   });
 // });

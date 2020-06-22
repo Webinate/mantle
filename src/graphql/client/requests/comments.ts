@@ -1,6 +1,21 @@
 import gql from '../../../utils/gql';
 import { COMMENT_FIELDS } from '../fragments/comment';
 
+export const REMOVE_COMMENT = gql`
+  mutation REMOVE_COMMENT($id: ObjectId!) {
+    removeComment(id: $id)
+  }
+`;
+
+export const ADD_COMMENT = gql`
+  mutation ADD_COMMENT($token: AddCommentInput!) {
+    addComment(token: $token) {
+      ...CommentFields
+    }
+  }
+  ${COMMENT_FIELDS}
+`;
+
 export const GET_COMMENT = gql`
   query GET_COMMENT($id: ObjectId!) {
     comment(id: $id) {

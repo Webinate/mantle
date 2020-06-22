@@ -10,7 +10,7 @@ import {
   FieldResolver,
   Root
 } from 'type-graphql';
-import { Comment, PaginatedCommentsResponse, GetCommentsArgs } from '../models/comment-type';
+import { Comment, PaginatedCommentsResponse, GetCommentsArgs, AddCommentInput } from '../models/comment-type';
 import ControllerFactory from '../../core/controller-factory';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { CommentVisibility, AuthLevel } from '../../core/enums';
@@ -31,6 +31,17 @@ export class CommentResolver implements ResolverInterface<Comment> {
 
     await ControllerFactory.get('comments').remove(id);
     return true;
+  }
+
+  @Authorized<AuthLevel>([AuthLevel.regular])
+  @Mutation(returns => Comment)
+  async addComment(@Arg('token') token: AddCommentInput, @Ctx() ctx: IGQLContext) {
+    const response = await ControllerFactory.get('comments').create({
+      ...token,
+      author: ctx.user!.username as string,
+      user: ctx.user!._id
+    });
+    return Comment.fromEntity(response);
   }
 
   @Query(returns => Comment, { nullable: true })

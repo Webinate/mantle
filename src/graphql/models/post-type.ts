@@ -54,7 +54,7 @@ export class Post {
   @Field(type => Draft, { nullable: true })
   latestDraft: Draft | null;
 
-  static fromEntity(initialization: IPost<'server'>) {
+  static fromEntity(initialization: Partial<IPost<'server'>>) {
     const toReturn = new Post();
     Object.assign(toReturn, initialization);
     toReturn.author = User.fromEntity({ _id: initialization.author! });
@@ -62,7 +62,7 @@ export class Post {
     toReturn.featuredImage = initialization.featuredImage
       ? File.fromEntity({ _id: initialization.featuredImage })
       : null;
-    toReturn.categories = initialization.categories.map(cat => Category.fromEntity({ _id: cat }));
+    toReturn.categories = initialization.categories!.map(cat => Category.fromEntity({ _id: cat }));
     toReturn.latestDraft = initialization.latestDraft ? Draft.fromEntity({ _id: initialization.latestDraft }) : null;
     return toReturn;
   }
