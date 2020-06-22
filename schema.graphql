@@ -6,10 +6,10 @@ input AddCategoryInput {
 }
 
 input AddElementInput {
-  parent: ObjectId!
+  parent: ObjectId
   type: ElementType!
-  html: String!
-  zone: String
+  html: String = ""
+  zone: String = "unassigned"
   image: ObjectId
   style: JSON = ""
 }
@@ -182,9 +182,10 @@ type Mutation {
   removeVolume(id: ObjectId!): Boolean!
   removeFile(volumeId: ObjectId, id: ObjectId!): Boolean!
   changeDocTemplate(template: ObjectId!, id: ObjectId!): Boolean!
-  addDocElement(index: Int = 0, token: AddElementInput!, docId: ObjectId!): Element!
+  addDocElement(index: Int, token: AddElementInput!, docId: ObjectId!): Element!
   updateDocElement(index: Int, token: UpdateElementInput!, docId: ObjectId!): Element!
   removeDocElement(elementId: ObjectId!, docId: ObjectId!): Boolean!
+  removePostDraft(draftId: ObjectId!, postId: ObjectId!): Boolean!
   createPost(token: AddPostInput!): Post!
   patchPost(token: UpdatePostInput!): Post!
   removePost(id: ObjectId!): Boolean!
@@ -293,6 +294,7 @@ type Query {
 
   """Gets a paginated list of posts"""
   posts(index: Int = 0, limit: Int = 10, author: String, keyword: String, visibility: PostVisibility = all, sortOrder: SortOrder = desc, sortType: PostSortType = created, categories: [ObjectId!], tags: [String!], requiredTags: [String!]): PaginatedPostsResponse!
+  getPostDrafts(id: ObjectId!): [Draft!]!
 }
 
 input RegisterInput {
@@ -327,7 +329,6 @@ input UpdateCategoryInput {
 input UpdateElementInput {
   _id: ObjectId!
   parent: ObjectId
-  type: ElementType
   html: String
   zone: String
   image: ObjectId

@@ -150,7 +150,7 @@ export class PostsController extends Controller {
   /**
    * Gets all drafts associated with a post
    */
-  async getDrafts(postId: string) {
+  async getDrafts(postId: string | ObjectID) {
     const postsCollection = this._postsCollection;
     const draftsCollection = this._draftsCollection;
     const findToken: Partial<IPost<'server'>> = { _id: new ObjectID(postId) };
@@ -184,7 +184,7 @@ export class PostsController extends Controller {
   /**
    * Removes a draft from a post
    */
-  async removeDraft(postId: string, draftId: string) {
+  async removeDraft(postId: string | ObjectID, draftId: string | ObjectID) {
     const posts = this._postsCollection;
     const drafts = this._draftsCollection;
     const findPostToken: Partial<IPost<'server'>> = { _id: new ObjectID(postId) };

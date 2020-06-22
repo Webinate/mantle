@@ -11,6 +11,19 @@ export const ADD_POST = gql`
   ${POST_FIELDS}
 `;
 
+export const GET_POST_DRAFTS = gql`
+  query GET_POST_DRAFTS($id: ObjectId!) {
+    getPostDrafts(id: $id) {
+      _id
+      createdOn
+      html
+      parent {
+        _id
+      }
+    }
+  }
+`;
+
 export const UPDATE_POST = gql`
   mutation UPDATE_POST($token: UpdatePostInput!) {
     patchPost(token: $token) {
@@ -24,6 +37,12 @@ export const UPDATE_POST = gql`
 export const REMOVE_POST = gql`
   mutation REMOVE_POST($id: ObjectId!) {
     removePost(id: $id)
+  }
+`;
+
+export const REMOVE_POST_DRAFT = gql`
+  mutation REMOVE_POST_DRAFT($draftId: ObjectId!, $postId: ObjectId!) {
+    removePostDraft(draftId: $draftId, postId: $postId)
   }
 `;
 

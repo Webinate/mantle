@@ -22,6 +22,7 @@ import { User } from '../models/user-type';
 import { File } from '../models/file-type';
 import { Draft } from '../models/draft-type';
 import { Category } from '../models/category-type';
+import { Error403 } from '../../utils/errors';
 
 @Resolver(of => Post)
 export class PostResolver implements ResolverInterface<Post> {
@@ -92,6 +93,28 @@ export class PostResolver implements ResolverInterface<Post> {
   }
 
   @Authorized<AuthLevel>([AuthLevel.admin])
+  @Query(returns => [Draft])
+  async getPostDrafts(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+    const response = await ControllerFactory.get('posts').getDrafts(id);
+    if (ctx.isAdmin || ctx.user!._id.equals(response.post.author!)) {
+      return response.drafts.map(d => Draft.fromEntity(d));
+    } else {
+      throw new Error403();
+    }
+  }
+
+  @Authorized<AuthLevel>([AuthLevel.admin])
+  @Mutation(returns => Boolean)
+  async removePostDraft(
+    @Arg('postId', () => GraphQLObjectId) postId: ObjectID,
+    @Arg('draftId', () => GraphQLObjectId) draftId: ObjectID,
+    @Ctx() ctx: IGQLContext
+  ) {
+    await ControllerFactory.get('posts').removeDraft(postId, draftId);
+    return true;
+  }
+
+  @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Post)
   async createPost(@Arg('token') token: AddPostInput, @Ctx() ctx: IGQLContext) {
     // User is passed from the authentication function
@@ -156,6 +179,6 @@ export class PostResolver implements ResolverInterface<Post> {
     if (!post.latestDraft) return null;
 
     const draft = await ControllerFactory.get('documents').getDraft(post.latestDraft);
-    return Draft.fromEntity(draft!);
+    return Draft.fromEntity(draft);
   }
 }

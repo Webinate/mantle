@@ -16,6 +16,7 @@ import { error, info } from '../utils/logger';
 import { TemplateResolver } from '../graphql/resolvers/template-resolver';
 import { PostResolver } from '../graphql/resolvers/post-resolver';
 import { ElementResolver } from '../graphql/resolvers/element-resolver';
+import { DraftResolver } from '../graphql/resolvers/draft-resolver';
 
 export async function generateSchema() {
   const schema = await buildSchema({
@@ -25,6 +26,7 @@ export async function generateSchema() {
       VolumeResolver,
       FileResolver,
       UserResolver,
+      DraftResolver,
       CommentResolver,
       AuthResolver,
       ElementResolver,
