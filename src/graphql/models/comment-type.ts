@@ -8,7 +8,26 @@ import { IComment } from '../../types/models/i-comment';
 import { Page } from '../../types/tokens/standard-tokens';
 import { PaginatedResponse } from './paginated-response';
 import { SortOrder, CommentSortType, CommentVisibility } from '../../core/enums';
+import { IsValidHtml } from '../../decorators/isValidHtml';
 
+export const allowedCommentTags = [
+  'blockquote',
+  'p',
+  'a',
+  'ul',
+  'ol',
+  'nl',
+  'li',
+  'b',
+  'i',
+  'strong',
+  'em',
+  'strike',
+  'code',
+  'hr',
+  'br',
+  'pre'
+];
 @ObjectType({ description: 'Object representing a Comment' })
 export class Comment {
   @Field(type => GraphQLObjectId)
@@ -55,22 +74,23 @@ export class Comment {
 @InputType()
 export class AddCommentInput {
   @Field(type => GraphQLObjectId, { nullable: true })
-  user: ObjectID;
+  user: ObjectID | string;
 
   @Field(type => GraphQLObjectId)
-  post: ObjectID;
+  post: ObjectID | string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  parent: ObjectID;
+  parent: ObjectID | string;
 
   @Field(type => Boolean, { defaultValue: true })
   public: boolean;
 
   @Field()
+  @IsValidHtml(true, undefined, allowedCommentTags)
   content: string;
 
   @Field(type => [GraphQLObjectId], { nullable: true })
-  children: ObjectID[];
+  children: (ObjectID | string)[];
 
   constructor(initialization?: Partial<AddCommentInput>) {
     if (initialization) Object.assign(this, initialization);

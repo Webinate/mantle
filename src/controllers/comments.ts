@@ -6,6 +6,7 @@ import Controller from './controller';
 import { ObjectID } from 'mongodb';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { SortOrder, CommentSortType, CommentVisibility } from '../core/enums';
+import { IPost } from '../types/models/i-post';
 
 export type CommentGetAllOptions = {
   visibility: CommentVisibility;
@@ -27,6 +28,7 @@ export type CommentGetAllOptions = {
  */
 export class CommentsController extends Controller {
   private _commentsCollection: mongodb.Collection<IComment<'server'>>;
+  private _postsCollection: mongodb.Collection<IPost<'server'>>;
 
   /**
    * Creates a new instance of the controller
@@ -40,6 +42,7 @@ export class CommentsController extends Controller {
    */
   async initialize(db: mongodb.Db) {
     this._commentsCollection = await db.collection('comments');
+    this._postsCollection = await db.collection('posts');
     return this;
   }
 
@@ -188,12 +191,17 @@ export class CommentsController extends Controller {
    */
   async create(token: Partial<IComment<'server'>>) {
     const comments = this._commentsCollection;
+    const posts = this._postsCollection;
     let parent: IComment<'server'> | null = null;
 
     if (token.parent) {
-      parent = await comments.findOne(<IComment<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
-
+      parent = await comments.findOne({ _id: new mongodb.ObjectID(token.parent) } as IComment<'server'>);
       if (!parent) throw new Error(`No comment exists with the id ${token.parent}`);
+    }
+
+    if (token.post) {
+      let post = await posts.findOne({ _id: new mongodb.ObjectID(token.post) } as IPost<'server'>);
+      if (!post) throw new Error(`No post exists with the id ${token.post}`);
     }
 
     token.createdOn = Date.now();

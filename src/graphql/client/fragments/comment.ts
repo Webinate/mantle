@@ -8,5 +8,11 @@ export const COMMENT_FIELDS = gql`
     createdOn
     lastUpdated
     public
+    post {
+      _id
+    }
+    children {
+      _id
+    }
   }
 `;

@@ -57,12 +57,13 @@ export class Post {
   static fromEntity(initialization: Partial<IPost<'server'>>) {
     const toReturn = new Post();
     Object.assign(toReturn, initialization);
-    toReturn.author = User.fromEntity({ _id: initialization.author! });
-    toReturn.document = Document.fromEntity({ _id: initialization.document! });
+    if (initialization.author) toReturn.author = User.fromEntity({ _id: initialization.author });
+    if (initialization.document) toReturn.document = Document.fromEntity({ _id: initialization.document });
     toReturn.featuredImage = initialization.featuredImage
       ? File.fromEntity({ _id: initialization.featuredImage })
       : null;
-    toReturn.categories = initialization.categories!.map(cat => Category.fromEntity({ _id: cat }));
+    if (initialization.categories)
+      toReturn.categories = initialization.categories.map(cat => Category.fromEntity({ _id: cat }));
     toReturn.latestDraft = initialization.latestDraft ? Draft.fromEntity({ _id: initialization.latestDraft }) : null;
     return toReturn;
   }

@@ -18,6 +18,7 @@ import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectID } from 'mongodb';
 import { Error403 } from '../../utils/errors';
 import { User } from '../models/user-type';
+import { IComment } from '../../types/models/i-comment';
 
 @Resolver(of => Comment)
 export class CommentResolver implements ResolverInterface<Comment> {
@@ -40,7 +41,7 @@ export class CommentResolver implements ResolverInterface<Comment> {
       ...token,
       author: ctx.user!.username as string,
       user: ctx.user!._id
-    });
+    } as IComment<'server'>);
     return Comment.fromEntity(response);
   }
 
