@@ -36,8 +36,8 @@ export class Comment {
   @Field(type => String)
   author: string;
 
-  @Field(type => User)
-  user: User;
+  @Field(type => User, { nullable: true })
+  user: User | null;
 
   @Field(type => Post)
   post: Post;

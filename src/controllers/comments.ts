@@ -164,7 +164,7 @@ export class CommentsController extends Controller {
       const parent = await comments.findOne({ _id: comment.parent } as IComment<'server'>);
       const newChildren = parent!.children.filter(c => !c.equals(comment._id));
       await comments.updateOne({ _id: comment.parent! } as IComment<'server'>, {
-        $set: { children: newChildren.map(child => child.toString()) }
+        $set: { children: newChildren.map(child => child) }
       });
     }
 

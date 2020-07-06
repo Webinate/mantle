@@ -59,10 +59,13 @@ export class CommentResolver implements ResolverInterface<Comment> {
   @FieldResolver(type => User, { nullable: true })
   async user(@Root() root: Comment) {
     const comment = await ControllerFactory.get('comments').getOne(root._id);
-    const user = await ControllerFactory.get('users').getUser({ id: comment.user! });
+    if (!comment.user) return null;
+
+    const user = await ControllerFactory.get('users').getUser({ id: comment.user });
     return User.fromEntity(user!);
   }
 
+  @Authorized<AuthLevel>([AuthLevel.none])
   @Query(returns => PaginatedCommentsResponse, { description: 'Gets a paginated list of comments' })
   async comments(
     @Args(type => GetCommentsArgs)
