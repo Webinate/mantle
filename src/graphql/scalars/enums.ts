@@ -4,6 +4,7 @@ import {
   VolumeSortType,
   SortOrder,
   ElementType,
+  FileSortType,
   CommentSortType,
   CommentVisibility,
   PostVisibility,
@@ -28,6 +29,11 @@ registerEnumType(VolumeType, {
 registerEnumType(VolumeSortType, {
   name: 'VolumeSortType',
   description: 'The type of sorting performed when fetching volumes'
+});
+
+registerEnumType(FileSortType, {
+  name: 'FileSortType',
+  description: 'The type of sorting performed when fetching files'
 });
 
 registerEnumType(ElementType, {

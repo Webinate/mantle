@@ -16,7 +16,7 @@ import * as winston from 'winston';
 import { Error404, Error500, Error400 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUploadToken } from '../types/interfaces/i-remote';
-import { ISchemaOptions } from '../types/misc/i-schema-options';
+import { SortOrder, FileSortType } from '../core/enums';
 
 export type FilesGetOptions = {
   volumeId?: string | ObjectID;
@@ -24,9 +24,9 @@ export type FilesGetOptions = {
   index?: number;
   limit?: number;
   search?: string | RegExp;
-  sort?: 'created' | 'name' | 'memory';
-  sortOrder?: 'asc' | 'desc';
-} & Partial<ISchemaOptions>;
+  sortType?: 'created' | 'name' | 'memory';
+  sortOrder?: SortOrder;
+};
 
 export type DeleteOptions = {
   volumeId?: string | ObjectID;
@@ -120,7 +120,7 @@ export class FilesController extends Controller {
     let sortOrder = -1;
 
     if (options.sortOrder) {
-      if (options.sortOrder.toLowerCase() === 'asc') sortOrder = 1;
+      if (options.sortOrder === SortOrder.asc) sortOrder = 1;
       else sortOrder = -1;
     }
 
@@ -128,9 +128,9 @@ export class FilesController extends Controller {
     let sort: { [key in keyof Partial<IFileEntry<'server'>>]: number } | undefined = undefined;
 
     // Optionally sort by the last updated
-    if (options.sort === 'created') sort = { created: sortOrder };
-    else if (options.sort === 'name') sort = { name: sortOrder };
-    else if (options.sort === 'memory') sort = { size: sortOrder };
+    if (options.sortType === FileSortType.created) sort = { created: sortOrder };
+    else if (options.sortType === FileSortType.name) sort = { name: sortOrder };
+    else if (options.sortType === FileSortType.memory) sort = { size: sortOrder };
 
     const count = await files.count(searchQuery);
     const index: number = options.index || 0;

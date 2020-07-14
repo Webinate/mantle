@@ -73,7 +73,7 @@ type Category {
 type Comment {
   _id: ObjectId!
   author: String!
-  user: User!
+  user: User
   post: Post!
   parent: Comment
   public: Boolean!
@@ -157,6 +157,13 @@ type File {
   meta: JSON!
 }
 
+"""The type of sorting performed when fetching files"""
+enum FileSortType {
+  created
+  memory
+  name
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -215,6 +222,14 @@ type PaginatedCategoryResponse {
 """A page of wrapper of comments"""
 type PaginatedCommentsResponse {
   data: [Comment!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of files"""
+type PaginatedFilesResponse {
+  data: [File!]!
   count: Int!
   limit: Int!
   index: Int!
@@ -295,6 +310,10 @@ type Query {
   authenticated: AuthResponse!
   volume(id: ObjectId!): Volume
   volumes(index: Int = 0, limit: Int = 10, search: String = "", user: String, sortOrder: SortOrder = asc, sortType: VolumeSortType = created): PaginatedVolumeResponse!
+  file(id: ObjectId!): File
+
+  """Gets a paginated list of files"""
+  files(index: Int = 0, limit: Int = 10, search: String, user: String, volumeId: ObjectId, sortOrder: SortOrder = asc, sortType: FileSortType = created): PaginatedFilesResponse!
   document(id: ObjectId!): Document
   template(id: ObjectId): Template
 

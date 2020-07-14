@@ -19,6 +19,12 @@ export enum SortOrder {
   desc = 'desc'
 }
 
+export enum FileSortType {
+  created = 'created',
+  memory = 'memory',
+  name = 'name'
+}
+
 export enum VolumeSortType {
   created = 'created',
   memory = 'memory',

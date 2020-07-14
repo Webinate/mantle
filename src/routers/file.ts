@@ -12,6 +12,7 @@ import Factory from '../core/model-factory';
 import { FilesController } from '../controllers/files';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { Error403 } from '../utils/errors';
+import { SortOrder } from '../core/enums';
 
 /**
  * Main class to use for managing users
@@ -102,8 +103,8 @@ export class FileRouter extends Router {
       volumeId: req.params.volume,
       index: index,
       limit: limit,
-      sort: req.query.sort ? req.query.sort.toLowerCase() : undefined,
-      sortOrder: req.query.sortOrder === 'asc' ? 'asc' : 'desc',
+      sortType: req.query.sortType ? req.query.sortType.toLowerCase() : undefined,
+      sortOrder: req.query.sortOrder === SortOrder.asc ? SortOrder.asc : SortOrder.desc,
       user: req._isAdmin ? undefined : (req._user!.username as string),
       search: req.query.search ? new RegExp(req.query.search, 'i') : undefined
     });

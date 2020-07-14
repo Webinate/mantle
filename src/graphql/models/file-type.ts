@@ -1,11 +1,14 @@
-import { ObjectType, Field, Int } from 'type-graphql';
-import { ObjectId } from 'mongodb';
+import { ObjectType, Field, Int, ArgsType } from 'type-graphql';
+import { ObjectId, ObjectID } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { JsonType } from '../scalars/json';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
 import { IFileEntry } from '../../types/models/i-file-entry';
 import { Volume } from './volume-type';
+import { PaginatedResponse } from './paginated-response';
+import { Page } from '../../types/tokens/standard-tokens';
+import { SortOrder, FileSortType } from '../../core/enums';
 
 @ObjectType({ description: 'Object representing a File' })
 export class File {
@@ -57,6 +60,46 @@ export class File {
       toReturn.parentFile = File.fromEntity({ _id: initialization.parentFile! });
     }
 
+    return toReturn;
+  }
+}
+
+@ArgsType()
+export class GetFilesArgs {
+  constructor(initialization?: Partial<GetFilesArgs>) {
+    initialization && Object.assign(this, initialization);
+  }
+
+  @Field(type => Int, { defaultValue: 0 })
+  index: number = 0;
+
+  @Field(type => Int, { defaultValue: 10 })
+  limit: number;
+
+  @Field(type => String, { nullable: true })
+  search: string;
+
+  @Field(type => String, { nullable: true })
+  user: string;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  volumeId: ObjectID;
+
+  @Field(type => SortOrder, { defaultValue: SortOrder.asc })
+  sortOrder: SortOrder;
+
+  @Field(type => FileSortType, { defaultValue: FileSortType.created })
+  sortType: FileSortType;
+}
+
+@ObjectType({ description: 'A page of wrapper of files' })
+export class PaginatedFilesResponse extends PaginatedResponse(File) {
+  static fromEntity(page: Page<IFileEntry<'server'>>) {
+    const toReturn = new PaginatedFilesResponse();
+    toReturn.count = page.count;
+    toReturn.index = page.index;
+    toReturn.limit = page.limit;
+    toReturn.data = page.data.map(file => File.fromEntity(file));
     return toReturn;
   }
 }

@@ -1,5 +1,5 @@
-import { Resolver, Authorized, Mutation, Arg, Ctx } from 'type-graphql';
-import { File } from '../models/file-type';
+import { Resolver, Authorized, Mutation, Arg, Ctx, Query, Args } from 'type-graphql';
+import { File, PaginatedFilesResponse, GetFilesArgs } from '../models/file-type';
 import { AuthLevel } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { GraphQLObjectId } from '../scalars/object-id';
@@ -22,5 +22,34 @@ export class FileResolver {
     });
 
     return true;
+  }
+
+  @Authorized<AuthLevel>([AuthLevel.regular])
+  @Query(returns => File, { nullable: true })
+  async file(@Arg('id', type => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+    const file = await ControllerFactory.get('files').getFile(id);
+    if (!file) return null;
+
+    return File.fromEntity(file);
+  }
+
+  @Authorized<AuthLevel>([AuthLevel.regular])
+  @Query(returns => PaginatedFilesResponse, { description: 'Gets a paginated list of files' })
+  async files(
+    @Args(type => GetFilesArgs)
+    { index, limit, user, search, sortOrder, sortType, volumeId }: Partial<GetFilesArgs>,
+    @Ctx() ctx: IGQLContext
+  ) {
+    const toReturn = await ControllerFactory.get('files').getFiles({
+      index: index,
+      limit: limit,
+      search: search,
+      volumeId: volumeId,
+      user: user,
+      sortType,
+      sortOrder
+    });
+
+    return PaginatedFilesResponse.fromEntity(toReturn);
   }
 }

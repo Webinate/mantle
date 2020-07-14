@@ -1,37 +1,50 @@
 // import * as assert from 'assert';
 // import header from '../header';
 // import * as fs from 'fs';
-// import { IVolume, IUserEntry } from '../../../src';
+// import { IVolume, Page, IFileEntry } from '../../../src';
+// import { IUserEntry } from '../../../src';
 // import * as FormData from 'form-data';
+// import { REMOVE_VOLUME, ADD_VOLUME } from '../../../src/graphql/client/requests/volume';
+// import { GET_FILES } from '../../../src/graphql/client/requests/file';
+// import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 
 // let volume: IVolume<'expanded'>;
 // const filePath = './test/media/file.png';
 
 // describe('Getting uploaded user files', function() {
 //   before(async function() {
-//     const resp = await header.user1.post(`/volumes`, { name: 'dinosaurs' });
-//     const json = await resp.json();
-//     assert.deepEqual(resp.status, 200);
-//     volume = json;
+//     const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
+//       token: new AddVolumeInput({
+//         name: 'dinosaurs'
+//       })
+//     });
+//     assert.ok(resp.data);
+//     volume = resp.data;
 //   });
 
 //   after(async function() {
-//     const resp = await header.user1.delete(`/volumes/${volume._id}`);
-//     assert.deepEqual(resp.status, 204);
+//     const resp = await header.user1.graphql<boolean>(REMOVE_VOLUME, { id: volume._id });
+//     assert.ok(!resp.errors);
+//     assert.ok(resp.data);
 //   });
 
 //   it('regular user did not get files for a volume with bad id', async function() {
-//     const resp = await header.user1.get(`/files/volumes/test`);
-//     const json = await resp.json();
-//     assert.deepEqual(resp.status, 500);
-//     assert.deepEqual(json.message, 'Please use a valid identifier for volumeId');
+//     const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+//       volumeId: 'test'
+//     });
+
+//     assert.deepEqual(
+//       resp.errors![0].message,
+//       'Variable "$volumeId" got invalid value "test"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+//     );
 //   });
 
 //   it('regular user did not get files for a non existant volume', async function() {
-//     const resp = await header.user1.get(`/files/volumes/123456789012345678901234`);
-//     const json = await resp.json();
-//     assert.deepEqual(resp.status, 500);
-//     assert.deepEqual(json.message, 'Could not find the volume resource');
+//     const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+//       volumeId: '123456789012345678901234'
+//     });
+
+//     assert.deepEqual(resp.errors![0].message, 'Could not find the volume resource');
 //   });
 
 //   it('regular user did upload a file to dinosaurs', async function() {
@@ -54,10 +67,12 @@
 //     assert.deepEqual(resp.status, 200);
 //   });
 
-//   it('regular cannot access another users volume', async function() {
-//     const resp = await header.user2.get(`/files/volumes/${volume._id}`);
-//     assert.deepEqual(decodeURIComponent(resp.statusText), 'Could not find the volume resource');
-//     assert.deepEqual(resp.status, 500);
+//   it('regular user cannot access another users volume', async function() {
+//     const resp = await header.user2.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+//       volumeId: volume._id
+//     });
+
+//     assert.deepEqual(resp.errors![0].message, 'Could not find the volume resource');
 //   });
 
 //   it('regular user fetched 2 files from the dinosaur volume', async function() {
