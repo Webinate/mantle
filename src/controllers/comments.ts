@@ -86,6 +86,8 @@ export class CommentsController extends Controller {
 
     if (findToken.$or.length === 0) delete findToken.$or;
 
+    if (options.limit === -1) options.limit = undefined;
+
     // First get the count
     const count = await comments.count(findToken);
     const sanitizedData = await comments
@@ -177,12 +179,13 @@ export class CommentsController extends Controller {
    * @param id The id of the comment
    * @param token The update token of the comment
    */
-  async update(id: string, token: Partial<IComment<'client'>>) {
+  async update(id: string | ObjectID, token: Partial<IComment<'client'>>) {
     const comments = this._commentsCollection;
     const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID(id) };
+    token.lastUpdated = Date.now();
     await comments.updateOne(findToken, { $set: token });
     const updatedComment = await comments.findOne(findToken);
-    return updatedComment;
+    return updatedComment!;
   }
 
   /**
@@ -208,6 +211,7 @@ export class CommentsController extends Controller {
     token.lastUpdated = token.createdOn;
     token.author = token.author ? token.author : '';
     token.children = token.children ? token.children : [];
+    token.public = token.public === undefined ? true : token.public;
 
     const insertResult = await comments.insertOne(token);
     const instance = await comments.findOne({ _id: insertResult.insertedId } as IComment<'server'>);
