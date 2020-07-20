@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int, ArgsType } from 'type-graphql';
+import { ObjectType, Field, Int, ArgsType, InputType } from 'type-graphql';
 import { ObjectId, ObjectID } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { JsonType } from '../scalars/json';
@@ -61,6 +61,22 @@ export class File {
     }
 
     return toReturn;
+  }
+}
+
+@InputType()
+export class UpdateFileInput {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId | string;
+
+  @Field()
+  name: string;
+
+  @Field(type => Boolean, { nullable: true })
+  isPublic: boolean;
+
+  constructor(initialization?: Partial<UpdateFileInput>) {
+    if (initialization) Object.assign(this, initialization);
   }
 }
 

@@ -373,7 +373,7 @@ export class FilesController extends Controller {
     const query = typeof fileId === 'string' ? { _id: new ObjectID(fileId) } : { _id: fileId };
     let file = await this._files.findOne(query);
 
-    if (!file) throw new Error('Resource not found');
+    if (!file) throw new Error404('Resource not found');
 
     await files.updateOne(query, { $set: token });
     file = await this._files.findOne(query);

@@ -1,6 +1,16 @@
 import gql from '../../../utils/gql';
 import { FILE_FIELDS } from '../fragments/file';
 
+export const UPDATE_FILE = gql`
+  mutation UPDATE_FILE($token: UpdateFileInput!) {
+    patchFile(token: $token) {
+      ...FileFields
+    }
+  }
+
+  ${FILE_FIELDS}
+`;
+
 export const REMOVE_FILE = gql`
   mutation REMOVE_FILE($id: ObjectId!, $volumeId: ObjectId) {
     removeFile(id: $id, volumeId: $volumeId)

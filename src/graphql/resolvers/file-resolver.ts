@@ -1,13 +1,14 @@
 import { Resolver, Authorized, Mutation, Arg, Ctx, Query, Args, FieldResolver, Root } from 'type-graphql';
-import { File, PaginatedFilesResponse, GetFilesArgs } from '../models/file-type';
+import { File, PaginatedFilesResponse, GetFilesArgs, UpdateFileInput } from '../models/file-type';
 import { AuthLevel, UserPrivilege } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectID } from 'mongodb';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { Error403 } from '../../utils/errors';
+import { Error403, Error400 } from '../../utils/errors';
 import { User } from '../models/user-type';
 import { Volume } from '../models/volume-type';
+import { IFileEntry } from '../../types/models/i-file-entry';
 
 @Resolver(of => File)
 export class FileResolver {
@@ -31,6 +32,19 @@ export class FileResolver {
   @Query(returns => File, { nullable: true })
   async file(@Arg('id', type => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
     const file = await ControllerFactory.get('files').getFile(id);
+    if (!file) return null;
+
+    return File.fromEntity(file);
+  }
+
+  @Authorized<AuthLevel>([AuthLevel.regular])
+  @Mutation(returns => File)
+  async patchFile(@Arg('token') token: UpdateFileInput, @Ctx() ctx: IGQLContext) {
+    let file = await ControllerFactory.get('files').getFile(token._id);
+    if (!file) throw new Error400();
+    if (!file.user.equals(ctx.user!._id) && ctx.user?.privileges === UserPrivilege.regular) throw new Error403();
+
+    file = await ControllerFactory.get('files').update(token._id, token as Partial<IFileEntry<'server'>>);
     if (!file) return null;
 
     return File.fromEntity(file);

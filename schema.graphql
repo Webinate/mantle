@@ -147,14 +147,14 @@ type File {
   identifier: String!
   publicURL: String!
   mimeType: String!
-  created: Int!
+  created: Long!
   size: Long!
   numDownloads: Int!
   isPublic: Boolean!
   user: User!
   volume: Volume!
   parentFile: File!
-  meta: JSON!
+  meta: JSON
 }
 
 """The type of sorting performed when fetching files"""
@@ -198,6 +198,7 @@ type Mutation {
   updateVolume(token: UpdateVolumeInput!): Volume!
   removeVolume(id: ObjectId!): Boolean!
   removeFile(volumeId: ObjectId, id: ObjectId!): Boolean!
+  patchFile(token: UpdateFileInput!): File!
   changeDocTemplate(template: ObjectId!, id: ObjectId!): Boolean!
   addDocElement(index: Int, token: AddElementInput!, docId: ObjectId!): Element!
   updateDocElement(index: Int, token: UpdateElementInput!, docId: ObjectId!): Element!
@@ -362,6 +363,12 @@ input UpdateElementInput {
   zone: String = "unassigned"
   image: ObjectId
   style: JSON
+}
+
+input UpdateFileInput {
+  _id: ObjectId!
+  name: String!
+  numDownloads: Int!
 }
 
 input UpdatePostInput {

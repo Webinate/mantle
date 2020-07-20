@@ -1,48 +1,57 @@
-// import * as assert from 'assert';
-// import header from '../header';
-// import * as fs from 'fs';
-// import { IVolume } from '../../../src';
-// import * as FormData from 'form-data';
+import * as assert from 'assert';
+import header from '../header';
+import * as fs from 'fs';
+import { IVolume, Page, IFileEntry } from '../../../src';
+import * as FormData from 'form-data';
+import { randomString } from '../utils';
+import { REMOVE_VOLUME, ADD_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
+import { GET_FILES } from '../../../src/graphql/client/requests/file';
 
-// let volume: IVolume<'expanded'>;
-// const filePath = './test/media/file.png';
-// let fileUrl = '';
+let volume: IVolume<'expanded'>;
+const filePath = './test/media/file.png';
+let fileUrl = '';
 
-// describe('Testing file accessibility functions', function() {
-//   before(async function() {
-//     const resp = await header.user1.post('/volumes', { name: 'dinosaurs' });
-//     const json = await resp.json();
-//     assert.deepEqual(resp.status, 200);
-//     volume = json;
-//   });
+describe('Testing file accessibility functions', function() {
+  before(async function() {
+    const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
+      token: new AddVolumeInput({
+        name: randomString()
+      })
+    });
+    assert.ok(resp.data);
+    volume = resp.data;
+  });
 
-//   after(async function() {
-//     const resp = await header.user1.delete(`/volumes/${volume._id}`);
-//     assert.deepEqual(resp.status, 204);
-//   });
+  after(async function() {
+    const resp = await header.user1.graphql<boolean>(REMOVE_VOLUME, { id: volume._id });
+    assert.ok(!resp.errors);
+    assert.ok(resp.data);
+  });
 
-//   it('regular user did upload a file to dinosaurs', async function() {
-//     const form = new FormData();
-//     form.append('small-image.png', fs.readFileSync(filePath), {
-//       filename: 'small-image.png',
-//       contentType: 'image/png'
-//     });
-//     const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
-//     assert.deepEqual(resp.status, 200);
-//   });
+  it('regular user did upload a file to dinosaurs', async function() {
+    const form = new FormData();
+    form.append('small-image.png', fs.readFileSync(filePath), {
+      filename: 'small-image.png',
+      contentType: 'image/png'
+    });
+    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    assert.deepEqual(resp.status, 200);
+  });
 
-//   it('regular user has 1 file', async function() {
-//     const resp = await header.user1.get(`/files/volumes/${volume._id}`);
-//     assert.deepEqual(resp.status, 200);
-//     const json = await resp.json();
-//     fileUrl = json.data[0].publicURL;
-//     assert(json.data.length === 1);
-//   });
+  it('regular user has 1 file', async function() {
+    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+      volumeId: volume._id
+    });
 
-//   it('did download the file off the volume', async function() {
-//     const agent = header.createAgent(fileUrl);
-//     const resp = await agent.get('');
-//     assert.deepEqual(resp.status, 200);
-//     assert.deepEqual(resp.headers.get('content-type'), 'image/png');
-//   });
-// });
+    fileUrl = resp.data.data[0].publicURL!;
+    assert(resp.data.data.length === 1);
+  });
+
+  it('did download the file off the volume', async function() {
+    const agent = header.createAgent(fileUrl);
+    const resp = await agent.get('');
+    assert.deepEqual(resp.status, 200);
+    assert.deepEqual(resp.headers.get('content-type'), 'image/png');
+  });
+});
