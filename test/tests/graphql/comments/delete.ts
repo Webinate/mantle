@@ -107,7 +107,7 @@ describe('[GQL] Testing deletion of comments', function() {
     );
   });
 
-  it("cannot delete a comment with a valid id but doesn't exist", async function() {
+  it(`cannot delete a comment with a valid id but doesn't exist`, async function() {
     const { errors } = await header.admin.graphql<boolean>(REMOVE_COMMENT, { id: '123456789012345678901234' });
     assert.deepEqual(errors![0].message, 'Could not find comment');
   });

@@ -7,10 +7,18 @@ export const FILE_FIELDS = gql`
     identifier
     isPublic
     meta
+    volume {
+      _id
+      name
+    }
     mimeType
     name
     numDownloads
     publicURL
     size
+    user {
+      _id
+      username
+    }
   }
 `;

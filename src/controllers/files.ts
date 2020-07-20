@@ -244,8 +244,9 @@ export class FilesController extends Controller {
       size: file.size,
       mimeType: file.type,
       user: volume.user,
-      volumeId: volume._id,
-      volumeName: volume.name
+      isPublic: true,
+      numDownloads: 0,
+      volumeId: volume._id
     };
 
     let newFile: IFileEntry<'server'> | null = existinFile;

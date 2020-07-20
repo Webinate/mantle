@@ -1,10 +1,13 @@
-import { Resolver, Authorized, Mutation, Arg, Ctx, Query, Args } from 'type-graphql';
+import { Resolver, Authorized, Mutation, Arg, Ctx, Query, Args, FieldResolver, Root } from 'type-graphql';
 import { File, PaginatedFilesResponse, GetFilesArgs } from '../models/file-type';
-import { AuthLevel } from '../../core/enums';
+import { AuthLevel, UserPrivilege } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectID } from 'mongodb';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { Error403 } from '../../utils/errors';
+import { User } from '../models/user-type';
+import { Volume } from '../models/volume-type';
 
 @Resolver(of => File)
 export class FileResolver {
@@ -40,6 +43,12 @@ export class FileResolver {
     { index, limit, user, search, sortOrder, sortType, volumeId }: Partial<GetFilesArgs>,
     @Ctx() ctx: IGQLContext
   ) {
+    if (volumeId) {
+      const volume = await ControllerFactory.get('volumes').get({ id: volumeId });
+      if (volume && !volume.user.equals(ctx.user!._id) && ctx.user?.privileges === UserPrivilege.regular)
+        throw new Error403();
+    }
+
     const toReturn = await ControllerFactory.get('files').getFiles({
       index: index,
       limit: limit,
@@ -51,5 +60,23 @@ export class FileResolver {
     });
 
     return PaginatedFilesResponse.fromEntity(toReturn);
+  }
+
+  @FieldResolver(type => User, { nullable: true })
+  async user(@Root() root: File) {
+    const file = await ControllerFactory.get('files').getFile(root._id);
+    if (!file!.user) return null;
+
+    const user = await ControllerFactory.get('users').getUser({ id: file!.user });
+    return User.fromEntity(user!);
+  }
+
+  @FieldResolver(type => Volume, { nullable: true })
+  async volume(@Root() root: File) {
+    const file = await ControllerFactory.get('files').getFile(root._id);
+    if (!file!.user) return null;
+
+    const volume = await ControllerFactory.get('volumes').get({ id: file!.volumeId });
+    return Volume.fromEntity(volume!);
   }
 }

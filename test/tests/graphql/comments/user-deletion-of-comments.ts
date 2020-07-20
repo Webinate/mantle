@@ -64,7 +64,7 @@ describe('[GQL] When user deleted, comments must be nullified or removed: ', fun
     const { data: rootComment } = await header.user1.graphql<IComment<'expanded'>>(ADD_COMMENT, {
       token: new AddCommentInput({
         post: post._id,
-        content: "Other user's comment",
+        content: `Other user's comment`,
         public: true
       })
     });

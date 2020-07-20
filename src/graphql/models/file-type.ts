@@ -27,7 +27,7 @@ export class File {
   @Field()
   mimeType: string;
 
-  @Field(type => Int)
+  @Field(type => LongType)
   created: number;
 
   @Field(type => LongType)
@@ -48,7 +48,7 @@ export class File {
   @Field(type => File)
   parentFile: File;
 
-  @Field(type => JsonType)
+  @Field(type => JsonType, { nullable: true })
   meta: any;
 
   static fromEntity(initialization: Partial<IFileEntry<'server'>>) {
