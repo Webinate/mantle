@@ -8,7 +8,6 @@ import { j200 } from '../decorators/responses';
 import { isAuthorizedRest } from '../decorators/permissions';
 import { IFileOptions } from '../types/misc/i-file-options';
 import * as mongodb from 'mongodb';
-import Factory from '../core/model-factory';
 import { FilesController } from '../controllers/files';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { Error403 } from '../utils/errors';
@@ -25,7 +24,7 @@ export class FileRouter extends Router {
    * Creates an instance of the user manager
    */
   constructor(options: IFileOptions) {
-    super([Factory.get('files')]);
+    super();
     this._options = options;
   }
 

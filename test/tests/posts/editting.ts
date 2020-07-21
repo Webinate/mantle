@@ -11,7 +11,7 @@ let post: IPost<'expanded'>;
 
 const randomSlug = generateRandString(10);
 
-describe('[GQL] Testing editing of posts', function() {
+describe('Testing editing of posts', function() {
   it('fetched all posts', async function() {
     const { count } = await ControllerFactory.get('posts').getPosts({});
     // const { data: page } = await header.admin.graphql<Page<IPost<'expanded'>>>(`{ getPosts { count } }`);

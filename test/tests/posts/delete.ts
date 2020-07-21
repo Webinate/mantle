@@ -7,7 +7,7 @@ import { AddPostInput } from '../../../src/graphql/models/post-type';
 import { GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
 let numPosts: number, post: IPost<'expanded'>;
 
-describe('[GQL] Testing deletion of posts', function() {
+describe('Testing deletion of posts', function() {
   it('fetched all posts', async function() {
     const resp = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS);
     resp;

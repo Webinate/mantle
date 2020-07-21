@@ -6,7 +6,7 @@ import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 
 let volumeJson: IVolume<'expanded'>;
 
-describe('[GQL] Testing volume get requests', function() {
+describe('Testing volume get requests', function() {
   it('regular user did create a volume dinosaurs', async function() {
     const { data: json } = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
       token: new AddVolumeInput({ name: 'dinosaurs' })

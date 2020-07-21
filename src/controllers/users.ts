@@ -17,7 +17,6 @@ import ControllerFactory from '../core/controller-factory';
 import { Mailguner } from '../mailers/mailgun';
 import { Session } from '../core/session';
 import Controller from './controller';
-import ModelFactory from '../core/model-factory';
 import { Error400, Error404 } from '../utils/errors';
 import { IFileEntry } from '../types/models/i-file-entry';
 
@@ -56,7 +55,7 @@ export class UsersController extends Controller {
   async initialize(db: Db) {
     ControllerFactory.get('sessions').on('sessionRemoved', this.onSessionRemoved.bind(this));
 
-    this._users = ModelFactory.get('users').collection;
+    this._users = await db.collection<IUserEntry<'server'>>('users');
 
     if (this._config.mail) {
       if (this._config.mail.type === 'mailgun') {

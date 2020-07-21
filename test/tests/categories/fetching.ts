@@ -14,7 +14,7 @@ let category: Category,
   slug: string = '',
   numCategories = 0;
 
-describe('[GQL] Testing fetching of categories: ', function() {
+describe('Testing fetching of categories: ', function() {
   before(async function() {
     slug = header.makeid();
 

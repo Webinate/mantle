@@ -9,7 +9,7 @@ import { AddElementInput } from '../../../src/graphql/models/element-type';
 
 let post: IPost<'server'>, user1: IUserEntry<'server'>;
 
-describe('[GQL] Testing the adding of generic html elements: ', function() {
+describe('Testing the adding of generic html elements: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

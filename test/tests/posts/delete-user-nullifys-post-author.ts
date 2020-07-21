@@ -8,7 +8,7 @@ import { REMOVE_USER } from '../../../src/graphql/client/requests/users';
 
 let post: IPost<'server'>, newUser: IUserEntry<'server'>;
 
-describe('[GQL] Testing deletion of user is nullified on posts: ', function() {
+describe('Testing deletion of user is nullified on posts: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

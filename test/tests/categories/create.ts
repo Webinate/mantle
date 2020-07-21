@@ -5,7 +5,7 @@ import header from '../header';
 
 let category: Category;
 
-describe('[GQL] Testing creation of categories', function() {
+describe('Testing creation of categories', function() {
   it('does require a title and slug when creating a category', async function() {
     const resp = await header.guest.graphql<Category>(ADD_CATEGORY, {
       token: new AddCategoryInput({})

@@ -13,7 +13,7 @@ import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
 
 let post: IPost<'server'>, volume: IVolume<'expanded'>, file: IFileEntry<'expanded'>;
 
-describe('[GQL] Testing deletion of a featured image nullifies it on the post: ', function() {
+describe('Testing deletion of a featured image nullifies it on the post: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

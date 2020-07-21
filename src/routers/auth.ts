@@ -9,7 +9,6 @@ import * as compression from 'compression';
 import { error as logError } from '../utils/logger';
 import { IAuthOptions } from '../types/misc/i-auth-options';
 import * as mongodb from 'mongodb';
-import Factory from '../core/model-factory';
 
 /**
  * Main class to use for managing user authentication
@@ -22,7 +21,7 @@ export class AuthRouter extends Router {
    * Creates an instance of the user manager
    */
   constructor(options: IAuthOptions) {
-    super([Factory.get('users')]);
+    super();
     this._options = options;
   }
 

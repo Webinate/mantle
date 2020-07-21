@@ -8,7 +8,7 @@ import { CommentSortType, SortOrder } from '../../../src/core/enums';
 
 let post: IPost<'server'>, comment1: IComment<'server'>, comment2: IComment<'server'>, admin: IUserEntry<'server'>;
 
-describe('[GQL] Testing of fetching sorted comments:', function() {
+describe('Testing of fetching sorted comments:', function() {
   before(async function() {
     const users = ControllerFactory.get('users');
     const comments = ControllerFactory.get('comments');

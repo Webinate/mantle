@@ -5,7 +5,7 @@ import { Template, PaginatedTemplateResponse } from '../../../src/graphql/models
 
 let templates: Template[];
 
-describe('[GQL] Testing fetching of templates: ', function() {
+describe('Testing fetching of templates: ', function() {
   it('did fetch all default templates', async function() {
     const { data } = await header.guest.graphql<PaginatedTemplateResponse>(GET_TEMPLATES);
     assert(data.count > 0);

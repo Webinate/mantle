@@ -7,7 +7,7 @@ import { GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
 
 let post: IPost<'server'>, user1: IUserEntry<'server'>;
 
-describe('[GQL] Testing the fetching of documents: ', function() {
+describe('Testing the fetching of documents: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

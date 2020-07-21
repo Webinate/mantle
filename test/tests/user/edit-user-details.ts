@@ -7,7 +7,7 @@ import { EDIT_USER } from '../../../src/graphql/client/requests/users';
 import { UpdateUserInput } from '../../../src/graphql/models/user-type';
 let user: IUserEntry<'server'>, admin: IUserEntry<'server'>, volume: IVolume<'server'>, file: IFileEntry<'server'>;
 
-describe('[GQL] Editting user data:', function() {
+describe('Editting user data:', function() {
   before(async function() {
     const users = ControllerFactory.get('users');
     user = (await users.getUser({ username: header.user1.username })) as IUserEntry<'server'>;

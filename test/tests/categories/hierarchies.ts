@@ -18,7 +18,7 @@ let category: Category,
   childDeep1: Category,
   numCategoriesBeforeTests = 0;
 
-describe('[GQL] Testing category hierarchies: ', function() {
+describe('Testing category hierarchies: ', function() {
   before(async function() {
     const page = await header.admin.graphql<Page<Category>>(GET_CATEGORIES);
     numCategoriesBeforeTests = page.data.count;

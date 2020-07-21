@@ -10,7 +10,7 @@ import { ElementType } from '../../../src/core/enums';
 let post: IPost<'server'>, admin: IUserEntry<'server'>;
 const htmls = ['<p>1</p>', '<p>2</p>'];
 
-describe('[GQL] Testing the adding of multiple elements: ', function() {
+describe('Testing the adding of multiple elements: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

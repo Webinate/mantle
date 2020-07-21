@@ -8,7 +8,7 @@ import { UpdateElementInput } from '../../../src/graphql/models/element-type';
 
 let post: IPost<'server'>, document: IDocument<'expanded'>;
 
-describe('[GQL] Testing the editting of document elements: ', function() {
+describe('Testing the editting of document elements: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

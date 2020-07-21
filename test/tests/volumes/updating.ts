@@ -7,7 +7,7 @@ import { UpdateVolumeInput } from '../../../src/graphql/models/volume-type';
 
 let volumeJson: IVolume<'server'>;
 
-describe('[GQL] Testing volume update requests: ', function() {
+describe('Testing volume update requests: ', function() {
   before(async function() {
     const user1 = await ControllerFactory.get('users').getUser({ username: header.user1.username });
     volumeJson = (await ControllerFactory.get('volumes').create({ name: 'dinosaurs', user: user1!._id })) as IVolume<

@@ -8,7 +8,7 @@ import { User } from '../../../src/graphql/models/user-type';
 let testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com';
 
-describe('[GQL] Testing registering a user', function() {
+describe('Testing registering a user', function() {
   before(async function() {
     await header.admin.graphql<boolean>(REMOVE_USER, { username: testUserName });
   });
@@ -17,7 +17,7 @@ describe('[GQL] Testing registering a user', function() {
     await header.admin.graphql<boolean>(REMOVE_USER, { username: testUserName });
   });
 
-  it('[GQL] should not register without username, password & email', async function() {
+  it('should not register without username, password & email', async function() {
     const response = await header.guest.graphql<{ message: string }>(REGISTER, {
       token: new RegisterInput({})
     });
@@ -35,7 +35,7 @@ describe('[GQL] Testing registering a user', function() {
     );
   });
 
-  it('[GQL] should not register with an incorrect email format', async function() {
+  it('should not register with an incorrect email format', async function() {
     const { errors } = await header.guest.graphql<{ message: string }>(REGISTER, {
       token: new RegisterInput({
         username: 'textok',
@@ -46,7 +46,7 @@ describe('[GQL] Testing registering a user', function() {
     assert.deepEqual(errors![0].message, 'Argument Validation Error');
   });
 
-  it('[GQL] should not register with bad characters in the username', async function() {
+  it('should not register with bad characters in the username', async function() {
     const { errors } = await header.guest.graphql<{ message: string }>(REGISTER, {
       token: new RegisterInput({
         username: '!�$%^^&&*()-=~#}{}',
@@ -57,7 +57,7 @@ describe('[GQL] Testing registering a user', function() {
     assert.deepEqual(errors![0].message, 'Please only use alpha numeric characters for your username');
   });
 
-  it('[GQL] should not register with existing username', async function() {
+  it('should not register with existing username', async function() {
     const response = await header.guest.graphql<{ message: string }>(REGISTER, {
       token: new RegisterInput({
         username: header.admin.username,
@@ -72,7 +72,7 @@ describe('[GQL] Testing registering a user', function() {
     );
   });
 
-  it('[GQL] should register with valid information', async function() {
+  it('should register with valid information', async function() {
     const resp = await header.guest.graphql<{ message: string }>(REGISTER, {
       token: new RegisterInput({
         username: testUserName,
@@ -84,33 +84,33 @@ describe('[GQL] Testing registering a user', function() {
     assert.deepEqual(resp.data.message, 'Please activate your account with the link sent to your email address');
   });
 
-  it(`[GQL] new registered user is not activated`, async function() {
+  it(`new registered user is not activated`, async function() {
     const resp = await header.admin.graphql<User>(GET_USER, { user: testUserName });
     assert.deepEqual(resp.data.isActivated, false);
   });
 
-  it('[GQL] did not approve activation as a guest', async function() {
+  it('did not approve activation as a guest', async function() {
     const { errors } = await header.guest.graphql<boolean>(APPROVE_ACTIVATION, {
       user: testUserName
     });
     assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
-  it('[GQL] did not approve activation as a regular user', async function() {
+  it('did not approve activation as a regular user', async function() {
     const { errors } = await header.user1.graphql<boolean>(APPROVE_ACTIVATION, {
       user: testUserName
     });
     assert.deepEqual(errors![0].message, 'You do not have permission');
   });
 
-  it('[GQL] did allow an admin to activate ${testUserName}', async function() {
+  it('did allow an admin to activate ${testUserName}', async function() {
     const resp = await header.admin.graphql<boolean>(APPROVE_ACTIVATION, {
       user: testUserName
     });
     assert.deepEqual(resp.data, true);
   });
 
-  it(`[GQL] did approve ${testUserName}'s register key`, async function() {
+  it(`did approve ${testUserName}'s register key`, async function() {
     const resp = await header.admin.graphql<User>(GET_USER, { user: testUserName });
     assert.deepEqual(resp.data.isActivated, true);
   });

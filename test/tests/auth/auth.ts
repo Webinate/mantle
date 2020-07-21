@@ -4,8 +4,8 @@ import { IAdminUser } from '../../../src';
 import { AUTHENTICATED } from '../../../src/graphql/client/requests/auth';
 import { AuthResponse } from '../../../src/graphql/models/auth-type';
 
-describe('[GQL] Checking basic authentication', function() {
-  it('[GQL] guest should not be logged in', async function() {
+describe('Checking basic authentication', function() {
+  it('guest should not be logged in', async function() {
     const resp = await header.guest.graphql<AuthResponse>(AUTHENTICATED);
     const auth = resp.data;
 
@@ -13,7 +13,7 @@ describe('[GQL] Checking basic authentication', function() {
     assert.deepEqual(auth.message, 'User is not authenticated');
   });
 
-  it('[GQL] admin should be logged in', async function() {
+  it('admin should be logged in', async function() {
     const resp = await header.admin.graphql<AuthResponse>(AUTHENTICATED);
     const auth = resp.data;
 

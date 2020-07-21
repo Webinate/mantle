@@ -14,7 +14,7 @@ export class CORSRouter extends Router {
    * Creates an instance of the user manager
    */
   constructor(approvedDomains: string[], options: IBaseControler) {
-    super(null);
+    super();
     this._approvedDomains = approvedDomains;
   }
 

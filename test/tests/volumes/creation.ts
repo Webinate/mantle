@@ -7,7 +7,7 @@ import ControllerFactory from '../../../src/core/controller-factory';
 
 let volume1: string, volume2: string;
 
-describe('[GQL] Testing volume creation', function() {
+describe('Testing volume creation', function() {
   it('regular user did not create a volume for another user', async function() {
     const user2 = await ControllerFactory.get('users').getUser({ username: 'user2' });
 

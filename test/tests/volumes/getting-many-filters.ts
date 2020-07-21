@@ -9,7 +9,7 @@ let volA: IVolume<'server'>;
 let volB: IVolume<'server'>;
 let volC: IVolume<'server'>;
 
-describe('[GQL] Testing volume get requests', function() {
+describe('Testing volume get requests', function() {
   before(async function() {
     const user1 = await ControllerFactory.get('users').getUser({ username: header.user1.username });
     volA = (await ControllerFactory.get('volumes').create({ name: 'aaa', user: user1!._id })) as IVolume<'server'>;

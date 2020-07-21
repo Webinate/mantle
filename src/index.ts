@@ -1,54 +1,28 @@
 ﻿import * as _Controller from './routers/router';
-import * as _Models from './models/model';
-import * as _SchemaFactory from './models/schema-items/schema-item-factory';
 import { isValidObjectID } from './utils/utils';
-import { AdminRouter } from './routers/admin';
 import { CORSRouter } from './routers/cors';
-import { EmailsRouter } from './routers/emails';
 import { ErrorRouter } from './routers/error';
 import { FileRouter } from './routers/file';
-import { PageRouter } from './routers/page';
-import { TemplatesRouter } from './routers/templates';
-import { SessionRouter } from './routers/session';
 import { AuthRouter } from './routers/auth';
-import { validId } from './decorators/path-sanity';
-import { blocking } from './decorators/blocking-route';
 import { j200 } from './decorators/responses';
-import { isAdminRest, hasPermissionRest, isAuthorizedRest, isIdentifiedRest } from './decorators/permissions';
+import { isAuthorizedRest } from './decorators/permissions';
 
 export const Controller = _Controller.Router;
-export const Model = _Models.Model;
-export const SchemaFactory = _SchemaFactory;
 export const isValidID = isValidObjectID;
 export const decorators = {
-  validId,
-  blocking,
   j200,
-  admin: isAdminRest,
-  hasPermission: hasPermissionRest,
-  authorize: isAuthorizedRest,
-  identify: isIdentifiedRest
+  authorize: isAuthorizedRest
 };
 
 export const routers = {
-  /** Endpoints for administritive tasks */
-  admin: AdminRouter,
   /** Endpoints for authenticating users */
   auth: AuthRouter,
-  /** Endpoints for managing templates */
-  templates: TemplatesRouter,
-  /** Endpoints for managing cross origin allowances */
+  // /** Endpoints for managing cross origin allowances */
   cors: CORSRouter,
-  /** TODO: This must be removed in favour of the admin controller */
-  email: EmailsRouter,
   /** Can be used to catch and return errors */
   error: ErrorRouter,
   /** Endpoints for managing user files */
-  file: FileRouter,
-  /** Endpoints for managing page renders */
-  renderer: PageRouter,
-  /** Endpoints for managing active sessions */
-  session: SessionRouter
+  file: FileRouter
 };
 
 export { UserPrivilege } from './core/enums';

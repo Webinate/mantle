@@ -5,7 +5,6 @@ import { IVolume } from '../types/models/i-volume-entry';
 import { Db, ObjectID, Collection } from 'mongodb';
 import RemoteFactory from '../core/remotes/remote-factory';
 import Controller from './controller';
-import ModelFactory from '../core/model-factory';
 import { isValidObjectID } from '../utils/utils';
 import ControllerFactory from '../core/controller-factory';
 import { IAuthReq } from '../types/tokens/i-auth-request';
@@ -52,8 +51,8 @@ export class FilesController extends Controller {
    * @param db The mongo db
    */
   async initialize(db: Db) {
-    this._files = ModelFactory.get('files').collection;
-    this._volumes = ModelFactory.get('volumes').collection;
+    this._files = await db.collection<IFileEntry<'server'>>('files');
+    this._volumes = await db.collection<IVolume<'server'>>('volumes');
     this._users = ControllerFactory.get('users');
     this._allowedFileTypes = [
       'image/bmp',

@@ -2,7 +2,6 @@
 import { Page } from '../types/tokens/standard-tokens';
 import { Db, ObjectID, Collection } from 'mongodb';
 import Controller from './controller';
-import ModelFactory from '../core/model-factory';
 import { ITemplate } from '../types/models/i-template';
 
 export type GetOptions = {
@@ -27,7 +26,7 @@ export class TemplatesController extends Controller {
    * @param db The mongo db
    */
   async initialize(db: Db) {
-    this._templates = ModelFactory.get('templates').collection;
+    this._templates = await db.collection<ITemplate<'server'>>('templates');
     return this;
   }
 

@@ -17,7 +17,7 @@ let numPosts: number,
   childCommentId: string,
   admin: Partial<IUserEntry<'server'>>;
 
-describe('[GQL] Testing fetching of comments', function() {
+describe('Testing fetching of comments', function() {
   before(async function() {
     const postsResp = await ControllerFactory.get('posts').getPosts();
     const commentsResp = await ControllerFactory.get('comments').getAll();

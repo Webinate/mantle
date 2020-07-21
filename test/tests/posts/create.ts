@@ -7,7 +7,7 @@ import { AddPostInput } from '../../../src/graphql/models/post-type';
 import { GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
 let lastPost: IPost<'expanded'>, lastPost2: string;
 
-describe('[GQL] Testing creation of posts', function() {
+describe('Testing creation of posts', function() {
   it('cannot create post when not logged in', async function() {
     const { errors } = await header.guest.graphql<IPost<'expanded'>>(ADD_POST, {
       token: new AddPostInput({

@@ -9,7 +9,7 @@ import { AddUserInput } from '../../../src/graphql/models/user-type';
 let testUserName = `test${randomString(6)}`,
   testUserEmail = `test${randomString(6)}@fancy.com`;
 
-describe('[GQL] Testing creating a user', function() {
+describe('Testing creating a user', function() {
   after(async function() {
     const resp = await controllerFactory.get('users').remove(testUserName);
     assert(resp);

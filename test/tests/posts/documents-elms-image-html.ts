@@ -18,7 +18,7 @@ let post: IPost<'server'>,
   imageElm: IImageElement<'expanded'>,
   file: IFileEntry<'expanded'>;
 
-describe('[GQL] Testing the rendered html of image elements: ', function() {
+describe('Testing the rendered html of image elements: ', function() {
   this.timeout(600000);
 
   before(async function() {

@@ -7,7 +7,7 @@ import * as express from 'express';
  */
 export default class MainController extends Controller {
   constructor() {
-    super(null);
+    super();
   }
 
   async initialize(app: express.Express, db: mongodb.Db) {
@@ -26,10 +26,6 @@ export default class MainController extends Controller {
       new routers.file({
         rootPath: '',
         cacheLifetime: 60000
-      }).initialize(app, db),
-
-      new routers.templates({
-        rootPath: api
       }).initialize(app, db)
     ]);
 

@@ -9,7 +9,7 @@ import { UpdatePostInput } from '../../../src/graphql/models/post-type';
 
 let postPublic: IPost<'server'>, postPrivate: IPost<'server'>;
 
-describe('[GQL] Testing filtering of posts: ', function() {
+describe('Testing filtering of posts: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

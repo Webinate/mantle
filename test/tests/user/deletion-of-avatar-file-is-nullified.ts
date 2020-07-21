@@ -14,7 +14,7 @@ import { VolumeType } from '../../../src/core/enums';
 
 let user: User, volume: IVolume<'expanded'>, file: IFileEntry<'expanded'>;
 
-describe('[GQL] Testing deletion of an avatar image nullifies it on the user: ', function() {
+describe('Testing deletion of an avatar image nullifies it on the user: ', function() {
   before(async function() {
     const users = ControllerFactory.get('users');
 

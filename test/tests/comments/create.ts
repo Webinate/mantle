@@ -7,7 +7,7 @@ import { AddCommentInput } from '../../../src/graphql/models/comment-type';
 
 let numPosts: number, numComments: number, newPost: IPost<'server'>, commentId: string;
 
-describe('[GQL] Testing creation of comments', function() {
+describe('Testing creation of comments', function() {
   before(async function() {
     const postResp = await ControllerFactory.get('posts').getPosts({});
     const commentResp = await ControllerFactory.get('comments').getAll({});

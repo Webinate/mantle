@@ -1,7 +1,6 @@
 import { IDraftElement, IImageElement } from '../types/models/i-draft-elements';
 import ControllerFactory from '../core/controller-factory';
 import { ElementType } from '../core/enums';
-// import { inlineTags, defaultAllowedAttributes } from '../decorators/isValidHtml';
 import * as sanitizeHtml from 'sanitize-html';
 
 /**

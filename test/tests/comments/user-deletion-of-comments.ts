@@ -15,7 +15,7 @@ let post: IPost<'server'>,
   rootChild: IComment<'expanded'>,
   replyComment: IComment<'expanded'>;
 
-describe('[GQL] When user deleted, comments must be nullified or removed: ', function() {
+describe('When user deleted, comments must be nullified or removed: ', function() {
   before(async function() {
     const users = ControllerFactory.get('users');
     const posts = ControllerFactory.get('posts');

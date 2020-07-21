@@ -13,7 +13,7 @@ let post: IPost<'server'>,
   user1: IUserEntry<'server'>,
   templates: ITemplate<'server'>[];
 
-describe('[GQL] Testing the changing of a document template: ', function() {
+describe('Testing the changing of a document template: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

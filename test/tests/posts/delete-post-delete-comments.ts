@@ -9,7 +9,7 @@ import { REMOVE_POST } from '../../../src/graphql/client/requests/posts';
 
 let post: IPost<'server'>, comment1: IComment<'server'>, comment2: IComment<'server'>;
 
-describe('[GQL] Testing deletion of comments when a post is deleted', function() {
+describe('Testing deletion of comments when a post is deleted', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const comments = ControllerFactory.get('comments');

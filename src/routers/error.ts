@@ -13,7 +13,7 @@ export class ErrorRouter extends Router {
    * Creates an instance
    */
   constructor() {
-    super(null);
+    super();
   }
 
   /**

@@ -10,7 +10,7 @@ import { AddCommentInput } from '../../../src/graphql/models/comment-type';
 
 let numPosts: number, numComments: number, postId: string, commentId: string, parentCommentId: string;
 
-describe('[GQL] Testing deletion of comments', function() {
+describe('Testing deletion of comments', function() {
   it('fetched all posts', async function() {
     const posts = await ControllerFactory.get('posts').getPosts({});
     const comments = await ControllerFactory.get('comments').getAll({});

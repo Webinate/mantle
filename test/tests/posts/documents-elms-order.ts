@@ -12,7 +12,7 @@ let post: IPost<'server'>;
 let firstElm: IDraftElement<'expanded'>;
 let secondElm: IDraftElement<'expanded'>;
 
-describe('[GQL] Testing the order of document elements: ', function() {
+describe('Testing the order of document elements: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

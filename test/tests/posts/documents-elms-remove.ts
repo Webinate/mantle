@@ -7,7 +7,7 @@ import { REMOVE_DOC_ELEMENT, GET_DOCUMENT } from '../../../src/graphql/client/re
 
 let post: IPost<'server'>, document: IDocument<'expanded'>;
 
-describe('[GQL] Testing the deletion of document elements: ', function() {
+describe('Testing the deletion of document elements: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

@@ -11,7 +11,7 @@ let numUsers: number,
   testUserName = `test${randomString(6)}`,
   testUserEmail = `test${randomString(6)}@fancy.com`;
 
-describe('[GQL] Testing deleting users', function() {
+describe('Testing deleting users', function() {
   it('did get the number of users', async function() {
     const resp = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
     numUsers = resp.data.count;

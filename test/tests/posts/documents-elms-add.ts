@@ -10,7 +10,7 @@ import { ElementType } from '../../../src/core/enums';
 
 let post: IPost<'server'>, documentId: ObjectID, user1: IUserEntry<'server'>;
 
-describe('[GQL] Testing the adding of document elements: ', function() {
+describe('Testing the adding of document elements: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');

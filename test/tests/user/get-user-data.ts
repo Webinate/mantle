@@ -3,7 +3,7 @@ import header from '../header';
 import { IAdminUser, IUserEntry } from '../../../src';
 import { GET_USER_AS_ADMIN, GET_USER } from '../../../src/graphql/client/requests/users';
 
-describe('[GQL] Getting user data', function() {
+describe('Getting user data', function() {
   it('should allow admin access to its data', async function() {
     const { data: json } = await header.admin.graphql<IUserEntry<'expanded'>>(GET_USER_AS_ADMIN, {
       user: (header.config.adminUser as IAdminUser).username

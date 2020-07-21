@@ -17,7 +17,7 @@ let firstDraft: IDraft<'expanded'>;
 
 let updatedHTML: string, listHTML: string, imgHTML: string, codeHtml: string, drafts: IDraft<'expanded'>[];
 
-describe('[GQL] Testing of posts and drafts', function() {
+describe('Testing of posts and drafts', function() {
   before(async function() {
     const users = ControllerFactory.get('users');
     const volumes = ControllerFactory.get('volumes');

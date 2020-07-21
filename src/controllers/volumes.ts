@@ -6,7 +6,6 @@ import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
 import { FilesController } from './files';
 import ControllerFactory from '../core/controller-factory';
-import ModelFactory from '../core/model-factory';
 import RemoteFactory from '../core/remotes/remote-factory';
 import { Error500, Error404 } from '../utils/errors';
 import { UsersController } from './users';
@@ -53,7 +52,7 @@ export class VolumesController extends Controller {
    * @param db The mongo db
    */
   async initialize(db: Db) {
-    this._volumes = ModelFactory.get('volumes').collection;
+    this._volumes = await db.collection<IVolume<'server'>>('volumes');
     this._filesController = ControllerFactory.get('files');
     this._users = ControllerFactory.get('users');
     return this;

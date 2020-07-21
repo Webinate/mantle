@@ -5,8 +5,8 @@ import { LoginInput } from '../../../src/graphql/models/auth-type';
 import { LOGIN } from '../../../src/graphql/client/requests/auth';
 import { AuthResponse } from '../../../src/graphql/models/auth-type';
 
-describe('[GQL] Testing user logging in', function() {
-  it('[GQL] did not log in with empty credentials', async function() {
+describe('Testing user logging in', function() {
+  it('did not log in with empty credentials', async function() {
     const { errors } = await header.guest.graphql<AuthResponse>(LOGIN, { token: {} });
     assert.deepEqual(
       errors![0].message,
@@ -18,7 +18,7 @@ describe('[GQL] Testing user logging in', function() {
     );
   });
 
-  it('[GQL] did not log in with bad credentials', async function() {
+  it('did not log in with bad credentials', async function() {
     const { errors } = await header.guest.graphql<AuthResponse>(LOGIN, {
       token: new LoginInput({
         username: '"!%^',
@@ -29,7 +29,7 @@ describe('[GQL] Testing user logging in', function() {
     assert.deepEqual(errors![0].message, 'Please only use alpha numeric characters for your username');
   });
 
-  it('[GQL] did not log in with false credentials', async function() {
+  it('did not log in with false credentials', async function() {
     const { errors } = await header.guest.graphql<AuthResponse>(LOGIN, {
       token: new LoginInput({
         username: 'GeorgeTheTwat',
@@ -40,7 +40,7 @@ describe('[GQL] Testing user logging in', function() {
     assert.deepEqual(errors![0].message, 'The username or password is incorrect.');
   });
 
-  it('[GQL] did not log in with a valid username but invalid password', async function() {
+  it('did not log in with a valid username but invalid password', async function() {
     const { errors } = await header.guest.graphql<AuthResponse>(LOGIN, {
       token: new LoginInput({
         username: (header.config.adminUser as IAdminUser).username,
@@ -51,7 +51,7 @@ describe('[GQL] Testing user logging in', function() {
     assert.deepEqual(errors![0].message, 'The username or password is incorrect.');
   });
 
-  it('[GQL] did log in with a valid username & valid password', async function() {
+  it('did log in with a valid username & valid password', async function() {
     const resp = await header.guest.graphql<AuthResponse>(LOGIN, {
       token: new LoginInput({
         username: (header.config.adminUser as IAdminUser).username,
