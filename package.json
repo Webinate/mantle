@@ -1,6 +1,6 @@
 {
   "name": "mantle",
-  "version": "0.22.0",
+  "version": "0.3.0",
   "types": "./src/index",
   "description": "The mantle server & API",
   "main": "./src/index",
