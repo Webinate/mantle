@@ -311,6 +311,7 @@ export class PostsController extends Controller {
     token.tags = token.tags ? token.tags : [];
     token.brief = token.brief || '';
     token.categories = token.categories ? token.categories : [];
+    token.public = token.public === undefined ? true : token.public;
 
     // Check if the image exists
     if (token.featuredImage) {

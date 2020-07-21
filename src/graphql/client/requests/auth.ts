@@ -8,6 +8,7 @@ export const AUTHENTICATED = gql`
       message
       user {
         ...UserFields
+        email
       }
     }
   }
