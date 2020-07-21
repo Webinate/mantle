@@ -1,7 +1,7 @@
 {
   "name": "test",
   "enabled": true,
-  "enableGraphQl": true,
+  "enableGraphIQl": true,
   "server": {
     "port": 8000,
     "host": "localhost",

@@ -1,7 +1,7 @@
 {
   "name": "graphiql",
   "enabled": true,
-  "enableGraphQl": true,
+  "enableGraphIQl": true,
   "server": {
     "port": 9001,
     "host": "localhost",

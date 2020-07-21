@@ -63,15 +63,13 @@ export class Server {
     const schema = await generateSchema();
 
     // bind express with graphql
-    if (this.client.enableGraphQl) {
-      app.use('/graphql', (req, res) => {
-        return graphqlHTTP({
-          schema,
-          graphiql: true,
-          context: { res, req, server, client }
-        })(req, res);
-      });
-    }
+    app.use('/graphql', (req, res) => {
+      return graphqlHTTP({
+        schema,
+        graphiql: this.client.enableGraphIQl === 'true' ? true : false,
+        context: { res, req, server, client }
+      })(req, res);
+    });
 
     // Create the controllers
     const controllers: Router[] = [...this._controllers, new ErrorRouter()];
@@ -163,9 +161,7 @@ export class Server {
       return this;
     } catch (e) {
       throw new Error(
-        `ERROR An error has occurred while setting up the controllers for ${this.client.name}: '${e.message}' \r\n'${
-          e.stack
-        }'`
+        `ERROR An error has occurred while setting up the controllers for ${this.client.name}: '${e.message}' \r\n'${e.stack}'`
       );
     }
   }
