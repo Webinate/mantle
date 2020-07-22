@@ -1,6 +1,6 @@
 {
   "name": "express-site",
-  "enabled": false,
+  "enabled": true,
   "server": {
     "port": 7001,
     "host": "localhost",
@@ -8,7 +8,7 @@
   },
   "controllers": [
     {
-      "path": "server.js"
+      "path": "server"
     }
   ]
 }

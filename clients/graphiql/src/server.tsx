@@ -5,7 +5,7 @@ import { Db } from 'mongodb';
 
 export default class Server extends Controller {
   constructor(client: IClient) {
-    super(null);
+    super();
   }
 
   /**
@@ -22,7 +22,7 @@ export default class Server extends Controller {
       <body>
         <div class="container">
           <h1>Mantle supports Graphiql</h1>
-          <div>Please go to localhost:9001</div>
+          <div>Please go to <a href="http://localhost:9001/graphql">localhost:9001/graphql</a></div>
         </div>
       </body>
     </html>

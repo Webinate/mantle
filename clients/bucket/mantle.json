@@ -1,6 +1,6 @@
 {
   "name": "bucket",
-  "enabled": false,
+  "enabled": true,
   "server": {
     "port": 7002,
     "host": "localhost",

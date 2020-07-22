@@ -66,7 +66,7 @@ export class Server {
     app.use('/graphql', (req, res) => {
       return graphqlHTTP({
         schema,
-        graphiql: this.client.enableGraphIQl === 'true' ? true : false,
+        graphiql: this.client.enableGraphIQl.toString() === 'true' ? true : false,
         context: { res, req, server, client }
       })(req, res);
     });
