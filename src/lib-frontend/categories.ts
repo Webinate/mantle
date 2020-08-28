@@ -6,7 +6,7 @@ import { CategoriesGetManyOptions } from '../controllers/categories';
 const rootPath = `${apiUrl}/categories`;
 
 export async function getAll(options: Partial<CategoriesGetManyOptions>) {
-  const page = await getJson<Page<ICategory<'client' | 'expanded'>>>(rootPath + makeQueryString(options));
+  const page = await getJson<Page<ICategory<'expanded'>>>(rootPath + makeQueryString(options));
   return page;
 }
 

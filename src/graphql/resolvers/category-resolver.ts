@@ -14,11 +14,15 @@ import { ICategory } from '../../types/models/i-category';
 export class CategoryResolver implements ResolverInterface<Category> {
   @Query(returns => Category, { nullable: true })
   async category(@Arg('id', { nullable: true }) id: string, @Arg('slug', { nullable: true }) slug: string) {
+    let category: ICategory<'server'> | null;
     if (slug) {
-      return await ControllerFactory.get('categories').getBySlug(slug);
+      category = await ControllerFactory.get('categories').getBySlug(slug);
     } else {
-      return await ControllerFactory.get('categories').getOne(id);
+      category = await ControllerFactory.get('categories').getOne(id);
     }
+
+    if (!category) return null;
+    return Category.fromEntity(category);
   }
 
   @Query(returns => PaginatedCategoryResponse, { description: 'Gets an array of all categories' })

@@ -47,7 +47,6 @@ export { IRender } from './types/models/i-render';
 export { ISessionEntry } from './types/models/i-session-entry';
 export { IUserEntry } from './types/models/i-user-entry';
 export { IUploadResponse } from './types/tokens/i-file-tokens';
-
 export {
   IAuthenticationResponse,
   EmailTokens,
