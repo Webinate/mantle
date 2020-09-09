@@ -69,12 +69,12 @@ export class AuthRouter extends Router {
 
     try {
       // Check the user's activation and forward them onto the admin message page
-      await this._userController.checkActivation(req.query.user, req.query.key);
+      await this._userController.checkActivation(req.query.user as string, req.query.key as string);
       res.setHeader('Content-Type', 'application/json');
       res.redirect(
         `${redirectURL}?message=${encodeURIComponent(
           'Your account has been activated!'
-        )}&status=success&origin=${encodeURIComponent(req.query.origin)}`
+        )}&status=success&origin=${encodeURIComponent(req.query.origin as string)}`
       );
     } catch (error) {
       logError(error.toString());
@@ -82,7 +82,7 @@ export class AuthRouter extends Router {
       res.status(302);
       res.redirect(
         `${redirectURL}?message=${encodeURIComponent(error.message)}&status=error&origin=${encodeURIComponent(
-          req.query.origin
+          req.query.origin as string
         )}`
       );
     }

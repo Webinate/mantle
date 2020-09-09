@@ -7,21 +7,7 @@ import { ObjectID } from 'mongodb';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { SortOrder, CommentSortType, CommentVisibility } from '../core/enums';
 import { IPost } from '../types/models/i-post';
-
-export type CommentGetAllOptions = {
-  visibility: CommentVisibility;
-  user: string;
-  index: number;
-  depth: number;
-  limit: number;
-  expanded: boolean;
-  keyword: string;
-  root: boolean;
-  parentId: ObjectID | string | null;
-  postId: ObjectID | string;
-  sortType: CommentSortType;
-  sortOrder: SortOrder;
-};
+import { CommentGetAllOptions } from '../core/types';
 
 /**
  * A controller that deals with the management of comments
@@ -179,7 +165,7 @@ export class CommentsController extends Controller {
    * @param id The id of the comment
    * @param token The update token of the comment
    */
-  async update(id: string | ObjectID, token: Partial<IComment<'client'>>) {
+  async update(id: string | ObjectID, token: Partial<IComment<'server'>>) {
     const comments = this._commentsCollection;
     const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID(id) };
     token.lastUpdated = Date.now();

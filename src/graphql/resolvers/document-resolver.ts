@@ -21,6 +21,7 @@ import { Template } from '../models/template-type';
 import { Element, AddElementInput, UpdateElementInput } from '../models/element-type';
 import { Queue } from '../helpers/queue';
 import { JsonType } from '../scalars/json';
+import { IDraftElement } from '../../types/models/i-draft-elements';
 
 const addElmQueue: Queue = new Queue();
 const removeElmQueue: Queue = new Queue();
@@ -102,7 +103,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
           docId: docId,
           checkPermissions: ctx.isAdmin ? undefined : { userId: ctx.user!._id }
         },
-        token,
+        token as IDraftElement<'server'>,
         index
       );
 
@@ -127,7 +128,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
         docId: docId,
         checkPermissions: ctx.isAdmin ? undefined : { userId: ctx.user!._id }
       },
-      token
+      token as IDraftElement<'server'>
     );
 
     return Element.fromEntity(element);

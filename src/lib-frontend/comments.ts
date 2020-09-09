@@ -1,7 +1,7 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
 import { Page } from '../types/tokens/standard-tokens';
 import { IComment } from '..';
-import { CommentGetAllOptions } from '../controllers/comments';
+import { CommentGetAllOptions } from '../core/types';
 
 const rootPath = `${apiUrl}/comments`;
 

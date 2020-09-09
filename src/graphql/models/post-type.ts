@@ -16,7 +16,7 @@ import { PostVisibility, PostSortType, SortOrder } from '../../core/enums';
 @ObjectType({ description: 'Object representing a Post' })
 export class Post {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field(type => User, { nullable: true })
   author: User | null;
@@ -72,7 +72,7 @@ export class Post {
 @InputType()
 export class AddPostInput {
   @Field(type => GraphQLObjectId, { nullable: true })
-  author: ObjectID | null;
+  author: ObjectID | string | null;
 
   @Field({ nullable: true, defaultValue: '' })
   @IsSafeText()
@@ -107,7 +107,7 @@ export class UpdatePostInput {
   _id: ObjectId | string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  author: ObjectID | null;
+  author: ObjectID | null | string;
 
   @Field({ nullable: true })
   @IsSafeText()
@@ -123,13 +123,16 @@ export class UpdatePostInput {
   public: boolean;
 
   @Field(type => [GraphQLObjectId], { nullable: true })
-  categories: ObjectID[];
+  categories: (ObjectID | string)[];
 
   @Field(type => [String], { nullable: true })
   tags: string[];
 
   @Field(type => GraphQLObjectId, { nullable: true })
   featuredImage: ObjectID | null | string;
+
+  @Field(type => LongType)
+  createdOn: number;
 
   constructor(initialization?: Partial<UpdatePostInput>) {
     if (initialization) Object.assign(this, initialization);

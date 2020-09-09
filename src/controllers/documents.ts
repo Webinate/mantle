@@ -305,7 +305,7 @@ export class DocumentsController extends Controller {
     return element;
   }
 
-  async getElements(document: ObjectID) {
+  async getElements(document: ObjectID | string) {
     const searchQuery: Partial<IDraftElement<'server'>> = {
       parent: new ObjectID(document)
     };
@@ -317,7 +317,7 @@ export class DocumentsController extends Controller {
   /**
    * Populates a draft json with its elements
    */
-  async getDocHtml(docId: ObjectID) {
+  async getDocHtml(docId: ObjectID | string) {
     const doc = await this._docs.findOne({ _id: docId } as IDocument<'server'>);
     if (!doc) throw new Error404();
 

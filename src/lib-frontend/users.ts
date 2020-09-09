@@ -1,7 +1,7 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { Page } from '../types/tokens/standard-tokens';
-import { UsersGetAllOptions } from '../controllers/users';
+import { UsersGetAllOptions } from '../core/types';
 
 const rootPath = `${apiUrl}/users`;
 

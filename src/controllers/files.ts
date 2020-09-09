@@ -16,22 +16,7 @@ import { Error404, Error500, Error400 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUploadToken } from '../types/interfaces/i-remote';
 import { SortOrder, FileSortType } from '../core/enums';
-
-export type FilesGetOptions = {
-  volumeId?: string | ObjectID;
-  user?: string;
-  index?: number;
-  limit?: number;
-  search?: string | RegExp;
-  sortType?: 'created' | 'name' | 'memory';
-  sortOrder?: SortOrder;
-};
-
-export type DeleteOptions = {
-  volumeId?: string | ObjectID;
-  user?: string;
-  fileId?: string | ObjectID;
-};
+import { FilesGetOptions, DeleteOptions } from '../core/types';
 
 /**
  * Class responsible for managing files

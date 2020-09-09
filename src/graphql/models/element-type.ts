@@ -9,10 +9,10 @@ import { IImageElement } from '../../types/models/i-draft-elements';
 @ObjectType({ description: 'Object representing a Element' })
 export class Element {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field(type => GraphQLObjectId)
-  parent: ObjectId;
+  parent: ObjectId | string;
 
   @Field(type => ElementType)
   type: ElementType;
@@ -43,7 +43,7 @@ export class Element {
 @InputType()
 export class AddElementInput {
   @Field(type => GraphQLObjectId, { nullable: true })
-  parent: ObjectId;
+  parent: ObjectId | string;
 
   @Field(type => ElementType)
   type: ElementType;

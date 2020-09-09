@@ -8,7 +8,7 @@ import { Page } from '../../types/tokens/standard-tokens';
 @ObjectType({ description: 'Object representing a Template' })
 export class Template {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field()
   name: string;

@@ -1,11 +1,13 @@
-import { Controller, routers } from '../../src/index';
+import { Router } from '../../src/routers/router';
+import { AuthRouter } from '../../src/routers/auth';
+import { FileRouter } from '../../src/routers/file';
 import * as mongodb from 'mongodb';
 import * as express from 'express';
 
 /**
  * Create a basic controller
  */
-export default class MainController extends Controller {
+export default class MainController extends Router {
   constructor() {
     super();
   }
@@ -16,14 +18,14 @@ export default class MainController extends Controller {
     await Promise.all([
       super.initialize(app, db),
 
-      new routers.auth({
+      new AuthRouter({
         rootPath: api,
         accountRedirectURL: '/message',
         activateAccountUrl: '/auth/activate-account',
         passwordResetURL: '/reset-password'
       }).initialize(app, db),
 
-      new routers.file({
+      new FileRouter({
         rootPath: '',
         cacheLifetime: 60000
       }).initialize(app, db)

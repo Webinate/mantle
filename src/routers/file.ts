@@ -91,8 +91,8 @@ export class FileRouter extends Router {
   @j200()
   @isAuthorizedRest()
   private async getFiles(req: IAuthReq, res: express.Response) {
-    let index: number | undefined = parseInt(req.query.index);
-    let limit: number | undefined = parseInt(req.query.limit);
+    let index: number | undefined = parseInt(req.query.index as string);
+    let limit: number | undefined = parseInt(req.query.limit as string);
     index = isNaN(index) ? undefined : index;
     limit = isNaN(limit) ? undefined : limit;
 
@@ -102,10 +102,10 @@ export class FileRouter extends Router {
       volumeId: req.params.volume,
       index: index,
       limit: limit,
-      sortType: req.query.sortType ? req.query.sortType.toLowerCase() : undefined,
+      sortType: req.query.sortType ? ((req.query.sortType as string).toLowerCase() as any) : undefined,
       sortOrder: req.query.sortOrder === SortOrder.asc ? SortOrder.asc : SortOrder.desc,
       user: req._isAdmin ? undefined : (req._user!.username as string),
-      search: req.query.search ? new RegExp(req.query.search, 'i') : undefined
+      search: req.query.search ? new RegExp(req.query.search as string, 'i') : undefined
     });
 
     return page;

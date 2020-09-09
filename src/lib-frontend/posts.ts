@@ -1,8 +1,8 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
 import { IPost } from '../types/models/i-post';
 import { Page } from '../types/tokens/standard-tokens';
-import { PostsGetAllOptions } from '../controllers/posts';
 import { IDraft } from '../types/models/i-draft';
+import { PostsGetAllOptions } from '../core/types';
 
 const rootPath = `${apiUrl}/posts`;
 

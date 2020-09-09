@@ -31,7 +31,7 @@ export const allowedCommentTags = [
 @ObjectType({ description: 'Object representing a Comment' })
 export class Comment {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field(type => String)
   author: string;
@@ -93,6 +93,23 @@ export class AddCommentInput {
   children: (ObjectID | string)[];
 
   constructor(initialization?: Partial<AddCommentInput>) {
+    if (initialization) Object.assign(this, initialization);
+  }
+}
+
+@InputType()
+export class UpdateCommentInput {
+  @Field(type => GraphQLObjectId)
+  _id: ObjectId | string;
+
+  @Field(type => Boolean, { defaultValue: true })
+  public: boolean;
+
+  @Field()
+  @IsValidHtml(true, undefined, allowedCommentTags)
+  content: string;
+
+  constructor(initialization?: Partial<UpdateCommentInput>) {
     if (initialization) Object.assign(this, initialization);
   }
 }

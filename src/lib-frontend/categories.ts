@@ -1,7 +1,7 @@
 import { getJson, makeQueryString, del, postJson, putJson, apiUrl } from './http-clients';
 import { ICategory } from '../types/models/i-category';
 import { Page } from '../types/tokens/standard-tokens';
-import { CategoriesGetManyOptions } from '../controllers/categories';
+import { CategoriesGetManyOptions } from '../core/types';
 
 const rootPath = `${apiUrl}/categories`;
 

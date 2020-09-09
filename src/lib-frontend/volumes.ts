@@ -1,7 +1,7 @@
 import { getJson, makeQueryString, del, putJson, postJson, apiUrl } from './http-clients';
 import { Page } from '../types/tokens/standard-tokens';
 import { IVolume } from '../types/models/i-volume-entry';
-import { VolumesGetOptions } from '../controllers/volumes';
+import { VolumesGetOptions } from '../core/types';
 
 const rootPath = `${apiUrl}/volumes`;
 

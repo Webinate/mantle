@@ -20,12 +20,7 @@ import Controller from './controller';
 import { Error400, Error404 } from '../utils/errors';
 import { IFileEntry } from '../types/models/i-file-entry';
 
-export type UsersGetAllOptions = {
-  search: string;
-  index: number;
-  limit: number;
-  verbose: boolean;
-};
+
 
 export type UserEvents = 'user-removed';
 export type UserEvent<T extends UserEvents> = {

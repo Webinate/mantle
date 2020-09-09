@@ -1,7 +1,7 @@
 {
   "name": "mantle",
   "version": "0.3.0",
-  "types": "./src/index",
+  "types": "./src/client-models",
   "description": "The mantle server & API",
   "main": "./src/index",
   "author": "Mathew Henson",
@@ -22,12 +22,16 @@
     "dev-server": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
     "dev-server-watch": "nodemon ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
     "start-server": "cross-env NODE_ENV=production ts-node ./src/main.ts --config=./config.json --logging=true",
-    "generate-schema": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true --writeSchema=true"
+    "generate-schema": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true --writeSchema=true",
+    "generate-client-models": "graphql-codegen --config codegen.yml"
   },
   "devDependencies": {
-    "mocha": "~5.2.0",
+    "@graphql-codegen/cli": "1.17.8",
+    "@graphql-codegen/introspection": "1.17.8",
+    "@graphql-codegen/typescript": "1.17.8",
     "@types/mocha": "~5.2.5",
     "form-data": "2.3.1",
+    "mocha": "~5.2.0",
     "node-fetch": "1.7.3"
   },
   "dependencies": {
@@ -37,12 +41,12 @@
     "@types/compression": "0.0.36",
     "@types/deepmerge": "^1.3.3",
     "@types/entities": "~1.1.0",
-    "@types/mailgun-js": "0.22.4",
     "@types/express-graphql": "^0.6.2",
     "@types/form-data": "~0.0.33",
     "@types/formidable": "1.0.31",
     "@types/graphql": "^14.5.0",
     "@types/jsdom": "~12.2.0",
+    "@types/mailgun-js": "0.22.4",
     "@types/mongodb": "~2.2.21",
     "@types/morgan": "^1.7.35",
     "@types/node": "~7.0.34",

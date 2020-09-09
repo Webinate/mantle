@@ -187,6 +187,7 @@ type Mutation {
   updateUser(token: UpdateUserInput!): User!
   removeComment(id: ObjectId!): Boolean!
   addComment(token: AddCommentInput!): Comment!
+  patchComment(token: UpdateCommentInput!): Comment!
   login(token: LoginInput!): AuthResponse!
   register(token: RegisterInput!): AuthResponse!
   approveActivation(username: String!): Boolean!
@@ -356,6 +357,12 @@ input UpdateCategoryInput {
   parent: ObjectId
 }
 
+input UpdateCommentInput {
+  _id: ObjectId!
+  public: Boolean = true
+  content: String!
+}
+
 input UpdateElementInput {
   _id: ObjectId!
   parent: ObjectId
@@ -368,7 +375,7 @@ input UpdateElementInput {
 input UpdateFileInput {
   _id: ObjectId!
   name: String!
-  numDownloads: Int!
+  isPublic: Boolean
 }
 
 input UpdatePostInput {
@@ -381,6 +388,7 @@ input UpdatePostInput {
   categories: [ObjectId!]
   tags: [String!]
   featuredImage: ObjectId
+  createdOn: Long!
 }
 
 input UpdateUserInput {

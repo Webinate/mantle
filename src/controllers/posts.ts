@@ -10,21 +10,8 @@ import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
 import { Error404, Error400 } from '../utils/errors';
 import { IDraft } from '../types/models/i-draft';
-import { SortOrder, PostVisibility, PostSortType } from '../core/enums';
-
-export type PostsGetAllOptions = {
-  visibility: PostVisibility;
-  categories: ObjectID[];
-  tags: string[];
-  rtags: string[];
-  sort: PostSortType;
-  requiredTags?: string[];
-  index: number;
-  limit: number;
-  keyword: string;
-  author: string;
-  sortOrder: SortOrder;
-};
+import { SortOrder } from '../core/enums';
+import { PostsGetAllOptions } from '../core/types';
 
 export type PostsGetOneOptions = {
   id: string | ObjectID;

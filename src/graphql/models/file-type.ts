@@ -13,7 +13,7 @@ import { SortOrder, FileSortType } from '../../core/enums';
 @ObjectType({ description: 'Object representing a File' })
 export class File {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field()
   name: string;

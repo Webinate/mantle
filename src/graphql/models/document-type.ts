@@ -11,7 +11,7 @@ import { IDocument } from '../../types/models/i-document';
 @ObjectType({ description: 'Object representing a Document' })
 export class Document {
   @Field(type => GraphQLObjectId)
-  _id: ObjectId;
+  _id: ObjectId | string;
 
   @Field(type => User, { nullable: true })
   author: User | null;

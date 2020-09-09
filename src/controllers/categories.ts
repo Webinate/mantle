@@ -5,13 +5,7 @@ import Controller from './controller';
 import { ICategory } from '../types/models/i-category';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { ObjectID } from 'mongodb';
-
-export type CategoriesGetManyOptions = {
-  index: number;
-  limit: number;
-  root: boolean;
-  parent: ObjectID | string;
-};
+import { CategoriesGetManyOptions } from '../core/types';
 
 export type GetOneOptions = {
   expanded: boolean;
@@ -107,7 +101,7 @@ export class CategoriesController extends Controller {
 
     const promises: Promise<any>[] = [];
 
-    const children = await this._collection.find({ parent: category._id } as ICategory<'server'>).toArray()
+    const children = await this._collection.find({ parent: category._id } as ICategory<'server'>).toArray();
     for (const child of children) promises.push(this.remove(child._id));
     if (children.length > 0) await Promise.all(promises);
 
