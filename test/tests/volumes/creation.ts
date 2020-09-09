@@ -1,9 +1,8 @@
 import * as assert from 'assert';
 import header from '../header';
-import { IVolume, Page } from '../../../src';
 import { ADD_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import ControllerFactory from '../../../src/core/controller-factory';
+import { Volume, PaginatedVolumeResponse, AddVolumeInput } from '../../../src/client-models';
 
 let volume1: string, volume2: string;
 
@@ -11,22 +10,22 @@ describe('Testing volume creation', function() {
   it('regular user did not create a volume for another user', async function() {
     const user2 = await ControllerFactory.get('users').getUser({ username: 'user2' });
 
-    const { errors } = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({ name: 'test', user: user2!._id })
+    const { errors } = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: { name: 'test', user: user2!._id } as AddVolumeInput
     });
     assert.deepEqual(errors![0].message, 'You do not have permission');
   });
 
   it('regular user is not allowed to set memoryAllocated for volume creation', async function() {
-    const { errors } = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({ memoryAllocated: 0, name: 'dinosaurs' })
+    const { errors } = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: { memoryAllocated: 0, name: 'dinosaurs' } as AddVolumeInput
     });
     assert.deepEqual(errors![0].message, `You don't have permission to set the memoryAllocated`);
   });
 
   it('regular user did create a new volume called dinosaurs', async function() {
-    const { errors, data: json } = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({ name: 'dinosaurs' })
+    const { errors, data: json } = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: { name: 'dinosaurs' } as AddVolumeInput
     });
 
     assert.deepEqual(errors, undefined);
@@ -43,8 +42,8 @@ describe('Testing volume creation', function() {
 
   it('admin user did create a volume with a different name for regular user', async function() {
     const user1 = await ControllerFactory.get('users').getUser({ username: 'user1' });
-    const { data: json } = await header.admin.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({ name: 'dinosaurs2', user: user1!._id })
+    const { data: json } = await header.admin.graphql<Volume>(ADD_VOLUME, {
+      token: { name: 'dinosaurs2', user: user1!._id } as AddVolumeInput
     });
 
     assert(json.hasOwnProperty('_id'));
@@ -54,7 +53,7 @@ describe('Testing volume creation', function() {
   });
 
   it('regular user should have 2 volumes', async function() {
-    const response = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {});
+    const response = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {});
     assert(response.data.data.length === 2);
   });
 

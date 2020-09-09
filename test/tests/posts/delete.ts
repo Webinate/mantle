@@ -1,31 +1,31 @@
 import * as assert from 'assert';
-import { IPost, Page, IDocument } from '../../../src';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import { GET_POSTS, ADD_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
-import { AddPostInput } from '../../../src/graphql/models/post-type';
 import { GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
-let numPosts: number, post: IPost<'expanded'>;
+import { Post, Document, AddPostInput, PaginatedPostsResponse } from '../../../src/client-models';
+
+let numPosts: number, post: Post;
 
 describe('Testing deletion of posts', function() {
   it('fetched all posts', async function() {
-    const resp = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS);
+    const resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS);
     resp;
 
     const {
       data: { count }
-    } = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS);
+    } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS);
 
     numPosts = count;
   });
 
   it('did create a post to test deletion', async function() {
-    const { data: newPost } = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
-      token: new AddPostInput({
+    const { data: newPost } = await header.admin.graphql<Post>(ADD_POST, {
+      token: <AddPostInput>{
         title: 'Simple Test',
         slug: generateRandString(10),
         public: true
-      })
+      }
     });
 
     assert(newPost);
@@ -56,7 +56,7 @@ describe('Testing deletion of posts', function() {
   });
 
   it('has removed the document', async function() {
-    const { data, errors } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document._id });
+    const { data, errors } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document._id });
     assert(!data);
     assert(!errors);
   });
@@ -64,7 +64,7 @@ describe('Testing deletion of posts', function() {
   it('has cleaned up the posts successfully', async function() {
     const {
       data: { count }
-    } = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS);
+    } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS);
     assert(count === numPosts);
   });
 });

@@ -1,12 +1,12 @@
 import * as assert from 'assert';
-import { IPost, IDocument, IUserEntry, IDraftElement } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import { ObjectID } from 'mongodb';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
-import { AddElementInput } from '../../../src/graphql/models/element-type';
-import { ElementType } from '../../../src/core/enums';
+import { AddElementInput, ElementType, Element, Document } from '../../../src/client-models';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IPost } from '../../../src/types/models/i-post';
 
 let post: IPost<'server'>, documentId: ObjectID, user1: IUserEntry<'server'>;
 
@@ -33,7 +33,7 @@ describe('Testing the adding of document elements: ', function() {
   });
 
   it('did not add an element with a bad document id', async function() {
-    const { errors } = await header.guest.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { errors } = await header.guest.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: 'BAD',
       token: 'BAD',
       index: 'test'
@@ -56,20 +56,20 @@ describe('Testing the adding of document elements: ', function() {
   });
 
   it('did not add an element on a document that doesnt exist', async function() {
-    const { errors } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { errors } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: '123456789012345678901234',
-      token: new AddElementInput({ type: ElementType.paragraph })
+      token: <AddElementInput>{ type: ElementType.Paragraph }
     });
     assert.deepEqual(errors![0].message, 'Document not found');
   });
 
   it('did not allow a guest to add an element', async function() {
-    const { errors } = await header.guest.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { errors } = await header.guest.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: documentId,
-      token: new AddElementInput({
-        type: ElementType.paragraph,
+      token: <AddElementInput>{
+        type: ElementType.Paragraph,
         html: ''
-      })
+      }
     });
 
     assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
@@ -77,9 +77,9 @@ describe('Testing the adding of document elements: ', function() {
 
   // This doesnt make sense - admins can change anything :/
   // it('did not allow another user to add an element', async function() {
-  //   const { errors } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+  //   const { errors } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
   //     docId: documentId,
-  //     token: new AddElementInput({
+  //     token: <AddElementInput>({
   //       type: ElementType.paragraph,
   //       html: ''
   //     })
@@ -89,11 +89,11 @@ describe('Testing the adding of document elements: ', function() {
   // });
 
   it('did not allow the creation of element without a type', async function() {
-    const { errors } = await header.user1.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { errors } = await header.user1.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: documentId,
-      token: new AddElementInput({
+      token: <AddElementInput>{
         html: '<p>Hello world</p>'
-      })
+      }
     });
 
     assert.deepEqual(
@@ -103,12 +103,12 @@ describe('Testing the adding of document elements: ', function() {
   });
 
   it('did not allow the creation of element without a valid type', async function() {
-    const { errors } = await header.user1.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { errors } = await header.user1.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: documentId,
-      token: new AddElementInput({
+      token: <AddElementInput>{
         html: '<p>Hello world</p>',
         type: 'BAD' as any
-      })
+      }
     });
 
     assert.deepEqual(
@@ -118,46 +118,46 @@ describe('Testing the adding of document elements: ', function() {
   });
 
   it('did not allow a regular user to create an element', async function() {
-    const { errors } = await header.user1.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { errors } = await header.user1.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: documentId,
-      token: new AddElementInput({
+      token: <AddElementInput>{
         html: '<p>Hello world</p>',
-        type: ElementType.paragraph,
+        type: ElementType.Paragraph,
         zone: 'zone-a'
-      })
+      }
     });
 
     assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('did allow an admin to create some elements', async function() {
-    const { data: element } = await header.user3.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: element } = await header.user3.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: documentId,
-      token: new AddElementInput({
+      token: <AddElementInput>{
         html: '<p>Hello world</p>',
-        type: ElementType.paragraph,
+        type: ElementType.Paragraph,
         zone: 'zone-a'
-      })
+      }
     });
 
     assert.deepEqual(element.type, 'paragraph');
     assert.deepEqual(element.zone, 'zone-a');
     assert.deepEqual(element.html, '<p>Hello world</p>');
 
-    const { errors } = await header.user3.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { errors } = await header.user3.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: documentId,
-      token: new AddElementInput({
+      token: <AddElementInput>{
         html: '<p>This is crazy</p>',
-        type: ElementType.paragraph,
+        type: ElementType.Paragraph,
         zone: 'zone-a'
-      })
+      }
     });
 
     assert.ok(!errors);
   });
 
   it('did update the draft html', async function() {
-    const resp = await header.user3.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: documentId });
+    const resp = await header.user3.graphql<Document>(GET_DOCUMENT, { id: documentId });
     const doc = resp.data;
     assert.deepEqual(doc.html['main'], '<p></p>');
     assert.deepEqual(doc.html['zone-a'], '<p>Hello world</p><p>This is crazy</p>');

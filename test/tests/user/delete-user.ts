@@ -1,10 +1,9 @@
 import * as assert from 'assert';
 import Agent from '../agent';
 import header from '../header';
-import { IUserEntry, Page, UserPrivilege } from '../../../src';
 import { randomString } from '../utils';
 import { REMOVE_USER, GET_USERS, CREATE_USER } from '../../../src/graphql/client/requests/users';
-import { AddUserInput } from '../../../src/graphql/models/user-type';
+import { PaginatedUserResponse, AddUserInput, UserPrivilege, User } from '../../../src/client-models';
 
 let numUsers: number,
   agent: Agent,
@@ -13,7 +12,7 @@ let numUsers: number,
 
 describe('Testing deleting users', function() {
   it('did get the number of users', async function() {
-    const resp = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
+    const resp = await header.admin.graphql<PaginatedUserResponse>(GET_USERS);
     numUsers = resp.data.count;
   });
 
@@ -25,13 +24,13 @@ describe('Testing deleting users', function() {
   });
 
   it(`did create & login regular user ${testUserName} with valid details`, async function() {
-    const { data: newUser } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { data: newUser } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: testUserName,
         password: 'password',
         email: testUserEmail,
-        privileges: UserPrivilege.regular
-      })
+        privileges: UserPrivilege.Regular
+      } as AddUserInput
     });
 
     assert(newUser._id);
@@ -43,7 +42,7 @@ describe('Testing deleting users', function() {
   it('did increment the number of users', async function() {
     const {
       data: { count }
-    } = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
+    } = await header.admin.graphql<PaginatedUserResponse>(GET_USERS);
 
     assert(count - 1 === numUsers);
   });
@@ -59,7 +58,7 @@ describe('Testing deleting users', function() {
   it('did have the same number of users as before the tests started', async function() {
     const {
       data: { count }
-    } = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
+    } = await header.admin.graphql<PaginatedUserResponse>(GET_USERS);
 
     assert(count === numUsers);
   });

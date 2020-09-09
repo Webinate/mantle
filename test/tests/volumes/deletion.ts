@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import { Page, IVolume } from '../../../src';
+import { Volume, PaginatedVolumeResponse } from '../../../src/client-models';
 import { ADD_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 
@@ -8,7 +8,7 @@ let volume: string;
 
 describe('Testing volume deletion', function() {
   it('regular user did create a volume dinosaurs', async function() {
-    const { data: json } = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
+    const { data: json } = await header.user1.graphql<Volume>(ADD_VOLUME, {
       token: new AddVolumeInput({ name: 'dinosaurs' })
     });
     assert(json._id);
@@ -16,7 +16,7 @@ describe('Testing volume deletion', function() {
   });
 
   it('regular user did not delete a volume that does not exist', async function() {
-    const { errors } = await header.user1.graphql<IVolume<'expanded'>>(REMOVE_VOLUME, {
+    const { errors } = await header.user1.graphql<Volume>(REMOVE_VOLUME, {
       id: '123456789012345678901234'
     });
 
@@ -24,7 +24,7 @@ describe('Testing volume deletion', function() {
   });
 
   it('regular user did not delete a volume that does not have a valid id', async function() {
-    const { errors } = await header.user1.graphql<IVolume<'expanded'>>(REMOVE_VOLUME, {
+    const { errors } = await header.user1.graphql<Volume>(REMOVE_VOLUME, {
       id: 'badID'
     });
 
@@ -35,7 +35,7 @@ describe('Testing volume deletion', function() {
   });
 
   it('regular user has 1 volume', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {});
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {});
     assert(json.data.length === 1);
   });
 
@@ -48,7 +48,7 @@ describe('Testing volume deletion', function() {
   });
 
   it('regular user has 0 volume', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {});
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {});
     assert(json.data.length === 0);
   });
 });

@@ -2,21 +2,21 @@ import * as assert from 'assert';
 import * as path from 'path';
 import header from '../header';
 import * as fs from 'fs';
-import { IFileEntry, IVolume } from '../../../src';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
-import { AddVolumeInput, UpdateVolumeInput } from '../../../src/graphql/models/volume-type';
 import { ADD_VOLUME, REMOVE_VOLUME, UPDATE_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { UpdateVolumeInput, AddVolumeInput, Volume } from '../../../src/client-models';
+import { IFileEntry } from '../../../src/types/models/i-file-entry';
 
-let volume: IVolume<'expanded'>;
+let volume: Volume;
 const filePath = './test/media/file.png';
 
 describe('Testing successful file uploads: ', function() {
   before(async function() {
-    const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: randomString()
-      })
+      }
     });
     assert.ok(resp.data);
     volume = resp.data;
@@ -56,12 +56,12 @@ describe('Testing successful file uploads: ', function() {
   });
 
   it('Should error when no more space available', async function() {
-    let resp = await header.admin.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
-      token: new UpdateVolumeInput({
+    let resp = await header.admin.graphql<Volume>(UPDATE_VOLUME, {
+      token: <UpdateVolumeInput>{
         _id: volume._id,
         memoryUsed: 5000,
         memoryAllocated: 5000
-      })
+      }
     });
 
     assert.ok(!resp.errors);

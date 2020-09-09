@@ -1,22 +1,20 @@
 import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
-import { IFileEntry, IVolume } from '../../../src';
 import * as FormData from 'form-data';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { UPDATE_FILE } from '../../../src/graphql/client/requests/file';
-import { UpdateFileInput } from '../../../src/graphql/models/file-type';
+import { UpdateFileInput, File, AddVolumeInput, Volume } from '../../../src/client-models';
 
-let volume: IVolume<'expanded'>, fileId: string;
+let volume: Volume, fileId: string;
 const filePath = './test/media/file.png';
 
 describe('Testing file renaming', function() {
   before(async function() {
-    const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: 'dinosaurs'
-      })
+      }
     });
 
     assert.ok(resp.data);
@@ -48,11 +46,11 @@ describe('Testing file renaming', function() {
   });
 
   it('regular user did not rename an incorrect file to testy', async function() {
-    const resp = await header.user1.graphql<IFileEntry<'expanded'>>(UPDATE_FILE, {
-      token: new UpdateFileInput({
+    const resp = await header.user1.graphql<File>(UPDATE_FILE, {
+      token: <UpdateFileInput>{
         _id: '123',
         name: 'tesy'
-      })
+      }
     });
 
     assert.deepEqual(
@@ -62,33 +60,33 @@ describe('Testing file renaming', function() {
   });
 
   it('regular user cannot rename a file of another user', async function() {
-    const resp = await header.user2.graphql<IFileEntry<'expanded'>>(UPDATE_FILE, {
-      token: new UpdateFileInput({
+    const resp = await header.user2.graphql<File>(UPDATE_FILE, {
+      token: <UpdateFileInput>{
         _id: fileId,
         name: 'nonono'
-      })
+      }
     });
 
     assert.deepEqual(resp.errors![0].message, 'You do not have permission');
   });
 
   it('regular user regular user did not rename a correct file with an empty name', async function() {
-    const resp = await header.user1.graphql<IFileEntry<'expanded'>>(UPDATE_FILE, {
-      token: new UpdateFileInput({
+    const resp = await header.user1.graphql<File>(UPDATE_FILE, {
+      token: <UpdateFileInput>{
         _id: fileId
-      })
+      }
     });
 
     assert.ok(resp.errors![0].message.includes('Field name of required type String! was not provided.'));
   });
 
   it('regular user did rename a correct file to testy', async function() {
-    const resp = await header.user1.graphql<IFileEntry<'expanded'>>(UPDATE_FILE, {
-      token: new UpdateFileInput({
+    const resp = await header.user1.graphql<File>(UPDATE_FILE, {
+      token: <UpdateFileInput>{
         _id: fileId,
         name: 'testy',
         isPublic: false
-      })
+      }
     });
 
     assert(resp.data._id);
@@ -98,12 +96,12 @@ describe('Testing file renaming', function() {
   });
 
   it('can be updated by an admin', async function() {
-    const resp = await header.admin.graphql<IFileEntry<'expanded'>>(UPDATE_FILE, {
-      token: new UpdateFileInput({
+    const resp = await header.admin.graphql<File>(UPDATE_FILE, {
+      token: <UpdateFileInput>{
         _id: fileId,
         name: 'testy2',
         isPublic: true
-      })
+      }
     });
 
     assert(resp.data._id);

@@ -1,9 +1,10 @@
 import * as assert from 'assert';
 import header from '../header';
-import { IVolume } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { UPDATE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { UpdateVolumeInput } from '../../../src/graphql/models/volume-type';
+import { Volume } from '../../../src/client-models';
+import { IVolume } from '../../../src/types/models/i-volume-entry';
 
 let volumeJson: IVolume<'server'>;
 
@@ -20,14 +21,14 @@ describe('Testing volume update requests: ', function() {
   });
 
   it('prevents regular users from updating a volume', async function() {
-    const { errors } = await header.user2.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
+    const { errors } = await header.user2.graphql<Volume>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: volumeJson._id })
     });
     assert.deepEqual(errors![0].message, 'You do not have permission');
   });
 
   it('prevents updating a single volume with a bad id', async function() {
-    const { errors } = await header.admin.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
+    const { errors } = await header.admin.graphql<Volume>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: 'BAD' })
     });
     assert.deepEqual(
@@ -37,28 +38,28 @@ describe('Testing volume update requests: ', function() {
   });
 
   it('prevents updating a single volume that doesnt exist', async function() {
-    const { errors } = await header.admin.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
+    const { errors } = await header.admin.graphql<Volume>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: '123456789123456789123456' })
     });
     assert.deepEqual(errors![0].message, 'Volume does not exist');
   });
 
   it('should disallow a regular user to update memoryUsed', async function() {
-    const { errors } = await header.user1.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
+    const { errors } = await header.user1.graphql<Volume>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: volumeJson._id, memoryUsed: 0 })
     });
     assert.deepEqual(errors![0].message, `You don't have permission to set the memoryUsed`);
   });
 
   it('should disallow a regular user to update memoryAllocated', async function() {
-    const { errors } = await header.user1.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
+    const { errors } = await header.user1.graphql<Volume>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: volumeJson._id, memoryAllocated: 5000 })
     });
     assert.deepEqual(errors![0].message, `You don't have permission to set the memoryAllocated`);
   });
 
   it('should allow an admin to update memoryAllocated & memoryUsed', async function() {
-    const { data: json } = await header.admin.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
+    const { data: json } = await header.admin.graphql<Volume>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: volumeJson._id, memoryUsed: 0, memoryAllocated: 5000 })
     });
 
@@ -67,7 +68,7 @@ describe('Testing volume update requests: ', function() {
   });
 
   it('allows an admin to update a single volume', async function() {
-    const { data: json } = await header.admin.graphql<IVolume<'expanded'>>(UPDATE_VOLUME, {
+    const { data: json } = await header.admin.graphql<Volume>(UPDATE_VOLUME, {
       token: new UpdateVolumeInput({ _id: volumeJson._id, name: 'dinosaurs2', memoryUsed: 0, memoryAllocated: 5000 })
     });
 

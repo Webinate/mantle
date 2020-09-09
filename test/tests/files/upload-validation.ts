@@ -4,21 +4,21 @@ import * as path from 'path';
 import header from '../header';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
-import { IUploadResponse, IVolume } from '../../../src';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { AddVolumeInput, Volume } from '../../../src/client-models';
+import { IUploadResponse } from '../../../src/types/tokens/i-file-tokens';
 
 const goodFilePath = './test/media/file.png';
 const dangerousFile = './test/media/dangerous.sh';
 const bigFile = './test/media/big-image.bmp';
-let volume: IVolume<'expanded'>;
+let volume: Volume;
 
 describe('Testing volume upload validation: ', function() {
   before(async function() {
-    const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: randomString()
-      })
+      }
     });
     assert.ok(resp.data);
     volume = resp.data;

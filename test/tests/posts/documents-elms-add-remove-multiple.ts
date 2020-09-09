@@ -1,11 +1,12 @@
 import * as assert from 'assert';
-import { IPost, IDocument, IUserEntry, IAdminUser } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT, REMOVE_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
-import { AddElementInput } from '../../../src/graphql/models/element-type';
-import { ElementType } from '../../../src/core/enums';
+import { AddElementInput, ElementType, Document } from '../../../src/client-models';
+import { IAdminUser } from '../../../src/types/config/properties/i-admin';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IPost } from '../../../src/types/models/i-post';
 
 let post: IPost<'server'>, admin: IUserEntry<'server'>;
 const htmls = ['<p>1</p>', '<p>2</p>'];
@@ -35,13 +36,13 @@ describe('Testing the adding of multiple elements: ', function() {
   it(`did create ${htmls.length} elements in fast succession`, async function() {
     const responses = await Promise.all(
       htmls.map(html => {
-        return header.admin.graphql<IDocument<'expanded'>>(ADD_DOC_ELEMENT, {
+        return header.admin.graphql<Document>(ADD_DOC_ELEMENT, {
           docId: post.document,
-          token: new AddElementInput({
+          token: <AddElementInput>{
             html: html,
             zone: 'main',
-            type: ElementType.paragraph
-          })
+            type: ElementType.Paragraph
+          }
         });
       })
     );
@@ -50,29 +51,29 @@ describe('Testing the adding of multiple elements: ', function() {
   });
 
   it(`did get the draft and it has ${htmls.length} elements`, async function() {
-    const resp = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
+    const resp = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
 
     // Its plus 1 because we have an element created by default for the post
-    assert.deepEqual(resp.data.elements.length, htmls.length + 1);
+    assert.deepEqual(resp.data.elements!.length, htmls.length + 1);
   });
 
   it(`did remove ${htmls.length} elements in fast succession`, async function() {
     const {
       data: { elements }
-    } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
+    } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
 
     // Its plus 1 because we have an element created by default for the post
-    assert.deepEqual(elements.length, htmls.length + 1);
+    assert.deepEqual(elements!.length, htmls.length + 1);
 
     let deleteResponses = await Promise.all(
-      elements.map(elm => {
+      elements!.map(elm => {
         return header.admin.graphql<boolean>(REMOVE_DOC_ELEMENT, { docId: post.document, elementId: elm._id });
       })
     );
 
     for (const delRes of deleteResponses) assert.deepEqual(delRes.data, true);
 
-    const afterDeleteResponse = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
-    assert.deepEqual(afterDeleteResponse.data.elements.length, 0);
+    const afterDeleteResponse = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
+    assert.deepEqual(afterDeleteResponse.data.elements!.length, 0);
   });
 });

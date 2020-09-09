@@ -1,8 +1,8 @@
 import {} from 'mocha';
-import { IVolume } from '../../src';
 import { resolve } from 'path';
 import { statSync } from 'fs';
 import ControllerFactory from '../../src/core/controller-factory';
+import { IVolume } from '../../src/types/models/i-volume-entry';
 
 export class File {
   name: string;

@@ -1,13 +1,13 @@
 import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
-import { IFileEntry, IVolume } from '../../../src';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { ADD_VOLUME, REMOVE_VOLUME, GET_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { AddVolumeInput, Volume } from '../../../src/client-models';
+import { IFileEntry } from '../../../src/types/models/i-file-entry';
 
-let volume: IVolume<'expanded'>;
+let volume: Volume;
 let uploadedFile: IFileEntry<'expanded'>;
 let newFile: IFileEntry<'expanded'>;
 const filePath = './test/media/file.png';
@@ -15,10 +15,10 @@ const filePath2 = './test/media/img-a.png';
 
 describe('Testing replacing of a file upload: ', function() {
   before(async function() {
-    const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: randomString()
-      })
+      }
     });
     assert.ok(resp.data);
     volume = resp.data;
@@ -70,7 +70,7 @@ describe('Testing replacing of a file upload: ', function() {
   });
 
   it('the replaced file matches the users available space', async function() {
-    const resp = await header.user1.graphql<IVolume<'expanded'>>(GET_VOLUME, { id: volume._id });
+    const resp = await header.user1.graphql<Volume>(GET_VOLUME, { id: volume._id });
     assert.deepEqual(resp.data.memoryUsed, newFile.size);
   });
 });

@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import { Page } from '../../../src';
 import header from '../header';
 import {
   ADD_CATEGORY,
@@ -9,7 +8,7 @@ import {
   GET_CATEGORY_WITH_PARENT,
   getCategoryWithChildren
 } from '../../../src/graphql/client/requests/category';
-import { AddCategoryInput, Category } from '../../../src/graphql/models/category-type';
+import { AddCategoryInput, PaginatedCategoryResponse, Category } from '../../../src/client-models';
 
 let category: Category,
   child1: Category,
@@ -20,31 +19,31 @@ let category: Category,
 
 describe('Testing category hierarchies: ', function() {
   before(async function() {
-    const page = await header.admin.graphql<Page<Category>>(GET_CATEGORIES);
+    const page = await header.admin.graphql<PaginatedCategoryResponse>(GET_CATEGORIES);
     numCategoriesBeforeTests = page.data.count;
 
     const resp = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Test', slug: header.makeid(), description: 'This is a test' })
+      token: <AddCategoryInput>{ title: 'Test', slug: header.makeid(), description: 'This is a test' }
     });
     category = resp.data;
 
     const resp2 = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Test Sibling', slug: header.makeid(), description: 'This is test sibling' })
+      token: <AddCategoryInput>{ title: 'Test Sibling', slug: header.makeid(), description: 'This is test sibling' }
     });
     sibling = resp2.data;
 
     const resp3 = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Child 1', slug: header.makeid(), parent: category._id })
+      token: <AddCategoryInput>{ title: 'Child 1', slug: header.makeid(), parent: category._id }
     });
     child1 = resp3.data;
 
     const resp4 = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Child 2', slug: header.makeid(), parent: category._id })
+      token: <AddCategoryInput>{ title: 'Child 2', slug: header.makeid(), parent: category._id }
     });
     child2 = resp4.data;
 
     const resp5 = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Child Deep 1', slug: header.makeid(), parent: child2._id })
+      token: <AddCategoryInput>{ title: 'Child Deep 1', slug: header.makeid(), parent: child2._id }
     });
 
     childDeep1 = resp5.data;
@@ -63,7 +62,7 @@ describe('Testing category hierarchies: ', function() {
     existing = await header.admin.graphql<Category>(GET_CATEGORY, { id: childDeep1._id });
     assert.deepEqual(existing.data, null);
 
-    let allCats = await header.admin.graphql<Page<Partial<Category>>>(GET_CATEGORIES);
+    let allCats = await header.admin.graphql<PaginatedCategoryResponse>(GET_CATEGORIES);
     assert.equal(numCategoriesBeforeTests, allCats.data.count, 'Number of categories not the same after test complete');
   });
 
@@ -74,7 +73,7 @@ describe('Testing category hierarchies: ', function() {
 
     assert.equal(resp.slug, category.slug);
     assert.equal(resp.title, `Test`);
-    assert.equal(resp.children.length, 2);
+    assert.equal(resp.children!.length, 2);
   });
 
   it('did get a category with 1st level children objects', async function() {
@@ -82,8 +81,8 @@ describe('Testing category hierarchies: ', function() {
       id: category._id
     });
 
-    assert.equal(resp.children[0]._id, child1._id);
-    assert.equal(resp.children[1]._id, child2._id);
+    assert.equal(resp.children![0]._id, child1._id);
+    assert.equal(resp.children![1]._id, child2._id);
   });
 
   it('did get a category parent', async function() {
@@ -99,11 +98,11 @@ describe('Testing category hierarchies: ', function() {
       id: category._id
     });
 
-    assert.equal(resp.children[1].children[0]._id, childDeep1._id);
+    assert.equal(resp.children![1].children![0]._id, childDeep1._id);
   });
 
   it('did the last 2 root categorys', async function() {
-    const { data: resp } = await header.admin.graphql<Page<Category>>(GET_CATEGORIES, { root: true });
+    const { data: resp } = await header.admin.graphql<PaginatedCategoryResponse>(GET_CATEGORIES, { root: true });
     assert.equal(resp.data[resp.data.length - 1].slug, sibling.slug);
   });
 
@@ -112,6 +111,6 @@ describe('Testing category hierarchies: ', function() {
     assert(removeResp.data);
 
     const resp = await header.admin.graphql<Category>(getCategoryWithChildren(1), { id: category._id });
-    assert.equal(resp.data.children.length, 1);
+    assert.equal(resp.data.children!.length, 1);
   });
 });

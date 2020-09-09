@@ -1,9 +1,9 @@
 import * as assert from 'assert';
 import header from '../header';
-import { IUserEntry, Page } from '../../../src';
 import { GET_USERS, GET_USER } from '../../../src/graphql/client/requests/users';
 import gql from '../../../src/utils/gql';
 import { USER_FIELDS } from '../../../src/graphql/client/fragments/user-fields';
+import { PaginatedUserResponse, User } from '../../../src/client-models';
 
 let numUsers: number;
 
@@ -45,12 +45,12 @@ describe('Testing fetching users', function() {
   it('did get the number of users before the tests begin', async function() {
     const {
       data: { count }
-    } = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
+    } = await header.admin.graphql<PaginatedUserResponse>(GET_USERS);
     numUsers = count;
   });
 
   it('did not allow a regular user to access the admin user details', async function() {
-    const { errors } = await header.user1.graphql<IUserEntry<'expanded'>>(GET_USER, {
+    const { errors } = await header.user1.graphql<User>(GET_USER, {
       user: header.admin.username,
       verbose: true
     });
@@ -59,7 +59,7 @@ describe('Testing fetching users', function() {
   });
 
   it('did not allow a regular user to access another user details', async function() {
-    const { errors } = await header.user2.graphql<IUserEntry<'expanded'>>(GET_USER, {
+    const { errors } = await header.user2.graphql<User>(GET_USER, {
       user: header.user1.username,
       verbose: true
     });
@@ -78,7 +78,7 @@ describe('Testing fetching users', function() {
       ${USER_FIELDS}
     `;
 
-    const { data } = await header.user1.graphql<IUserEntry<'expanded'>>(query, {
+    const { data } = await header.user1.graphql<User>(query, {
       user: header.user1.username,
       verbose: true
     });
@@ -98,7 +98,7 @@ describe('Testing fetching users', function() {
   it('did get user page information', async function() {
     const {
       data: { count, index, limit }
-    } = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
+    } = await header.admin.graphql<PaginatedUserResponse>(GET_USERS);
 
     assert(count > 0);
     assert.deepEqual(index, 0);
@@ -108,7 +108,7 @@ describe('Testing fetching users', function() {
   it('did get client driven page information from the URL', async function() {
     const {
       data: { index, limit }
-    } = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS, { limit: 20, index: 1 });
+    } = await header.admin.graphql<PaginatedUserResponse>(GET_USERS, { limit: 20, index: 1 });
 
     assert.deepEqual(index, 1);
     assert.deepEqual(limit, 20);
@@ -117,23 +117,23 @@ describe('Testing fetching users', function() {
   it('did have the same number of users as before the tests started', async function() {
     const {
       data: { count }
-    } = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(GET_USERS);
+    } = await header.admin.graphql<PaginatedUserResponse>(GET_USERS);
     assert.deepEqual(numUsers, count);
   });
 
   it('throws an error if a regular user tries to key key data in a list', async function() {
-    const resp = await header.user1.graphql<Page<IUserEntry<'expanded'>>>(query1);
+    const resp = await header.user1.graphql<PaginatedUserResponse>(query1);
     assert.deepEqual(resp.errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('does give regular users access to user lists but with email hidden', async function() {
-    const resp = await header.user1.graphql<Page<IUserEntry<'expanded'>>>(query2);
+    const resp = await header.user1.graphql<PaginatedUserResponse>(query2);
     const data = resp.data.data;
     assert.deepEqual(data[0].email, null);
   });
 
   it('does allow admin users access to sensitive user data for a getUsers call', async function() {
-    const resp = await header.admin.graphql<Page<IUserEntry<'expanded'>>>(query3);
+    const resp = await header.admin.graphql<PaginatedUserResponse>(query3);
     const data = resp.data.data;
     assert.notDeepEqual(data[0].email, null);
     assert.notDeepEqual(data[0].registerKey, null);

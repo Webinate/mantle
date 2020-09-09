@@ -1,21 +1,20 @@
 import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
-import { IVolume, Page, IFileEntry } from '../../../src';
 import * as FormData from 'form-data';
 import { REMOVE_VOLUME, ADD_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { GET_FILES } from '../../../src/graphql/client/requests/file';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
+import { AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/client-models';
 
-let volume: IVolume<'expanded'>;
+let volume: Volume;
 const filePath = './test/media/file.png';
 
 describe('Getting uploaded user files', function() {
   before(async function() {
-    const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: 'dinosaurs'
-      })
+      }
     });
     assert.ok(resp.data);
     volume = resp.data;
@@ -28,7 +27,7 @@ describe('Getting uploaded user files', function() {
   });
 
   it('regular user did not get files for a volume with bad id', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: 'test'
     });
 
@@ -39,7 +38,7 @@ describe('Getting uploaded user files', function() {
   });
 
   it('regular user did not get files for a non existant volume', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: '123456789012345678901234'
     });
 
@@ -67,7 +66,7 @@ describe('Getting uploaded user files', function() {
   });
 
   it('regular user cannot access another users volume', async function() {
-    const resp = await header.user2.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user2.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id
     });
 
@@ -75,7 +74,7 @@ describe('Getting uploaded user files', function() {
   });
 
   it('regular user fetched 2 files from the dinosaur volume', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id
     });
 

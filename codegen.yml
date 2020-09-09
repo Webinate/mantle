@@ -1,7 +1,7 @@
 overwrite: true
-schema: "./schema.graphql"
+schema: './schema.graphql'
 documents: null
 generates:
-  src/client-models.d.ts:
+  src/client-models.ts:
     plugins:
-      - "typescript"
+      - 'typescript'

@@ -1,11 +1,12 @@
 import * as assert from 'assert';
 import header from '../header';
-import { IAdminUser, IUserEntry } from '../../../src';
 import { GET_USER_AS_ADMIN, GET_USER } from '../../../src/graphql/client/requests/users';
+import { User } from '../../../src/client-models';
+import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 
 describe('Getting user data', function() {
   it('should allow admin access to its data', async function() {
-    const { data: json } = await header.admin.graphql<IUserEntry<'expanded'>>(GET_USER_AS_ADMIN, {
+    const { data: json } = await header.admin.graphql<User>(GET_USER_AS_ADMIN, {
       user: (header.config.adminUser as IAdminUser).username
     });
 
@@ -15,18 +16,17 @@ describe('Getting user data', function() {
     assert(json.registerKey === '');
     assert.deepEqual(json.username, (header.config.adminUser as IAdminUser).username);
     assert.deepEqual(json.privileges, 'super');
-    assert(!json.passwordTag);
   });
 
   it('should get admin user data by email', async function() {
-    const { data: json } = await header.admin.graphql<IUserEntry<'expanded'>>(GET_USER_AS_ADMIN, {
+    const { data: json } = await header.admin.graphql<User>(GET_USER_AS_ADMIN, {
       user: (header.config.adminUser as IAdminUser).email
     });
     assert(json._id);
   });
 
   it('should not allow a guest to get user data with username', async function() {
-    const { errors } = await header.guest.graphql<IUserEntry<'expanded'>>(GET_USER, {
+    const { errors } = await header.guest.graphql<User>(GET_USER, {
       user: (header.config.adminUser as IAdminUser).email
     });
 
@@ -34,7 +34,7 @@ describe('Getting user data', function() {
   });
 
   it('should not allow a regular user access to sensitive data', async function() {
-    const { errors } = await header.user1.graphql<IUserEntry<'expanded'>>(GET_USER, {
+    const { errors } = await header.user1.graphql<User>(GET_USER, {
       user: (header.config.adminUser as IAdminUser).username
     });
 

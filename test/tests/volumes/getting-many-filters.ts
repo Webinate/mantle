@@ -1,9 +1,10 @@
 import * as assert from 'assert';
 import header from '../header';
-import { Page, IVolume } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { GET_VOLUMES } from '../../../src/graphql/client/requests/volume';
+import { PaginatedVolumeResponse } from '../../../src/client-models';
+import { IVolume } from '../../../src/types/models/i-volume-entry';
 
 let volA: IVolume<'server'>;
 let volB: IVolume<'server'>;
@@ -28,14 +29,14 @@ describe('Testing volume get requests', function() {
   });
 
   it('filters by creation date by default', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {});
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {});
     assert.deepEqual(json.data.length, 3);
     assert.deepEqual(json.data[0]._id, volA._id.toString());
     assert.deepEqual(json.data[2]._id, volC._id.toString());
   });
 
   it('can filter by name [asc]', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {
       sort: 'name',
       sortOrder: 'asc'
     });
@@ -46,7 +47,7 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by name [desc]', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {
       sort: 'name',
       sortOrder: 'desc'
     });
@@ -57,7 +58,7 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by creation date [asc]', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {
       sort: 'created',
       sortOrder: 'asc'
     });
@@ -68,7 +69,7 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by creation date [desc]', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {
       sort: 'created',
       sortOrder: 'desc'
     });
@@ -79,7 +80,7 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by memory used [asc]', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {
       sort: 'memory',
       sortOrder: 'asc'
     });
@@ -90,7 +91,7 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by memory used [desc]', async function() {
-    const { data: json } = await header.user1.graphql<Page<IVolume<'expanded'>>>(GET_VOLUMES, {
+    const { data: json } = await header.user1.graphql<PaginatedVolumeResponse>(GET_VOLUMES, {
       sort: 'memory',
       sortOrder: 'desc'
     });

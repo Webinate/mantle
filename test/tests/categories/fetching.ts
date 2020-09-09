@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import { Page } from '../../../src';
 import header from '../header';
 import {
   ADD_CATEGORY,
@@ -7,7 +6,7 @@ import {
   GET_CATEGORY,
   GET_CATEGORIES
 } from '../../../src/graphql/client/requests/category';
-import { AddCategoryInput, Category } from '../../../src/graphql/models/category-type';
+import { AddCategoryInput, PaginatedCategoryResponse, Category } from '../../../src/client-models';
 
 let category: Category,
   category2: Category,
@@ -19,10 +18,10 @@ describe('Testing fetching of categories: ', function() {
     slug = header.makeid();
 
     const resp1 = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Test', slug: slug, description: 'This is a test' })
+      token: <AddCategoryInput>{ title: 'Test', slug: slug, description: 'This is a test' }
     });
     const resp2 = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Test 2', slug: header.makeid() })
+      token: <AddCategoryInput>{ title: 'Test 2', slug: header.makeid() }
     });
 
     category = resp1.data;
@@ -58,14 +57,14 @@ describe('Testing fetching of categories: ', function() {
   it('did fetch many categories as a guest', async function() {
     const {
       data: { data }
-    } = await header.guest.graphql<Page<Category>>(GET_CATEGORIES);
+    } = await header.guest.graphql<PaginatedCategoryResponse>(GET_CATEGORIES);
     assert(data.length > 0);
   });
 
   it('did save the second category last', async function() {
     const {
       data: { data }
-    } = await header.guest.graphql<Page<Category>>(GET_CATEGORIES);
+    } = await header.guest.graphql<PaginatedCategoryResponse>(GET_CATEGORIES);
 
     numCategories = data.length;
     assert.equal(data[data.length - 1].slug, category2.slug);
@@ -74,7 +73,7 @@ describe('Testing fetching of categories: ', function() {
   it('did get the last category using limits and indices', async function() {
     const {
       data: { data }
-    } = await header.guest.graphql<Page<Category>>(GET_CATEGORIES, { limit: 1, index: numCategories - 1 });
+    } = await header.guest.graphql<PaginatedCategoryResponse>(GET_CATEGORIES, { limit: 1, index: numCategories - 1 });
     assert.equal(data[0].slug, category2.slug);
   });
 });

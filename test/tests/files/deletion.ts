@@ -1,22 +1,21 @@
 import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
-import { IVolume, Page, IFileEntry } from '../../../src';
 import * as FormData from 'form-data';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { GET_FILES, REMOVE_FILE } from '../../../src/graphql/client/requests/file';
+import { AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/client-models';
 
-let volume: IVolume<'expanded'>;
+let volume: Volume;
 const filePath = './test/media/file.png';
 let fileId: string;
 
 describe('Testing files deletion', function() {
   before(async function() {
-    const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: 'dinosaurs'
-      })
+      }
     });
 
     assert.ok(resp.data);
@@ -40,7 +39,7 @@ describe('Testing files deletion', function() {
   });
 
   it('regular user has 1 file', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id
     });
 
@@ -49,7 +48,7 @@ describe('Testing files deletion', function() {
   });
 
   it('regular user did not remove a file with a bad id', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(REMOVE_FILE, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(REMOVE_FILE, {
       id: '123'
     });
 
@@ -68,7 +67,7 @@ describe('Testing files deletion', function() {
   });
 
   it('regular user has 0 files', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id
     });
 

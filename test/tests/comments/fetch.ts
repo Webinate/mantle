@@ -1,12 +1,12 @@
 import * as assert from 'assert';
-import { IPost, IComment, Page, IAdminUser, IUserEntry } from '../../../src';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../../src/graphql/client/requests/posts';
-import { AddPostInput } from '../../../src/graphql/models/post-type';
 import { ADD_COMMENT, GET_COMMENT, GET_COMMENTS } from '../../../src/graphql/client/requests/comments';
-import { AddCommentInput } from '../../../src/graphql/models/comment-type';
+import { Comment, AddCommentInput, Post, AddPostInput, PaginatedCommentsResponse } from '../../../src/client-models';
+import { IAdminUser } from '../../../src/types/config/properties/i-admin';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
 
 let numPosts: number,
   numComments: number,
@@ -33,13 +33,13 @@ describe('Testing fetching of comments', function() {
   it('can create a temp post', async function() {
     const {
       data: { public: isPublic, _id }
-    } = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
-      token: new AddPostInput({
+    } = await header.admin.graphql<Post>(ADD_POST, {
+      token: <AddPostInput>{
         title: 'Simple Test',
         slug: generateRandString(10),
         brief: 'This is brief',
         public: false
-      })
+      }
     });
 
     postId = _id;
@@ -49,12 +49,12 @@ describe('Testing fetching of comments', function() {
   it('did create a test public comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<IComment<'expanded'>>(ADD_COMMENT, {
-      token: new AddCommentInput({
+    } = await header.admin.graphql<Comment>(ADD_COMMENT, {
+      token: <AddCommentInput>{
         post: postId,
         content: 'Hello world public! __filter__',
         public: true
-      })
+      }
     });
 
     assert(_id);
@@ -62,12 +62,12 @@ describe('Testing fetching of comments', function() {
   });
 
   it('did create a test private comment', async function() {
-    const { data } = await header.admin.graphql<IComment<'expanded'>>(ADD_COMMENT, {
-      token: new AddCommentInput({
+    const { data } = await header.admin.graphql<Comment>(ADD_COMMENT, {
+      token: <AddCommentInput>{
         post: postId,
         content: 'Hello world private! __filter__',
         public: false
-      })
+      }
     });
 
     assert(data);
@@ -78,12 +78,12 @@ describe('Testing fetching of comments', function() {
   it('can create a another comment which will be a parent comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<IComment<'expanded'>>(ADD_COMMENT, {
-      token: new AddCommentInput({
+    } = await header.admin.graphql<Comment>(ADD_COMMENT, {
+      token: <AddCommentInput>{
         post: postId,
         content: 'Parent Comment',
         public: true
-      })
+      }
     });
 
     assert(_id);
@@ -93,20 +93,20 @@ describe('Testing fetching of comments', function() {
   it('can create a nested comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<IComment<'expanded'>>(ADD_COMMENT, {
-      token: new AddCommentInput({
+    } = await header.admin.graphql<Comment>(ADD_COMMENT, {
+      token: <AddCommentInput>{
         post: postId,
         parent: parentCommentId,
         content: 'Child Comment',
         public: true
-      })
+      }
     });
 
     childCommentId = _id;
   });
 
   it('cannot get a comment with an invalid id', async function() {
-    const { errors } = await header.admin.graphql<IComment<'expanded'>>(GET_COMMENT, { id: 'BADID' });
+    const { errors } = await header.admin.graphql<Comment>(GET_COMMENT, { id: 'BADID' });
 
     assert.deepEqual(
       errors![0].message,
@@ -115,14 +115,14 @@ describe('Testing fetching of comments', function() {
   });
 
   it('cannot get a comment that does not exist', async function() {
-    const { errors } = await header.admin.graphql<IComment<'expanded'>>(GET_COMMENT, {
+    const { errors } = await header.admin.graphql<Comment>(GET_COMMENT, {
       id: '123456789012345678901234'
     });
     assert.deepEqual(errors![0].message, 'Could not find comment');
   });
 
   it('can get a valid comment by ID', async function() {
-    const resp = await header.admin.graphql<IComment<'expanded'>>(
+    const resp = await header.admin.graphql<Comment>(
       `{ comment(id: "${publicCommentId}") { _id, author, content, public, user { _id } } }`
     );
 
@@ -134,12 +134,12 @@ describe('Testing fetching of comments', function() {
   });
 
   it('cannot get a private comment without being logged in', async function() {
-    const { errors } = await header.guest.graphql<IComment<'expanded'>>(GET_COMMENT, { id: privateCommentId });
+    const { errors } = await header.guest.graphql<Comment>(GET_COMMENT, { id: privateCommentId });
     assert.deepEqual(errors![0].message, 'That comment is marked private');
   });
 
   it('can get a public comment without being logged in', async function() {
-    const { data } = await header.guest.graphql<IComment<'expanded'>>(
+    const { data } = await header.guest.graphql<Comment>(
       `{ comment(id: "${publicCommentId}") { _id, author, content, public, user { _id } } }`
     );
 
@@ -153,7 +153,7 @@ describe('Testing fetching of comments', function() {
   it('can get comments by user & there are more than 1', async function() {
     const {
       data: { count }
-    } = await header.admin.graphql<Page<IComment<'expanded'>>>(GET_COMMENTS, {});
+    } = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {});
 
     assert(count >= 2);
   });
@@ -161,7 +161,7 @@ describe('Testing fetching of comments', function() {
   it('can get comments by user & there should be 2 if we filter by keyword', async function() {
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IComment<'expanded'>>>(GET_COMMENTS, { keyword: '__filter__' });
+    } = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, { keyword: '__filter__' });
 
     assert(data.length === 2);
   });
@@ -169,7 +169,7 @@ describe('Testing fetching of comments', function() {
   it('can get comments by user & should limit whats returned to 1', async function() {
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IComment<'expanded'>>>(GET_COMMENTS, { keyword: '__filter__', limit: 1 });
+    } = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, { keyword: '__filter__', limit: 1 });
 
     assert(data.length === 1);
   });
@@ -177,7 +177,7 @@ describe('Testing fetching of comments', function() {
   it('can get comments by user & should limit whats returned to 1 if not admin', async function() {
     const {
       data: { data }
-    } = await header.guest.graphql<Page<IComment<'expanded'>>>(GET_COMMENTS, {
+    } = await header.guest.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {
       keyword: '__filter__',
       user: header.admin.username
     });
@@ -188,9 +188,7 @@ describe('Testing fetching of comments', function() {
   it('can get the parent comment and has previously created comment as child', async function() {
     const {
       data: { _id, children }
-    } = await header.admin.graphql<IComment<'expanded'>>(
-      `{ comment(id: "${parentCommentId}") { _id, children { _id } } }`
-    );
+    } = await header.admin.graphql<Comment>(`{ comment(id: "${parentCommentId}") { _id, children { _id } } }`);
     assert.deepEqual(_id, parentCommentId);
     assert(children.find(c => c._id === childCommentId));
   });
@@ -198,7 +196,7 @@ describe('Testing fetching of comments', function() {
   it('can get a comment with parent & post', async function() {
     const {
       data: { _id, parent, post }
-    } = await header.admin.graphql<IComment<'expanded'>>(
+    } = await header.admin.graphql<Comment>(
       `{ comment(id: "${childCommentId}") { _id, parent { _id }, post { _id } } }`
     );
     assert.deepEqual(_id, childCommentId);
@@ -209,7 +207,7 @@ describe('Testing fetching of comments', function() {
   it('can get a comment with post, draft & html', async function() {
     const {
       data: { _id, post }
-    } = await header.admin.graphql<IComment<'expanded'>>(
+    } = await header.admin.graphql<Comment>(
       `{ comment(id: "${publicCommentId}") { _id, post { _id, document { html, template { defaultZone } } } } }`
     );
     assert.deepEqual(_id, publicCommentId);
@@ -220,7 +218,7 @@ describe('Testing fetching of comments', function() {
   it('should prevent guests from getting sensitive data', async function() {
     const {
       data: { user }
-    } = await header.guest.graphql<IComment<'expanded'>>(`{ comment(id: "${childCommentId}") { user { email } } }`);
+    } = await header.guest.graphql<Comment>(`{ comment(id: "${childCommentId}") { user { email } } }`);
 
     assert.deepEqual(user!.email, undefined);
   });

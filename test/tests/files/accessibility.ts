@@ -1,23 +1,22 @@
 import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
-import { IVolume, Page, IFileEntry } from '../../../src';
 import * as FormData from 'form-data';
 import { randomString } from '../utils';
 import { REMOVE_VOLUME, ADD_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { GET_FILES } from '../../../src/graphql/client/requests/file';
+import { AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/client-models';
 
-let volume: IVolume<'expanded'>;
+let volume: Volume;
 const filePath = './test/media/file.png';
 let fileUrl = '';
 
 describe('Testing file accessibility functions', function() {
   before(async function() {
-    const resp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: randomString()
-      })
+      }
     });
     assert.ok(resp.data);
     volume = resp.data;
@@ -40,7 +39,7 @@ describe('Testing file accessibility functions', function() {
   });
 
   it('regular user has 1 file', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id
     });
 

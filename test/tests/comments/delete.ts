@@ -1,12 +1,10 @@
 import * as assert from 'assert';
-import { IPost } from '../../../src';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../../src/graphql/client/requests/posts';
-import { AddPostInput } from '../../../src/graphql/models/post-type';
 import { ADD_COMMENT, GET_COMMENTS, REMOVE_COMMENT } from '../../../src/graphql/client/requests/comments';
-import { AddCommentInput } from '../../../src/graphql/models/comment-type';
+import { AddCommentInput, Post, AddPostInput } from '../../../src/client-models';
 
 let numPosts: number, numComments: number, postId: string, commentId: string, parentCommentId: string;
 
@@ -22,13 +20,13 @@ describe('Testing deletion of comments', function() {
   it('can create a temp post', async function() {
     const {
       data: { _id, public: isPublic }
-    } = await header.admin.graphql<IPost<'expanded'>>(ADD_POST, {
-      token: new AddPostInput({
+    } = await header.admin.graphql<Post>(ADD_POST, {
+      token: <AddPostInput>{
         title: 'Simple Test',
         slug: generateRandString(10),
         brief: 'This is brief',
         public: false
-      })
+      }
     });
 
     postId = _id;
@@ -38,12 +36,12 @@ describe('Testing deletion of comments', function() {
   it('did create a test comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<IPost<'expanded'>>(ADD_COMMENT, {
-      token: new AddCommentInput({
+    } = await header.admin.graphql<Post>(ADD_COMMENT, {
+      token: <AddCommentInput>{
         post: postId,
         content: 'Hello world!',
         public: false
-      })
+      }
     });
 
     commentId = _id;
@@ -60,12 +58,12 @@ describe('Testing deletion of comments', function() {
   it('can create a another comment which will be a parent comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<IPost<'expanded'>>(ADD_COMMENT, {
-      token: new AddCommentInput({
+    } = await header.admin.graphql<Post>(ADD_COMMENT, {
+      token: <AddCommentInput>{
         post: postId,
         content: 'Parent Comment',
         public: true
-      })
+      }
     });
 
     parentCommentId = _id;
@@ -81,13 +79,13 @@ describe('Testing deletion of comments', function() {
   it('can create a nested comment', async function() {
     const {
       data: { _id }
-    } = await header.admin.graphql<IPost<'expanded'>>(ADD_COMMENT, {
-      token: new AddCommentInput({
+    } = await header.admin.graphql<Post>(ADD_COMMENT, {
+      token: <AddCommentInput>{
         post: postId,
         parent: parentCommentId,
         content: 'Parent Comment',
         public: true
-      })
+      }
     });
     assert(_id);
   });

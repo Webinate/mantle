@@ -5,9 +5,8 @@ import * as mongodb from 'mongodb';
 import Controller from './controller';
 import { ObjectID } from 'mongodb';
 import { IUserEntry } from '../types/models/i-user-entry';
-import { SortOrder, CommentSortType, CommentVisibility } from '../core/enums';
+import { SortOrder, CommentSortType, CommentVisibility, CommentsGetOptions } from '../core/enums';
 import { IPost } from '../types/models/i-post';
-import { CommentGetAllOptions } from '../core/types';
 
 /**
  * A controller that deals with the management of comments
@@ -35,7 +34,7 @@ export class CommentsController extends Controller {
   /**
    * Returns an array of comment entries
    */
-  async getAll(options: Partial<CommentGetAllOptions> = {}) {
+  async getAll(options: Partial<CommentsGetOptions> = {}) {
     const comments = this._commentsCollection;
     const findToken: Partial<IComment<'server'>> & { $or: Partial<IComment<'server'>>[] } = { $or: [] };
 

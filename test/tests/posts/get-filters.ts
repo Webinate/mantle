@@ -1,11 +1,17 @@
 import * as assert from 'assert';
-import { IPost, Page, IUserEntry } from '../../../src';
 import header from '../header';
 import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { GET_POSTS, UPDATE_POST } from '../../../src/graphql/client/requests/posts';
-import { PostVisibility, SortOrder, PostSortType } from '../../../src/core/enums';
-import { UpdatePostInput } from '../../../src/graphql/models/post-type';
+import {
+  PostSortType,
+  PostVisibility,
+  SortOrder,
+  PaginatedPostsResponse,
+  UpdatePostInput
+} from '../../../src/client-models';
+import { IPost } from '../../../src/types/models/i-post';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
 
 let postPublic: IPost<'server'>, postPrivate: IPost<'server'>;
 
@@ -38,48 +44,48 @@ describe('Testing filtering of posts: ', function() {
   });
 
   it('does filter by visibility status', async function() {
-    let resp = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.all,
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.created
+    let resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.All,
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Created
     });
 
     // Checks the order
     assert.equal(resp.data.data[0]._id, postPrivate._id);
     assert.equal(resp.data.data[1]._id, postPublic._id);
 
-    resp = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.private,
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.created
+    resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.Private,
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Created
     });
 
     // The first post should now be post 2, which is private
     assert.equal(resp.data.data[0]._id, postPrivate._id);
 
-    resp = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.public,
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.created
+    resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.Public,
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Created
     });
 
     // The first post should now be post 1, which is public
     assert.equal(resp.data.data[0]._id, postPublic._id);
 
-    resp = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.all,
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.created
+    resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.All,
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Created
     });
 
     // If we specify all we get both posts
     assert.equal(resp.data.data[0]._id, postPrivate._id);
     assert.equal(resp.data.data[1]._id, postPublic._id);
 
-    resp = await header.user1.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.private,
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.created
+    resp = await header.user1.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.Private,
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Created
     });
 
     // Regular users cannot see private posts
@@ -89,10 +95,10 @@ describe('Testing filtering of posts: ', function() {
   it('does filter by descending status', async function() {
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.all,
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.created
+    } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.All,
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Created
     });
 
     // If we specify all we get both posts
@@ -103,10 +109,10 @@ describe('Testing filtering of posts: ', function() {
   it('does filter by ascending status', async function() {
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.all,
-      sortOrder: SortOrder.asc,
-      sortType: PostSortType.created,
+    } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.All,
+      sortOrder: SortOrder.Asc,
+      sortType: PostSortType.Created,
       limit: -1
     });
 
@@ -120,20 +126,20 @@ describe('Testing filtering of posts: ', function() {
   it('does filter by author', async function() {
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
+    } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
       author: header.admin.username,
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.created
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Created
     });
 
     assert.equal(data[0]._id, postPrivate._id);
 
     const {
       data: { data: filtered }
-    } = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
+    } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
       author: 'NO_AUTHORS_WITH_THIS_NAME',
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.created
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Created
     });
 
     assert.deepEqual(filtered.length, 0);
@@ -141,20 +147,20 @@ describe('Testing filtering of posts: ', function() {
 
   it('can filter based on modified in ascending order', async function() {
     const resp = await header.admin.graphql<IPost<'expanded'>>(UPDATE_POST, {
-      token: new UpdatePostInput({
+      token: <UpdatePostInput>{
         _id: postPublic._id,
         brief: 'Updated'
-      })
+      }
     });
 
     assert.ok(!resp.errors);
 
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.all,
-      sortOrder: SortOrder.asc,
-      sortType: PostSortType.modified,
+    } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.All,
+      sortOrder: SortOrder.Asc,
+      sortType: PostSortType.Modified,
       limit: -1
     });
 
@@ -168,10 +174,10 @@ describe('Testing filtering of posts: ', function() {
   it('can filter based on modified in descending order', async function() {
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IPost<'expanded'>>>(GET_POSTS, {
-      visibility: PostVisibility.all,
-      sortOrder: SortOrder.desc,
-      sortType: PostSortType.modified,
+    } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
+      visibility: PostVisibility.All,
+      sortOrder: SortOrder.Desc,
+      sortType: PostSortType.Modified,
       limit: -1
     });
 

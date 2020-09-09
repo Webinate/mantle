@@ -2,8 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { REMOVE_USER, GET_USER, GET_USER_AS_ADMIN } from '../../../src/graphql/client/requests/users';
 import { REGISTER, LOGIN, RESEND_ACTIVATION } from '../../../src/graphql/client/requests/auth';
-import { RegisterInput, AuthResponse, LoginInput } from '../../../src/graphql/models/auth-type';
-import { User } from '../../../src/graphql/models/user-type';
+import { User, LoginInput, RegisterInput, AuthResponse } from '../../../src/client-models';
 
 let testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com',
@@ -24,7 +23,7 @@ describe('Testing user activation', function() {
 
   it('should register with valid information', async function() {
     const resp = await header.guest.graphql<AuthResponse>(REGISTER, {
-      token: new RegisterInput({ username: testUserName, password: 'Password', email: testUserEmail })
+      token: <RegisterInput>{ username: testUserName, password: 'Password', email: testUserEmail }
     });
     assert.deepEqual(resp.data.message, 'Please activate your account with the link sent to your email address');
   });
@@ -36,7 +35,7 @@ describe('Testing user activation', function() {
 
   it('did not log in with an activation code present', async function() {
     const resp = await header.guest.graphql<AuthResponse>(LOGIN, {
-      token: new LoginInput({ username: testUserName, password: 'Password' })
+      token: <LoginInput>{ username: testUserName, password: 'Password' }
     });
 
     assert.deepEqual(
@@ -131,10 +130,10 @@ describe('Testing user activation', function() {
     const {
       data: { authenticated }
     } = await header.guest.graphql<AuthResponse>(LOGIN, {
-      token: new LoginInput({
+      token: <LoginInput>{
         username: testUserName,
         password: 'Password'
-      })
+      }
     });
     assert(authenticated);
   });

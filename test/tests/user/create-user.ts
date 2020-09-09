@@ -1,10 +1,9 @@
 import * as assert from 'assert';
 import header from '../header';
-import { IUserEntry, UserPrivilege } from '../../../src';
 import { CREATE_USER, GET_USER_AS_ADMIN } from '../../../src/graphql/client/requests/users';
 import controllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
-import { AddUserInput } from '../../../src/graphql/models/user-type';
+import { AddUserInput, UserPrivilege, User } from '../../../src/client-models';
 
 let testUserName = `test${randomString(6)}`,
   testUserEmail = `test${randomString(6)}@fancy.com`;
@@ -16,61 +15,61 @@ describe('Testing creating a user', function() {
   });
 
   it('did not create a new user without a valid email', async function() {
-    const { errors } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: '',
         password: '',
         email: ''
-      })
+      } as AddUserInput
     });
 
     assert.deepEqual(errors![0].message, 'Argument Validation Error');
   });
 
   it('did not create a new user without a username & password', async function() {
-    const { errors } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: '',
         password: '',
         email: 'test@test.com'
-      })
+      } as AddUserInput
     });
 
     assert.deepEqual(errors![0].message, 'Username cannot be empty');
   });
 
   it('did not create a new user without a password', async function() {
-    const { errors } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: testUserName,
         password: '',
         email: testUserEmail
-      })
+      } as AddUserInput
     });
 
     assert.deepEqual(errors![0].message, 'Password cannot be empty');
   });
 
   it('did not create a new user with invalid characters', async function() {
-    const { errors } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: 'test__test',
         password: 'password',
         email: testUserEmail
-      })
+      } as AddUserInput
     });
 
     assert.deepEqual(errors![0].message, 'Username must be alphanumeric');
   });
 
   it('did not create a new user with invalid privilege', async function() {
-    const { errors } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.admin.graphql<User>(CREATE_USER, {
+      token: ({
         username: testUserName,
         password: 'password',
         email: testUserEmail,
         privileges: 'fake_permission'
-      } as any)
+      } as any) as AddUserInput
     });
 
     assert.deepEqual(
@@ -80,65 +79,65 @@ describe('Testing creating a user', function() {
   });
 
   it('did not create a new user with an existing username', async function() {
-    const { errors } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: header.admin.username,
         password: 'password',
         email: testUserEmail,
-        privileges: UserPrivilege.admin
-      })
+        privileges: UserPrivilege.Admin
+      } as AddUserInput
     });
 
     assert.deepEqual(errors![0].message, 'A user with that name or email already exists');
   });
 
   it('did not create a new user with an existing email', async function() {
-    const { errors } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: testUserName,
         password: 'password',
         email: header.admin.email,
-        privileges: UserPrivilege.admin
-      })
+        privileges: UserPrivilege.Admin
+      } as AddUserInput
     });
 
     assert.deepEqual(errors![0].message, 'A user with that name or email already exists');
   });
 
   it(`did not create user ${testUserName} with super admin privileges`, async function() {
-    const { errors } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: testUserName,
         password: 'password',
         email: testUserEmail,
-        privileges: UserPrivilege.super
-      })
+        privileges: UserPrivilege.Super
+      } as AddUserInput
     });
 
     assert.deepEqual(errors![0].message, 'You cannot create a user with super admin permissions');
   });
 
   it('did not create a new user as a regular user', async function() {
-    const { errors } = await header.user1.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { errors } = await header.user1.graphql<User>(CREATE_USER, {
+      token: {
         username: testUserName,
         password: 'password',
         email: testUserEmail,
-        privileges: UserPrivilege.super
-      })
+        privileges: UserPrivilege.Super
+      } as AddUserInput
     });
 
     assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it(`did create regular user ${testUserName} with valid details`, async function() {
-    const { data: newUser } = await header.admin.graphql<IUserEntry<'expanded'>>(CREATE_USER, {
-      token: new AddUserInput({
+    const { data: newUser } = await header.admin.graphql<User>(CREATE_USER, {
+      token: {
         username: testUserName,
         password: 'password',
         email: testUserEmail,
-        privileges: UserPrivilege.regular
-      })
+        privileges: UserPrivilege.Regular
+      } as AddUserInput
     });
 
     assert.deepEqual(newUser.username, testUserName);
@@ -147,7 +146,7 @@ describe('Testing creating a user', function() {
   });
 
   it('did not create an activation key for george', async function() {
-    const { data: newUser } = await header.admin.graphql<IUserEntry<'expanded'>>(GET_USER_AS_ADMIN, {
+    const { data: newUser } = await header.admin.graphql<User>(GET_USER_AS_ADMIN, {
       user: testUserName
     });
 

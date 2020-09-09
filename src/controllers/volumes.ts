@@ -10,8 +10,7 @@ import RemoteFactory from '../core/remotes/remote-factory';
 import { Error500, Error404 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUserEntry } from '../types/models/i-user-entry';
-import { VolumeSortType } from '../core/enums';
-import { VolumesGetOptions } from '../core/types';
+import { VolumeSortType, VolumesGetOptions } from '../core/enums';
 
 export type GetOptions = {
   id: string | ObjectID;

@@ -1,11 +1,11 @@
 import * as assert from 'assert';
-import { IPost, IUserEntry, IDraftElement } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { ElementType } from '../../../src/core/enums';
-import { AddElementInput } from '../../../src/graphql/models/element-type';
 import { ADD_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
+import { AddElementInput, ElementType, Element } from '../../../src/client-models';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IPost } from '../../../src/types/models/i-post';
 
 let post: IPost<'server'>, user1: IUserEntry<'server'>;
 
@@ -54,58 +54,58 @@ const testConfig: {
   allowed: string[];
   disallowed: { source: string; replacedWith: null | { [testType: string]: string } }[];
 }[] = [
-  { type: ElementType.paragraph, pre: '<p>', post: '</p>', allowed: [...inlines], disallowed: [...blocks] },
+  { type: ElementType.Paragraph, pre: '<p>', post: '</p>', allowed: [...inlines], disallowed: [...blocks] },
   {
-    type: ElementType.code,
+    type: ElementType.Code,
     pre: '<pre>',
     post: '</pre>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 4)
   },
   {
-    type: ElementType.list,
+    type: ElementType.List,
     pre: '<ul>',
     post: '</ul>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 0 && i !== 1)
   },
   {
-    type: ElementType.header1,
+    type: ElementType.Header1,
     pre: '<h1>',
     post: '</h1>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 11)
   },
   {
-    type: ElementType.header2,
+    type: ElementType.Header2,
     pre: '<h2>',
     post: '</h2>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 12)
   },
   {
-    type: ElementType.header3,
+    type: ElementType.Header3,
     pre: '<h3>',
     post: '</h3>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 13)
   },
   {
-    type: ElementType.header4,
+    type: ElementType.Header4,
     pre: '<h4>',
     post: '</h4>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 14)
   },
   {
-    type: ElementType.header5,
+    type: ElementType.Header5,
     pre: '<h5>',
     post: '</h5>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 15)
   },
   {
-    type: ElementType.header6,
+    type: ElementType.Header6,
     pre: '<h6>',
     post: '</h6>',
     allowed: [...inlines],
@@ -140,13 +140,13 @@ describe('Testing the validation of document element html: ', function() {
       describe(`Allowed: `, function() {
         test.allowed.forEach(innerHtml => {
           it(`did allowed ${innerHtml}`, async function() {
-            const { data: element } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+            const { data: element } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
               docId: post.document,
-              token: new AddElementInput({
+              token: <AddElementInput>{
                 html: `${test.pre}${innerHtml}${test.post}`,
                 type: test.type,
                 zone: 'main'
-              })
+              }
             });
 
             assert(element._id);
@@ -157,13 +157,13 @@ describe('Testing the validation of document element html: ', function() {
       describe(`Disallowed: `, function() {
         test.disallowed.forEach(disallowedTest => {
           it(`did not allow ${disallowedTest.source}`, async function() {
-            const { data: element } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+            const { data: element } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
               docId: post.document,
-              token: new AddElementInput({
+              token: <AddElementInput>{
                 html: `${test.pre}${disallowedTest.source}${test.post}`,
                 type: test.type,
                 zone: 'main'
-              })
+              }
             });
 
             assert(element._id);

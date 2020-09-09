@@ -1,10 +1,12 @@
 import * as assert from 'assert';
-import { IPost, IUserEntry, UserPrivilege } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import { GET_POST } from '../../../src/graphql/client/requests/posts';
 import { REMOVE_USER } from '../../../src/graphql/client/requests/users';
+import { Post, UserPrivilege } from '../../../src/client-models';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IPost } from '../../../src/types/models/i-post';
 
 let post: IPost<'server'>, newUser: IUserEntry<'server'>;
 
@@ -13,7 +15,7 @@ describe('Testing deletion of user is nullified on posts: ', function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');
 
-    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.admin);
+    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Admin);
     newUser = (await users.getUser({ username: 'user3' })) as IUserEntry<'server'>;
 
     // Create post and comments
@@ -31,7 +33,7 @@ describe('Testing deletion of user is nullified on posts: ', function() {
   });
 
   it('can get a post with the created user', async function() {
-    const resp = await header.user1.graphql<IPost<'expanded'>>(GET_POST, { id: post._id });
+    const resp = await header.user1.graphql<Post>(GET_POST, { id: post._id });
 
     assert.deepEqual(resp.data.author!._id, newUser._id.toString());
   });
@@ -42,7 +44,7 @@ describe('Testing deletion of user is nullified on posts: ', function() {
   });
 
   it('did nullify the user from the post', async function() {
-    const resp = await header.user1.graphql<IPost<'expanded'>>(GET_POST, { id: post._id });
+    const resp = await header.user1.graphql<Post>(GET_POST, { id: post._id });
 
     assert.deepEqual(resp.data.author, null);
   });

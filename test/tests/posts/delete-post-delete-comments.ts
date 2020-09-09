@@ -1,11 +1,13 @@
 import * as assert from 'assert';
-import { IPost, Page, IComment } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import { GET_COMMENTS, GET_COMMENT } from '../../../src/graphql/client/requests/comments';
 import { GetCommentsArgs } from '../../../src/graphql/models/comment-type';
 import { REMOVE_POST } from '../../../src/graphql/client/requests/posts';
+import { PaginatedPostsResponse, PaginatedCommentsResponse, Comment } from '../../../src/client-models';
+import { IPost } from '../../../src/types/models/i-post';
+import { IComment } from '../../../src/types/models/i-comment';
 
 let post: IPost<'server'>, comment1: IComment<'server'>, comment2: IComment<'server'>;
 
@@ -43,7 +45,7 @@ describe('Testing deletion of comments when a post is deleted', function() {
   });
 
   it('get two comments for a post', async function() {
-    const { data } = await header.user1.graphql<Page<IPost<'expanded'>>>(
+    const { data } = await header.user1.graphql<PaginatedPostsResponse>(
       GET_COMMENTS,
       new GetCommentsArgs({
         postId: post._id
@@ -63,7 +65,7 @@ describe('Testing deletion of comments when a post is deleted', function() {
   it('did delete the 2 comments of the post', async function() {
     const {
       data: { count }
-    } = await header.user1.graphql<Page<IComment<'client'>>>(
+    } = await header.user1.graphql<PaginatedCommentsResponse>(
       GET_COMMENTS,
       new GetCommentsArgs({
         postId: post._id
@@ -71,7 +73,7 @@ describe('Testing deletion of comments when a post is deleted', function() {
     );
     assert.strictEqual(count, 0);
 
-    const { data } = await header.user1.graphql<IComment<'client'>>(GET_COMMENT, { id: comment1._id });
+    const { data } = await header.user1.graphql<Comment>(GET_COMMENT, { id: comment1._id });
     assert.deepEqual(data, null);
   });
 });

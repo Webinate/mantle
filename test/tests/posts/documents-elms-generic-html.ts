@@ -1,11 +1,11 @@
 import * as assert from 'assert';
-import { IPost, IUserEntry, IDraftElement } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import { ADD_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
-import { ElementType } from '../../../src/core/enums';
-import { AddElementInput } from '../../../src/graphql/models/element-type';
+import { AddElementInput, ElementType, Element } from '../../../src/client-models';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IPost } from '../../../src/types/models/i-post';
 
 let post: IPost<'server'>, user1: IUserEntry<'server'>;
 
@@ -30,13 +30,13 @@ describe('Testing the adding of generic html elements: ', function() {
   });
 
   it('did allow an admin to create a an element with an iframe', async function() {
-    const { data: element } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: element } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
-      token: new AddElementInput({
+      token: <AddElementInput>{
         html: '<div><iframe src="https://youtube.com"></iframe></div>',
-        type: ElementType.html,
+        type: ElementType.Html,
         zone: 'main'
-      })
+      }
     });
 
     assert.deepEqual(element.type, 'html');
@@ -45,13 +45,13 @@ describe('Testing the adding of generic html elements: ', function() {
   });
 
   it('did allow an admin to create a an element with a script element', async function() {
-    const { data: element } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: element } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
-      token: new AddElementInput({
+      token: <AddElementInput>{
         html: '<div><script type="text/javascript" src="https://youtube.com"></script></div>',
-        type: ElementType.html,
+        type: ElementType.Html,
         zone: 'main'
-      })
+      }
     });
 
     assert.deepEqual(element.type, 'html');

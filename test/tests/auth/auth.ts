@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import header from '../header';
-import { IAdminUser } from '../../../src';
 import { AUTHENTICATED } from '../../../src/graphql/client/requests/auth';
-import { AuthResponse } from '../../../src/graphql/models/auth-type';
+import { AuthResponse } from '../../../src/client-models';
+import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 
 describe('Checking basic authentication', function() {
   it('guest should not be logged in', async function() {

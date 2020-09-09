@@ -1,11 +1,12 @@
 import * as yargs from 'yargs';
 import Agent from './agent';
 import loadConfig from './load-config';
-import { IAdminUser, UserPrivilege, IUserEntry, IAuthReq } from '../../src';
-import { IConfig } from '../../src';
 import { REMOVE_USER, ADD_USER } from '../../src/graphql/client/requests/users';
 import { LOGIN } from '../../src/graphql/client/requests/auth';
+import { IConfig } from '../../src/types/config/i-config';
 let args = yargs.argv;
+import { UserPrivilege, AuthResponse, User } from '../../src/client-models';
+import { IAdminUser } from '../../src/types/config/properties/i-admin';
 
 export class Header {
   public config: IConfig;
@@ -49,7 +50,7 @@ export class Header {
     username: string,
     password: string,
     email: string,
-    priviledge: UserPrivilege = UserPrivilege.regular
+    priviledge: UserPrivilege = UserPrivilege.Regular
   ) {
     // Remove the user if they already exist
     let response = await this.admin.graphql<boolean>(REMOVE_USER, { username });
@@ -60,7 +61,7 @@ export class Header {
       throw new Error(response.errors[0].message);
 
     // Now create the user using the admin account
-    let addUserResponse = await this.admin.graphql<IUserEntry<'expanded'>>(ADD_USER, {
+    let addUserResponse = await this.admin.graphql<User>(ADD_USER, {
       token: {
         username: username,
         password: password,
@@ -102,7 +103,7 @@ export class Header {
       const initAgent = new Agent(host);
 
       // const serverConfig = config.servers[ parseInt( args.server ) ];
-      const resp = await initAgent.graphql<IAuthReq>(LOGIN, {
+      const resp = await initAgent.graphql<AuthResponse>(LOGIN, {
         token: {
           username: (config.adminUser as IAdminUser).username,
           password: (config.adminUser as IAdminUser).password
@@ -130,7 +131,7 @@ export class Header {
 
       await this.createUser('user1', 'password', 'user1@test.com');
       await this.createUser('user2', 'password', 'user2@test.com');
-      await this.createUser('user3', 'password', 'user3@test.com', UserPrivilege.admin);
+      await this.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Admin);
     } catch (exp) {
       console.log(exp.stack);
       process.exit();

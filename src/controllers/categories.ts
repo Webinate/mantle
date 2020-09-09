@@ -5,7 +5,7 @@ import Controller from './controller';
 import { ICategory } from '../types/models/i-category';
 import { ISchemaOptions } from '../types/misc/i-schema-options';
 import { ObjectID } from 'mongodb';
-import { CategoriesGetManyOptions } from '../core/types';
+import { CategoriesGetOptions } from '../core/enums';
 
 export type GetOneOptions = {
   expanded: boolean;
@@ -36,7 +36,7 @@ export class CategoriesController extends Controller {
   /**
    * Returns an array of category entries
    */
-  async getAll(options: Partial<CategoriesGetManyOptions> = {}) {
+  async getAll(options: Partial<CategoriesGetOptions> = {}) {
     const collection = this._collection;
     const index: number = options.index || 0;
     const limit = options.limit || undefined;

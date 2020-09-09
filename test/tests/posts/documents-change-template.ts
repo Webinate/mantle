@@ -1,11 +1,16 @@
 import * as assert from 'assert';
-import { IPost, IDocument, IUserEntry, ITemplate, IAdminUser } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import controllerFactory from '../../../src/core/controller-factory';
 import { CHANGE_DOC_TEMPLATE } from '../../../src/graphql/client/requests/documents';
 import { ObjectID } from 'mongodb';
+import { Document } from '../../../src/client-models';
+import { IAdminUser } from '../../../src/types/config/properties/i-admin';
+import { IDocument } from '../../../src/types/models/i-document';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { ITemplate } from '../../../src/types/models/i-template';
+import { IPost } from '../../../src/types/models/i-post';
 
 let post: IPost<'server'>,
   document: IDocument<'server'>,
@@ -41,7 +46,7 @@ describe('Testing the changing of a document template: ', function() {
   });
 
   it('did not change the template with a bad doc or template id', async function() {
-    const { errors } = await header.admin.graphql<IDocument<'expanded'>>(CHANGE_DOC_TEMPLATE, {
+    const { errors } = await header.admin.graphql<Document>(CHANGE_DOC_TEMPLATE, {
       template: 'BAD',
       id: 'BAD'
     });
@@ -58,7 +63,7 @@ describe('Testing the changing of a document template: ', function() {
   });
 
   it('did not change a document that doesnt exist', async function() {
-    const { errors } = await header.admin.graphql<IDocument<'expanded'>>(CHANGE_DOC_TEMPLATE, {
+    const { errors } = await header.admin.graphql<Document>(CHANGE_DOC_TEMPLATE, {
       id: '123456789012345678901234',
       template: '123456789012345678901234'
     });
@@ -66,7 +71,7 @@ describe('Testing the changing of a document template: ', function() {
   });
 
   it('did not change a document with a template doesnt exist', async function() {
-    const { errors } = await header.admin.graphql<IDocument<'expanded'>>(CHANGE_DOC_TEMPLATE, {
+    const { errors } = await header.admin.graphql<Document>(CHANGE_DOC_TEMPLATE, {
       id: documentId,
       template: '123456789012345678901234'
     });
@@ -74,7 +79,7 @@ describe('Testing the changing of a document template: ', function() {
   });
 
   it('did not update a document when not the author', async function() {
-    const { errors } = await header.user2.graphql<IDocument<'expanded'>>(CHANGE_DOC_TEMPLATE, {
+    const { errors } = await header.user2.graphql<Document>(CHANGE_DOC_TEMPLATE, {
       id: documentId,
       template: templates[1]._id
     });
@@ -95,7 +100,7 @@ describe('Testing the changing of a document template: ', function() {
   });
 
   it('did update the document template as an admin', async function() {
-    const { data: updatedDoc } = await header.admin.graphql<IDocument<'expanded'>>(CHANGE_DOC_TEMPLATE, {
+    const { data: updatedDoc } = await header.admin.graphql<Document>(CHANGE_DOC_TEMPLATE, {
       id: documentId,
       template: templates[1]._id
     });

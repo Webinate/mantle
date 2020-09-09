@@ -15,8 +15,7 @@ import * as winston from 'winston';
 import { Error404, Error500, Error400 } from '../utils/errors';
 import { UsersController } from './users';
 import { IUploadToken } from '../types/interfaces/i-remote';
-import { SortOrder, FileSortType } from '../core/enums';
-import { FilesGetOptions, DeleteOptions } from '../core/types';
+import { SortOrder, FileSortType, FilesGetOptions, FileDeleteOptions } from '../core/enums';
 
 /**
  * Class responsible for managing files
@@ -405,7 +404,7 @@ export class FilesController extends Controller {
    * @param searchQuery The query we use to select the files
    * @returns Returns the file IDs of the files removed
    */
-  async removeFiles(options: DeleteOptions) {
+  async removeFiles(options: FileDeleteOptions) {
     const files = this._files;
     const volumes = this._volumes;
     const query: Partial<IFileEntry<'server'>> = {};

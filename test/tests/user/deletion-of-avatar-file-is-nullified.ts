@@ -1,32 +1,37 @@
 import * as assert from 'assert';
-import { IVolume, IFileEntry, IUserEntry, UserPrivilege } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import { User, UpdateUserInput } from '../../../src/graphql/models/user-type';
 import { GET_USER, EDIT_USER } from '../../../src/graphql/client/requests/users';
 import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
-import { VolumeType } from '../../../src/core/enums';
-
-let user: User, volume: IVolume<'expanded'>, file: IFileEntry<'expanded'>;
+import {
+  VolumeType,
+  AddVolumeInput,
+  UpdateUserInput,
+  File,
+  Volume,
+  UserPrivilege,
+  User
+} from '../../../src/client-models';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+let user: IUserEntry<'server'>, volume: Volume, file: File;
 
 describe('Testing deletion of an avatar image nullifies it on the user: ', function() {
   before(async function() {
     const users = ControllerFactory.get('users');
 
-    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.admin);
+    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Admin);
     const dbEntry = await users.getUser({ username: 'user3' });
-    user = User.fromEntity(dbEntry!);
+    user = dbEntry!;
 
-    const resp = await header.user3.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.user3.graphql<Volume>(ADD_VOLUME, {
+      token: {
         name: randomString(),
-        type: VolumeType.local
-      })
+        type: VolumeType.Local
+      } as AddVolumeInput
     });
 
     volume = resp.data;
@@ -46,28 +51,28 @@ describe('Testing deletion of an avatar image nullifies it on the user: ', funct
     form.append('good-file', fs.createReadStream(filePath));
     const resp = await header.user3.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.equal(resp.status, 200);
-    const files = await resp.json<IFileEntry<'expanded'>[]>();
+    const files = await resp.json<File[]>();
     assert.equal(files.length, 1);
     file = files[0];
   });
 
   it('did update the user avatar with the file as an avatar', async function() {
-    const resp = await header.user3.graphql<IUserEntry<'expanded'>>(EDIT_USER, {
-      token: new UpdateUserInput({
+    const resp = await header.user3.graphql<User>(EDIT_USER, {
+      token: {
         _id: user._id,
         avatarFile: file._id
-      })
+      } as UpdateUserInput
     });
 
-    assert.equal(resp.data.avatarFile._id, file._id);
+    assert.equal(resp.data.avatarFile!._id, file._id);
   });
 
   it('did get the avatar image when we get the user resource', async function() {
-    const resp = await header.user3.graphql<IUserEntry<'expanded'>>(GET_USER, {
+    const resp = await header.user3.graphql<User>(GET_USER, {
       user: user.username
     });
 
-    assert.deepEqual(resp.data.avatarFile._id, file._id);
+    assert.deepEqual(resp.data.avatarFile!._id, file._id);
   });
 
   it('did delete the uploaded file', async function() {
@@ -81,7 +86,7 @@ describe('Testing deletion of an avatar image nullifies it on the user: ', funct
   it('did nullify the image for the users avatar', async function() {
     const {
       data: { avatarFile }
-    } = await header.user3.graphql<IUserEntry<'expanded'>>(GET_USER, {
+    } = await header.user3.graphql<User>(GET_USER, {
       user: user.username
     });
 

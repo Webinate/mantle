@@ -1,21 +1,30 @@
 import * as assert from 'assert';
-import { IPost, IFileEntry, IVolume, IDraftElement, IDraft, IUserEntry } from '../../../src';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { randomString } from '../utils';
 import { GET_POST, UPDATE_POST, GET_POST_DRAFTS, REMOVE_POST_DRAFT } from '../../../src/graphql/client/requests/posts';
-import { UpdatePostInput } from '../../../src/graphql/models/post-type';
 import { UPDATE_DOC_ELEMENT, ADD_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
-import { UpdateElementInput, AddElementInput } from '../../../src/graphql/models/element-type';
-import { ElementType } from '../../../src/core/enums';
+import {
+  UpdateElementInput,
+  AddElementInput,
+  ElementType,
+  Element,
+  Post,
+  Draft,
+  UpdatePostInput
+} from '../../../src/client-models';
+import { IPost } from '../../../src/types/models/i-post';
+import { IFileEntry } from '../../../src/types/models/i-file-entry';
+import { IVolume } from '../../../src/types/models/i-volume-entry';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
 
 let volume: IVolume<'server'>;
-let post: IPost<'expanded'>;
+let post: Post;
 let file: IFileEntry<'server'>;
-let firstDraft: IDraft<'expanded'>;
+let firstDraft: Draft;
 
-let updatedHTML: string, listHTML: string, imgHTML: string, codeHtml: string, drafts: IDraft<'expanded'>[];
+let updatedHTML: string, listHTML: string, imgHTML: string, codeHtml: string, drafts: Draft[];
 
 describe('Testing of posts and drafts', function() {
   before(async function() {
@@ -33,7 +42,7 @@ describe('Testing of posts and drafts', function() {
       public: true
     })) as IPost<'server'>;
 
-    const { data: expandedPost } = await header.admin.graphql<IPost<'expanded'>>(GET_POST, { id: resp._id });
+    const { data: expandedPost } = await header.admin.graphql<Post>(GET_POST, { id: resp._id });
     post = expandedPost;
     assert(post);
   });
@@ -46,7 +55,7 @@ describe('Testing of posts and drafts', function() {
   });
 
   it('can fetch a single post and there is no draft initially', async function() {
-    let { data: fetchedPost } = await header.admin.graphql<IPost<'expanded'>>(GET_POST, { id: post._id });
+    let { data: fetchedPost } = await header.admin.graphql<Post>(GET_POST, { id: post._id });
 
     assert.deepEqual(fetchedPost.latestDraft, null);
     assert.deepEqual(typeof fetchedPost.document._id, 'string');
@@ -57,39 +66,39 @@ describe('Testing of posts and drafts', function() {
     listHTML = '<ul><li>Test 1</li><li>Test 2</li></ul>';
     imgHTML = `<figure><img src="${file.publicURL!}" /></figure>`;
 
-    const updateResp = await header.admin.graphql<IDraftElement<'expanded'>>(UPDATE_DOC_ELEMENT, {
+    const updateResp = await header.admin.graphql<Element>(UPDATE_DOC_ELEMENT, {
       docId: post.document._id,
-      token: new UpdateElementInput({
+      token: <UpdateElementInput>{
         _id: post.document.elements![0]._id,
         html: updatedHTML
-      })
+      }
     });
 
-    const { data: newListElement } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: newListElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document._id,
-      token: new AddElementInput({
-        type: ElementType.list,
+      token: <AddElementInput>{
+        type: ElementType.List,
         html: listHTML
-      })
+      }
     });
 
-    const { data: newImgElement } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: newImgElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document._id,
-      token: new AddElementInput({
-        type: ElementType.image,
+      token: <AddElementInput>{
+        type: ElementType.Image,
         image: file._id
-      })
+      }
     });
 
     assert(updateResp.data._id);
     assert(newListElement._id);
     assert(newImgElement._id);
 
-    const { data: updatedPost } = await header.admin.graphql<IPost<'expanded'>>(UPDATE_POST, {
-      token: new UpdatePostInput({
+    const { data: updatedPost } = await header.admin.graphql<Post>(UPDATE_POST, {
+      token: <UpdatePostInput>{
         _id: post._id,
         public: true
-      })
+      }
     });
 
     assert.deepEqual(typeof updatedPost.latestDraft!._id, 'string');
@@ -102,19 +111,19 @@ describe('Testing of posts and drafts', function() {
   it('does create a new draft with more changes', async function() {
     codeHtml = `<pre>Hello world</pre>`;
 
-    const { data: newElement } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: newElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document._id,
-      token: new AddElementInput({
-        type: ElementType.code,
+      token: <AddElementInput>{
+        type: ElementType.Code,
         html: codeHtml
-      })
+      }
     });
 
-    const { data: updatedPost } = await header.admin.graphql<IPost<'expanded'>>(UPDATE_POST, {
-      token: new UpdatePostInput({
+    const { data: updatedPost } = await header.admin.graphql<Post>(UPDATE_POST, {
+      token: <UpdatePostInput>{
         _id: post._id,
         public: true
-      })
+      }
     });
 
     assert(newElement._id);
@@ -126,7 +135,7 @@ describe('Testing of posts and drafts', function() {
   });
 
   it('prevents guests from getting post draft lists', async function() {
-    const { errors } = await header.guest.graphql<IDraft<'expanded'>[]>(GET_POST_DRAFTS, {
+    const { errors } = await header.guest.graphql<Element[]>(GET_POST_DRAFTS, {
       id: post.document._id
     });
 
@@ -134,7 +143,7 @@ describe('Testing of posts and drafts', function() {
   });
 
   it('prevents getting post draft lists with a bad id', async function() {
-    const { errors } = await header.admin.graphql<IDraft<'expanded'>[]>(GET_POST_DRAFTS, {
+    const { errors } = await header.admin.graphql<Element[]>(GET_POST_DRAFTS, {
       id: 'BAD'
     });
 
@@ -145,7 +154,7 @@ describe('Testing of posts and drafts', function() {
   });
 
   it('prevents other users from getting post draft lists', async function() {
-    const { errors } = await header.user1.graphql<IDraft<'expanded'>[]>(GET_POST_DRAFTS, {
+    const { errors } = await header.user1.graphql<Element[]>(GET_POST_DRAFTS, {
       id: post._id
     });
 
@@ -153,7 +162,7 @@ describe('Testing of posts and drafts', function() {
   });
 
   it('allows an admin to get post draft lists', async function() {
-    const resp = await header.admin.graphql<IDraft<'expanded'>[]>(GET_POST_DRAFTS, {
+    const resp = await header.admin.graphql<Draft[]>(GET_POST_DRAFTS, {
       id: post._id
     });
 
@@ -220,7 +229,7 @@ describe('Testing of posts and drafts', function() {
 
     assert(wasRemoved);
 
-    const { data: newDrafts } = await header.admin.graphql<IDraft<'expanded'>[]>(GET_POST_DRAFTS, {
+    const { data: newDrafts } = await header.admin.graphql<Draft[]>(GET_POST_DRAFTS, {
       id: post._id
     });
 
@@ -237,7 +246,7 @@ describe('Testing of posts and drafts', function() {
 
     assert(wasRemoved);
 
-    const { data: newDrafts } = await header.admin.graphql<IDraft<'expanded'>[]>(GET_POST_DRAFTS, {
+    const { data: newDrafts } = await header.admin.graphql<Draft[]>(GET_POST_DRAFTS, {
       id: post._id
     });
 
@@ -245,7 +254,7 @@ describe('Testing of posts and drafts', function() {
     assert.deepEqual(newDrafts[0].html.unassigned, updatedHTML + listHTML + imgHTML);
 
     // Now check that the post's draft is nullified
-    const { data: fetchedPost } = await header.admin.graphql<IPost<'expanded'>>(GET_POST, {
+    const { data: fetchedPost } = await header.admin.graphql<Post>(GET_POST, {
       id: post._id
     });
 

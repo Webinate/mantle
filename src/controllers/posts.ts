@@ -10,8 +10,7 @@ import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
 import { Error404, Error400 } from '../utils/errors';
 import { IDraft } from '../types/models/i-draft';
-import { SortOrder } from '../core/enums';
-import { PostsGetAllOptions } from '../core/types';
+import { SortOrder, PostsGetOptions } from '../core/enums';
 
 export type PostsGetOneOptions = {
   id: string | ObjectID;
@@ -51,7 +50,7 @@ export class PostsController extends Controller {
   /**
    * Returns an array of IPost items
    */
-  async getPosts(options: Partial<PostsGetAllOptions> = {}) {
+  async getPosts(options: Partial<PostsGetOptions> = {}) {
     const posts = this._postsCollection;
     const findToken: Partial<IPost<'server'>> & { $or: IPost<'server'>[] } = { $or: [] };
 

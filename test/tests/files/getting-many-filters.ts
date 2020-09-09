@@ -1,24 +1,23 @@
 import * as assert from 'assert';
 import header from '../header';
-import { Page, IVolume, IFileEntry } from '../../../src';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { GET_FILES } from '../../../src/graphql/client/requests/file';
-import { FileSortType, SortOrder } from '../../../src/core/enums';
+import { FileSortType, SortOrder, AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/client-models';
+import { IFileEntry } from '../../../src/types/models/i-file-entry';
 
-let volume: IVolume<'expanded'>;
+let volume: Volume;
 let fileA: IFileEntry<'expanded'>;
 let fileB: IFileEntry<'expanded'>;
 let fileC: IFileEntry<'expanded'>;
 
 describe('Testing volume get requests', function() {
   before(async function() {
-    let addVolumeResp = await header.user1.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    let addVolumeResp = await header.user1.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: 'aaa'
-      })
+      }
     });
 
     assert.ok(addVolumeResp.data);
@@ -51,7 +50,7 @@ describe('Testing volume get requests', function() {
   });
 
   it('filters by creation date by default', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id
     });
 
@@ -61,10 +60,10 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by name [asc]', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id,
-      sortType: FileSortType.name,
-      sortOrder: SortOrder.asc
+      sortType: FileSortType.Name,
+      sortOrder: SortOrder.Asc
     });
 
     assert(resp.data.data[0]._id === fileA._id);
@@ -73,10 +72,10 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by name [desc]', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id,
-      sortType: FileSortType.name,
-      sortOrder: SortOrder.desc
+      sortType: FileSortType.Name,
+      sortOrder: SortOrder.Desc
     });
 
     assert(resp.data.data[0]._id === fileC._id);
@@ -85,10 +84,10 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by creation date [asc]', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id,
-      sortType: FileSortType.created,
-      sortOrder: SortOrder.asc
+      sortType: FileSortType.Created,
+      sortOrder: SortOrder.Asc
     });
 
     assert(resp.data.data[0]._id === fileA._id);
@@ -97,10 +96,10 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by creation date [desc]', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id,
-      sortType: FileSortType.created,
-      sortOrder: SortOrder.desc
+      sortType: FileSortType.Created,
+      sortOrder: SortOrder.Desc
     });
 
     assert(resp.data.data[0]._id === fileC._id);
@@ -109,10 +108,10 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by memory used [asc]', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id,
-      sortType: FileSortType.memory,
-      sortOrder: SortOrder.asc
+      sortType: FileSortType.Memory,
+      sortOrder: SortOrder.Asc
     });
 
     assert(resp.data.data[0]._id === fileA._id);
@@ -121,10 +120,10 @@ describe('Testing volume get requests', function() {
   });
 
   it('can filter by memory used [desc]', async function() {
-    const resp = await header.user1.graphql<Page<IFileEntry<'expanded'>>>(GET_FILES, {
+    const resp = await header.user1.graphql<PaginatedFilesResponse>(GET_FILES, {
       volumeId: volume._id,
-      sortType: FileSortType.memory,
-      sortOrder: SortOrder.desc
+      sortType: FileSortType.Memory,
+      sortOrder: SortOrder.Desc
     });
 
     assert(resp.data.data[0]._id === fileC._id);

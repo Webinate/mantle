@@ -1,11 +1,13 @@
 import * as assert from 'assert';
-import { IPost, IDocument, IUserEntry } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import { REMOVE_DOC_ELEMENT, GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
+import { Document } from '../../../src/client-models';
+import { IPost } from '../../../src/types/models/i-post';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
 
-let post: IPost<'server'>, document: IDocument<'expanded'>;
+let post: IPost<'server'>, document: Document;
 
 describe('Testing the deletion of document elements: ', function() {
   before(async function() {
@@ -21,7 +23,7 @@ describe('Testing the deletion of document elements: ', function() {
       public: true
     });
 
-    const resp = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
+    const resp = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
     document = resp.data;
   });
 
@@ -63,7 +65,7 @@ describe('Testing the deletion of document elements: ', function() {
   it('did not allow a guest to remove an element', async function() {
     const { errors } = await header.guest.graphql<boolean>(REMOVE_DOC_ELEMENT, {
       docId: post.document,
-      elementId: document.elements[0]._id
+      elementId: document.elements![0]._id
     });
     assert.deepEqual(errors![0].message, `Access denied! You don't have permission for this action!`);
   });
@@ -76,13 +78,13 @@ describe('Testing the deletion of document elements: ', function() {
   it('did allow an admin user to delete the unit', async function() {
     const { data: fileRemoved } = await header.admin.graphql<boolean>(REMOVE_DOC_ELEMENT, {
       docId: post.document,
-      elementId: document.elements[0]._id
+      elementId: document.elements![0]._id
     });
     assert.deepEqual(fileRemoved, true);
   });
 
   it('did update the draft html', async function() {
-    const { data: doc } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
+    const { data: doc } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
 
     assert.ok(Object.keys(doc.html).length === 0 && doc.html.constructor === Object);
   });

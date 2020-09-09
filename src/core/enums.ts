@@ -1,6 +1,74 @@
-﻿/*
- * Describes what kind of privileges the user has
- */
+﻿import { ObjectID } from 'mongodb';
+import { IUserEntry } from '../types/models/i-user-entry';
+
+export type CategoriesGetOptions = {
+  index: number;
+  limit: number;
+  root: boolean;
+  parent: ObjectID | string;
+};
+
+export type FilesGetOptions = {
+  volumeId?: string | ObjectID;
+  user?: string;
+  index?: number;
+  limit?: number;
+  search?: string | RegExp;
+  sortType?: 'created' | 'name' | 'memory';
+  sortOrder?: SortOrder;
+};
+
+export type FileDeleteOptions = {
+  volumeId?: string | ObjectID;
+  user?: string;
+  fileId?: string | ObjectID;
+};
+
+export type UsersGetptions = {
+  search: string;
+  index: number;
+  limit: number;
+  verbose: boolean;
+};
+
+export type VolumesGetOptions = {
+  user: string | IUserEntry<'client' | 'server'>;
+  search: RegExp | string;
+  index: number;
+  limit: number;
+  sortType: VolumeSortType;
+  sortOrder: SortOrder;
+};
+
+export type CommentsGetOptions = {
+  visibility: CommentVisibility;
+  user: string;
+  index: number;
+  depth: number;
+  limit: number;
+  expanded: boolean;
+  keyword: string;
+  root: boolean;
+  parentId: ObjectID | string | null;
+  postId: ObjectID | string;
+  sortType: CommentSortType;
+  sortOrder: SortOrder;
+};
+
+export type PostsGetOptions = {
+  visibility: PostVisibility;
+  categories: ObjectID[];
+  tags: string[];
+  rtags: string[];
+  sort: PostSortType;
+  requiredTags?: string[];
+  index: number;
+  limit: number;
+  keyword: string;
+  author: string;
+  sortOrder: SortOrder;
+};
+
 export enum UserPrivilege {
   super = 'super',
   admin = 'admin',
@@ -43,9 +111,6 @@ export enum PostSortType {
   modified = 'modified'
 }
 
-/*
- * Describes the types of volumes supported
- */
 export enum VolumeType {
   google = 'google',
   local = 'local'

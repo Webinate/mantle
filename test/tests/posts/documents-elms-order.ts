@@ -1,16 +1,15 @@
 import * as assert from 'assert';
-import { IPost, IDocument, IUserEntry, IDraftElement } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { AddElementInput } from '../../../src/graphql/models/element-type';
-import { ElementType } from '../../../src/core/enums';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT, REMOVE_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
+import { AddElementInput, ElementType, Element, Document } from '../../../src/client-models';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IPost } from '../../../src/types/models/i-post';
 
 let post: IPost<'server'>;
-
-let firstElm: IDraftElement<'expanded'>;
-let secondElm: IDraftElement<'expanded'>;
+let firstElm: Element;
+let secondElm: Element;
 
 describe('Testing the order of document elements: ', function() {
   before(async function() {
@@ -33,29 +32,29 @@ describe('Testing the order of document elements: ', function() {
   });
 
   it('did add a new elements and each is added to the end of the order array', async function() {
-    const { data: elm1 } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: elm1 } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
-      token: new AddElementInput({
-        type: ElementType.paragraph,
+      token: <AddElementInput>{
+        type: ElementType.Paragraph,
         html: '<p>A</p>'
-      })
+      }
     });
 
-    const { data: elm2 } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: elm2 } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
-      token: new AddElementInput({
-        type: ElementType.paragraph,
+      token: <AddElementInput>{
+        type: ElementType.Paragraph,
         html: '<p>B</p>'
-      })
+      }
     });
 
     firstElm = elm1;
     secondElm = elm2;
 
-    const { data: doc } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
+    const { data: doc } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
 
-    assert.equal(doc.elementsOrder[1], firstElm._id);
-    assert.equal(doc.elementsOrder[2], secondElm._id);
+    assert.equal(doc.elementsOrder![1], firstElm._id);
+    assert.equal(doc.elementsOrder![2], secondElm._id);
   });
 
   it('did remove an element and the element id was removed from the order array', async function() {
@@ -65,53 +64,53 @@ describe('Testing the order of document elements: ', function() {
     });
     assert.deepEqual(elementRemoved, true);
 
-    const { data: doc } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
-    assert.equal(doc.elementsOrder[1], secondElm._id);
-    assert.equal(doc.elementsOrder.length, 2);
+    const { data: doc } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
+    assert.equal(doc.elementsOrder![1], secondElm._id);
+    assert.equal(doc.elementsOrder!.length, 2);
   });
 
   it('did add a new element at an index and the order array was correct', async function() {
-    const { data: newElement } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: newElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
       index: 1,
-      token: new AddElementInput({
-        type: ElementType.paragraph,
+      token: <AddElementInput>{
+        type: ElementType.Paragraph,
         html: '<p>C</p>'
-      })
+      }
     });
 
-    const { data: doc } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
+    const { data: doc } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
 
-    assert.equal(doc.elementsOrder[1], newElement._id);
-    assert.equal(doc.elementsOrder[2], secondElm._id);
-    assert.equal(doc.elementsOrder.length, 3);
+    assert.equal(doc.elementsOrder![1], newElement._id);
+    assert.equal(doc.elementsOrder![2], secondElm._id);
+    assert.equal(doc.elementsOrder!.length, 3);
   });
 
   it('did add an element at an index -1 to the end of the order array', async function() {
-    const { data: newElement } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: newElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
       index: -1,
-      token: new AddElementInput({
-        type: ElementType.paragraph,
+      token: <AddElementInput>{
+        type: ElementType.Paragraph,
         html: '<p>D</p>'
-      })
+      }
     });
 
-    const { data: doc } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
-    assert.equal(doc.elementsOrder[3], newElement._id);
+    const { data: doc } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
+    assert.equal(doc.elementsOrder![3], newElement._id);
   });
 
   it('did add an element at an index 100 to the end of the order array', async function() {
-    const { data: newElement } = await header.admin.graphql<IDraftElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: newElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
       index: 100,
-      token: new AddElementInput({
-        type: ElementType.paragraph,
+      token: <AddElementInput>{
+        type: ElementType.Paragraph,
         html: '<p>E</p>'
-      })
+      }
     });
 
-    const { data: doc } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
-    assert.equal(doc.elementsOrder[4], newElement._id);
+    const { data: doc } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
+    assert.equal(doc.elementsOrder![4], newElement._id);
   });
 });

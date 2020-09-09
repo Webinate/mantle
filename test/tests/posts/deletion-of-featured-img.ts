@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import { IPost, IVolume, IFileEntry, UserPrivilege } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
@@ -10,15 +9,18 @@ import { UPDATE_POST, GET_POST } from '../../../src/graphql/client/requests/post
 import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { UpdatePostInput } from '../../../src/graphql/models/post-type';
 import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
+import { Post, UserPrivilege, Volume } from '../../../src/client-models';
+import { IFileEntry } from '../../../src/types/models/i-file-entry';
+import { IPost } from '../../../src/types/models/i-post';
 
-let post: IPost<'server'>, volume: IVolume<'expanded'>, file: IFileEntry<'expanded'>;
+let post: IPost<'server'>, volume: Volume, file: IFileEntry<'expanded'>;
 
 describe('Testing deletion of a featured image nullifies it on the post: ', function() {
   before(async function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');
 
-    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.admin);
+    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Admin);
     const user3 = await users.getUser({ username: 'user3' });
 
     // Create post and comments
@@ -29,7 +31,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
       public: true
     })) as IPost<'server'>;
 
-    const resp = await header.user3.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
+    const resp = await header.user3.graphql<Volume>(ADD_VOLUME, {
       token: new AddVolumeInput({ name: randomString(), user: user3!._id })
     });
 
@@ -57,7 +59,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
   });
 
   it('did does throw an error when updating a post with an invalid featured img id', async function() {
-    const { errors } = await header.user3.graphql<IPost<'expanded'>>(UPDATE_POST, {
+    const { errors } = await header.user3.graphql<Post>(UPDATE_POST, {
       token: new UpdatePostInput({
         _id: post._id,
         featuredImage: 'BAD' as any
@@ -71,7 +73,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
   });
 
   it('did does throw an error when updating a post when featured img does not exist', async function() {
-    const { errors } = await header.user3.graphql<IPost<'expanded'>>(UPDATE_POST, {
+    const { errors } = await header.user3.graphql<Post>(UPDATE_POST, {
       token: new UpdatePostInput({
         _id: post._id,
         featuredImage: '123456789012345678901234'
@@ -82,7 +84,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
   });
 
   it('did update the post with the file as a featured image', async function() {
-    const { data: updatedPost } = await header.user3.graphql<IPost<'expanded'>>(UPDATE_POST, {
+    const { data: updatedPost } = await header.user3.graphql<Post>(UPDATE_POST, {
       token: new UpdatePostInput({
         _id: post._id,
         featuredImage: file._id
@@ -93,7 +95,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
   });
 
   it('did get the featured image when we get the post resource', async function() {
-    const { data: postResponse } = await header.user3.graphql<IPost<'expanded'>>(GET_POST, { id: post._id });
+    const { data: postResponse } = await header.user3.graphql<Post>(GET_POST, { id: post._id });
     assert.deepEqual(postResponse.featuredImage!._id, file._id);
   });
 
@@ -103,7 +105,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
   });
 
   it('did nullify the featured image on the post', async function() {
-    const resp = await header.user3.graphql<IPost<'expanded'>>(GET_POST, { id: post._id });
+    const resp = await header.user3.graphql<Post>(GET_POST, { id: post._id });
     assert.deepEqual(resp.data.featuredImage, null);
   });
 });

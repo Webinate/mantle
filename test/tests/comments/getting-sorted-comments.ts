@@ -1,10 +1,13 @@
 import * as assert from 'assert';
-import { IPost, IComment, Page, IAdminUser, IUserEntry } from '../../../src';
 import header from '../header';
 import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { GET_COMMENTS } from '../../../src/graphql/client/requests/comments';
-import { CommentSortType, SortOrder } from '../../../src/core/enums';
+import { CommentSortType, SortOrder, PaginatedCommentsResponse } from '../../../src/client-models';
+import { IAdminUser } from '../../../src/types/config/properties/i-admin';
+import { IComment } from '../../../src/types/models/i-comment';
+import { IPost } from '../../../src/types/models/i-post';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
 
 let post: IPost<'server'>, comment1: IComment<'server'>, comment2: IComment<'server'>, admin: IUserEntry<'server'>;
 
@@ -36,7 +39,7 @@ describe('Testing of fetching sorted comments:', function() {
   });
 
   it('gets comments filtered by creation date by default', async function() {
-    const response = await header.admin.graphql<Page<IComment<'expanded'>>>(GET_COMMENTS, {});
+    const response = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {});
 
     assert.deepEqual(response.data.data[0]._id, comment2._id.toString());
     assert.deepEqual(response.data.data[1]._id, comment1._id.toString());
@@ -45,9 +48,9 @@ describe('Testing of fetching sorted comments:', function() {
   it('can filter by date modified (desc)', async function() {
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IComment<'expanded'>>>(GET_COMMENTS, {
-      sortOrder: SortOrder.desc,
-      sortType: CommentSortType.updated
+    } = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {
+      sortOrder: SortOrder.Desc,
+      sortType: CommentSortType.Updated
     });
 
     assert.deepEqual(data[0]._id, comment1._id.toString());
@@ -57,9 +60,9 @@ describe('Testing of fetching sorted comments:', function() {
   it('can filter by date modified (asc)', async function() {
     const {
       data: { data }
-    } = await header.admin.graphql<Page<IComment<'expanded'>>>(GET_COMMENTS, {
-      sortOrder: SortOrder.asc,
-      sortType: CommentSortType.updated,
+    } = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {
+      sortOrder: SortOrder.Asc,
+      sortType: CommentSortType.Updated,
       limit: -1
     });
 

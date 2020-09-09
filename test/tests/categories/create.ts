@@ -1,14 +1,14 @@
 import * as assert from 'assert';
-import { AddCategoryInput, Category } from '../../../src/graphql/models/category-type';
 import { ADD_CATEGORY, GET_CATEGORY, REMOVE_CATEGORY } from '../../../src/graphql/client/requests/category';
 import header from '../header';
+import { AddCategoryInput, Category } from '../../../src/client-models';
 
 let category: Category;
 
 describe('Testing creation of categories', function() {
   it('does require a title and slug when creating a category', async function() {
     const resp = await header.guest.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({})
+      token: <AddCategoryInput>{}
     });
     assert.ok(resp.errors![0].message.includes(`Field title of required type String! was not provided.`));
     assert.ok(resp.errors![1].message.includes(`Field slug of required type String! was not provided.`));
@@ -16,21 +16,21 @@ describe('Testing creation of categories', function() {
 
   it('did not create a category when not logged in', async function() {
     const resp = await header.guest.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
+      token: <AddCategoryInput>{ title: 'Test', slug: 'Test' }
     });
     assert.deepEqual(resp.errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('did not create a category for a regular user', async function() {
     const resp = await header.user1.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
+      token: <AddCategoryInput>{ title: 'Test', slug: 'Test' }
     });
     assert.deepEqual(resp.errors![0].message, `Access denied! You don't have permission for this action!`);
   });
 
   it('did not create a category with dangerous html in description', async function() {
     const resp = await header.user1.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Test', slug: 'Test' })
+      token: <AddCategoryInput>{ title: 'Test', slug: 'Test' }
     });
     assert.deepEqual(resp.errors![0].message, `Access denied! You don't have permission for this action!`);
   });
@@ -48,7 +48,7 @@ describe('Testing creation of categories', function() {
     }
 
     const resp = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: '<b>_Test</b>', slug: '_test', description: '<b>This is a test</b>' })
+      token: <AddCategoryInput>{ title: '<b>_Test</b>', slug: '_test', description: '<b>This is a test</b>' }
     });
 
     category = resp.data;
@@ -60,7 +60,7 @@ describe('Testing creation of categories', function() {
 
   it('did not create category called _test when one already exist', async function() {
     const resp = await header.admin.graphql<Category>(ADD_CATEGORY, {
-      token: new AddCategoryInput({ title: 'Test', slug: '_test' })
+      token: <AddCategoryInput>{ title: 'Test', slug: '_test' }
     });
 
     assert.deepEqual(resp.errors![0].message, `Category with the slug '_test' already exists`);

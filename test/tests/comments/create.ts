@@ -1,9 +1,9 @@
 import * as assert from 'assert';
-import { IPost, IComment } from '../../../src';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_COMMENT } from '../../../src/graphql/client/requests/comments';
-import { AddCommentInput } from '../../../src/graphql/models/comment-type';
+import { Comment, AddCommentInput } from '../../../src/client-models';
+import { IPost } from '../../../src/types/models/i-post';
 
 let numPosts: number, numComments: number, newPost: IPost<'server'>, commentId: string;
 
@@ -35,10 +35,10 @@ describe('Testing creation of comments', function() {
 
   it('cannot create a comment when not logged in', async function() {
     const resp = await header.guest.graphql<{ _id: string }>(ADD_COMMENT, {
-      token: new AddCommentInput({
+      token: <AddCommentInput>{
         post: '123456789012345678901234',
         content: ''
-      })
+      }
     });
 
     assert.deepEqual(resp.errors![0].message, `Access denied! You don\'t have permission for this action!`);
@@ -46,10 +46,10 @@ describe('Testing creation of comments', function() {
 
   it('cannot create a comment with a badly formatted post id', async function() {
     const resp = await header.admin.graphql<{ _id: string }>(ADD_COMMENT, {
-      token: new AddCommentInput({
+      token: <AddCommentInput>{
         post: 'bad',
         parent: 'bad'
-      })
+      }
     });
 
     assert.deepEqual(
@@ -64,10 +64,10 @@ describe('Testing creation of comments', function() {
 
   it('cannot create a comment without a post that actually exists', async function() {
     const resp = await header.admin.graphql<{ _id: string }>(ADD_COMMENT, {
-      token: new AddCommentInput({
+      token: <AddCommentInput>{
         post: '123456789012345678901234',
         content: ''
-      })
+      }
     });
 
     assert.deepEqual(resp.errors![0].message, 'No post exists with the id 123456789012345678901234');
@@ -75,11 +75,11 @@ describe('Testing creation of comments', function() {
 
   it('cannot create a comment without a parent that actually exists', async function() {
     const resp = await header.admin.graphql<{ _id: string }>(ADD_COMMENT, {
-      token: new AddCommentInput({
+      token: <AddCommentInput>{
         post: '123456789012345678901234',
         parent: '123456789012345678901234',
         content: ''
-      })
+      }
     });
 
     assert.deepEqual(resp.errors![0].message, 'No comment exists with the id 123456789012345678901234');
@@ -87,31 +87,31 @@ describe('Testing creation of comments', function() {
 
   it('cannot create a comment with illegal html', async function() {
     let resp = await header.admin.graphql<{ _id: string }>(ADD_COMMENT, {
-      token: new AddCommentInput({
+      token: <AddCommentInput>{
         post: newPost._id,
         content: `Hello world! __filter__ <script type=\'text/javascript\'>alert\('BOOO')</script>`
-      })
+      }
     });
 
     assert.deepEqual(resp.errors![0].message, `Argument Validation Error`);
 
     resp = await header.admin.graphql<{ _id: string }>(ADD_COMMENT, {
-      token: new AddCommentInput({
+      token: <AddCommentInput>{
         post: newPost._id,
         content: `Hello world! __filter__ <div>No no no</div>`
-      })
+      }
     });
 
     assert.deepEqual(resp.errors![0].message, `Argument Validation Error`);
   });
 
   it('can create a comment on a valid post', async function() {
-    const resp = await header.admin.graphql<IComment<'expanded'>>(ADD_COMMENT, {
-      token: new AddCommentInput({
+    const resp = await header.admin.graphql<Comment>(ADD_COMMENT, {
+      token: <AddCommentInput>{
         post: newPost._id,
         content: `Hello world! __filter__`,
         public: false
-      })
+      }
     });
 
     const newComment = resp.data;
@@ -128,12 +128,12 @@ describe('Testing creation of comments', function() {
 
   it('can create a another comment on the same post, with a parent comment', async function() {
     const { data: _id } = await header.admin.graphql<{ _id: string }>(ADD_COMMENT, {
-      token: new AddCommentInput({
+      token: <AddCommentInput>{
         post: newPost._id,
         parent: commentId,
         content: `Hello world! __filter__`,
         public: false
-      })
+      }
     });
 
     assert(_id);

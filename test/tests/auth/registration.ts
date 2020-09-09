@@ -2,8 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { REMOVE_USER, GET_USER } from '../../../src/graphql/client/requests/users';
 import { REGISTER, APPROVE_ACTIVATION } from '../../../src/graphql/client/requests/auth';
-import { RegisterInput } from '../../../src/graphql/models/auth-type';
-import { User } from '../../../src/graphql/models/user-type';
+import { RegisterInput, User } from '../../../src/client-models';
 
 let testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com';
@@ -19,7 +18,7 @@ describe('Testing registering a user', function() {
 
   it('should not register without username, password & email', async function() {
     const response = await header.guest.graphql<{ message: string }>(REGISTER, {
-      token: new RegisterInput({})
+      token: <RegisterInput>{}
     });
     assert.deepEqual(
       response.errors![0].message,
@@ -37,33 +36,33 @@ describe('Testing registering a user', function() {
 
   it('should not register with an incorrect email format', async function() {
     const { errors } = await header.guest.graphql<{ message: string }>(REGISTER, {
-      token: new RegisterInput({
+      token: <RegisterInput>{
         username: 'textok',
         password: 'textok',
         email: 'bademail'
-      })
+      }
     });
     assert.deepEqual(errors![0].message, 'Argument Validation Error');
   });
 
   it('should not register with bad characters in the username', async function() {
     const { errors } = await header.guest.graphql<{ message: string }>(REGISTER, {
-      token: new RegisterInput({
+      token: <RegisterInput>{
         username: '!�$%^^&&*()-=~#}{}',
         password: 'somepassword',
         email: 'FakeEmail@test.com'
-      })
+      }
     });
     assert.deepEqual(errors![0].message, 'Please only use alpha numeric characters for your username');
   });
 
   it('should not register with existing username', async function() {
     const response = await header.guest.graphql<{ message: string }>(REGISTER, {
-      token: new RegisterInput({
+      token: <RegisterInput>{
         username: header.admin.username,
         password: 'FakePass',
         email: 'FakeEmail@test.com'
-      })
+      }
     });
 
     assert.deepEqual(
@@ -74,11 +73,11 @@ describe('Testing registering a user', function() {
 
   it('should register with valid information', async function() {
     const resp = await header.guest.graphql<{ message: string }>(REGISTER, {
-      token: new RegisterInput({
+      token: <RegisterInput>{
         username: testUserName,
         password: 'Password',
         email: testUserEmail
-      })
+      }
     });
 
     assert.deepEqual(resp.data.message, 'Please activate your account with the link sent to your email address');

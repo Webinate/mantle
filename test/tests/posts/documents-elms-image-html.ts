@@ -1,22 +1,26 @@
 import * as assert from 'assert';
-import { IPost, IDocument, IUserEntry, IVolume, IFileEntry } from '../../../src';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import { IImageElement } from '../../../src/types/models/i-draft-elements';
-import { ElementType } from '../../../src/core/enums';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT, UPDATE_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
-import { AddElementInput, UpdateElementInput } from '../../../src/graphql/models/element-type';
 import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
 import { ADD_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
+import {
+  AddVolumeInput,
+  UpdateElementInput,
+  AddElementInput,
+  ElementType,
+  Element,
+  Volume,
+  Document
+} from '../../../src/client-models';
+import { IFileEntry } from '../../../src/types/models/i-file-entry';
+import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IPost } from '../../../src/types/models/i-post';
 
-let post: IPost<'server'>,
-  volume: IVolume<'expanded'>,
-  imageElm: IImageElement<'expanded'>,
-  file: IFileEntry<'expanded'>;
+let post: IPost<'server'>, volume: Volume, imageElm: Element, file: IFileEntry<'expanded'>;
 
 describe('Testing the rendered html of image elements: ', function() {
   this.timeout(600000);
@@ -34,10 +38,10 @@ describe('Testing the rendered html of image elements: ', function() {
       public: true
     });
 
-    const resp = await header.admin.graphql<IVolume<'expanded'>>(ADD_VOLUME, {
-      token: new AddVolumeInput({
+    const resp = await header.admin.graphql<Volume>(ADD_VOLUME, {
+      token: <AddVolumeInput>{
         name: randomString()
-      })
+      }
     });
 
     volume = resp.data;
@@ -63,23 +67,23 @@ describe('Testing the rendered html of image elements: ', function() {
   });
 
   it('did add an image element and render a figure html', async function() {
-    const { data: element } = await header.admin.graphql<IImageElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: element } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
-      token: new AddElementInput({
-        type: ElementType.image,
+      token: <AddElementInput>{
+        type: ElementType.Image,
         zone: 'zone-a',
         image: file._id
-      })
+      }
     });
 
     imageElm = element;
     assert.deepEqual(element.html, `<figure><img src="${file.publicURL}" /></figure>`);
-    assert.deepEqual(element.image._id, file._id);
+    assert.deepEqual(element.image!._id, file._id);
   });
 
   it('did get the image html from a doc request', async function() {
-    const { data: doc } = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
-    assert.equal(doc.elements[1].html, `<figure><img src="${file.publicURL}" /></figure>`);
+    const { data: doc } = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
+    assert.equal(doc.elements![1].html, `<figure><img src="${file.publicURL}" /></figure>`);
   });
 
   it('did remove the file from the server', async function() {
@@ -88,9 +92,9 @@ describe('Testing the rendered html of image elements: ', function() {
   });
 
   it('did get the render missing image html after image removed', async function() {
-    const resp = await header.admin.graphql<IDocument<'expanded'>>(GET_DOCUMENT, { id: post.document });
+    const resp = await header.admin.graphql<Document>(GET_DOCUMENT, { id: post.document });
     const doc = resp.data;
-    assert.equal(doc.elements[1].html, `<figure>Image not found</figure>`);
+    assert.equal(doc.elements![1].html, `<figure>Image not found</figure>`);
   });
 
   it('did upload a another file', async function() {
@@ -105,24 +109,24 @@ describe('Testing the rendered html of image elements: ', function() {
   });
 
   it('did update image the element with a new file', async function() {
-    const { data: image } = await header.admin.graphql<IImageElement<'expanded'>>(UPDATE_DOC_ELEMENT, {
+    const { data: image } = await header.admin.graphql<Element>(UPDATE_DOC_ELEMENT, {
       docId: post.document,
-      token: new UpdateElementInput({
+      token: <UpdateElementInput>{
         _id: imageElm._id,
         image: file._id
-      })
+      }
     });
 
     assert.deepEqual(image.html, `<figure><img src="${file.publicURL}" /></figure>`);
   });
 
   it('did update the image element with style properties', async function() {
-    const { data: image } = await header.admin.graphql<IImageElement<'expanded'>>(UPDATE_DOC_ELEMENT, {
+    const { data: image } = await header.admin.graphql<Element>(UPDATE_DOC_ELEMENT, {
       docId: post.document,
-      token: new UpdateElementInput({
+      token: <UpdateElementInput>{
         _id: imageElm._id,
         style: { width: '50%', float: 'left' }
-      })
+      }
     });
 
     assert.deepEqual(image.style.width, '50%');
@@ -131,14 +135,14 @@ describe('Testing the rendered html of image elements: ', function() {
   });
 
   it('did add a new image element with style properties', async function() {
-    const { data: img } = await header.admin.graphql<IImageElement<'expanded'>>(ADD_DOC_ELEMENT, {
+    const { data: img } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
-      token: new AddElementInput({
-        type: ElementType.image,
+      token: <AddElementInput>{
+        type: ElementType.Image,
         zone: 'zone-a',
         style: { width: '50%', float: 'left' },
         image: file._id
-      })
+      }
     });
 
     assert.deepEqual(img.style.width, '50%');
