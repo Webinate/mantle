@@ -131,7 +131,7 @@ export class UpdatePostInput {
   @Field(type => GraphQLObjectId, { nullable: true })
   featuredImage: ObjectID | null | string;
 
-  @Field(type => LongType)
+  @Field(type => LongType, { nullable: true })
   createdOn: number;
 
   constructor(initialization?: Partial<UpdatePostInput>) {
