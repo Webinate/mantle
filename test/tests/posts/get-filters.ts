@@ -3,13 +3,7 @@ import header from '../header';
 import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { GET_POSTS, UPDATE_POST } from '../../../src/graphql/client/requests/posts';
-import {
-  PostSortType,
-  PostVisibility,
-  SortOrder,
-  PaginatedPostsResponse,
-  UpdatePostInput
-} from '../../../src/client-models';
+import { PaginatedPostsResponse, UpdatePostInput, QueryPostsArgs } from '../../../src/client-models';
 import { IPost } from '../../../src/types/models/i-post';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 
@@ -45,48 +39,48 @@ describe('Testing filtering of posts: ', function() {
 
   it('does filter by visibility status', async function() {
     let resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.All,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      visibility: 'all',
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     // Checks the order
     assert.equal(resp.data.data[0]._id, postPrivate._id);
     assert.equal(resp.data.data[1]._id, postPublic._id);
 
     resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.Private,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      visibility: 'private',
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     // The first post should now be post 2, which is private
     assert.equal(resp.data.data[0]._id, postPrivate._id);
 
     resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.Public,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      visibility: 'public',
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     // The first post should now be post 1, which is public
     assert.equal(resp.data.data[0]._id, postPublic._id);
 
     resp = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.All,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      visibility: 'all',
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     // If we specify all we get both posts
     assert.equal(resp.data.data[0]._id, postPrivate._id);
     assert.equal(resp.data.data[1]._id, postPublic._id);
 
     resp = await header.user1.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.Private,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      visibility: 'private',
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     // Regular users cannot see private posts
     assert.equal(resp.data.data[0]._id, postPublic._id);
@@ -96,10 +90,10 @@ describe('Testing filtering of posts: ', function() {
     const {
       data: { data }
     } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.All,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      visibility: 'all',
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     // If we specify all we get both posts
     assert.equal(data[0]._id, postPrivate._id);
@@ -110,11 +104,11 @@ describe('Testing filtering of posts: ', function() {
     const {
       data: { data }
     } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.All,
-      sortOrder: SortOrder.Asc,
-      sortType: PostSortType.Created,
+      visibility: 'all',
+      sortOrder: 'asc',
+      sortType: 'created',
       limit: -1
-    });
+    } as QueryPostsArgs);
 
     let lastIndex = data.length - 1;
 
@@ -128,9 +122,9 @@ describe('Testing filtering of posts: ', function() {
       data: { data }
     } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
       author: header.admin.username,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     assert.equal(data[0]._id, postPrivate._id);
 
@@ -138,9 +132,9 @@ describe('Testing filtering of posts: ', function() {
       data: { data: filtered }
     } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
       author: 'NO_AUTHORS_WITH_THIS_NAME',
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     assert.deepEqual(filtered.length, 0);
   });
@@ -158,11 +152,11 @@ describe('Testing filtering of posts: ', function() {
     const {
       data: { data }
     } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.All,
-      sortOrder: SortOrder.Asc,
-      sortType: PostSortType.Modified,
+      visibility: 'all',
+      sortOrder: 'asc',
+      sortType: 'modified',
       limit: -1
-    });
+    } as QueryPostsArgs);
 
     let lastIndex = data.length - 1;
 
@@ -175,11 +169,11 @@ describe('Testing filtering of posts: ', function() {
     const {
       data: { data }
     } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.All,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Modified,
+      visibility: 'all',
+      sortOrder: 'desc',
+      sortType: 'modified',
       limit: -1
-    });
+    } as QueryPostsArgs);
 
     // If we specify all we get both posts
     assert.equal(data[0]._id, postPublic._id);

@@ -4,7 +4,7 @@ import { randomString } from '../utils';
 import header from '../header';
 import { GET_POST } from '../../../src/graphql/client/requests/posts';
 import { REMOVE_USER } from '../../../src/graphql/client/requests/users';
-import { Post, UserPrivilege } from '../../../src/client-models';
+import { Post } from '../../../src/client-models';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 
@@ -15,7 +15,7 @@ describe('Testing deletion of user is nullified on posts: ', function() {
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');
 
-    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Admin);
+    await header.createUser('user3', 'password', 'user3@test.com', 'admin');
     newUser = (await users.getUser({ username: 'user3' })) as IUserEntry<'server'>;
 
     // Create post and comments

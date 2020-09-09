@@ -54,58 +54,58 @@ const testConfig: {
   allowed: string[];
   disallowed: { source: string; replacedWith: null | { [testType: string]: string } }[];
 }[] = [
-  { type: ElementType.Paragraph, pre: '<p>', post: '</p>', allowed: [...inlines], disallowed: [...blocks] },
+  { type: 'paragraph', pre: '<p>', post: '</p>', allowed: [...inlines], disallowed: [...blocks] },
   {
-    type: ElementType.Code,
+    type: 'code',
     pre: '<pre>',
     post: '</pre>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 4)
   },
   {
-    type: ElementType.List,
+    type: 'list',
     pre: '<ul>',
     post: '</ul>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 0 && i !== 1)
   },
   {
-    type: ElementType.Header1,
+    type: 'header1',
     pre: '<h1>',
     post: '</h1>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 11)
   },
   {
-    type: ElementType.Header2,
+    type: 'header2',
     pre: '<h2>',
     post: '</h2>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 12)
   },
   {
-    type: ElementType.Header3,
+    type: 'header3',
     pre: '<h3>',
     post: '</h3>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 13)
   },
   {
-    type: ElementType.Header4,
+    type: 'header4',
     pre: '<h4>',
     post: '</h4>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 14)
   },
   {
-    type: ElementType.Header5,
+    type: 'header5',
     pre: '<h5>',
     post: '</h5>',
     allowed: [...inlines],
     disallowed: [...blocks].filter((v, i) => i !== 15)
   },
   {
-    type: ElementType.Header6,
+    type: 'header6',
     pre: '<h6>',
     post: '</h6>',
     allowed: [...inlines],

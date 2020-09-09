@@ -9,7 +9,7 @@ import { UPDATE_POST, GET_POST } from '../../../src/graphql/client/requests/post
 import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { UpdatePostInput } from '../../../src/graphql/models/post-type';
 import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
-import { Post, UserPrivilege, Volume } from '../../../src/client-models';
+import { Post, Volume } from '../../../src/client-models';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IPost } from '../../../src/types/models/i-post';
 
@@ -20,7 +20,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
     const posts = ControllerFactory.get('posts');
     const users = ControllerFactory.get('users');
 
-    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Admin);
+    await header.createUser('user3', 'password', 'user3@test.com', 'admin');
     const user3 = await users.getUser({ username: 'user3' });
 
     // Create post and comments

@@ -7,15 +7,7 @@ import * as FormData from 'form-data';
 import { GET_USER, EDIT_USER } from '../../../src/graphql/client/requests/users';
 import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import {
-  VolumeType,
-  AddVolumeInput,
-  UpdateUserInput,
-  File,
-  Volume,
-  UserPrivilege,
-  User
-} from '../../../src/client-models';
+import { AddVolumeInput, UpdateUserInput, File, Volume, User } from '../../../src/client-models';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 let user: IUserEntry<'server'>, volume: Volume, file: File;
 
@@ -23,14 +15,14 @@ describe('Testing deletion of an avatar image nullifies it on the user: ', funct
   before(async function() {
     const users = ControllerFactory.get('users');
 
-    await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Admin);
+    await header.createUser('user3', 'password', 'user3@test.com', 'admin');
     const dbEntry = await users.getUser({ username: 'user3' });
     user = dbEntry!;
 
     const resp = await header.user3.graphql<Volume>(ADD_VOLUME, {
       token: {
         name: randomString(),
-        type: VolumeType.Local
+        type: 'local'
       } as AddVolumeInput
     });
 

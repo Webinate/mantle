@@ -11,7 +11,6 @@ import {
   AddVolumeInput,
   UpdateElementInput,
   AddElementInput,
-  ElementType,
   Element,
   Volume,
   Document
@@ -70,7 +69,7 @@ describe('Testing the rendered html of image elements: ', function() {
     const { data: element } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
       token: <AddElementInput>{
-        type: ElementType.Image,
+        type: 'image',
         zone: 'zone-a',
         image: file._id
       }
@@ -138,7 +137,7 @@ describe('Testing the rendered html of image elements: ', function() {
     const { data: img } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
       token: <AddElementInput>{
-        type: ElementType.Image,
+        type: 'image',
         zone: 'zone-a',
         style: { width: '50%', float: 'left' },
         image: file._id

@@ -46,12 +46,7 @@ export class Header {
    * @param email The new user's email
    * @param priviledge The user's privilege type
    */
-  async createUser(
-    username: string,
-    password: string,
-    email: string,
-    priviledge: UserPrivilege = UserPrivilege.Regular
-  ) {
+  async createUser(username: string, password: string, email: string, priviledge: UserPrivilege = 'regular') {
     // Remove the user if they already exist
     let response = await this.admin.graphql<boolean>(REMOVE_USER, { username });
     if (
@@ -131,7 +126,7 @@ export class Header {
 
       await this.createUser('user1', 'password', 'user1@test.com');
       await this.createUser('user2', 'password', 'user2@test.com');
-      await this.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Admin);
+      await this.createUser('user3', 'password', 'user3@test.com', 'admin');
     } catch (exp) {
       console.log(exp.stack);
       process.exit();

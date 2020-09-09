@@ -3,7 +3,7 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT, REMOVE_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
-import { AddElementInput, ElementType, Element, Document } from '../../../src/client-models';
+import { AddElementInput, Element, Document } from '../../../src/client-models';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 
@@ -35,7 +35,7 @@ describe('Testing the order of document elements: ', function() {
     const { data: elm1 } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
       token: <AddElementInput>{
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         html: '<p>A</p>'
       }
     });
@@ -43,7 +43,7 @@ describe('Testing the order of document elements: ', function() {
     const { data: elm2 } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document,
       token: <AddElementInput>{
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         html: '<p>B</p>'
       }
     });
@@ -74,7 +74,7 @@ describe('Testing the order of document elements: ', function() {
       docId: post.document,
       index: 1,
       token: <AddElementInput>{
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         html: '<p>C</p>'
       }
     });
@@ -91,7 +91,7 @@ describe('Testing the order of document elements: ', function() {
       docId: post.document,
       index: -1,
       token: <AddElementInput>{
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         html: '<p>D</p>'
       }
     });
@@ -105,7 +105,7 @@ describe('Testing the order of document elements: ', function() {
       docId: post.document,
       index: 100,
       token: <AddElementInput>{
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         html: '<p>E</p>'
       }
     });

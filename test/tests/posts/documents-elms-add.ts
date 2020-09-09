@@ -4,7 +4,7 @@ import { randomString } from '../utils';
 import header from '../header';
 import { ObjectID } from 'mongodb';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
-import { AddElementInput, ElementType, Element, Document } from '../../../src/client-models';
+import { AddElementInput, Element, Document } from '../../../src/client-models';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 
@@ -58,7 +58,7 @@ describe('Testing the adding of document elements: ', function() {
   it('did not add an element on a document that doesnt exist', async function() {
     const { errors } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: '123456789012345678901234',
-      token: <AddElementInput>{ type: ElementType.Paragraph }
+      token: <AddElementInput>{ type: 'paragraph' }
     });
     assert.deepEqual(errors![0].message, 'Document not found');
   });
@@ -67,7 +67,7 @@ describe('Testing the adding of document elements: ', function() {
     const { errors } = await header.guest.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: documentId,
       token: <AddElementInput>{
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         html: ''
       }
     });
@@ -122,7 +122,7 @@ describe('Testing the adding of document elements: ', function() {
       docId: documentId,
       token: <AddElementInput>{
         html: '<p>Hello world</p>',
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         zone: 'zone-a'
       }
     });
@@ -135,7 +135,7 @@ describe('Testing the adding of document elements: ', function() {
       docId: documentId,
       token: <AddElementInput>{
         html: '<p>Hello world</p>',
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         zone: 'zone-a'
       }
     });
@@ -148,7 +148,7 @@ describe('Testing the adding of document elements: ', function() {
       docId: documentId,
       token: <AddElementInput>{
         html: '<p>This is crazy</p>',
-        type: ElementType.Paragraph,
+        type: 'paragraph',
         zone: 'zone-a'
       }
     });

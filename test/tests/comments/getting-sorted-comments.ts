@@ -3,7 +3,7 @@ import header from '../header';
 import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { GET_COMMENTS } from '../../../src/graphql/client/requests/comments';
-import { CommentSortType, SortOrder, PaginatedCommentsResponse } from '../../../src/client-models';
+import { PaginatedCommentsResponse, QueryCommentsArgs } from '../../../src/client-models';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 import { IComment } from '../../../src/types/models/i-comment';
 import { IPost } from '../../../src/types/models/i-post';
@@ -39,7 +39,7 @@ describe('Testing of fetching sorted comments:', function() {
   });
 
   it('gets comments filtered by creation date by default', async function() {
-    const response = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {});
+    const response = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {} as QueryCommentsArgs);
 
     assert.deepEqual(response.data.data[0]._id, comment2._id.toString());
     assert.deepEqual(response.data.data[1]._id, comment1._id.toString());
@@ -49,9 +49,9 @@ describe('Testing of fetching sorted comments:', function() {
     const {
       data: { data }
     } = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {
-      sortOrder: SortOrder.Desc,
-      sortType: CommentSortType.Updated
-    });
+      sortOrder: 'desc',
+      sortType: 'updated'
+    } as QueryCommentsArgs);
 
     assert.deepEqual(data[0]._id, comment1._id.toString());
     assert.deepEqual(data[1]._id, comment2._id.toString());
@@ -61,10 +61,10 @@ describe('Testing of fetching sorted comments:', function() {
     const {
       data: { data }
     } = await header.admin.graphql<PaginatedCommentsResponse>(GET_COMMENTS, {
-      sortOrder: SortOrder.Asc,
-      sortType: CommentSortType.Updated,
+      sortOrder: 'asc',
+      sortType: 'updated',
       limit: -1
-    });
+    } as QueryCommentsArgs);
 
     assert.deepEqual(data[data.length - 1]._id, comment1._id.toString());
     assert.deepEqual(data[data.length - 2]._id, comment2._id.toString());

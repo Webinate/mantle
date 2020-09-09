@@ -3,7 +3,7 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import { ADD_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
-import { AddElementInput, ElementType, Element } from '../../../src/client-models';
+import { AddElementInput, Element } from '../../../src/client-models';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 
@@ -34,7 +34,7 @@ describe('Testing the adding of generic html elements: ', function() {
       docId: post.document,
       token: <AddElementInput>{
         html: '<div><iframe src="https://youtube.com"></iframe></div>',
-        type: ElementType.Html,
+        type: 'html',
         zone: 'main'
       }
     });
@@ -49,7 +49,7 @@ describe('Testing the adding of generic html elements: ', function() {
       docId: post.document,
       token: <AddElementInput>{
         html: '<div><script type="text/javascript" src="https://youtube.com"></script></div>',
-        type: ElementType.Html,
+        type: 'html',
         zone: 'main'
       }
     });

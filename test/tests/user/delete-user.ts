@@ -3,7 +3,7 @@ import Agent from '../agent';
 import header from '../header';
 import { randomString } from '../utils';
 import { REMOVE_USER, GET_USERS, CREATE_USER } from '../../../src/graphql/client/requests/users';
-import { PaginatedUserResponse, AddUserInput, UserPrivilege, User } from '../../../src/client-models';
+import { PaginatedUserResponse, AddUserInput, User } from '../../../src/client-models';
 
 let numUsers: number,
   agent: Agent,
@@ -29,7 +29,7 @@ describe('Testing deleting users', function() {
         username: testUserName,
         password: 'password',
         email: testUserEmail,
-        privileges: UserPrivilege.Regular
+        privileges: 'regular'
       } as AddUserInput
     });
 

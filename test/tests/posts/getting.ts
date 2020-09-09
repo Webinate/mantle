@@ -7,13 +7,11 @@ import { GET_POSTS, ADD_POST, GET_POST, REMOVE_POST } from '../../../src/graphql
 import { ADD_CATEGORY, REMOVE_CATEGORY } from '../../../src/graphql/client/requests/category';
 import {
   AddCategoryInput,
-  PostSortType,
-  PostVisibility,
-  SortOrder,
   Post,
   PaginatedPostsResponse,
   AddPostInput,
-  Category
+  Category,
+  QueryPostsArgs
 } from '../../../src/client-models';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IVolume } from '../../../src/types/models/i-volume-entry';
@@ -93,10 +91,10 @@ describe('Testing fetching of posts', function() {
 
   it('can fetch multiple posts, and those posts have correct data', async function() {
     const { data: page } = await header.admin.graphql<PaginatedPostsResponse>(GET_POSTS, {
-      visibility: PostVisibility.Public,
-      sortOrder: SortOrder.Desc,
-      sortType: PostSortType.Created
-    });
+      visibility: 'public',
+      sortOrder: 'desc',
+      sortType: 'created'
+    } as QueryPostsArgs);
 
     const post = page.data[0];
     assert.deepEqual(post.author!.username, header.admin.username);

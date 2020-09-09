@@ -5,7 +5,7 @@ import { randomString } from '../utils';
 import Agent from '../agent';
 import { ADD_COMMENT, GET_COMMENT } from '../../../src/graphql/client/requests/comments';
 import { REMOVE_USER } from '../../../src/graphql/client/requests/users';
-import { Comment, AddCommentInput, UserPrivilege } from '../../../src/client-models';
+import { Comment, AddCommentInput } from '../../../src/client-models';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 
@@ -22,7 +22,7 @@ describe('When user deleted, comments must be nullified or removed: ', function(
     const posts = ControllerFactory.get('posts');
 
     // Create new user
-    newUserAgent = await header.createUser('user3', 'password', 'user3@test.com', UserPrivilege.Regular);
+    newUserAgent = await header.createUser('user3', 'password', 'user3@test.com', 'regular');
     newUser = (await users.getUser({ username: 'user3' })) as IUserEntry<'server'>;
 
     post = await posts.create({

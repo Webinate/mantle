@@ -5,15 +5,7 @@ import { uploadFileToVolume } from '../file';
 import { randomString } from '../utils';
 import { GET_POST, UPDATE_POST, GET_POST_DRAFTS, REMOVE_POST_DRAFT } from '../../../src/graphql/client/requests/posts';
 import { UPDATE_DOC_ELEMENT, ADD_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
-import {
-  UpdateElementInput,
-  AddElementInput,
-  ElementType,
-  Element,
-  Post,
-  Draft,
-  UpdatePostInput
-} from '../../../src/client-models';
+import { UpdateElementInput, AddElementInput, Element, Post, Draft, UpdatePostInput } from '../../../src/client-models';
 import { IPost } from '../../../src/types/models/i-post';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IVolume } from '../../../src/types/models/i-volume-entry';
@@ -77,7 +69,7 @@ describe('Testing of posts and drafts', function() {
     const { data: newListElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document._id,
       token: <AddElementInput>{
-        type: ElementType.List,
+        type: 'list',
         html: listHTML
       }
     });
@@ -85,7 +77,7 @@ describe('Testing of posts and drafts', function() {
     const { data: newImgElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document._id,
       token: <AddElementInput>{
-        type: ElementType.Image,
+        type: 'image',
         image: file._id
       }
     });
@@ -114,7 +106,7 @@ describe('Testing of posts and drafts', function() {
     const { data: newElement } = await header.admin.graphql<Element>(ADD_DOC_ELEMENT, {
       docId: post.document._id,
       token: <AddElementInput>{
-        type: ElementType.Code,
+        type: 'code',
         html: codeHtml
       }
     });

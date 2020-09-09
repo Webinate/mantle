@@ -2,6 +2,8 @@ overwrite: true
 schema: './schema.graphql'
 documents: null
 generates:
-  src/client-models.ts:
+  src/client-models.d.ts:
     plugins:
       - 'typescript'
+    config:
+      enumsAsTypes: true

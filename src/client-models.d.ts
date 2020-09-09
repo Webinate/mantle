@@ -103,16 +103,14 @@ export type Comment = {
   lastUpdated: Scalars['Long'];
 };
 
-export enum CommentSortType {
-  Updated = 'updated',
-  Created = 'created'
-}
+export type CommentSortType = 
+  | 'updated'
+  | 'created';
 
-export enum CommentVisibility {
-  All = 'all',
-  Public = 'public',
-  Private = 'private'
-}
+export type CommentVisibility = 
+  | 'all'
+  | 'public'
+  | 'private';
 
 /** Object representing a Document */
 export type Document = {
@@ -149,19 +147,18 @@ export type Element = {
 };
 
 /** Describes the different types of allowed elements */
-export enum ElementType {
-  Paragraph = 'paragraph',
-  List = 'list',
-  Image = 'image',
-  Code = 'code',
-  Header1 = 'header1',
-  Header2 = 'header2',
-  Header3 = 'header3',
-  Header4 = 'header4',
-  Header5 = 'header5',
-  Header6 = 'header6',
-  Html = 'html'
-}
+export type ElementType = 
+  | 'paragraph'
+  | 'list'
+  | 'image'
+  | 'code'
+  | 'header1'
+  | 'header2'
+  | 'header3'
+  | 'header4'
+  | 'header5'
+  | 'header6'
+  | 'html';
 
 /** Object representing a File */
 export type File = {
@@ -182,11 +179,10 @@ export type File = {
 };
 
 /** The type of sorting performed when fetching files */
-export enum FileSortType {
-  Created = 'created',
-  Memory = 'memory',
-  Name = 'name'
-}
+export type FileSortType = 
+  | 'created'
+  | 'memory'
+  | 'name';
 
 
 export type LoginInput = {
@@ -463,17 +459,15 @@ export type Post = {
   latestDraft?: Maybe<Draft>;
 };
 
-export enum PostSortType {
-  Title = 'title',
-  Created = 'created',
-  Modified = 'modified'
-}
+export type PostSortType = 
+  | 'title'
+  | 'created'
+  | 'modified';
 
-export enum PostVisibility {
-  All = 'all',
-  Public = 'public',
-  Private = 'private'
-}
+export type PostVisibility = 
+  | 'all'
+  | 'public'
+  | 'private';
 
 export type Query = {
   __typename?: 'Query';
@@ -618,10 +612,9 @@ export type RegisterInput = {
   activationUrl?: Maybe<Scalars['String']>;
 };
 
-export enum SortOrder {
-  Asc = 'asc',
-  Desc = 'desc'
-}
+export type SortOrder = 
+  | 'asc'
+  | 'desc';
 
 /** Object representing a Template */
 export type Template = {
@@ -711,11 +704,10 @@ export type User = {
 };
 
 /** The core type of user privilege */
-export enum UserPrivilege {
-  Super = 'super',
-  Admin = 'admin',
-  Regular = 'regular'
-}
+export type UserPrivilege = 
+  | 'super'
+  | 'admin'
+  | 'regular';
 
 /** Object representing a Volume */
 export type Volume = {
@@ -732,14 +724,12 @@ export type Volume = {
 };
 
 /** The type of sorting performed when fetching volumes */
-export enum VolumeSortType {
-  Created = 'created',
-  Memory = 'memory',
-  Name = 'name'
-}
+export type VolumeSortType = 
+  | 'created'
+  | 'memory'
+  | 'name';
 
 /** The core type of volume type */
-export enum VolumeType {
-  Google = 'google',
-  Local = 'local'
-}
+export type VolumeType = 
+  | 'google'
+  | 'local';
