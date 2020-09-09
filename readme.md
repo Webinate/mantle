@@ -7,7 +7,7 @@ users can create additional end points and functions to enhance the sytem.
 
 ## Current stable version
 
-- v0.3.0
+- v0.4.0
 
 ## Requirements
 
