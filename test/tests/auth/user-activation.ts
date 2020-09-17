@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { REMOVE_USER, GET_USER, GET_USER_AS_ADMIN } from '../../../src/graphql/client/requests/users';
 import { REGISTER, LOGIN, RESEND_ACTIVATION } from '../../../src/graphql/client/requests/auth';
-import { User, LoginInput, RegisterInput, AuthResponse } from '../../../src/client-models';
+import { User, LoginInput, RegisterInput, AuthResponse } from '../../../src/index';
 
 let testUserName = 'fancyUser123',
   testUserEmail = 'fancyUser123@fancy.com',

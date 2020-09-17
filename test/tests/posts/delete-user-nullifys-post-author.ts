@@ -4,7 +4,7 @@ import { randomString } from '../utils';
 import header from '../header';
 import { GET_POST } from '../../../src/graphql/client/requests/posts';
 import { REMOVE_USER } from '../../../src/graphql/client/requests/users';
-import { Post } from '../../../src/client-models';
+import { Post } from '../../../src/index';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 

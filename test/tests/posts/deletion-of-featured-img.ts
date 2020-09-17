@@ -9,7 +9,7 @@ import { UPDATE_POST, GET_POST } from '../../../src/graphql/client/requests/post
 import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { UpdatePostInput } from '../../../src/graphql/models/post-type';
 import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
-import { Post, Volume } from '../../../src/client-models';
+import { Post, Volume } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IPost } from '../../../src/types/models/i-post';
 

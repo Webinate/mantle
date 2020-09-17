@@ -8,7 +8,7 @@ import {
   GET_CATEGORY_WITH_PARENT,
   getCategoryWithChildren
 } from '../../../src/graphql/client/requests/category';
-import { AddCategoryInput, PaginatedCategoryResponse, Category } from '../../../src/client-models';
+import { AddCategoryInput, PaginatedCategoryResponse, Category } from '../../../src/index';
 
 let category: Category,
   child1: Category,

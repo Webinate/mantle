@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import header from '../header';
 import { ADD_VOLUME, GET_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { Volume, PaginatedVolumeResponse, AddVolumeInput } from '../../../src/client-models';
+import { Volume, PaginatedVolumeResponse, AddVolumeInput } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 
 let volumeJson: Volume;

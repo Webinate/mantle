@@ -5,7 +5,7 @@ import header from '../header';
 import controllerFactory from '../../../src/core/controller-factory';
 import { CHANGE_DOC_TEMPLATE } from '../../../src/graphql/client/requests/documents';
 import { ObjectID } from 'mongodb';
-import { Document } from '../../../src/client-models';
+import { Document } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 import { IDocument } from '../../../src/types/models/i-document';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';

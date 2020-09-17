@@ -4,7 +4,7 @@ import * as FormData from 'form-data';
 import * as fs from 'fs';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { GET_FILES } from '../../../src/graphql/client/requests/file';
-import { AddVolumeInput, Volume, PaginatedFilesResponse, QueryFilesArgs } from '../../../src/client-models';
+import { AddVolumeInput, Volume, PaginatedFilesResponse, QueryFilesArgs } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 
 let volume: Volume;

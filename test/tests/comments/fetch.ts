@@ -4,7 +4,7 @@ import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../../src/graphql/client/requests/posts';
 import { ADD_COMMENT, GET_COMMENT, GET_COMMENTS } from '../../../src/graphql/client/requests/comments';
-import { Comment, AddCommentInput, Post, AddPostInput, PaginatedCommentsResponse } from '../../../src/client-models';
+import { Comment, AddCommentInput, Post, AddPostInput, PaginatedCommentsResponse } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 

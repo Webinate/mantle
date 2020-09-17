@@ -5,7 +5,7 @@ import { uploadFileToVolume } from '../file';
 import { randomString } from '../utils';
 import { GET_POST, UPDATE_POST, GET_POST_DRAFTS, REMOVE_POST_DRAFT } from '../../../src/graphql/client/requests/posts';
 import { UPDATE_DOC_ELEMENT, ADD_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
-import { UpdateElementInput, AddElementInput, Element, Post, Draft, UpdatePostInput } from '../../../src/client-models';
+import { UpdateElementInput, AddElementInput, Element, Post, Draft, UpdatePostInput } from '../../../src/index';
 import { IPost } from '../../../src/types/models/i-post';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IVolume } from '../../../src/types/models/i-volume-entry';

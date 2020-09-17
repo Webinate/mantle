@@ -3,7 +3,7 @@ import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import { ADD_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
 import { GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
-import { Post, Document, AddPostInput } from '../../../src/client-models';
+import { Post, Document, AddPostInput } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 
 let lastPost: Post, lastPost2: string;

@@ -7,14 +7,7 @@ import * as FormData from 'form-data';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT, UPDATE_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
 import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
 import { ADD_VOLUME } from '../../../src/graphql/client/requests/volume';
-import {
-  AddVolumeInput,
-  UpdateElementInput,
-  AddElementInput,
-  Element,
-  Volume,
-  Document
-} from '../../../src/client-models';
+import { AddVolumeInput, UpdateElementInput, AddElementInput, Element, Volume, Document } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';

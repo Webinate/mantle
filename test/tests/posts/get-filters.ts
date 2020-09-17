@@ -3,7 +3,7 @@ import header from '../header';
 import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { GET_POSTS, UPDATE_POST } from '../../../src/graphql/client/requests/posts';
-import { PaginatedPostsResponse, UpdatePostInput, QueryPostsArgs } from '../../../src/client-models';
+import { PaginatedPostsResponse, UpdatePostInput, QueryPostsArgs } from '../../../src/index';
 import { IPost } from '../../../src/types/models/i-post';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 

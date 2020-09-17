@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_COMMENT } from '../../../src/graphql/client/requests/comments';
-import { Comment, AddCommentInput } from '../../../src/client-models';
+import { Comment, AddCommentInput } from '../../../src/index';
 import { IPost } from '../../../src/types/models/i-post';
 
 let numPosts: number, numComments: number, newPost: IPost<'server'>, commentId: string;

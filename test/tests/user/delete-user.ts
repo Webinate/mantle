@@ -3,7 +3,7 @@ import Agent from '../agent';
 import header from '../header';
 import { randomString } from '../utils';
 import { REMOVE_USER, GET_USERS, CREATE_USER } from '../../../src/graphql/client/requests/users';
-import { PaginatedUserResponse, AddUserInput, User } from '../../../src/client-models';
+import { PaginatedUserResponse, AddUserInput, User } from '../../../src/index';
 
 let numUsers: number,
   agent: Agent,

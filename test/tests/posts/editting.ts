@@ -3,7 +3,7 @@ import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_POST, UPDATE_POST, GET_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
-import { Post, AddPostInput, UpdatePostInput } from '../../../src/client-models';
+import { Post, AddPostInput, UpdatePostInput } from '../../../src/index';
 
 let numPosts: number, secondPostId: string;
 let post: Post;

@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import header from '../header';
 import { LOGIN } from '../../../src/graphql/client/requests/auth';
-import { LoginInput, AuthResponse } from '../../../src/client-models';
+import { LoginInput, AuthResponse } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 
 describe('Testing user logging in', function() {

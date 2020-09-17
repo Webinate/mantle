@@ -5,7 +5,7 @@ import header from '../header';
 import { GET_COMMENTS, GET_COMMENT } from '../../../src/graphql/client/requests/comments';
 import { GetCommentsArgs } from '../../../src/graphql/models/comment-type';
 import { REMOVE_POST } from '../../../src/graphql/client/requests/posts';
-import { PaginatedPostsResponse, PaginatedCommentsResponse, Comment } from '../../../src/client-models';
+import { PaginatedPostsResponse, PaginatedCommentsResponse, Comment } from '../../../src/index';
 import { IPost } from '../../../src/types/models/i-post';
 import { IComment } from '../../../src/types/models/i-comment';
 

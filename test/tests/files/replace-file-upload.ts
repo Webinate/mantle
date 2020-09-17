@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
 import { ADD_VOLUME, REMOVE_VOLUME, GET_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { AddVolumeInput, Volume } from '../../../src/client-models';
+import { AddVolumeInput, Volume } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 
 let volume: Volume;

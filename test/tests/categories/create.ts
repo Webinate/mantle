@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { ADD_CATEGORY, GET_CATEGORY, REMOVE_CATEGORY } from '../../../src/graphql/client/requests/category';
 import header from '../header';
-import { AddCategoryInput, Category } from '../../../src/client-models';
+import { AddCategoryInput, Category } from '../../../src/index';
 
 let category: Category;
 

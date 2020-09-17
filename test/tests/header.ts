@@ -5,7 +5,7 @@ import { REMOVE_USER, ADD_USER } from '../../src/graphql/client/requests/users';
 import { LOGIN } from '../../src/graphql/client/requests/auth';
 import { IConfig } from '../../src/types/config/i-config';
 let args = yargs.argv;
-import { UserPrivilege, AuthResponse, User } from '../../src/client-models';
+import { UserPrivilege, AuthResponse, User } from '../../src/index';
 import { IAdminUser } from '../../src/types/config/properties/i-admin';
 
 export class Header {

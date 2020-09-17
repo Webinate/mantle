@@ -12,7 +12,7 @@ import {
   AddPostInput,
   Category,
   QueryPostsArgs
-} from '../../../src/client-models';
+} from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IVolume } from '../../../src/types/models/i-volume-entry';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';

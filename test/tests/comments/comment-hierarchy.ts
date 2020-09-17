@@ -3,7 +3,7 @@ import header from '../header';
 import { randomString } from '../utils';
 import { ADD_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
 import { ADD_COMMENT, GET_COMMENT, REMOVE_COMMENT } from '../../../src/graphql/client/requests/comments';
-import { Comment, AddCommentInput, Post, AddPostInput } from '../../../src/client-models';
+import { Comment, AddCommentInput, Post, AddPostInput } from '../../../src/index';
 
 let post: Post, parent: Comment, child1: Comment, child2: Comment;
 

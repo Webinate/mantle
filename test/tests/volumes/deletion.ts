@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import { Volume, PaginatedVolumeResponse } from '../../../src/client-models';
+import { Volume, PaginatedVolumeResponse } from '../../../src/index';
 import { ADD_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 

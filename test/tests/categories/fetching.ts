@@ -6,7 +6,7 @@ import {
   GET_CATEGORY,
   GET_CATEGORIES
 } from '../../../src/graphql/client/requests/category';
-import { AddCategoryInput, PaginatedCategoryResponse, Category } from '../../../src/client-models';
+import { AddCategoryInput, PaginatedCategoryResponse, Category } from '../../../src/index';
 
 let category: Category,
   category2: Category,

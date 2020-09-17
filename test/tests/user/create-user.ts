@@ -3,7 +3,7 @@ import header from '../header';
 import { CREATE_USER, GET_USER_AS_ADMIN } from '../../../src/graphql/client/requests/users';
 import controllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
-import { AddUserInput, User } from '../../../src/client-models';
+import { AddUserInput, User } from '../../../src/index';
 
 let testUserName = `test${randomString(6)}`,
   testUserEmail = `test${randomString(6)}@fancy.com`;

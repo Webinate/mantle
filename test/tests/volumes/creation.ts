@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { ADD_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { Volume, PaginatedVolumeResponse, AddVolumeInput } from '../../../src/client-models';
+import { Volume, PaginatedVolumeResponse, AddVolumeInput } from '../../../src/index';
 
 let volume1: string, volume2: string;
 

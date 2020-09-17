@@ -5,7 +5,7 @@ import { randomString } from '../utils';
 import Agent from '../agent';
 import { ADD_COMMENT, GET_COMMENT } from '../../../src/graphql/client/requests/comments';
 import { REMOVE_USER } from '../../../src/graphql/client/requests/users';
-import { Comment, AddCommentInput } from '../../../src/client-models';
+import { Comment, AddCommentInput } from '../../../src/index';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 

@@ -4,7 +4,7 @@ import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../../src/graphql/client/requests/posts';
 import { ADD_COMMENT, GET_COMMENTS, REMOVE_COMMENT } from '../../../src/graphql/client/requests/comments';
-import { AddCommentInput, Post, AddPostInput } from '../../../src/client-models';
+import { AddCommentInput, Post, AddPostInput } from '../../../src/index';
 
 let numPosts: number, numComments: number, postId: string, commentId: string, parentCommentId: string;
 

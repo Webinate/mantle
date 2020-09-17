@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as FormData from 'form-data';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
 import { GET_FILES, REMOVE_FILE } from '../../../src/graphql/client/requests/file';
-import { AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/client-models';
+import { AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/index';
 
 let volume: Volume;
 const filePath = './test/media/file.png';

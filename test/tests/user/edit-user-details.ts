@@ -3,7 +3,7 @@ import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { EDIT_USER } from '../../../src/graphql/client/requests/users';
-import { UpdateUserInput, User } from '../../../src/client-models';
+import { UpdateUserInput, User } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IVolume } from '../../../src/types/models/i-volume-entry';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';

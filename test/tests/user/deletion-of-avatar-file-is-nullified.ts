@@ -7,7 +7,7 @@ import * as FormData from 'form-data';
 import { GET_USER, EDIT_USER } from '../../../src/graphql/client/requests/users';
 import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { AddVolumeInput, UpdateUserInput, File, Volume, User } from '../../../src/client-models';
+import { AddVolumeInput, UpdateUserInput, File, Volume, User } from '../../../src/index';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 let user: IUserEntry<'server'>, volume: Volume, file: File;
 

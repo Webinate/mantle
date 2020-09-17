@@ -3,7 +3,7 @@ import header from '../header';
 import { GET_USERS, GET_USER } from '../../../src/graphql/client/requests/users';
 import gql from '../../../src/utils/gql';
 import { USER_FIELDS } from '../../../src/graphql/client/fragments/user-fields';
-import { PaginatedUserResponse, User } from '../../../src/client-models';
+import { PaginatedUserResponse, User } from '../../../src/index';
 
 let numUsers: number;
 
