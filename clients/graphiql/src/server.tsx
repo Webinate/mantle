@@ -1,9 +1,10 @@
 import * as express from 'express';
-import { Controller } from '../../../src';
-import { IAuthReq, IClient } from '../../../src';
+import { Router } from '../../../src/routers/router';
+import { IClient } from '../../../src/types/config/properties/i-client';
+import { IAuthReq } from '../../../src/types/tokens/i-auth-request';
 import { Db } from 'mongodb';
 
-export default class Server extends Controller {
+export default class Server extends Router {
   constructor(client: IClient) {
     super();
   }
