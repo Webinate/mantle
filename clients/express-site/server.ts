@@ -1,9 +1,9 @@
-import * as mp from '../../src/index';
 import ControllerFactory from '../../src/core/controller-factory';
+import { Router } from '../../src/routers/router';
 import * as express from 'express';
 import { Db } from 'mongodb';
 
-class Server extends mp.Controller {
+class Server extends Router {
   constructor() {
     super();
   }
