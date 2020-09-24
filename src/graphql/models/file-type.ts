@@ -45,8 +45,8 @@ export class File {
   @Field(type => Volume)
   volume: Volume;
 
-  @Field(type => File)
-  parentFile: File;
+  @Field(type => File, { nullable: true })
+  parentFile: File | null;
 
   @Field(type => JsonType, { nullable: true })
   meta: any;

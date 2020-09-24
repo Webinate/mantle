@@ -174,7 +174,7 @@ export type File = {
   isPublic: Scalars['Boolean'];
   user: User;
   volume: Volume;
-  parentFile: File;
+  parentFile?: Maybe<File>;
   meta?: Maybe<Scalars['JSON']>;
 };
 
@@ -665,7 +665,7 @@ export type UpdatePostInput = {
   categories?: Maybe<Array<Scalars['ObjectId']>>;
   tags?: Maybe<Array<Scalars['String']>>;
   featuredImage?: Maybe<Scalars['ObjectId']>;
-  createdOn: Scalars['Long'];
+  createdOn?: Maybe<Scalars['Long']>;
 };
 
 export type UpdateUserInput = {

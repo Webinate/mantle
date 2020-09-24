@@ -172,11 +172,9 @@ export class DocumentsController extends Controller {
     if (!elm) throw new Error404();
 
     await this._elementsCollection.remove({ _id: elementId } as IDraftElement<'server'>);
-    await docsCollection.update(
-      { _id: doc._id } as IDocument<'server'>,
-      { $pull: { elementsOrder: { $in: [elementId] } } },
-      { multi: true }
-    );
+    await docsCollection.updateMany({ _id: doc._id } as IDocument<'server'>, {
+      $pull: { elementsOrder: { $in: [elementId] } }
+    });
   }
 
   async updateElement(findOptions: GetOptions, token: Partial<IDraftElement<'server'>>) {
@@ -325,7 +323,11 @@ export class DocumentsController extends Controller {
       .find({ parent: new ObjectID(docId) } as IDraftElement<'server'>)
       .toArray();
 
-    const elements = doc.elementsOrder.map(elmId => elementsFromDb.find(elm => elmId.equals(elm._id))!) || [];
+    const elements =
+      doc.elementsOrder.map(elmId => {
+        const objectId = new ObjectId(elmId);
+        return elementsFromDb.find(elm => objectId.equals(elm._id))!;
+      }) || [];
     const htmlMap: { [zone: string]: string } = {};
 
     const htmlElements = await Promise.all(elements.map(elm => buildHtml(elm)));
