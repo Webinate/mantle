@@ -39,11 +39,17 @@ export class Comment {
   @Field(type => User, { nullable: true })
   user: User | null;
 
+  @Field(type => GraphQLObjectId, { nullable: true })
+  postId: ObjectId | string;
+
+  @Field(type => GraphQLObjectId, { nullable: true })
+  parentId: ObjectId | string;
+
   @Field(type => Post)
   post: Post;
 
   @Field(type => Comment, { nullable: true })
-  parent: Comment;
+  parent: Comment | null;
 
   @Field(type => Boolean)
   public: boolean;
@@ -63,10 +69,18 @@ export class Comment {
   static fromEntity(comment: Partial<IComment<'server'>>) {
     const toReturn = new Comment();
     Object.assign(toReturn, comment);
+
     if (comment.user) toReturn.user = User.fromEntity({ _id: comment.user! });
     if (comment.children) toReturn.children = comment.children.map(child => Comment.fromEntity({ _id: child }));
-    if (comment.parent) toReturn.parent = Comment.fromEntity({ _id: comment.parent });
-    if (comment.post) toReturn.post = Post.fromEntity({ _id: comment.post });
+    if (comment.parent) {
+      toReturn.parent = Comment.fromEntity({ _id: comment.parent });
+      toReturn.parentId = comment.parent;
+    }
+    if (comment.post) {
+      toReturn.post = Post.fromEntity({ _id: comment.post });
+      toReturn.postId = comment.post!;
+    }
+
     return toReturn;
   }
 }
@@ -162,90 +176,3 @@ export class PaginatedCommentsResponse extends PaginatedResponse(Comment) {
     return toReturn;
   }
 }
-
-// import {
-//   GraphQLObjectType,
-//   GraphQLString,
-//   GraphQLID,
-//   GraphQLList,
-//   GraphQLBoolean,
-//   GraphQLInputObjectType,
-//   GraphQLNonNull
-// } from 'graphql';
-// import { LongType } from '../scalars/long';
-// import { UserType } from './user-type';
-// import Controllers from '../../core/controller-factory';
-// import { IComment } from '../../types/models/i-comment';
-// import { PostType } from './post-type';
-// import { GraphQLObjectId } from '../scalars/object-id';
-// import { IGQLContext } from '../../types/interfaces/i-gql-context';
-
-// export const CommentType: GraphQLObjectType = new GraphQLObjectType({
-//   name: 'Comment',
-//   fields: () => ({
-//     _id: { type: GraphQLID },
-//     author: {
-//       type: GraphQLString
-//     },
-//     user: {
-//       type: UserType,
-//       resolve: (parent: IComment<'client'>, args, context: IGQLContext) => {
-//         if (typeof parent.user === 'string')
-//           return Controllers.get('users').getUser({
-//             id: parent.user as string,
-//             verbose: context.verbose,
-//             expandForeignKeys: false
-//           });
-//         else return parent.user;
-//       }
-//     },
-//     post: {
-//       type: PostType,
-//       resolve: (parent: IComment<'client'>) => {
-//         if (typeof parent.post === 'string')
-//           return Controllers.get('posts').getPost({ id: parent.post as string, expanded: false });
-//         else return parent.post;
-//       }
-//     },
-//     parent: {
-//       type: PostType,
-//       resolve: (parent: IComment<'client'>) => {
-//         if (typeof parent.parent === 'string')
-//           return Controllers.get('comments').getOne(parent.parent as string, { expanded: false });
-//         else return parent.parent;
-//       }
-//     },
-//     public: { type: GraphQLBoolean },
-//     content: { type: GraphQLString },
-//     children: {
-//       type: new GraphQLList(CommentType),
-//       resolve: async (parent: IComment<'client'>) => {
-//         const controller = Controllers.get('comments');
-//         const children = parent.children as string[];
-//         const promises = children.map(c => controller.getOne(c, { verbose: true, expanded: false }));
-//         return Promise.all(promises);
-//       }
-//     },
-//     lastUpdated: { type: LongType },
-//     createdOn: { type: LongType }
-//   })
-// });
-
-// export const CommentInputType = new GraphQLInputObjectType({
-//   name: 'CommentInput',
-//   description: 'Input comment payload',
-//   fields: () => ({
-//     post: {
-//       type: new GraphQLNonNull(GraphQLObjectId)
-//     },
-//     parent: {
-//       type: GraphQLObjectId
-//     },
-//     public: {
-//       type: GraphQLBoolean
-//     },
-//     content: {
-//       type: GraphQLString
-//     }
-//   })
-// });

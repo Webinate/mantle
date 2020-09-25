@@ -51,6 +51,21 @@ export class CommentResolver implements ResolverInterface<Comment> {
     return Comment.fromEntity(response);
   }
 
+  @FieldResolver(type => [Comment])
+  async children(@Root() category: Comment) {
+    const response = await ControllerFactory.get('comments').getAll({ parentId: category._id });
+    return response.data.map(cat => Comment.fromEntity(cat));
+  }
+
+  @FieldResolver(type => Comment, { nullable: true })
+  async parent(@Root() root: Comment) {
+    const comment = await ControllerFactory.get('comments').getOne(root._id);
+    if (!comment || !comment.parent) return null;
+
+    const parent = await ControllerFactory.get('comments').getOne(comment.parent);
+    return parent ? Comment.fromEntity(parent) : null;
+  }
+
   @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Comment)
   async patchComment(@Arg('token') token: UpdateCommentInput, @Ctx() ctx: IGQLContext) {

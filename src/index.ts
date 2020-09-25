@@ -94,6 +94,8 @@ export type Comment = {
   _id: Scalars['ObjectId'];
   author: Scalars['String'];
   user?: Maybe<User>;
+  postId?: Maybe<Scalars['ObjectId']>;
+  parentId?: Maybe<Scalars['ObjectId']>;
   post: Post;
   parent?: Maybe<Comment>;
   public: Scalars['Boolean'];

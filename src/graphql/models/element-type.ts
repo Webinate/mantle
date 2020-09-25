@@ -76,7 +76,7 @@ export class UpdateElementInput {
   @Field({ nullable: true })
   html: string;
 
-  @Field({ nullable: true, defaultValue: 'unassigned' })
+  @Field({ nullable: true })
   zone: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })

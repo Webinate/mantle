@@ -74,6 +74,8 @@ type Comment {
   _id: ObjectId!
   author: String!
   user: User
+  postId: ObjectId
+  parentId: ObjectId
   post: Post!
   parent: Comment
   public: Boolean!
@@ -367,7 +369,7 @@ input UpdateElementInput {
   _id: ObjectId!
   parent: ObjectId
   html: String
-  zone: String = "unassigned"
+  zone: String
   image: ObjectId
   style: JSON
 }
