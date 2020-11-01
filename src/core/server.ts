@@ -11,6 +11,7 @@ import { Router } from '../routers/router';
 import { ErrorRouter } from '../routers/error';
 import * as graphqlHTTP from 'express-graphql';
 import { generateSchema } from './graphql-schema';
+import { ArgumentValidationError } from 'type-graphql';
 
 export class Server {
   public server: IServer;
@@ -68,7 +69,21 @@ export class Server {
       return graphqlHTTP({
         schema,
         graphiql: enableGraphIQl && enableGraphIQl.toString() === 'true' ? true : false,
-        context: { res, req, server, client }
+        context: { res, req, server, client },
+        customFormatErrorFn: err => {
+          if (err.originalError && (err.originalError as ArgumentValidationError).validationErrors) {
+            const validationErrors = (err.originalError as ArgumentValidationError).validationErrors;
+            const formattedErrors = validationErrors.map(vErr => {
+              const errors = Object.keys(vErr.constraints!).map(key => vErr.constraints![key]);
+              return {
+                message: `Validation error for ${vErr.property}: ${errors.join(', ')}`
+              };
+            });
+
+            // We just show the first error and do not pass all the possible errors in one go
+            return formattedErrors[0];
+          } else return err;
+        }
       })(req, res);
     });
 

@@ -23,7 +23,7 @@ describe('Testing creating a user', function() {
       } as AddUserInput
     });
 
-    assert.deepEqual(errors![0].message, 'Argument Validation Error');
+    assert.deepEqual(errors![0].message, 'Validation error for email: email must be an email');
   });
 
   it('did not create a new user without a username & password', async function() {

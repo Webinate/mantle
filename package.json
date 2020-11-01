@@ -20,6 +20,7 @@
     "start": "nodemon",
     "dev-server-cached": "ts-node --cache-directory .tscache ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
     "dev-server": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
+    "start-test-server": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true --server=0 --keyFile=./volume-credentials.json --clientsFolder=./test/ --remotes.local.url=http://localhost:8000/ --remotes.local.path=test/test-server/media --remotes.maxFileSize=524288",
     "dev-server-watch": "nodemon ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
     "start-server": "cross-env NODE_ENV=production ts-node ./src/main.ts --config=./config.json --logging=true",
     "generate-schema": "ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true --writeSchema=true",

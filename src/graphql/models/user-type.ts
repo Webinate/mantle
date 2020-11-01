@@ -81,7 +81,7 @@ export class AddUserInput {
   @Field(type => GraphQLObjectId, { nullable: true })
   avatarFile: ObjectId | string | null;
 
-  @Field(type => UserPrivilege, { nullable: true })
+  @Field(type => UserPrivilege, { nullable: true, defaultValue: UserPrivilege.regular })
   privileges: UserPrivilege;
 
   @Field(type => JsonType, { nullable: true })
@@ -106,6 +106,10 @@ export class UpdateUserInput {
 
   @Field(type => UserPrivilege, { nullable: true })
   privileges: UserPrivilege;
+
+  @Field(type => LongType, { nullable: true })
+  @Authorized<AuthLevel>([AuthLevel.admin])
+  createdOn: number;
 
   @Field(type => JsonType, { nullable: true })
   meta: any;
@@ -144,86 +148,3 @@ export class PaginatedUserResponse extends PaginatedResponse(User) {
     return toReturn;
   }
 }
-
-// import { GraphQLObjectType, GraphQLString, GraphQLEnumType, GraphQLInputObjectType } from 'graphql';
-// import { LongType } from '../scalars/long';
-// import { FileType } from './file-type';
-// import Controllers from '../../core/controller-factory';
-// import { IUserEntry } from '../../types/models/i-user-entry';
-// import { GraphQLObjectId } from '../scalars/object-id';
-// import { JsonType } from '../scalars/json';
-
-// export const UserPriviledgesType = new GraphQLEnumType({
-//   name: 'UserPriviledges',
-//   values: {
-//     super: { value: 'super' },
-//     admin: { value: 'admin' },
-//     regular: { value: 'regular' }
-//   }
-// });
-
-// export const UserType = new GraphQLObjectType({
-//   name: 'User',
-//   fields: () => ({
-//     _id: { type: GraphQLObjectId },
-//     username: { type: GraphQLString },
-//     email: { type: GraphQLString },
-//     password: { type: GraphQLString },
-//     passwordTag: { type: GraphQLString },
-//     registerKey: { type: GraphQLString },
-//     avatar: { type: GraphQLString },
-//     avatarFile: {
-//       type: FileType,
-
-//       resolve(parent: IUserEntry<'client'>, args) {
-//         if (!parent.avatarFile) return null;
-//         if (typeof parent.avatarFile === 'string') return Controllers.get('files').getFile(parent.avatarFile);
-//         return parent.avatarFile;
-//       }
-//     },
-//     privileges: {
-//       type: UserPriviledgesType
-//     },
-//     sessionId: { type: GraphQLString },
-//     createdOn: { type: LongType },
-//     lastLoggedIn: { type: LongType },
-//     author: { type: FileType },
-//     meta: {
-//       type: JsonType
-//     }
-//   })
-// });
-
-// export const UserInputType = new GraphQLInputObjectType({
-//   name: 'UserInput',
-//   description: 'Input model for user data',
-//   fields: () => ({
-//     _id: {
-//       type: GraphQLObjectId
-//     },
-//     email: {
-//       type: GraphQLString
-//     },
-//     password: {
-//       type: GraphQLString
-//     },
-//     passwordTag: {
-//       type: GraphQLString
-//     },
-//     registerKey: {
-//       type: GraphQLString
-//     },
-//     avatar: {
-//       type: GraphQLString
-//     },
-//     avatarFile: {
-//       type: GraphQLObjectId
-//     },
-//     privileges: {
-//       type: UserPriviledgesType
-//     },
-//     meta: {
-//       type: JsonType
-//     }
-//   })
-// });

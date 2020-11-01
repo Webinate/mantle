@@ -42,7 +42,7 @@ describe('Testing registering a user', function() {
         email: 'bademail'
       }
     });
-    assert.deepEqual(errors![0].message, 'Argument Validation Error');
+    assert.deepEqual(errors![0].message, 'Validation error for email: Invalid email format');
   });
 
   it('should not register with bad characters in the username', async function() {

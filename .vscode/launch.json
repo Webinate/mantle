@@ -27,6 +27,37 @@
       "outFiles": []
     },
     {
+      "name": "Mantle Test Server Debug",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "stopOnEntry": false,
+      "args": [
+        "${workspaceRoot}/src/main.ts",
+        "--config=${workspaceRoot}/config.json",
+        "--numThreads=1",
+        "--logging=true",
+        "--inspect=true",
+        "--server=0",
+        "--keyFile=./volume-credentials.json",
+        "--remotes.local.url=http://localhost:7002/",
+        "--remotes.local.path=clients/bucket/media",
+        "--remotes.maxFileSize=524288",
+        "--runningClientTests=true"
+      ],
+      "outputCapture": "std",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "runtimeExecutable": null,
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": []
+    },
+    {
       "name": "Generate Schema",
       "type": "node",
       "protocol": "auto",

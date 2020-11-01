@@ -62,7 +62,8 @@ describe('Testing of posts and drafts', function() {
       docId: post.document._id,
       token: <UpdateElementInput>{
         _id: post.document.elements![0]._id,
-        html: updatedHTML
+        html: updatedHTML,
+        zone: 'unassigned'
       }
     });
 
@@ -70,7 +71,8 @@ describe('Testing of posts and drafts', function() {
       docId: post.document._id,
       token: <AddElementInput>{
         type: 'list',
-        html: listHTML
+        html: listHTML,
+        zone: 'unassigned'
       }
     });
 
@@ -78,7 +80,8 @@ describe('Testing of posts and drafts', function() {
       docId: post.document._id,
       token: <AddElementInput>{
         type: 'image',
-        image: file._id
+        image: file._id,
+        zone: 'unassigned'
       }
     });
 

@@ -1,6 +1,6 @@
 import { ObjectType, Field, InputType } from 'type-graphql';
 import { User } from './user-type';
-import { IsEmail } from 'class-validator';
+import { IsEmail, MinLength } from 'class-validator';
 import { IsSafeText } from '../../decorators/isSafeText';
 
 @ObjectType({ description: 'Object representing a Authentication response' })
@@ -46,6 +46,7 @@ export class RegisterInput {
 
   @Field()
   @IsEmail(undefined, { message: 'Invalid email format' })
+  @MinLength(5, { message: 'You must have at least 5 characters' })
   email: string;
 
   @Field({ nullable: true })
@@ -55,15 +56,3 @@ export class RegisterInput {
     if (data) Object.assign(this, data);
   }
 }
-
-// import { GraphQLObjectType, GraphQLString, GraphQLBoolean } from 'graphql';
-// import { UserType } from './user-type';
-
-// export const AuthType: GraphQLObjectType = new GraphQLObjectType({
-//   name: 'Auth',
-//   fields: () => ({
-//     message: { type: GraphQLString },
-//     authenticated: { type: GraphQLBoolean },
-//     user: { type: UserType }
-//   })
-// });

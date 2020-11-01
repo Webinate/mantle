@@ -68,7 +68,7 @@ describe('Editting user data:', function() {
       }
     });
 
-    assert.deepEqual(errors![0].message, 'Argument Validation Error');
+    assert.deepEqual(errors![0].message, 'Validation error for email: email must be an email');
   });
 
   it('should allow an admin to change an email directly', async function() {

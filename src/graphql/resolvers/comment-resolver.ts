@@ -19,7 +19,7 @@ import {
 } from '../models/comment-type';
 import ControllerFactory from '../../core/controller-factory';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { CommentVisibility, AuthLevel } from '../../core/enums';
+import { CommentVisibility, AuthLevel, CommentSortType, SortOrder } from '../../core/enums';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectID } from 'mongodb';
 import { Error403 } from '../../utils/errors';
@@ -53,7 +53,11 @@ export class CommentResolver implements ResolverInterface<Comment> {
 
   @FieldResolver(type => [Comment])
   async children(@Root() category: Comment) {
-    const response = await ControllerFactory.get('comments').getAll({ parentId: category._id });
+    const response = await ControllerFactory.get('comments').getAll({
+      parentId: category._id,
+      sortType: CommentSortType.created,
+      sortOrder: SortOrder.asc
+    });
     return response.data.map(cat => Comment.fromEntity(cat));
   }
 

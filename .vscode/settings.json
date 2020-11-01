@@ -26,5 +26,6 @@
   "emmet.includeLanguages": {
     "typescript": "javascriptreact"
   },
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

@@ -93,7 +93,7 @@ describe('Testing creation of comments', function() {
       }
     });
 
-    assert.deepEqual(resp.errors![0].message, `Argument Validation Error`);
+    assert.deepEqual(resp.errors![0].message, `Validation error for content: `);
 
     resp = await header.admin.graphql<{ _id: string }>(ADD_COMMENT, {
       token: <AddCommentInput>{
@@ -102,7 +102,7 @@ describe('Testing creation of comments', function() {
       }
     });
 
-    assert.deepEqual(resp.errors![0].message, `Argument Validation Error`);
+    assert.deepEqual(resp.errors![0].message, `Validation error for content: `);
   });
 
   it('can create a comment on a valid post', async function() {

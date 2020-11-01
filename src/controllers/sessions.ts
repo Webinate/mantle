@@ -137,7 +137,7 @@ export class SessionsController extends Controller {
     const sessionId: string = this.getIDFromRequest(request);
 
     if (sessionId !== '') {
-      const session = this.getSessionById(sessionId);
+      const session = await this.getSessionById(sessionId);
 
       if (!session) return null;
 
