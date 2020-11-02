@@ -117,7 +117,11 @@ export class CategoriesController extends Controller {
     const collection = this._collection;
     let parent: ICategory<'server'> | null = null;
 
-    if (token.slug) {
+    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(token._id) };
+    const curCategory = await collection.findOne(findToken);
+    if (!curCategory) throw new Error(`No category exists with the id ${token._id}`);
+
+    if (curCategory.slug !== token.slug) {
       const exists = await collection.findOne({ slug: token.slug } as ICategory<'server'>);
       if (exists) throw new Error(`Category with the slug '${token.slug}' already exists`);
     }
@@ -127,11 +131,6 @@ export class CategoriesController extends Controller {
       parent = await collection.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
     }
-
-    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(token._id) };
-    const curCategory = await collection.findOne(findToken);
-
-    if (!curCategory) throw new Error(`No category exists with the id ${token._id}`);
 
     await collection.updateOne(findToken, token);
     const updatedCategory = await collection.findOne(findToken);
