@@ -43,22 +43,22 @@ export class Element {
 @InputType()
 export class AddElementInput {
   @Field(type => GraphQLObjectId, { nullable: true })
-  parent: ObjectId | string;
+  parent?: ObjectId | string;
 
   @Field(type => ElementType)
   type: ElementType;
 
   @Field({ defaultValue: '' })
-  html: string;
+  html?: string;
 
   @Field({ nullable: true, defaultValue: 'unassigned' })
-  zone: string;
+  zone?: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  image: ObjectId | null | string;
+  image?: ObjectId | null | string;
 
   @Field(type => JsonType, { defaultValue: '' })
-  style: any;
+  style?: any;
 
   constructor(initialization?: Partial<AddElementInput>) {
     if (initialization) Object.assign(this, initialization);
@@ -71,19 +71,19 @@ export class UpdateElementInput {
   _id: ObjectId | string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  parent: ObjectId;
+  parent?: ObjectId;
 
   @Field({ nullable: true })
-  html: string;
+  html?: string;
 
   @Field({ nullable: true })
-  zone: string;
+  zone?: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  image: ObjectId | null | string;
+  image?: ObjectId | null | string;
 
   @Field(type => JsonType, { nullable: true })
-  style: any;
+  style?: any;
 
   constructor(initialization?: Partial<UpdateElementInput>) {
     if (initialization) Object.assign(this, initialization);

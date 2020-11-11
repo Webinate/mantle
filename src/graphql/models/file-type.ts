@@ -99,7 +99,7 @@ export class GetFilesArgs {
   user: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  volumeId: ObjectID;
+  volumeId: ObjectID | string;
 
   @Field(type => SortOrder, { defaultValue: SortOrder.asc })
   sortOrder: SortOrder;
