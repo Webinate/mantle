@@ -45,8 +45,7 @@ export class CommentResolver implements ResolverInterface<Comment> {
   async addComment(@Arg('token') token: AddCommentInput, @Ctx() ctx: IGQLContext) {
     const response = await ControllerFactory.get('comments').create({
       ...token,
-      author: ctx.user!.username as string,
-      user: ctx.user!._id
+      user: ctx.isAdmin && token.user ? token.user : ctx.user!._id
     } as IComment<'server'>);
     return Comment.fromEntity(response);
   }

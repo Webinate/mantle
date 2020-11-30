@@ -4,6 +4,7 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_COMMENT } from '../../../src/graphql/client/requests/comments';
 import { Comment, AddCommentInput } from '../../../src/index';
 import { IPost } from '../../../src/types/models/i-post';
+import controllerFactory from '../../../src/core/controller-factory';
 
 let numPosts: number, numComments: number, newPost: IPost<'server'>, commentId: string;
 
@@ -137,5 +138,43 @@ describe('Testing creation of comments', function() {
     });
 
     assert(_id);
+  });
+
+  it('allows an admin to create another users comment, but not the other way around', async function() {
+    const user1 = await controllerFactory.get('users').getUser({ username: header.user1.username });
+    const user2 = await controllerFactory.get('users').getUser({ username: header.user2.username });
+    assert.ok(user1);
+
+    let resp = await header.admin.graphql<Comment>(ADD_COMMENT, {
+      token: <AddCommentInput>{
+        user: user1?._id,
+        post: newPost._id,
+        parent: commentId,
+        content: `Hello world! __filter__`,
+        public: false
+      }
+    });
+
+    // Admin allowed to set user
+    assert.deepStrictEqual(resp.data.author, user1?.username);
+
+    // Cleanup
+    await controllerFactory.get('comments').remove(resp.data._id);
+
+    // Non-admin not allowed to create comment for other user
+    resp = await header.user1.graphql<Comment>(ADD_COMMENT, {
+      token: <AddCommentInput>{
+        user: user2?._id,
+        post: newPost._id,
+        parent: commentId,
+        content: `Hello world! __filter__`,
+        public: false
+      }
+    });
+
+    assert.deepStrictEqual(resp.data.author, user1?.username);
+
+    // Cleanup
+    await controllerFactory.get('comments').remove(resp.data._id);
   });
 });

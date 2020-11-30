@@ -14,6 +14,7 @@ import { IPost } from '../types/models/i-post';
 export class CommentsController extends Controller {
   private _commentsCollection: mongodb.Collection<IComment<'server'>>;
   private _postsCollection: mongodb.Collection<IPost<'server'>>;
+  private _usersCollection: mongodb.Collection<IUserEntry<'server'>>;
 
   /**
    * Creates a new instance of the controller
@@ -28,6 +29,7 @@ export class CommentsController extends Controller {
   async initialize(db: mongodb.Db) {
     this._commentsCollection = await db.collection('comments');
     this._postsCollection = await db.collection('posts');
+    this._usersCollection = await db.collection('users');
     return this;
   }
 
@@ -180,6 +182,7 @@ export class CommentsController extends Controller {
   async create(token: Partial<IComment<'server'>>) {
     const comments = this._commentsCollection;
     const posts = this._postsCollection;
+    const users = this._usersCollection;
     let parent: IComment<'server'> | null = null;
 
     if (token.parent) {
@@ -192,9 +195,16 @@ export class CommentsController extends Controller {
       if (!post) throw new Error(`No post exists with the id ${token.post}`);
     }
 
+    let author = '';
+    if (token.user) {
+      let user = await users.findOne({ _id: token.user } as IUserEntry<'server'>);
+      if (!user) throw new Error(`No user exists with the id ${token.user}`);
+      author = user.username as string;
+    }
+
     token.createdOn = Date.now();
     token.lastUpdated = token.createdOn;
-    token.author = token.author ? token.author : '';
+    token.author = author;
     token.children = token.children ? token.children : [];
     token.public = token.public === undefined ? true : token.public;
 
