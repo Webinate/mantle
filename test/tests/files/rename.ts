@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { UPDATE_FILE } from '../../../src/graphql/client/requests/file';
+import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
+import { UPDATE_FILE } from '../../client/requests/file';
 import { UpdateFileInput, File, AddVolumeInput, Volume } from '../../../src/index';
 
 let volume: Volume, fileId: string;

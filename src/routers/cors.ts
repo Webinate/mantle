@@ -2,7 +2,6 @@
 import { Router } from './router';
 import * as express from 'express';
 import * as mongodb from 'mongodb';
-import { IBaseControler } from '../types/misc/i-base-controller';
 
 /**
  * Checks all incomming requests to see if they are CORS approved
@@ -10,10 +9,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 export class CORSRouter extends Router {
   private _approvedDomains: string[];
 
-  /**
-   * Creates an instance of the user manager
-   */
-  constructor(approvedDomains: string[], options: IBaseControler) {
+  constructor(approvedDomains: string[]) {
     super();
     this._approvedDomains = approvedDomains;
   }

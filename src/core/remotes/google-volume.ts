@@ -86,7 +86,7 @@ export class GoogleVolume implements IRemote {
       dest.on('finish', () => {
         if (earlyExit) return;
 
-        resolve();
+        resolve(true);
       });
     });
   }

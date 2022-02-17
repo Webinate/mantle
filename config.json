@@ -4,7 +4,6 @@
     "google": "./keys/google-remote.json",
     "local": "./keys/local.json"
   },
-  "clientsFolder": "./clients/",
   "debug": false,
   "adminUser": "./keys/admin-user.json",
   "sessionSettings": {
@@ -19,9 +18,7 @@
     "host": "localhost",
     "port": 8020,
     "socketApiKey": "somepassword",
-    "approvedSocketDomains": [
-      "^localhost$"
-    ]
+    "approvedSocketDomains": ["^localhost$"]
   },
   "mail": {
     "type": "mailgun",

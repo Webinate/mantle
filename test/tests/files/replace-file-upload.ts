@@ -3,7 +3,7 @@ import header from '../header';
 import * as fs from 'fs';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
-import { ADD_VOLUME, REMOVE_VOLUME, GET_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { ADD_VOLUME, REMOVE_VOLUME, GET_VOLUME } from '../../client/requests/volume';
 import { AddVolumeInput, Volume } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 
@@ -36,7 +36,7 @@ describe('Testing replacing of a file upload: ', function() {
     const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.equal(resp.status, 200);
 
-    const files = await resp.json<IFileEntry<'expanded'>[]>();
+    const files: IFileEntry<'expanded'>[] = await resp.json();
     assert.equal(files.length, 1);
     assert.equal(files[0].name, 'file.png');
     assert.equal(files[0].mimeType, 'image/png');
@@ -55,7 +55,7 @@ describe('Testing replacing of a file upload: ', function() {
     const resp = await header.user1.post(`/files/replace/${uploadedFile._id}`, form, form.getHeaders());
     assert.equal(resp.status, 200);
 
-    const files = await resp.json<IFileEntry<'expanded'>[]>();
+    const files: IFileEntry<'expanded'>[] = await resp.json();
     assert.equal(files.length, 1);
     assert.equal(files[0].name, 'img-a.png');
     assert.equal(files[0].mimeType, 'image/png');

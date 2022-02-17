@@ -1,7 +1,7 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
 import { IVolume } from '../types/models/i-volume-entry';
-import { Db, ObjectID, Collection } from 'mongodb';
+import { Db, ObjectId, Collection, Sort, SortDirection } from 'mongodb';
 import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
 import { FilesController } from './files';
@@ -13,7 +13,7 @@ import { IUserEntry } from '../types/models/i-user-entry';
 import { VolumeSortType, VolumesGetOptions } from '../core/enums';
 
 export type GetOptions = {
-  id: string | ObjectID;
+  id: string | ObjectId;
   user: string;
   identifier: string;
   name: string;
@@ -21,7 +21,7 @@ export type GetOptions = {
 
 export type DeleteOptions = {
   user: string;
-  _id: string | ObjectID;
+  _id: string | ObjectId;
 };
 
 /**
@@ -59,15 +59,15 @@ export class VolumesController extends Controller {
 
     if (options.user) {
       if (options.user && (options.user as IUserEntry<'client' | 'server'>)._id) {
-        search.user = new ObjectID((options.user as IUserEntry<'client' | 'server'>)._id);
+        search.user = new ObjectId((options.user as IUserEntry<'client' | 'server'>)._id);
       } else {
-        if (ObjectID.isValid(options.user as string)) {
+        if (ObjectId.isValid(options.user as string)) {
           const user = await this._users.getUser({ id: options.user as string });
-          if (user) search.user = new ObjectID(user._id);
+          if (user) search.user = new ObjectId(user._id);
           else throw new Error404(`User not found`);
         } else {
           const user = await this._users.getUser({ username: options.user as string });
-          if (user) search.user = new ObjectID(user._id);
+          if (user) search.user = new ObjectId(user._id);
           else throw new Error404(`User not found`);
         }
       }
@@ -79,15 +79,15 @@ export class VolumesController extends Controller {
     let index = options.index !== undefined ? options.index : 0;
 
     // Set the default sort order to ascending
-    let sortOrder = -1;
+    let sortOrder: SortDirection = 'asc';
 
     if (options.sortOrder) {
-      if (options.sortOrder.toLowerCase() === 'asc') sortOrder = 1;
-      else sortOrder = -1;
+      if (options.sortOrder.toLowerCase() === 'asc') sortOrder = 'asc';
+      else sortOrder = 'desc';
     }
 
     // Sort by the date created
-    let sort: { [key in keyof Partial<IVolume<'server'>>]: number } | undefined = undefined;
+    let sort: Sort | undefined = undefined;
 
     // Optionally sort by the last updated
     if (options.sortType === VolumeSortType.created) sort = { created: sortOrder };
@@ -97,7 +97,7 @@ export class VolumesController extends Controller {
     // Save the new entry into the database
     const count = await volumeCollection.count(search);
     const volumes = await volumeCollection
-      .find(search, undefined, index, limit)
+      .find(search, { skip: index, limit })
       .sort(sort || [])
       .toArray();
     const toRet: Page<IVolume<'server'>> = {
@@ -118,7 +118,7 @@ export class VolumesController extends Controller {
 
     if (options.user) {
       const user = await this._users.getUser({ username: options.user });
-      if (user) searchQuery.user = new ObjectID(user._id);
+      if (user) searchQuery.user = new ObjectId(user._id);
       else throw new Error404(`User not found`);
     }
 
@@ -126,7 +126,7 @@ export class VolumesController extends Controller {
 
     if (options.identifier) searchQuery.identifier = options.identifier;
 
-    if (options.id) searchQuery._id = new ObjectID(options.id);
+    if (options.id) searchQuery._id = new ObjectId(options.id);
 
     const result = await volumeCollection.findOne(searchQuery);
 
@@ -139,11 +139,11 @@ export class VolumesController extends Controller {
    * @param id The id of the volume to edit
    * @param token The edit token
    */
-  async update(id: string | ObjectID, token: IVolume<'server'>) {
-    if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
+  async update(id: string | ObjectId, token: IVolume<'server'>) {
+    if (!ObjectId.isValid(id)) throw new Error(`Please use a valid object id`);
 
-    await this._volumes.updateOne({ _id: new ObjectID(id) } as IVolume<'server'>, { $set: token });
-    const updatedVolume = this._volumes.findOne({ _id: new ObjectID(id) } as IVolume<'server'>);
+    await this._volumes.updateOne({ _id: new ObjectId(id) } as IVolume<'server'>, { $set: token });
+    const updatedVolume = this._volumes.findOne({ _id: new ObjectId(id) } as IVolume<'server'>);
     return updatedVolume;
   }
 
@@ -180,7 +180,7 @@ export class VolumesController extends Controller {
       throw new Error500(`memoryUsed cannot be greater than memoryAllocated`);
 
     // Save the new entry into the database
-    const result = await volumeCollection.insertOne(volume);
+    const result = await volumeCollection.insertOne(volume as IVolume<'server'>);
     const addedVolume = (await volumeCollection.findOne({ _id: result.insertedId } as IVolume<'server'>)) as IVolume<
       'server'
     >;
@@ -189,7 +189,7 @@ export class VolumesController extends Controller {
     try {
       await RemoteFactory.get(addedVolume.type).createVolume(addedVolume);
     } catch (err) {
-      await volumeCollection.remove({ _id: addedVolume._id } as IVolume<'server'>);
+      await volumeCollection.deleteOne({ _id: addedVolume._id } as IVolume<'server'>);
       throw new Error(`Could not create remote: ${err.message}`);
     }
 
@@ -210,13 +210,13 @@ export class VolumesController extends Controller {
       if (typeof options._id === 'string') {
         if (!isValidObjectID(options._id)) throw new Error('Please use a valid object id');
 
-        searchQuery._id = new ObjectID(options._id);
+        searchQuery._id = new ObjectId(options._id);
       } else searchQuery._id = options._id;
     }
 
     if (options.user) {
       const user = await this._users.getUser({ username: options.user });
-      if (user) searchQuery.user = new ObjectID(user._id);
+      if (user) searchQuery.user = new ObjectId(user._id);
       else throw new Error404(`User not found`);
     }
 
@@ -249,7 +249,7 @@ export class VolumesController extends Controller {
     await RemoteFactory.get(volume.type).removeVolume(volume);
 
     // Remove the volume entry
-    await volumeCollection.remove({ _id: volume._id } as IVolume<'server'>);
+    await volumeCollection.deleteOne({ _id: volume._id } as IVolume<'server'>);
     return volume;
   }
 }

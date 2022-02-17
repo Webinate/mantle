@@ -4,7 +4,7 @@ import header from '../header';
 import * as fs from 'fs';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
-import { ADD_VOLUME, REMOVE_VOLUME, UPDATE_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { ADD_VOLUME, REMOVE_VOLUME, UPDATE_VOLUME } from '../../client/requests/volume';
 import { UpdateVolumeInput, AddVolumeInput, Volume } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 
@@ -33,7 +33,7 @@ describe('Testing successful file uploads: ', function() {
     form.append('good-file', fs.createReadStream(filePath));
     const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.equal(resp.status, 200);
-    const files = await resp.json<IFileEntry<'client'>[]>();
+    const files: IFileEntry<'client'>[] = await resp.json();
     assert.equal(files.length, 1);
     assert.equal(files[0].name, 'file.png');
     assert.equal(files[0].mimeType, 'image/png');

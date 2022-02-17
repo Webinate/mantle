@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { UPDATE_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { UPDATE_VOLUME } from '../../client/requests/volume';
 import { UpdateVolumeInput } from '../../../src/graphql/models/volume-type';
 import { Volume } from '../../../src/index';
 import { IVolume } from '../../../src/types/models/i-volume-entry';

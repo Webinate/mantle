@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import header from '../header';
 import Agent from '../agent';
-import { REMOVE_USER } from '../../../src/graphql/client/requests/users';
-import { AUTHENTICATED, LOGOUT } from '../../../src/graphql/client/requests/auth';
+import { REMOVE_USER } from '../../client/requests/users';
+import { AUTHENTICATED, LOGOUT } from '../../client/requests/auth';
 
 let agent: Agent,
   testUserName = 'fancyUser123',

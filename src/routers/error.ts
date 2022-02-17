@@ -5,13 +5,7 @@ import { Router } from './router';
 import express = require('express');
 import * as mongodb from 'mongodb';
 
-/**
- * Handles express errors
- */
 export class ErrorRouter extends Router {
-  /**
-   * Creates an instance
-   */
   constructor() {
     super();
   }

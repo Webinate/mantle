@@ -1,15 +1,15 @@
-﻿import { ObjectID } from 'mongodb';
+﻿import { ObjectId } from 'mongodb';
 import { IUserEntry } from '../types/models/i-user-entry';
 
 export type CategoriesGetOptions = {
   index: number;
   limit: number;
   root: boolean;
-  parent: ObjectID | string;
+  parent: ObjectId | string;
 };
 
 export type FilesGetOptions = {
-  volumeId?: string | ObjectID;
+  volumeId?: string | ObjectId;
   user?: string;
   index?: number;
   limit?: number;
@@ -19,9 +19,9 @@ export type FilesGetOptions = {
 };
 
 export type FileDeleteOptions = {
-  volumeId?: string | ObjectID;
+  volumeId?: string | ObjectId;
   user?: string;
-  fileId?: string | ObjectID;
+  fileId?: string | ObjectId;
 };
 
 export type UsersGetptions = {
@@ -49,15 +49,15 @@ export type CommentsGetOptions = {
   expanded: boolean;
   keyword: string;
   root: boolean;
-  parentId: ObjectID | string | null;
-  postId: ObjectID | string;
+  parentId: ObjectId | string | null;
+  postId: ObjectId | string;
   sortType: CommentSortType;
   sortOrder: SortOrder;
 };
 
 export type PostsGetOptions = {
   visibility: PostVisibility;
-  categories: ObjectID[];
+  categories: ObjectId[];
   tags: string[];
   rtags: string[];
   sort: PostSortType;

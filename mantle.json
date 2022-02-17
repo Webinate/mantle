@@ -1,0 +1,13 @@
+{
+  "server": {
+    "port": 8000,
+    "enableGraphIQl": true,
+    "host": "localhost",
+    "staticAssets": ["dist/client"]
+  },
+  "controllers": [
+    {
+      "path": "src/server"
+    }
+  ]
+}

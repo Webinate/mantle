@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
-import { GET_POSTS, ADD_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
-import { GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
+import { GET_POSTS, ADD_POST, REMOVE_POST } from '../../client/requests/posts';
+import { GET_DOCUMENT } from '../../client/requests/documents';
 import { Post, Document, AddPostInput, PaginatedPostsResponse } from '../../../src/index';
 
 let numPosts: number, post: Post;

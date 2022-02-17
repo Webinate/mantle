@@ -4,7 +4,7 @@ import * as path from 'path';
 import header from '../header';
 import { randomString } from '../utils';
 import * as FormData from 'form-data';
-import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
 import { AddVolumeInput, Volume } from '../../../src/index';
 import { IUploadResponse } from '../../../src/types/tokens/i-file-tokens';
 
@@ -74,7 +74,7 @@ describe('Testing volume upload validation: ', function() {
     const form = new FormData();
     form.append('some-field', 'Please ignore');
     const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
-    const data = await resp.json<IUploadResponse>();
+    const data: IUploadResponse = await resp.json();
     assert.equal(resp.status, 200);
     assert.deepEqual(data.length, 0);
   });

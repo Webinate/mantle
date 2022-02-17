@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../../src/graphql/client/requests/posts';
-import { ADD_COMMENT, GET_COMMENTS, REMOVE_COMMENT } from '../../../src/graphql/client/requests/comments';
+import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../client/requests/posts';
+import { ADD_COMMENT, GET_COMMENTS, REMOVE_COMMENT } from '../../client/requests/comments';
 import { AddCommentInput, Post, AddPostInput } from '../../../src/index';
 
 let numPosts: number, numComments: number, postId: string, commentId: string, parentCommentId: string;

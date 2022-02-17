@@ -2,8 +2,9 @@
 import { Page } from '../types/tokens/standard-tokens';
 import { IComment } from '../types/models/i-comment';
 import * as mongodb from 'mongodb';
+import { Sort, SortDirection } from 'mongodb';
 import Controller from './controller';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { SortOrder, CommentSortType, CommentVisibility, CommentsGetOptions } from '../core/enums';
 import { IPost } from '../types/models/i-post';
@@ -38,32 +39,32 @@ export class CommentsController extends Controller {
    */
   async getAll(options: Partial<CommentsGetOptions> = {}) {
     const comments = this._commentsCollection;
-    const findToken: Partial<IComment<'server'>> & { $or: Partial<IComment<'server'>>[] } = { $or: [] };
+    const findToken: Partial<IComment<'server'>> & { $or?: Partial<IComment<'server'>>[] } = { $or: [] };
 
     // Set the parent filter
-    if (options.parentId) findToken.parent = new ObjectID(options.parentId) as any;
+    if (options.parentId) findToken.parent = new ObjectId(options.parentId) as any;
     else if (options.root === true) findToken.parent = null;
 
-    if (options.postId) findToken.post = new ObjectID(options.postId);
+    if (options.postId) findToken.post = new ObjectId(options.postId);
 
     // Set the user property if its provided
     if (options.user) findToken.author = new RegExp(options.user, 'i') as any;
 
     // Check for keywords
-    if (options.keyword) findToken.$or.push({ content: <any>new RegExp(options.keyword, 'i') });
+    if (options.keyword) findToken.$or!.push({ content: <any>new RegExp(options.keyword, 'i') });
 
     // Add the or conditions for visibility
     if (options.visibility === CommentVisibility.public) findToken.public = true;
 
     // Set the default sort order to ascending
-    let sortOrder = -1;
+    let sortOrder: SortDirection = 'asc';
     if (options.sortOrder) {
-      if (options.sortOrder === SortOrder.asc) sortOrder = 1;
-      else sortOrder = -1;
+      if (options.sortOrder === SortOrder.asc) sortOrder = 'asc';
+      else sortOrder = 'desc';
     }
 
     // Sort by the date created
-    let sort: { [key in keyof Partial<IComment<'server'>>]: number } = { createdOn: sortOrder };
+    let sort: Sort = { createdOn: sortOrder };
 
     // Optionally sort by the last updated
     if (options.sortType) {
@@ -71,14 +72,14 @@ export class CommentsController extends Controller {
       else if (options.sortType === CommentSortType.created) sort = { createdOn: sortOrder };
     }
 
-    if (findToken.$or.length === 0) delete findToken.$or;
+    if (findToken.$or!.length === 0) delete findToken.$or;
 
     if (options.limit === -1) options.limit = undefined;
 
     // First get the count
     const count = await comments.count(findToken);
     const sanitizedData = await comments
-      .find(findToken, {}, options.index || 0, options.limit || undefined)
+      .find(findToken, { skip: options.index || 0, limit: options.limit })
       .sort(sort || {})
       .toArray();
 
@@ -121,12 +122,12 @@ export class CommentsController extends Controller {
    * @param id The id of the comment to fetch
    * @param options Options for getting the resource
    */
-  async getOne(id: string | ObjectID) {
+  async getOne(id: string | ObjectId) {
     const comments = this._commentsCollection;
-    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID(id) };
+    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectId(id) };
     const comment = await comments.findOne(findToken);
 
-    if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
+    if (!ObjectId.isValid(id)) throw new Error(`Please use a valid object id`);
     if (!comment) throw new Error('Could not find comment');
     return comment;
   }
@@ -135,11 +136,11 @@ export class CommentsController extends Controller {
    * Removes a comment by its id
    * @param id The id of the comment
    */
-  async remove(id: string | ObjectID) {
-    if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
+  async remove(id: string | ObjectId) {
+    if (!ObjectId.isValid(id)) throw new Error(`Please use a valid object id`);
 
     const comments = this._commentsCollection;
-    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID(id) };
+    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectId(id) };
 
     const comment = await comments.findOne(findToken);
     if (!comment) throw new Error('Could not find a comment with that ID');
@@ -158,7 +159,7 @@ export class CommentsController extends Controller {
     }
 
     // Attempt to delete the instances
-    await comments.remove(findToken);
+    await comments.deleteOne(findToken);
   }
 
   /**
@@ -166,9 +167,9 @@ export class CommentsController extends Controller {
    * @param id The id of the comment
    * @param token The update token of the comment
    */
-  async update(id: string | ObjectID, token: Partial<IComment<'server'>>) {
+  async update(id: string | ObjectId, token: Partial<IComment<'server'>>) {
     const comments = this._commentsCollection;
-    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectID(id) };
+    const findToken: Partial<IComment<'server'>> = { _id: new mongodb.ObjectId(id) };
     token.lastUpdated = Date.now();
     await comments.updateOne(findToken, { $set: token });
     const updatedComment = await comments.findOne(findToken);
@@ -186,12 +187,12 @@ export class CommentsController extends Controller {
     let parent: IComment<'server'> | null = null;
 
     if (token.parent) {
-      parent = await comments.findOne({ _id: new mongodb.ObjectID(token.parent) } as IComment<'server'>);
+      parent = await comments.findOne({ _id: new mongodb.ObjectId(token.parent) } as IComment<'server'>);
       if (!parent) throw new Error(`No comment exists with the id ${token.parent}`);
     }
 
     if (token.post) {
-      let post = await posts.findOne({ _id: new mongodb.ObjectID(token.post) } as IPost<'server'>);
+      let post = await posts.findOne({ _id: new mongodb.ObjectId(token.post) } as IPost<'server'>);
       if (!post) throw new Error(`No post exists with the id ${token.post}`);
     }
 
@@ -208,7 +209,7 @@ export class CommentsController extends Controller {
     token.children = token.children ? token.children : [];
     token.public = token.public === undefined ? true : token.public;
 
-    const insertResult = await comments.insertOne(token);
+    const insertResult = await comments.insertOne(token as IComment<'server'>);
     const instance = await comments.findOne({ _id: insertResult.insertedId } as IComment<'server'>);
 
     // Assign this comment as a child to its parent comment if it exists

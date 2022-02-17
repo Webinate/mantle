@@ -3,8 +3,8 @@ import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { generateRandString } from '../../../src/utils/utils';
-import { GET_POSTS, ADD_POST, GET_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
-import { ADD_CATEGORY, REMOVE_CATEGORY } from '../../../src/graphql/client/requests/category';
+import { GET_POSTS, ADD_POST, GET_POST, REMOVE_POST } from '../../client/requests/posts';
+import { ADD_CATEGORY, REMOVE_CATEGORY } from '../../client/requests/category';
 import {
   AddCategoryInput,
   Post,

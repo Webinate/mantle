@@ -1,4 +1,4 @@
-﻿import { IClient, IServer } from '../types/config/properties/i-client';
+﻿import { IConfig } from '../types/config/i-config';
 import * as express from 'express';
 import * as morgan from 'morgan';
 import { Db } from 'mongodb';
@@ -7,69 +7,31 @@ import { createServer as createSecureServer } from 'https';
 import { existsSync, readFileSync } from 'fs';
 import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
-import { Router } from '../routers/router';
-import { ErrorRouter } from '../routers/error';
-import * as graphqlHTTP from 'express-graphql';
+import { AuthRouter, ErrorRouter, CORSRouter, FileRouter, Router } from '../routers';
+import { graphqlHTTP } from 'express-graphql';
 import { generateSchema } from './graphql-schema';
 import { ArgumentValidationError } from 'type-graphql';
 
 export class Server {
-  public server: IServer;
-  private _controllers: Router[];
-  private _path: string;
-  public client: IClient;
+  public config: IConfig;
 
-  constructor(client: IClient, path: string) {
-    this.server = client.server as IServer;
-    this._controllers = [];
-    this._path = path;
-    this.client = client;
-  }
-
-  /**
-   * Goes through each client json discovered in the mantle client folder
-   * and attempts to load it
-   * @param client The client we are loading
-   */
-  parseClient(client: IClient & { path: string }) {
-    if (!client.controllers) {
-      error(`Client '${client.name}' does not have any controllers defined`).then(() => {
-        process.exit();
-      });
-
-      return;
-    }
-
-    for (const ctrl of client.controllers) {
-      try {
-        const constructor = require(`${client.path}/${ctrl.path!}`).default;
-        this._controllers.push(new constructor(client));
-      } catch (err) {
-        error(
-          `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${
-            err.stack ? err.stack : ''
-          }`
-        ).then(() => {
-          process.exit();
-        });
-      }
-    }
+  constructor(config: IConfig) {
+    this.config = config;
   }
 
   async initialize(db: Db): Promise<Server> {
-    const controllerPromises: Array<Promise<any>> = [];
-    const server = this.server;
-    const client = this.client;
+    const server = this.config.server;
     const app = express();
     const schema = await generateSchema();
+    const rootPath = server.rootPath || 'api';
 
     // bind express with graphql
     app.use('/graphql', (req, res) => {
-      const enableGraphIQl = this.client.enableGraphIQl;
+      const enableGraphIQl = this.config.server.enableGraphIQl;
       return graphqlHTTP({
         schema,
         graphiql: enableGraphIQl && enableGraphIQl.toString() === 'true' ? true : false,
-        context: { res, req, server, client },
+        context: { res, req, server },
         customFormatErrorFn: err => {
           if (err.originalError && (err.originalError as ArgumentValidationError).validationErrors) {
             const validationErrors = (err.originalError as ArgumentValidationError).validationErrors;
@@ -84,31 +46,34 @@ export class Server {
             return formattedErrors[0];
           } else return err;
         }
-      })(req, res);
+      });
     });
 
     // Create the controllers
-    const controllers: Router[] = [...this._controllers, new ErrorRouter()];
+    const routers: Router[] = [
+      new CORSRouter(server.corsApprovedDomains || []),
+      new AuthRouter(rootPath),
+      new FileRouter(rootPath),
+      new ErrorRouter()
+    ];
 
     // Enable GZIPPING
     app.use(compression());
 
     // User defined static folders
     if (server.staticAssets) {
-      for (let i = 0, l: number = server.staticAssets.length; i < l; i++) {
-        let localStaticFolder = `${this._path}/${server.staticAssets[i]}`;
-        if (!existsSync(localStaticFolder)) {
-          await error(`Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'`);
-          process.exit();
-        }
-
-        info(`Adding static resource folder '${localStaticFolder}'`);
-        app.use(
-          express.static(localStaticFolder, {
-            maxAge: server.staticAssetsCache || 2592000000
-          })
-        );
+      let localStaticFolder = server.staticAssets;
+      if (!existsSync(localStaticFolder)) {
+        await error(`Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'`);
+        process.exit();
       }
+
+      info(`Adding static resource folder '${localStaticFolder}'`);
+      app.use(
+        express.static(localStaticFolder, {
+          maxAge: server.staticAssetsCache || 2592000000
+        })
+      );
     }
 
     // log every request to the console
@@ -152,8 +117,8 @@ export class Server {
 
       const httpsServer = createSecureServer(
         {
-          key: privkey,
-          cert: theCert,
+          key: privkey!,
+          cert: theCert!,
           passphrase: server.ssl.passPhrase,
           ca: caChain
         },
@@ -165,20 +130,11 @@ export class Server {
     }
 
     try {
-      // Initialize all the controllers
-      for (const ctrl of controllers) {
-        controllerPromises.push(ctrl.initialize(app, db));
-      }
-
-      // Return a promise once all the controllers are complete
-      await Promise.all(controllerPromises);
-
-      info(`All controllers are now setup successfully for ${this.server.host}!`);
+      await Promise.all(routers.map(ctrl => ctrl.initialize(app, db)));
+      info(`All routers are now setup successfully`);
       return this;
     } catch (e) {
-      throw new Error(
-        `ERROR An error has occurred while setting up the controllers for ${this.client.name}: '${e.message}' \r\n'${e.stack}'`
-      );
+      throw new Error(`ERROR An error has occurred while setting up the routers: '${e.message}' \r\n'${e.stack}'`);
     }
   }
 }

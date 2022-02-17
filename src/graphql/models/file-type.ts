@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int, ArgsType, InputType } from 'type-graphql';
-import { ObjectId, ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { JsonType } from '../scalars/json';
 import { User } from './user-type';
@@ -99,7 +99,7 @@ export class GetFilesArgs {
   user: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  volumeId: ObjectID | string;
+  volumeId: ObjectId | string;
 
   @Field(type => SortOrder, { defaultValue: SortOrder.asc })
   sortOrder: SortOrder;

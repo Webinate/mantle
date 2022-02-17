@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import { CREATE_USER, GET_USER_AS_ADMIN } from '../../../src/graphql/client/requests/users';
+import { CREATE_USER, GET_USER_AS_ADMIN } from '../../client/requests/users';
 import controllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import { AddUserInput, User } from '../../../src/index';

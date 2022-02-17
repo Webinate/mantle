@@ -1,7 +1,7 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
 import { IPost } from '../types/models/i-post';
-import { Db, ObjectID, Collection } from 'mongodb';
+import { Db, ObjectId, Collection, Sort, SortDirection } from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import Controller from './controller';
 import { UsersController } from './users';
@@ -13,7 +13,7 @@ import { IDraft } from '../types/models/i-draft';
 import { SortOrder, PostsGetOptions } from '../core/enums';
 
 export type PostsGetOneOptions = {
-  id: string | ObjectID;
+  id: string | ObjectId;
   slug: string;
   verbose: boolean;
   expanded: boolean;
@@ -52,7 +52,7 @@ export class PostsController extends Controller {
    */
   async getPosts(options: Partial<PostsGetOptions> = {}) {
     const posts = this._postsCollection;
-    const findToken: Partial<IPost<'server'>> & { $or: IPost<'server'>[] } = { $or: [] };
+    const findToken: Partial<IPost<'server'>> & { $or?: IPost<'server'>[] } = { $or: [] };
 
     if (options.author) {
       const user = await this._users.getUsers({ search: new RegExp(`^${options.author!}$`, 'i') });
@@ -70,8 +70,8 @@ export class PostsController extends Controller {
     // Check for keywords
     if (options.keyword) {
       const keyword = new RegExp(options.keyword, 'i');
-      findToken.$or.push(<IPost<'server'>>{ title: <any>keyword });
-      findToken.$or.push(<IPost<'server'>>{ brief: <any>keyword });
+      findToken.$or!.push(<IPost<'server'>>{ title: <any>keyword });
+      findToken.$or!.push(<IPost<'server'>>{ brief: <any>keyword });
     }
 
     // Add the or conditions for visibility
@@ -93,15 +93,15 @@ export class PostsController extends Controller {
     if (options.categories && options.categories.length > 0) findToken.categories = { $in: options.categories } as any;
 
     // Set the default sort order to ascending
-    let sortOrder = -1;
+    let sortOrder: SortDirection = 'asc';
 
     if (options.sortOrder) {
-      if (options.sortOrder === SortOrder.asc) sortOrder = 1;
-      else sortOrder = -1;
+      if (options.sortOrder === SortOrder.asc) sortOrder = 'asc';
+      else sortOrder = 'desc';
     }
 
     // Sort by the date created
-    let sort: { [key in keyof Partial<IPost<'server'>>]: number } | undefined = undefined;
+    let sort: Sort | undefined = undefined;
 
     // Optionally sort by the last updated
     if (options.sort === 'created') sort = { createdOn: sortOrder };
@@ -109,7 +109,7 @@ export class PostsController extends Controller {
     else if (options.sort === 'title') sort = { title: sortOrder };
 
     // Stephen is lovely
-    if (findToken.$or.length === 0) delete findToken.$or;
+    if (findToken.$or!.length === 0) delete findToken.$or;
 
     // First get the count
     const count = await posts.count(findToken);
@@ -119,7 +119,7 @@ export class PostsController extends Controller {
     if (limit === -1) limit = undefined;
 
     const sanitizedData = await posts
-      .find(findToken, {}, index, limit)
+      .find(findToken, { skip: index, limit })
       .sort(sort || {})
       .toArray();
 
@@ -136,17 +136,17 @@ export class PostsController extends Controller {
   /**
    * Gets all drafts associated with a post
    */
-  async getDrafts(postId: string | ObjectID) {
+  async getDrafts(postId: string | ObjectId) {
     const postsCollection = this._postsCollection;
     const draftsCollection = this._draftsCollection;
-    const findToken: Partial<IPost<'server'>> = { _id: new ObjectID(postId) };
+    const findToken: Partial<IPost<'server'>> = { _id: new ObjectId(postId) };
     const post = await postsCollection.findOne(findToken);
 
     if (!post) throw new Error404('Post does not exist');
 
     const drafts = await draftsCollection
       .find({ parent: post.document } as IDraft<'server'>)
-      .sort({ createdOn: 1 } as IDraft<'server'>)
+      .sort({ createdOn: 'asc' })
       .toArray();
 
     return {
@@ -160,7 +160,7 @@ export class PostsController extends Controller {
    */
   async getDraft(id: string) {
     const drafts = this._draftsCollection;
-    const findToken: Partial<IDraft<'server'>> = { _id: new ObjectID(id) };
+    const findToken: Partial<IDraft<'server'>> = { _id: new ObjectId(id) };
     const draft = await drafts.findOne(findToken);
 
     if (!draft) return null;
@@ -170,11 +170,11 @@ export class PostsController extends Controller {
   /**
    * Removes a draft from a post
    */
-  async removeDraft(postId: string | ObjectID, draftId: string | ObjectID) {
+  async removeDraft(postId: string | ObjectId, draftId: string | ObjectId) {
     const posts = this._postsCollection;
     const drafts = this._draftsCollection;
-    const findPostToken: Partial<IPost<'server'>> = { _id: new ObjectID(postId) };
-    const findDraftToken: Partial<IDraft<'server'>> = { _id: new ObjectID(draftId) };
+    const findPostToken: Partial<IPost<'server'>> = { _id: new ObjectId(postId) };
+    const findDraftToken: Partial<IDraft<'server'>> = { _id: new ObjectId(draftId) };
     const post = await posts.findOne(findPostToken);
 
     if (!post) throw new Error404('Post does not exist');
@@ -182,7 +182,7 @@ export class PostsController extends Controller {
     const draft = await drafts.findOne(findDraftToken);
     if (!draft) throw new Error404('Draft does not exist');
 
-    await drafts.remove({ _id: draft._id } as IDraft<'server'>);
+    await drafts.deleteOne({ _id: draft._id } as IDraft<'server'>);
     if (post.latestDraft && post.latestDraft.equals(draft._id))
       await posts.updateOne({ _id: post._id } as IPost<'server'>, { $set: { latestDraft: null } });
   }
@@ -221,10 +221,10 @@ export class PostsController extends Controller {
    * Removes a post by ID
    * @param id The id of the post we are removing
    */
-  async removePost(id: string | ObjectID) {
-    if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
+  async removePost(id: string | ObjectId) {
+    if (!ObjectId.isValid(id)) throw new Error(`Please use a valid object id`);
 
-    const post = await this._postsCollection.findOne({ _id: new ObjectID(id) });
+    const post = await this._postsCollection.findOne({ _id: new ObjectId(id) });
     if (!post) throw new Error404(`Could not find post`);
 
     const commentsFactory = ControllerFactory.get('comments');
@@ -237,9 +237,9 @@ export class PostsController extends Controller {
     await this._documents.remove(post.document!.toString());
 
     // Attempt to delete the instances
-    const numRemoved = await this._postsCollection.remove({ _id: new ObjectID(id) });
+    const numRemoved = await this._postsCollection.deleteOne({ _id: new ObjectId(id) });
 
-    if (numRemoved.result.n === 0) throw new Error('Could not find a post with that ID');
+    if (numRemoved.deletedCount === 0) throw new Error('Could not find a post with that ID');
 
     return;
   }
@@ -249,8 +249,8 @@ export class PostsController extends Controller {
    * @param id The id of the post to edit
    * @param token The edit token
    */
-  async update(id: string | ObjectID, token: Partial<IPost<'server'>>) {
-    if (!ObjectID.isValid(id)) throw new Error(`Please use a valid object id`);
+  async update(id: string | ObjectId, token: Partial<IPost<'server'>>) {
+    if (!ObjectId.isValid(id)) throw new Error(`Please use a valid object id`);
 
     token.lastUpdated = Date.now();
 
@@ -260,7 +260,7 @@ export class PostsController extends Controller {
       if (!file) throw new Error404(`File '${token.featuredImage}' does not exist`);
     }
 
-    const postToUpdate = await this._postsCollection.findOne({ _id: new ObjectID(id) } as IPost<'server'>);
+    const postToUpdate = await this._postsCollection.findOne({ _id: new ObjectId(id) } as IPost<'server'>);
 
     if (!postToUpdate) throw new Error404();
 
@@ -275,7 +275,7 @@ export class PostsController extends Controller {
     });
     if (response.matchedCount === 0) throw new Error404();
 
-    const updatedPost = await this._postsCollection.findOne({ _id: new ObjectID(id) } as IPost<'server'>);
+    const updatedPost = await this._postsCollection.findOne({ _id: new ObjectId(id) } as IPost<'server'>);
 
     const newDraft = await this._documents.publishDraft(updatedPost!.document);
     await this._postsCollection.updateOne({ _id: updatedPost!._id } as IPost<'server'>, {
@@ -305,7 +305,7 @@ export class PostsController extends Controller {
       if (!file) throw new Error404(`File '${token.featuredImage}' does not exist`);
     }
 
-    let insertionResult = await this._postsCollection.insertOne(token);
+    let insertionResult = await this._postsCollection.insertOne(token as IPost<'server'>);
 
     // Create a new document for the post
     const doc = await this._documents.create(token.author);
@@ -326,7 +326,7 @@ export class PostsController extends Controller {
     const posts = this._postsCollection;
     let findToken: Partial<IPost<'server'>>;
 
-    if (options.id) findToken = { _id: new ObjectID(options.id) };
+    if (options.id) findToken = { _id: new ObjectId(options.id) };
     else if (options.slug) findToken = { slug: options.slug };
     else throw new Error(`You must specify either an id or slug when fetching a post`);
 

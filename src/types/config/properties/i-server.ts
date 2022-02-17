@@ -1,9 +1,5 @@
 import { ISSL } from './i-ssl';
 
-export interface IControllerOptions {
-  path?: string;
-}
-
 export interface IServer {
   /**
    * The port number of the host
@@ -18,12 +14,18 @@ export interface IServer {
   /**
    * An array of folder paths that can be used to fetch static content
    */
-  staticAssets?: Array<string>;
+  staticAssets?: string;
 
   /**
    * The length of time the assets should be cached on a user's browser in milliseconds. The default is 30 days.
    */
   staticAssetsCache?: number;
+
+  /**
+   * The root path of the controller's endpoint.
+   * eg: "/api"
+   */
+  rootPath?: string;
 
   /**
    * An object to describe SSL properties.
@@ -42,21 +44,15 @@ export interface IServer {
    * An array of cors approved domains
    */
   corsApprovedDomains?: string[];
-}
-
-/**
- * This interface represents a json file that describes how mantle should load a client.
- * Clients are plugins that are loaded dynamically by mantle on startup.
- */
-export interface IClient {
-  server: string | IServer;
-
-  name: string;
-  enableGraphIQl: string;
-  enabled: boolean;
 
   /**
-   * An array of controllers associated with this server
+   * If true, then graphiql be enabled
    */
-  controllers: IControllerOptions[];
+  enableGraphIQl?: boolean;
+
+  /**
+   * The length of time the assets should be cached on a user's browser.
+   * eg:  2592000000 or 30 days
+   */
+  cacheLifetime?: number;
 }

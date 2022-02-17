@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import header from '../header';
-import { REMOVE_USER, GET_USER } from '../../../src/graphql/client/requests/users';
-import { REGISTER, APPROVE_ACTIVATION } from '../../../src/graphql/client/requests/auth';
+import { REMOVE_USER, GET_USER } from '../../client/requests/users';
+import { REGISTER, APPROVE_ACTIVATION } from '../../client/requests/auth';
 import { RegisterInput, User } from '../../../src/index';
 
 let testUserName = 'fancyUser123',

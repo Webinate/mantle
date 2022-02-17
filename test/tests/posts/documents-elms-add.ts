@@ -2,13 +2,13 @@ import * as assert from 'assert';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { ObjectID } from 'mongodb';
-import { ADD_DOC_ELEMENT, GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
+import { ObjectId } from 'mongodb';
+import { ADD_DOC_ELEMENT, GET_DOCUMENT } from '../../client/requests/documents';
 import { AddElementInput, Element, Document } from '../../../src/index';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 
-let post: IPost<'server'>, documentId: ObjectID, user1: IUserEntry<'server'>;
+let post: IPost<'server'>, documentId: ObjectId, user1: IUserEntry<'server'>;
 
 describe('Testing the adding of document elements: ', function() {
   before(async function() {

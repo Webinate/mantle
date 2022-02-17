@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int, ArgsType, InputType, Authorized } from 'type-graphql';
-import { ObjectId, ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { JsonType } from '../scalars/json';
 import { User } from './user-type';
@@ -85,7 +85,7 @@ export class AddVolumeInput {
   name: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  user: ObjectID;
+  user: ObjectId;
 
   @Field(type => VolumeType, { nullable: true, defaultValue: VolumeType.local })
   type: VolumeType;
@@ -114,7 +114,7 @@ export class UpdateVolumeInput {
   name: string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  user: ObjectID;
+  user: ObjectId;
 
   @Field(type => LongType, { nullable: true })
   @Authorized<AuthLevel>([AuthLevel.admin])

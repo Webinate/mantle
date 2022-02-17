@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import { GET_TEMPLATES, GET_TEMPLATE } from '../../../src/graphql/client/requests/templates';
+import { GET_TEMPLATES, GET_TEMPLATE } from '../../client/requests/templates';
 import { Template, PaginatedTemplateResponse } from '../../../src/index';
 
 let templates: Template[];

@@ -5,17 +5,16 @@ import { IMailProperties } from './properties/i-mail';
 import { IAdminUser } from './properties/i-admin';
 import { ISession } from './properties/i-session';
 import { IWebsocket } from './properties/i-socket';
+import { IServer } from './properties/i-server';
 
 /**
  * A server configuration
  */
 export interface IConfig {
   /**
-   * The folder where mantle will search for client projects to add to the runtime.
-   * This setting must represent a path string. Each folder in the path will be analyzed
-   * and any with a valid mantle.json will be added.
+   * Describes the server config options
    */
-  clientsFolder: string;
+  server: IServer;
 
   /**
    * Describes each of the media volumes available to the

@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { GET_POSTS, UPDATE_POST } from '../../../src/graphql/client/requests/posts';
+import { GET_POSTS, UPDATE_POST } from '../../client/requests/posts';
 import { PaginatedPostsResponse, UpdatePostInput, QueryPostsArgs } from '../../../src/index';
 import { IPost } from '../../../src/types/models/i-post';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';

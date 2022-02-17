@@ -2,14 +2,14 @@
 import { IUserEntry } from '../types/models/i-user-entry';
 import { ISessionEntry } from '../types/models/i-session-entry';
 import { IncomingMessage } from 'http';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 
 /**
  * A class to represent session data
  */
 export class Session {
   user: IUserEntry<'server'>;
-  _id: ObjectID;
+  _id: ObjectId;
 
   /*
    * The unique ID of the session

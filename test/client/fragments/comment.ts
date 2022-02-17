@@ -1,4 +1,4 @@
-import gql from '../../../utils/gql';
+import gql from '../gql';
 
 export const COMMENT_FIELDS = gql`
   fragment CommentFields on Comment {

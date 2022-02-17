@@ -14,7 +14,7 @@ import { Document } from '../models/document-type';
 import { AuthLevel } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from '../models/user-type';
 import { Template } from '../models/template-type';
@@ -30,7 +30,7 @@ const removeElmQueue: Queue = new Queue();
 export class DocumentResolver implements ResolverInterface<Document> {
   @Authorized<AuthLevel>([AuthLevel.admin])
   @Query(returns => Document, { nullable: true })
-  async document(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+  async document(@Arg('id', () => GraphQLObjectId) id: ObjectId, @Ctx() ctx: IGQLContext) {
     const checkPermissions = ctx.isAdmin ? undefined : { userId: ctx.user!._id };
     const document = await ControllerFactory.get('documents').get({
       docId: id,
@@ -71,8 +71,8 @@ export class DocumentResolver implements ResolverInterface<Document> {
   @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Boolean)
   async changeDocTemplate(
-    @Arg('id', type => GraphQLObjectId) id: ObjectID,
-    @Arg('template', type => GraphQLObjectId) template: ObjectID,
+    @Arg('id', type => GraphQLObjectId) id: ObjectId,
+    @Arg('template', type => GraphQLObjectId) template: ObjectId,
     @Ctx() ctx: IGQLContext
   ) {
     addElmQueue;
@@ -89,7 +89,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
   @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Element)
   async addDocElement(
-    @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
+    @Arg('docId', type => GraphQLObjectId) docId: ObjectId,
     @Arg('token', type => AddElementInput) token: Element,
     @Arg('index', type => Int, { nullable: true }) index: number | undefined,
     @Ctx() ctx: IGQLContext
@@ -118,7 +118,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
   @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Element)
   async updateDocElement(
-    @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
+    @Arg('docId', type => GraphQLObjectId) docId: ObjectId,
     @Arg('token', type => UpdateElementInput) token: Element,
     @Arg('index', type => Int, { nullable: true }) index: number,
     @Ctx() ctx: IGQLContext
@@ -137,8 +137,8 @@ export class DocumentResolver implements ResolverInterface<Document> {
   @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Boolean)
   async removeDocElement(
-    @Arg('docId', type => GraphQLObjectId) docId: ObjectID,
-    @Arg('elementId', type => GraphQLObjectId) elementId: ObjectID,
+    @Arg('docId', type => GraphQLObjectId) docId: ObjectId,
+    @Arg('elementId', type => GraphQLObjectId) elementId: ObjectId,
     @Ctx() ctx: IGQLContext
   ) {
     const ticket = removeElmQueue.register();
@@ -167,7 +167,7 @@ export class DocumentResolver implements ResolverInterface<Document> {
 // import { UserPrivilege } from '../../core/enums';
 // import ControllerFactory from '../../core/controller-factory';
 // import { GraphQLObjectId } from '../scalars/object-id';
-// import { ObjectID } from 'mongodb';
+// import { ObjectId } from 'mongodb';
 // import { IGQLContext } from '../../types/interfaces/i-gql-context';
 
 // @Resolver(of => Document)
@@ -175,8 +175,8 @@ export class DocumentResolver implements ResolverInterface<Document> {
 //   @Authorized<UserPrivilege>([UserPrivilege.regular])
 //   @Mutation(returns => Boolean)
 //   async removeFile(
-//     @Arg('id', type => GraphQLObjectId) id: ObjectID,
-//     @Arg('volumeId', type => GraphQLObjectId, { nullable: true }) volumeId: ObjectID,
+//     @Arg('id', type => GraphQLObjectId) id: ObjectId,
+//     @Arg('volumeId', type => GraphQLObjectId, { nullable: true }) volumeId: ObjectId,
 //     @Ctx() ctx: IGQLContext
 //   ) {
 //     await ControllerFactory.get('files').removeFiles({

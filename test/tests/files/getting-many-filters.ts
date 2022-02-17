@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import header from '../header';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
-import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { GET_FILES } from '../../../src/graphql/client/requests/file';
+import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
+import { GET_FILES } from '../../client/requests/file';
 import { AddVolumeInput, Volume, PaginatedFilesResponse, QueryFilesArgs } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 
@@ -27,19 +27,19 @@ describe('Testing volume get requests', function() {
     let form = new FormData();
     form.append('good-file', fs.createReadStream('./test/media/img-a.png'));
     let resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
-    fileA = (await resp.json<IFileEntry<'expanded'>[]>())[0];
+    fileA = ((await resp.json()) as IFileEntry<'expanded'>[])[0];
     assert.equal(resp.status, 200);
 
     form = new FormData();
     form.append('good-file', fs.createReadStream('./test/media/img-b.png'));
     resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
-    fileB = (await resp.json<IFileEntry<'expanded'>[]>())[0];
+    fileB = ((await resp.json()) as IFileEntry<'expanded'>[])[0];
     assert.equal(resp.status, 200);
 
     form = new FormData();
     form.append('good-file', fs.createReadStream('./test/media/img-c.png'));
     resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
-    fileC = (await resp.json<IFileEntry<'expanded'>[]>())[0];
+    fileC = ((await resp.json()) as IFileEntry<'expanded'>[])[0];
     assert.equal(resp.status, 200);
   });
 

@@ -3,7 +3,7 @@ import { File, PaginatedFilesResponse, GetFilesArgs, UpdateFileInput } from '../
 import { AuthLevel, UserPrivilege } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { GraphQLObjectId } from '../scalars/object-id';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { Error403, Error400 } from '../../utils/errors';
 import { User } from '../models/user-type';
@@ -15,8 +15,8 @@ export class FileResolver {
   @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Boolean)
   async removeFile(
-    @Arg('id', type => GraphQLObjectId) id: ObjectID,
-    @Arg('volumeId', type => GraphQLObjectId, { nullable: true }) volumeId: ObjectID,
+    @Arg('id', type => GraphQLObjectId) id: ObjectId,
+    @Arg('volumeId', type => GraphQLObjectId, { nullable: true }) volumeId: ObjectId,
     @Ctx() ctx: IGQLContext
   ) {
     await ControllerFactory.get('files').removeFiles({
@@ -30,7 +30,7 @@ export class FileResolver {
 
   @Authorized<AuthLevel>([AuthLevel.regular])
   @Query(returns => File, { nullable: true })
-  async file(@Arg('id', type => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+  async file(@Arg('id', type => GraphQLObjectId) id: ObjectId, @Ctx() ctx: IGQLContext) {
     const file = await ControllerFactory.get('files').getFile(id);
     if (!file) return null;
 

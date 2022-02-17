@@ -1,4 +1,4 @@
-import gql from '../../../utils/gql';
+import gql from '../gql';
 import { DOCUMENT_FIELDS } from '../fragments/document';
 
 export const GET_DOCUMENT = gql`

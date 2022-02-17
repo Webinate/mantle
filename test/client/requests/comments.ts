@@ -1,4 +1,4 @@
-import gql from '../../../utils/gql';
+import gql from '../gql';
 import { COMMENT_FIELDS } from '../fragments/comment';
 
 export const REMOVE_COMMENT = gql`

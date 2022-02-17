@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { ADD_DOC_ELEMENT, GET_DOCUMENT, REMOVE_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
+import { ADD_DOC_ELEMENT, GET_DOCUMENT, REMOVE_DOC_ELEMENT } from '../../client/requests/documents';
 import { AddElementInput, Document } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
