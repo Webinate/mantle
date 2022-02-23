@@ -22,15 +22,15 @@ describe('Testing registering a user', function() {
     });
     assert.deepEqual(
       response.errors![0].message,
-      'Variable "$token" got invalid value {}; Field username of required type String! was not provided.'
+      'Variable "$token" got invalid value {}; Field "username" of required type "String!" was not provided.'
     );
     assert.deepEqual(
       response.errors![1].message,
-      'Variable "$token" got invalid value {}; Field password of required type String! was not provided.'
+      'Variable "$token" got invalid value {}; Field "password" of required type "String!" was not provided.'
     );
     assert.deepEqual(
       response.errors![2].message,
-      'Variable "$token" got invalid value {}; Field email of required type String! was not provided.'
+      'Variable "$token" got invalid value {}; Field "email" of required type "String!" was not provided.'
     );
   });
 

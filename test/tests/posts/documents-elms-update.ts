@@ -43,12 +43,12 @@ describe('Testing the editting of document elements: ', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$docId" got invalid value "bad"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$docId" got invalid value "bad"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
 
     assert.deepEqual(
       errors![1].message,
-      'Variable "$token" got invalid value "bad" at "token._id"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "bad" at "token._id"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

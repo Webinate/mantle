@@ -37,12 +37,12 @@ describe('Testing the deletion of document elements: ', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$docId" got invalid value "bad"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$docId" got invalid value "bad"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
 
     assert.deepEqual(
       errors![1].message,
-      'Variable "$elementId" got invalid value "bad"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$elementId" got invalid value "bad"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

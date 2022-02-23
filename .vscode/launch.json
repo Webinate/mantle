@@ -156,7 +156,7 @@
         "--debug=true",
         "--remotes.maxFileSize=524288",
         "--remotes.local.url=http://localhost:8000/",
-        "--remotes.local.path=test/test-server/media"
+        "--remotes.local.path=test/media-uploads"
       ],
       "cwd": "${workspaceRoot}",
       "preLaunchTask": null,

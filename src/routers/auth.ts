@@ -1,5 +1,5 @@
 ﻿import { ISimpleResponse } from '../types/tokens/standard-tokens';
-import express, { Express, RequestHandler } from 'express';
+import { Router as ExpressRouter, Request, Response, urlencoded, json, Express, RequestHandler } from 'express';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';
 import { Router } from './router';
@@ -30,11 +30,11 @@ export class AuthRouter extends Router {
     this._userController = ControllerFactory.get('users');
 
     // Setup the rest calls
-    const router = express.Router();
+    const router = ExpressRouter();
     router.use(compression());
-    router.use(express.urlencoded({ extended: true }) as RequestHandler);
-    router.use(express.json() as RequestHandler);
-    router.use(express.json({ type: 'application/vnd.api+json' }) as RequestHandler);
+    router.use(urlencoded({ extended: true }) as RequestHandler);
+    router.use(json() as RequestHandler);
+    router.use(json({ type: 'application/vnd.api+json' }) as RequestHandler);
 
     router.get('/activate-account', this.activateAccount.bind(this));
     router.put('/password-reset', this.passwordReset.bind(this));
@@ -49,7 +49,7 @@ export class AuthRouter extends Router {
   /**
    * Activates the user's account
    */
-  private async activateAccount(req: express.Request, res: express.Response) {
+  private async activateAccount(req: Request, res: Response) {
     const redirectURL = req.query.accountRedirectURL;
 
     try {
@@ -77,7 +77,7 @@ export class AuthRouter extends Router {
    * resets the password if the user has a valid password token
    */
   @j200()
-  private async passwordReset(req: express.Request, res: express.Response) {
+  private async passwordReset(req: Request, res: Response) {
     if (!req.body) throw new Error('Expecting body content and found none');
     if (!req.body.user) throw new Error('Please specify a user');
     if (!req.body.key) throw new Error('Please specify a key');

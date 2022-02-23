@@ -4,6 +4,14 @@
     "google": "./keys/google-remote.json",
     "local": "./keys/local.json"
   },
+  "server": {
+    "rootPath": "api",
+    "port": 8000,
+    "host": "localhost",
+    "staticAssets": "clients/bucket/media",
+    "staticPrefix": "/media",
+    "enableGraphIQl": true
+  },
   "debug": false,
   "adminUser": "./keys/admin-user.json",
   "sessionSettings": {

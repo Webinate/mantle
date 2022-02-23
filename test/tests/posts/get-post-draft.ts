@@ -144,7 +144,7 @@ describe('Testing of posts and drafts', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$id" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 
@@ -172,11 +172,11 @@ describe('Testing of posts and drafts', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$draftId" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$draftId" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
     assert.deepEqual(
       errors![1].message,
-      'Variable "$postId" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$postId" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

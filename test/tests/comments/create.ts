@@ -55,11 +55,11 @@ describe('Testing creation of comments', function() {
 
     assert.deepEqual(
       resp.errors![0].message,
-      'Variable "$token" got invalid value "bad" at "token.post"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "bad" at "token.post"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
     assert.deepEqual(
       resp.errors![1].message,
-      'Variable "$token" got invalid value "bad" at "token.parent"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "bad" at "token.parent"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

@@ -7,7 +7,6 @@ import { Db, ObjectId, Collection } from 'mongodb';
 import { ServerResponse, IncomingMessage } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
-import { Request } from 'express';
 import { UserPrivilege } from '../core/enums';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
@@ -123,7 +122,7 @@ export class UsersController extends Controller {
     email: string = '',
     activationUrl: string = '',
     meta: any = {},
-    request: Request
+    request: IncomingMessage
   ) {
     const origin = encodeURIComponent((request.headers['origin'] as string) || (request.headers['referer'] as string));
 

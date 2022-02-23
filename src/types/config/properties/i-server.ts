@@ -17,6 +17,11 @@ export interface IServer {
   staticAssets?: string;
 
   /**
+   * Optional - specify if the static files should be served in a particular path. eg: '/static' would mean assets are served from host/static/assets...
+   */
+  staticPrefix?: string;
+
+  /**
    * The length of time the assets should be cached on a user's browser in milliseconds. The default is 30 days.
    */
   staticAssetsCache?: number;

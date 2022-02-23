@@ -26,12 +26,11 @@ export class Server {
     const rootPath = server.rootPath || 'api';
 
     // bind express with graphql
-    app.use('/graphql', (req, res) => {
-      const enableGraphIQl = this.config.server.enableGraphIQl;
-      return graphqlHTTP({
-        schema,
-        graphiql: enableGraphIQl && enableGraphIQl.toString() === 'true' ? true : false,
-        context: { res, req, server },
+    app.use(
+      '/graphql',
+      graphqlHTTP({
+        schema: schema,
+        graphiql: this.config.server.enableGraphIQl,
         customFormatErrorFn: err => {
           if (err.originalError && (err.originalError as ArgumentValidationError).validationErrors) {
             const validationErrors = (err.originalError as ArgumentValidationError).validationErrors;
@@ -46,8 +45,8 @@ export class Server {
             return formattedErrors[0];
           } else return err;
         }
-      });
-    });
+      })
+    );
 
     // Create the controllers
     const routers: Router[] = [
@@ -63,6 +62,8 @@ export class Server {
     // User defined static folders
     if (server.staticAssets) {
       let localStaticFolder = server.staticAssets;
+      let staticPrefix = server.staticPrefix || '/';
+
       if (!existsSync(localStaticFolder)) {
         await error(`Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'`);
         process.exit();
@@ -70,11 +71,15 @@ export class Server {
 
       info(`Adding static resource folder '${localStaticFolder}'`);
       app.use(
+        staticPrefix,
         express.static(localStaticFolder, {
           maxAge: server.staticAssetsCache || 2592000000
         })
       );
     }
+
+    // Setup the most basic of status tests
+    app.use(`/${rootPath}/status`, (req, res) => res.sendStatus(200));
 
     // log every request to the console
     if (loggingEnabled()) app.use(morgan('dev'));

@@ -46,7 +46,7 @@ describe('Testing creation of posts', function() {
     });
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value { title: "New Post" }; Field slug of required type String! was not provided.'
+      'Variable "$token" got invalid value { title: "New Post" }; Field "slug" of required type "String!" was not provided.'
     );
   });
 

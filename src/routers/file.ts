@@ -1,5 +1,5 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
-import express, { Express, RequestHandler } from 'express';
+import { Router as ExpressRouter, Response, urlencoded, json, Express, RequestHandler } from 'express';
 import { Router } from './router';
 import ControllerFactory from '../core/controller-factory';
 import * as compression from 'compression';
@@ -30,11 +30,11 @@ export class FileRouter extends Router {
     this._files = ControllerFactory.get('files');
 
     // Setup the rest calls
-    const router = express.Router();
+    const router = ExpressRouter();
     router.use(compression());
-    router.use(express.urlencoded({ extended: true }) as RequestHandler);
-    router.use(express.json() as RequestHandler);
-    router.use(express.json({ type: 'application/vnd.api+json' }) as RequestHandler);
+    router.use(urlencoded({ extended: true }) as RequestHandler);
+    router.use(json() as RequestHandler);
+    router.use(json({ type: 'application/vnd.api+json' }) as RequestHandler);
 
     router.get('/volumes/:volume', this.getFiles.bind(this));
     router.delete('/:file', this.remove.bind(this));
@@ -54,7 +54,7 @@ export class FileRouter extends Router {
    */
   @j200(204)
   @isAuthorizedRest()
-  private async remove(req: IAuthReq, res: express.Response) {
+  private async remove(req: IAuthReq, res: Response) {
     await this._files.removeFiles({
       fileId: req.params.file,
       user: req._isAdmin ? undefined : (req._user!.username as string)
@@ -66,7 +66,7 @@ export class FileRouter extends Router {
    */
   @j200()
   @isAuthorizedRest()
-  private async update(req: IAuthReq, res: express.Response) {
+  private async update(req: IAuthReq, res: Response) {
     const file = req.body as Partial<IFileEntry<'server' | 'client'>>;
 
     if (!req._isAdmin && file.user) throw new Error403('Permission denied - cannot set user as non-admin');
@@ -85,7 +85,7 @@ export class FileRouter extends Router {
    */
   @j200()
   @isAuthorizedRest()
-  private async getFiles(req: IAuthReq, res: express.Response) {
+  private async getFiles(req: IAuthReq, res: Response) {
     let index: number | undefined = parseInt(req.query.index as string);
     let limit: number | undefined = parseInt(req.query.limit as string);
     index = isNaN(index) ? undefined : index;

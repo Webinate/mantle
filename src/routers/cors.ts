@@ -1,7 +1,7 @@
 ﻿import { error as logError } from '../utils/logger';
 import { Router } from './router';
-import * as express from 'express';
-import * as mongodb from 'mongodb';
+import { Express, Request, Response } from 'express';
+import { Db } from 'mongodb';
 
 /**
  * Checks all incomming requests to see if they are CORS approved
@@ -17,12 +17,12 @@ export class CORSRouter extends Router {
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize(e: express.Express, db: mongodb.Db) {
+  async initialize(e: Express, db: Db) {
     const matches: Array<RegExp> = [];
     for (let i = 0, l = this._approvedDomains.length; i < l; i++) matches.push(new RegExp(this._approvedDomains[i]));
 
     // Approves the valid domains for CORS requests
-    e.use(function(req: express.Request, res: express.Response, next: Function) {
+    e.use(function(req: Request, res: Response, next: Function) {
       if (req.headers.origin) {
         let matched = false;
         for (let m = 0, l = matches.length; m < l; m++)

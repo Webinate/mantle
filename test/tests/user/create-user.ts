@@ -74,7 +74,7 @@ describe('Testing creating a user', function() {
 
     assert.deepEqual(
       errors![0].message,
-      `Variable "$token" got invalid value "fake_permission" at "token.privileges"; Expected type UserPrivilege.`
+      `Variable "$token" got invalid value "fake_permission" at "token.privileges"; Value "fake_permission" does not exist in "UserPrivilege" enum.`
     );
   });
 

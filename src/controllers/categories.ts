@@ -122,7 +122,7 @@ export class CategoriesController extends Controller {
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
     }
 
-    await collection.updateOne(findToken, token);
+    await collection.updateOne(findToken, { $set: token });
     const updatedCategory = await collection.findOne(findToken);
 
     return updatedCategory!;

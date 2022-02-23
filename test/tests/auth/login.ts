@@ -9,11 +9,11 @@ describe('Testing user logging in', function() {
     const { errors } = await header.guest.graphql<AuthResponse>(LOGIN, { token: {} });
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value {}; Field username of required type String! was not provided.'
+      'Variable "$token" got invalid value {}; Field "username" of required type "String!" was not provided.'
     );
     assert.deepEqual(
       errors![1].message,
-      'Variable "$token" got invalid value {}; Field password of required type String! was not provided.'
+      'Variable "$token" got invalid value {}; Field "password" of required type "String!" was not provided.'
     );
   });
 

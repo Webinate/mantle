@@ -88,7 +88,6 @@ export async function initialize() {
 
   const dbProps = config.database as IDatabase;
   const mongoServer = new MongoClient(dbProps.host, {
-    localPort: dbProps.port,
     servername: dbProps.name
   });
 
@@ -100,7 +99,7 @@ export async function initialize() {
   await RemoteFactory.initialize(config, db);
   await ControllerFactory.addDefaults();
 
-  info(`Successfully connected to '${dbProps.name}' at ${dbProps.host}:${dbProps.port}`);
+  info(`Successfully connected to '${dbProps.name}' at ${dbProps.host}`);
   info(`Starting up HTTP servers...`);
 
   await prepare(db, config);

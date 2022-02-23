@@ -110,7 +110,7 @@ describe('Testing fetching of comments', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$id" got invalid value "BADID"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "BADID"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 
