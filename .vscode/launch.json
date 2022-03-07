@@ -190,11 +190,7 @@
         "--logging=false",
         "--keyFile=./volume-credentials.json",
         "--runningTests=true",
-        "--clientsFolder=./test/",
-        "--debug=true",
-        "--remotes.maxFileSize=524288",
-        "--remotes.local.url=http://localhost:8000/",
-        "--remotes.local.path=test/test-server/media"
+        "--debug=true"
       ],
       "cwd": "${workspaceRoot}",
       "preLaunchTask": null,

@@ -26,19 +26,19 @@ describe('Testing volume get requests', function() {
     // Upload files
     let form = new FormData();
     form.append('good-file', fs.createReadStream('./test/media/img-a.png'));
-    let resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    let resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     fileA = ((await resp.json()) as IFileEntry<'expanded'>[])[0];
     assert.equal(resp.status, 200);
 
     form = new FormData();
     form.append('good-file', fs.createReadStream('./test/media/img-b.png'));
-    resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     fileB = ((await resp.json()) as IFileEntry<'expanded'>[])[0];
     assert.equal(resp.status, 200);
 
     form = new FormData();
     form.append('good-file', fs.createReadStream('./test/media/img-c.png'));
-    resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     fileC = ((await resp.json()) as IFileEntry<'expanded'>[])[0];
     assert.equal(resp.status, 200);
   });

@@ -33,7 +33,7 @@ describe('Testing replacing of a file upload: ', function() {
   it('did upload a single file', async function() {
     const form = new FormData();
     form.append('good-file', fs.createReadStream(filePath));
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.equal(resp.status, 200);
 
     const files: IFileEntry<'expanded'>[] = await resp.json();
@@ -52,7 +52,7 @@ describe('Testing replacing of a file upload: ', function() {
   it('did replace uploaded file, but only changed its public url', async function() {
     const form = new FormData();
     form.append('good-file-2', fs.createReadStream(filePath2));
-    const resp = await header.user1.post(`/files/replace/${uploadedFile._id}`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/replace/${uploadedFile._id}`, form, form.getHeaders());
     assert.equal(resp.status, 200);
 
     const files: IFileEntry<'expanded'>[] = await resp.json();

@@ -173,7 +173,7 @@ export class DocumentsController extends Controller {
 
     await this._elementsCollection.deleteOne({ _id: elementId } as IDraftElement<'server'>);
     await docsCollection.updateMany({ _id: doc._id } as IDocument<'server'>, {
-      $pull: { elementsOrder: [elementId] }
+      $pull: { elementsOrder: elementId }
     });
   }
 

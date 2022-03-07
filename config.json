@@ -2,10 +2,11 @@
   "database": "./keys/database.json",
   "remotes": {
     "google": "./keys/google-remote.json",
-    "local": "./keys/local.json"
+    "local": "./keys/local.json",
+    "maxFileSize": 524288
   },
   "server": {
-    "rootPath": "api",
+    "rootPath": "/api",
     "port": 8000,
     "host": "localhost",
     "staticAssets": "clients/bucket/media",

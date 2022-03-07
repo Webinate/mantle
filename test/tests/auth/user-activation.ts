@@ -113,9 +113,11 @@ describe('Testing user activation', function() {
     assert(resp.headers.get('location')!.indexOf('error') !== -1);
   });
 
-  it('did activate with a valid username and key', async function() {
+  it('did activate with a valid username, url and key', async function() {
     const resp = await header.guest.get(
-      `/api/auth/activate-account?user=${testUserName}&key=${activationKey}`,
+      `/api/auth/activate-account?user=${testUserName}&key=${activationKey}&url=${encodeURIComponent(
+        'http://localhost:8000'
+      )}`,
       undefined,
       {
         redirect: 'manual'
@@ -123,7 +125,10 @@ describe('Testing user activation', function() {
     );
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
-    assert(resp.headers.get('location')!.indexOf('success') !== -1);
+    assert.deepEqual(
+      decodeURI(resp.headers.get('location')!),
+      'http://localhost:8000/?message=Your account has been activated!&status=success'
+    );
   });
 
   it('did log in with valid details and an activated account', async function() {

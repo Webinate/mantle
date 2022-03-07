@@ -34,7 +34,7 @@ describe('Testing file accessibility functions', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 

@@ -33,12 +33,12 @@ describe('Testing file renaming', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 
   it('uploaded file has the name "file.png"', async function() {
-    const resp = await header.user1.get(`/files/volumes/${volume._id}`);
+    const resp = await header.user1.get(`/api/files/volumes/${volume._id}`);
     assert.deepEqual(resp.status, 200);
     const json = await resp.json();
     fileId = json.data[0]._id;
@@ -77,7 +77,7 @@ describe('Testing file renaming', function() {
       }
     });
 
-    assert.ok(resp.errors![0].message.includes('Field name of required type String! was not provided.'));
+    assert.ok(resp.errors![0].message.includes('Field "name" of required type "String!" was not provided.'));
   });
 
   it('regular user did rename a correct file to testy', async function() {

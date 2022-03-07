@@ -50,26 +50,18 @@ export class AuthRouter extends Router {
    * Activates the user's account
    */
   private async activateAccount(req: Request, res: Response) {
-    const redirectURL = req.query.accountRedirectURL;
+    const redirectURL = req.query.url;
 
     try {
       // Check the user's activation and forward them onto the admin message page
       await this._userController.checkActivation(req.query.user as string, req.query.key as string);
       res.setHeader('Content-Type', 'application/json');
-      res.redirect(
-        `${redirectURL}?message=${encodeURIComponent(
-          'Your account has been activated!'
-        )}&status=success&origin=${encodeURIComponent(req.query.origin as string)}`
-      );
+      res.redirect(`${redirectURL}?message=${encodeURIComponent('Your account has been activated!')}&status=success`);
     } catch (error) {
       logError(error.toString());
       res.setHeader('Content-Type', 'application/json');
       res.status(302);
-      res.redirect(
-        `${redirectURL}?message=${encodeURIComponent(error.message)}&status=error&origin=${encodeURIComponent(
-          req.query.origin as string
-        )}`
-      );
+      res.redirect(`${redirectURL}?message=${encodeURIComponent(error.message)}&status=error`);
     }
   }
 

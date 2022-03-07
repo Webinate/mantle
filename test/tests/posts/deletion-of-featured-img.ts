@@ -51,7 +51,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
     const form = new FormData();
     const filePath = './test/media/file.png';
     form.append('good-file', fs.createReadStream(filePath));
-    const resp = await header.user3.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user3.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.equal(resp.status, 200);
     const files: IFileEntry<'expanded'>[] = await resp.json();
     assert.equal(files.length, 1);

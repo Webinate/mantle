@@ -10,8 +10,8 @@ describe('Testing creation of categories', function() {
     const resp = await header.guest.graphql<Category>(ADD_CATEGORY, {
       token: <AddCategoryInput>{}
     });
-    assert.ok(resp.errors![0].message.includes(`Field title of required type String! was not provided.`));
-    assert.ok(resp.errors![1].message.includes(`Field slug of required type String! was not provided.`));
+    assert.ok(resp.errors![0].message.includes(`Field "title" of required type "String!" was not provided.`));
+    assert.ok(resp.errors![1].message.includes(`Field "slug" of required type "String!" was not provided.`));
   });
 
   it('did not create a category when not logged in', async function() {

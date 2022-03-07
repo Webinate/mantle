@@ -10,14 +10,14 @@
 
 // describe('Getting and setting user media stat usage', async function() {
 //   before(async function() {
-//     const resp = await header.user1.post(`/volumes`, { name: 'dinosaurs' });
+//     const resp = await header.user1.post(`/api/volumes`, { name: 'dinosaurs' });
 //     const json = await resp.json();
 //     assert.deepEqual(resp.status, 200);
 //     volume = json;
 //   });
 
 //   after(async function() {
-//     const resp = await header.user1.delete(`/volumes/${volume._id}`);
+//     const resp = await header.user1.delete(`/api/volumes/${volume._id}`);
 //     assert.deepEqual(resp.status, 204);
 //   });
 
@@ -27,12 +27,12 @@
 //       filename: 'small-image.png',
 //       contentType: 'image/png'
 //     });
-//     const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+//     const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
 //     assert.deepEqual(resp.status, 200);
 //   });
 
 //   it('regular user has 1 file', async function() {
-//     const resp = await header.user1.get(`/files/volumes/${volume._id}`);
+//     const resp = await header.user1.get(`/api/files/volumes/${volume._id}`);
 //     const json = await resp.json();
 //     assert.deepEqual(resp.status, 200);
 //     fileUrl = json.data[0].publicURL;

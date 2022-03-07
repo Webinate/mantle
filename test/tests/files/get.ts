@@ -51,7 +51,7 @@ describe('Getting uploaded user files', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 
@@ -61,7 +61,7 @@ describe('Getting uploaded user files', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 
@@ -96,7 +96,7 @@ describe('Getting uploaded user files', function() {
   });
 
   it('admin fetched 2 files from the regular users dinosaur volume', async function() {
-    const resp = await header.admin.get(`/files/volumes/${volume._id}`);
+    const resp = await header.admin.get(`/api/files/volumes/${volume._id}`);
     const json = await resp.json();
     assert.deepEqual(resp.status, 200);
     assert(json.data.length === 2);
