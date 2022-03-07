@@ -1,1 +1,0 @@
-This is the local volume for files uploaded by mantle

@@ -9,7 +9,7 @@
     "rootPath": "/api",
     "port": 8000,
     "host": "localhost",
-    "staticAssets": "clients/bucket/media",
+    "staticAssets": "uploads",
     "staticPrefix": "/media",
     "enableGraphIQl": true
   },
