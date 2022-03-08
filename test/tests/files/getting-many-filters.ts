@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
 import { GET_FILES } from '../../client/requests/file';
 import { AddVolumeInput, Volume, PaginatedFilesResponse, QueryFilesArgs } from '../../../src/index';
-import { IFileEntry } from '../../../src/types/models/i-file-entry';
+import { IFileEntry } from '../../../src/types';
 
 let volume: Volume;
 let fileA: IFileEntry<'expanded'>;

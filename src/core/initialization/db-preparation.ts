@@ -1,4 +1,4 @@
-import { IConfig } from '../../types/config/i-config';
+import { IConfig } from '../../types';
 import { Db } from 'mongodb';
 import { CommsController } from '../../socket-api/comms-controller';
 // import { Collections } from '../enums';

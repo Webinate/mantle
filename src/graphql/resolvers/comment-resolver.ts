@@ -18,13 +18,12 @@ import {
   UpdateCommentInput
 } from '../models/comment-type';
 import ControllerFactory from '../../core/controller-factory';
-import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { IGQLContext, IComment } from '../../types';
 import { CommentVisibility, AuthLevel, CommentSortType, SortOrder } from '../../core/enums';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectId } from 'mongodb';
 import { Error403 } from '../../utils/errors';
 import { User } from '../models/user-type';
-import { IComment } from '../../types/models/i-comment';
 
 @Resolver(of => Comment)
 export class CommentResolver implements ResolverInterface<Comment> {

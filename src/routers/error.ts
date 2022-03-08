@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-import { ISimpleResponse } from '../types/tokens/standard-tokens';
+import { ISimpleResponse } from '../types';
 import { Router } from './router';
 import { Express, Request, Response } from 'express';
 import { Db } from 'mongodb';

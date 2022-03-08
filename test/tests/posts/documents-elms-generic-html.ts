@@ -4,8 +4,7 @@ import { randomString } from '../utils';
 import header from '../header';
 import { ADD_DOC_ELEMENT } from '../../client/requests/documents';
 import { AddElementInput, Element } from '../../../src/index';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost, IUserEntry } from '../../../src/types';
 
 let post: IPost<'server'>, user1: IUserEntry<'server'>;
 

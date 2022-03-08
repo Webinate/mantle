@@ -4,9 +4,7 @@ import { randomString } from '../utils';
 import header from '../header';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT, REMOVE_DOC_ELEMENT } from '../../client/requests/documents';
 import { AddElementInput, Document } from '../../../src/index';
-import { IAdminUser } from '../../../src/types/config/properties/i-admin';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost, IUserEntry, IAdminUser } from '../../../src/types';
 
 let post: IPost<'server'>, admin: IUserEntry<'server'>;
 const htmls = ['<p>1</p>', '<p>2</p>'];

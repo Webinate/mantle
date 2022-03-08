@@ -4,10 +4,9 @@ import { GraphQLObjectId } from '../scalars/object-id';
 import { JsonType } from '../scalars/json';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
-import { IFileEntry } from '../../types/models/i-file-entry';
+import { IFileEntry, Page } from '../../types';
 import { Volume } from './volume-type';
 import { PaginatedResponse } from './paginated-response';
-import { Page } from '../../types/tokens/standard-tokens';
 import { SortOrder, FileSortType } from '../../core/enums';
 
 @ObjectType({ description: 'Object representing a File' })

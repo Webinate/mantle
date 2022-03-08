@@ -8,7 +8,7 @@ import {
 } from '../models/category-type';
 import ControllerFactory from '../../core/controller-factory';
 import { AuthLevel } from '../../core/enums';
-import { ICategory } from '../../types/models/i-category';
+import { ICategory } from '../../types';
 
 @Resolver(of => Category)
 export class CategoryResolver implements ResolverInterface<Category> {

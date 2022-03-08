@@ -2,7 +2,7 @@ import {} from 'mocha';
 import { resolve } from 'path';
 import { statSync } from 'fs';
 import ControllerFactory from '../../src/core/controller-factory';
-import { IVolume } from '../../src/types/models/i-volume-entry';
+import { IVolume } from '../../src/types';
 
 export class File {
   name: string;

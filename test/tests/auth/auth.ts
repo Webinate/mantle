@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { AUTHENTICATED } from '../../client/requests/auth';
 import { AuthResponse } from '../../../src/index';
-import { IAdminUser } from '../../../src/types/config/properties/i-admin';
+import { IAdminUser } from '../../../src/types';
 
 describe('Checking basic authentication', function() {
   it('guest should not be logged in', async function() {

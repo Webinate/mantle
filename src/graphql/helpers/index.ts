@@ -1,7 +1,7 @@
 import Factory from '../../core/controller-factory';
 import { ServerResponse } from 'http';
 import { Request } from 'express';
-import { IUserEntry } from '../../types/models/i-user-entry';
+import { IUserEntry } from '../../types';
 
 export async function getAuthUser(req: Request, res: ServerResponse) {
   const session = await Factory.get('sessions').getSession(req);

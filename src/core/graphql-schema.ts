@@ -11,7 +11,7 @@ import { FileResolver } from '../graphql/resolvers/file-resolver';
 import { DocumentResolver } from '../graphql/resolvers/document-resolver';
 import ControllerFactory from './controller-factory';
 import { UserPrivilege, AuthLevel } from './enums';
-import { IGQLContext } from '../types/interfaces/i-gql-context';
+import { IGQLContext } from '../types';
 import { error, info } from '../utils/logger';
 import { TemplateResolver } from '../graphql/resolvers/template-resolver';
 import { PostResolver } from '../graphql/resolvers/post-resolver';

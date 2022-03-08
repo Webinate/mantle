@@ -5,8 +5,7 @@ import header from '../header';
 import { GET_POST } from '../../client/requests/posts';
 import { REMOVE_USER } from '../../client/requests/users';
 import { Post } from '../../../src/index';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost, IUserEntry } from '../../../src/types';
 
 let post: IPost<'server'>, newUser: IUserEntry<'server'>;
 

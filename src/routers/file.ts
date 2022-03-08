@@ -1,4 +1,4 @@
-﻿import { IAuthReq } from '../types/tokens/i-auth-request';
+﻿import { IAuthReq, IFileEntry } from '../types';
 import { Router as ExpressRouter, Response, urlencoded, json, Express, RequestHandler } from 'express';
 import { Router } from './router';
 import ControllerFactory from '../core/controller-factory';
@@ -7,7 +7,6 @@ import { j200 } from '../decorators/responses';
 import { isAuthorizedRest } from '../decorators/permissions';
 import * as mongodb from 'mongodb';
 import { FilesController } from '../controllers/files';
-import { IFileEntry } from '../types/models/i-file-entry';
 import { Error403 } from '../utils/errors';
 import { SortOrder } from '../core/enums';
 

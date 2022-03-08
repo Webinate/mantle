@@ -1,7 +1,6 @@
 import { ObjectType, Field, InputType, ArgsType, Int } from 'type-graphql';
 import { PaginatedResponse } from './paginated-response';
-import { ICategory } from '../../types/models/i-category';
-import { Page } from '../../types/tokens/standard-tokens';
+import { Page, ICategory } from '../../types';
 import { IsSafeText } from '../../decorators/isSafeText';
 import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';

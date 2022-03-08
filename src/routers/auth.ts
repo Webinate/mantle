@@ -1,4 +1,4 @@
-﻿import { ISimpleResponse } from '../types/tokens/standard-tokens';
+﻿import { ISimpleResponse } from '../types';
 import { Router as ExpressRouter, Request, Response, urlencoded, json, Express, RequestHandler } from 'express';
 import ControllerFactory from '../core/controller-factory';
 import { UsersController } from '../controllers/users';

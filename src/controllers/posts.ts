@@ -1,15 +1,11 @@
-﻿import { IConfig } from '../types/config/i-config';
-import { Page } from '../types/tokens/standard-tokens';
-import { IPost } from '../types/models/i-post';
+﻿import { IConfig } from '../types/all-types';
+import { Page, IPost, IUserEntry, IFileEntry, IDraft } from '../types';
 import { Db, ObjectId, Collection, Sort, SortDirection } from 'mongodb';
 import ControllerFactory from '../core/controller-factory';
 import Controller from './controller';
 import { UsersController } from './users';
-import { IUserEntry } from '../types/models/i-user-entry';
-import { IFileEntry } from '../types/models/i-file-entry';
 import { DocumentsController } from './documents';
 import { Error404, Error400 } from '../utils/errors';
-import { IDraft } from '../types/models/i-draft';
 import { SortOrder, PostsGetOptions } from '../core/enums';
 
 export type PostsGetOneOptions = {

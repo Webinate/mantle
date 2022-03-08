@@ -3,10 +3,7 @@ import { resolve, basename, extname } from 'path';
 import * as rimraf from 'rimraf';
 import { mkdirSync, exists, existsSync, createWriteStream, createReadStream } from 'fs';
 import { createGzip, Gzip } from 'zlib';
-import { ILocalVolume } from '../../types/config/properties/i-remote-options';
-import { IRemote, IUploadToken, IUpload } from '../../types/interfaces/i-remote';
-import { IFileEntry } from '../../types/models/i-file-entry';
-import { IVolume } from '../../types/models/i-volume-entry';
+import { ILocalVolume, IRemote, IUploadToken, IUpload, IVolume, IFileEntry } from '../../types';
 import * as compressible from 'compressible';
 
 export class LocalVolume implements IRemote {

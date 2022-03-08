@@ -4,7 +4,7 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { GET_VOLUMES } from '../../client/requests/volume';
 import { PaginatedVolumeResponse } from '../../../src/index';
-import { IVolume } from '../../../src/types/models/i-volume-entry';
+import { IVolume } from '../../../src/types';
 
 let volA: IVolume<'server'>;
 let volB: IVolume<'server'>;

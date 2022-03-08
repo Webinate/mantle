@@ -6,7 +6,7 @@ import { randomString } from '../utils';
 import * as FormData from 'form-data';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
 import { AddVolumeInput, Volume } from '../../../src/index';
-import { IUploadResponse } from '../../../src/types/tokens/i-file-tokens';
+import { IUploadResponse } from '../../../src/types';
 
 const goodFilePath = './test/media/file.png';
 const dangerousFile = './test/media/dangerous.sh';

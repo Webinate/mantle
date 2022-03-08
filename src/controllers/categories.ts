@@ -1,8 +1,7 @@
-﻿import { IConfig } from '../types/config/i-config';
-import { Page } from '../types/tokens/standard-tokens';
+﻿import { IConfig } from '../types/all-types';
+import { Page, ICategory } from '../types';
 import * as mongodb from 'mongodb';
 import Controller from './controller';
-import { ICategory } from '../types/models/i-category';
 import { ObjectId } from 'mongodb';
 import { CategoriesGetOptions } from '../core/enums';
 

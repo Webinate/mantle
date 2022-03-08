@@ -1,6 +1,4 @@
-﻿import { ISession } from '../types/config/properties/i-session';
-import { IUserEntry } from '../types/models/i-user-entry';
-import { ISessionEntry } from '../types/models/i-session-entry';
+﻿import { IUserEntry, ISessionEntry, ISession } from '../types';
 import { IncomingMessage } from 'http';
 import { ObjectId } from 'mongodb';
 

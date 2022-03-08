@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { IConfig } from '../../src/types/config/i-config';
+import { IConfig } from '../../src/types';
 
 /**
  * Loads any of the sensitive props in the config json

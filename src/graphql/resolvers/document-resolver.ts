@@ -13,7 +13,7 @@ import {
 import { Document } from '../models/document-type';
 import { AuthLevel } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
-import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { IGQLContext, IDraftElement } from '../../types';
 import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from '../models/user-type';
@@ -21,7 +21,6 @@ import { Template } from '../models/template-type';
 import { Element, AddElementInput, UpdateElementInput } from '../models/element-type';
 import { Queue } from '../helpers/queue';
 import { JsonType } from '../scalars/json';
-import { IDraftElement } from '../../types/models/i-draft-elements';
 
 const addElmQueue: Queue = new Queue();
 const removeElmQueue: Queue = new Queue();

@@ -4,12 +4,11 @@ import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
 import { Category } from './category-type';
-import { IPost } from '../../types/models/i-post';
+import { IPost, Page } from '../../types';
 import { Draft } from './draft-type';
 import { File } from './file-type';
 import { Document } from './document-type';
 import { IsSafeText } from '../../decorators/isSafeText';
-import { Page } from '../../types/tokens/standard-tokens';
 import { PaginatedResponse } from './paginated-response';
 import { PostVisibility, PostSortType, SortOrder } from '../../core/enums';
 

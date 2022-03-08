@@ -21,8 +21,7 @@ import { AuthLevel } from '../../core/enums';
 import { GraphQLObjectId } from '../scalars/object-id';
 import ControllerFactory from '../../core/controller-factory';
 import { Error404, Error403 } from '../../utils/errors';
-import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { IVolume } from '../../types/models/i-volume-entry';
+import { IGQLContext, IVolume } from '../../types';
 import { ObjectId } from 'mongodb';
 import { User } from '../models/user-type';
 

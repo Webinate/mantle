@@ -1,12 +1,8 @@
-﻿import { IConfig } from '../types/config/i-config';
-import { Page } from '../types/tokens/standard-tokens';
+﻿import { IConfig } from '../types/all-types';
+import { Page, IDocument, IDraft, IDraftElement, ITemplate } from '../types';
 import { Db, ObjectId, Collection } from 'mongodb';
 import Controller from './controller';
-import { IDocument } from '../types/models/i-document';
-import { IDraft } from '../types/models/i-draft';
 import { Error404, Error400, Error403 } from '../utils/errors';
-import { ITemplate } from '../types/models/i-template';
-import { IDraftElement } from '../types/models/i-draft-elements';
 import { buildHtml, transformElmHtml } from './build-html';
 import { ElementType } from '../core/enums';
 

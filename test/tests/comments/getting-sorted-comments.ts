@@ -4,10 +4,7 @@ import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { GET_COMMENTS } from '../../client/requests/comments';
 import { PaginatedCommentsResponse, QueryCommentsArgs } from '../../../src/index';
-import { IAdminUser } from '../../../src/types/config/properties/i-admin';
-import { IComment } from '../../../src/types/models/i-comment';
-import { IPost } from '../../../src/types/models/i-post';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IUserEntry, IPost, IAdminUser, IComment } from '../../../src/types';
 
 let post: IPost<'server'>, comment1: IComment<'server'>, comment2: IComment<'server'>, admin: IUserEntry<'server'>;
 

@@ -5,8 +5,7 @@ import header from '../header';
 import { ObjectId } from 'mongodb';
 import { ADD_DOC_ELEMENT, GET_DOCUMENT } from '../../client/requests/documents';
 import { AddElementInput, Element, Document } from '../../../src/index';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost, IUserEntry } from '../../../src/types';
 
 let post: IPost<'server'>, documentId: ObjectId, user1: IUserEntry<'server'>;
 

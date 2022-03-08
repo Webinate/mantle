@@ -4,10 +4,9 @@ import { GraphQLObjectId } from '../scalars/object-id';
 import { JsonType } from '../scalars/json';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
-import { IVolume } from '../../types/models/i-volume-entry';
+import { IVolume, Page } from '../../types';
 import { VolumeType, SortOrder, VolumeSortType, AuthLevel } from '../../core/enums';
 import { PaginatedResponse } from './paginated-response';
-import { Page } from '../../types/tokens/standard-tokens';
 
 @ObjectType({ description: 'Object representing a Volume' })
 export class Volume {

@@ -5,8 +5,7 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../client/requests/posts';
 import { ADD_COMMENT, GET_COMMENT, GET_COMMENTS } from '../../client/requests/comments';
 import { Comment, AddCommentInput, Post, AddPostInput, PaginatedCommentsResponse } from '../../../src/index';
-import { IAdminUser } from '../../../src/types/config/properties/i-admin';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IAdminUser, IUserEntry } from '../../../src/types';
 
 let numPosts: number,
   numComments: number,

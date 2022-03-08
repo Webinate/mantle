@@ -1,10 +1,8 @@
-import { IConfig } from '../../types/config/i-config';
+import { IConfig } from '../../types/all-types';
 import { Db } from 'mongodb';
 import { googleVolume, GoogleVolume } from './google-volume';
 import { localVolume, LocalVolume } from './local-volume';
-import { IGoogleProperties } from '../../types/config/properties/i-google';
-import { ILocalVolume } from '../../types/config/properties/i-remote-options';
-import { IRemote } from '../../types/interfaces/i-remote';
+import { IGoogleProperties, ILocalVolume, IRemote } from '../../types';
 
 /**
  * Factory classs for creating & getting models

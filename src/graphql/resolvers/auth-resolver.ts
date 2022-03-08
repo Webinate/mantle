@@ -3,8 +3,7 @@ import ControllerFactory from '../../core/controller-factory';
 import { AuthLevel } from '../../core/enums';
 import { AuthResponse, LoginInput, RegisterInput } from '../models/auth-type';
 import { User } from '../models/user-type';
-import { IGQLContext } from '../../types/interfaces/i-gql-context';
-import { IUserEntry } from '../../types/models/i-user-entry';
+import { IGQLContext, IUserEntry } from '../../types';
 import { Error403 } from '../../utils/errors';
 
 @Resolver(of => AuthResponse)

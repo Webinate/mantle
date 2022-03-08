@@ -1,13 +1,10 @@
-﻿import { IConfig } from '../types/config/i-config';
-import { Page } from '../types/tokens/standard-tokens';
-import { IComment } from '../types/models/i-comment';
+﻿import { IConfig } from '../types/all-types';
+import { Page, IComment, IUserEntry, IPost } from '../types';
 import * as mongodb from 'mongodb';
 import { Sort, SortDirection } from 'mongodb';
 import Controller from './controller';
 import { ObjectId } from 'mongodb';
-import { IUserEntry } from '../types/models/i-user-entry';
 import { SortOrder, CommentSortType, CommentVisibility, CommentsGetOptions } from '../core/enums';
-import { IPost } from '../types/models/i-post';
 
 /**
  * A controller that deals with the management of comments

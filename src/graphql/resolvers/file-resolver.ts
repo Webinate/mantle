@@ -4,11 +4,10 @@ import { AuthLevel, UserPrivilege } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { ObjectId } from 'mongodb';
-import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { IGQLContext, IFileEntry } from '../../types';
 import { Error403, Error400 } from '../../utils/errors';
 import { User } from '../models/user-type';
 import { Volume } from '../models/volume-type';
-import { IFileEntry } from '../../types/models/i-file-entry';
 
 @Resolver(of => File)
 export class FileResolver {

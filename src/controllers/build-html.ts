@@ -1,4 +1,4 @@
-import { IDraftElement, IImageElement } from '../types/models/i-draft-elements';
+import { IDraftElement, IImageElement } from '../types';
 import ControllerFactory from '../core/controller-factory';
 import { ElementType } from '../core/enums';
 import * as sanitizeHtml from 'sanitize-html';

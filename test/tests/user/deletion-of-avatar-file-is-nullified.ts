@@ -8,7 +8,7 @@ import { GET_USER, EDIT_USER } from '../../client/requests/users';
 import { REMOVE_FILE } from '../../client/requests/file';
 import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
 import { AddVolumeInput, UpdateUserInput, File, Volume, User } from '../../../src/index';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IUserEntry } from '../../../src/types';
 let user: IUserEntry<'server'>, volume: Volume, file: File;
 
 describe('Testing deletion of an avatar image nullifies it on the user: ', function() {

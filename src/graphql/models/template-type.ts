@@ -1,9 +1,8 @@
 import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
-import { ITemplate } from '../../types/models/i-template';
+import { ITemplate, Page } from '../../types';
 import { PaginatedResponse } from './paginated-response';
-import { Page } from '../../types/tokens/standard-tokens';
 
 @ObjectType({ description: 'Object representing a Template' })
 export class Template {

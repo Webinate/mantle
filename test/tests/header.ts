@@ -3,10 +3,10 @@ import Agent from './agent';
 import loadConfig from './load-config';
 import { REMOVE_USER, ADD_USER } from '../client/requests/users';
 import { LOGIN } from '../client/requests/auth';
-import { IConfig } from '../../src/types/config/i-config';
+import { IConfig } from '../../src/types/all-types';
 let args = yargs.argv;
 import { UserPrivilege, AuthResponse, User } from '../../src/index';
-import { IAdminUser } from '../../src/types/config/properties/i-admin';
+import { IAdminUser } from '../../src/types';
 
 export class Header {
   public config: IConfig;

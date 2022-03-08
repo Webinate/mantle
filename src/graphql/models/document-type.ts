@@ -6,7 +6,7 @@ import { Element } from './element-type';
 import { LongType } from '../scalars/long';
 import { Template } from './template-type';
 import { JsonType } from '../scalars/json';
-import { IDocument } from '../../types/models/i-document';
+import { IDocument } from '../../types';
 
 @ObjectType({ description: 'Object representing a Document' })
 export class Document {

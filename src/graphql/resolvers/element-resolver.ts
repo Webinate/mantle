@@ -2,7 +2,7 @@ import { Resolver, ResolverInterface, FieldResolver, Root } from 'type-graphql';
 import { Element } from '../models/element-type';
 import { File } from '../models/file-type';
 import ControllerFactory from '../../core/controller-factory';
-import { IImageElement } from '../../types/models/i-draft-elements';
+import { IImageElement } from '../../types';
 import { buildHtml } from '../../controllers/build-html';
 import { ObjectId } from 'mongodb';
 

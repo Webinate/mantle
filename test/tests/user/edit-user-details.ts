@@ -4,9 +4,7 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { EDIT_USER } from '../../client/requests/users';
 import { UpdateUserInput, User } from '../../../src/index';
-import { IFileEntry } from '../../../src/types/models/i-file-entry';
-import { IVolume } from '../../../src/types/models/i-volume-entry';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IUserEntry, IVolume, IFileEntry } from '../../../src/types';
 
 let user: IUserEntry<'server'>, admin: IUserEntry<'server'>, volume: IVolume<'server'>, file: IFileEntry<'server'>;
 

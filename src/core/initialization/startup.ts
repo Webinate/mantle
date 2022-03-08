@@ -1,5 +1,4 @@
-﻿import { IConfig } from '../../types/config/i-config';
-import { IDatabase } from '../../types/config/properties/i-database';
+﻿import { IConfig, IDatabase } from '../../types';
 import { readFileSync, existsSync } from 'fs';
 import { dirname } from 'path';
 import { error, info, clear, initializeLogger } from '../../utils/logger';

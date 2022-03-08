@@ -3,7 +3,7 @@ import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { ADD_COMMENT } from '../../client/requests/comments';
 import { Comment, AddCommentInput } from '../../../src/index';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost } from '../../../src/types';
 import controllerFactory from '../../../src/core/controller-factory';
 
 let numPosts: number, numComments: number, newPost: IPost<'server'>, commentId: string;

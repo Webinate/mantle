@@ -1,5 +1,5 @@
 ﻿import { ObjectId } from 'mongodb';
-import { IUserEntry } from '../types/models/i-user-entry';
+import { IUserEntry } from '../types';
 
 export type CategoriesGetOptions = {
   index: number;

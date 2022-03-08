@@ -8,7 +8,6 @@
   "license": "MIT",
   "scripts": {
     "build": "gulp build",
-    "clean": "rimraf dist",
     "migrate-up": "migrate-mongo up --file=mm-config.js",
     "migrate-down": "migrate-mongo down --file=mm-config.js",
     "migrate-status": "migrate-mongo status --file=mm-config.js",

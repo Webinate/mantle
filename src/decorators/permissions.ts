@@ -1,7 +1,7 @@
 import Factory from '../core/controller-factory';
 import * as express from 'express';
 import { Error401 } from '../utils/errors';
-import { IAuthReq } from '../types/tokens/i-auth-request';
+import { IAuthReq } from '../types';
 import { ServerResponse } from 'http';
 
 /**

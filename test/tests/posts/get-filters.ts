@@ -4,8 +4,7 @@ import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { GET_POSTS, UPDATE_POST } from '../../client/requests/posts';
 import { PaginatedPostsResponse, UpdatePostInput, QueryPostsArgs } from '../../../src/index';
-import { IPost } from '../../../src/types/models/i-post';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IUserEntry, IPost } from '../../../src/types';
 
 let postPublic: IPost<'server'>, postPrivate: IPost<'server'>;
 

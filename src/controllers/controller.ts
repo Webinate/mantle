@@ -1,5 +1,5 @@
 import { Db } from 'mongodb';
-import { IConfig } from '../types/config/i-config';
+import { IConfig } from '../types';
 import { EventEmitter } from 'events';
 
 /**

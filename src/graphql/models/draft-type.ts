@@ -4,7 +4,7 @@ import { GraphQLObjectId } from '../scalars/object-id';
 import { Document } from './document-type';
 import { LongType } from '../scalars/long';
 import { JsonType } from '../scalars/json';
-import { IDraft } from '../../types/models/i-draft';
+import { IDraft } from '../../types';
 
 @ObjectType({ description: 'Object representing a Draft' })
 export class Draft {

@@ -5,7 +5,7 @@ import { error as logError, info } from '../utils/logger';
 import Factory from '../core/controller-factory';
 import { CommsController } from './comms-controller';
 import { ServerInstruction } from './server-instruction';
-import { IUserEntry } from '../types/models/i-user-entry';
+import { IUserEntry } from '../types';
 import { Request } from 'express';
 
 /**

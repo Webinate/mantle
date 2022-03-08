@@ -5,7 +5,7 @@ import { randomString } from '../utils';
 import * as FormData from 'form-data';
 import { ADD_VOLUME, REMOVE_VOLUME, GET_VOLUME } from '../../client/requests/volume';
 import { AddVolumeInput, Volume } from '../../../src/index';
-import { IFileEntry } from '../../../src/types/models/i-file-entry';
+import { IFileEntry } from '../../../src/types';
 
 let volume: Volume;
 let uploadedFile: IFileEntry<'expanded'>;

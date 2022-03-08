@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { LOGIN } from '../../client/requests/auth';
 import { LoginInput, AuthResponse } from '../../../src/index';
-import { IAdminUser } from '../../../src/types/config/properties/i-admin';
+import { IAdminUser } from '../../../src/types';
 
 describe('Testing user logging in', function() {
   it('did not log in with empty credentials', async function() {

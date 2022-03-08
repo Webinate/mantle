@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { GET_USER_AS_ADMIN, GET_USER } from '../../client/requests/users';
 import { User } from '../../../src/index';
-import { IAdminUser } from '../../../src/types/config/properties/i-admin';
+import { IAdminUser } from '../../../src/types';
 
 describe('Getting user data', function() {
   it('should allow admin access to its data', async function() {

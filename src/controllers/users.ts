@@ -1,8 +1,5 @@
-﻿import { IConfig } from '../types/config/i-config';
-import { IMailer, IMailgun, IMailOptions } from '../types/config/properties/i-mail';
-import { IAdminUser } from '../types/config/properties/i-admin';
-import { Page } from '../types/tokens/standard-tokens';
-import { IUserEntry } from '../types/models/i-user-entry';
+﻿import { IConfig } from '../types/all-types';
+import { IMailer, IMailgun, IMailOptions, IAdminUser, Page, IUserEntry, IFileEntry } from '../types';
 import { Db, ObjectId, Collection } from 'mongodb';
 import { ServerResponse, IncomingMessage } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
@@ -17,7 +14,6 @@ import { Mailguner } from '../mailers/mailgun';
 import { Session } from '../core/session';
 import Controller from './controller';
 import { Error400, Error404 } from '../utils/errors';
-import { IFileEntry } from '../types/models/i-file-entry';
 
 export type UserEvents = 'user-removed';
 export type UserEvent<T extends UserEvents> = {

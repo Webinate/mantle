@@ -4,7 +4,7 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { UPDATE_VOLUME } from '../../client/requests/volume';
 import { UpdateVolumeInput } from '../../../src/graphql/models/volume-type';
 import { Volume } from '../../../src/index';
-import { IVolume } from '../../../src/types/models/i-volume-entry';
+import { IVolume } from '../../../src/types';
 
 let volumeJson: IVolume<'server'>;
 

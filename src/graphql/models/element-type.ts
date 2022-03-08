@@ -4,7 +4,7 @@ import { GraphQLObjectId } from '../scalars/object-id';
 import { File } from './file-type';
 import { JsonType } from '../scalars/json';
 import { ElementType } from '../../core/enums';
-import { IImageElement } from '../../types/models/i-draft-elements';
+import { IImageElement } from '../../types';
 
 @ObjectType({ description: 'Object representing a Element' })
 export class Element {

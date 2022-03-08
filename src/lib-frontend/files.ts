@@ -1,6 +1,5 @@
 import { getJson, makeQueryString, del, putJson, post, apiUrl } from './http-clients';
-import { Page } from '../types/tokens/standard-tokens';
-import { IFileEntry } from '../types/models/i-file-entry';
+import { IFileEntry, Page } from '../types';
 import { FilesGetOptions } from '../core/enums';
 
 const rootPath = `${apiUrl}/files`;

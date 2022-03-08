@@ -8,9 +8,7 @@ import { ADD_DOC_ELEMENT, GET_DOCUMENT, UPDATE_DOC_ELEMENT } from '../../client/
 import { REMOVE_FILE } from '../../client/requests/file';
 import { ADD_VOLUME } from '../../client/requests/volume';
 import { AddVolumeInput, UpdateElementInput, AddElementInput, Element, Volume, Document } from '../../../src/index';
-import { IFileEntry } from '../../../src/types/models/i-file-entry';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost, IUserEntry, IFileEntry } from '../../../src/types';
 
 let post: IPost<'server'>, volume: Volume, imageElm: Element, file: IFileEntry<'expanded'>;
 

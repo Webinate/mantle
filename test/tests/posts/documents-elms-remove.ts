@@ -4,8 +4,7 @@ import { randomString } from '../utils';
 import header from '../header';
 import { REMOVE_DOC_ELEMENT, GET_DOCUMENT } from '../../client/requests/documents';
 import { Document } from '../../../src/index';
-import { IPost } from '../../../src/types/models/i-post';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
+import { IUserEntry, IPost } from '../../../src/types';
 
 let post: IPost<'server'>, document: Document;
 

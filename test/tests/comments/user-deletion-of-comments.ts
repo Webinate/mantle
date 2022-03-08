@@ -6,8 +6,7 @@ import Agent from '../agent';
 import { ADD_COMMENT, GET_COMMENT } from '../../client/requests/comments';
 import { REMOVE_USER } from '../../client/requests/users';
 import { Comment, AddCommentInput } from '../../../src/index';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost, IUserEntry } from '../../../src/types';
 
 let post: IPost<'server'>,
   newUserAgent: Agent,

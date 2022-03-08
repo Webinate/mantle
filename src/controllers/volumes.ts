@@ -1,6 +1,5 @@
-﻿import { IConfig } from '../types/config/i-config';
-import { Page } from '../types/tokens/standard-tokens';
-import { IVolume } from '../types/models/i-volume-entry';
+﻿import { IConfig } from '../types/all-types';
+import { Page, IVolume, IUserEntry } from '../types';
 import { Db, ObjectId, Collection, Sort, SortDirection } from 'mongodb';
 import { generateRandString, isValidObjectID } from '../utils/utils';
 import Controller from './controller';
@@ -9,7 +8,6 @@ import ControllerFactory from '../core/controller-factory';
 import RemoteFactory from '../core/remotes/remote-factory';
 import { Error500, Error404 } from '../utils/errors';
 import { UsersController } from './users';
-import { IUserEntry } from '../types/models/i-user-entry';
 import { VolumeSortType, VolumesGetOptions } from '../core/enums';
 
 export type GetOptions = {

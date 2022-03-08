@@ -1,8 +1,7 @@
-﻿import { IConfig } from '../types/config/i-config';
-import { Page } from '../types/tokens/standard-tokens';
+﻿import { IConfig } from '../types/all-types';
+import { Page, ITemplate } from '../types';
 import { Db, ObjectId, Collection } from 'mongodb';
 import Controller from './controller';
-import { ITemplate } from '../types/models/i-template';
 
 export type GetOptions = {
   id: string;

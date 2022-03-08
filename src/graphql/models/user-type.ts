@@ -1,11 +1,10 @@
 import { ObjectType, Field, InputType, ArgsType, Int, Authorized } from 'type-graphql';
 import { PaginatedResponse } from './paginated-response';
-import { Page } from '../../types/tokens/standard-tokens';
+import { Page, IUserEntry } from '../../types';
 import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { LongType } from '../scalars/long';
 import { JsonType } from '../scalars/json';
-import { IUserEntry } from '../../types/models/i-user-entry';
 import { UserPrivilege, AuthLevel } from '../../core/enums';
 import { IsEmail } from 'class-validator';
 import { File } from './file-type';

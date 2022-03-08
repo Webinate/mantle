@@ -10,8 +10,7 @@ import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { UpdatePostInput } from '../../../src/graphql/models/post-type';
 import { REMOVE_FILE } from '../../client/requests/file';
 import { Post, Volume } from '../../../src/index';
-import { IFileEntry } from '../../../src/types/models/i-file-entry';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost, IFileEntry } from '../../../src/types';
 
 let post: IPost<'server'>, volume: Volume, file: IFileEntry<'expanded'>;
 

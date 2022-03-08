@@ -1,7 +1,5 @@
-import { IConfig } from '../types/config/i-config';
-import { ISession } from '../types/config/properties/i-session';
-import { IUserEntry } from '../types/models/i-user-entry';
-import { ISessionEntry } from '../types/models/i-session-entry';
+import { IConfig } from '../types/all-types';
+import { ISession, IUserEntry, ISessionEntry } from '../types';
 import { ServerResponse, IncomingMessage } from 'http';
 import { Collection, Db, ObjectId } from 'mongodb';
 import { Session } from '../core/session';

@@ -6,7 +6,7 @@ import { randomString } from '../utils';
 import * as FormData from 'form-data';
 import { ADD_VOLUME, REMOVE_VOLUME, UPDATE_VOLUME } from '../../client/requests/volume';
 import { UpdateVolumeInput, AddVolumeInput, Volume } from '../../../src/index';
-import { IFileEntry } from '../../../src/types/models/i-file-entry';
+import { IFileEntry } from '../../../src/types';
 
 let volume: Volume;
 const filePath = './test/media/file.png';

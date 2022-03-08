@@ -14,9 +14,8 @@ import ControllerFactory from '../../core/controller-factory';
 import { User, PaginatedUserResponse, GetUsersArgs, AddUserInput, UpdateUserInput } from '../models/user-type';
 import { File } from '../models/file-type';
 import { Error403, Error400, Error404 } from '../../utils/errors';
-import { IGQLContext } from '../../types/interfaces/i-gql-context';
+import { IGQLContext, IUserEntry } from '../../types';
 import { UserPrivilege, AuthLevel } from '../../core/enums';
-import { IUserEntry } from '../../types/models/i-user-entry';
 
 @Resolver(of => User)
 export class UserResolver implements ResolverInterface<User> {

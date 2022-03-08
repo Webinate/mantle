@@ -1,5 +1,5 @@
 import { ObjectType, Field, ClassType, Int } from 'type-graphql';
-import { Page as IPage } from '../../types/tokens/standard-tokens';
+import { Page as IPage } from '../../types';
 
 export function PaginatedResponse<TItem>(TItemClass: ClassType<TItem>) {
   @ObjectType({ isAbstract: true })
@@ -19,7 +19,7 @@ export function PaginatedResponse<TItem>(TItemClass: ClassType<TItem>) {
     index: number;
   }
 
-  return PaginatedResponseClassInner as (new () => {
-    [key in keyof PaginatedResponseClassInner]: PaginatedResponseClassInner[key]
-  });
+  return PaginatedResponseClassInner as new () => {
+    [key in keyof PaginatedResponseClassInner]: PaginatedResponseClassInner[key];
+  };
 }

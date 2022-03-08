@@ -6,8 +6,7 @@ import { GET_COMMENTS, GET_COMMENT } from '../../client/requests/comments';
 import { GetCommentsArgs } from '../../../src/graphql/models/comment-type';
 import { REMOVE_POST } from '../../client/requests/posts';
 import { PaginatedPostsResponse, PaginatedCommentsResponse, Comment } from '../../../src/index';
-import { IPost } from '../../../src/types/models/i-post';
-import { IComment } from '../../../src/types/models/i-comment';
+import { IComment, IPost } from '../../../src/types';
 
 let post: IPost<'server'>, comment1: IComment<'server'>, comment2: IComment<'server'>;
 

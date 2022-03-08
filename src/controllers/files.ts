@@ -1,20 +1,16 @@
-﻿import { IConfig } from '../types/config/i-config';
-import { Page } from '../types/tokens/standard-tokens';
-import { IFileEntry } from '../types/models/i-file-entry';
-import { IVolume } from '../types/models/i-volume-entry';
+﻿import { IConfig } from '../types/all-types';
+import { Page, IFileEntry, IVolume, IAuthReq, IUploadToken } from '../types';
 import { Db, ObjectId, Collection, Sort, SortDirection } from 'mongodb';
 import RemoteFactory from '../core/remotes/remote-factory';
 import Controller from './controller';
 import { isValidObjectID } from '../utils/utils';
 import ControllerFactory from '../core/controller-factory';
-import { IAuthReq } from '../types/tokens/i-auth-request';
 import { unlink, exists } from 'fs';
 import * as path from 'path';
 import { IncomingForm, Fields, File, Part } from 'formidable';
 import * as winston from 'winston';
 import { Error404, Error500, Error400 } from '../utils/errors';
 import { UsersController } from './users';
-import { IUploadToken } from '../types/interfaces/i-remote';
 import { SortOrder, FileSortType, FilesGetOptions, FileDeleteOptions } from '../core/enums';
 
 /**

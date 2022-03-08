@@ -1,4 +1,4 @@
-import { IConfig } from '../types/config/i-config';
+import { IConfig } from '../types';
 import { Db } from 'mongodb';
 import Controller from '../controllers/controller';
 import { VolumesController } from '../controllers/volumes';

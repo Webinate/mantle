@@ -1,5 +1,5 @@
 ﻿'use strict';
-import { IConfig } from '../types/config/i-config';
+import { IConfig } from '../types';
 import * as bcrypt from 'bcrypt';
 import * as ws from 'ws';
 import * as events from 'events';
@@ -147,9 +147,7 @@ export class CommsController extends events.EventEmitter {
     // The client was not approved - so kill the connection
     if (!clientApproved) {
       logError(
-        `A connection was made by ${
-          headers.origin
-        } but it is not on the approved domain list. Make sure the host is on the approvedSocketDomains parameter in the config file.`
+        `A connection was made by ${headers.origin} but it is not on the approved domain list. Make sure the host is on the approvedSocketDomains parameter in the config file.`
       );
       ws.terminate();
       ws.close();

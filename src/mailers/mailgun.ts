@@ -1,5 +1,5 @@
 import { Mailgun } from 'mailgun-js';
-import { IMailer, IMailgun } from '../types/config/properties/i-mail';
+import { IMailer, IMailgun } from '../types';
 import { error as logError, info } from '../utils/logger';
 
 /**

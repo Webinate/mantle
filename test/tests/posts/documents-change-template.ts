@@ -6,11 +6,7 @@ import controllerFactory from '../../../src/core/controller-factory';
 import { CHANGE_DOC_TEMPLATE } from '../../client/requests/documents';
 import { ObjectId } from 'mongodb';
 import { Document } from '../../../src/index';
-import { IAdminUser } from '../../../src/types/config/properties/i-admin';
-import { IDocument } from '../../../src/types/models/i-document';
-import { IUserEntry } from '../../../src/types/models/i-user-entry';
-import { ITemplate } from '../../../src/types/models/i-template';
-import { IPost } from '../../../src/types/models/i-post';
+import { IPost, ITemplate, IUserEntry, IDocument, IAdminUser } from '../../../src/types';
 
 let post: IPost<'server'>,
   document: IDocument<'server'>,
