@@ -1,6 +1,6 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
-import { Db, ObjectID, ObjectId, Collection } from 'mongodb';
+import { Db, ObjectId, Collection } from 'mongodb';
 import Controller from './controller';
 import { IDocument } from '../types/models/i-document';
 import { IDraft } from '../types/models/i-draft';
@@ -11,8 +11,8 @@ import { buildHtml, transformElmHtml } from './build-html';
 import { ElementType } from '../core/enums';
 
 export type GetOptions = {
-  docId: string | ObjectID;
-  checkPermissions?: { userId: ObjectID };
+  docId: string | ObjectId;
+  checkPermissions?: { userId: ObjectId };
 };
 
 /**
@@ -46,7 +46,7 @@ export class DocumentsController extends Controller {
    * @param options The options for finding the resource
    * @param templateId The id of the template to change to
    */
-  async changeTemplate(findDocOptions: GetOptions, templateId: ObjectID) {
+  async changeTemplate(findDocOptions: GetOptions, templateId: ObjectId) {
     const docsCollection = this._docs;
     const templatesCollection = this._templates;
 
@@ -63,7 +63,7 @@ export class DocumentsController extends Controller {
     return true;
   }
 
-  async publishDraft(documentId: ObjectID) {
+  async publishDraft(documentId: ObjectId) {
     const document = await this._docs.findOne({ _id: documentId } as IDocument<'server'>);
 
     if (!document) throw new Error404();
@@ -91,7 +91,7 @@ export class DocumentsController extends Controller {
     // Save the new entry into the database
     const [count, documents] = await Promise.all([
       docsCollection.count(selector),
-      docsCollection.find(selector, {}, 0).toArray()
+      docsCollection.find(selector, { skip: 0 }).toArray()
     ]);
 
     const toRet: Page<IDocument<'server'>> = {
@@ -132,7 +132,7 @@ export class DocumentsController extends Controller {
 
     token.html = transformElmHtml(token);
 
-    const inertResult = await this._elementsCollection.insertOne(token);
+    const inertResult = await this._elementsCollection.insertOne(token as IDraftElement<'server'>);
     const insertedElm = await this._elementsCollection.findOne({ _id: inertResult.insertedId } as IDraftElement<
       'server'
     >);
@@ -150,7 +150,7 @@ export class DocumentsController extends Controller {
     return insertedElm!;
   }
 
-  async getDraft(id: string | ObjectID) {
+  async getDraft(id: string | ObjectId) {
     const draftsCollection = this._drafts;
 
     const draft = await draftsCollection.findOne({ _id: new ObjectId(id) } as IDraft<'server'>);
@@ -159,7 +159,7 @@ export class DocumentsController extends Controller {
     return draft;
   }
 
-  async removeElement(findOptions: GetOptions, elementId: ObjectID) {
+  async removeElement(findOptions: GetOptions, elementId: ObjectId) {
     const docsCollection = this._docs;
 
     const doc = await docsCollection.findOne({ _id: new ObjectId(findOptions.docId) } as IDocument<'server'>);
@@ -171,9 +171,9 @@ export class DocumentsController extends Controller {
     const elm = await this._elementsCollection.findOne({ _id: elementId } as IDraftElement<'server'>);
     if (!elm) throw new Error404();
 
-    await this._elementsCollection.remove({ _id: elementId } as IDraftElement<'server'>);
+    await this._elementsCollection.deleteOne({ _id: elementId } as IDraftElement<'server'>);
     await docsCollection.updateMany({ _id: doc._id } as IDocument<'server'>, {
-      $pull: { elementsOrder: { $in: [elementId] } }
+      $pull: { elementsOrder: elementId }
     });
   }
 
@@ -203,10 +203,10 @@ export class DocumentsController extends Controller {
     return updatedJson!;
   }
 
-  async remove(id: string | ObjectID) {
-    if (!ObjectID.isValid(id)) throw new Error400(`Please use a valid object id`);
+  async remove(id: string | ObjectId) {
+    if (!ObjectId.isValid(id)) throw new Error400(`Please use a valid object id`);
 
-    const doc = await this._docs.findOne({ _id: new ObjectID(id) } as IDocument<'server'>);
+    const doc = await this._docs.findOne({ _id: new ObjectId(id) } as IDocument<'server'>);
     if (!doc) throw new Error404(`Could not find document`);
 
     // // Remove all draft elements
@@ -215,16 +215,16 @@ export class DocumentsController extends Controller {
     //   drafts.map(draft => this._elementsCollection.remove({ parent: draft._id } as IDraftElement<'server'>))
     // );
 
-    await this._elementsCollection.remove({ parent: doc._id } as IDraftElement<'server'>);
+    await this._elementsCollection.deleteOne({ parent: doc._id } as IDraftElement<'server'>);
 
-    await this._drafts.remove({ parent: doc._id } as IDraft<'server'>);
-    await this._docs.remove({ _id: doc._id } as IDocument<'server'>);
+    await this._drafts.deleteOne({ parent: doc._id } as IDraft<'server'>);
+    await this._docs.deleteOne({ _id: doc._id } as IDocument<'server'>);
   }
 
   /**
    * Creates a new document
    */
-  async create(author?: ObjectID | null) {
+  async create(author?: ObjectId | null) {
     // Get the templates
     const templates = await this._templates.find({}).toArray();
     const firstTemplate = templates[0]._id;
@@ -238,7 +238,7 @@ export class DocumentsController extends Controller {
     };
 
     // Create the doc
-    const insertionResult = await this._docs.insertOne(token);
+    const insertionResult = await this._docs.insertOne(token as IDocument<'server'>);
     let newDocument = await this._docs.findOne({ _id: insertionResult.insertedId } as IDocument<'server'>);
 
     // Create the first element
@@ -279,7 +279,7 @@ export class DocumentsController extends Controller {
   async get(options: GetOptions) {
     const docModel = this._docs;
     const searchQuery: Partial<IDocument<'server'>> = {
-      _id: new ObjectID(options.docId)
+      _id: new ObjectId(options.docId)
     };
 
     const result = await docModel.findOne(searchQuery);
@@ -294,7 +294,7 @@ export class DocumentsController extends Controller {
     }
   }
 
-  async getElement(elmId: ObjectID) {
+  async getElement(elmId: ObjectId) {
     const searchQuery: Partial<IDraftElement<'server'>> = {
       _id: elmId
     };
@@ -303,9 +303,9 @@ export class DocumentsController extends Controller {
     return element;
   }
 
-  async getElements(document: ObjectID | string) {
+  async getElements(document: ObjectId | string) {
     const searchQuery: Partial<IDraftElement<'server'>> = {
-      parent: new ObjectID(document)
+      parent: new ObjectId(document)
     };
     const elementsCollection = this._elementsCollection;
     const elements = await elementsCollection.find(searchQuery).toArray();
@@ -315,12 +315,12 @@ export class DocumentsController extends Controller {
   /**
    * Populates a draft json with its elements
    */
-  async getDocHtml(docId: ObjectID | string) {
+  async getDocHtml(docId: ObjectId | string) {
     const doc = await this._docs.findOne({ _id: docId } as IDocument<'server'>);
     if (!doc) throw new Error404();
 
     const elementsFromDb = await this._elementsCollection
-      .find({ parent: new ObjectID(docId) } as IDraftElement<'server'>)
+      .find({ parent: new ObjectId(docId) } as IDraftElement<'server'>)
       .toArray();
 
     const elements =

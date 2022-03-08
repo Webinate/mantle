@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import { GET_USER_AS_ADMIN, GET_USER } from '../../../src/graphql/client/requests/users';
+import { GET_USER_AS_ADMIN, GET_USER } from '../../client/requests/users';
 import { User } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 

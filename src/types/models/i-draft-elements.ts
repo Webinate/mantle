@@ -1,4 +1,4 @@
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { IFileEntry } from './i-file-entry';
 import { ElementType } from '../../core/enums';
 
@@ -16,14 +16,14 @@ import { ElementType } from '../../core/enums';
 //   | 'elm-html';
 
 export interface IDraftElement<T extends 'expanded' | 'server' | 'client'> {
-  _id: T extends 'client' | 'expanded' ? string : ObjectID;
-  parent: T extends 'client' ? string : ObjectID;
+  _id: T extends 'client' | 'expanded' ? string : ObjectId;
+  parent: T extends 'client' ? string : ObjectId;
   type: ElementType;
   html: string;
   zone: string;
 }
 
 export interface IImageElement<T extends 'server' | 'expanded' | 'client'> extends IDraftElement<T> {
-  image: T extends 'expanded' ? IFileEntry<T> : T extends 'client' ? IFileEntry<T> | string | null : ObjectID | null;
+  image: T extends 'expanded' ? IFileEntry<T> : T extends 'client' ? IFileEntry<T> | string | null : ObjectId | null;
   style: any;
 }

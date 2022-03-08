@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { ADD_POST, UPDATE_POST, GET_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
+import { ADD_POST, UPDATE_POST, GET_POST, REMOVE_POST } from '../../client/requests/posts';
 import { Post, AddPostInput, UpdatePostInput } from '../../../src/index';
 
 let numPosts: number, secondPostId: string;
@@ -51,7 +51,7 @@ describe('Testing editing of posts', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value "woohoo" at "token._id"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "woohoo" at "token._id"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

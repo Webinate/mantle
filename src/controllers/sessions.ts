@@ -3,8 +3,7 @@ import { ISession } from '../types/config/properties/i-session';
 import { IUserEntry } from '../types/models/i-user-entry';
 import { ISessionEntry } from '../types/models/i-session-entry';
 import { ServerResponse, IncomingMessage } from 'http';
-import { Request } from 'express';
-import { Collection, Db, ObjectID } from 'mongodb';
+import { Collection, Db, ObjectId } from 'mongodb';
 import { Session } from '../core/session';
 import Controller from './controller';
 import { Collections } from '../core/enums';
@@ -132,7 +131,7 @@ export class SessionsController extends Controller {
   /**
    * Attempts to get a session from the request object of the client
    */
-  async getSession(request: Request) {
+  async getSession(request: IncomingMessage) {
     // Check if the request has a valid session ID
     const sessionId: string = this.getIDFromRequest(request);
 
@@ -153,27 +152,27 @@ export class SessionsController extends Controller {
     response.setHeader('Set-Cookie', session.getSetCookieHeaderValue(request));
 
     // Adds / updates the DB with the new session
-    await this._sessions.updateOne({ sessionId: session.sessionId }, session.serialize());
+    await this._sessions.updateOne({ sessionId: session.sessionId }, { $set: session.serialize() });
   }
 
   /**
    * Attempts to create a session from the request object of the client
    */
-  async createSession(request: IncomingMessage, response: ServerResponse, userId: string | ObjectID) {
+  async createSession(request: IncomingMessage, response: ServerResponse, userId: string | ObjectId) {
     const sessionId = this.createID();
-    const userEntry = await this._users.findOne({ _id: new ObjectID(userId) } as IUserEntry<'server'>);
+    const userEntry = await this._users.findOne({ _id: new ObjectId(userId) } as IUserEntry<'server'>);
 
     if (!userEntry) throw new Error('Could not find the user in the database, please make sure its setup correctly');
 
     // Sets the user session id
-    await this._users.updateOne({ _id: new ObjectID(userId) } as IUserEntry<'server'>, {
+    await this._users.updateOne({ _id: new ObjectId(userId) } as IUserEntry<'server'>, {
       $set: { sessionId: sessionId } as ISessionEntry<'server'>
     });
 
     const session = new Session(sessionId, this._session, userEntry);
 
     // Adds a new session entry
-    await this._sessions.insertOne(session.serialize());
+    await this._sessions.insertOne(session.serialize() as ISessionEntry<'server'>);
     this.setSessionHeader(session, request, response);
     return session;
   }

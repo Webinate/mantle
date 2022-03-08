@@ -1,5 +1,4 @@
 import fetch, { Response, RequestInit } from 'node-fetch';
-
 export type Headers = { [name: string]: string };
 
 /**
@@ -56,7 +55,7 @@ export default class Agent {
       })
     });
 
-    const json = await resp.json();
+    const json: any = await resp.json();
 
     if (flatten && json.data) {
       return { data: json.data[Object.keys(json.data)[0]], errors: json.errors, response: resp };
@@ -138,8 +137,8 @@ export default class Agent {
       body: contentType === 'application/json' ? JSON.stringify(data) : data
     });
 
-    const json: T = await response.json();
-    return json;
+    const json: any = await response.json();
+    return json as T;
   }
 
   getSID() {
@@ -151,6 +150,6 @@ export default class Agent {
    * @param {string} response
    */
   updateCookie(response: Response) {
-    this.cookie = response.headers.get('set-cookie').split(';')[0];
+    this.cookie = response.headers.get('set-cookie')!.split(';')[0];
   }
 }

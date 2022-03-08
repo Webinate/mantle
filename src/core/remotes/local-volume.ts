@@ -76,7 +76,7 @@ export class LocalVolume implements IRemote {
       dest.on('finish', () => {
         if (earlyExit) return;
 
-        resolve();
+        resolve(true);
       });
     });
   }
@@ -127,7 +127,7 @@ export class LocalVolume implements IRemote {
       rimraf(path, function(err) {
         if (err) return reject(err);
 
-        return resolve();
+        return resolve(true);
       });
     });
   }

@@ -3,8 +3,8 @@ import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
 import controllerFactory from '../../../src/core/controller-factory';
-import { CHANGE_DOC_TEMPLATE } from '../../../src/graphql/client/requests/documents';
-import { ObjectID } from 'mongodb';
+import { CHANGE_DOC_TEMPLATE } from '../../client/requests/documents';
+import { ObjectId } from 'mongodb';
 import { Document } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 import { IDocument } from '../../../src/types/models/i-document';
@@ -14,7 +14,7 @@ import { IPost } from '../../../src/types/models/i-post';
 
 let post: IPost<'server'>,
   document: IDocument<'server'>,
-  documentId: ObjectID,
+  documentId: ObjectId,
   user1: IUserEntry<'server'>,
   templates: ITemplate<'server'>[];
 
@@ -53,12 +53,12 @@ describe('Testing the changing of a document template: ', function() {
 
     assert.equal(
       errors![0].message,
-      'Variable "$template" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$template" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
 
     assert.equal(
       errors![1].message,
-      'Variable "$id" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

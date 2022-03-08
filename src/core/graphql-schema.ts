@@ -45,13 +45,13 @@ export const customAuthChecker: AuthChecker<IGQLContext> = async ({ root, args, 
   // here we can read the user from context
   // and check his permission in the db against the `roles` argument
   // that comes from the `@Authorized` decorator, eg. ["ADMIN", "MODERATOR"]
-  const session = await ControllerFactory.get('sessions').getSession(context.req);
+  const session = await ControllerFactory.get('sessions').getSession(context);
 
   if (!session && !selectedRoles.includes(AuthLevel.none)) return false;
 
   if (session) {
     // Set the response header session
-    await ControllerFactory.get('sessions').setSessionHeader(session, context.req, context.res);
+    await ControllerFactory.get('sessions').setSessionHeader(session, context, context.res);
 
     context.user = session.user;
     context.isAdmin =

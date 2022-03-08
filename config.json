@@ -2,9 +2,17 @@
   "database": "./keys/database.json",
   "remotes": {
     "google": "./keys/google-remote.json",
-    "local": "./keys/local.json"
+    "local": "./keys/local.json",
+    "maxFileSize": 524288
   },
-  "clientsFolder": "./clients/",
+  "server": {
+    "rootPath": "/api",
+    "port": 8000,
+    "host": "localhost",
+    "staticAssets": "uploads",
+    "staticPrefix": "/media",
+    "enableGraphIQl": true
+  },
   "debug": false,
   "adminUser": "./keys/admin-user.json",
   "sessionSettings": {
@@ -19,9 +27,7 @@
     "host": "localhost",
     "port": 8020,
     "socketApiKey": "somepassword",
-    "approvedSocketDomains": [
-      "^localhost$"
-    ]
+    "approvedSocketDomains": ["^localhost$"]
   },
   "mail": {
     "type": "mailgun",

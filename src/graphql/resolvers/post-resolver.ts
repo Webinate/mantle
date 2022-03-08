@@ -15,7 +15,7 @@ import { Document } from '../models/document-type';
 import { UserPrivilege, PostVisibility, AuthLevel } from '../../core/enums';
 import ControllerFactory from '../../core/controller-factory';
 import { GraphQLObjectId } from '../scalars/object-id';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { IPost } from '../../types/models/i-post';
 import { User } from '../models/user-type';
@@ -29,7 +29,7 @@ export class PostResolver implements ResolverInterface<Post> {
   @Authorized<AuthLevel>([AuthLevel.none])
   @Query(returns => Post, { nullable: true })
   async post(
-    @Arg('id', type => GraphQLObjectId, { nullable: true }) id: ObjectID,
+    @Arg('id', type => GraphQLObjectId, { nullable: true }) id: ObjectId,
     @Arg('slug', type => String, { nullable: true }) slug: string,
     @Ctx() ctx: IGQLContext
   ) {
@@ -94,7 +94,7 @@ export class PostResolver implements ResolverInterface<Post> {
 
   @Authorized<AuthLevel>([AuthLevel.admin])
   @Query(returns => [Draft])
-  async getPostDrafts(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+  async getPostDrafts(@Arg('id', () => GraphQLObjectId) id: ObjectId, @Ctx() ctx: IGQLContext) {
     const response = await ControllerFactory.get('posts').getDrafts(id);
     if (ctx.isAdmin || ctx.user!._id.equals(response.post.author!)) {
       return response.drafts.map(d => Draft.fromEntity(d));
@@ -106,8 +106,8 @@ export class PostResolver implements ResolverInterface<Post> {
   @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Boolean)
   async removePostDraft(
-    @Arg('postId', () => GraphQLObjectId) postId: ObjectID,
-    @Arg('draftId', () => GraphQLObjectId) draftId: ObjectID,
+    @Arg('postId', () => GraphQLObjectId) postId: ObjectId,
+    @Arg('draftId', () => GraphQLObjectId) draftId: ObjectId,
     @Ctx() ctx: IGQLContext
   ) {
     await ControllerFactory.get('posts').removeDraft(postId, draftId);
@@ -135,7 +135,7 @@ export class PostResolver implements ResolverInterface<Post> {
 
   @Authorized<AuthLevel>([AuthLevel.admin])
   @Mutation(returns => Boolean)
-  async removePost(@Arg('id', type => GraphQLObjectId) id: ObjectID) {
+  async removePost(@Arg('id', type => GraphQLObjectId) id: ObjectId) {
     await ControllerFactory.get('posts').removePost(id);
     return true;
   }

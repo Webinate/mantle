@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import { randomString } from '../utils';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { GET_COMMENTS } from '../../../src/graphql/client/requests/comments';
+import { GET_COMMENTS } from '../../client/requests/comments';
 import { PaginatedCommentsResponse, QueryCommentsArgs } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 import { IComment } from '../../../src/types/models/i-comment';

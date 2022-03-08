@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
-import { GET_VOLUMES } from '../../../src/graphql/client/requests/volume';
+import { GET_VOLUMES } from '../../client/requests/volume';
 import { PaginatedVolumeResponse } from '../../../src/index';
 import { IVolume } from '../../../src/types/models/i-volume-entry';
 

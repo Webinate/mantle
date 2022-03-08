@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { UPDATE_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { UPDATE_VOLUME } from '../../client/requests/volume';
 import { UpdateVolumeInput } from '../../../src/graphql/models/volume-type';
 import { Volume } from '../../../src/index';
 import { IVolume } from '../../../src/types/models/i-volume-entry';
@@ -33,7 +33,7 @@ describe('Testing volume update requests: ', function() {
     });
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value "BAD" at "token._id"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "BAD" at "token._id"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

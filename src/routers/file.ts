@@ -1,12 +1,10 @@
 ﻿import { IAuthReq } from '../types/tokens/i-auth-request';
-import express = require('express');
-import bodyParser = require('body-parser');
+import { Router as ExpressRouter, Response, urlencoded, json, Express, RequestHandler } from 'express';
 import { Router } from './router';
 import ControllerFactory from '../core/controller-factory';
 import * as compression from 'compression';
 import { j200 } from '../decorators/responses';
 import { isAuthorizedRest } from '../decorators/permissions';
-import { IFileOptions } from '../types/misc/i-file-options';
 import * as mongodb from 'mongodb';
 import { FilesController } from '../controllers/files';
 import { IFileEntry } from '../types/models/i-file-entry';
@@ -17,29 +15,26 @@ import { SortOrder } from '../core/enums';
  * Main class to use for managing users
  */
 export class FileRouter extends Router {
-  private _options: IFileOptions;
+  private _rootPath: string;
   private _files: FilesController;
 
-  /**
-   * Creates an instance of the user manager
-   */
-  constructor(options: IFileOptions) {
+  constructor(rootPath: string) {
     super();
-    this._options = options;
+    this._rootPath = rootPath;
   }
 
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize(e: express.Express, db: mongodb.Db) {
+  async initialize(e: Express, db: mongodb.Db) {
     this._files = ControllerFactory.get('files');
 
     // Setup the rest calls
-    const router = express.Router();
+    const router = ExpressRouter();
     router.use(compression());
-    router.use(bodyParser.urlencoded({ extended: true }));
-    router.use(bodyParser.json());
-    router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+    router.use(urlencoded({ extended: true }) as RequestHandler);
+    router.use(json() as RequestHandler);
+    router.use(json({ type: 'application/vnd.api+json' }) as RequestHandler);
 
     router.get('/volumes/:volume', this.getFiles.bind(this));
     router.delete('/:file', this.remove.bind(this));
@@ -48,7 +43,7 @@ export class FileRouter extends Router {
     router.post('/replace/:fileId', this.replace.bind(this));
 
     // Register the path
-    e.use((this._options.rootPath || '') + `/files`, router);
+    e.use((this._rootPath || '') + `/files`, router);
 
     await super.initialize(e, db);
     return this;
@@ -59,7 +54,7 @@ export class FileRouter extends Router {
    */
   @j200(204)
   @isAuthorizedRest()
-  private async remove(req: IAuthReq, res: express.Response) {
+  private async remove(req: IAuthReq, res: Response) {
     await this._files.removeFiles({
       fileId: req.params.file,
       user: req._isAdmin ? undefined : (req._user!.username as string)
@@ -71,8 +66,8 @@ export class FileRouter extends Router {
    */
   @j200()
   @isAuthorizedRest()
-  private async update(req: IAuthReq, res: express.Response) {
-    const file = req.body as IFileEntry<'server' | 'client'>;
+  private async update(req: IAuthReq, res: Response) {
+    const file = req.body as Partial<IFileEntry<'server' | 'client'>>;
 
     if (!req._isAdmin && file.user) throw new Error403('Permission denied - cannot set user as non-admin');
 
@@ -90,7 +85,7 @@ export class FileRouter extends Router {
    */
   @j200()
   @isAuthorizedRest()
-  private async getFiles(req: IAuthReq, res: express.Response) {
+  private async getFiles(req: IAuthReq, res: Response) {
     let index: number | undefined = parseInt(req.query.index as string);
     let limit: number | undefined = parseInt(req.query.limit as string);
     index = isNaN(index) ? undefined : index;
@@ -116,7 +111,7 @@ export class FileRouter extends Router {
   private async upload(req: IAuthReq) {
     const volumeId = req.params.volume;
 
-    if (!mongodb.ObjectID.isValid(volumeId)) throw new Error(`Incorrect volume id format`);
+    if (!mongodb.ObjectId.isValid(volumeId)) throw new Error(`Incorrect volume id format`);
 
     return this._files.uploadFilesToVolume(req, volumeId, req._user!._id.toString());
   }
@@ -126,7 +121,7 @@ export class FileRouter extends Router {
   private async replace(req: IAuthReq) {
     const fileId = req.params.fileId;
 
-    if (!mongodb.ObjectID.isValid(fileId)) throw new Error(`Incorrect file id format`);
+    if (!mongodb.ObjectId.isValid(fileId)) throw new Error(`Incorrect file id format`);
 
     return this._files.replaceFileContent(req, fileId, req._user!._id.toString());
   }

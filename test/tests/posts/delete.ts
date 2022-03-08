@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
-import { GET_POSTS, ADD_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
-import { GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
+import { GET_POSTS, ADD_POST, REMOVE_POST } from '../../client/requests/posts';
+import { GET_DOCUMENT } from '../../client/requests/documents';
 import { Post, Document, AddPostInput, PaginatedPostsResponse } from '../../../src/index';
 
 let numPosts: number, post: Post;
@@ -36,7 +36,7 @@ describe('Testing deletion of posts', function() {
     const { errors } = await header.admin.graphql<boolean>(REMOVE_POST, { id: 'WRONGWRONGWRONG' });
     assert.strictEqual(
       errors![0].message,
-      'Variable "$id" got invalid value "WRONGWRONGWRONG"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "WRONGWRONGWRONG"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

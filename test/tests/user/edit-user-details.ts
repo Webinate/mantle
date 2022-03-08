@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
-import { EDIT_USER } from '../../../src/graphql/client/requests/users';
+import { EDIT_USER } from '../../client/requests/users';
 import { UpdateUserInput, User } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IVolume } from '../../../src/types/models/i-volume-entry';
@@ -45,7 +45,7 @@ describe('Editting user data:', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value "BAD" at "token._id"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "BAD" at "token._id"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 
@@ -140,7 +140,7 @@ describe('Editting user data:', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value "Gobshite" at "token.privileges"; Expected type UserPrivilege.'
+      'Variable "$token" got invalid value "Gobshite" at "token.privileges"; Value "Gobshite" does not exist in "UserPrivilege" enum.'
     );
   });
 
@@ -191,7 +191,7 @@ describe('Editting user data:', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value "NOT_ID" at "token.avatarFile"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "NOT_ID" at "token.avatarFile"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

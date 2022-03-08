@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import header from '../header';
-import { REMOVE_USER, GET_USER, GET_USER_AS_ADMIN } from '../../../src/graphql/client/requests/users';
-import { REGISTER, LOGIN, RESEND_ACTIVATION } from '../../../src/graphql/client/requests/auth';
+import { REMOVE_USER, GET_USER, GET_USER_AS_ADMIN } from '../../client/requests/users';
+import { REGISTER, LOGIN, RESEND_ACTIVATION } from '../../client/requests/auth';
 import { User, LoginInput, RegisterInput, AuthResponse } from '../../../src/index';
 
 let testUserName = 'fancyUser123',
@@ -69,7 +69,7 @@ describe('Testing user activation', function() {
     );
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
-    assert(resp.headers.get('location').indexOf('error') !== -1);
+    assert(resp.headers.get('location')!.indexOf('error') !== -1);
   });
 
   it(`did not get the activation key for ${testUserName} as a guest`, async function() {
@@ -92,7 +92,7 @@ describe('Testing user activation', function() {
     const resp = await header.guest.get(`/api/auth/activate-account?user=NONUSER`, undefined, { redirect: 'manual' });
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
-    assert(resp.headers.get('location').indexOf('error') !== -1);
+    assert(resp.headers.get('location')!.indexOf('error') !== -1);
   });
 
   it('did not activate with an valid username and no key', async function() {
@@ -101,7 +101,7 @@ describe('Testing user activation', function() {
     });
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
-    assert(resp.headers.get('location').indexOf('error') !== -1);
+    assert(resp.headers.get('location')!.indexOf('error') !== -1);
   });
 
   it('did not activate with an valid username and invalid key', async function() {
@@ -110,12 +110,14 @@ describe('Testing user activation', function() {
     });
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
-    assert(resp.headers.get('location').indexOf('error') !== -1);
+    assert(resp.headers.get('location')!.indexOf('error') !== -1);
   });
 
-  it('did activate with a valid username and key', async function() {
+  it('did activate with a valid username, url and key', async function() {
     const resp = await header.guest.get(
-      `/api/auth/activate-account?user=${testUserName}&key=${activationKey}`,
+      `/api/auth/activate-account?user=${testUserName}&key=${activationKey}&url=${encodeURIComponent(
+        'http://localhost:8000'
+      )}`,
       undefined,
       {
         redirect: 'manual'
@@ -123,7 +125,10 @@ describe('Testing user activation', function() {
     );
     assert.deepEqual(resp.status, 302);
     assert.deepEqual(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
-    assert(resp.headers.get('location').indexOf('success') !== -1);
+    assert.deepEqual(
+      decodeURI(resp.headers.get('location')!),
+      'http://localhost:8000/?message=Your account has been activated!&status=success'
+    );
   });
 
   it('did log in with valid details and an activated account', async function() {

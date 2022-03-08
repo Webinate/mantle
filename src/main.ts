@@ -1,4 +1,4 @@
-﻿import * as cluster from 'cluster';
+﻿import cluster from 'cluster';
 import * as os from 'os';
 import * as yargs from 'yargs';
 import 'reflect-metadata';
@@ -23,14 +23,14 @@ if (args.numThreads) {
 if (numCPUs === 1) {
   global.console.log(`Running as single cluster`);
   require('./core/initialization/startup');
-} else if (cluster.isMaster) {
+} else if (cluster.isPrimary) {
   // Fork workers.
   for (let i = 0; i < numCPUs; i++) cluster.fork();
 
   // List each of the process ID's
-  Object.keys(cluster.workers).forEach(function(id) {
-    global.console.log('Starting cluster with ID : ' + cluster.workers[id].process.pid);
-  });
+  for (const worker of Object.values(cluster.workers!)) {
+    global.console.log('Starting cluster with ID : ' + worker!.process.pid);
+  }
 
   // When a cluster dies - lets try start it up again
   cluster.on('exit', function(deadWorker) {

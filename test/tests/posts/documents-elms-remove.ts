@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { REMOVE_DOC_ELEMENT, GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
+import { REMOVE_DOC_ELEMENT, GET_DOCUMENT } from '../../client/requests/documents';
 import { Document } from '../../../src/index';
 import { IPost } from '../../../src/types/models/i-post';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
@@ -37,12 +37,12 @@ describe('Testing the deletion of document elements: ', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$docId" got invalid value "bad"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$docId" got invalid value "bad"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
 
     assert.deepEqual(
       errors![1].message,
-      'Variable "$elementId" got invalid value "bad"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$elementId" got invalid value "bad"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

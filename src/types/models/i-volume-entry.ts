@@ -1,6 +1,6 @@
 import { IModelEntry } from './i-model-entry';
 import { IUserEntry } from './i-user-entry';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 
 /**
  * The interface for describing each user's volumes
@@ -9,7 +9,7 @@ export interface IVolume<T extends 'expanded' | 'server' | 'client'> extends IMo
   name: string;
   type: 'google' | 'local';
   identifier: string;
-  user: T extends 'expanded' ? IUserEntry<T> : T extends 'client' ? IUserEntry<T> | string : ObjectID;
+  user: T extends 'expanded' ? IUserEntry<T> : T extends 'client' ? IUserEntry<T> | string : ObjectId;
   created: number;
   memoryUsed: number;
   memoryAllocated: number;

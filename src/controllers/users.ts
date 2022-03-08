@@ -3,11 +3,10 @@ import { IMailer, IMailgun, IMailOptions } from '../types/config/properties/i-ma
 import { IAdminUser } from '../types/config/properties/i-admin';
 import { Page } from '../types/tokens/standard-tokens';
 import { IUserEntry } from '../types/models/i-user-entry';
-import { Db, ObjectID, Collection } from 'mongodb';
+import { Db, ObjectId, Collection } from 'mongodb';
 import { ServerResponse, IncomingMessage } from 'http';
 import { isEmail, trim, blacklist, isAlphanumeric } from 'validator';
 import { hash, compare } from 'bcrypt';
-import { Request } from 'express';
 import { UserPrivilege } from '../core/enums';
 import { info, warn } from '../utils/logger';
 import { CommsController } from '../socket-api/comms-controller';
@@ -19,8 +18,6 @@ import { Session } from '../core/session';
 import Controller from './controller';
 import { Error400, Error404 } from '../utils/errors';
 import { IFileEntry } from '../types/models/i-file-entry';
-
-
 
 export type UserEvents = 'user-removed';
 export type UserEvent<T extends UserEvents> = {
@@ -125,7 +122,7 @@ export class UsersController extends Controller {
     email: string = '',
     activationUrl: string = '',
     meta: any = {},
-    request: Request
+    request: IncomingMessage
   ) {
     const origin = encodeURIComponent((request.headers['origin'] as string) || (request.headers['referer'] as string));
 
@@ -213,7 +210,7 @@ export class UsersController extends Controller {
   /**
    * Updates the user details if they are valid
    */
-  async update(id: string | ObjectID, token: Partial<IUserEntry<'server'>>, validate: boolean = true) {
+  async update(id: string | ObjectId, token: Partial<IUserEntry<'server'>>, validate: boolean = true) {
     if (token.username) throw new Error400(`You cannot set a username directly`);
 
     if (validate) {
@@ -228,8 +225,8 @@ export class UsersController extends Controller {
         throw new Error400(`Invalid value`);
     }
 
-    await this._users.updateOne({ _id: new ObjectID(id) } as IUserEntry<'server'>, { $set: token });
-    return this._users.findOne({ _id: new ObjectID(id) } as IUserEntry<'server'>);
+    await this._users.updateOne({ _id: new ObjectId(id) } as IUserEntry<'server'>, { $set: token });
+    return this._users.findOne({ _id: new ObjectId(id) } as IUserEntry<'server'>);
   }
 
   /**
@@ -415,7 +412,7 @@ export class UsersController extends Controller {
 
     // Update the key to be blank
     await this._users.updateOne({ _id: user._id } as IUserEntry<'server'>, {
-      $set: { passwordTag: '', password: hashed } as Partial<IUserEntry<'client'>>
+      $set: { passwordTag: '', password: hashed } as Partial<IUserEntry<'server'>>
     });
 
     // All done :)
@@ -507,7 +504,7 @@ export class UsersController extends Controller {
       registerKey: activateAccount || options.privileges === 'super' ? '' : this.generateKey(10)
     };
 
-    const insert = await this._users.insertOne(data);
+    const insert = await this._users.insertOne(data as IUserEntry<'server'>);
     const response = await this._users.findOne({ _id: insert.insertedId } as IUserEntry<'server'>);
 
     // return newUser;
@@ -540,9 +537,9 @@ export class UsersController extends Controller {
     await ControllerFactory.get('posts').userRemoved(user);
     await ControllerFactory.get('volumes').removeUser(user.username as string);
 
-    const result = await this._users.remove({ _id: user._id } as IUserEntry<'server'>);
+    const result = await this._users.deleteOne({ _id: user._id } as IUserEntry<'server'>);
 
-    if (result.result.nRemoved === 0) throw new Error('Could not remove the user from the database');
+    if (result.deletedCount === 0) throw new Error('Could not remove the user from the database');
 
     // Send event to sockets
     const token = { username: username, type: ClientInstructionType[ClientInstructionType.Removed] };
@@ -556,10 +553,10 @@ export class UsersController extends Controller {
   /**
    * Gets a user by a username or email
    */
-  async getUser(options: { username?: string; id?: string | ObjectID; email?: string }) {
+  async getUser(options: { username?: string; id?: string | ObjectId; email?: string }) {
     // If id - then leave early
     if (options.id) {
-      const resp = await this._users.findOne({ _id: new ObjectID(options.id) } as IUserEntry<'server'>);
+      const resp = await this._users.findOne({ _id: new ObjectId(options.id) } as IUserEntry<'server'>);
       if (!resp) return null;
       else return resp;
     }
@@ -619,7 +616,7 @@ export class UsersController extends Controller {
 
     // Update the collection
     await this._users.updateOne(
-      { _id: new ObjectID(user._id) } as IUserEntry<'server'>,
+      { _id: new ObjectId(user._id) } as IUserEntry<'server'>,
       { $set: { lastLoggedIn: user.lastLoggedIn } } as Partial<IUserEntry<'client'>>
     );
 
@@ -644,8 +641,8 @@ export class UsersController extends Controller {
     if (!user) return false;
 
     // Remove the user from the DB
-    const result = await this._users.remove({ _id: user._id } as IUserEntry<'server'>);
-    if (result.result.nRemoved === 0) return false;
+    const result = await this._users.deleteOne({ _id: user._id } as IUserEntry<'server'>);
+    if (result.deletedCount === 0) return false;
     else return true;
   }
 
@@ -655,9 +652,9 @@ export class UsersController extends Controller {
    * @param data The meta data object to set
    * @returns Returns the data set
    */
-  async setMeta(id: ObjectID, data?: any) {
-    await this._users.updateOne({ _id: new ObjectID(id) } as IUserEntry<'server'>, {
-      $set: { meta: data ? data : {} } as Partial<IUserEntry<'client'>>
+  async setMeta(id: ObjectId, data?: any) {
+    await this._users.updateOne({ _id: new ObjectId(id) } as IUserEntry<'server'>, {
+      $set: { meta: data ? data : {} } as Partial<IUserEntry<'server'>>
     });
 
     return data;
@@ -670,12 +667,12 @@ export class UsersController extends Controller {
    * @param data The value of the meta to set
    * @returns Returns the value of the set
    */
-  async setMetaVal(id: ObjectID, name: string, val: any) {
+  async setMetaVal(id: ObjectId, name: string, val: any) {
     const meta = await this.getMetaData(id);
     meta[name] = val;
 
     // Remove the user from the DB
-    await this._users.updateOne({ _id: id } as IUserEntry<'server'>, { $set: { meta } as IUserEntry<'client'> });
+    await this._users.updateOne({ _id: id } as IUserEntry<'server'>, { $set: { meta } as IUserEntry<'server'> });
     return val;
   }
 
@@ -685,7 +682,7 @@ export class UsersController extends Controller {
    * @param name The name of the meta to get
    * @returns The value to get
    */
-  async getMetaVal(id: ObjectID, name: string) {
+  async getMetaVal(id: ObjectId, name: string) {
     const meta = await this.getMetaData(id);
     if (!meta) return null;
 
@@ -697,7 +694,7 @@ export class UsersController extends Controller {
    * @param user The user
    * @returns The value to get
    */
-  async getMetaData(id: ObjectID) {
+  async getMetaData(id: ObjectId) {
     const result = await this._users.findOne({ _id: id } as IUserEntry<'server'>);
     if (!result) return null;
 
@@ -734,7 +731,7 @@ export class UsersController extends Controller {
     if (searchPhrases) findToken.$or = [{ username: searchPhrases }, { email: searchPhrases }];
 
     const count = await this._users.count(findToken);
-    const data = await this._users.find(findToken, undefined, index, limit).toArray();
+    const data = await this._users.find(findToken, { skip: index, limit }).toArray();
 
     const toRet: Page<IUserEntry<'server'>> = {
       count: count,

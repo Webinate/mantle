@@ -1,13 +1,13 @@
 import { Resolver, Query, Arg } from 'type-graphql';
 import { Template, PaginatedTemplateResponse } from '../models/template-type';
 import ControllerFactory from '../../core/controller-factory';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 
 @Resolver(of => Template)
 export class TemplateResolver {
   @Query(returns => Template, { nullable: true })
-  async template(@Arg('id', type => GraphQLObjectId, { nullable: true }) id: ObjectID) {
+  async template(@Arg('id', type => GraphQLObjectId, { nullable: true }) id: ObjectId) {
     const template = await ControllerFactory.get('templates').get(id);
     if (!template) return null;
     return Template.fromEntity(template);

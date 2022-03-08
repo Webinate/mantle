@@ -2,13 +2,13 @@ import * as assert from 'assert';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import header from '../header';
-import { ObjectID } from 'mongodb';
-import { ADD_DOC_ELEMENT, GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
+import { ObjectId } from 'mongodb';
+import { ADD_DOC_ELEMENT, GET_DOCUMENT } from '../../client/requests/documents';
 import { AddElementInput, Element, Document } from '../../../src/index';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
 import { IPost } from '../../../src/types/models/i-post';
 
-let post: IPost<'server'>, documentId: ObjectID, user1: IUserEntry<'server'>;
+let post: IPost<'server'>, documentId: ObjectId, user1: IUserEntry<'server'>;
 
 describe('Testing the adding of document elements: ', function() {
   before(async function() {
@@ -41,17 +41,17 @@ describe('Testing the adding of document elements: ', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$docId" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$docId" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
 
     assert.deepEqual(
       errors![1].message,
-      'Variable "$token" got invalid value "BAD"; Expected type AddElementInput to be an object.'
+      'Variable "$token" got invalid value "BAD"; Expected type "AddElementInput" to be an object.'
     );
 
     assert.deepEqual(
       errors![2].message,
-      'Variable "$index" got invalid value "test"; Expected type Int. Int cannot represent non-integer value: "test"'
+      'Variable "$index" got invalid value "test"; Int cannot represent non-integer value: "test"'
     );
   });
 
@@ -98,7 +98,7 @@ describe('Testing the adding of document elements: ', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value { html: "<p>Hello world</p>" }; Field type of required type ElementType! was not provided.'
+      'Variable "$token" got invalid value { html: "<p>Hello world</p>" }; Field "type" of required type "ElementType!" was not provided.'
     );
   });
 
@@ -113,7 +113,7 @@ describe('Testing the adding of document elements: ', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value "BAD" at "token.type"; Expected type ElementType.'
+      'Variable "$token" got invalid value "BAD" at "token.type"; Value "BAD" does not exist in "ElementType" enum.'
     );
   });
 

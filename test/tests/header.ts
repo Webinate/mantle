@@ -1,8 +1,8 @@
 import * as yargs from 'yargs';
 import Agent from './agent';
 import loadConfig from './load-config';
-import { REMOVE_USER, ADD_USER } from '../../src/graphql/client/requests/users';
-import { LOGIN } from '../../src/graphql/client/requests/auth';
+import { REMOVE_USER, ADD_USER } from '../client/requests/users';
+import { LOGIN } from '../client/requests/auth';
 import { IConfig } from '../../src/types/config/i-config';
 let args = yargs.argv;
 import { UserPrivilege, AuthResponse, User } from '../../src/index';
@@ -105,7 +105,7 @@ export class Header {
         }
       });
       if (resp.errors) throw new Error(resp.errors[0].message);
-      const adminCookie = resp.response.headers.get('set-cookie').split(';')[0];
+      const adminCookie = resp.response.headers.get('set-cookie')!.split(';')[0];
 
       // Set the functions we want to expose
       this.config = config;

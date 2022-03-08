@@ -1,5 +1,5 @@
 import { ObjectType, Field, ArgsType, Int, InputType } from 'type-graphql';
-import { ObjectId, ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
@@ -88,13 +88,13 @@ export class Comment {
 @InputType()
 export class AddCommentInput {
   @Field(type => GraphQLObjectId, { nullable: true })
-  user: ObjectID | string;
+  user: ObjectId | string;
 
   @Field(type => GraphQLObjectId)
-  post: ObjectID | string;
+  post: ObjectId | string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  parent: ObjectID | string;
+  parent: ObjectId | string;
 
   @Field(type => Boolean, { defaultValue: true })
   public: boolean;
@@ -104,7 +104,7 @@ export class AddCommentInput {
   content: string;
 
   @Field(type => [GraphQLObjectId], { nullable: true })
-  children: (ObjectID | string)[];
+  children: (ObjectId | string)[];
 
   constructor(initialization?: Partial<AddCommentInput>) {
     if (initialization) Object.assign(this, initialization);

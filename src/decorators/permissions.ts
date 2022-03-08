@@ -2,6 +2,7 @@ import Factory from '../core/controller-factory';
 import * as express from 'express';
 import { Error401 } from '../utils/errors';
 import { IAuthReq } from '../types/tokens/i-auth-request';
+import { ServerResponse } from 'http';
 
 /**
  * Checks the request for a user session. If none is present
@@ -19,7 +20,7 @@ export function isAuthorizedRest() {
 
       if (!session) throw new Error401();
 
-      if (session) await Factory.get('sessions').setSessionHeader(session, req, res);
+      if (session) await Factory.get('sessions').setSessionHeader(session, req, res as ServerResponse);
 
       req._user = session.user;
       req._isAdmin = session.user.privileges === 'admin' || session.user.privileges === 'super';

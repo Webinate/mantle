@@ -1,8 +1,7 @@
 ﻿import { error as logError } from '../utils/logger';
 import { Router } from './router';
-import * as express from 'express';
-import * as mongodb from 'mongodb';
-import { IBaseControler } from '../types/misc/i-base-controller';
+import { Express, Request, Response } from 'express';
+import { Db } from 'mongodb';
 
 /**
  * Checks all incomming requests to see if they are CORS approved
@@ -10,10 +9,7 @@ import { IBaseControler } from '../types/misc/i-base-controller';
 export class CORSRouter extends Router {
   private _approvedDomains: string[];
 
-  /**
-   * Creates an instance of the user manager
-   */
-  constructor(approvedDomains: string[], options: IBaseControler) {
+  constructor(approvedDomains: string[]) {
     super();
     this._approvedDomains = approvedDomains;
   }
@@ -21,12 +17,12 @@ export class CORSRouter extends Router {
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize(e: express.Express, db: mongodb.Db) {
+  async initialize(e: Express, db: Db) {
     const matches: Array<RegExp> = [];
     for (let i = 0, l = this._approvedDomains.length; i < l; i++) matches.push(new RegExp(this._approvedDomains[i]));
 
     // Approves the valid domains for CORS requests
-    e.use(function(req: express.Request, res: express.Response, next: Function) {
+    e.use(function(req: Request, res: Response, next: Function) {
       if (req.headers.origin) {
         let matched = false;
         for (let m = 0, l = matches.length; m < l; m++)

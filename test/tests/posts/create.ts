@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
-import { ADD_POST, REMOVE_POST } from '../../../src/graphql/client/requests/posts';
-import { GET_DOCUMENT } from '../../../src/graphql/client/requests/documents';
+import { ADD_POST, REMOVE_POST } from '../../client/requests/posts';
+import { GET_DOCUMENT } from '../../client/requests/documents';
 import { Post, Document, AddPostInput } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 
@@ -46,7 +46,7 @@ describe('Testing creation of posts', function() {
     });
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value { title: "New Post" }; Field slug of required type String! was not provided.'
+      'Variable "$token" got invalid value { title: "New Post" }; Field "slug" of required type "String!" was not provided.'
     );
   });
 

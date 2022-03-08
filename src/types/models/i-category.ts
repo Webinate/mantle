@@ -1,5 +1,5 @@
 import { IModelEntry } from './i-model-entry';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 
 /*
  * Describes the category model
@@ -7,7 +7,7 @@ import { ObjectID } from 'mongodb';
 export interface ICategory<T extends 'expanded' | 'client' | 'server'> extends IModelEntry<T> {
   title: string;
   slug: string;
-  parent: T extends 'expanded' ? ICategory<T> : T extends 'client' ? string : ObjectID | null;
+  parent: T extends 'expanded' ? ICategory<T> : T extends 'client' ? string : ObjectId | null;
   children: T extends 'expanded' ? ICategory<T>[] : undefined;
   description?: string;
 }

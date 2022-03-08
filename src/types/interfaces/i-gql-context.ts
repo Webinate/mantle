@@ -1,12 +1,9 @@
-import { IServer, IClient } from '../config/properties/i-client';
-import { ServerResponse } from 'http';
-import { Request } from 'express';
+import { IServer } from '../config/properties/i-server';
+import { IncomingMessage, ServerResponse } from 'http';
 import { IUserEntry } from '../models/i-user-entry';
 
-export interface IGQLContext {
+export interface IGQLContext extends IncomingMessage {
   server: IServer;
-  client: IClient;
-  req: Request;
   res: ServerResponse;
   verbose?: boolean;
   user?: IUserEntry<'server'>;

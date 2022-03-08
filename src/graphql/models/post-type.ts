@@ -1,5 +1,5 @@
 import { ObjectType, Field, InputType, ArgsType, Int } from 'type-graphql';
-import { ObjectId, ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { GraphQLObjectId } from '../scalars/object-id';
 import { User } from './user-type';
 import { LongType } from '../scalars/long';
@@ -72,7 +72,7 @@ export class Post {
 @InputType()
 export class AddPostInput {
   @Field(type => GraphQLObjectId, { nullable: true })
-  author: ObjectID | string | null;
+  author: ObjectId | string | null;
 
   @Field({ nullable: true, defaultValue: '' })
   @IsSafeText()
@@ -88,13 +88,13 @@ export class AddPostInput {
   public: boolean;
 
   @Field(type => [GraphQLObjectId], { nullable: true, defaultValue: [] })
-  categories: (ObjectID | string)[];
+  categories: (ObjectId | string)[];
 
   @Field(type => [String], { nullable: true, defaultValue: [] })
   tags: string[];
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  featuredImage: ObjectID | null | string;
+  featuredImage: ObjectId | null | string;
 
   constructor(initialization?: Partial<AddPostInput>) {
     if (initialization) Object.assign(this, initialization);
@@ -107,7 +107,7 @@ export class UpdatePostInput {
   _id: ObjectId | string;
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  author: ObjectID | null | string;
+  author: ObjectId | null | string;
 
   @Field({ nullable: true })
   @IsSafeText()
@@ -123,13 +123,13 @@ export class UpdatePostInput {
   public: boolean;
 
   @Field(type => [GraphQLObjectId], { nullable: true })
-  categories: (ObjectID | string)[];
+  categories: (ObjectId | string)[];
 
   @Field(type => [String], { nullable: true })
   tags: string[];
 
   @Field(type => GraphQLObjectId, { nullable: true })
-  featuredImage: ObjectID | null | string;
+  featuredImage: ObjectId | null | string;
 
   @Field(type => LongType, { nullable: true })
   createdOn: number;
@@ -167,7 +167,7 @@ export class GetPostsArgs {
   sortType: PostSortType;
 
   @Field(type => [GraphQLObjectId], { nullable: true })
-  categories: ObjectID[];
+  categories: ObjectId[];
 
   @Field(type => [String], { nullable: true })
   tags: string[];

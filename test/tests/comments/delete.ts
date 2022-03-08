@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../../src/graphql/client/requests/posts';
-import { ADD_COMMENT, GET_COMMENTS, REMOVE_COMMENT } from '../../../src/graphql/client/requests/comments';
+import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../client/requests/posts';
+import { ADD_COMMENT, GET_COMMENTS, REMOVE_COMMENT } from '../../client/requests/comments';
 import { AddCommentInput, Post, AddPostInput } from '../../../src/index';
 
 let numPosts: number, numComments: number, postId: string, commentId: string, parentCommentId: string;
@@ -101,7 +101,7 @@ describe('Testing deletion of comments', function() {
     const { errors } = await header.admin.graphql<boolean>(REMOVE_COMMENT, { id: 'abc' });
     assert.deepEqual(
       errors![0].message,
-      `Variable "$id" got invalid value "abc"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters`
+      `Variable "$id" got invalid value "abc"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters`
     );
   });
 

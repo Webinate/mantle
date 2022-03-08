@@ -2,7 +2,7 @@
 import { Page } from '../types/tokens/standard-tokens';
 import { IFileEntry } from '../types/models/i-file-entry';
 import { IVolume } from '../types/models/i-volume-entry';
-import { Db, ObjectID, Collection } from 'mongodb';
+import { Db, ObjectId, Collection, Sort, SortDirection } from 'mongodb';
 import RemoteFactory from '../core/remotes/remote-factory';
 import Controller from './controller';
 import { isValidObjectID } from '../utils/utils';
@@ -56,9 +56,9 @@ export class FilesController extends Controller {
    * Fetches a file by its ID
    * @param fileID The file ID
    */
-  async getFile(fileID: string | ObjectID) {
+  async getFile(fileID: string | ObjectId) {
     const files = this._files;
-    const searchQuery: Partial<IFileEntry<'server'>> = { _id: new ObjectID(fileID) };
+    const searchQuery: Partial<IFileEntry<'server'>> = { _id: new ObjectId(fileID) };
 
     const file = await files.findOne(searchQuery);
     return file;
@@ -77,7 +77,7 @@ export class FilesController extends Controller {
       if (typeof options.volumeId === 'string' && !isValidObjectID(options.volumeId))
         throw new Error('Please use a valid identifier for volumeId');
 
-      const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectID(options.volumeId) };
+      const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectId(options.volumeId) };
       if (options.user) {
         const user = await this._users.getUser({ username: options.user });
         if (user) volumeQuery.user = user._id;
@@ -100,15 +100,15 @@ export class FilesController extends Controller {
     }
 
     // Set the default sort order to ascending
-    let sortOrder = -1;
+    let sortOrder: SortDirection = 'asc';
 
     if (options.sortOrder) {
-      if (options.sortOrder === SortOrder.asc) sortOrder = 1;
-      else sortOrder = -1;
+      if (options.sortOrder === SortOrder.asc) sortOrder = 'asc';
+      else sortOrder = 'desc';
     }
 
     // Sort by the date created
-    let sort: { [key in keyof Partial<IFileEntry<'server'>>]: number } | undefined = undefined;
+    let sort: Sort | undefined = undefined;
 
     // Optionally sort by the last updated
     if (options.sortType === FileSortType.created) sort = { created: sortOrder };
@@ -120,7 +120,7 @@ export class FilesController extends Controller {
     const limit: number = options.limit || 10;
 
     const sanitizedData = await files
-      .find(searchQuery, undefined, index, limit)
+      .find(searchQuery, { skip: index, limit })
       .sort(sort || [])
       .toArray();
 
@@ -237,7 +237,7 @@ export class FilesController extends Controller {
 
     if (!newFile) {
       newVolumeSize = newVolumeSize + fileData.size!;
-      const response = await filesModel.insertOne(fileData);
+      const response = await filesModel.insertOne(fileData as IFileEntry<'server'>);
       newFile = await filesModel.findOne({ _id: response.insertedId } as IFileEntry<'server'>);
     } else {
       newVolumeSize = newVolumeSize - newFile.size + fileData.size!;
@@ -262,12 +262,12 @@ export class FilesController extends Controller {
    * @param volumeId The id of the volume to upload to
    * @param username The username of the uploader
    */
-  async uploadFilesToVolume(req: IAuthReq, volumeId: string, userId: string | ObjectID) {
+  async uploadFilesToVolume(req: IAuthReq, volumeId: string, userId: string | ObjectId) {
     if (!volumeId || volumeId.trim() === '') throw new Error(`Please specify a volume for the upload`);
 
     const volumeSchema = await this._volumes.findOne({
-      _id: new ObjectID(volumeId),
-      user: new ObjectID(userId)
+      _id: new ObjectId(volumeId),
+      user: new ObjectId(userId)
     } as Partial<IVolume<'server'>>);
 
     if (!volumeSchema) throw new Error(`Volume does not exist`);
@@ -295,16 +295,16 @@ export class FilesController extends Controller {
    * @param fileId The id of the file to replace
    * @param username The username of the uploader
    */
-  async replaceFileContent(req: IAuthReq, fileId: string, userId: string | ObjectID) {
+  async replaceFileContent(req: IAuthReq, fileId: string, userId: string | ObjectId) {
     if (!fileId || fileId.trim() === '') throw new Error(`Please specify a volume for the upload`);
 
-    const file = await this._files.findOne({ _id: new ObjectID(fileId) } as IFileEntry<'server'>);
+    const file = await this._files.findOne({ _id: new ObjectId(fileId) } as IFileEntry<'server'>);
 
     if (!file) throw new Error404('File not found');
 
     const volumeSchema = await this._volumes.findOne({
       _id: file.volumeId,
-      user: new ObjectID(userId)
+      user: new ObjectId(userId)
     } as Partial<IVolume<'server'>>);
 
     if (!volumeSchema) throw new Error(`Volume does not exist`);
@@ -348,12 +348,12 @@ export class FilesController extends Controller {
    * @param fileId The id of the file to rename
    * @param name The new name of the file
    */
-  async update(fileId: string | ObjectID, token: Partial<IFileEntry<'server'>>) {
+  async update(fileId: string | ObjectId, token: Partial<IFileEntry<'server'>>) {
     const files = this._files;
 
     if (typeof fileId === 'string' && !isValidObjectID(fileId)) throw new Error('Invalid ID format');
 
-    const query = typeof fileId === 'string' ? { _id: new ObjectID(fileId) } : { _id: fileId };
+    const query = typeof fileId === 'string' ? { _id: new ObjectId(fileId) } : { _id: fileId };
     let file = await this._files.findOne(query);
 
     if (!file) throw new Error404('Resource not found');
@@ -386,12 +386,12 @@ export class FilesController extends Controller {
 
       // Update the volume data usage
       await volumes.updateOne({ identifier: volume.identifier } as IVolume<'server'>, {
-        $set: { memoryUsed: volume.memoryUsed - fileEntry.size! } as Partial<IVolume<'client'>>
+        $set: { memoryUsed: volume.memoryUsed - fileEntry.size! } as Partial<IVolume<'server'>>
       });
     }
 
     if (removeFileEntry) {
-      await files.remove({ _id: fileEntry._id } as IFileEntry<'server'>);
+      await files.deleteOne({ _id: fileEntry._id } as IFileEntry<'server'>);
       await ControllerFactory.get('users').onFileRemoved(fileEntry);
       await ControllerFactory.get('posts').onFileRemoved(fileEntry);
     }
@@ -413,7 +413,7 @@ export class FilesController extends Controller {
       if (typeof options.volumeId === 'string' && !isValidObjectID(options.volumeId))
         throw new Error('Invalid volume ID format');
 
-      const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectID(options.volumeId) };
+      const volumeQuery: Partial<IVolume<'server'>> = { _id: new ObjectId(options.volumeId) };
       const volume = await volumes.findOne(volumeQuery);
 
       if (!volume) throw new Error('Volume resource does not exist');
@@ -425,14 +425,14 @@ export class FilesController extends Controller {
       if (typeof options.fileId === 'string' && !isValidObjectID(options.fileId))
         throw new Error('Invalid file ID format');
 
-      query._id = new ObjectID(options.fileId);
+      query._id = new ObjectId(options.fileId);
     }
 
     if (options.user) {
       const u = await this._users.getUser({ username: options.user });
       if (!u) throw new Error404(`User not found`);
 
-      query.user = new ObjectID(u._id);
+      query.user = new ObjectId(u._id);
     }
 
     const fileEntries = await files.find(query).toArray();

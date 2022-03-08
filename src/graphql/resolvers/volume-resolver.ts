@@ -23,14 +23,14 @@ import ControllerFactory from '../../core/controller-factory';
 import { Error404, Error403 } from '../../utils/errors';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { IVolume } from '../../types/models/i-volume-entry';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { User } from '../models/user-type';
 
 @Resolver(of => Volume)
 export class VolumeResolver implements ResolverInterface<Volume> {
   @Authorized<AuthLevel>([AuthLevel.regular])
   @Query(returns => Volume, { nullable: true })
-  async volume(@Arg('id', () => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+  async volume(@Arg('id', () => GraphQLObjectId) id: ObjectId, @Ctx() ctx: IGQLContext) {
     const volume = await ControllerFactory.get('volumes').get({ id: id });
     if (!volume) throw new Error404('Volume does not exist');
     if (!ctx.isAdmin && !volume.user.equals(ctx.user!._id)) throw new Error403();
@@ -103,7 +103,7 @@ export class VolumeResolver implements ResolverInterface<Volume> {
 
   @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Boolean)
-  async removeVolume(@Arg('id', type => GraphQLObjectId) id: ObjectID) {
+  async removeVolume(@Arg('id', type => GraphQLObjectId) id: ObjectId) {
     await ControllerFactory.get('volumes').remove({ _id: id });
     return true;
   }

@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import header from '../header';
 import { generateRandString } from '../../../src/utils/utils';
 import ControllerFactory from '../../../src/core/controller-factory';
-import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../../src/graphql/client/requests/posts';
-import { ADD_COMMENT, GET_COMMENT, GET_COMMENTS } from '../../../src/graphql/client/requests/comments';
+import { ADD_POST, REMOVE_POST, GET_POSTS } from '../../client/requests/posts';
+import { ADD_COMMENT, GET_COMMENT, GET_COMMENTS } from '../../client/requests/comments';
 import { Comment, AddCommentInput, Post, AddPostInput, PaginatedCommentsResponse } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 import { IUserEntry } from '../../../src/types/models/i-user-entry';
@@ -110,7 +110,7 @@ describe('Testing fetching of comments', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$id" got invalid value "BADID"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "BADID"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

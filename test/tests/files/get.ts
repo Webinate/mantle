@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import { REMOVE_VOLUME, ADD_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { GET_FILES } from '../../../src/graphql/client/requests/file';
+import { REMOVE_VOLUME, ADD_VOLUME } from '../../client/requests/volume';
+import { GET_FILES } from '../../client/requests/file';
 import { AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/index';
 
 let volume: Volume;
@@ -33,7 +33,7 @@ describe('Getting uploaded user files', function() {
 
     assert.deepEqual(
       resp.errors![0].message,
-      'Variable "$volumeId" got invalid value "test"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$volumeId" got invalid value "test"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 
@@ -51,7 +51,7 @@ describe('Getting uploaded user files', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 
@@ -61,7 +61,7 @@ describe('Getting uploaded user files', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 
@@ -96,7 +96,7 @@ describe('Getting uploaded user files', function() {
   });
 
   it('admin fetched 2 files from the regular users dinosaur volume', async function() {
-    const resp = await header.admin.get(`/files/volumes/${volume._id}`);
+    const resp = await header.admin.get(`/api/files/volumes/${volume._id}`);
     const json = await resp.json();
     assert.deepEqual(resp.status, 200);
     assert(json.data.length === 2);

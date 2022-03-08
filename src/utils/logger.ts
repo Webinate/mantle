@@ -31,11 +31,11 @@ export function initializeLogger() {
  */
 export function warn(message: string, meta?: any) {
   return new Promise(function(resolve, reject) {
-    if (!showLogs) return resolve();
+    if (!showLogs) return resolve(true);
 
     winston.warn(message, meta, function(err) {
       if (err) reject(err);
-      else resolve();
+      else resolve(true);
     });
   });
 }
@@ -54,11 +54,11 @@ export function enabled() {
  */
 export function info(message: string, meta?: any) {
   return new Promise(function(resolve, reject) {
-    if (!showLogs) return resolve();
+    if (!showLogs) return resolve(true);
 
     winston.info(message, meta, function(err) {
       if (err) reject(err);
-      else resolve();
+      else resolve(true);
     });
   });
 }
@@ -77,10 +77,10 @@ function waitForLogger(logger: winston.Logger) {
  */
 export function error(message: string, meta?: any) {
   return new Promise(function(resolve, reject) {
-    if (!showLogs) return resolve();
+    if (!showLogs) return resolve(true);
 
     waitForLogger(winston.error(message, meta))
-      .then(() => resolve())
+      .then(() => resolve(true))
       .catch(err => reject(err));
   });
 }

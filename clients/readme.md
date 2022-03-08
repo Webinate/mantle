@@ -1,1 +1,0 @@
-# Place all client projects into this folder

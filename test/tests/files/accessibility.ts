@@ -3,8 +3,8 @@ import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
 import { randomString } from '../utils';
-import { REMOVE_VOLUME, ADD_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { GET_FILES } from '../../../src/graphql/client/requests/file';
+import { REMOVE_VOLUME, ADD_VOLUME } from '../../client/requests/volume';
+import { GET_FILES } from '../../client/requests/file';
 import { AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/index';
 
 let volume: Volume;
@@ -34,7 +34,7 @@ describe('Testing file accessibility functions', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 

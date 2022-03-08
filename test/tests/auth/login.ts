@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import { LOGIN } from '../../../src/graphql/client/requests/auth';
+import { LOGIN } from '../../client/requests/auth';
 import { LoginInput, AuthResponse } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 
@@ -9,11 +9,11 @@ describe('Testing user logging in', function() {
     const { errors } = await header.guest.graphql<AuthResponse>(LOGIN, { token: {} });
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value {}; Field username of required type String! was not provided.'
+      'Variable "$token" got invalid value {}; Field "username" of required type "String!" was not provided.'
     );
     assert.deepEqual(
       errors![1].message,
-      'Variable "$token" got invalid value {}; Field password of required type String! was not provided.'
+      'Variable "$token" got invalid value {}; Field "password" of required type "String!" was not provided.'
     );
   });
 

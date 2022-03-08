@@ -3,8 +3,8 @@ import header from '../header';
 import ControllerFactory from '../../../src/core/controller-factory';
 import { uploadFileToVolume } from '../file';
 import { randomString } from '../utils';
-import { GET_POST, UPDATE_POST, GET_POST_DRAFTS, REMOVE_POST_DRAFT } from '../../../src/graphql/client/requests/posts';
-import { UPDATE_DOC_ELEMENT, ADD_DOC_ELEMENT } from '../../../src/graphql/client/requests/documents';
+import { GET_POST, UPDATE_POST, GET_POST_DRAFTS, REMOVE_POST_DRAFT } from '../../client/requests/posts';
+import { UPDATE_DOC_ELEMENT, ADD_DOC_ELEMENT } from '../../client/requests/documents';
 import { UpdateElementInput, AddElementInput, Element, Post, Draft, UpdatePostInput } from '../../../src/index';
 import { IPost } from '../../../src/types/models/i-post';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
@@ -144,7 +144,7 @@ describe('Testing of posts and drafts', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$id" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 
@@ -172,11 +172,11 @@ describe('Testing of posts and drafts', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$draftId" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$draftId" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
     assert.deepEqual(
       errors![1].message,
-      'Variable "$postId" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$postId" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

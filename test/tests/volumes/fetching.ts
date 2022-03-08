@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import { ADD_VOLUME, GET_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { ADD_VOLUME, GET_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../client/requests/volume';
 import { Volume, PaginatedVolumeResponse, AddVolumeInput } from '../../../src/index';
 import { IAdminUser } from '../../../src/types/config/properties/i-admin';
 
@@ -32,7 +32,7 @@ describe('Testing volume get requests', function() {
     const { errors } = await header.admin.graphql<Volume>(GET_VOLUME, { id: 'BAD' });
     assert.deepEqual(
       errors![0].message,
-      'Variable "$id" got invalid value "BAD"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

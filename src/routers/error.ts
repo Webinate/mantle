@@ -2,16 +2,10 @@
 
 import { ISimpleResponse } from '../types/tokens/standard-tokens';
 import { Router } from './router';
-import express = require('express');
-import * as mongodb from 'mongodb';
+import { Express, Request, Response } from 'express';
+import { Db } from 'mongodb';
 
-/**
- * Handles express errors
- */
 export class ErrorRouter extends Router {
-  /**
-   * Creates an instance
-   */
   constructor() {
     super();
   }
@@ -19,9 +13,9 @@ export class ErrorRouter extends Router {
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize(e: express.Express, db: mongodb.Db) {
+  async initialize(e: Express, db: Db) {
     // Handle all errors the same way
-    e.use(function(err: Error, req: express.Request, res: express.Response, next: Function) {
+    e.use(function(err: Error, req: Request, res: Response, next: Function) {
       res.setHeader('Content-Type', 'application/json');
       const response: ISimpleResponse = { message: err.toString() };
       return res.end(JSON.stringify(response));

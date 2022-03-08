@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { UPDATE_FILE } from '../../../src/graphql/client/requests/file';
+import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
+import { UPDATE_FILE } from '../../client/requests/file';
 import { UpdateFileInput, File, AddVolumeInput, Volume } from '../../../src/index';
 
 let volume: Volume, fileId: string;
@@ -33,12 +33,12 @@ describe('Testing file renaming', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 
   it('uploaded file has the name "file.png"', async function() {
-    const resp = await header.user1.get(`/files/volumes/${volume._id}`);
+    const resp = await header.user1.get(`/api/files/volumes/${volume._id}`);
     assert.deepEqual(resp.status, 200);
     const json = await resp.json();
     fileId = json.data[0]._id;
@@ -55,7 +55,7 @@ describe('Testing file renaming', function() {
 
     assert.deepEqual(
       resp.errors![0].message,
-      'Variable "$token" got invalid value "123" at "token._id"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "123" at "token._id"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 
@@ -77,7 +77,7 @@ describe('Testing file renaming', function() {
       }
     });
 
-    assert.ok(resp.errors![0].message.includes('Field name of required type String! was not provided.'));
+    assert.ok(resp.errors![0].message.includes('Field "name" of required type "String!" was not provided.'));
   });
 
   it('regular user did rename a correct file to testy', async function() {

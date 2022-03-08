@@ -3,8 +3,7 @@ import { Page } from '../types/tokens/standard-tokens';
 import * as mongodb from 'mongodb';
 import Controller from './controller';
 import { ICategory } from '../types/models/i-category';
-import { ISchemaOptions } from '../types/misc/i-schema-options';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { CategoriesGetOptions } from '../core/enums';
 
 export type GetOneOptions = {
@@ -45,10 +44,10 @@ export class CategoriesController extends Controller {
     const selector = root
       ? ({ parent: null } as ICategory<'server'>)
       : options.parent
-      ? ({ parent: new ObjectID(options.parent) } as ICategory<'server'>)
+      ? ({ parent: new ObjectId(options.parent) } as ICategory<'server'>)
       : undefined;
 
-    const sanitizedData = await collection.find(selector || {}, undefined, index, limit);
+    const sanitizedData = await collection.find(selector || {}, { limit, skip: index });
     const count = await collection.count({});
     const data = await sanitizedData.toArray();
 
@@ -62,21 +61,12 @@ export class CategoriesController extends Controller {
     return response;
   }
 
-  getDefaultsOptions(options: Partial<ISchemaOptions>): ISchemaOptions {
-    return {
-      verbose: true,
-      expandForeignKeys: options.expandForeignKeys || false,
-      expandMaxDepth: options.expandMaxDepth || 1,
-      expandSchemaBlacklist: [/parent/]
-    };
-  }
-
   /**
    * Gets a single category resource
    * @param id The id of the category to fetch
    */
-  async getOne(id: string | mongodb.ObjectID) {
-    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(id) };
+  async getOne(id: string | mongodb.ObjectId) {
+    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectId(id) };
     return await this._collection.findOne(findToken);
   }
 
@@ -93,8 +83,8 @@ export class CategoriesController extends Controller {
    * Removes a category by its id
    * @param id The id of the category
    */
-  async remove(id: string | ObjectID) {
-    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(id) };
+  async remove(id: string | ObjectId) {
+    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectId(id) };
     const category = await this._collection.findOne(findToken);
 
     if (!category) throw new Error('Could not find a comment with that ID');
@@ -117,7 +107,7 @@ export class CategoriesController extends Controller {
     const collection = this._collection;
     let parent: ICategory<'server'> | null = null;
 
-    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectID(token._id) };
+    const findToken: Partial<ICategory<'server'>> = { _id: new mongodb.ObjectId(token._id) };
     const curCategory = await collection.findOne(findToken);
     if (!curCategory) throw new Error(`No category exists with the id ${token._id}`);
 
@@ -128,11 +118,11 @@ export class CategoriesController extends Controller {
 
     // Check if target parent exists
     if (token.parent) {
-      parent = await collection.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
+      parent = await collection.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectId(token.parent) });
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
     }
 
-    await collection.updateOne(findToken, token);
+    await collection.updateOne(findToken, { $set: token });
     const updatedCategory = await collection.findOne(findToken);
 
     return updatedCategory!;
@@ -152,11 +142,11 @@ export class CategoriesController extends Controller {
     }
 
     if (token.parent) {
-      parent = await collection.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectID(token.parent) });
+      parent = await collection.findOne(<ICategory<'server'>>{ _id: new mongodb.ObjectId(token.parent) });
       if (!parent) throw new Error(`No category exists with the id ${token.parent}`);
     }
 
-    const result = await collection.insertOne(token);
+    const result = await collection.insertOne(token as ICategory<'server'>);
     const instance = await collection.findOne({ _id: result.insertedId } as ICategory<'server'>);
 
     if (!instance) throw new Error(`Could not create category`);

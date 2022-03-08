@@ -21,7 +21,7 @@ import ControllerFactory from '../../core/controller-factory';
 import { IGQLContext } from '../../types/interfaces/i-gql-context';
 import { CommentVisibility, AuthLevel, CommentSortType, SortOrder } from '../../core/enums';
 import { GraphQLObjectId } from '../scalars/object-id';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { Error403 } from '../../utils/errors';
 import { User } from '../models/user-type';
 import { IComment } from '../../types/models/i-comment';
@@ -30,7 +30,7 @@ import { IComment } from '../../types/models/i-comment';
 export class CommentResolver implements ResolverInterface<Comment> {
   @Authorized<AuthLevel>([AuthLevel.regular])
   @Mutation(returns => Boolean)
-  async removeComment(@Arg('id', type => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+  async removeComment(@Arg('id', type => GraphQLObjectId) id: ObjectId, @Ctx() ctx: IGQLContext) {
     const comment = await ControllerFactory.get('comments').getOne(id);
 
     // Only admins & owners are allowed
@@ -77,7 +77,7 @@ export class CommentResolver implements ResolverInterface<Comment> {
   }
 
   @Query(returns => Comment, { nullable: true })
-  async comment(@Arg('id', type => GraphQLObjectId) id: ObjectID, @Ctx() ctx: IGQLContext) {
+  async comment(@Arg('id', type => GraphQLObjectId) id: ObjectId, @Ctx() ctx: IGQLContext) {
     const comment = await ControllerFactory.get('comments').getOne(id);
 
     // Only admins are allowed to see private comments

@@ -11,12 +11,12 @@ import { Error403 } from '../../utils/errors';
 export class AuthResolver {
   @Mutation(returns => AuthResponse)
   async login(@Arg('token') { password, remember, username }: LoginInput, @Ctx() ctx: IGQLContext) {
-    const session = await ControllerFactory.get('users').logIn(username, password, remember, ctx.req, ctx.res);
+    const session = await ControllerFactory.get('users').logIn(username, password, remember, ctx, ctx.res);
 
     let user: IUserEntry<'server'> | null = null;
 
     if (session) {
-      await ControllerFactory.get('sessions').setSessionHeader(session, ctx.req, ctx.res);
+      await ControllerFactory.get('sessions').setSessionHeader(session, ctx, ctx.res);
       user = await ControllerFactory.get('users').getUser({ username: session.user.username as string });
     }
 
@@ -29,7 +29,7 @@ export class AuthResolver {
 
   @Mutation(returns => AuthResponse)
   async register(@Arg('token') { password, activationUrl, email, username }: RegisterInput, @Ctx() ctx: IGQLContext) {
-    const user = await ControllerFactory.get('users').register(username, password, email, activationUrl, {}, ctx.req);
+    const user = await ControllerFactory.get('users').register(username, password, email, activationUrl, {}, ctx);
 
     return new AuthResponse({
       authenticated: true,
@@ -52,18 +52,18 @@ export class AuthResolver {
     @Arg('activationPath', { defaultValue: '/activate' }) activationPath: string,
     @Ctx() ctx: IGQLContext
   ) {
-    const origin = encodeURIComponent((ctx.req.headers['origin'] as string) || (ctx.req.headers['referer'] as string));
+    const origin = encodeURIComponent((ctx.headers['origin'] as string) || (ctx.headers['referer'] as string));
     await ControllerFactory.get('users').resendActivation(username, activationPath, origin);
     return true;
   }
 
   @Query(returns => AuthResponse)
   async authenticated(@Ctx() ctx: IGQLContext) {
-    const session = await ControllerFactory.get('sessions').getSession(ctx.req);
+    const session = await ControllerFactory.get('sessions').getSession(ctx);
     let user: IUserEntry<'server'> | null = null;
 
     if (session) {
-      await ControllerFactory.get('sessions').setSessionHeader(session, ctx.req, ctx.res);
+      await ControllerFactory.get('sessions').setSessionHeader(session, ctx, ctx.res);
       user = await ControllerFactory.get('users').getUser({ username: session.user.username as string });
     }
 
@@ -80,7 +80,7 @@ export class AuthResolver {
     @Arg('accountRedirectURL', { defaultValue: '/', nullable: true }) accountRedirectURL: string,
     @Ctx() ctx: IGQLContext
   ) {
-    const origin = encodeURIComponent((ctx.req.headers['origin'] as string) || (ctx.req.headers['referer'] as string));
+    const origin = encodeURIComponent((ctx.headers['origin'] as string) || (ctx.headers['referer'] as string));
     await ControllerFactory.get('users').requestPasswordReset(username, accountRedirectURL, origin);
     return true;
   }
@@ -98,7 +98,7 @@ export class AuthResolver {
 
   @Mutation(returns => Boolean)
   async logout(@Ctx() ctx: IGQLContext) {
-    await ControllerFactory.get('users').logOut(ctx.req, ctx.res);
+    await ControllerFactory.get('users').logOut(ctx, ctx.res);
     return true;
   }
 }

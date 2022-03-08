@@ -1,5 +1,5 @@
-﻿import * as mongodb from 'mongodb';
-import * as express from 'express';
+﻿import { Db } from 'mongodb';
+import { Express } from 'express';
 
 export class Router {
   constructor() {}
@@ -7,7 +7,7 @@ export class Router {
   /**
    * Called to initialize this controller and its related database objects
    */
-  async initialize(e: express.Express, db: mongodb.Db) {
+  async initialize(e: Express, db: Db) {
     return this;
   }
 }

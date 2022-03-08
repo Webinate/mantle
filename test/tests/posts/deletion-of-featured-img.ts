@@ -4,11 +4,11 @@ import { randomString } from '../utils';
 import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { UPDATE_POST, GET_POST } from '../../../src/graphql/client/requests/posts';
+import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
+import { UPDATE_POST, GET_POST } from '../../client/requests/posts';
 import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 import { UpdatePostInput } from '../../../src/graphql/models/post-type';
-import { REMOVE_FILE } from '../../../src/graphql/client/requests/file';
+import { REMOVE_FILE } from '../../client/requests/file';
 import { Post, Volume } from '../../../src/index';
 import { IFileEntry } from '../../../src/types/models/i-file-entry';
 import { IPost } from '../../../src/types/models/i-post';
@@ -51,9 +51,9 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
     const form = new FormData();
     const filePath = './test/media/file.png';
     form.append('good-file', fs.createReadStream(filePath));
-    const resp = await header.user3.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user3.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.equal(resp.status, 200);
-    const files = await resp.json<IFileEntry<'expanded'>[]>();
+    const files: IFileEntry<'expanded'>[] = await resp.json();
     assert.equal(files.length, 1);
     file = files[0];
   });
@@ -68,7 +68,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
 
     assert.deepEqual(
       errors![0].message,
-      `Variable "$token" got invalid value "BAD" at "token.featuredImage"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters`
+      `Variable "$token" got invalid value "BAD" at "token.featuredImage"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters`
     );
   });
 

@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import header from '../header';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import { ADD_VOLUME, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
-import { GET_FILES, REMOVE_FILE } from '../../../src/graphql/client/requests/file';
+import { ADD_VOLUME, REMOVE_VOLUME } from '../../client/requests/volume';
+import { GET_FILES, REMOVE_FILE } from '../../client/requests/file';
 import { AddVolumeInput, Volume, PaginatedFilesResponse } from '../../../src/index';
 
 let volume: Volume;
@@ -34,7 +34,7 @@ describe('Testing files deletion', function() {
       filename: 'small-image.png',
       contentType: 'image/png'
     });
-    const resp = await header.user1.post(`/files/volumes/${volume._id}/upload`, form, form.getHeaders());
+    const resp = await header.user1.post(`/api/files/volumes/${volume._id}/upload`, form, form.getHeaders());
     assert.deepEqual(resp.status, 200);
   });
 
@@ -54,7 +54,7 @@ describe('Testing files deletion', function() {
 
     assert.deepEqual(
       resp.errors![0].message,
-      'Variable "$id" got invalid value "123"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "123"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

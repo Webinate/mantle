@@ -6,9 +6,7 @@ var setup = require('./gulp/setup.js');
 // CONFIG
 // ==============================
 const tsProject = ts.createProject('tsconfig.json');
-const tsProjectDefs = ts.createProject('tsconfig.json');
-
-const configFiles = ['./readme.md', './install-script.sh', './package.json'];
+const configFiles = ['./install-script.sh', './package.json'];
 
 function checkCode() {
   var tsResult = tsProject.src().pipe(tsProject());

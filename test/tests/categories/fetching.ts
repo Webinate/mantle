@@ -1,11 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import {
-  ADD_CATEGORY,
-  REMOVE_CATEGORY,
-  GET_CATEGORY,
-  GET_CATEGORIES
-} from '../../../src/graphql/client/requests/category';
+import { ADD_CATEGORY, REMOVE_CATEGORY, GET_CATEGORY, GET_CATEGORIES } from '../../client/requests/category';
 import { AddCategoryInput, PaginatedCategoryResponse, Category } from '../../../src/index';
 
 let category: Category,

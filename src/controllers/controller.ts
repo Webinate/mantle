@@ -17,5 +17,5 @@ export default abstract class Controller extends EventEmitter {
    * Initializes the controller
    * @param db The mongo db
    */
-  abstract async initialize(db: Db): Promise<Controller>;
+  abstract initialize(db: Db): Promise<Controller>;
 }

@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import header from '../header';
 import { Volume, PaginatedVolumeResponse } from '../../../src/index';
-import { ADD_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../../src/graphql/client/requests/volume';
+import { ADD_VOLUME, GET_VOLUMES, REMOVE_VOLUME } from '../../client/requests/volume';
 import { AddVolumeInput } from '../../../src/graphql/models/volume-type';
 
 let volume: string;
@@ -30,7 +30,7 @@ describe('Testing volume deletion', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$id" got invalid value "badID"; Expected type ObjectId. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "badID"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
     );
   });
 

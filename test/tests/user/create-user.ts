@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import header from '../header';
-import { CREATE_USER, GET_USER_AS_ADMIN } from '../../../src/graphql/client/requests/users';
+import { CREATE_USER, GET_USER_AS_ADMIN } from '../../client/requests/users';
 import controllerFactory from '../../../src/core/controller-factory';
 import { randomString } from '../utils';
 import { AddUserInput, User } from '../../../src/index';
@@ -74,7 +74,7 @@ describe('Testing creating a user', function() {
 
     assert.deepEqual(
       errors![0].message,
-      `Variable "$token" got invalid value "fake_permission" at "token.privileges"; Expected type UserPrivilege.`
+      `Variable "$token" got invalid value "fake_permission" at "token.privileges"; Value "fake_permission" does not exist in "UserPrivilege" enum.`
     );
   });
 

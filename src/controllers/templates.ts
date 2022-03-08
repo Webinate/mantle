@@ -1,6 +1,6 @@
 ﻿import { IConfig } from '../types/config/i-config';
 import { Page } from '../types/tokens/standard-tokens';
-import { Db, ObjectID, Collection } from 'mongodb';
+import { Db, ObjectId, Collection } from 'mongodb';
 import Controller from './controller';
 import { ITemplate } from '../types/models/i-template';
 
@@ -37,7 +37,7 @@ export class TemplatesController extends Controller {
     const templatesModel = this._templates;
 
     // Save the new entry into the database
-    const responses = await Promise.all([templatesModel.count({}), templatesModel.find({}, undefined, 0).toArray()]);
+    const responses = await Promise.all([templatesModel.count({}), templatesModel.find({}, { skip: 0 }).toArray()]);
     const [count, templates] = responses;
 
     const toRet: Page<ITemplate<'server'>> = {
@@ -53,10 +53,10 @@ export class TemplatesController extends Controller {
   /**
    * Gets a template by its name or ID
    */
-  async get(id: string | ObjectID) {
+  async get(id: string | ObjectId) {
     const templateModel = this._templates;
     const searchQuery: Partial<ITemplate<'server'>> = {
-      _id: new ObjectID(id)
+      _id: new ObjectId(id)
     };
     const result = await templateModel.findOne(searchQuery);
 

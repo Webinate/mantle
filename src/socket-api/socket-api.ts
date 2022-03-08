@@ -5,7 +5,7 @@ import { ServerInstruction } from './server-instruction';
 import { ClientInstruction } from './client-instruction';
 import { CommsController } from './comms-controller';
 import { ClientInstructionType, ServerInstructionType } from './socket-event-types';
-import { ObjectID } from 'bson';
+import { ObjectId } from 'mongodb';
 
 /**
  * Handles express errors
@@ -37,7 +37,7 @@ export class SocketAPI {
         if (!e.from.authorizedThirdParty)
           return Promise.reject(new Error('You do not have permission to make this request'));
 
-        const id = new ObjectID(user._id);
+        const id = new ObjectId(user._id);
 
         if (e.token.property && e.token.val !== undefined)
           return Factory.get('users').setMetaVal(id, e.token.property, e.token.val);
@@ -53,7 +53,9 @@ export class SocketAPI {
           username: e.token.username
         };
 
-        comms.processClientInstruction(new ClientInstruction<any>(responseToken, [e.from]));
+        comms.processClientInstruction(
+          new ClientInstruction<any>(responseToken, [e.from])
+        );
       })
       .catch(function(err: Error) {
         let responseToken: any = {
@@ -61,7 +63,9 @@ export class SocketAPI {
           error: err.message
         };
 
-        comms.processClientInstruction(new ClientInstruction<any>(responseToken, [e.from]));
+        comms.processClientInstruction(
+          new ClientInstruction<any>(responseToken, [e.from])
+        );
       });
   }
 }
