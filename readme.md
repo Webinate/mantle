@@ -5,10 +5,6 @@ that make developing node based single page apps a breeze. The system handles
 a set of core functions for any web based app and then using a plugin architecture
 users can create additional end points and functions to enhance the sytem.
 
-## Current stable version
-
-- v0.4.3
-
 ## Requirements
 
 - MongoDB v3
