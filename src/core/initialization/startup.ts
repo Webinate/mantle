@@ -81,17 +81,17 @@ export async function initialize() {
   initializeLogger();
   const config = loadConfig()!;
 
-  info(`Attempting to connect to mongodb...`);
+  info(`Attempting to connect to mongodb`);
 
   if (!config.database) throw new Error('No database object defined in the config file');
 
   const dbProps = config.database as IDatabase;
-  const mongoServer = new MongoClient(dbProps.host, {
-    servername: dbProps.name
-  });
 
+  info(`Connecting to client on host [${dbProps.host}]`);
+  const mongoServer = new MongoClient(dbProps.host);
   await mongoServer.connect();
 
+  info(`Connecting to database [${dbProps.name}]`);
   const db = await mongoServer.db(dbProps.name);
 
   ControllerFactory.initialize(config, db);
