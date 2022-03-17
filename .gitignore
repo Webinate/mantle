@@ -10,8 +10,6 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
-config.json
-bucket-credentials.json
 
 # Build results
 [Dd]ebug/
@@ -28,6 +26,12 @@ bld/
 node_modules/
 dist/
 .gitignore/
+
+lib/
+lib-frontend/
+
+!src/lib/
+!src/lib-frontend/
 
 changes.md
 

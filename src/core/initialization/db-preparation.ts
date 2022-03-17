@@ -1,44 +1,17 @@
-import { IConfig } from 'modepress';
-import * as mongodb from 'mongodb';
-import { UserManager } from '../../core/users';
-import { BucketManager } from '../../core/bucket-manager';
-import { CommsController } from '../../socket-api/comms-controller'
+import { IConfig } from '../../types';
+import { Db } from 'mongodb';
+import { CommsController } from '../../socket-api/comms-controller';
+// import { Collections } from '../enums';
 
 /**
  * Prepares the database and any dependencies of the collections
  */
-export async function prepare( db: mongodb.Db, config: IConfig ) {
+export async function prepare(db: Db, config: IConfig) {
+  // await Promise.all(
+  //   Object.keys(Collections).map((k: keyof typeof Collections) => db.createCollection(Collections[k], {}))
+  // );
 
-    const usersCollection = await db.createCollection( config.userSettings.userCollection );
-    const sessionsCollection = await db.createCollection( config.userSettings.sessionCollection );
-    const statsCollection = await db.createCollection( config.google.bucket.statsCollection );
-    const bucketsCollection = await db.createCollection( config.google.bucket.bucketsCollection );
-    const filesCollection = await db.createCollection( config.google.bucket.filesCollection );
-
-    await Promise.all( [
-        usersCollection.createIndex( 'username' ),
-        usersCollection.createIndex( 'createdOn' ),
-        usersCollection.createIndex( 'lastLoggedIn' ),
-        bucketsCollection.createIndex( 'name' ),
-        bucketsCollection.createIndex( 'user' ),
-        bucketsCollection.createIndex( 'created' ),
-        bucketsCollection.createIndex( 'memoryUsed' ),
-        filesCollection.createIndex( 'name' ),
-        filesCollection.createIndex( 'user' ),
-        filesCollection.createIndex( 'created' ),
-        filesCollection.createIndex( 'size' ),
-        filesCollection.createIndex( 'mimeType' ),
-        filesCollection.createIndex( 'numDownloads' )
-    ] );
-
-    // Create the user manager
-    UserManager.create( usersCollection, sessionsCollection, config );
-    await UserManager.get.initialize();
-
-    // Create the bucket controller
-    BucketManager.create( bucketsCollection, filesCollection, statsCollection, config );
-
-    // Create the comms controller
-    let comms = new CommsController( config! );
-    await comms.initialize( db );
+  // Create the comms controller
+  let comms = new CommsController(config!);
+  await comms.initialize(db);
 }

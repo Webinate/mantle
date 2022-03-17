@@ -1,0 +1,31 @@
+import { Resolver, ResolverInterface, FieldResolver, Root } from 'type-graphql';
+import { Element } from '../models/element-type';
+import { File } from '../models/file-type';
+import ControllerFactory from '../../core/controller-factory';
+import { IImageElement } from '../../types';
+import { buildHtml } from '../../controllers/build-html';
+import { ObjectId } from 'mongodb';
+
+@Resolver(of => Element)
+export class ElementResolver implements ResolverInterface<Element> {
+  @FieldResolver(type => String)
+  async html(@Root() root: Element) {
+    const element = (await ControllerFactory.get('documents').getElement(root._id as ObjectId)) as IImageElement<
+      'server'
+    >;
+    const html = await buildHtml(element);
+    return html;
+  }
+
+  @FieldResolver(type => Element, { nullable: true })
+  async image(@Root() root: Element) {
+    const element = (await ControllerFactory.get('documents').getElement(root._id as ObjectId)) as IImageElement<
+      'server'
+    >;
+    if (!element.image) return null;
+
+    const file = await ControllerFactory.get('files').getFile(element.image);
+    if (!file) return null;
+    return File.fromEntity(file!);
+  }
+}

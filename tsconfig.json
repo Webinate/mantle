@@ -1,29 +1,25 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "removeComments": false,
-        "noEmitOnError": true,
-        "declaration": false,
-        "sourceMap": false,
-        "preserveConstEnums": true,
-        "noImplicitAny": false,
-        "target": "es2017",
-        "lib": [
-            "dom",
-            "dom.iterable",
-            "es7"
-        ],
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
-        "outDir": "./dist",
-        "noUnusedParameters": false,
-        "noUnusedLocals": true,
-        "strictNullChecks": true,
-        "rootDir": "src"
-    },
-    "include": [
-        "src/references.d.ts",
-        "src/**/*.ts"
-    ],
-    "exclude": []
+  "compilerOptions": {
+    "module": "CommonJS",
+    "removeComments": false,
+    "noEmitOnError": true,
+    "declaration": false,
+    "sourceMap": true,
+    "preserveConstEnums": true,
+    "noImplicitAny": true,
+    "target": "es2018",
+    "lib": ["dom", "dom.iterable", "es2018"],
+    "experimentalDecorators": true,
+    "allowUnreachableCode": false,
+    "emitDecoratorMetadata": true,
+    "allowUnusedLabels": false,
+    "noUnusedParameters": false,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react",
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["node_modules/**", "src/index.ts"]
 }

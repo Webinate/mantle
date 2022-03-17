@@ -1,143 +1,145 @@
-﻿import { IClient, IServer } from 'modepress';
+﻿import { IConfig } from '../types';
 import * as express from 'express';
 import * as morgan from 'morgan';
-import * as mongodb from 'mongodb';
-import * as http from 'http';
-import * as https from 'https';
-import * as fs from 'fs';
+import { Db } from 'mongodb';
+import { createServer } from 'http';
+import { createServer as createSecureServer } from 'https';
+import { existsSync, readFileSync } from 'fs';
 import { error, info, enabled as loggingEnabled } from '../utils/logger';
 import * as compression from 'compression';
-import { Controller } from '../controllers/controller'
-import { ErrorController } from '../controllers/error-controller';
+import { AuthRouter, ErrorRouter, CORSRouter, FileRouter, Router } from '../routers';
+import { graphqlHTTP } from 'express-graphql';
+import { generateSchema } from './graphql-schema';
+import { ArgumentValidationError } from 'type-graphql';
 
 export class Server {
-    server: IServer;
-    private _controllers: Controller[];
-    private _path: string;
+  public config: IConfig;
 
-    constructor( server: IServer, path: string ) {
-        this.server = server;
-        this._controllers = [];
-        this._path = path;
+  constructor(config: IConfig) {
+    this.config = config;
+  }
+
+  async initialize(db: Db): Promise<Server> {
+    const server = this.config.server;
+    const app = express();
+    const schema = await generateSchema();
+    const rootPath = server.rootPath || 'api';
+
+    // bind express with graphql
+    app.use(
+      '/graphql',
+      graphqlHTTP({
+        schema: schema,
+        graphiql: this.config.server.enableGraphIQl,
+        customFormatErrorFn: err => {
+          if (err.originalError && (err.originalError as ArgumentValidationError).validationErrors) {
+            const validationErrors = (err.originalError as ArgumentValidationError).validationErrors;
+            const formattedErrors = validationErrors.map(vErr => {
+              const errors = Object.keys(vErr.constraints!).map(key => vErr.constraints![key]);
+              return {
+                message: `Validation error for ${vErr.property}: ${errors.join(', ')}`
+              };
+            });
+
+            // We just show the first error and do not pass all the possible errors in one go
+            return formattedErrors[0];
+          } else return err;
+        }
+      })
+    );
+
+    // Create the controllers
+    const routers: Router[] = [
+      new CORSRouter(server.corsApprovedDomains || []),
+      new AuthRouter(rootPath),
+      new FileRouter(rootPath),
+      new ErrorRouter()
+    ];
+
+    // Enable GZIPPING
+    app.use(compression());
+
+    // User defined static folders
+    if (server.staticAssets) {
+      let localStaticFolder = server.staticAssets;
+      let staticPrefix = server.staticPrefix || '/';
+
+      if (!existsSync(localStaticFolder)) {
+        await error(`Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'`);
+        process.exit();
+      }
+
+      info(`Adding static resource folder '${localStaticFolder}'`);
+      app.use(
+        staticPrefix,
+        express.static(localStaticFolder, {
+          maxAge: server.staticAssetsCache || 2592000000
+        })
+      );
     }
 
-    /**
-     * Goes through each client json discovered in the modepress client folder
-     * and attempts to load it
-     * @param client The client we are loading
-     */
-    parseClient( client: IClient & { path: string; } ) {
-        if ( !client.controllers ) {
-            error( `Client '${client.name}' does not have any controllers defined` ).then(() => {
-                process.exit();
-            } );
+    // Setup the most basic of status tests
+    app.use(`/${rootPath}/status`, (req, res) => res.sendStatus(200));
 
-            return;
-        }
+    // log every request to the console
+    if (loggingEnabled()) app.use(morgan('dev'));
 
-        for ( const ctrl of client.controllers ) {
-            try {
-                const constructor = require( `${client.path}/${ctrl.path!}` ).default;
-                this._controllers.push( new constructor( client ) );
-            }
-            catch ( err ) {
-                error( `Could not load custom controller '${ctrl.path}'. \n\rERROR: ${err.toString()}. \n\rSTACK: ${err.stack ? err.stack : ''}` ).then(() => {
-                    process.exit();
-                } );
-            }
-        }
+    info(`Attempting to start HTTP server...`);
+
+    // Start app with node server.js
+    const httpServer = createServer(app);
+    httpServer.listen({ port: server.port, host: server.host || 'localhost' });
+    info(`Listening on HTTP port ${server.port}`);
+
+    // If we use SSL then start listening for that as well
+    if (server.ssl) {
+      if (server.ssl.intermediate !== '' && !existsSync(server.ssl.intermediate)) {
+        await error(`Could not find ssl.intermediate: '${server.ssl.intermediate}'`);
+        process.exit();
+      }
+
+      if (server.ssl.cert !== '' && !existsSync(server.ssl.cert)) {
+        await error(`Could not find ssl.cert: '${server.ssl.cert}'`);
+        process.exit();
+      }
+
+      if (server.ssl.root !== '' && !existsSync(server.ssl.root)) {
+        await error(`Could not find ssl.root: '${server.ssl.root}'`);
+        process.exit();
+      }
+
+      if (server.ssl.key !== '' && !existsSync(server.ssl.key)) {
+        await error(`Could not find ssl.key: '${server.ssl.key}'`);
+        process.exit();
+      }
+
+      const caChain = [readFileSync(server.ssl.intermediate), readFileSync(server.ssl.root)];
+      const privkey = server.ssl.key ? readFileSync(server.ssl.key) : null;
+      const theCert = server.ssl.cert ? readFileSync(server.ssl.cert) : null;
+      const port = server.ssl.port ? server.ssl.port : 443;
+
+      info(`Attempting to start SSL server...`);
+
+      const httpsServer = createSecureServer(
+        {
+          key: privkey!,
+          cert: theCert!,
+          passphrase: server.ssl.passPhrase,
+          ca: caChain
+        },
+        app
+      );
+      httpsServer.listen({ port: port, host: server.host || 'localhost' });
+
+      info(`Listening on HTTPS port ${port}`);
     }
 
-    async initialize( db: mongodb.Db ): Promise<Server> {
-
-        const controllerPromises: Array<Promise<any>> = [];
-        const server = this.server;
-        const app = express();
-
-        // Create the controllers
-        const controllers: Controller[] = [ ...this._controllers, new ErrorController() ];
-
-        // Enable GZIPPING
-        app.use( compression() );
-
-        // User defined static folders
-        if ( server.staticAssets ) {
-            for ( let i = 0, l: number = server.staticAssets.length; i < l; i++ ) {
-                let localStaticFolder = `${this._path}/${server.staticAssets[ i ]}`;
-                if ( !fs.existsSync( localStaticFolder ) ) {
-                    await error( `Could not resolve local static file path '${localStaticFolder}' for server '${server.host}'` );
-                    process.exit();
-                }
-
-                info( `Adding static resource folder '${localStaticFolder}'` );
-                app.use( express.static( localStaticFolder, { maxAge: server.staticAssetsCache || 2592000000 } ) );
-            }
-        }
-
-        // Setup the jade template engine
-        app.set( 'view engine', 'jade' );
-
-        // log every request to the console
-        if ( loggingEnabled() )
-            app.use( morgan( 'dev' ) );
-
-        info( `Attempting to start HTTP server...` );
-
-        // Start app with node server.js
-        const httpServer = http.createServer( app );
-        httpServer.listen( { port: server.port, host: server.host || 'localhost' } );
-        info( `Listening on HTTP port ${server.port}` );
-
-        // If we use SSL then start listening for that as well
-        if ( server.ssl ) {
-            if ( server.ssl.intermediate !== '' && !fs.existsSync( server.ssl.intermediate ) ) {
-                await error( `Could not find ssl.intermediate: '${server.ssl.intermediate}'` );
-                process.exit();
-            }
-
-            if ( server.ssl.cert !== '' && !fs.existsSync( server.ssl.cert ) ) {
-                await error( `Could not find ssl.cert: '${server.ssl.cert}'` );
-                process.exit();
-            }
-
-            if ( server.ssl.root !== '' && !fs.existsSync( server.ssl.root ) ) {
-                await error( `Could not find ssl.root: '${server.ssl.root}'` );
-                process.exit();
-            }
-
-            if ( server.ssl.key !== '' && !fs.existsSync( server.ssl.key ) ) {
-                await error( `Could not find ssl.key: '${server.ssl.key}'` );
-                process.exit();
-            }
-
-            const caChain = [ fs.readFileSync( server.ssl.intermediate ), fs.readFileSync( server.ssl.root ) ];
-            const privkey = server.ssl.key ? fs.readFileSync( server.ssl.key ) : null;
-            const theCert = server.ssl.cert ? fs.readFileSync( server.ssl.cert ) : null;
-            const port = server.ssl.port ? server.ssl.port : 443;
-
-            info( `Attempting to start SSL server...` );
-
-            const httpsServer = https.createServer( { key: privkey, cert: theCert, passphrase: server.ssl.passPhrase, ca: caChain }, app );
-            httpsServer.listen( { port: port, host: server.host || 'localhost' } );
-
-            info( `Listening on HTTPS port ${port}` );
-        }
-
-        try {
-
-            // Initialize all the controllers
-            for ( const ctrl of controllers ) {
-                controllerPromises.push( ctrl.initialize( app, db ) )
-            }
-
-            // Return a promise once all the controllers are complete
-            await Promise.all( controllerPromises );
-
-            info( `All controllers are now setup successfully for ${this.server.host}!` );
-            return this;
-
-        } catch ( e ) {
-            throw new Error( `ERROR An error has occurred while setting up the controllers for ${this.server.host}: '${e.message}'` );
-        };
+    try {
+      await Promise.all(routers.map(ctrl => ctrl.initialize(app, db)));
+      info(`All routers are now setup successfully`);
+      return this;
+    } catch (e) {
+      throw new Error(`ERROR An error has occurred while setting up the routers: '${e.message}' \r\n'${e.stack}'`);
     }
+  }
 }

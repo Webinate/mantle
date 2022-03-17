@@ -1,0 +1,461 @@
+input AddCategoryInput {
+  title: String!
+  description: String = ""
+  slug: String!
+  parent: ObjectId
+}
+
+input AddCommentInput {
+  user: ObjectId
+  post: ObjectId!
+  parent: ObjectId
+  public: Boolean = true
+  content: String!
+  children: [ObjectId!]
+}
+
+input AddElementInput {
+  parent: ObjectId
+  type: ElementType!
+  html: String = ""
+  zone: String = "unassigned"
+  image: ObjectId
+  style: JSON = ""
+}
+
+input AddPostInput {
+  author: ObjectId
+  title: String = ""
+  slug: String!
+  brief: String = ""
+  public: Boolean = false
+  categories: [ObjectId!] = []
+  tags: [String!] = []
+  featuredImage: ObjectId
+}
+
+input AddUserInput {
+  username: String!
+  password: String!
+  email: String!
+  avatar: String
+  avatarFile: ObjectId
+  privileges: UserPrivilege
+  meta: JSON
+}
+
+input AddVolumeInput {
+  name: String!
+  user: ObjectId
+  type: VolumeType = local
+  memoryAllocated: Long
+  meta: JSON
+}
+
+"""Object representing a Authentication response"""
+type AuthResponse {
+  message: String!
+  authenticated: Boolean!
+  user: User
+}
+
+"""Object representing a Category"""
+type Category {
+  _id: ObjectId!
+  title: String!
+  description: String
+  slug: String!
+  parent: Category
+  children: [Category!]
+}
+
+"""Object representing a Comment"""
+type Comment {
+  _id: ObjectId!
+  author: String!
+  user: User
+  postId: ObjectId
+  parentId: ObjectId
+  post: Post!
+  parent: Comment
+  public: Boolean!
+  content: String!
+  children: [Comment!]!
+  createdOn: Long!
+  lastUpdated: Long!
+}
+
+enum CommentSortType {
+  updated
+  created
+}
+
+enum CommentVisibility {
+  all
+  public
+  private
+}
+
+"""Object representing a Document"""
+type Document {
+  _id: ObjectId!
+  author: User
+  template: Template!
+  createdOn: Long!
+  lastUpdated: Long!
+  elementsOrder: [String!]
+  elements: [Element!]
+  html: JSON
+}
+
+"""Object representing a Draft"""
+type Draft {
+  _id: ObjectId!
+  html: JSON!
+  createdOn: Long!
+  parent: Document!
+}
+
+"""Object representing a Element"""
+type Element {
+  _id: ObjectId!
+  parent: ObjectId!
+  type: ElementType!
+  html: String!
+  zone: String!
+  image: File
+  style: JSON
+}
+
+"""Describes the different types of allowed elements"""
+enum ElementType {
+  paragraph
+  list
+  image
+  code
+  header1
+  header2
+  header3
+  header4
+  header5
+  header6
+  html
+}
+
+"""Object representing a File"""
+type File {
+  _id: ObjectId!
+  name: String!
+  identifier: String!
+  publicURL: String!
+  mimeType: String!
+  created: Long!
+  size: Long!
+  numDownloads: Int!
+  isPublic: Boolean!
+  user: User!
+  volume: Volume!
+  parentFile: File
+  meta: JSON
+}
+
+"""The type of sorting performed when fetching files"""
+enum FileSortType {
+  created
+  memory
+  name
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input LoginInput {
+  username: String!
+  password: String!
+  remember: Boolean = true
+}
+
+"""64-bit integral numbers"""
+scalar Long
+
+type Mutation {
+  createCategory(token: AddCategoryInput!): Category!
+  updateCategory(token: UpdateCategoryInput!): Category!
+  removeCategory(id: String!): Boolean!
+  addUser(token: AddUserInput!): User!
+  removeUser(username: String!): Boolean!
+  updateUser(token: UpdateUserInput!): User!
+  removeComment(id: ObjectId!): Boolean!
+  addComment(token: AddCommentInput!): Comment!
+  patchComment(token: UpdateCommentInput!): Comment!
+  login(token: LoginInput!): AuthResponse!
+  register(token: RegisterInput!): AuthResponse!
+  approveActivation(username: String!): Boolean!
+  resendActivation(activationPath: String = "/activate", username: String!): Boolean!
+  requestPasswordReset(accountRedirectURL: String = "/", username: String!): Boolean!
+  passwordReset(password: String!, key: String!, username: String!): Boolean!
+  logout: Boolean!
+  addVolume(token: AddVolumeInput!): Volume!
+  updateVolume(token: UpdateVolumeInput!): Volume!
+  removeVolume(id: ObjectId!): Boolean!
+  removeFile(volumeId: ObjectId, id: ObjectId!): Boolean!
+  patchFile(token: UpdateFileInput!): File!
+  changeDocTemplate(template: ObjectId!, id: ObjectId!): Boolean!
+  addDocElement(index: Int, token: AddElementInput!, docId: ObjectId!): Element!
+  updateDocElement(index: Int, token: UpdateElementInput!, docId: ObjectId!): Element!
+  removeDocElement(elementId: ObjectId!, docId: ObjectId!): Boolean!
+  removePostDraft(draftId: ObjectId!, postId: ObjectId!): Boolean!
+  createPost(token: AddPostInput!): Post!
+  patchPost(token: UpdatePostInput!): Post!
+  removePost(id: ObjectId!): Boolean!
+}
+
+"""Mongo object id scalar type"""
+scalar ObjectId
+
+"""A page of wrapper of categories"""
+type PaginatedCategoryResponse {
+  data: [Category!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of comments"""
+type PaginatedCommentsResponse {
+  data: [Comment!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of files"""
+type PaginatedFilesResponse {
+  data: [File!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of posts"""
+type PaginatedPostsResponse {
+  data: [Post!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of templates"""
+type PaginatedTemplateResponse {
+  data: [Template!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of users"""
+type PaginatedUserResponse {
+  data: [User!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""A page of wrapper of volumes"""
+type PaginatedVolumeResponse {
+  data: [Volume!]!
+  count: Int!
+  limit: Int!
+  index: Int!
+}
+
+"""Object representing a Post"""
+type Post {
+  _id: ObjectId!
+  author: User
+  title: String!
+  slug: String!
+  brief: String!
+  public: Boolean!
+  categories: [Category!]!
+  tags: [String!]!
+  createdOn: Long!
+  lastUpdated: Long!
+  featuredImage: File
+  document: Document!
+  latestDraft: Draft
+}
+
+enum PostSortType {
+  title
+  created
+  modified
+}
+
+enum PostVisibility {
+  all
+  public
+  private
+}
+
+type Query {
+  category(slug: String, id: String): Category
+
+  """Gets an array of all categories"""
+  categories(root: Boolean = false, index: Int = 0, limit: Int = 10): PaginatedCategoryResponse!
+  user(user: String!): User
+  users(index: Int = 0, limit: Int = 10, search: String = ""): PaginatedUserResponse!
+  comment(id: ObjectId!): Comment
+
+  """Gets a paginated list of comments"""
+  comments(root: Boolean = false, index: Int = 0, limit: Int = 10, keyword: String, user: String, visibility: CommentVisibility = all, sortOrder: SortOrder = desc, sortType: CommentSortType = created, parentId: ObjectId, postId: ObjectId): PaginatedCommentsResponse!
+  authenticated: AuthResponse!
+  volume(id: ObjectId!): Volume
+  volumes(index: Int = 0, limit: Int = 10, search: String = "", user: String, sortOrder: SortOrder = asc, sortType: VolumeSortType = created): PaginatedVolumeResponse!
+  file(id: ObjectId!): File
+
+  """Gets a paginated list of files"""
+  files(index: Int = 0, limit: Int = 10, search: String, user: String, volumeId: ObjectId, sortOrder: SortOrder = asc, sortType: FileSortType = created): PaginatedFilesResponse!
+  document(id: ObjectId!): Document
+  template(id: ObjectId): Template
+
+  """Gets an array of all templates"""
+  templates: PaginatedTemplateResponse!
+  post(slug: String, id: ObjectId): Post
+
+  """Gets a paginated list of posts"""
+  posts(index: Int = 0, limit: Int = 10, author: String, keyword: String, visibility: PostVisibility = all, sortOrder: SortOrder = desc, sortType: PostSortType = created, categories: [ObjectId!], tags: [String!], requiredTags: [String!]): PaginatedPostsResponse!
+  getPostDrafts(id: ObjectId!): [Draft!]!
+}
+
+input RegisterInput {
+  username: String!
+  password: String!
+  email: String!
+  activationUrl: String
+}
+
+enum SortOrder {
+  asc
+  desc
+}
+
+"""Object representing a Template"""
+type Template {
+  _id: ObjectId!
+  name: String!
+  description: String!
+  defaultZone: String!
+  zones: [String!]!
+}
+
+input UpdateCategoryInput {
+  _id: ObjectId!
+  title: String!
+  description: String
+  slug: String!
+  parent: ObjectId
+}
+
+input UpdateCommentInput {
+  _id: ObjectId!
+  public: Boolean = true
+  content: String!
+}
+
+input UpdateElementInput {
+  _id: ObjectId!
+  parent: ObjectId
+  html: String
+  zone: String
+  image: ObjectId
+  style: JSON
+}
+
+input UpdateFileInput {
+  _id: ObjectId!
+  name: String!
+  isPublic: Boolean
+}
+
+input UpdatePostInput {
+  _id: ObjectId!
+  author: ObjectId
+  title: String
+  slug: String
+  brief: String
+  public: Boolean
+  categories: [ObjectId!]
+  tags: [String!]
+  featuredImage: ObjectId
+  createdOn: Long
+}
+
+input UpdateUserInput {
+  _id: ObjectId!
+  username: String
+  email: String
+  privileges: UserPrivilege
+  meta: JSON
+  avatar: String
+  avatarFile: ObjectId
+}
+
+input UpdateVolumeInput {
+  _id: ObjectId!
+  memoryUsed: Long
+  name: String
+  user: ObjectId
+  memoryAllocated: Long
+  meta: JSON
+}
+
+"""Object representing a User"""
+type User {
+  _id: ObjectId!
+  username: String!
+  email: String
+  registerKey: String!
+  avatar: String!
+  avatarFile: File
+  createdOn: Long!
+  lastLoggedIn: Long!
+  isActivated: Boolean!
+  privileges: UserPrivilege!
+  meta: JSON!
+}
+
+"""The core type of user privilege"""
+enum UserPrivilege {
+  super
+  admin
+  regular
+}
+
+"""Object representing a Volume"""
+type Volume {
+  _id: ObjectId!
+  name: String!
+  identifier: String!
+  type: VolumeType!
+  created: Long!
+  memoryUsed: Long!
+  memoryAllocated: Long!
+  user: User!
+  meta: JSON
+}
+
+"""The type of sorting performed when fetching volumes"""
+enum VolumeSortType {
+  created
+  memory
+  name
+}
+
+"""The core type of volume type"""
+enum VolumeType {
+  google
+  local
+}

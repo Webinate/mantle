@@ -1,16 +1,15 @@
 {
-    "version": "0.1.0",
-    "command": "gulp",
-    "isShellCommand": true,
-    "args": [
-        "--dir=../modepress/dist/plugins/app-engine"
-    ],
-    "tasks": [
-        {
-            "taskName": "build",
-            "isBuildCommand": true,
-            "showOutput": "always",
-            "problemMatcher": "$tsc"
-        }
-    ]
+  "version": "2.0.0",
+  "type": "shell",
+  "tasks": [
+    {
+      "label": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$tsc",
+      "command": "npm run build --dir=../mantle/dist/plugins/app-engine"
+    }
+  ]
 }

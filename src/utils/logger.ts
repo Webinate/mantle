@@ -3,54 +3,25 @@ import * as yargs from 'yargs';
 
 let showLogs: boolean = false;
 
-function assignMeta( meta?: any ) {
-    if ( meta )
-        return Object.assign( meta, { process: process.pid } );
-    else
-        return { process: process.pid };
-}
-
-/**
- * Fixes an issue where the console logger was not showing up in visual studio code
- */
-function fixVSCodeOutput() {
-    const winston = require( 'winston' );
-    const winstonCommon = require( 'winston/lib/winston/common' );
-
-    // Override to use real console.log etc for VSCode debugger
-    winston.transports.Console.prototype.log = function( level, message, meta, callback ) {
-        const output = winstonCommon.log( Object.assign( {}, this, {
-            level,
-            message,
-            meta,
-        } ) );
-
-        console[ level in console ? level : 'log' ]( output );
-
-        setImmediate( callback, null, true );
-    };
-}
-
 /**
  * Initializes the logger
  */
 export function initializeLogger() {
-    const args = yargs.argv;
+  const args = yargs.argv;
 
-    // Add the console colours
-    winston.addColors( { debug: 'green', info: 'cyan', silly: 'magenta', warn: 'yellow', error: 'red' } );
+  // Add the console colours
+  winston.addColors({ debug: 'green', info: 'cyan', silly: 'magenta', warn: 'yellow', error: 'red' });
 
-    if ( args.logging === undefined || args.logging === 'true' )
-        showLogs = true;
+  if (args.logging === undefined || args.logging === 'true') showLogs = true;
 
-    winston.remove( winston.transports.Console );
-    winston.add( winston.transports.Console, <any>{ level: 'debug', colorize: true } );
+  winston.remove(winston.transports.Console);
+  winston.add(new winston.transports.Console());
 
-    // Saves logs to file
-    if ( args.logFile && args.logFile.trim() !== '' )
-        winston.add( winston.transports.File, <winston.TransportOptions>{ filename: args.logFile, maxsize: 50000000, maxFiles: 1, tailable: true } );
-
-    fixVSCodeOutput();
+  // Saves logs to file
+  if (args.logFile && args.logFile.trim() !== '')
+    winston.add(
+      new winston.transports.File({ filename: args.logFile, maxsize: 50000000, maxFiles: 1, tailable: true })
+    );
 }
 
 /**
@@ -58,25 +29,22 @@ export function initializeLogger() {
  * @param message The message to log
  * @param meta Optional meta information to store with the message
  */
-export function warn( message: string, meta?: any ) {
-    return new Promise( function( resolve, reject ) {
-        if ( !showLogs )
-            return resolve();
+export function warn(message: string, meta?: any) {
+  return new Promise(function(resolve, reject) {
+    if (!showLogs) return resolve(true);
 
-        winston.warn( message, assignMeta( meta ), function( err ) {
-            if ( err )
-                reject( err )
-            else
-                resolve();
-        } )
-    } );
+    winston.warn(message, meta, function(err) {
+      if (err) reject(err);
+      else resolve(true);
+    });
+  });
 }
 
 /**
  * Returns if logging is enabled
  */
 export function enabled() {
-    return showLogs;
+  return showLogs;
 }
 
 /**
@@ -84,18 +52,22 @@ export function enabled() {
  * @param message The message to log
  * @param meta Optional meta information to store with the message
  */
-export function info( message: string, meta?: any ) {
-    return new Promise( function( resolve, reject ) {
-        if ( !showLogs )
-            return resolve();
+export function info(message: string, meta?: any) {
+  return new Promise(function(resolve, reject) {
+    if (!showLogs) return resolve(true);
 
-        winston.info( message, assignMeta( meta ), function( err ) {
-            if ( err )
-                reject( err )
-            else
-                resolve();
-        } )
-    } );
+    winston.info(message, meta, function(err) {
+      if (err) reject(err);
+      else resolve(true);
+    });
+  });
+}
+
+function waitForLogger(logger: winston.Logger) {
+  return new Promise(resolve => {
+    logger.on('close', resolve);
+    logger.close();
+  });
 }
 
 /**
@@ -103,23 +75,19 @@ export function info( message: string, meta?: any ) {
  * @param message The message to log
  * @param meta Optional meta information to store with the message
  */
-export function error( message: string, meta?: any ) {
-    return new Promise( function( resolve, reject ) {
-        if ( !showLogs )
-            return resolve();
+export function error(message: string, meta?: any) {
+  return new Promise(function(resolve, reject) {
+    if (!showLogs) return resolve(true);
 
-        winston.error( message, assignMeta( meta ), function( err ) {
-            if ( err )
-                reject( err )
-            else
-                resolve();
-        } )
-    } );
+    waitForLogger(winston.error(message, meta))
+      .then(() => resolve(true))
+      .catch(err => reject(err));
+  });
 }
 
 /**
  * Clears the console
  */
 export function clear() {
-    winston.clear();
+  winston.clear();
 }

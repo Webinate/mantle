@@ -1,7 +1,0 @@
-{
-    "name": "modepress-api",
-    "version": "0.0.9",
-    "main": "../../dist/modepress-api.js",
-    "types": "./modepress.d.ts",
-    "dependencies": {}
-}

@@ -1,62 +1,151 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Launch",
-            "type": "node",
-            "protocol": "auto",
-            "request": "launch",
-            "program": "${workspaceRoot}/dist/main.js",
-            "stopOnEntry": false,
-            "args": [
-                "--config=${workspaceRoot}/config.json",
-                "--numThreads=1",
-                "--logging=true",
-                "--inspect=true"
-            ],
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": null,
-            "runtimeExecutable": null,
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "env": {
-                "NODE_ENV": "development"
-            },
-            "console": "internalConsole",
-            "sourceMaps": false,
-            "outFiles": []
-        },
-        {
-            "name": "Debug Tests",
-            "type": "node",
-            "protocol": "auto",
-            "request": "launch",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "stopOnEntry": false,
-            "args": [
-                "-t",
-                "100000",
-                "test/index.js",
-                "--config=./config.json",
-                "--server=0",
-                "--logging=false",
-                "--keyFile=./bucket-credentials.json",
-                "--runningTests=true",
-                "--clientsFolder=./test/"
-            ],
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": null,
-            "runtimeExecutable": null,
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "env": {
-                "NODE_ENV": "development"
-            },
-            "console": "internalConsole",
-            "sourceMaps": false,
-            "outFiles": []
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Mantle Debug",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "stopOnEntry": false,
+      "args": [
+        "${workspaceRoot}/src/main.ts",
+        "--config=${workspaceRoot}/config.json",
+        "--numThreads=1",
+        "--logging=true",
+        "--inspect=true"
+      ],
+      "outputCapture": "std",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "runtimeExecutable": null,
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": []
+    },
+    {
+      "name": "Generate Schema",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "stopOnEntry": false,
+      "args": [
+        "${workspaceRoot}/src/main.ts",
+        "--config=${workspaceRoot}/config.json",
+        "--numThreads=1",
+        "--logging=true",
+        "--inspect=true",
+        "--writeSchema=true"
+      ],
+      "outputCapture": "std",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "runtimeExecutable": null,
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": []
+    },
+    {
+      "name": "Watch",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "stopOnEntry": false,
+      "program": "${workspaceRoot}/node_modules/nodemon/bin/nodemon.js",
+      "args": [
+        "${workspaceRoot}/src/main.ts",
+        "--config=${workspaceRoot}/config.json",
+        "--numThreads=1",
+        "--logging=true",
+        "--inspect=true"
+      ],
+      "outputCapture": "std",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": []
+    },
+    {
+      "name": "All Tests",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "outputCapture": "std",
+      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+      "stopOnEntry": false,
+      "args": [
+        "--file",
+        "./test/index.ts",
+        "--recursive",
+        "./test/tests/**/*.ts",
+        "--require",
+        "ts-node/register",
+        "--exit",
+        "--config=./config.json",
+        "--server=0",
+        "--logging=false",
+        "--keyFile=./volume-credentials.json",
+        "--runningTests=true",
+        "--debug=true",
+        "--remotes.maxFileSize=524288",
+        "--remotes.local.url=http://localhost:8000/",
+        "--remotes.local.path=test/media-uploads"
+      ],
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "runtimeExecutable": null,
+      "runtimeArgs": ["--nolazy"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": []
+    },
+    {
+      "name": "Single Test",
+      "type": "node",
+      "protocol": "auto",
+      "request": "launch",
+      "outputCapture": "console",
+      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+      "stopOnEntry": false,
+      "args": [
+        "--file",
+        "./test/index.ts",
+        "--recursive",
+        "./${relativeFile}",
+        "--require",
+        "ts-node/register",
+        "--exit",
+        "--config=./config.json",
+        "--server=0",
+        "--logging=false",
+        "--keyFile=./volume-credentials.json",
+        "--runningTests=true",
+        "--debug=true"
+      ],
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "runtimeExecutable": null,
+      "runtimeArgs": ["--nolazy"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": []
+    }
+  ]
 }

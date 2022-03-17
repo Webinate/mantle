@@ -1,0 +1,36 @@
+{
+  "database": "./keys/database.json",
+  "remotes": {
+    "google": "./keys/google-remote.json",
+    "local": "./keys/local.json",
+    "maxFileSize": 524288
+  },
+  "server": {
+    "rootPath": "/api",
+    "port": 8000,
+    "host": "localhost",
+    "staticAssets": "uploads",
+    "staticPrefix": "/media",
+    "enableGraphIQl": true
+  },
+  "debug": false,
+  "adminUser": "./keys/admin-user.json",
+  "sessionSettings": {
+    "sessionPath": "/",
+    "sessionDomain": ".webinate.dev",
+    "sessionPersistent": true,
+    "sessionLifetime": 1800,
+    "sessionLifetimeExtended": 172800,
+    "secure": false
+  },
+  "websocket": {
+    "host": "localhost",
+    "port": 8020,
+    "socketApiKey": "somepassword",
+    "approvedSocketDomains": ["^localhost$"]
+  },
+  "mail": {
+    "type": "mailgun",
+    "options": "./keys/mailgun.json"
+  }
+}

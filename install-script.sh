@@ -6,27 +6,27 @@ set -e
 
 # Functiom that prints the latest stable version
 version() {
-  echo "0.7.0"
+  echo "0.5.0"
 }
 
 echo "Downloading latest version from github $(version)"
 
 #download latest
-wget https://github.com/Webinate/modepress/archive/v$(version).zip
-unzip -o "v$(version).zip" "modepress-$(version)/*"
+wget https://github.com/Webinate/mantle/archive/v$(version).zip
+unzip -o "v$(version).zip" "mantle-$(version)/*"
 
 # Moves the server folder to the current directory
-cp -r modepress-$(version)/* .
+cp -r mantle-$(version)/* .
 
-# Remove modepress folder
-if [ -d "modepress-$(version)" ]; then
-	rm modepress-$(version) -R
+# Remove mantle folder
+if [ -d "mantle-$(version)" ]; then
+	rm mantle-$(version) -R
 fi
 
 # Remove the zip file
 rm "v$(version).zip"
 
 # All done
-echo "Modepress v$(version) successfully downloaded"
+echo "Mantle v$(version) successfully downloaded"
 exit
 } # this ensures the entire script is downloaded #
