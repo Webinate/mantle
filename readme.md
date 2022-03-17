@@ -1,14 +1,11 @@
 # Mantle
 
-A simple Mongo-Node CMS. Mantle provides a series of endpoints and api calls
-that make developing node based single page apps a breeze. The system handles
-a set of core functions for any web based app and then using a plugin architecture
-users can create additional end points and functions to enhance the sytem.
+Mantle provides a series of endpoints and api calls for developing a project based CMS
 
 ## Requirements
 
 - MongoDB v3
-- Node 8.2.1
+- Node 17.0.0
 
 ## Installation
 
@@ -20,23 +17,12 @@ mkdir mantle
 cd mantle
 ```
 
-3. Run as an admin / or make sure you have write privileges in the mantle folder
+3. Make sure you have write priviledges in the folder
 
-```
-sudo su
-```
-
-4. Download and install the desired version from github
-   If you want the latest stable version:
+4. Download and install the desired version from github. If you want the latest stable version:
 
 ```
 curl -o- https://raw.githubusercontent.com/Webinate/mantle/master/install-script.sh | bash
-```
-
-OR if you want the dev build
-
-```
-curl -o- https://raw.githubusercontent.com/Webinate/mantle/dev/install-script-dev.sh | bash
 ```
 
 This downloads the latest mantle project into the current folder.
@@ -45,25 +31,14 @@ This downloads the latest mantle project into the current folder.
 
 ```
 npm install
-gulp build
+npm build
 ```
 
-After you call the build task, a dist folder is created. This represents your distribution folder.
-
-6. In the root folder comes an example config json file. These config files are used to start and configure your mantle instance.
-   Its best to leave the example file as is and make a copy for yourself to edit.
-
-```
-cp example-config.json config.json
-```
-
-Now edit the config.json to suite your needs.
+6. In the root folder comes an example config json file (./config.json). This config file is used to start your mantle instance. Edit the config.json to suite your needs.
 
 7. To run the mantle server
 
 ```
-npm run dev-server
---- or ---
 npm run start-server
 ```
 
@@ -74,7 +49,4 @@ node main.js --config="config.json" --numThreads="max"
 node main.js --config="config.json" --numThreads="4"
 ```
 
-Without configuring mantle, you're not likely to see much. The best way to get started would be
-to download some example projects into your clients directory. This directory attempts to discover
-all client projects for mantle. Its done by checking all immediate sub folders for a mantle.json.
-The json file describes to mantle how it should load the client and what to do with its contents.
+To see if the service is running, you can check the status by hitting the url HOST/api/status
