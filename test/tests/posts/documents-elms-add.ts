@@ -40,7 +40,7 @@ describe('Testing the adding of document elements: ', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$docId" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
+      'Variable "$docId" got invalid value "BAD"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
     );
 
     assert.deepEqual(

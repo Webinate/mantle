@@ -67,7 +67,7 @@ describe('Testing deletion of a featured image nullifies it on the post: ', func
 
     assert.deepEqual(
       errors![0].message,
-      `Variable "$token" got invalid value "BAD" at "token.featuredImage"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters`
+      `Variable "$token" got invalid value "BAD" at "token.featuredImage"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer`
     );
   });
 

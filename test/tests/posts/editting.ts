@@ -51,7 +51,7 @@ describe('Testing editing of posts', function() {
 
     assert.deepEqual(
       errors![0].message,
-      'Variable "$token" got invalid value "woohoo" at "token._id"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
+      'Variable "$token" got invalid value "woohoo" at "token._id"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
     );
   });
 

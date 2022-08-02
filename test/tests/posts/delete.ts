@@ -36,7 +36,7 @@ describe('Testing deletion of posts', function() {
     const { errors } = await header.admin.graphql<boolean>(REMOVE_POST, { id: 'WRONGWRONGWRONG' });
     assert.strictEqual(
       errors![0].message,
-      'Variable "$id" got invalid value "WRONGWRONGWRONG"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
+      'Variable "$id" got invalid value "WRONGWRONGWRONG"; Expected type "ObjectId". Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
     );
   });
 
