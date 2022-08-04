@@ -1,7 +1,9 @@
-﻿import cluster from 'cluster';
+﻿import * as _cluster from 'cluster';
 import * as os from 'os';
 import * as yargs from 'yargs';
 import 'reflect-metadata';
+
+const cluster = (_cluster as unknown) as _cluster.Cluster; // typings fi
 const args = yargs.argv;
 let numCPUs = os.cpus().length;
 
@@ -25,7 +27,9 @@ if (numCPUs === 1) {
   require('./core/initialization/startup');
 } else if (cluster.isPrimary) {
   // Fork workers.
-  for (let i = 0; i < numCPUs; i++) cluster.fork();
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
   // List each of the process ID's
   for (const worker of Object.values(cluster.workers!)) {

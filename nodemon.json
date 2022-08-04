@@ -1,6 +1,6 @@
 {
   "ignore": ["node_modules"],
   "watch": ["src"],
-  "exec": "npm run dev-server",
+  "exec": "./node_modules/.bin/ts-node ./src/main.ts --config=./config.json --numThreads=1 --logging=true --inspect=true",
   "ext": "ts"
 }
